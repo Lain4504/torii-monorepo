@@ -1,0 +1,215 @@
+name: Monorepo CD
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    branches: [main]
+    types:
+      - completed
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-cd
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_OWNER: ${{ github.repository_owner }}
+  APP_ROOT: /srv/torii-nihongo
+  PNPM_CACHE_FOLDER: ~/.pnpm-store
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    outputs:
+      changed: ${{ steps.changes.outputs.changed }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Detect changed paths vs main
+        id: changes
+        run: |
+          git fetch origin main --depth=1
+          git fetch origin ${{ github.event.workflow_run.head_sha }} --depth=1 || true
+          CHANGED=$(git diff --name-only origin/main...${{ github.event.workflow_run.head_sha }})
+          echo "$CHANGED" > /tmp/changed.txt
+          echo "changed<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGED" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+  publish-images:
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Lowercase image owner
+        run: echo "IMAGE_OWNER_LOWER=$(echo ${{ env.IMAGE_OWNER }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.4.1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: pnpm
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.PNPM_CACHE_FOLDER }}
+          key: pnpm-store-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-store-${{ runner.os }}-
+
+      - name: pnpm install
+        run: pnpm install --frozen-lockfile
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build & push gateway
+        if: contains(needs.detect-changes.outputs.changed, 'apps/server/apps/gateway') || contains(needs.detect-changes.outputs.changed, 'apps/server')
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: apps/server/apps/gateway/Dockerfile
+          push: true
+          provenance: false
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER_LOWER }}/gateway:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER_LOWER }}/gateway:${{ github.event.workflow_run.head_sha }}
+
+      - name: Build & push auth-service
+        if: contains(needs.detect-changes.outputs.changed, 'apps/server/apps/auth-service') || contains(needs.detect-changes.outputs.changed, 'apps/server')
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: apps/server/apps/auth-service/Dockerfile
+          push: true
+          provenance: false
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER_LOWER }}/auth-service:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER_LOWER }}/auth-service:${{ github.event.workflow_run.head_sha }}
+
+      - name: Build & push web-admin
+        if: contains(needs.detect-changes.outputs.changed, 'apps/web-admin') || contains(needs.detect-changes.outputs.changed, 'packages/ui')
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: apps/web-admin/Dockerfile
+          push: true
+          provenance: false
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER_LOWER }}/web-admin:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER_LOWER }}/web-admin:${{ github.event.workflow_run.head_sha }}
+
+      - name: Build & push web-learner
+        if: contains(needs.detect-changes.outputs.changed, 'apps/web-learner') || contains(needs.detect-changes.outputs.changed, 'packages/ui')
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: apps/web-learner/Dockerfile
+          push: true
+          provenance: false
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER_LOWER }}/web-learner:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER_LOWER }}/web-learner:${{ github.event.workflow_run.head_sha }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [publish-images]
+    if: ${{ github.event.workflow_run.conclusion == 'success' && needs.publish-images.result == 'success' && github.ref == 'refs/heads/main' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Lowercase image owner
+        run: echo "IMAGE_OWNER_LOWER=$(echo ${{ env.IMAGE_OWNER }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: Prepare SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+
+      - name: SSH deploy
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          REGISTRY: ${{ env.REGISTRY }}
+          OWNER_LOWER: ${{ env.IMAGE_OWNER_LOWER }}
+          APP_ROOT: ${{ env.APP_ROOT }}
+          GH_ACTOR: ${{ github.actor }}
+          DOCKER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ssh $DEPLOY_USER@$DEPLOY_HOST <<EOF
+          set -e
+          mkdir -p $APP_ROOT
+          cd $APP_ROOT
+          # Write compose file if not present (user can manage their own)
+          cat > docker-compose.yml <<'COMPOSE'
+          version: '3.9'
+          services:
+            auth-service:
+              image: $REGISTRY/$OWNER_LOWER/auth-service:latest
+              environment:
+                - AUTH_HOST=0.0.0.0
+                - AUTH_PORT=3001
+              ports:
+                - '3001:3001'
+              restart: unless-stopped
+            gateway:
+              image: $REGISTRY/$OWNER_LOWER/gateway:latest
+              environment:
+                - AUTH_HOST=auth-service
+                - AUTH_PORT=3001
+                - PORT=3000
+              depends_on:
+                - auth-service
+              ports:
+                - '3000:3000'
+              restart: unless-stopped
+            web-admin:
+              image: $REGISTRY/$OWNER_LOWER/web-admin:latest
+              ports:
+                - '4173:4173'
+              restart: unless-stopped
+            web-learner:
+              image: $REGISTRY/$OWNER_LOWER/web-learner:latest
+              environment:
+                - PORT=3002
+              ports:
+                - '3002:3002'
+              restart: unless-stopped
+          COMPOSE
+
+          docker login $REGISTRY -u $GH_ACTOR -p $DOCKER_TOKEN
+          docker compose pull
+          docker compose up -d
+          EOF
+

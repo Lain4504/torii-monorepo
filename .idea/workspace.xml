@@ -4,9 +4,150 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: setup project structure">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: setup ci/cd">
+      <change beforePath="$PROJECT_DIR$/.github/workflows/cd.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/cd.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/apps/mobile_app/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/.metadata" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/analysis_options.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/app/build.gradle.kts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/app/src/debug/AndroidManifest.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/app/src/main/AndroidManifest.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/app/src/main/kotlin/com/example/mobile_app/MainActivity.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/app/src/main/res/drawable-v21/launch_background.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/app/src/main/res/drawable/launch_background.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/app/src/main/res/mipmap-hdpi/ic_launcher.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/app/src/main/res/mipmap-mdpi/ic_launcher.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/app/src/main/res/values-night/styles.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/app/src/main/res/values/styles.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/app/src/profile/AndroidManifest.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/build.gradle.kts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/gradle.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/settings.gradle.kts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/graphql_codegen.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Flutter/AppFrameworkInfo.plist" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Flutter/Debug.xcconfig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Flutter/Release.xcconfig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner.xcodeproj/project.pbxproj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner.xcodeproj/project.xcworkspace/contents.xcworkspacedata" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner.xcworkspace/contents.xcworkspacedata" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/AppDelegate.swift" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@1x.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@2x.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@3x.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@1x.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@2x.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@3x.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@1x.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@2x.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@3x.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@2x.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@3x.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@1x.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@2x.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-83.5x83.5@2x.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/LaunchImage.imageset/Contents.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@2x.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@3x.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/LaunchImage.imageset/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Base.lproj/LaunchScreen.storyboard" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Base.lproj/Main.storyboard" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Info.plist" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Runner-Bridging-Header.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/RunnerTests/RunnerTests.swift" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/lib/app.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/lib/core/base/view_model.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/lib/data/course_service.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/lib/graphql/client.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/lib/graphql/operations.graphql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/lib/graphql/operations.graphql.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/lib/graphql/schema.graphql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/lib/graphql/schema.graphql.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/lib/main.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/lib/viewmodels/course_view_model.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/lib/views/course/course_view.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/lib/views/course/widgets/course_form.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/linux/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/linux/CMakeLists.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/linux/flutter/CMakeLists.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/linux/flutter/generated_plugin_registrant.cc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/linux/flutter/generated_plugin_registrant.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/linux/flutter/generated_plugins.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/linux/runner/CMakeLists.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/linux/runner/main.cc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/linux/runner/my_application.cc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/linux/runner/my_application.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Flutter/Flutter-Debug.xcconfig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Flutter/Flutter-Release.xcconfig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Flutter/GeneratedPluginRegistrant.swift" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner.xcodeproj/project.pbxproj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner.xcworkspace/contents.xcworkspacedata" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/AppDelegate.swift" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_1024.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_128.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_16.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_256.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_32.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_512.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_64.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/Base.lproj/MainMenu.xib" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/Configs/AppInfo.xcconfig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/Configs/Debug.xcconfig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/Configs/Release.xcconfig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/Configs/Warnings.xcconfig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/DebugProfile.entitlements" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/Info.plist" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/MainFlutterWindow.swift" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/Release.entitlements" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/RunnerTests/RunnerTests.swift" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/pubspec.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/pubspec.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/test/widget_test.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/web/favicon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/web/icons/Icon-192.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/web/icons/Icon-512.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/web/icons/Icon-maskable-192.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/web/icons/Icon-maskable-512.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/web/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/web/manifest.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/CMakeLists.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/flutter/CMakeLists.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/flutter/generated_plugin_registrant.cc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/flutter/generated_plugin_registrant.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/flutter/generated_plugins.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/runner/CMakeLists.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/runner/Runner.rc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/runner/flutter_window.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/runner/flutter_window.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/runner/main.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/runner/resource.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/runner/resources/app_icon.ico" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/runner/runner.exe.manifest" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/runner/utils.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/runner/utils.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/runner/win32_window.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/runner/win32_window.h" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -16,12 +157,22 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Lain4504/torii-nihongo.git",
-    "accountId": "849886b4-fefd-425b-8df5-973c7910d660"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Lain4504&quot;
   }
-}]]></component>
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Lain4504/torii-nihongo.git&quot;,
+    &quot;accountId&quot;: &quot;b00df774-879c-47f6-b5d3-0a65d83c1c54&quot;
+  }
+}</component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 4
@@ -33,27 +184,113 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;JavaScript Debug.localhost:5173.executor&quot;: &quot;Debug&quot;,
+    &quot;Jest.AuthServiceController.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.GatewayController.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.GatewayController.pingAuth.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.server &gt; auth-service.controller.spec.ts.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.server &gt; gateway.controller.spec.ts.executor&quot;: &quot;Run&quot;,
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.standard&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.standard&quot;: &quot;&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs.jest.jest_package&quot;: &quot;E:/Ky9/torii-nihongo/apps/server/node_modules/jest&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;E:\\Ky9\\torii-nihongo\\node_modules\\typescript\\lib&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;E:\\Ky9\\node_modules\\typescript\\lib&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\Ky9\torii-nihongo" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Jest.server &gt; auth-service.controller.spec.ts">
+    <configuration name="AuthServiceController" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <jest-package value="$PROJECT_DIR$/apps/server/node_modules/jest" />
+      <working-dir value="$PROJECT_DIR$/apps/server" />
+      <envs />
+      <scope-kind value="SUITE" />
+      <test-file value="$PROJECT_DIR$/apps/server/apps/auth-service/src/auth-service.controller.spec.ts" />
+      <test-names>
+        <test-name value="AuthServiceController" />
+      </test-names>
+      <method v="2" />
+    </configuration>
+    <configuration name="GatewayController" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <jest-package value="$PROJECT_DIR$/apps/server/node_modules/jest" />
+      <working-dir value="$PROJECT_DIR$/apps/server" />
+      <envs />
+      <scope-kind value="SUITE" />
+      <test-file value="$PROJECT_DIR$/apps/server/apps/gateway/src/gateway.controller.spec.ts" />
+      <test-names>
+        <test-name value="GatewayController" />
+      </test-names>
+      <method v="2" />
+    </configuration>
+    <configuration name="GatewayController.pingAuth" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <jest-package value="$PROJECT_DIR$/apps/server/node_modules/jest" />
+      <working-dir value="$PROJECT_DIR$/apps/server" />
+      <envs />
+      <scope-kind value="SUITE" />
+      <test-file value="$PROJECT_DIR$/apps/server/apps/gateway/src/gateway.controller.spec.ts" />
+      <test-names>
+        <test-name value="GatewayController" />
+        <test-name value="pingAuth" />
+      </test-names>
+      <method v="2" />
+    </configuration>
+    <configuration name="server &gt; auth-service.controller.spec.ts" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <jest-package value="$PROJECT_DIR$/apps/server/node_modules/jest" />
+      <working-dir value="$PROJECT_DIR$/apps/server" />
+      <envs />
+      <scope-kind value="TEST_FILE" />
+      <test-file value="$PROJECT_DIR$/apps/server/apps/auth-service/src/auth-service.controller.spec.ts" />
+      <method v="2" />
+    </configuration>
+    <configuration name="server &gt; gateway.controller.spec.ts" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <jest-package value="$PROJECT_DIR$/apps/server/node_modules/jest" />
+      <working-dir value="$PROJECT_DIR$/apps/server" />
+      <envs />
+      <scope-kind value="TEST_FILE" />
+      <test-file value="$PROJECT_DIR$/apps/server/apps/gateway/src/gateway.controller.spec.ts" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Jest.server &gt; gateway.controller.spec.ts" />
+        <item itemvalue="Jest.server &gt; auth-service.controller.spec.ts" />
+        <item itemvalue="Jest.GatewayController.pingAuth" />
+        <item itemvalue="Jest.GatewayController" />
+        <item itemvalue="Jest.AuthServiceController" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-6a121458b545-JavaScript-WS-251.25410.117" />
+        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.25410.109" />
+        <option value="bundled-js-predefined-d6986cc7102b-6a121458b545-JavaScript-IU-251.25410.109" />
       </set>
     </attachedChunks>
+  </component>
+  <component name="SwiftWorkspaceSettings">
+    <option name="detectedToolchain" value="true" />
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -63,6 +300,12 @@
       <option name="presentableId" value="Default" />
       <updated>1765358737358</updated>
       <workItem from="1765358739792" duration="405000" />
+      <workItem from="1765364274073" duration="46000" />
+      <workItem from="1765419916192" duration="114000" />
+      <workItem from="1765442075664" duration="7001000" />
+      <workItem from="1765449186873" duration="25000" />
+      <workItem from="1765456305656" duration="449000" />
+      <workItem from="1765456975211" duration="422000" />
     </task>
     <task id="LOCAL-00001" summary="feat: setup project structure">
       <option name="closed" value="true" />
@@ -112,7 +355,183 @@
       <option name="project" value="LOCAL" />
       <updated>1765363353128</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="feat: setup project structure">
+      <option name="closed" value="true" />
+      <created>1765363921469</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1765363921469</updated>
+    </task>
+    <task id="LOCAL-00008" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765364800996</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1765364800996</updated>
+    </task>
+    <task id="LOCAL-00009" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765365145336</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1765365145336</updated>
+    </task>
+    <task id="LOCAL-00010" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765365810154</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1765365810154</updated>
+    </task>
+    <task id="LOCAL-00011" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765367308739</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1765367308739</updated>
+    </task>
+    <task id="LOCAL-00012" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765367324164</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1765367324164</updated>
+    </task>
+    <task id="LOCAL-00013" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765367602155</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1765367602155</updated>
+    </task>
+    <task id="LOCAL-00014" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765368425076</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1765368425076</updated>
+    </task>
+    <task id="LOCAL-00015" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765369575063</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1765369575063</updated>
+    </task>
+    <task id="LOCAL-00016" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765369837090</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1765369837090</updated>
+    </task>
+    <task id="LOCAL-00017" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765370074239</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1765370074239</updated>
+    </task>
+    <task id="LOCAL-00018" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765370534362</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1765370534362</updated>
+    </task>
+    <task id="LOCAL-00019" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765370804735</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1765370804735</updated>
+    </task>
+    <task id="LOCAL-00020" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765372374034</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1765372374034</updated>
+    </task>
+    <task id="LOCAL-00021" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765372622647</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1765372622647</updated>
+    </task>
+    <task id="LOCAL-00022" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765373745048</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1765373745048</updated>
+    </task>
+    <task id="LOCAL-00023" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765374065706</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1765374065706</updated>
+    </task>
+    <task id="LOCAL-00024" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765374220536</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1765374220536</updated>
+    </task>
+    <task id="LOCAL-00025" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765374520555</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1765374520555</updated>
+    </task>
+    <task id="LOCAL-00026" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765445372644</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1765445372644</updated>
+    </task>
+    <task id="LOCAL-00027" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765447995306</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1765447995306</updated>
+    </task>
+    <task id="LOCAL-00028" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765454868153</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1765454868153</updated>
+    </task>
+    <option name="localTasksCounter" value="29" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -132,7 +551,16 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Initial commit" />
     <MESSAGE value="feat: setup project structure" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: setup project structure" />
+    <MESSAGE value="feat: setup ci/cd" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: setup ci/cd" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+  <component name="com.apollographql.ijplugin.settings.ProjectSettingsState">
+    <option name="lspPassPathToSuperGraphYaml" value="false" />
+    <option name="telemetryInstanceId" value="0133e3db-a851-4493-9574-30247b10340f" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

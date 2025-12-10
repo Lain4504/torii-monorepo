@@ -1,0 +1,54 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type AuthHealth {
+  service: String!
+  status: String!
+}
+
+type Course {
+  createdAt: DateTime!
+  description: String
+  id: Int!
+  price: Float!
+  published: Boolean!
+  title: String!
+  updatedAt: DateTime!
+}
+
+input CreateCourseInput {
+  description: String
+  price: Float!
+  published: Boolean
+  title: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Mutation {
+  createCourse(input: CreateCourseInput!): Course!
+  deleteCourse(id: Int!): Boolean!
+  updateCourse(id: Int!, input: UpdateCourseInput!): Course!
+}
+
+type Query {
+  authHealth: AuthHealth!
+  course(id: Int!): Course
+  courses: [Course!]!
+  validateToken(token: String!): ValidateTokenResult!
+}
+
+input UpdateCourseInput {
+  description: String
+  price: Float
+  published: Boolean
+  title: String
+}
+
+type ValidateTokenResult {
+  isValid: Boolean!
+}

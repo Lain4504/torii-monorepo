@@ -6,38 +6,103 @@ on:
   pull_request:
     branches: [main]
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
-env:
-  PNPM_CACHE_FOLDER: ~/.pnpm-store
-
 jobs:
-  quality:
+  # Cache for turbo outputs
+  cache-turbo:
+    name: Cache turbo outputs
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-
 
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v4
+  setup:
+    name: Setup (pnpm + cache)
+    runs-on: ubuntu-latest
+    outputs:
+      pnpm_store: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # cần history để turbo --since hoạt động
+      - uses: pnpm/action-setup@v4
         with:
           version: 10.4.1
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Get pnpm store path
+        id: pnpm-cache
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+      - name: Cache pnpm store
+        uses: actions/cache@v4
         with:
-          node-version: '20'
-          cache: pnpm
-
-      - name: Install dependencies
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: pnpm-store-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-store-${{ runner.os }}-
+      - name: Install
         run: pnpm install --frozen-lockfile
 
-      - name: Lint
-        run: pnpm lint
+  lint-and-test:
+    name: Lint & Test (root)
+    needs: [setup, cache-turbo]
+    runs-on: ubuntu-latest
+    env:
+      BASE_SHA: "${{ github.event.pull_request.base.sha || 'origin/main' }}"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.4.1
+      - name: Restore pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ${{ needs.setup.outputs.pnpm_store }}
+          key: pnpm-store-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Lint (root turbo, affected)
+        run: |
+          pnpm turbo run lint --filter=...[$BASE_SHA]
+      - name: Typecheck (affected)
+        run: |
+          pnpm turbo run typecheck --filter=...[$BASE_SHA]
+      - name: Test (affected)
+        run: |
+          pnpm turbo run test --filter=...[$BASE_SHA]
 
-      - name: Build
-        run: pnpm build
+  build-matrix:
+    name: Build (apps)
+    needs: [setup, cache-turbo, lint-and-test]
+    runs-on: ubuntu-latest
+    env:
+      BASE_SHA: "${{ github.event.pull_request.base.sha || 'origin/main' }}"
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [server, web-learner, web-admin]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.4.1
+      - name: Restore pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ${{ needs.setup.outputs.pnpm_store }}
+          key: pnpm-store-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build ${{ matrix.target }} (affected)
+        run: |
+          pnpm turbo run build --filter=${{ matrix.target }} --filter=...[$BASE_SHA] --continue
 

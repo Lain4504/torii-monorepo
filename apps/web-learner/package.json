@@ -1,5 +1,5 @@
 {
-  "name": "web",
+  "name": "web-learner",
   "version": "0.0.1",
   "type": "module",
   "private": true,
@@ -12,6 +12,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@apollo/client": "^3.12.7",
+    "@workspace/data-access": "workspace:*",
     "@radix-ui/react-slot": "^1.2.3",
     "@workspace/ui": "workspace:*",
     "lucide-react": "^0.475.0",

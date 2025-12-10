@@ -27,6 +27,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/auth-service/tsconfig.app.json"
       }
+    },
+    "course-service": {
+      "type": "application",
+      "root": "apps/course-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/course-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/course-service/tsconfig.app.json"
+      }
     }
   }
 }

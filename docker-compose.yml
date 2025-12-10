@@ -1,18 +1,50 @@
 version: '3.9'
 
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=torii
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
   auth-service:
     build:
       context: .
-      dockerfile: Dockerfile.auth
+      dockerfile: apps/server/apps/auth-service/Dockerfile
     container_name: auth-service
     environment:
       - AUTH_HOST=0.0.0.0
-      - AUTH_PORT=3001
+      - AUTH_PORT=8081
     ports:
-      - '3001:3001'
+      - '8081:8081'
     healthcheck:
       test: ['CMD-SHELL', 'nc -z localhost 3001']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  course-service:
+    build:
+      context: .
+      dockerfile: apps/server/apps/course-service/Dockerfile
+    container_name: course-service
+    environment:
+      - COURSE_HOST=0.0.0.0
+      - COURSE_PORT=8082
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/torii
+    depends_on:
+      postgres:
+        condition: service_started
+    ports:
+      - '8082:8082'
+    healthcheck:
+      test: ['CMD-SHELL', 'nc -z localhost 3002']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -20,20 +52,51 @@ services:
   gateway:
     build:
       context: .
-      dockerfile: Dockerfile.gateway
+      dockerfile: apps/server/apps/gateway/Dockerfile
     container_name: gateway
     environment:
       - AUTH_HOST=auth-service
-      - AUTH_PORT=3001
-      - port=3000
+      - AUTH_PORT=8081
+      - COURSE_HOST=course-service
+      - COURSE_PORT=8082
+      - port=8080
     depends_on:
+      postgres:
+        condition: service_started
       auth-service:
         condition: service_healthy
+      course-service:
+        condition: service_healthy
     ports:
-      - '3000:3000'
+      - '8080:8080'
     healthcheck:
       test: ['CMD-SHELL', 'wget -qO- http://localhost:3000/health/auth || exit 1']
       interval: 10s
       timeout: 5s
       retries: 5
+
+  web-admin:
+    build:
+      context: .
+      dockerfile: apps/web-admin/Dockerfile
+    container_name: web-admin
+    ports:
+      - '4173:4173'
+    depends_on:
+      - gateway
+
+  web-learner:
+    build:
+      context: .
+      dockerfile: apps/web-learner/Dockerfile
+    container_name: web-learner
+    environment:
+      - PORT=3002
+    ports:
+      - '3002:3002'
+    depends_on:
+      - gateway
+
+volumes:
+  pgdata:
 
