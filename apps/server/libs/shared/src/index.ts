@@ -1,3 +1,3 @@
 export * from './tcp-client.util';
-export * from './base.entity';
-
+export * from './prisma.service';
+export * from './prisma.module';

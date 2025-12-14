@@ -14,7 +14,7 @@ import { GatewayService } from './gateway.service';
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
-      autoSchemaFile: join(process.cwd(), 'apps/gateway/schema.gql'),
+      autoSchemaFile: join(process.cwd(), 'modules/gateway/schema.gql'),
       sortSchema: true,
       playground: false,
       graphiql: true,
@@ -32,4 +32,4 @@ import { GatewayService } from './gateway.service';
   controllers: [GatewayController],
   providers: [GatewayService, GatewayResolver],
 })
-export class GatewayModule {}
+export class GatewayModule { }

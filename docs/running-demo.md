@@ -84,7 +84,7 @@ pnpm --filter web-learner start  # cổng 3000/3002 tùy env
 ```
 
 ### 10) Mobile Flutter codegen (graphql_codegen)
-1. Đảm bảo đã có schema ở `apps/mobile_app/lib/graphql/schema.graphql` (copy từ `apps/server/apps/gateway/schema.gql` sau khi gateway chạy).
+1. Đảm bảo đã có schema ở `apps/mobile_app/lib/graphql/schema.graphql` (copy từ `apps/server/modules/gateway/schema.gql` sau khi gateway chạy).
 2. Operations gom vào một file: `apps/mobile_app/lib/graphql/operations.graphql` (có GetCourses/Create/Update/Delete).
 3. Chạy trong thư mục mobile:
 ```bash

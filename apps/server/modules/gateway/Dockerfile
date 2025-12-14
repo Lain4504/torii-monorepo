@@ -1,4 +1,4 @@
-# Auth microservice (Nest TCP) image
+# Gateway (Nest HTTP) image
 FROM node:20-alpine AS base
 WORKDIR /app
 RUN npm install -g pnpm@10.4.1
@@ -24,6 +24,6 @@ COPY --from=builder /app/apps/server/tsconfig.build.json ./apps/server/tsconfig.
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/apps/server/dist ./apps/server/dist
 
-EXPOSE 8081
-CMD ["node", "apps/server/dist/apps/auth-service/main.js"]
+EXPOSE 8080
+CMD ["node", "apps/server/dist/modules/gateway/main.js"]
 

@@ -32,7 +32,7 @@ Hoàn toàn làm được end-to-end type-safety với GraphQL codegen trên cod
 3) **Thiết lập GraphQL Code Generator**
    - Cài tại root: `pnpm add -D @graphql-codegen/cli @graphql-codegen/client-preset @graphql-codegen/typescript @graphql-codegen/typescript-operations @graphql-codegen/typescript-react-apollo graphql`.
    - Tạo `codegen.ts` (hoặc `codegen.yml`) ở root, ví dụ:
-     - `schema: apps/server/apps/gateway/schema.gql`
+     - `schema: apps/server/modules/gateway/schema.gql`
      - `documents: "packages/data-access/src/graphql/**/*.graphql"`
      - `generates: { "packages/data-access/generated/": { preset: "client", plugins: [] } }`
    - Script: thêm `codegen: "graphql-codegen"` vào `package.json` root; optional watch: `codegen:watch: "graphql-codegen --watch"`.
@@ -79,7 +79,7 @@ codegen.ts
 import type { CodegenConfig } from '@graphql-codegen/cli';
 
 const config: CodegenConfig = {
-  schema: 'apps/server/apps/gateway/schema.gql',
+  schema: 'apps/server/modules/gateway/schema.gql',
   documents: ['packages/data-access/src/graphql/**/*.graphql'],
   generates: {
     'packages/data-access/generated/': {

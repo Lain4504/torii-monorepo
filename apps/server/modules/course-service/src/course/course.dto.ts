@@ -11,4 +11,3 @@ export class UpdateCourseDto {
   price?: number;
   published?: boolean;
 }
-
