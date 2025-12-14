@@ -38,4 +38,3 @@ export class GatewayResolver {
     return this.gatewayService.validateToken(token);
   }
 }
-

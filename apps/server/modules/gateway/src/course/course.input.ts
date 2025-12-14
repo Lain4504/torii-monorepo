@@ -1,5 +1,11 @@
 import { Field, Float, InputType } from '@nestjs/graphql';
-import { IsBoolean, IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsNumber,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 
 @InputType()
 export class CreateCourseInput {
@@ -46,4 +52,3 @@ export class UpdateCourseInput {
   @IsBoolean()
   published?: boolean;
 }
-

@@ -7,7 +7,9 @@ export type ValidateTokenResponse = { isValid: boolean };
 
 @Injectable()
 export class GatewayService {
-  constructor(@Inject('AUTH_SERVICE') private readonly authClient: ClientProxy) {}
+  constructor(
+    @Inject('AUTH_SERVICE') private readonly authClient: ClientProxy,
+  ) {}
 
   async pingAuth(): Promise<AuthHealthResponse> {
     return lastValueFrom(

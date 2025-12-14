@@ -20,7 +20,9 @@ describe('AuthServiceController', () => {
       ],
     }).compile();
 
-    authServiceController = module.get<AuthServiceController>(AuthServiceController);
+    authServiceController = module.get<AuthServiceController>(
+      AuthServiceController,
+    );
     authServiceService = module.get(AuthServiceService);
   });
 
@@ -35,10 +37,14 @@ describe('AuthServiceController', () => {
 
   describe('validateToken', () => {
     it('should validate and return result', () => {
-      const result = authServiceController.validateToken({ token: 'valid-token-value' });
+      const result = authServiceController.validateToken({
+        token: 'valid-token-value',
+      });
 
       expect(result).toEqual({ isValid: true });
-      expect(authServiceService.validateToken).toHaveBeenCalledWith('valid-token-value');
+      expect(authServiceService.validateToken).toHaveBeenCalledWith(
+        'valid-token-value',
+      );
     });
   });
 });

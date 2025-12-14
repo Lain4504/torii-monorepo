@@ -19,9 +19,7 @@ export class CourseResolver {
   }
 
   @Mutation(() => Course)
-  createCourse(
-    @Args('input') input: CreateCourseInput,
-  ): Promise<Course> {
+  createCourse(@Args('input') input: CreateCourseInput): Promise<Course> {
     return this.courseService.create(input);
   }
 
@@ -38,4 +36,3 @@ export class CourseResolver {
     return this.courseService.delete(id);
   }
 }
-

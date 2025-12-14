@@ -32,4 +32,4 @@ import { GatewayService } from './gateway.service';
   controllers: [GatewayController],
   providers: [GatewayService, GatewayResolver],
 })
-export class GatewayModule { }
+export class GatewayModule {}

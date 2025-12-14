@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build gateway && nest build auth-service && nest build course-service",
+    "build": "npx prisma generate && nest build gateway && nest build auth-service && nest build course-service",
     "format": "prettier --write \"modules/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -18,7 +18,7 @@
     "prod:gateway": "node dist/modules/gateway/main",
     "prod:auth": "node dist/modules/auth-service/main",
     "prod:course": "node dist/modules/course-service/main",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "lint": "eslint \"{modules,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",

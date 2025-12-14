@@ -40,10 +40,7 @@ export class CourseService {
 
   async update(id: number, input: UpdateCourseInput): Promise<Course> {
     const course = await lastValueFrom(
-      this.courseClient.send<Course>(
-        { cmd: 'course.update' },
-        { id, input },
-      ),
+      this.courseClient.send<Course>({ cmd: 'course.update' }, { id, input }),
     );
     return toCourse(course);
   }

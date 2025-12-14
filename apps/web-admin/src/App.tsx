@@ -35,7 +35,8 @@ function App() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    const { id, ...input } = draft
+    const { title, description, price, published } = draft
+    const input = { title, description, price, published }
     if (isEditing && draft.id) {
       await updateCourse({ variables: { id: draft.id, input } })
     } else {
@@ -57,10 +58,10 @@ function App() {
         <header className="space-y-2">
           <p className="text-sm text-muted-foreground">Admin Dashboard (Vite)</p>
           <h1 className="text-3xl font-semibold tracking-tight">Course CRUD</h1>
-        <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Dùng hooks GraphQL sinh sẵn từ monorepo, dùng chung UI kit.
-        </p>
-      </header>
+          </p>
+        </header>
 
         <section className="rounded-xl border bg-card p-6 shadow-sm">
           <form className="grid gap-4 md:grid-cols-2" onSubmit={handleSubmit}>
@@ -179,7 +180,7 @@ function App() {
                         disabled={deleting}
                       >
                         Delete
-        </Button>
+                      </Button>
                     </td>
                   </tr>
                 ))}

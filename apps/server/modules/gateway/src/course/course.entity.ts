@@ -23,4 +23,3 @@ export class Course {
   @Field()
   updatedAt!: Date;
 }
-
