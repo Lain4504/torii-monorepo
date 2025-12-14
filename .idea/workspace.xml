@@ -4,157 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: setup ci/cd">
-      <change beforePath="$PROJECT_DIR$/.github/workflows/cd.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/cd.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/.metadata" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/analysis_options.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/app/build.gradle.kts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/app/src/debug/AndroidManifest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/app/src/main/AndroidManifest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/app/src/main/kotlin/com/example/mobile_app/MainActivity.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/app/src/main/res/drawable-v21/launch_background.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/app/src/main/res/drawable/launch_background.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/app/src/main/res/mipmap-hdpi/ic_launcher.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/app/src/main/res/mipmap-mdpi/ic_launcher.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/app/src/main/res/values-night/styles.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/app/src/main/res/values/styles.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/app/src/profile/AndroidManifest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/build.gradle.kts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/gradle.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/android/settings.gradle.kts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/graphql_codegen.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Flutter/AppFrameworkInfo.plist" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Flutter/Debug.xcconfig" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Flutter/Release.xcconfig" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner.xcodeproj/project.pbxproj" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner.xcodeproj/project.xcworkspace/contents.xcworkspacedata" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner.xcworkspace/contents.xcworkspacedata" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/AppDelegate.swift" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@1x.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@2x.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@3x.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@1x.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@2x.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@3x.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@1x.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@2x.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@3x.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@2x.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@3x.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@1x.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@2x.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-83.5x83.5@2x.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/LaunchImage.imageset/Contents.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@2x.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@3x.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Assets.xcassets/LaunchImage.imageset/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Base.lproj/LaunchScreen.storyboard" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Base.lproj/Main.storyboard" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Info.plist" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/Runner/Runner-Bridging-Header.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/ios/RunnerTests/RunnerTests.swift" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/lib/app.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/lib/core/base/view_model.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/lib/data/course_service.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/lib/graphql/client.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/lib/graphql/operations.graphql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/lib/graphql/operations.graphql.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/lib/graphql/schema.graphql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/lib/graphql/schema.graphql.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/lib/main.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/lib/viewmodels/course_view_model.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/lib/views/course/course_view.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/lib/views/course/widgets/course_form.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/linux/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/linux/CMakeLists.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/linux/flutter/CMakeLists.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/linux/flutter/generated_plugin_registrant.cc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/linux/flutter/generated_plugin_registrant.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/linux/flutter/generated_plugins.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/linux/runner/CMakeLists.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/linux/runner/main.cc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/linux/runner/my_application.cc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/linux/runner/my_application.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Flutter/Flutter-Debug.xcconfig" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Flutter/Flutter-Release.xcconfig" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Flutter/GeneratedPluginRegistrant.swift" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner.xcodeproj/project.pbxproj" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner.xcworkspace/contents.xcworkspacedata" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/AppDelegate.swift" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_1024.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_128.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_16.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_256.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_32.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_512.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_64.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/Base.lproj/MainMenu.xib" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/Configs/AppInfo.xcconfig" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/Configs/Debug.xcconfig" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/Configs/Release.xcconfig" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/Configs/Warnings.xcconfig" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/DebugProfile.entitlements" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/Info.plist" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/MainFlutterWindow.swift" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/Runner/Release.entitlements" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/macos/RunnerTests/RunnerTests.swift" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/pubspec.lock" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/pubspec.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/test/widget_test.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/web/favicon.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/web/icons/Icon-192.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/web/icons/Icon-512.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/web/icons/Icon-maskable-192.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/web/icons/Icon-maskable-512.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/web/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/web/manifest.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/CMakeLists.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/flutter/CMakeLists.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/flutter/generated_plugin_registrant.cc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/flutter/generated_plugin_registrant.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/flutter/generated_plugins.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/runner/CMakeLists.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/runner/Runner.rc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/runner/flutter_window.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/runner/flutter_window.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/runner/main.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/runner/resource.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/runner/resources/app_icon.ico" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/runner/runner.exe.manifest" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/runner/utils.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/runner/utils.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/runner/win32_window.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/mobile_app/windows/runner/win32_window.h" beforeDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix: fix eslint with command &quot;pnpm lint&quot;" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -195,8 +56,9 @@
     &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;#1 on initiate-prisma&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;E:/Ky9/apps/server&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.standard&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -211,7 +73,11 @@
   }
 }</component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\Ky9\apps\server" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\Ky9\apps\server\modules\course-service\src" />
       <recent name="E:\Ky9\torii-nihongo" />
     </key>
   </component>
@@ -531,7 +397,127 @@
       <option name="project" value="LOCAL" />
       <updated>1765454868153</updated>
     </task>
-    <option name="localTasksCounter" value="29" />
+    <task id="LOCAL-00029" summary="migration: setup and migration prisma">
+      <option name="closed" value="true" />
+      <created>1765725606260</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1765725606260</updated>
+    </task>
+    <task id="LOCAL-00030" summary="migration: setup and migration prisma">
+      <option name="closed" value="true" />
+      <created>1765726418294</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1765726418296</updated>
+    </task>
+    <task id="LOCAL-00031" summary="migration: setup and migration prisma">
+      <option name="closed" value="true" />
+      <created>1765728663954</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1765728663954</updated>
+    </task>
+    <task id="LOCAL-00032" summary="migration: setup and migration prisma">
+      <option name="closed" value="true" />
+      <created>1765730679047</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1765730679047</updated>
+    </task>
+    <task id="LOCAL-00033" summary="migration: setup and migration prisma">
+      <option name="closed" value="true" />
+      <created>1765730683659</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1765730683659</updated>
+    </task>
+    <task id="LOCAL-00034" summary="migration: setup and migration prisma">
+      <option name="closed" value="true" />
+      <created>1765730961328</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1765730961328</updated>
+    </task>
+    <task id="LOCAL-00035" summary="migration: setup and migration prisma">
+      <option name="closed" value="true" />
+      <created>1765730994993</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1765730994993</updated>
+    </task>
+    <task id="LOCAL-00036" summary="migration: setup and migration prisma">
+      <option name="closed" value="true" />
+      <created>1765731225966</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1765731225966</updated>
+    </task>
+    <task id="LOCAL-00037" summary="migration: setup and migration prisma">
+      <option name="closed" value="true" />
+      <created>1765731955201</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1765731955201</updated>
+    </task>
+    <task id="LOCAL-00038" summary="fix: fix eslint with command &quot;pnpm lint&quot;">
+      <option name="closed" value="true" />
+      <created>1765734069628</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1765734069628</updated>
+    </task>
+    <task id="LOCAL-00039" summary="fix: fix eslint with command &quot;pnpm lint&quot;">
+      <option name="closed" value="true" />
+      <created>1765734561329</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1765734561329</updated>
+    </task>
+    <task id="LOCAL-00040" summary="fix: fix eslint with command &quot;pnpm lint&quot;">
+      <option name="closed" value="true" />
+      <created>1765734775248</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1765734775248</updated>
+    </task>
+    <task id="LOCAL-00041" summary="fix: fix eslint with command &quot;pnpm lint&quot;">
+      <option name="closed" value="true" />
+      <created>1765735990961</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1765735990961</updated>
+    </task>
+    <task id="LOCAL-00042" summary="fix: fix eslint with command &quot;pnpm lint&quot;">
+      <option name="closed" value="true" />
+      <created>1765736187094</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1765736187094</updated>
+    </task>
+    <task id="LOCAL-00043" summary="fix: fix eslint with command &quot;pnpm lint&quot;">
+      <option name="closed" value="true" />
+      <created>1765736324371</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1765736324371</updated>
+    </task>
+    <option name="localTasksCounter" value="44" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -542,7 +528,19 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="initiate-prisma" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
           </value>
         </entry>
       </map>
@@ -552,7 +550,9 @@
     <MESSAGE value="Initial commit" />
     <MESSAGE value="feat: setup project structure" />
     <MESSAGE value="feat: setup ci/cd" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: setup ci/cd" />
+    <MESSAGE value="migration: setup and migration prisma" />
+    <MESSAGE value="fix: fix eslint with command &quot;pnpm lint&quot;" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix: fix eslint with command &quot;pnpm lint&quot;" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

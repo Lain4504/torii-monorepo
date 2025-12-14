@@ -22,7 +22,18 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@server/shared/*": ["./libs/shared/src/*"]
+      "@server/shared": [
+        "./libs/shared/src"
+      ],
+      "@server/shared/*": [
+        "./libs/shared/src/*"
+      ],
+      "@prisma/generated": [
+        "./generated/prisma/client"
+      ],
+      "@prisma/generated/*": [
+        "./generated/prisma/*"
+      ]
     }
   }
 }
