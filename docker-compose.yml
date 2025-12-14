@@ -16,7 +16,7 @@ services:
   auth-service:
     build:
       context: .
-      dockerfile: apps/server/apps/auth-service/Dockerfile
+      dockerfile: apps/server/modules/auth-service/Dockerfile
     container_name: auth-service
     environment:
       - AUTH_HOST=0.0.0.0
@@ -32,7 +32,7 @@ services:
   course-service:
     build:
       context: .
-      dockerfile: apps/server/apps/course-service/Dockerfile
+      dockerfile: apps/server/modules/course-service/Dockerfile
     container_name: course-service
     environment:
       - COURSE_HOST=0.0.0.0
@@ -52,7 +52,7 @@ services:
   gateway:
     build:
       context: .
-      dockerfile: apps/server/apps/gateway/Dockerfile
+      dockerfile: apps/server/modules/gateway/Dockerfile
     container_name: gateway
     environment:
       - AUTH_HOST=auth-service
