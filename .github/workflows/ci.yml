@@ -15,7 +15,7 @@ jobs:
       TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
       # We just use a dummy DB URL for build/generation if needed, 
       # though we should mock this properly if tests run against it.
-      DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/test"
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
     steps:
       - name: Checkout
