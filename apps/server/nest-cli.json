@@ -39,6 +39,16 @@
         "tsConfigPath": "modules/course-service/tsconfig.app.json",
         "webpack": false
       }
+    },
+    "room-service": {
+      "type": "application",
+      "root": "modules/room-service",
+      "entryFile": "main",
+      "sourceRoot": "modules/room-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "modules/room-service/tsconfig.app.json",
+        "webpack": false
+      }
     }
   }
 }
