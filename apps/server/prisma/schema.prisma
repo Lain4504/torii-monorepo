@@ -23,5 +23,67 @@ model Course {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+
   @@map("courses")
+}
+
+model RoomInfo {
+  id                 Int         @id @default(autoincrement())
+  roomTitle          String      @default("")
+  roomId             String      @db.VarChar(64)
+  sid                String      @unique @db.VarChar(64)
+  joinedParticipants Int         @default(0)
+  isRunning          Boolean     @default(false)
+  isRecording        Boolean     @default(false)
+  recorderId         String      @default("") @db.VarChar(36)
+  isActiveRtmp       Boolean     @default(false)
+  rtmpNodeId         String      @default("") @db.VarChar(36)
+  webhookUrl         String      @default("")
+  metadata           Json?
+
+  isBreakoutRoom     Boolean     @default(false)
+  parentRoomId       String      @default("") @db.VarChar(64)
+  creationTime       Int         @default(0)
+  createdAt          DateTime    @default(now())
+  endedAt            DateTime?
+  recordings         Recording[]
+
+  @@index([roomId, isRunning])
+  @@map("room_info")
+}
+
+model Recording {
+  id               Int      @id @default(autoincrement())
+  recordId         String   @unique @db.VarChar(64)
+  roomId           String   @db.VarChar(64)
+  roomSid          String   @db.VarChar(64)
+  recorderId       String   @db.VarChar(36)
+  filePath         String
+  size             Float
+  published        Boolean  @default(true)
+  metadata         Json?
+  creationTime     Int      @default(0)
+  roomCreationTime Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  room             RoomInfo @relation(fields: [roomSid], references: [sid])
+
+  @@index([roomId])
+  @@map("recordings")
+}
+
+model RoomFile {
+  id        Int      @id @default(autoincrement())
+  fileId    String   @unique
+  roomId    String
+  userId    String
+  filePath  String
+  fileType  String
+  mimeType  String
+  fileSize  Float    @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([roomId])
+  @@map("room_files")
 }

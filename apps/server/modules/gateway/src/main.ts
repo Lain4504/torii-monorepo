@@ -1,4 +1,6 @@
+import 'dotenv/config';
 import { NestFactory, HttpAdapterHost } from '@nestjs/core';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { GatewayModule } from './gateway.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { TransformInterceptor, AllExceptionsFilter } from '@server/shared';
@@ -6,6 +8,15 @@ import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(GatewayModule);
+  // Redis Microservice Setup
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.REDIS,
+    options: {
+      host: process.env.REDIS_HOST || 'localhost',
+      port: parseInt(process.env.REDIS_PORT || '6379'),
+    },
+  });
+  await app.startAllMicroservices();
   const httpAdapter = app.get(HttpAdapterHost);
 
   app.enableCors();

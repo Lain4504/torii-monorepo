@@ -5,6 +5,10 @@ import { join } from 'node:path';
 
 import { CourseModule } from './course/course.module';
 import { AuthModule } from './auth/auth.module';
+import { SharedModule } from '@server/shared';
+import { RoomModule } from './room/room.module';
+import { FileModule } from './file/file.module';
+
 
 @Module({
   imports: [
@@ -18,8 +22,11 @@ import { AuthModule } from './auth/auth.module';
     }),
     AuthModule,
     CourseModule,
+    SharedModule,
+    RoomModule,
+    FileModule,
   ],
   controllers: [],
   providers: [],
 })
-export class GatewayModule {}
+export class GatewayModule { }
