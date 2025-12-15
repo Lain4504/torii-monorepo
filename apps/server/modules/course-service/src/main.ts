@@ -1,4 +1,4 @@
-import 'dotenv/config'; // Load .env trước tiên
+import 'dotenv/config'; // Load .env first
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions } from '@nestjs/microservices';
 import { createTcpServiceConfig } from '@server/shared';
