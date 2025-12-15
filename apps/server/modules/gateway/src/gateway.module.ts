@@ -7,8 +7,6 @@ import { CourseModule } from './course/course.module';
 import { AuthModule } from './auth/auth.module';
 import { SharedModule } from '@server/shared';
 import { RoomModule } from './room/room.module';
-import { FileModule } from './file/file.module';
-
 
 @Module({
   imports: [
@@ -24,7 +22,6 @@ import { FileModule } from './file/file.module';
     CourseModule,
     SharedModule,
     RoomModule,
-    FileModule,
   ],
   controllers: [],
   providers: [],
