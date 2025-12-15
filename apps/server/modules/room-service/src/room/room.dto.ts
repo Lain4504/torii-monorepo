@@ -98,33 +98,3 @@ export class UpdateWaitingRoomMessageDto {
     roomId: string;
     msg: string;
 }
-
-export class BreakoutRoomUserDto {
-    id: string;
-    name?: string;
-}
-
-export class CreateBreakoutRoomReqDto {
-    id: string;
-    title: string;
-    users: BreakoutRoomUserDto[];
-}
-
-export class CreateBreakoutRoomsDto {
-    roomId: string;
-    duration: number; // minutes
-    welcomeMsg?: string;
-    rooms: CreateBreakoutRoomReqDto[];
-}
-
-export class JoinBreakoutRoomDto {
-    roomId: string; // Parent Room
-    breakoutRoomId: string;
-    userId: string;
-    isAdmin?: boolean;
-}
-
-export class EndBreakoutRoomDto {
-    roomId: string; // Parent Room
-    breakoutRoomId: string;
-}

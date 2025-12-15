@@ -1,10 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService, LiveKitService, RedisService } from '@server/shared';
+import { EncodedFileOutput, EncodedFileType } from 'livekit-server-sdk';
 import { ConfigService } from '@nestjs/config';
 import { RpcException } from '@nestjs/microservices';
 import * as jwt from 'jsonwebtoken';
 import * as fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
+import { CreateRoomDto, CreateIngressDto, ApproveWaitingUsersDto, UpdateWaitingRoomMessageDto } from './room.dto';
 
 @Injectable()
 export class RoomService {
@@ -17,7 +19,7 @@ export class RoomService {
         private readonly redisService: RedisService,
     ) { }
 
-    async createRoom(data: { roomName: string; emptyTimeout?: number; maxParticipants?: number }) {
+    async createRoom(data: CreateRoomDto) {
         try {
             this.logger.log(`Creating room: ${data.roomName}`);
 
@@ -35,6 +37,7 @@ export class RoomService {
                 name: data.roomName,
                 emptyTimeout: data.emptyTimeout || 60 * 60, // 1 hour default
                 maxParticipants: data.maxParticipants || 100,
+                metadata: data.metadata ? JSON.stringify(data.metadata) : undefined,
             });
 
             // Save to DB
@@ -45,6 +48,7 @@ export class RoomService {
                     roomTitle: data.roomName,
                     isRunning: true,
                     creationTime: Number(room.creationTime),
+                    metadata: data.metadata || undefined,
                 },
             });
 
@@ -97,10 +101,11 @@ export class RoomService {
                 throw new Error('Room is not running');
             }
 
-            const recording = await this.liveKitService.getRoomClient().startRoomCompositeEgress(data.roomName, {
-                file: {
+            const recording = await this.liveKitService.getEgressClient().startRoomCompositeEgress(data.roomName, {
+                file: new EncodedFileOutput({
                     filepath: `recordings/${data.roomName}-${Date.now()}.mp4`,
-                },
+                    fileType: EncodedFileType.MP4,
+                }),
             });
 
             await this.prisma.roomInfo.update({
@@ -126,7 +131,7 @@ export class RoomService {
                 throw new Error('No active recording found for this room');
             }
 
-            await this.liveKitService.getRoomClient().stopEgress(roomInfo.recorderId);
+            await this.liveKitService.getEgressClient().stopEgress(roomInfo.recorderId);
 
             await this.prisma.roomInfo.update({
                 where: { id: roomInfo.id },
@@ -305,11 +310,24 @@ export class RoomService {
             }
 
             return { isValid: true, filePath: decoded.sub };
-            return { isValid: true, filePath: decoded.sub };
         } catch (error) {
             this.logger.error(`Error verifying token: ${error.message}`);
             throw new RpcException('Invalid or expired token');
         }
+    }
+
+    async sendSystemChatMessage(data: { roomId: string; msg: string }) {
+        const encoder = new TextEncoder();
+        const payload = encoder.encode(JSON.stringify({
+            message: data.msg,
+            fromUserId: 'system',
+            fromName: 'System',
+            type: 'CHAT',
+            sentAt: Date.now().toString(),
+        }));
+
+        await this.liveKitService.getRoomClient().sendData(data.roomId, payload, 1); // 1 = Reliable
+        return { success: true };
     }
 
     // --- Polls Module (Redis) ---
@@ -419,6 +437,124 @@ export class RoomService {
             return { success: true, responses };
         } catch (error) {
             this.logger.error(`Error getting poll stats: ${error.message}`);
+            throw new RpcException(error.message);
+        }
+    }
+
+    // --- File Module ---
+
+    async saveFileMetadata(data: { fileId: string; roomId: string; userId: string; filePath: string; fileType: string; mimeType: string; fileSize?: number }) {
+        try {
+            // @ts-ignore - DB Client not generated yet
+            await this.prisma.roomFile.create({
+                data: {
+                    fileId: data.fileId,
+                    roomId: data.roomId,
+                    userId: data.userId,
+                    filePath: data.filePath,
+                    fileType: data.fileType,
+                    mimeType: data.mimeType,
+                    fileSize: data.fileSize || 0,
+                }
+            });
+            return { success: true };
+        } catch (error) {
+            this.logger.error(`Error saving file metadata: ${error.message}`);
+            throw new RpcException(error.message);
+        }
+    }
+    // --- Ingress Module ---
+
+    async createIngress(data: CreateIngressDto) {
+        try {
+            this.logger.log(`Creating ingress for room: ${data.roomId}`);
+
+            // Check if ingress is allowed (via DB metadata or default policy)
+            const room = await this.prisma.roomInfo.findFirst({ where: { roomId: data.roomId, isRunning: true } });
+            if (!room) throw new Error('Room not found or not active');
+
+            const ingress = await this.liveKitService.getIngressClient().createIngress({
+                inputType: data.inputType,
+                name: `${data.roomId}:${Date.now()}`,
+                roomName: data.roomId,
+                participantIdentity: `ingress-${Date.now()}`,
+                participantName: data.participantName,
+            });
+
+            // Update Metadata to include Ingress info (clone plugNmeet logic)
+            // Note: In a real scenario, we should fetch current metadata from LiveKit, update it, and saving back
+            // For now, we assume the client handles the "metadata update" notification if we send a system message
+            // OR we update the room metadata in LiveKit directly.
+
+            // TODO: Update Room Metadata in LiveKit to reflect active ingress (optional but good for parity)
+
+            return {
+                success: true,
+                url: ingress.url,
+                streamKey: ingress.streamKey,
+            };
+        } catch (error) {
+            this.logger.error(`Error creating ingress: ${error.message}`);
+            throw new RpcException(error.message);
+        }
+    }
+
+    // --- Waiting Room Module ---
+
+    async approveWaitingUsers(data: ApproveWaitingUsersDto) {
+        try {
+            this.logger.log(`Approving waiting users in room: ${data.roomId}, user: ${data.userId}`);
+
+            const participants = await this.liveKitService.getRoomClient().listParticipants(data.roomId);
+
+            for (const p of participants) {
+                if (data.userId === 'all' || p.identity === data.userId) {
+                    // Update participant metadata to remove "waitForApproval" flag
+                    // We assume metadata is JSON. 
+                    let meta: any = {};
+                    try { meta = JSON.parse(p.metadata); } catch (e) { }
+
+                    if (meta.waitForApproval) {
+                        meta.waitForApproval = false;
+                        await this.liveKitService.getRoomClient().updateParticipant(data.roomId, p.identity, JSON.stringify(meta));
+
+                        // Notify user (system message)
+                        this.sendSystemChatMessage({
+                            roomId: data.roomId,
+                            msg: `User ${p.name} approved.`
+                        });
+                    }
+                }
+            }
+            return { success: true };
+        } catch (error) {
+            this.logger.error(`Error approving users: ${error.message}`);
+            throw new RpcException(error.message);
+        }
+    }
+
+    async updateWaitingRoomMessage(data: UpdateWaitingRoomMessageDto) {
+        try {
+            // This is typically stored in Room Metadata
+            // Fetch current room metadata
+            const room = await this.liveKitService.getRoomClient().listRooms([data.roomId]);
+            if (room.length === 0) throw new Error('Room not found');
+
+            const currentMetaStr = room[0].metadata;
+            let currentMeta: any = {};
+            try { currentMeta = JSON.parse(currentMetaStr); } catch (e) { }
+
+            // Update waiting message
+            if (!currentMeta.roomFeatures) currentMeta.roomFeatures = {};
+            if (!currentMeta.roomFeatures.waitingRoomFeatures) currentMeta.roomFeatures.waitingRoomFeatures = {};
+            currentMeta.roomFeatures.waitingRoomFeatures.waitingRoomMsg = data.msg;
+
+            // Save back to LiveKit
+            await this.liveKitService.getRoomClient().updateRoomMetadata(data.roomId, JSON.stringify(currentMeta));
+
+            return { success: true };
+        } catch (error) {
+            this.logger.error(`Error updating waiting room message: ${error.message}`);
             throw new RpcException(error.message);
         }
     }

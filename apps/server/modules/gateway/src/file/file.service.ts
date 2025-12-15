@@ -75,15 +75,8 @@ export class FileService {
                 writeStream.close();
                 throw new BadRequestException(`Missing chunk ${i}`);
             }
-            await new Promise((resolve, reject) => {
-                const readStream = fs.createReadStream(chunkPath);
-                readStream.on('error', (err) => {
-                    readStream.destroy();
-                    reject(err);
-                });
-                readStream.pipe(writeStream, { end: false });
-                readStream.on('end', () => resolve(null));
-            });
+            const data = fs.readFileSync(chunkPath);
+            writeStream.write(data);
         }
 
         writeStream.end();
@@ -101,13 +94,11 @@ export class FileService {
     }
 
     getFilePath(sid: string, ...parts: string[]) {
+        // Validation needed to prevent traversal
         const safePath = path.join(this.uploadDir, sid, ...parts);
-        const resolvedPath = path.resolve(safePath);
-        const resolvedRoot = path.resolve(this.uploadDir);
-
-        if (!resolvedPath.startsWith(resolvedRoot) || (resolvedPath.length > resolvedRoot.length && resolvedPath[resolvedRoot.length] !== path.sep)) {
+        if (!safePath.startsWith(path.resolve(this.uploadDir))) {
             throw new BadRequestException('Invalid path');
         }
-        return resolvedPath;
+        return safePath;
     }
 }

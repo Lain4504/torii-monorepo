@@ -1,6 +1,8 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import {
     RoomServiceClient,
+    EgressClient,
+    IngressClient,
     WebhookReceiver,
     AccessToken,
     AccessTokenOptions,
@@ -11,6 +13,8 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class LiveKitService implements OnModuleInit {
     private roomService: RoomServiceClient;
+    private egressClient: EgressClient;
+    private ingressClient: IngressClient;
     private webhookReceiver: WebhookReceiver;
     private apiKey: string;
     private apiSecret: string;
@@ -24,11 +28,21 @@ export class LiveKitService implements OnModuleInit {
 
     onModuleInit() {
         this.roomService = new RoomServiceClient(this.host, this.apiKey, this.apiSecret);
+        this.egressClient = new EgressClient(this.host, this.apiKey, this.apiSecret);
+        this.ingressClient = new IngressClient(this.host, this.apiKey, this.apiSecret);
         this.webhookReceiver = new WebhookReceiver(this.apiKey, this.apiSecret);
     }
 
     getRoomClient(): RoomServiceClient {
         return this.roomService;
+    }
+
+    getEgressClient(): EgressClient {
+        return this.egressClient;
+    }
+
+    getIngressClient(): IngressClient {
+        return this.ingressClient;
     }
 
     getWebhookReceiver(): WebhookReceiver {

@@ -4,13 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: create recording logic">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: create chat and files upload logic">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/shared.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/shared.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/room/room.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/room/room.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/room.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/room.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/services/livekit.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/services/livekit.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/room.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/room.dto.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/room.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/room.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -184,39 +183,7 @@
       <workItem from="1765449186873" duration="25000" />
       <workItem from="1765456305656" duration="449000" />
       <workItem from="1765456975211" duration="422000" />
-      <workItem from="1765802001916" duration="7617000" />
-    </task>
-    <task id="LOCAL-00018" summary="feat: setup ci/cd">
-      <option name="closed" value="true" />
-      <created>1765370534362</created>
-      <option name="number" value="00018" />
-      <option name="presentableId" value="LOCAL-00018" />
-      <option name="project" value="LOCAL" />
-      <updated>1765370534362</updated>
-    </task>
-    <task id="LOCAL-00019" summary="feat: setup ci/cd">
-      <option name="closed" value="true" />
-      <created>1765370804735</created>
-      <option name="number" value="00019" />
-      <option name="presentableId" value="LOCAL-00019" />
-      <option name="project" value="LOCAL" />
-      <updated>1765370804735</updated>
-    </task>
-    <task id="LOCAL-00020" summary="feat: setup ci/cd">
-      <option name="closed" value="true" />
-      <created>1765372374034</created>
-      <option name="number" value="00020" />
-      <option name="presentableId" value="LOCAL-00020" />
-      <option name="project" value="LOCAL" />
-      <updated>1765372374034</updated>
-    </task>
-    <task id="LOCAL-00021" summary="feat: setup ci/cd">
-      <option name="closed" value="true" />
-      <created>1765372622647</created>
-      <option name="number" value="00021" />
-      <option name="presentableId" value="LOCAL-00021" />
-      <option name="project" value="LOCAL" />
-      <updated>1765372622647</updated>
+      <workItem from="1765802001916" duration="11114000" />
     </task>
     <task id="LOCAL-00022" summary="feat: setup ci/cd">
       <option name="closed" value="true" />
@@ -578,7 +545,39 @@
       <option name="project" value="LOCAL" />
       <updated>1765810911607</updated>
     </task>
-    <option name="localTasksCounter" value="67" />
+    <task id="LOCAL-00067" summary="feat: create poll logic">
+      <option name="closed" value="true" />
+      <created>1765812421664</created>
+      <option name="number" value="00067" />
+      <option name="presentableId" value="LOCAL-00067" />
+      <option name="project" value="LOCAL" />
+      <updated>1765812421665</updated>
+    </task>
+    <task id="LOCAL-00068" summary="feat: create chat and files upload logic">
+      <option name="closed" value="true" />
+      <created>1765814175673</created>
+      <option name="number" value="00068" />
+      <option name="presentableId" value="LOCAL-00068" />
+      <option name="project" value="LOCAL" />
+      <updated>1765814175673</updated>
+    </task>
+    <task id="LOCAL-00069" summary="feat: create chat and files upload logic">
+      <option name="closed" value="true" />
+      <created>1765814668265</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1765814668265</updated>
+    </task>
+    <task id="LOCAL-00070" summary="feat: create chat and files upload logic">
+      <option name="closed" value="true" />
+      <created>1765814841857</created>
+      <option name="number" value="00070" />
+      <option name="presentableId" value="LOCAL-00070" />
+      <option name="project" value="LOCAL" />
+      <updated>1765814841857</updated>
+    </task>
+    <option name="localTasksCounter" value="71" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -629,7 +628,9 @@
     <MESSAGE value="feat: create webhook livekit logic" />
     <MESSAGE value="feat: create webhook livekit logic" />
     <MESSAGE value="feat: create recording logic" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: create recording logic" />
+    <MESSAGE value="feat: create poll logic" />
+    <MESSAGE value="feat: create chat and files upload logic" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: create chat and files upload logic" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

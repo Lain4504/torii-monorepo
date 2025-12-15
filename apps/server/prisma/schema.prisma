@@ -39,6 +39,8 @@ model RoomInfo {
   isActiveRtmp       Boolean     @default(false)
   rtmpNodeId         String      @default("") @db.VarChar(36)
   webhookUrl         String      @default("")
+  metadata           Json?
+
   isBreakoutRoom     Boolean     @default(false)
   parentRoomId       String      @default("") @db.VarChar(64)
   creationTime       Int         @default(0)
@@ -69,4 +71,19 @@ model Recording {
 
   @@index([roomId])
   @@map("recordings")
+}
+
+model RoomFile {
+  id        Int      @id @default(autoincrement())
+  fileId    String   @unique
+  roomId    String
+  userId    String
+  filePath  String
+  fileType  String
+  mimeType  String
+  fileSize  Float    @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([roomId])
+  @@map("room_files")
 }

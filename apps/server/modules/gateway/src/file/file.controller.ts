@@ -42,8 +42,8 @@ export class FileController {
     }
 
     @Get('download/:sid/*')
-    async downloadFile(@Param('sid') sid: string, @Param('0') filename: string, @Res() res: Response) {
-        const fullPath = this.fileService.getFilePath(sid, filename);
+    async downloadFile(@Param('sid') sid: string, @Param('0') filePath: string, @Res() res: Response) {
+        const fullPath = this.fileService.getFilePath(sid, filePath);
         if (fs.existsSync(fullPath)) {
             return res.download(fullPath);
         }
