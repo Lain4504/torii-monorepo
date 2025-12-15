@@ -6,7 +6,7 @@ import { firstValueFrom } from 'rxjs';
 export class AuthController {
   constructor(
     @Inject('AUTH_SERVICE') private readonly authClient: ClientProxy,
-  ) {}
+  ) { }
 
   @Post('register')
   async register(@Body() body: any) {

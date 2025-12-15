@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { RoomController } from './room.controller';
 import { WebhookController } from './webhook.controller';
+import { RecordingController } from './recording.controller';
 import { SharedModule } from '@server/shared';
 
 @Module({
@@ -18,6 +19,6 @@ import { SharedModule } from '@server/shared';
         ]),
         SharedModule,
     ],
-    controllers: [RoomController, WebhookController],
+    controllers: [RoomController, WebhookController, RecordingController],
 })
 export class RoomModule { }
