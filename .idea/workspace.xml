@@ -4,9 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: create break room logic">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix: fix comment from copilot">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,37 +45,37 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "JavaScript Debug.localhost:5173.executor": "Debug",
-    "Jest.AuthServiceController (1).executor": "Run",
-    "Jest.AuthServiceController.executor": "Run",
-    "Jest.GatewayController.executor": "Run",
-    "Jest.GatewayController.pingAuth.executor": "Run",
-    "Jest.server > auth-service.controller.spec.ts.executor": "Run",
-    "Jest.server > gateway.controller.spec.ts.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "livekit-meet",
-    "ignore.virus.scanning.warn.message": "true",
-    "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "E:/demo/team-source/torii-monorepo/apps/server",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.standard": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.standard": "",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs.jest.jest_package": "E:/Ky9/apps/server/node_modules/jest",
-    "nodejs_package_manager_path": "pnpm",
-    "settings.editor.selected.configurable": "settings.javascript.linters.eslint",
-    "ts.external.directory.path": "E:\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;JavaScript Debug.localhost:5173.executor&quot;: &quot;Debug&quot;,
+    &quot;Jest.AuthServiceController (1).executor&quot;: &quot;Run&quot;,
+    &quot;Jest.AuthServiceController.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.GatewayController.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.GatewayController.pingAuth.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.server &gt; auth-service.controller.spec.ts.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.server &gt; gateway.controller.spec.ts.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;#5 on livekit-meet&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;E:/demo/team-source/torii-monorepo/apps/server&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.standard&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.standard&quot;: &quot;&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs.jest.jest_package&quot;: &quot;E:/Ky9/apps/server/node_modules/jest&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;settings.javascript.linters.eslint&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;E:\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="E:\demo\team-source\torii-monorepo\apps\server" />
@@ -181,22 +180,9 @@
       <workItem from="1765456305656" duration="449000" />
       <workItem from="1765456975211" duration="422000" />
       <workItem from="1765802001916" duration="13533000" />
-    </task>
-    <task id="LOCAL-00025" summary="feat: setup ci/cd">
-      <option name="closed" value="true" />
-      <created>1765374520555</created>
-      <option name="number" value="00025" />
-      <option name="presentableId" value="LOCAL-00025" />
-      <option name="project" value="LOCAL" />
-      <updated>1765374520555</updated>
-    </task>
-    <task id="LOCAL-00026" summary="feat: setup ci/cd">
-      <option name="closed" value="true" />
-      <created>1765445372644</created>
-      <option name="number" value="00026" />
-      <option name="presentableId" value="LOCAL-00026" />
-      <option name="project" value="LOCAL" />
-      <updated>1765445372644</updated>
+      <workItem from="1765819424134" duration="879000" />
+      <workItem from="1765820660014" duration="666000" />
+      <workItem from="1765849677488" duration="719000" />
     </task>
     <task id="LOCAL-00027" summary="feat: setup ci/cd">
       <option name="closed" value="true" />
@@ -574,7 +560,23 @@
       <option name="project" value="LOCAL" />
       <updated>1765818403599</updated>
     </task>
-    <option name="localTasksCounter" value="74" />
+    <task id="LOCAL-00074" summary="feat: create break room logic">
+      <option name="closed" value="true" />
+      <created>1765819809299</created>
+      <option name="number" value="00074" />
+      <option name="presentableId" value="LOCAL-00074" />
+      <option name="project" value="LOCAL" />
+      <updated>1765819809299</updated>
+    </task>
+    <task id="LOCAL-00075" summary="fix: fix comment from copilot">
+      <option name="closed" value="true" />
+      <created>1765820970748</created>
+      <option name="number" value="00075" />
+      <option name="presentableId" value="LOCAL-00075" />
+      <option name="project" value="LOCAL" />
+      <updated>1765820970749</updated>
+    </task>
+    <option name="localTasksCounter" value="76" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -628,7 +630,8 @@
     <MESSAGE value="feat: create poll logic" />
     <MESSAGE value="feat: create chat and files upload logic" />
     <MESSAGE value="feat: create break room logic" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: create break room logic" />
+    <MESSAGE value="fix: fix comment from copilot" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix: fix comment from copilot" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
