@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule } from '@nestjs/microservices';
-
-import { createTcpClientOptions } from '@server/shared/tcp-client.util';
+import { createTcpClientOptions } from '@server/shared';
 import { CourseResolver } from './course.resolver';
+import { CourseController } from './course.controller';
 
 @Module({
   imports: [
@@ -16,5 +16,6 @@ import { CourseResolver } from './course.resolver';
     ]),
   ],
   providers: [CourseResolver],
+  controllers: [CourseController],
 })
 export class CourseModule {}

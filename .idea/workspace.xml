@@ -4,20 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix(auth): can read global environments">
-      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/supabase/supabase.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/supabase/supabase.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/tcp-client.util.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/tcp-client.util.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/auth-service/src/auth-service.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/auth-service/src/auth-service.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/auth-service/src/auth-service.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/auth-service/src/auth-service.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/auth-service/src/auth-service.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/auth-service/src/auth-service.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/course-service/src/course-service.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/course-service/src/course-service.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/auth/auth.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/auth/auth.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/auth/auth.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/auth/auth.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/course/course.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/course/course.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/course/course.resolver.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/course/course.resolver.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/course/course.schema.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/course/course.schema.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.module.ts" afterDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: update auth structure" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -26,7 +13,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="main" />
+        <entry key="$PROJECT_DIR$" value="auth-with-supabase" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -56,52 +43,54 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "JavaScript Debug.localhost:5173.executor": "Debug",
-    "Jest.AuthServiceController.executor": "Run",
-    "Jest.GatewayController.executor": "Run",
-    "Jest.GatewayController.pingAuth.executor": "Run",
-    "Jest.server > auth-service.controller.spec.ts.executor": "Run",
-    "Jest.server > gateway.controller.spec.ts.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "auth-with-supabase",
-    "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "E:/Ky9/apps/server",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.standard": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.standard": "",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs.jest.jest_package": "E:/Ky9/torii-nihongo/apps/server/node_modules/jest",
-    "nodejs_package_manager_path": "pnpm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "ts.external.directory.path": "E:\\Ky9\\node_modules\\typescript\\lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;JavaScript Debug.localhost:5173.executor&quot;: &quot;Debug&quot;,
+    &quot;Jest.AuthServiceController (1).executor&quot;: &quot;Run&quot;,
+    &quot;Jest.AuthServiceController.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.GatewayController.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.GatewayController.pingAuth.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.server &gt; auth-service.controller.spec.ts.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.server &gt; gateway.controller.spec.ts.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;config-swagger-and-orval&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;E:/Ky9/apps/server&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.standard&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.standard&quot;: &quot;&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs.jest.jest_package&quot;: &quot;E:/Ky9/apps/server/node_modules/jest&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;E:\\Ky9\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="E:\Ky9\apps\server" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\Ky9\apps\server\modules\auth-service\src\auth" />
       <recent name="E:\Ky9\apps\server\modules\course-service\src" />
       <recent name="E:\Ky9\torii-nihongo" />
     </key>
   </component>
-  <component name="RunManager" selected="Jest.server &gt; auth-service.controller.spec.ts">
-    <configuration name="AuthServiceController" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Jest.AuthServiceController (1)">
+    <configuration name="AuthServiceController (1)" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
       <node-interpreter value="project" />
       <jest-package value="$PROJECT_DIR$/apps/server/node_modules/jest" />
       <working-dir value="$PROJECT_DIR$/apps/server" />
       <envs />
       <scope-kind value="SUITE" />
-      <test-file value="$PROJECT_DIR$/apps/server/apps/auth-service/src/auth-service.controller.spec.ts" />
+      <test-file value="$PROJECT_DIR$/apps/server/modules/auth-service/src/auth-service.controller.spec.ts" />
       <test-names>
         <test-name value="AuthServiceController" />
       </test-names>
@@ -152,11 +141,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Jest.AuthServiceController (1)" />
         <item itemvalue="Jest.server &gt; gateway.controller.spec.ts" />
         <item itemvalue="Jest.server &gt; auth-service.controller.spec.ts" />
         <item itemvalue="Jest.GatewayController.pingAuth" />
         <item itemvalue="Jest.GatewayController" />
-        <item itemvalue="Jest.AuthServiceController" />
       </list>
     </recent_temporary>
   </component>
@@ -185,86 +174,6 @@
       <workItem from="1765449186873" duration="25000" />
       <workItem from="1765456305656" duration="449000" />
       <workItem from="1765456975211" duration="422000" />
-    </task>
-    <task id="LOCAL-00001" summary="feat: setup project structure">
-      <option name="closed" value="true" />
-      <created>1765358938178</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1765358938178</updated>
-    </task>
-    <task id="LOCAL-00002" summary="feat: setup project structure">
-      <option name="closed" value="true" />
-      <created>1765361218563</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1765361218563</updated>
-    </task>
-    <task id="LOCAL-00003" summary="feat: setup project structure">
-      <option name="closed" value="true" />
-      <created>1765361472899</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1765361472899</updated>
-    </task>
-    <task id="LOCAL-00004" summary="feat: setup project structure">
-      <option name="closed" value="true" />
-      <created>1765361885580</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1765361885580</updated>
-    </task>
-    <task id="LOCAL-00005" summary="feat: setup project structure">
-      <option name="closed" value="true" />
-      <created>1765362606601</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1765362606601</updated>
-    </task>
-    <task id="LOCAL-00006" summary="feat: setup project structure">
-      <option name="closed" value="true" />
-      <created>1765363353128</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1765363353128</updated>
-    </task>
-    <task id="LOCAL-00007" summary="feat: setup project structure">
-      <option name="closed" value="true" />
-      <created>1765363921469</created>
-      <option name="number" value="00007" />
-      <option name="presentableId" value="LOCAL-00007" />
-      <option name="project" value="LOCAL" />
-      <updated>1765363921469</updated>
-    </task>
-    <task id="LOCAL-00008" summary="feat: setup ci/cd">
-      <option name="closed" value="true" />
-      <created>1765364800996</created>
-      <option name="number" value="00008" />
-      <option name="presentableId" value="LOCAL-00008" />
-      <option name="project" value="LOCAL" />
-      <updated>1765364800996</updated>
-    </task>
-    <task id="LOCAL-00009" summary="feat: setup ci/cd">
-      <option name="closed" value="true" />
-      <created>1765365145336</created>
-      <option name="number" value="00009" />
-      <option name="presentableId" value="LOCAL-00009" />
-      <option name="project" value="LOCAL" />
-      <updated>1765365145336</updated>
-    </task>
-    <task id="LOCAL-00010" summary="feat: setup ci/cd">
-      <option name="closed" value="true" />
-      <created>1765365810154</created>
-      <option name="number" value="00010" />
-      <option name="presentableId" value="LOCAL-00010" />
-      <option name="project" value="LOCAL" />
-      <updated>1765365810154</updated>
     </task>
     <task id="LOCAL-00011" summary="feat: setup ci/cd">
       <option name="closed" value="true" />
@@ -546,7 +455,119 @@
       <option name="project" value="LOCAL" />
       <updated>1765782985598</updated>
     </task>
-    <option name="localTasksCounter" value="46" />
+    <task id="LOCAL-00046" summary="feat: add swagger gen with orval">
+      <option name="closed" value="true" />
+      <created>1765789167356</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1765789167356</updated>
+    </task>
+    <task id="LOCAL-00047" summary="feat: add swagger gen with orval">
+      <option name="closed" value="true" />
+      <created>1765791126328</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1765791126328</updated>
+    </task>
+    <task id="LOCAL-00048" summary="refactor: migration to use cookies">
+      <option name="closed" value="true" />
+      <created>1765792147187</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1765792147187</updated>
+    </task>
+    <task id="LOCAL-00049" summary="refactor: migration to use cookies">
+      <option name="closed" value="true" />
+      <created>1765792429083</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1765792429083</updated>
+    </task>
+    <task id="LOCAL-00050" summary="refactor: migration to use cookies">
+      <option name="closed" value="true" />
+      <created>1765792483700</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1765792483700</updated>
+    </task>
+    <task id="LOCAL-00051" summary="feat: ad standard response">
+      <option name="closed" value="true" />
+      <created>1765793527012</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1765793527012</updated>
+    </task>
+    <task id="LOCAL-00052" summary="feat: ad standard response">
+      <option name="closed" value="true" />
+      <created>1765794200957</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1765794200957</updated>
+    </task>
+    <task id="LOCAL-00053" summary="feat: add standard response + error response">
+      <option name="closed" value="true" />
+      <created>1765795638171</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1765795638171</updated>
+    </task>
+    <task id="LOCAL-00054" summary="feat: add standard response + error response">
+      <option name="closed" value="true" />
+      <created>1765795802422</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1765795802422</updated>
+    </task>
+    <task id="LOCAL-00055" summary="feat: add standard response + error response">
+      <option name="closed" value="true" />
+      <created>1765795833480</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1765795833480</updated>
+    </task>
+    <task id="LOCAL-00056" summary="feat: add standard response + error response">
+      <option name="closed" value="true" />
+      <created>1765795880747</created>
+      <option name="number" value="00056" />
+      <option name="presentableId" value="LOCAL-00056" />
+      <option name="project" value="LOCAL" />
+      <updated>1765795880747</updated>
+    </task>
+    <task id="LOCAL-00057" summary="feat: add standard response + error response">
+      <option name="closed" value="true" />
+      <created>1765796140200</created>
+      <option name="number" value="00057" />
+      <option name="presentableId" value="LOCAL-00057" />
+      <option name="project" value="LOCAL" />
+      <updated>1765796140200</updated>
+    </task>
+    <task id="LOCAL-00058" summary="refactor: update auth structure">
+      <option name="closed" value="true" />
+      <created>1765797664919</created>
+      <option name="number" value="00058" />
+      <option name="presentableId" value="LOCAL-00058" />
+      <option name="project" value="LOCAL" />
+      <updated>1765797664919</updated>
+    </task>
+    <task id="LOCAL-00059" summary="refactor: update auth structure">
+      <option name="closed" value="true" />
+      <created>1765797747450</created>
+      <option name="number" value="00059" />
+      <option name="presentableId" value="LOCAL-00059" />
+      <option name="project" value="LOCAL" />
+      <updated>1765797747450</updated>
+    </task>
+    <option name="localTasksCounter" value="60" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -563,7 +584,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="initiate-prisma" />
+                        <option value="config-swagger-and-orval" />
                       </list>
                     </value>
                   </entry>
@@ -583,7 +604,14 @@
     <MESSAGE value="fix: fix eslint with command &quot;pnpm lint&quot;" />
     <MESSAGE value="feat(auth): auth logic with supabase" />
     <MESSAGE value="fix(auth): can read global environments" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix(auth): can read global environments" />
+    <MESSAGE value="feat: add swagger gen with orval" />
+    <MESSAGE value="refactor: migration to use cookies" />
+    <MESSAGE value="feat: ad standard response" />
+    <MESSAGE value="feat(auth): auth logic with supabase&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml&#10;#&#9;apps/server/libs/shared/src/supabase/supabase.module.ts&#10;#&#9;apps/server/libs/shared/src/tcp-client.util.ts&#10;#&#9;apps/server/modules/auth-service/src/auth-service.module.ts&#10;#&#9;apps/server/modules/auth-service/src/auth-service.service.ts&#10;#&#9;apps/server/modules/gateway/src/auth/auth.controller.ts&#10;#&#9;apps/server/modules/gateway/src/auth/auth.module.ts&#10;#&#9;apps/server/modules/gateway/src/course/course.resolver.ts&#10;#&#9;apps/server/modules/gateway/src/course/course.schema.ts" />
+    <MESSAGE value="chore: remove unsused import&#10;&#10;Co-authored-by: Copilot &lt;175728472+Copilot@users.noreply.github.com&gt;" />
+    <MESSAGE value="feat: add standard response + error response" />
+    <MESSAGE value="refactor: update auth structure" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor: update auth structure" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

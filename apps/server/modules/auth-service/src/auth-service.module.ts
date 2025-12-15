@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { SupabaseModule } from '@server/shared';
-import { AuthServiceController } from './auth-service.controller';
-import { AuthServiceService } from './auth-service.service';
+import { AuthController } from './auth/auth.controller';
+import { AuthService } from './auth/auth.service';
 
 @Module({
   imports: [
@@ -11,7 +11,7 @@ import { AuthServiceService } from './auth-service.service';
     }),
     SupabaseModule,
   ],
-  controllers: [AuthServiceController],
-  providers: [AuthServiceService],
+  controllers: [AuthController],
+  providers: [AuthService],
 })
 export class AuthServiceModule {}

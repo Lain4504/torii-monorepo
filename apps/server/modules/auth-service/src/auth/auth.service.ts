@@ -3,7 +3,7 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import { SUPABASE_CLIENT } from '@server/shared';
 
 @Injectable()
-export class AuthServiceService {
+export class AuthService {
   constructor(
     @Inject(SUPABASE_CLIENT) private readonly supabase: SupabaseClient,
   ) {}
