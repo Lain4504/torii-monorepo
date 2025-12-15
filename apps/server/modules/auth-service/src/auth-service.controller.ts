@@ -16,4 +16,19 @@ export class AuthServiceController {
   validateToken(@Payload() payload: { token?: string }) {
     return this.authServiceService.validateToken(payload.token);
   }
+
+  @MessagePattern({ cmd: 'auth.signup' })
+  signUp(@Payload() payload: any) {
+    return this.authServiceService.signUp(payload);
+  }
+
+  @MessagePattern({ cmd: 'auth.signin' })
+  signIn(@Payload() payload: any) {
+    return this.authServiceService.signIn(payload);
+  }
+
+  @MessagePattern({ cmd: 'auth.signout' })
+  signOut() {
+    return this.authServiceService.signOut();
+  }
 }
