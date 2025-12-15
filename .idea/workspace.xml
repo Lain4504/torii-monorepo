@@ -4,8 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix: fix comment from copilot">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: update auth structure">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/auth-service/src/auth-service.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/auth-service/src/auth-service.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/auth-service/src/auth/auth.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/auth-service/src/auth/auth.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/auth-service/src/auth/auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/auth-service/src/auth/auth.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/main.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,12 +35,12 @@
     &quot;assignee&quot;: &quot;Lain4504&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/Lain4504/torii-monorepo.git&quot;,
-    &quot;accountId&quot;: &quot;b00df774-879c-47f6-b5d3-0a65d83c1c54&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/Lain4504/torii-monorepo.git",
+    "accountId": "b00df774-879c-47f6-b5d3-0a65d83c1c54"
   }
-}</component>
+}]]></component>
   <component name="KubernetesApiPersistence">{}</component>
   <component name="KubernetesApiProvider">{
   &quot;isMigrated&quot;: true
@@ -45,41 +54,39 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;JavaScript Debug.localhost:5173.executor&quot;: &quot;Debug&quot;,
-    &quot;Jest.AuthServiceController (1).executor&quot;: &quot;Run&quot;,
-    &quot;Jest.AuthServiceController.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.GatewayController.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.GatewayController.pingAuth.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.server &gt; auth-service.controller.spec.ts.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.server &gt; gateway.controller.spec.ts.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;#5 on livekit-meet&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;E:/demo/team-source/torii-monorepo/apps/server&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.standard&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.standard&quot;: &quot;&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs.jest.jest_package&quot;: &quot;E:/Ky9/apps/server/node_modules/jest&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;settings.javascript.linters.eslint&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;E:\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "JavaScript Debug.localhost:5173.executor": "Debug",
+    "Jest.AuthServiceController (1).executor": "Run",
+    "Jest.AuthServiceController.executor": "Run",
+    "Jest.GatewayController.executor": "Run",
+    "Jest.GatewayController.pingAuth.executor": "Run",
+    "Jest.server > auth-service.controller.spec.ts.executor": "Run",
+    "Jest.server > gateway.controller.spec.ts.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "livekit-meet",
+    "ignore.virus.scanning.warn.message": "true",
+    "junie.onboarding.icon.badge.shown": "true",
+    "last_opened_file_path": "E:/demo/team-source/torii-monorepo",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.standard": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.standard": "",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs.jest.jest_package": "E:/Ky9/apps/server/node_modules/jest",
+    "nodejs_package_manager_path": "pnpm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "ts.external.directory.path": "E:\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="E:\demo\team-source\torii-monorepo\apps\server" />
-      <recent name="E:\demo\team-source\torii-monorepo" />
       <recent name="E:\Ky9\apps\server" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -179,10 +186,135 @@
       <workItem from="1765449186873" duration="25000" />
       <workItem from="1765456305656" duration="449000" />
       <workItem from="1765456975211" duration="422000" />
-      <workItem from="1765802001916" duration="13533000" />
-      <workItem from="1765819424134" duration="879000" />
-      <workItem from="1765820660014" duration="666000" />
-      <workItem from="1765849677488" duration="719000" />
+      <workItem from="1765802001916" duration="2491000" />
+    </task>
+    <task id="LOCAL-00011" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765367308739</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1765367308739</updated>
+    </task>
+    <task id="LOCAL-00012" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765367324164</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1765367324164</updated>
+    </task>
+    <task id="LOCAL-00013" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765367602155</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1765367602155</updated>
+    </task>
+    <task id="LOCAL-00014" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765368425076</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1765368425076</updated>
+    </task>
+    <task id="LOCAL-00015" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765369575063</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1765369575063</updated>
+    </task>
+    <task id="LOCAL-00016" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765369837090</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1765369837090</updated>
+    </task>
+    <task id="LOCAL-00017" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765370074239</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1765370074239</updated>
+    </task>
+    <task id="LOCAL-00018" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765370534362</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1765370534362</updated>
+    </task>
+    <task id="LOCAL-00019" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765370804735</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1765370804735</updated>
+    </task>
+    <task id="LOCAL-00020" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765372374034</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1765372374034</updated>
+    </task>
+    <task id="LOCAL-00021" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765372622647</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1765372622647</updated>
+    </task>
+    <task id="LOCAL-00022" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765373745048</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1765373745048</updated>
+    </task>
+    <task id="LOCAL-00023" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765374065706</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1765374065706</updated>
+    </task>
+    <task id="LOCAL-00024" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765374220536</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1765374220536</updated>
+    </task>
+    <task id="LOCAL-00025" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765374520555</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1765374520555</updated>
+    </task>
+    <task id="LOCAL-00026" summary="feat: setup ci/cd">
+      <option name="closed" value="true" />
+      <created>1765445372644</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1765445372644</updated>
     </task>
     <task id="LOCAL-00027" summary="feat: setup ci/cd">
       <option name="closed" value="true" />
@@ -448,135 +580,7 @@
       <option name="project" value="LOCAL" />
       <updated>1765797747450</updated>
     </task>
-    <task id="LOCAL-00060" summary="feat: setup livekit service">
-      <option name="closed" value="true" />
-      <created>1765806175506</created>
-      <option name="number" value="00060" />
-      <option name="presentableId" value="LOCAL-00060" />
-      <option name="project" value="LOCAL" />
-      <updated>1765806175506</updated>
-    </task>
-    <task id="LOCAL-00061" summary="chore: install dependencies">
-      <option name="closed" value="true" />
-      <created>1765806347993</created>
-      <option name="number" value="00061" />
-      <option name="presentableId" value="LOCAL-00061" />
-      <option name="project" value="LOCAL" />
-      <updated>1765806347993</updated>
-    </task>
-    <task id="LOCAL-00062" summary="feat: setup livekit service">
-      <option name="closed" value="true" />
-      <created>1765806414783</created>
-      <option name="number" value="00062" />
-      <option name="presentableId" value="LOCAL-00062" />
-      <option name="project" value="LOCAL" />
-      <updated>1765806414783</updated>
-    </task>
-    <task id="LOCAL-00063" summary="feat: create room service">
-      <option name="closed" value="true" />
-      <created>1765806435271</created>
-      <option name="number" value="00063" />
-      <option name="presentableId" value="LOCAL-00063" />
-      <option name="project" value="LOCAL" />
-      <updated>1765806435271</updated>
-    </task>
-    <task id="LOCAL-00064" summary="feat: create webhook livekit service">
-      <option name="closed" value="true" />
-      <created>1765806747018</created>
-      <option name="number" value="00064" />
-      <option name="presentableId" value="LOCAL-00064" />
-      <option name="project" value="LOCAL" />
-      <updated>1765806747018</updated>
-    </task>
-    <task id="LOCAL-00065" summary="feat: create recording logic">
-      <option name="closed" value="true" />
-      <created>1765807378140</created>
-      <option name="number" value="00065" />
-      <option name="presentableId" value="LOCAL-00065" />
-      <option name="project" value="LOCAL" />
-      <updated>1765807378142</updated>
-    </task>
-    <task id="LOCAL-00066" summary="feat: create recording logic">
-      <option name="closed" value="true" />
-      <created>1765810911607</created>
-      <option name="number" value="00066" />
-      <option name="presentableId" value="LOCAL-00066" />
-      <option name="project" value="LOCAL" />
-      <updated>1765810911607</updated>
-    </task>
-    <task id="LOCAL-00067" summary="feat: create poll logic">
-      <option name="closed" value="true" />
-      <created>1765812421664</created>
-      <option name="number" value="00067" />
-      <option name="presentableId" value="LOCAL-00067" />
-      <option name="project" value="LOCAL" />
-      <updated>1765812421665</updated>
-    </task>
-    <task id="LOCAL-00068" summary="feat: create chat and files upload logic">
-      <option name="closed" value="true" />
-      <created>1765814175673</created>
-      <option name="number" value="00068" />
-      <option name="presentableId" value="LOCAL-00068" />
-      <option name="project" value="LOCAL" />
-      <updated>1765814175673</updated>
-    </task>
-    <task id="LOCAL-00069" summary="feat: create chat and files upload logic">
-      <option name="closed" value="true" />
-      <created>1765814668265</created>
-      <option name="number" value="00069" />
-      <option name="presentableId" value="LOCAL-00069" />
-      <option name="project" value="LOCAL" />
-      <updated>1765814668265</updated>
-    </task>
-    <task id="LOCAL-00070" summary="feat: create chat and files upload logic">
-      <option name="closed" value="true" />
-      <created>1765814841857</created>
-      <option name="number" value="00070" />
-      <option name="presentableId" value="LOCAL-00070" />
-      <option name="project" value="LOCAL" />
-      <updated>1765814841857</updated>
-    </task>
-    <task id="LOCAL-00071" summary="feat: create chat and files upload logic">
-      <option name="closed" value="true" />
-      <created>1765817042778</created>
-      <option name="number" value="00071" />
-      <option name="presentableId" value="LOCAL-00071" />
-      <option name="project" value="LOCAL" />
-      <updated>1765817042778</updated>
-    </task>
-    <task id="LOCAL-00072" summary="feat: create break room logic">
-      <option name="closed" value="true" />
-      <created>1765817845262</created>
-      <option name="number" value="00072" />
-      <option name="presentableId" value="LOCAL-00072" />
-      <option name="project" value="LOCAL" />
-      <updated>1765817845262</updated>
-    </task>
-    <task id="LOCAL-00073" summary="feat: create break room logic">
-      <option name="closed" value="true" />
-      <created>1765818403599</created>
-      <option name="number" value="00073" />
-      <option name="presentableId" value="LOCAL-00073" />
-      <option name="project" value="LOCAL" />
-      <updated>1765818403599</updated>
-    </task>
-    <task id="LOCAL-00074" summary="feat: create break room logic">
-      <option name="closed" value="true" />
-      <created>1765819809299</created>
-      <option name="number" value="00074" />
-      <option name="presentableId" value="LOCAL-00074" />
-      <option name="project" value="LOCAL" />
-      <updated>1765819809299</updated>
-    </task>
-    <task id="LOCAL-00075" summary="fix: fix comment from copilot">
-      <option name="closed" value="true" />
-      <created>1765820970748</created>
-      <option name="number" value="00075" />
-      <option name="presentableId" value="LOCAL-00075" />
-      <option name="project" value="LOCAL" />
-      <updated>1765820970749</updated>
-    </task>
-    <option name="localTasksCounter" value="76" />
+    <option name="localTasksCounter" value="60" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -593,7 +597,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="livekit-meet" />
+                        <option value="config-swagger-and-orval" />
                       </list>
                     </value>
                   </entry>
@@ -620,18 +624,7 @@
     <MESSAGE value="chore: remove unsused import&#10;&#10;Co-authored-by: Copilot &lt;175728472+Copilot@users.noreply.github.com&gt;" />
     <MESSAGE value="feat: add standard response + error response" />
     <MESSAGE value="refactor: update auth structure" />
-    <MESSAGE value="chore: install dependencies" />
-    <MESSAGE value="chore: install dependencies" />
-    <MESSAGE value="feat: setup livekit service" />
-    <MESSAGE value="feat: create room service" />
-    <MESSAGE value="feat: create webhook livekit logic" />
-    <MESSAGE value="feat: create webhook livekit logic" />
-    <MESSAGE value="feat: create recording logic" />
-    <MESSAGE value="feat: create poll logic" />
-    <MESSAGE value="feat: create chat and files upload logic" />
-    <MESSAGE value="feat: create break room logic" />
-    <MESSAGE value="fix: fix comment from copilot" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: fix comment from copilot" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor: update auth structure" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

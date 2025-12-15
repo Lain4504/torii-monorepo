@@ -55,7 +55,7 @@ export class AuthService {
     const token = await this.liveKitService.createAccessToken(
       identity,
       participantName,
-      { roomJoin: true, room: roomName, canPublish: true, canSubscribe: true, canPublishData: true },
+      { roomJoin: true, room: roomName },
     );
     return { token };
   }
