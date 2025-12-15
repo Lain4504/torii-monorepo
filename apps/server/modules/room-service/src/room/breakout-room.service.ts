@@ -3,7 +3,7 @@ import { PrismaService, LiveKitService, RedisService } from '@server/shared';
 import { CreateBreakoutRoomsDto, JoinBreakoutRoomDto, EndBreakoutRoomDto } from './room.dto';
 import { RoomService } from './room.service';
 import { RpcException } from '@nestjs/microservices';
-
+import * as jwt from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -29,7 +29,7 @@ export class BreakoutRoomService {
         try { parentMeta = JSON.parse(parentRoom.metadata); } catch (e) { }
 
         // 2. Prepare Metadata for Breakout Rooms (disable some features)
-        const bkMeta = structuredClone(parentMeta);
+        const bkMeta = JSON.parse(JSON.stringify(parentMeta)); // Deep clone
         bkMeta.isBreakoutRoom = true;
         bkMeta.parentRoomId = data.roomId;
         bkMeta.roomFeatures.breakoutRoomFeatures = { isAllow: false }; // Disable nested breakout
@@ -57,10 +57,10 @@ export class BreakoutRoomService {
             const bkRoomId = `${data.roomId}-${roomReq.id}`;
             try {
                 // Update specific metadata for this room
-                const thisRoomMeta = structuredClone(bkMeta);
+                const thisRoomMeta = JSON.parse(JSON.stringify(bkMeta));
                 thisRoomMeta.roomTitle = roomReq.title;
 
-                // Create via RoomService (to handle DB + LiveKit + Webhooks)
+                // Create via RoomService (to handle DB + LiveKit + Webooks)
                 await this.roomService.createRoom({
                     roomName: bkRoomId,
                     metadata: thisRoomMeta,
@@ -116,18 +116,6 @@ export class BreakoutRoomService {
         // TODO: Ideally fetch user info from Parent Room participants list to ensure consistency
 
         // 3. Generate Token
-        // Fetch user info from Parent Room participants list to ensure consistency
-        let name = data.userId;
-        try {
-            const participants = await this.liveKitService.getRoomClient().listParticipants(room.parentRoomId);
-            const p = participants.find(p => p.identity === data.userId);
-            if (p && p.name) {
-                name = p.name;
-            }
-        } catch (e) {
-            this.logger.warn(`Could not fetch participant ${data.userId} from parent room ${room.parentRoomId}: ${e.message}`);
-        }
-
         const videoGrant = {
             roomJoin: true,
             room: data.breakoutRoomId,
@@ -138,7 +126,7 @@ export class BreakoutRoomService {
 
         const token = await this.liveKitService.createAccessToken(
             data.userId,
-            name,
+            data.userId, // Name should be passed or fetched. Using ID as fallback for now. 
             videoGrant,
             room.metadata as string
         );
