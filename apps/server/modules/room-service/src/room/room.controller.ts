@@ -60,4 +60,28 @@ export class RoomController {
     verifyDownloadToken(@Payload() data: { token: string }) {
         return this.roomService.verifyDownloadToken(data.token);
     }
+    @MessagePattern({ cmd: 'poll.create' })
+    createPoll(@Payload() data: { roomId: string; userId: string; question: string; options: any[] }) {
+        return this.roomService.createPoll(data);
+    }
+
+    @MessagePattern({ cmd: 'poll.list' })
+    listPolls(@Payload() data: { roomId: string }) {
+        return this.roomService.listPolls(data);
+    }
+
+    @MessagePattern({ cmd: 'poll.close' })
+    closePoll(@Payload() data: { roomId: string; pollId: string; userId: string }) {
+        return this.roomService.closePoll(data);
+    }
+
+    @MessagePattern({ cmd: 'poll.submit' })
+    submitPoll(@Payload() data: { roomId: string; pollId: string; userId: string; name: string; selectedOption: number }) {
+        return this.roomService.submitPollResponse(data);
+    }
+
+    @MessagePattern({ cmd: 'poll.stats' })
+    getPollStats(@Payload() data: { roomId: string; pollId: string }) {
+        return this.roomService.getPollStats(data);
+    }
 }

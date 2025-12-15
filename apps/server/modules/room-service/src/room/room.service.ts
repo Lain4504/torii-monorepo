@@ -1,9 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService, LiveKitService } from '@server/shared';
+import { PrismaService, LiveKitService, RedisService } from '@server/shared';
 import { ConfigService } from '@nestjs/config';
 import { RpcException } from '@nestjs/microservices';
 import * as jwt from 'jsonwebtoken';
 import * as fs from 'fs';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class RoomService {
@@ -13,6 +14,7 @@ export class RoomService {
         private readonly prisma: PrismaService,
         private readonly liveKitService: LiveKitService,
         private readonly configService: ConfigService,
+        private readonly redisService: RedisService,
     ) { }
 
     async createRoom(data: { roomName: string; emptyTimeout?: number; maxParticipants?: number }) {
@@ -303,9 +305,121 @@ export class RoomService {
             }
 
             return { isValid: true, filePath: decoded.sub };
+            return { isValid: true, filePath: decoded.sub };
         } catch (error) {
             this.logger.error(`Error verifying token: ${error.message}`);
             throw new RpcException('Invalid or expired token');
+        }
+    }
+
+    // --- Polls Module (Redis) ---
+
+    async createPoll(data: { roomId: string; userId: string; question: string; options: any[] }) {
+        try {
+            const pollId = uuidv4();
+            const pollInfo = {
+                id: pollId,
+                roomId: data.roomId,
+                question: data.question,
+                options: data.options,
+                isRunning: true,
+                createdBy: data.userId,
+                created: Math.floor(Date.now() / 1000),
+            };
+
+            // Store in Redis: rooms:<roomId>:polls -> field: pollId -> value: JSON
+            await this.redisService.hset(
+                `rooms:${data.roomId}:polls`,
+                pollId,
+                JSON.stringify(pollInfo)
+            );
+
+            return { success: true, pollId, message: 'Poll created' };
+        } catch (error) {
+            this.logger.error(`Error creating poll: ${error.message}`);
+            throw new RpcException(error.message);
+        }
+    }
+
+    async listPolls(data: { roomId: string }) {
+        try {
+            const pollsMap = await this.redisService.hgetall(`rooms:${data.roomId}:polls`);
+            const polls = Object.values(pollsMap).map(p => JSON.parse(p));
+            // Sort by created desc
+            polls.sort((a, b) => b.created - a.created);
+            return { success: true, polls };
+        } catch (error) {
+            this.logger.error(`Error listing polls: ${error.message}`);
+            throw new RpcException(error.message);
+        }
+    }
+
+    async closePoll(data: { roomId: string; pollId: string; userId: string }) {
+        try {
+            const key = `rooms:${data.roomId}:polls`;
+            const pollJson = await this.redisService.hget(key, data.pollId);
+
+            if (!pollJson) {
+                throw new Error('Poll not found');
+            }
+
+            const poll = JSON.parse(pollJson);
+            poll.isRunning = false;
+
+            await this.redisService.hset(key, data.pollId, JSON.stringify(poll));
+
+            return { success: true, message: 'Poll closed' };
+        } catch (error) {
+            this.logger.error(`Error closing poll: ${error.message}`);
+            throw new RpcException(error.message);
+        }
+    }
+
+    async submitPollResponse(data: { roomId: string; pollId: string; userId: string; name: string; selectedOption: number }) {
+        try {
+            // Check if poll exists and is running
+            const pollJson = await this.redisService.hget(`rooms:${data.roomId}:polls`, data.pollId);
+            if (!pollJson) {
+                throw new Error('Poll not found');
+            }
+            const poll = JSON.parse(pollJson);
+            if (!poll.isRunning) {
+                throw new Error('Poll is closed');
+            }
+
+            // Store response: polls:<pollId>:responses -> field: userId -> value: JSON
+            const response = {
+                userId: data.userId,
+                name: data.name,
+                vote: data.selectedOption,
+            };
+
+            await this.redisService.hset(
+                `polls:${data.pollId}:responses`,
+                data.userId,
+                JSON.stringify(response)
+            );
+
+            return { success: true, message: 'Vote submitted' };
+        } catch (error) {
+            this.logger.error(`Error submitting vote: ${error.message}`);
+            throw new RpcException(error.message);
+        }
+    }
+
+    async getPollStats(data: { roomId: string; pollId: string }) {
+        try {
+            const responsesMap = await this.redisService.hgetall(`polls:${data.pollId}:responses`);
+            const responses = Object.values(responsesMap).map(r => JSON.parse(r));
+
+            // Aggregation logic could be here if needed, 
+            // but usually we just return the raw responses or a simple count map.
+            // Let's return raw for now as client might calculate.
+
+            return { success: true, responses };
+        } catch (error) {
+            this.logger.error(`Error getting poll stats: ${error.message}`);
+            throw new RpcException(error.message);
         }
     }
 }
