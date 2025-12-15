@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useCourseControllerFindAll, useCourseControllerCreate } from '@workspace/data-access/rest';
+import { useCourseControllerFindAll, useCourseControllerCreate, type Course } from '@workspace/data-access/rest';
 
 export function AppRestTest() {
     const { data: courses, isLoading, refetch } = useCourseControllerFindAll();
@@ -56,7 +56,7 @@ export function AppRestTest() {
                 <p>Loading REST data...</p>
             ) : (
                 <ul className="space-y-2">
-                    {courses?.map((course: any) => (
+                    {courses?.map((course: Course) => (
                         <li key={course.id} className="flex justify-between items-center bg-white p-3 rounded shadow-sm">
                             <span className="font-medium">{course.title}</span>
                             <span className="text-gray-600">${course.price}</span>

@@ -1,11 +1,11 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 
-import { AuthServiceService } from './auth-service.service';
+import { AuthService } from './auth.service';
 
 @Controller()
-export class AuthServiceController {
-  constructor(private readonly authServiceService: AuthServiceService) {}
+export class AuthController {
+  constructor(private readonly authServiceService: AuthService) {}
 
   @MessagePattern({ cmd: 'auth.ping' })
   ping() {
