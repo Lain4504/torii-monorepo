@@ -25,4 +25,9 @@ export class RoomController {
     list() {
         return this.roomService.listRooms();
     }
+
+    @MessagePattern({ cmd: 'webhook.event' })
+    handleWebhook(@Payload() event: any) {
+        this.roomService.handleWebhookEvent(event);
+    }
 }
