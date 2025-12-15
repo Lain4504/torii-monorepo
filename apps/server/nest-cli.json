@@ -16,7 +16,8 @@
       "entryFile": "main",
       "sourceRoot": "modules/gateway/src",
       "compilerOptions": {
-        "tsConfigPath": "modules/gateway/tsconfig.app.json"
+        "tsConfigPath": "modules/gateway/tsconfig.app.json",
+        "webpack": false
       }
     },
     "auth-service": {
@@ -25,7 +26,8 @@
       "entryFile": "main",
       "sourceRoot": "modules/auth-service/src",
       "compilerOptions": {
-        "tsConfigPath": "modules/auth-service/tsconfig.app.json"
+        "tsConfigPath": "modules/auth-service/tsconfig.app.json",
+        "webpack": false
       }
     },
     "course-service": {

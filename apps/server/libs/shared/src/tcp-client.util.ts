@@ -1,4 +1,8 @@
-import { ClientProviderOptions, Transport } from '@nestjs/microservices';
+import {
+  ClientProviderOptions,
+  MicroserviceOptions,
+  Transport,
+} from '@nestjs/microservices';
 
 type TcpClientConfig = {
   name: string;
@@ -20,5 +24,19 @@ export const createTcpClientOptions = ({
   options: {
     host: process.env[hostEnvKey] ?? defaultHost,
     port: Number(process.env[portEnvKey] ?? defaultPort),
+  },
+});
+
+export const createTcpServiceConfig = ({
+  hostEnvKey,
+  portEnvKey,
+  defaultPort,
+}: Omit<TcpClientConfig, 'name'>): MicroserviceOptions => ({
+  transport: Transport.TCP,
+  options: {
+    host: process.env[hostEnvKey] ?? '0.0.0.0',
+    port: Number(process.env[portEnvKey] ?? defaultPort),
+    retryAttempts: 5,
+    retryDelay: 1000,
   },
 });

@@ -1,38 +1,63 @@
 import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
 
-import { Course } from './course.entity';
-import { CreateCourseInput, UpdateCourseInput } from './course.input';
-import { CourseService } from './course.service';
+import { Inject } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { lastValueFrom } from 'rxjs';
+import { Course, CreateCourseInput, UpdateCourseInput } from './course.schema';
 
 @Resolver(() => Course)
 export class CourseResolver {
-  constructor(private readonly courseService: CourseService) {}
+  constructor(
+    @Inject('COURSE_SERVICE')
+    private readonly courseClient: ClientProxy,
+  ) {}
 
   @Query(() => [Course], { name: 'courses' })
   courses(): Promise<Course[]> {
-    return this.courseService.findAll();
+    return lastValueFrom(
+      this.courseClient.send<Course[]>({ cmd: 'course.findAll' }, {}),
+    ).then((courses) => courses.map(toCourse));
   }
 
   @Query(() => Course, { name: 'course', nullable: true })
-  course(@Args('id', { type: () => Int }) id: number): Promise<Course | null> {
-    return this.courseService.findOne(id);
+  async course(
+    @Args('id', { type: () => Int }) id: number,
+  ): Promise<Course | null> {
+    const course = await lastValueFrom(
+      this.courseClient.send<Course | null>({ cmd: 'course.findOne' }, id),
+    );
+    return course ? toCourse(course) : null;
   }
 
   @Mutation(() => Course)
-  createCourse(@Args('input') input: CreateCourseInput): Promise<Course> {
-    return this.courseService.create(input);
+  async createCourse(@Args('input') input: CreateCourseInput): Promise<Course> {
+    const course = await lastValueFrom(
+      this.courseClient.send<Course>({ cmd: 'course.create' }, input),
+    );
+    return toCourse(course);
   }
 
   @Mutation(() => Course)
-  updateCourse(
+  async updateCourse(
     @Args('id', { type: () => Int }) id: number,
     @Args('input') input: UpdateCourseInput,
   ): Promise<Course> {
-    return this.courseService.update(id, input);
+    const course = await lastValueFrom(
+      this.courseClient.send<Course>({ cmd: 'course.update' }, { id, input }),
+    );
+    return toCourse(course);
   }
 
   @Mutation(() => Boolean)
   deleteCourse(@Args('id', { type: () => Int }) id: number): Promise<boolean> {
-    return this.courseService.delete(id);
+    return lastValueFrom(
+      this.courseClient.send<boolean>({ cmd: 'course.delete' }, id),
+    );
   }
 }
+
+const toCourse = (data: any): Course => ({
+  ...data,
+  createdAt: data?.createdAt ? new Date(data.createdAt) : data?.createdAt,
+  updatedAt: data?.updatedAt ? new Date(data.updatedAt) : data?.updatedAt,
+});

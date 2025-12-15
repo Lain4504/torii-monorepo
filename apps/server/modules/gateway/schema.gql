@@ -2,11 +2,6 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type AuthHealth {
-  service: String!
-  status: String!
-}
-
 type Course {
   createdAt: DateTime!
   description: String
@@ -36,10 +31,8 @@ type Mutation {
 }
 
 type Query {
-  authHealth: AuthHealth!
   course(id: Int!): Course
   courses: [Course!]!
-  validateToken(token: String!): ValidateTokenResult!
 }
 
 input UpdateCourseInput {
@@ -47,8 +40,4 @@ input UpdateCourseInput {
   price: Float
   published: Boolean
   title: String
-}
-
-type ValidateTokenResult {
-  isValid: Boolean!
 }

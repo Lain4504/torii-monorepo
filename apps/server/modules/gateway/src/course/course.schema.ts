@@ -1,4 +1,4 @@
-import { Field, Float, InputType } from '@nestjs/graphql';
+import { Field, Float, InputType, Int, ObjectType } from '@nestjs/graphql';
 import {
   IsBoolean,
   IsNumber,
@@ -6,6 +6,33 @@ import {
   IsString,
   MaxLength,
 } from 'class-validator';
+
+// --- Entity ---
+@ObjectType()
+export class Course {
+  @Field(() => Int)
+  id!: number;
+
+  @Field()
+  title!: string;
+
+  @Field(() => String, { nullable: true })
+  description?: string | null;
+
+  @Field(() => Float)
+  price!: number;
+
+  @Field()
+  published!: boolean;
+
+  @Field()
+  createdAt!: Date;
+
+  @Field()
+  updatedAt!: Date;
+}
+
+// --- Inputs ---
 
 @InputType()
 export class CreateCourseInput {
