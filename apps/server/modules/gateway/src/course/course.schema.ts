@@ -12,15 +12,25 @@ import {
 @ObjectType()
 export class Course {
   @Field(() => Int)
-  @ApiProperty({ example: 1, description: 'The unique identifier of the course' })
+  @ApiProperty({
+    example: 1,
+    description: 'The unique identifier of the course',
+  })
   id!: number;
 
   @Field()
-  @ApiProperty({ example: 'Introduction to NestJS', description: 'The title of the course' })
+  @ApiProperty({
+    example: 'Introduction to NestJS',
+    description: 'The title of the course',
+  })
   title!: string;
 
   @Field(() => String, { nullable: true })
-  @ApiPropertyOptional({ type: String, example: 'A comprehensive guide...', description: 'The description of the course' })
+  @ApiPropertyOptional({
+    type: String,
+    example: 'A comprehensive guide...',
+    description: 'The description of the course',
+  })
   description?: string | null;
 
   @Field(() => Float)
@@ -28,7 +38,10 @@ export class Course {
   price!: number;
 
   @Field()
-  @ApiProperty({ example: true, description: 'Whether the course is published' })
+  @ApiProperty({
+    example: true,
+    description: 'Whether the course is published',
+  })
   published!: boolean;
 
   @Field()
@@ -47,13 +60,20 @@ export class CreateCourseInput {
   @Field()
   @IsString()
   @MaxLength(255)
-  @ApiProperty({ example: 'New Course Title', description: 'The title of the new course' })
+  @ApiProperty({
+    example: 'New Course Title',
+    description: 'The title of the new course',
+  })
   title!: string;
 
   @Field(() => String, { nullable: true })
   @IsOptional()
   @IsString()
-  @ApiPropertyOptional({ type: String, example: 'Course description', description: 'The description of the new course' })
+  @ApiPropertyOptional({
+    type: String,
+    example: 'Course description',
+    description: 'The description of the new course',
+  })
   description?: string | null;
 
   @Field(() => Float)
@@ -64,7 +84,10 @@ export class CreateCourseInput {
   @Field({ nullable: true })
   @IsOptional()
   @IsBoolean()
-  @ApiPropertyOptional({ example: false, description: 'Whether the new course is published' })
+  @ApiPropertyOptional({
+    example: false,
+    description: 'Whether the new course is published',
+  })
   published?: boolean;
 }
 
@@ -74,24 +97,37 @@ export class UpdateCourseInput {
   @IsOptional()
   @IsString()
   @MaxLength(255)
-  @ApiPropertyOptional({ example: 'Updated Title', description: 'The updated title of the course' })
+  @ApiPropertyOptional({
+    example: 'Updated Title',
+    description: 'The updated title of the course',
+  })
   title?: string;
 
   @Field(() => String, { nullable: true })
   @IsOptional()
   @IsString()
-  @ApiPropertyOptional({ type: String, example: 'Updated description', description: 'The updated description of the course' })
+  @ApiPropertyOptional({
+    type: String,
+    example: 'Updated description',
+    description: 'The updated description of the course',
+  })
   description?: string | null;
 
   @Field(() => Float, { nullable: true })
   @IsOptional()
   @IsNumber()
-  @ApiPropertyOptional({ example: 59.99, description: 'The updated price of the course' })
+  @ApiPropertyOptional({
+    example: 59.99,
+    description: 'The updated price of the course',
+  })
   price?: number;
 
   @Field({ nullable: true })
   @IsOptional()
   @IsBoolean()
-  @ApiPropertyOptional({ example: true, description: 'Whether the course is published' })
+  @ApiPropertyOptional({
+    example: true,
+    description: 'Whether the course is published',
+  })
   published?: boolean;
 }

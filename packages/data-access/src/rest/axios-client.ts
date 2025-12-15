@@ -11,7 +11,13 @@ export const customInstance = <T>(
         ...config,
         ...options,
         cancelToken: source.token,
-    }).then(({ data }) => data);
+    }).then(({ data }) => {
+        // Unwrap the Standard API Response (success, data, statusCode, message)
+        if (data && typeof data === 'object' && 'data' in data && 'success' in data) {
+            return data.data;
+        }
+        return data;
+    });
 
     // @ts-ignore
     promise.cancel = () => {

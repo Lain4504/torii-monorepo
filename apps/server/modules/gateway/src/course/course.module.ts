@@ -18,4 +18,4 @@ import { CourseController } from './course.controller';
   providers: [CourseResolver],
   controllers: [CourseController],
 })
-export class CourseModule { }
+export class CourseModule {}

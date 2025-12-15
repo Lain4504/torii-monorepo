@@ -94,6 +94,12 @@
     "testEnvironment": "node",
     "roots": [
       "<rootDir>/modules/"
-    ]
+    ],
+    "moduleNameMapper": {
+      "^@server/shared(|/.*)$": "<rootDir>/libs/shared/src/$1",
+      "^@prisma/generated$": "<rootDir>/generated/prisma/client",
+      "^@prisma/generated/(.*)$": "<rootDir>/generated/prisma/$1",
+      "(.+)\\.js$": "$1"
+    }
   }
 }

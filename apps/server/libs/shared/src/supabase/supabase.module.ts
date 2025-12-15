@@ -13,10 +13,7 @@ const supabaseProvider: Provider = {
     if (!supabaseKey) {
       throw new Error('SUPABASE_KEY environment variable is not set');
     }
-    return createClient(
-      supabaseUrl,
-      supabaseKey,
-    );
+    return createClient(supabaseUrl, supabaseKey);
   },
 };
 
