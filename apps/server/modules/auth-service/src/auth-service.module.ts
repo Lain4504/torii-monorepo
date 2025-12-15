@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { SupabaseModule } from '@server/shared';
+import { SupabaseModule, SharedModule } from '@server/shared';
 import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
 
@@ -10,8 +10,9 @@ import { AuthService } from './auth/auth.service';
       isGlobal: true,
     }),
     SupabaseModule,
+    SharedModule,
   ],
   controllers: [AuthController],
   providers: [AuthService],
 })
-export class AuthServiceModule {}
+export class AuthServiceModule { }
