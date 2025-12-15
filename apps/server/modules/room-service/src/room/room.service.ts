@@ -473,13 +473,15 @@ export class RoomService {
             const room = await this.prisma.roomInfo.findFirst({ where: { roomId: data.roomId, isRunning: true } });
             if (!room) throw new Error('Room not found or not active');
 
-            const ingress = await this.liveKitService.getIngressClient().createIngress({
-                inputType: data.inputType,
-                name: `${data.roomId}:${Date.now()}`,
-                roomName: data.roomId,
-                participantIdentity: `ingress-${Date.now()}`,
-                participantName: data.participantName,
-            });
+            const ingress = await this.liveKitService.getIngressClient().createIngress(
+                data.inputType,
+                {
+                    name: `${data.roomId}:${Date.now()}`,
+                    roomName: data.roomId,
+                    participantIdentity: `ingress-${Date.now()}`,
+                    participantName: data.participantName,
+                }
+            );
 
             // Update Metadata to include Ingress info (clone plugNmeet logic)
             // Note: In a real scenario, we should fetch current metadata from LiveKit, update it, and saving back

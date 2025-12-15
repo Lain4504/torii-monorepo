@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { RoomService } from './room.service';
-
+import { BreakoutRoomService } from './breakout-room.service';
 import {
     SaveFileMetadataDto,
     CreatePollDto,
@@ -20,13 +20,19 @@ import {
     SendSystemChatMessageDto,
     CreateIngressDto,
     ApproveWaitingUsersDto,
-    UpdateWaitingRoomMessageDto
+    UpdateWaitingRoomMessageDto,
+    CreateBreakoutRoomsDto,
+    JoinBreakoutRoomDto,
+    EndBreakoutRoomDto
 } from './room.dto';
 
 
 @Controller()
 export class RoomController {
-    constructor(private readonly roomService: RoomService) { }
+    constructor(
+        private readonly roomService: RoomService,
+        private readonly breakoutRoomService: BreakoutRoomService
+    ) { }
 
     @MessagePattern({ cmd: 'room.create' })
     create(@Payload() data: CreateRoomDto) {
@@ -131,5 +137,25 @@ export class RoomController {
     @MessagePattern({ cmd: 'waitingRoom.updateMsg' })
     updateWaitingRoomMessage(@Payload() data: UpdateWaitingRoomMessageDto) {
         return this.roomService.updateWaitingRoomMessage(data);
+    }
+
+    @MessagePattern({ cmd: 'breakoutRoom.create' })
+    createBreakoutRooms(@Payload() data: CreateBreakoutRoomsDto) {
+        return this.breakoutRoomService.createBreakoutRooms(data);
+    }
+
+    @MessagePattern({ cmd: 'breakoutRoom.join' })
+    joinBreakoutRoom(@Payload() data: JoinBreakoutRoomDto) {
+        return this.breakoutRoomService.joinBreakoutRoom(data);
+    }
+
+    @MessagePattern({ cmd: 'breakoutRoom.end' })
+    endBreakoutRoom(@Payload() data: EndBreakoutRoomDto) {
+        return this.breakoutRoomService.endBreakoutRoom(data);
+    }
+
+    @MessagePattern({ cmd: 'breakoutRoom.endAll' })
+    endAllBreakoutRooms(@Payload() data: { roomId: string }) {
+        return this.breakoutRoomService.endAllBreakoutRooms(data);
     }
 }

@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { NestFactory, HttpAdapterHost } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { GatewayModule } from './gateway.module';
