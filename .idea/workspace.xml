@@ -4,7 +4,27 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix: fix eslint with command &quot;pnpm lint&quot;" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix: fix eslint with command &quot;pnpm lint&quot;">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/tcp-client.util.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/tcp-client.util.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/auth-service/src/auth-service.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/auth-service/src/auth-service.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/auth-service/src/auth-service.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/auth-service/src/auth-service.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/auth-service/src/auth-service.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/auth-service/src/auth-service.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/auth-service/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/auth-service/src/main.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/course-service/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/course-service/src/main.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/schema.gql" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/schema.gql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/course/course.entity.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/course/course.input.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/course/course.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/course/course.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/course/course.resolver.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/course/course.resolver.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/course/course.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/main.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/nest-cli.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/nest-cli.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -43,35 +63,35 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;JavaScript Debug.localhost:5173.executor&quot;: &quot;Debug&quot;,
-    &quot;Jest.AuthServiceController.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.GatewayController.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.GatewayController.pingAuth.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.server &gt; auth-service.controller.spec.ts.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.server &gt; gateway.controller.spec.ts.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;#1 on initiate-prisma&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;E:/Ky9/apps/server&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.standard&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.standard&quot;: &quot;&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs.jest.jest_package&quot;: &quot;E:/Ky9/torii-nihongo/apps/server/node_modules/jest&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;E:\\Ky9\\node_modules\\typescript\\lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "JavaScript Debug.localhost:5173.executor": "Debug",
+    "Jest.AuthServiceController.executor": "Run",
+    "Jest.GatewayController.executor": "Run",
+    "Jest.GatewayController.pingAuth.executor": "Run",
+    "Jest.server > auth-service.controller.spec.ts.executor": "Run",
+    "Jest.server > gateway.controller.spec.ts.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "auth-with-supabase",
+    "junie.onboarding.icon.badge.shown": "true",
+    "last_opened_file_path": "E:/Ky9/apps/server",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.standard": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.standard": "",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs.jest.jest_package": "E:/Ky9/torii-nihongo/apps/server/node_modules/jest",
+    "nodejs_package_manager_path": "pnpm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "ts.external.directory.path": "E:\\Ky9\\node_modules\\typescript\\lib",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="E:\Ky9\apps\server" />
