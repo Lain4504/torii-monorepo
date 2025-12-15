@@ -38,7 +38,7 @@ export class RoomService {
                     sid: room.sid,
                     roomTitle: data.roomName,
                     isRunning: true,
-                    creationTime: room.creationTime,
+                    creationTime: Number(room.creationTime),
                 },
             });
 
@@ -77,5 +77,52 @@ export class RoomService {
         return this.prisma.roomInfo.findMany({
             where: { isRunning: true }
         });
+    }
+
+    async handleWebhookEvent(event: any) {
+        if (!event || !event.room) return;
+        const roomId = event.room.name;
+        const eventType = event.event;
+
+        try {
+            switch (eventType) {
+                case 'room_started':
+                    await this.prisma.roomInfo.upsert({
+                        where: { sid: event.room.sid },
+                        update: { isRunning: true },
+                        create: {
+                            roomId: roomId,
+                            sid: event.room.sid,
+                            roomTitle: roomId,
+                            isRunning: true,
+                            creationTime: Number(event.room.creationTime),
+                        },
+                    });
+                    break;
+
+                case 'room_finished':
+                    await this.prisma.roomInfo.updateMany({
+                        where: { sid: event.room.sid },
+                        data: { isRunning: false, endedAt: new Date() },
+                    });
+                    break;
+
+                case 'participant_joined':
+                    await this.prisma.roomInfo.updateMany({
+                        where: { sid: event.room.sid },
+                        data: { joinedParticipants: { increment: 1 } },
+                    });
+                    break;
+
+                case 'participant_left':
+                    await this.prisma.roomInfo.updateMany({
+                        where: { sid: event.room.sid },
+                        data: { joinedParticipants: { decrement: 1 } },
+                    });
+                    break;
+            }
+        } catch (error) {
+            this.logger.error(`Error handling webhook event ${eventType}: ${error.message}`);
+        }
     }
 }

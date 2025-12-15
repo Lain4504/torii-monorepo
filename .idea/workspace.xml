@@ -4,18 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: update auth structure">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/auth-service/src/auth-service.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/auth-service/src/auth-service.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/auth-service/src/auth/auth.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/auth-service/src/auth/auth.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/auth-service/src/auth/auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/auth-service/src/auth/auth.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/main.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: create room service" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -186,39 +175,7 @@
       <workItem from="1765449186873" duration="25000" />
       <workItem from="1765456305656" duration="449000" />
       <workItem from="1765456975211" duration="422000" />
-      <workItem from="1765802001916" duration="2491000" />
-    </task>
-    <task id="LOCAL-00011" summary="feat: setup ci/cd">
-      <option name="closed" value="true" />
-      <created>1765367308739</created>
-      <option name="number" value="00011" />
-      <option name="presentableId" value="LOCAL-00011" />
-      <option name="project" value="LOCAL" />
-      <updated>1765367308739</updated>
-    </task>
-    <task id="LOCAL-00012" summary="feat: setup ci/cd">
-      <option name="closed" value="true" />
-      <created>1765367324164</created>
-      <option name="number" value="00012" />
-      <option name="presentableId" value="LOCAL-00012" />
-      <option name="project" value="LOCAL" />
-      <updated>1765367324164</updated>
-    </task>
-    <task id="LOCAL-00013" summary="feat: setup ci/cd">
-      <option name="closed" value="true" />
-      <created>1765367602155</created>
-      <option name="number" value="00013" />
-      <option name="presentableId" value="LOCAL-00013" />
-      <option name="project" value="LOCAL" />
-      <updated>1765367602155</updated>
-    </task>
-    <task id="LOCAL-00014" summary="feat: setup ci/cd">
-      <option name="closed" value="true" />
-      <created>1765368425076</created>
-      <option name="number" value="00014" />
-      <option name="presentableId" value="LOCAL-00014" />
-      <option name="project" value="LOCAL" />
-      <updated>1765368425076</updated>
+      <workItem from="1765802001916" duration="2880000" />
     </task>
     <task id="LOCAL-00015" summary="feat: setup ci/cd">
       <option name="closed" value="true" />
@@ -580,7 +537,39 @@
       <option name="project" value="LOCAL" />
       <updated>1765797747450</updated>
     </task>
-    <option name="localTasksCounter" value="60" />
+    <task id="LOCAL-00060" summary="feat: setup livekit service">
+      <option name="closed" value="true" />
+      <created>1765806175506</created>
+      <option name="number" value="00060" />
+      <option name="presentableId" value="LOCAL-00060" />
+      <option name="project" value="LOCAL" />
+      <updated>1765806175506</updated>
+    </task>
+    <task id="LOCAL-00061" summary="chore: install dependencies">
+      <option name="closed" value="true" />
+      <created>1765806347993</created>
+      <option name="number" value="00061" />
+      <option name="presentableId" value="LOCAL-00061" />
+      <option name="project" value="LOCAL" />
+      <updated>1765806347993</updated>
+    </task>
+    <task id="LOCAL-00062" summary="feat: setup livekit service">
+      <option name="closed" value="true" />
+      <created>1765806414783</created>
+      <option name="number" value="00062" />
+      <option name="presentableId" value="LOCAL-00062" />
+      <option name="project" value="LOCAL" />
+      <updated>1765806414783</updated>
+    </task>
+    <task id="LOCAL-00063" summary="feat: create room service">
+      <option name="closed" value="true" />
+      <created>1765806435271</created>
+      <option name="number" value="00063" />
+      <option name="presentableId" value="LOCAL-00063" />
+      <option name="project" value="LOCAL" />
+      <updated>1765806435271</updated>
+    </task>
+    <option name="localTasksCounter" value="64" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -597,7 +586,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="config-swagger-and-orval" />
+                        <option value="livekit-meet" />
                       </list>
                     </value>
                   </entry>
@@ -624,7 +613,11 @@
     <MESSAGE value="chore: remove unsused import&#10;&#10;Co-authored-by: Copilot &lt;175728472+Copilot@users.noreply.github.com&gt;" />
     <MESSAGE value="feat: add standard response + error response" />
     <MESSAGE value="refactor: update auth structure" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: update auth structure" />
+    <MESSAGE value="chore: install dependencies" />
+    <MESSAGE value="chore: install dependencies" />
+    <MESSAGE value="feat: setup livekit service" />
+    <MESSAGE value="feat: create room service" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: create room service" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
