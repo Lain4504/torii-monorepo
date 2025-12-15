@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Inject, Param, Post, Res, StreamableFile, NotFoundException } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import type { Response } from 'express';
+import { Response } from 'express';
 import { createReadStream, existsSync } from 'fs';
 import { basename } from 'path';
 

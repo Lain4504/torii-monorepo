@@ -30,4 +30,34 @@ export class RoomController {
     handleWebhook(@Payload() event: any) {
         this.roomService.handleWebhookEvent(event);
     }
+
+    @MessagePattern({ cmd: 'recording.start' })
+    startRecording(@Payload() data: { roomName: string }) {
+        return this.roomService.startRecording(data);
+    }
+
+    @MessagePattern({ cmd: 'recording.stop' })
+    stopRecording(@Payload() data: { roomName: string }) {
+        return this.roomService.stopRecording(data);
+    }
+
+    @MessagePattern({ cmd: 'recording.fetch' })
+    fetchRecordings(@Payload() data: { roomIds?: string[], from?: number, limit?: number, orderBy?: 'ASC' | 'DESC' }) {
+        return this.roomService.fetchRecordings(data);
+    }
+
+    @MessagePattern({ cmd: 'recording.delete' })
+    deleteRecording(@Payload() data: { recordId: string }) {
+        return this.roomService.deleteRecording(data);
+    }
+
+    @MessagePattern({ cmd: 'recording.getDownloadToken' })
+    getDownloadToken(@Payload() data: { recordId: string }) {
+        return this.roomService.getDownloadToken(data);
+    }
+
+    @MessagePattern({ cmd: 'recording.verifyDownloadToken' })
+    verifyDownloadToken(@Payload() data: { token: string }) {
+        return this.roomService.verifyDownloadToken(data.token);
+    }
 }

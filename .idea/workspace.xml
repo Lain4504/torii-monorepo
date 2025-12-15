@@ -4,7 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: create room service" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: create recording logic">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/auth/auth.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/auth/auth.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/room.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/room.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/room.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/room.service.ts" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -24,12 +29,12 @@
     &quot;assignee&quot;: &quot;Lain4504&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Lain4504/torii-monorepo.git",
-    "accountId": "b00df774-879c-47f6-b5d3-0a65d83c1c54"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Lain4504/torii-monorepo.git&quot;,
+    &quot;accountId&quot;: &quot;b00df774-879c-47f6-b5d3-0a65d83c1c54&quot;
   }
-}]]></component>
+}</component>
   <component name="KubernetesApiPersistence">{}</component>
   <component name="KubernetesApiProvider">{
   &quot;isMigrated&quot;: true
@@ -60,7 +65,7 @@
     "git-widget-placeholder": "livekit-meet",
     "ignore.virus.scanning.warn.message": "true",
     "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "E:/demo/team-source/torii-monorepo",
+    "last_opened_file_path": "E:/demo/team-source/torii-monorepo/apps/server",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.standard": "true",
     "node.js.detected.package.tslint": "true",
@@ -69,13 +74,15 @@
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs.jest.jest_package": "E:/Ky9/apps/server/node_modules/jest",
     "nodejs_package_manager_path": "pnpm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "settings.editor.selected.configurable": "settings.javascript.linters.eslint",
     "ts.external.directory.path": "E:\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\demo\team-source\torii-monorepo\apps\server" />
+      <recent name="E:\demo\team-source\torii-monorepo" />
       <recent name="E:\Ky9\apps\server" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -175,23 +182,7 @@
       <workItem from="1765449186873" duration="25000" />
       <workItem from="1765456305656" duration="449000" />
       <workItem from="1765456975211" duration="422000" />
-      <workItem from="1765802001916" duration="2880000" />
-    </task>
-    <task id="LOCAL-00015" summary="feat: setup ci/cd">
-      <option name="closed" value="true" />
-      <created>1765369575063</created>
-      <option name="number" value="00015" />
-      <option name="presentableId" value="LOCAL-00015" />
-      <option name="project" value="LOCAL" />
-      <updated>1765369575063</updated>
-    </task>
-    <task id="LOCAL-00016" summary="feat: setup ci/cd">
-      <option name="closed" value="true" />
-      <created>1765369837090</created>
-      <option name="number" value="00016" />
-      <option name="presentableId" value="LOCAL-00016" />
-      <option name="project" value="LOCAL" />
-      <updated>1765369837090</updated>
+      <workItem from="1765802001916" duration="5989000" />
     </task>
     <task id="LOCAL-00017" summary="feat: setup ci/cd">
       <option name="closed" value="true" />
@@ -569,7 +560,23 @@
       <option name="project" value="LOCAL" />
       <updated>1765806435271</updated>
     </task>
-    <option name="localTasksCounter" value="64" />
+    <task id="LOCAL-00064" summary="feat: create webhook livekit service">
+      <option name="closed" value="true" />
+      <created>1765806747018</created>
+      <option name="number" value="00064" />
+      <option name="presentableId" value="LOCAL-00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1765806747018</updated>
+    </task>
+    <task id="LOCAL-00065" summary="feat: create recording logic">
+      <option name="closed" value="true" />
+      <created>1765807378140</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1765807378142</updated>
+    </task>
+    <option name="localTasksCounter" value="66" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -617,7 +624,10 @@
     <MESSAGE value="chore: install dependencies" />
     <MESSAGE value="feat: setup livekit service" />
     <MESSAGE value="feat: create room service" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: create room service" />
+    <MESSAGE value="feat: create webhook livekit logic" />
+    <MESSAGE value="feat: create recording logic" />
+    <MESSAGE value="feat: create webhook livekit logic" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: create webhook livekit logic" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
