@@ -10,7 +10,7 @@ export class CourseResolver {
   constructor(
     @Inject('COURSE_SERVICE')
     private readonly courseClient: ClientProxy,
-  ) { }
+  ) {}
 
   @Query(() => [Course], { name: 'courses' })
   courses(): Promise<Course[]> {
@@ -20,7 +20,9 @@ export class CourseResolver {
   }
 
   @Query(() => Course, { name: 'course', nullable: true })
-  async course(@Args('id', { type: () => Int }) id: number): Promise<Course | null> {
+  async course(
+    @Args('id', { type: () => Int }) id: number,
+  ): Promise<Course | null> {
     const course = await lastValueFrom(
       this.courseClient.send<Course | null>({ cmd: 'course.findOne' }, id),
     );

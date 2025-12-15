@@ -5,7 +5,7 @@ import { AuthServiceService } from './auth-service.service';
 
 @Controller()
 export class AuthServiceController {
-  constructor(private readonly authServiceService: AuthServiceService) { }
+  constructor(private readonly authServiceService: AuthServiceService) {}
 
   @MessagePattern({ cmd: 'auth.ping' })
   ping() {

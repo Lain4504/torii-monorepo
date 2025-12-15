@@ -4,12 +4,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(auth): auth logic with supabase">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix(auth): can read global environments">
+      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/supabase/supabase.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/supabase/supabase.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/tcp-client.util.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/tcp-client.util.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/auth-service/src/auth-service.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/auth-service/src/auth-service.controller.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/server/modules/auth-service/src/auth-service.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/auth-service/src/auth-service.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/auth-service/src/auth-service.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/auth-service/src/auth-service.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/server/modules/course-service/src/course-service.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/course-service/src/course-service.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/auth/auth.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/auth/auth.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/auth/auth.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/auth/auth.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/course/course.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/course/course.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/course/course.resolver.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/course/course.resolver.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/course/course.schema.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/course/course.schema.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.module.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -531,7 +538,15 @@
       <option name="project" value="LOCAL" />
       <updated>1765782252871</updated>
     </task>
-    <option name="localTasksCounter" value="45" />
+    <task id="LOCAL-00045" summary="fix(auth): can read global environments">
+      <option name="closed" value="true" />
+      <created>1765782985598</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1765782985598</updated>
+    </task>
+    <option name="localTasksCounter" value="46" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -567,7 +582,8 @@
     <MESSAGE value="migration: setup and migration prisma" />
     <MESSAGE value="fix: fix eslint with command &quot;pnpm lint&quot;" />
     <MESSAGE value="feat(auth): auth logic with supabase" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(auth): auth logic with supabase" />
+    <MESSAGE value="fix(auth): can read global environments" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix(auth): can read global environments" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

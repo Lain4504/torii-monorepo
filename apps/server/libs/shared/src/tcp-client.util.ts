@@ -1,4 +1,8 @@
-import { ClientProviderOptions, MicroserviceOptions, Transport } from '@nestjs/microservices';
+import {
+  ClientProviderOptions,
+  MicroserviceOptions,
+  Transport,
+} from '@nestjs/microservices';
 
 type TcpClientConfig = {
   name: string;

@@ -13,4 +13,4 @@ import { CourseModule } from './course/course.module';
     CourseModule,
   ],
 })
-export class CourseServiceModule { }
+export class CourseServiceModule {}

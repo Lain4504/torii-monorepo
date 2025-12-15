@@ -17,4 +17,4 @@ import { CourseResolver } from './course.resolver';
   ],
   providers: [CourseResolver],
 })
-export class CourseModule { }
+export class CourseModule {}

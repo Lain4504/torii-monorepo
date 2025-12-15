@@ -6,7 +6,7 @@ import { SUPABASE_CLIENT } from '@server/shared';
 export class AuthServiceService {
   constructor(
     @Inject(SUPABASE_CLIENT) private readonly supabase: SupabaseClient,
-  ) { }
+  ) {}
 
   ping() {
     return { service: 'auth', status: 'ok' };
