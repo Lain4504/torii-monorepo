@@ -1,0 +1,45 @@
+syntax = "proto3";
+package wajlc;
+
+message DataChannelMessage {
+  string id = 1;
+  DataMsgBodyType type = 2;
+  string from_user_id = 3;
+  optional string to_user_id = 4;
+  string message = 5;
+}
+
+enum DataMsgBodyType {
+  // SYSTEM type
+  UNKNOWN = 0;
+
+  FILE_UPLOAD = 1;
+  INFO = 2;
+  ALERT = 3;
+
+  USER_VISIBILITY_CHANGE = 4;
+  EXTERNAL_MEDIA_PLAYER_EVENTS = 5;
+
+  NEW_POLL_RESPONSE = 6;
+  PUSH_JOIN_BREAKOUT_ROOM = 19;
+  SPEECH_SUBTITLE_TEXT = 7;
+
+  // WHITEBOARD type
+  REQ_FULL_WHITEBOARD_DATA = 8;
+  RES_FULL_WHITEBOARD_DATA = 9;
+
+  SCENE_UPDATE = 10;
+  POINTER_UPDATE = 11;
+  WHITEBOARD_APP_STATE_CHANGE = 12;
+  PAGE_CHANGE = 15;
+  FILE_CHANGE = 17;
+  UPDATE_CURRENT_OFFICE_FILE_PAGES = 18;
+  WHITEBOARD_RESET = 20;
+
+  ADD_WHITEBOARD_FILE = 13 [deprecated = true];
+  ADD_WHITEBOARD_OFFICE_FILE = 14 [deprecated = true];
+
+  USER_CONNECTION_QUALITY_CHANGE = 16;
+
+  // next ID: 21
+}

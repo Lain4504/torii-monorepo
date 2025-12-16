@@ -7,7 +7,7 @@ export class AuthService {
   constructor(
     @Inject(SUPABASE_CLIENT) private readonly supabase: SupabaseClient,
     private readonly liveKitService: LiveKitService,
-  ) { }
+  ) {}
 
   ping() {
     return { service: 'auth', status: 'ok' };
@@ -50,12 +50,22 @@ export class AuthService {
     return { message: 'Signed out' };
   }
 
-  async createToken(payload: { roomName: string; participantName: string; identity: string }) {
+  async createToken(payload: {
+    roomName: string;
+    participantName: string;
+    identity: string;
+  }) {
     const { roomName, participantName, identity } = payload;
     const token = await this.liveKitService.createAccessToken(
       identity,
       participantName,
-      { roomJoin: true, room: roomName, canPublish: true, canSubscribe: true, canPublishData: true },
+      {
+        roomJoin: true,
+        room: roomName,
+        canPublish: true,
+        canSubscribe: true,
+        canPublishData: true,
+      },
     );
     return { token };
   }

@@ -47,6 +47,9 @@ importers:
       '@as-integrations/express5':
         specifier: ^1.1.2
         version: 1.1.2(@apollo/server@5.2.0(graphql@16.12.0))(express@5.1.0)
+      '@bufbuild/protobuf':
+        specifier: ^2.10.2
+        version: 2.10.2
       '@livekit/protocol':
         specifier: ^1.43.4
         version: 1.43.4
@@ -83,6 +86,9 @@ importers:
       '@supabase/supabase-js':
         specifier: ^2.87.1
         version: 2.87.1
+      body-parser:
+        specifier: ^2.2.1
+        version: 2.2.1
       class-transformer:
         specifier: ^0.5.1
         version: 0.5.1
@@ -92,6 +98,9 @@ importers:
       dotenv:
         specifier: ^17.2.3
         version: 17.2.3
+      google-protobuf:
+        specifier: ^3.21.4
+        version: 3.21.4
       graphql:
         specifier: ^16.12.0
         version: 16.12.0
@@ -104,9 +113,18 @@ importers:
       livekit-server-sdk:
         specifier: ^2.15.0
         version: 2.15.0
+      long:
+        specifier: ^5.3.2
+        version: 5.3.2
+      nats:
+        specifier: ^2.29.3
+        version: 2.29.3
       pg:
         specifier: ^8.16.3
         version: 8.16.3
+      protobufjs:
+        specifier: ^7.5.4
+        version: 7.5.4
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
@@ -135,6 +153,9 @@ importers:
       '@nestjs/testing':
         specifier: ^11.0.1
         version: 11.1.9(@nestjs/common@11.1.9(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.9)(@nestjs/microservices@11.1.9)(@nestjs/platform-express@11.1.9)
+      '@types/body-parser':
+        specifier: ^1.19.6
+        version: 1.19.6
       '@types/express':
         specifier: ^5.0.0
         version: 5.0.6
@@ -159,6 +180,9 @@ importers:
       concurrently:
         specifier: ^9.2.1
         version: 9.2.1
+      dotenv-cli:
+        specifier: ^11.0.0
+        version: 11.0.0
       eslint:
         specifier: ^9.18.0
         version: 9.39.1(jiti@2.6.1)
@@ -171,6 +195,9 @@ importers:
       globals:
         specifier: ^16.0.0
         version: 16.5.0
+      grpc-tools:
+        specifier: ^1.13.1
+        version: 1.13.1
       jest:
         specifier: ^30.0.0
         version: 30.2.0(@types/node@22.19.2)(ts-node@10.9.2(@types/node@22.19.2)(typescript@5.9.3))
@@ -195,6 +222,9 @@ importers:
       ts-node:
         specifier: ^10.9.2
         version: 10.9.2(@types/node@22.19.2)(typescript@5.9.3)
+      ts-proto:
+        specifier: ^1.181.2
+        version: 1.181.2
       tsconfig-paths:
         specifier: ^4.2.0
         version: 4.2.0
@@ -1029,6 +1059,9 @@ packages:
 
   '@bufbuild/protobuf@1.10.1':
     resolution: {integrity: sha512-wJ8ReQbHxsAfXhrf9ixl0aYbZorRuOWpBNzm8pL8ftmSxQx/wnJD5Eg861NwJU/czy2VXFIebCeZnZrI9rktIQ==}
+
+  '@bufbuild/protobuf@2.10.2':
+    resolution: {integrity: sha512-uFsRXwIGyu+r6AMdz+XijIIZJYpoWeYzILt5yZ2d3mCjQrWUTVpVD9WL/jZAbvp+Ed04rOhrsk7FiTcEDseB5A==}
 
   '@chevrotain/cst-dts-gen@10.5.0':
     resolution: {integrity: sha512-lhmC/FyqQ2o7pGK4Om+hzuDrm9rhFYIJ/AXoQBeongmn870Xeb0L6oGEiuR8nohFNL5sMaQEJWCxr1oIVIVXrw==}
@@ -2100,6 +2133,11 @@ packages:
   '@lukeed/csprng@1.1.0':
     resolution: {integrity: sha512-Z7C/xXCiGWsg0KuKsHTKJxbWhpI3Vs5GwLfOean7MGyVFGqdRgBbAjOCh6u4bbjPc/8MJ2pZmK/0DLdCbivLDA==}
     engines: {node: '>=8'}
+
+  '@mapbox/node-pre-gyp@2.0.3':
+    resolution: {integrity: sha512-uwPAhccfFJlsfCxMYTwOdVfOz3xqyj8xYL3zJj8f0pb30tLohnnFPhLuqp4/qoEz8sNxe4SESZedcBojRefIzg==}
+    engines: {node: '>=18'}
+    hasBin: true
 
   '@microsoft/tsdoc@0.16.0':
     resolution: {integrity: sha512-xgAyonlVVS+q7Vc7qLW0UrJU7rSFcETRWsqdXZtjzRU8dF+6CkozTK4V4y1LwOX7j8r/vHphjDeMeGI4tNGeGA==}
@@ -3454,6 +3492,10 @@ packages:
   '@xtuc/long@4.2.2':
     resolution: {integrity: sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==}
 
+  abbrev@3.0.1:
+    resolution: {integrity: sha512-AO2ac6pjRB3SJmGJo+v5/aK6Omggp6fsLrs6wN9bd35ulu4cCwaAU9+7ZhXjeqHVkaHThLuzH0nZr0YpCDhygg==}
+    engines: {node: ^18.17.0 || >=20.5.0}
+
   abort-controller@3.0.0:
     resolution: {integrity: sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==}
     engines: {node: '>=6.5'}
@@ -3812,6 +3854,10 @@ packages:
 
   capital-case@1.0.4:
     resolution: {integrity: sha512-ds37W8CytHgwnhGGTi88pcPyR15qoNkOpYwmMMfnWqqWgESapLqvDx6huFjQ5vqWSn2Z06173XNA7LtMOeUh1A==}
+
+  case-anything@2.1.13:
+    resolution: {integrity: sha512-zlOQ80VrQ2Ue+ymH5OuM/DlDq64mEm+B9UTdHULv5osUMD6HalNTblf2b1u/m6QecjsnOkBpqVZ+XPwIVsy7Ng==}
+    engines: {node: '>=12.13'}
 
   chalk@2.4.2:
     resolution: {integrity: sha512-Mti+f9lpJNcwF4tWV8/OrTTtF1gZi+f8FqlyAdouralcFWFQWF2+NgCHShjkCb+IFBLq9buZwE1xckQU4peSuQ==}
@@ -4189,6 +4235,11 @@ packages:
     resolution: {integrity: sha512-reYkTUJAZb9gUuZ2RvVCNhVHdg62RHnJ7WJl8ftMi4diZ6NWlciOzQN88pUhSELEwflJht4oQDv0F0BMlwaYtA==}
     engines: {node: '>=8'}
 
+  detect-libc@1.0.3:
+    resolution: {integrity: sha512-pGjwhsmsp4kL2RTz08wcOlGN83otlqHeD/Z5T8GXZB+/YcpQ/dgo+lbU8ZsGxV0HIvqqxo9l7mqYwyYMD9bKDg==}
+    engines: {node: '>=0.10'}
+    hasBin: true
+
   detect-libc@2.0.4:
     resolution: {integrity: sha512-3UDv+G9CsCKO1WKMGw9fwq/SWJYbI0c5Y7LU1AXYoDdbhE2AHQ6N6Nb34sG8Fj7T5APy8qXDCKuuIHd1BR0tVA==}
     engines: {node: '>=8'}
@@ -4222,6 +4273,10 @@ packages:
   dot-case@3.0.4:
     resolution: {integrity: sha512-Kv5nKlh6yRrdrGvxeJ2e5y2eRUpkUosIW4A2AS38zwSz27zu7ufDwQPi5Jhs3XAlGNetl3bmnGhQsMtkKJnj3w==}
 
+  dotenv-cli@11.0.0:
+    resolution: {integrity: sha512-r5pA8idbk7GFWuHEU7trSTflWcdBpQEK+Aw17UrSHjS6CReuhrrPcyC3zcQBPQvhArRHnBo/h6eLH1fkCvNlww==}
+    hasBin: true
+
   dotenv-expand@12.0.1:
     resolution: {integrity: sha512-LaKRbou8gt0RNID/9RoI+J2rvXsBRPMV7p+ElHlPhcSARbCPDYcYG2s1TIzAfWv4YSgyY5taidWzzs31lNV3yQ==}
     engines: {node: '>=12'}
@@ -4241,6 +4296,9 @@ packages:
   dotenv@17.2.3:
     resolution: {integrity: sha512-JVUnt+DUIzu87TABbhPmNfVdBDt18BLOWjMUFJMSi/Qqg7NTYtabbvSNJGOJ7afbRuv9D/lngizHtP7QyLQ+9w==}
     engines: {node: '>=12'}
+
+  dprint-node@1.0.8:
+    resolution: {integrity: sha512-iVKnUtYfGrYcW1ZAlfR/F59cUVL8QIhWoBJoSjkkdua/dkWIgjZfiLMeTjiB06X0ZLkQ0M2C1VbUj/CxkIf1zg==}
 
   dset@3.1.4:
     resolution: {integrity: sha512-2QF/g9/zTaPDc3BjNcVTGoBbXBgYfMTTceLaYcFJ/W9kggFUkhxD/hMEeuLKbugyef9SqAx8cpgwlIP/jinUTA==}
@@ -4793,6 +4851,9 @@ packages:
     resolution: {integrity: sha512-jhIXaOzy1sb8IyocaruWSn1TjmnBVs8Ayhcy83rmxNJ8q2uWKCAj3CnJY+KpGSXCueAPc0i05kVvVKtP1t9S3g==}
     engines: {node: '>=10'}
 
+  google-protobuf@3.21.4:
+    resolution: {integrity: sha512-MnG7N936zcKTco4Jd2PX2U96Kf9PxygAPKBug+74LHzmHXmceN16MmRcdgZv+DGef/S9YvQAfRsNCn4cjf9yyQ==}
+
   gopd@1.2.0:
     resolution: {integrity: sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg==}
     engines: {node: '>= 0.4'}
@@ -4853,6 +4914,10 @@ packages:
   graphql@16.12.0:
     resolution: {integrity: sha512-DKKrynuQRne0PNpEbzuEdHlYOMksHSUI8Zc9Unei5gTsMNA2/vMpoMz/yKba50pejK56qj98qM0SjYxAKi13gQ==}
     engines: {node: ^12.22.0 || ^14.16.0 || ^16.0.0 || >=17.0.0}
+
+  grpc-tools@1.13.1:
+    resolution: {integrity: sha512-0sttMUxThNIkCTJq5qI0xXMz5zWqV2u3yG1kR3Sj9OokGIoyRBFjoInK9NyW7x5fH7knj48Roh1gq5xbl0VoDQ==}
+    hasBin: true
 
   handlebars@4.7.8:
     resolution: {integrity: sha512-vafaFqs8MZkRrSX7sFVUdo3ap/eNiLnb4IakshzvP56X5Nr1iGKAIqdX6tMlm6HcNRIkr6AxO5jFEoJzzpT8aQ==}
@@ -6054,6 +6119,11 @@ packages:
   node-releases@2.0.27:
     resolution: {integrity: sha512-nmh3lCkYZ3grZvqcCH+fjmQ7X+H0OeZgP40OierEaAptX4XofMh5kwNbWh7lBduUzCcV/8kZ+NDLCwm2iorIlA==}
 
+  nopt@8.1.0:
+    resolution: {integrity: sha512-ieGu42u/Qsa4TFktmaKEwM6MQH0pOWnaB3htzh0JRtx84+Mebc0cbZYN5bC+6WTZ4+77xrL9Pn5m7CV6VIkV7A==}
+    engines: {node: ^18.17.0 || >=20.5.0}
+    hasBin: true
+
   normalize-path@2.1.1:
     resolution: {integrity: sha512-3pKJwH184Xo/lnH6oyP1q2pMd7HcypqqmRs91/6/i2CGtWwIKGCkOOMTm/zXbgTEWHw1uNpNi/igc3ePOYHb6w==}
     engines: {node: '>=0.10.0'}
@@ -6428,6 +6498,10 @@ packages:
 
   proper-lockfile@4.1.2:
     resolution: {integrity: sha512-TjNPblN4BwAWMXU8s9AEz4JmQxnD1NNL7bNOY/AKUzyamc379FWASUhc/K1pL2noVb+XmZKLL68cjzLsiOAMaA==}
+
+  protobufjs@7.5.4:
+    resolution: {integrity: sha512-CvexbZtbov6jW2eXAvLukXjXUW1TzFaivC46BpWc/3BpcCysb5Vffu+B3XHMm8lVEuy2Mm4XGex8hBSg1yapPg==}
+    engines: {node: '>=12.0.0'}
 
   proxy-addr@2.0.7:
     resolution: {integrity: sha512-llQsMLSUDUPT44jdrU/O37qlnifitDP+ZwrmmZcoSKyLKvtZxpyV0n2/bD/N4tBAAZ/gJEdZU7KMraoK1+XYAg==}
@@ -7229,6 +7303,16 @@ packages:
         optional: true
       '@swc/wasm':
         optional: true
+
+  ts-poet@6.12.0:
+    resolution: {integrity: sha512-xo+iRNMWqyvXpFTaOAvLPA5QAWO6TZrSUs5s4Odaya3epqofBu/fMLHEWl8jPmjhA0s9sgj9sNvF1BmaQlmQkA==}
+
+  ts-proto-descriptors@1.16.0:
+    resolution: {integrity: sha512-3yKuzMLpltdpcyQji1PJZRfoo4OJjNieKTYkQY8pF7xGKsYz/RHe3aEe4KiRxcinoBmnEhmuI+yJTxLb922ULA==}
+
+  ts-proto@1.181.2:
+    resolution: {integrity: sha512-knJ8dtjn2Pd0c5ZGZG8z9DMiD4PUY8iGI9T9tb8DvGdWRMkLpf0WcPO7G+7cmbZyxvNTAG6ci3fybEaFgMZIvg==}
+    hasBin: true
 
   tsconfck@2.1.2:
     resolution: {integrity: sha512-ghqN1b0puy3MhhviwO2kGF8SeMDNhEbnKxjK7h6+fvY9JAxqvXi8y5NAHSQv687OVboS2uZIByzGd45/YxrRHg==}
@@ -8433,6 +8517,8 @@ snapshots:
 
   '@bufbuild/protobuf@1.10.1': {}
 
+  '@bufbuild/protobuf@2.10.2': {}
+
   '@chevrotain/cst-dts-gen@10.5.0':
     dependencies:
       '@chevrotain/gast': 10.5.0
@@ -9514,7 +9600,7 @@ snapshots:
   '@jest/console@30.2.0':
     dependencies:
       '@jest/types': 30.2.0
-      '@types/node': 20.19.25
+      '@types/node': 22.19.2
       chalk: 4.1.2
       jest-message-util: 30.2.0
       jest-util: 30.2.0
@@ -9598,7 +9684,7 @@ snapshots:
 
   '@jest/pattern@30.0.1':
     dependencies:
-      '@types/node': 20.19.25
+      '@types/node': 22.19.2
       jest-regex-util: 30.0.1
 
   '@jest/reporters@30.2.0':
@@ -9609,7 +9695,7 @@ snapshots:
       '@jest/transform': 30.2.0
       '@jest/types': 30.2.0
       '@jridgewell/trace-mapping': 0.3.31
-      '@types/node': 20.19.25
+      '@types/node': 22.19.2
       chalk: 4.1.2
       collect-v8-coverage: 1.0.3
       exit-x: 0.2.2
@@ -9748,6 +9834,19 @@ snapshots:
       '@bufbuild/protobuf': 1.10.1
 
   '@lukeed/csprng@1.1.0': {}
+
+  '@mapbox/node-pre-gyp@2.0.3':
+    dependencies:
+      consola: 3.4.2
+      detect-libc: 2.1.2
+      https-proxy-agent: 7.0.6
+      node-fetch: 2.7.0
+      nopt: 8.1.0
+      semver: 7.7.3
+      tar: 7.4.3
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
 
   '@microsoft/tsdoc@0.16.0': {}
 
@@ -10803,11 +10902,11 @@ snapshots:
   '@types/body-parser@1.19.6':
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 20.19.25
+      '@types/node': 22.19.2
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 20.19.25
+      '@types/node': 22.19.2
 
   '@types/cookiejar@2.1.5': {}
 
@@ -11352,6 +11451,8 @@ snapshots:
 
   '@xtuc/long@4.2.2': {}
 
+  abbrev@3.0.1: {}
+
   abort-controller@3.0.0:
     dependencies:
       event-target-shim: 5.0.1
@@ -11783,6 +11884,8 @@ snapshots:
       tslib: 2.8.1
       upper-case-first: 2.0.2
 
+  case-anything@2.1.13: {}
+
   chalk@2.4.2:
     dependencies:
       ansi-styles: 3.2.1
@@ -12165,6 +12268,8 @@ snapshots:
 
   detect-indent@6.1.0: {}
 
+  detect-libc@1.0.3: {}
+
   detect-libc@2.0.4: {}
 
   detect-libc@2.1.2: {}
@@ -12195,6 +12300,13 @@ snapshots:
       no-case: 3.0.4
       tslib: 2.8.1
 
+  dotenv-cli@11.0.0:
+    dependencies:
+      cross-spawn: 7.0.6
+      dotenv: 17.2.3
+      dotenv-expand: 12.0.1
+      minimist: 1.2.8
+
   dotenv-expand@12.0.1:
     dependencies:
       dotenv: 16.6.1
@@ -12206,6 +12318,10 @@ snapshots:
   dotenv@16.6.1: {}
 
   dotenv@17.2.3: {}
+
+  dprint-node@1.0.8:
+    dependencies:
+      detect-libc: 1.0.3
 
   dset@3.1.4: {}
 
@@ -12999,6 +13115,8 @@ snapshots:
       merge2: 1.4.1
       slash: 3.0.0
 
+  google-protobuf@3.21.4: {}
+
   gopd@1.2.0: {}
 
   graceful-fs@4.2.11: {}
@@ -13056,6 +13174,13 @@ snapshots:
       ws: 8.18.3
 
   graphql@16.12.0: {}
+
+  grpc-tools@1.13.1:
+    dependencies:
+      '@mapbox/node-pre-gyp': 2.0.3
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
 
   handlebars@4.7.8:
     dependencies:
@@ -13621,7 +13746,7 @@ snapshots:
   jest-haste-map@30.2.0:
     dependencies:
       '@jest/types': 30.2.0
-      '@types/node': 20.19.25
+      '@types/node': 22.19.2
       anymatch: 3.1.3
       fb-watchman: 2.0.2
       graceful-fs: 4.2.11
@@ -13694,7 +13819,7 @@ snapshots:
       '@jest/test-result': 30.2.0
       '@jest/transform': 30.2.0
       '@jest/types': 30.2.0
-      '@types/node': 20.19.25
+      '@types/node': 22.19.2
       chalk: 4.1.2
       emittery: 0.13.1
       exit-x: 0.2.2
@@ -13723,7 +13848,7 @@ snapshots:
       '@jest/test-result': 30.2.0
       '@jest/transform': 30.2.0
       '@jest/types': 30.2.0
-      '@types/node': 20.19.25
+      '@types/node': 22.19.2
       chalk: 4.1.2
       cjs-module-lexer: 2.1.1
       collect-v8-coverage: 1.0.3
@@ -13789,7 +13914,7 @@ snapshots:
     dependencies:
       '@jest/test-result': 30.2.0
       '@jest/types': 30.2.0
-      '@types/node': 20.19.25
+      '@types/node': 22.19.2
       ansi-escapes: 4.3.2
       chalk: 4.1.2
       emittery: 0.13.1
@@ -13992,7 +14117,7 @@ snapshots:
 
   lightningcss@1.30.1:
     dependencies:
-      detect-libc: 2.0.4
+      detect-libc: 2.1.2
     optionalDependencies:
       lightningcss-darwin-arm64: 1.30.1
       lightningcss-darwin-x64: 1.30.1
@@ -14312,7 +14437,6 @@ snapshots:
   nats@2.29.3:
     dependencies:
       nkeys.js: 1.1.0
-    optional: true
 
   natural-compare@1.4.0: {}
 
@@ -14368,7 +14492,6 @@ snapshots:
   nkeys.js@1.1.0:
     dependencies:
       tweetnacl: 1.0.3
-    optional: true
 
   no-case@2.3.2:
     dependencies:
@@ -14424,6 +14547,10 @@ snapshots:
       es6-promise: 3.3.1
 
   node-releases@2.0.27: {}
+
+  nopt@8.1.0:
+    dependencies:
+      abbrev: 3.0.1
 
   normalize-path@2.1.1:
     dependencies:
@@ -14874,6 +15001,21 @@ snapshots:
       graceful-fs: 4.2.11
       retry: 0.12.0
       signal-exit: 3.0.7
+
+  protobufjs@7.5.4:
+    dependencies:
+      '@protobufjs/aspromise': 1.1.2
+      '@protobufjs/base64': 1.1.2
+      '@protobufjs/codegen': 2.0.4
+      '@protobufjs/eventemitter': 1.1.0
+      '@protobufjs/fetch': 1.1.0
+      '@protobufjs/float': 1.0.2
+      '@protobufjs/inquire': 1.1.0
+      '@protobufjs/path': 1.1.2
+      '@protobufjs/pool': 1.1.0
+      '@protobufjs/utf8': 1.1.0
+      '@types/node': 22.19.2
+      long: 5.3.2
 
   proxy-addr@2.0.7:
     dependencies:
@@ -15815,6 +15957,22 @@ snapshots:
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
 
+  ts-poet@6.12.0:
+    dependencies:
+      dprint-node: 1.0.8
+
+  ts-proto-descriptors@1.16.0:
+    dependencies:
+      long: 5.3.2
+      protobufjs: 7.5.4
+
+  ts-proto@1.181.2:
+    dependencies:
+      case-anything: 2.1.13
+      protobufjs: 7.5.4
+      ts-poet: 6.12.0
+      ts-proto-descriptors: 1.16.0
+
   tsconfck@2.1.2(typescript@5.9.3):
     optionalDependencies:
       typescript: 5.9.3
@@ -15869,8 +16027,7 @@ snapshots:
 
   tw-animate-css@1.3.6: {}
 
-  tweetnacl@1.0.3:
-    optional: true
+  tweetnacl@1.0.3: {}
 
   type-check@0.4.0:
     dependencies:

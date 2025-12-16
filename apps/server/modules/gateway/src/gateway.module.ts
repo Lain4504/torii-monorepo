@@ -9,7 +9,6 @@ import { SharedModule } from '@server/shared';
 import { RoomModule } from './room/room.module';
 import { FileModule } from './file/file.module';
 
-
 @Module({
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
@@ -29,4 +28,4 @@ import { FileModule } from './file/file.module';
   controllers: [],
   providers: [],
 })
-export class GatewayModule { }
+export class GatewayModule {}

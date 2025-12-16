@@ -1,66 +1,98 @@
-import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  OnModuleInit,
+  OnModuleDestroy,
+  Logger,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 
 @Injectable()
 export class RedisService implements OnModuleInit, OnModuleDestroy {
-    private readonly logger = new Logger(RedisService.name);
-    private client: Redis;
+  private readonly logger = new Logger(RedisService.name);
+  private client: Redis;
 
-    constructor(private readonly configService: ConfigService) { }
+  constructor(private readonly configService: ConfigService) { }
 
-    onModuleInit() {
-        const host = this.configService.get<string>('REDIS_HOST') || 'localhost';
-        const port = this.configService.get<number>('REDIS_PORT') || 6379;
-        const password = this.configService.get<string>('REDIS_PASSWORD');
+  onModuleInit() {
+    const host = this.configService.get<string>('REDIS_HOST') || 'localhost';
+    const port = this.configService.get<number>('REDIS_PORT') || 6379;
+    const password = this.configService.get<string>('REDIS_PASSWORD');
 
-        this.client = new Redis({
-            host,
-            port,
-            password,
-            lazyConnect: true,
-        });
+    this.client = new Redis({
+      host,
+      port,
+      password,
+      lazyConnect: true,
+    });
 
-        this.client.on('error', (err) => {
-            this.logger.error(`Redis connection error: ${err.message}`);
-        });
+    this.client.on('error', (err) => {
+      this.logger.error(`Redis connection error: ${err.message}`);
+    });
 
-        this.client.on('connect', () => {
-            this.logger.log('Redis connected successfully');
-        });
+    this.client.on('connect', () => {
+      this.logger.log('Redis connected successfully');
+    });
+  }
+
+  async onModuleDestroy() {
+    if (this.client) {
+      await this.client.quit();
     }
+  }
 
-    async onModuleDestroy() {
-        if (this.client) {
-            await this.client.quit();
-        }
-    }
+  getClient(): Redis {
+    return this.client;
+  }
 
-    getClient(): Redis {
-        return this.client;
-    }
+  async hset(key: string, field: string, value: string): Promise<number> {
+    return this.client.hset(key, field, value);
+  }
 
-    async hset(key: string, field: string, value: string): Promise<number> {
-        return this.client.hset(key, field, value);
-    }
+  async hget(key: string, field: string): Promise<string | null> {
+    return this.client.hget(key, field);
+  }
 
-    async hget(key: string, field: string): Promise<string | null> {
-        return this.client.hget(key, field);
-    }
+  async hgetall(key: string): Promise<Record<string, string>> {
+    return this.client.hgetall(key);
+  }
 
-    async hgetall(key: string): Promise<Record<string, string>> {
-        return this.client.hgetall(key);
-    }
+  async hdel(key: string, field: string): Promise<number> {
+    return this.client.hdel(key, field);
+  }
 
-    async hdel(key: string, field: string): Promise<number> {
-        return this.client.hdel(key, field);
-    }
+  async del(key: string): Promise<number> {
+    return this.client.del(key);
+  }
 
-    async del(key: string): Promise<number> {
-        return this.client.del(key);
-    }
+  async expire(key: string, seconds: number): Promise<number> {
+    return this.client.expire(key, seconds);
+  }
 
-    async expire(key: string, seconds: number): Promise<number> {
-        return this.client.expire(key, seconds);
-    }
+  async acquireLock(
+    key: string,
+    value: string,
+    ttlSeconds: number,
+  ): Promise<boolean> {
+    const result = await this.client.set(
+      key,
+      value,
+      'EX',
+      ttlSeconds,
+      'NX',
+    );
+    return result === 'OK';
+  }
+
+  async releaseLock(key: string, value: string): Promise<boolean> {
+    const script = `
+      if redis.call("get", KEYS[1]) == ARGV[1] then
+        return redis.call("del", KEYS[1])
+      else
+        return 0
+      end
+    `;
+    const result = await this.client.eval(script, 1, key, value);
+    return result === 1;
+  }
 }

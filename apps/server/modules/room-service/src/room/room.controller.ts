@@ -1,161 +1,145 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Post, UseInterceptors, Body } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { RoomService } from './room.service';
 import { BreakoutRoomService } from './breakout-room.service';
+import { ProtobufInterceptor } from '@server/shared/interceptors/protobuf.interceptor';
 import {
-    SaveFileMetadataDto,
-    CreatePollDto,
-    ClosePollDto,
-    SubmitPollDto,
-    GetPollStatsDto,
-    ListPollsDto,
-    CreateRoomDto,
-    RoomNameDto,
-    StartRecordingDto,
-    StopRecordingDto,
-    FetchRecordingsDto,
-    DeleteRecordingDto,
-    GetDownloadTokenDto,
-    VerifyDownloadTokenDto,
-    SendSystemChatMessageDto,
-    CreateIngressDto,
-    ApproveWaitingUsersDto,
-    UpdateWaitingRoomMessageDto,
-    CreateBreakoutRoomsDto,
-    JoinBreakoutRoomDto,
-    EndBreakoutRoomDto
-} from './room.dto';
+  CreateRoomReq,
+  CreateRoomRes,
+  RoomEndAPIReq,
+  CommonResponse,
+  CreateBreakoutRoomsReq,
+  JoinBreakoutRoomReq,
+  BreakoutRoomRes,
+  EndBreakoutRoomReq,
+  CreateIngressReq,
+  CreateIngressRes,
+  ApproveWaitingUsersReq,
+  UpdateWaitingRoomMessageReq,
+  CreatePollReq,
+  SubmitPollResponseReq,
+  ClosePollReq,
+  PollResponse,
+  DataMessageReq,
+} from '@server/proto';
 
-
-@Controller()
+@Controller('room')
 export class RoomController {
-    constructor(
-        private readonly roomService: RoomService,
-        private readonly breakoutRoomService: BreakoutRoomService
-    ) { }
+  constructor(
+    private readonly roomService: RoomService,
+    private readonly breakoutRoomService: BreakoutRoomService,
+  ) {}
 
-    @MessagePattern({ cmd: 'room.create' })
-    create(@Payload() data: CreateRoomDto) {
-        return this.roomService.createRoom(data);
-    }
+  @Post('create')
+  @UseInterceptors(ProtobufInterceptor(CreateRoomReq, CreateRoomRes))
+  async create(@Body() data: CreateRoomReq) {
+    return this.roomService.createRoom(data as any);
+  }
 
-    @MessagePattern({ cmd: 'room.end' })
-    end(@Payload() data: RoomNameDto) {
-        return this.roomService.endRoom(data);
-    }
+  @Post('end')
+  @UseInterceptors(ProtobufInterceptor(RoomEndAPIReq, CommonResponse))
+  end(@Body() data: RoomEndAPIReq) {
+    return this.roomService.endRoom({ roomName: data.roomId });
+  }
 
-    @MessagePattern({ cmd: 'room.status' })
-    status(@Payload() data: RoomNameDto) {
-        return this.roomService.getRoomStatus(data);
-    }
+  @Post('status')
+  async status(@Body() data: RoomEndAPIReq) {
+    return this.roomService.getRoomStatus({ roomName: data.roomId });
+  }
 
-    @MessagePattern({ cmd: 'room.list' })
-    list() {
-        return this.roomService.listRooms();
-    }
+  @Post('list')
+  async list() {
+    return this.roomService.listRooms();
+  }
 
-    @MessagePattern({ cmd: 'webhook.event' })
-    handleWebhook(@Payload() event: any) {
-        this.roomService.handleWebhookEvent(event);
-    }
+  @MessagePattern({ cmd: 'webhook.event' })
+  handleWebhook(@Payload() event: any) {
+    this.roomService.handleWebhookEvent(event);
+  }
 
-    @MessagePattern({ cmd: 'recording.start' })
-    startRecording(@Payload() data: StartRecordingDto) {
-        return this.roomService.startRecording(data);
-    }
+  @Post('chat/systemMessage')
+  @UseInterceptors(ProtobufInterceptor(DataMessageReq, CommonResponse))
+  async sendSystemChatMessage(@Body() data: DataMessageReq) {
+    return this.roomService.sendSystemChatMessage({
+      roomId: data.roomId,
+      msg: data.msg,
+    });
+  }
 
-    @MessagePattern({ cmd: 'recording.stop' })
-    stopRecording(@Payload() data: StopRecordingDto) {
-        return this.roomService.stopRecording(data);
-    }
+  @Post('poll/create')
+  @UseInterceptors(ProtobufInterceptor(CreatePollReq, PollResponse))
+  async createPoll(@Body() data: CreatePollReq) {
+    return this.roomService.createPoll(data);
+  }
 
-    @MessagePattern({ cmd: 'recording.fetch' })
-    fetchRecordings(@Payload() data: FetchRecordingsDto) {
-        return this.roomService.fetchRecordings(data);
-    }
+  @Post('poll/list')
+  async listPolls(@Body() data: { roomId: string }) {
+    return this.roomService.listPolls(data);
+  }
 
-    @MessagePattern({ cmd: 'recording.delete' })
-    deleteRecording(@Payload() data: DeleteRecordingDto) {
-        return this.roomService.deleteRecording(data);
-    }
+  @Post('poll/close')
+  @UseInterceptors(ProtobufInterceptor(ClosePollReq, PollResponse))
+  async closePoll(@Body() data: ClosePollReq) {
+    return this.roomService.closePoll(data);
+  }
 
-    @MessagePattern({ cmd: 'recording.getDownloadToken' })
-    getDownloadToken(@Payload() data: GetDownloadTokenDto) {
-        return this.roomService.getDownloadToken(data);
-    }
+  @Post('poll/submit')
+  @UseInterceptors(ProtobufInterceptor(SubmitPollResponseReq, PollResponse))
+  async submitPoll(@Body() data: SubmitPollResponseReq) {
+    return this.roomService.submitPollResponse(data);
+  }
 
-    @MessagePattern({ cmd: 'recording.verifyDownloadToken' })
-    verifyDownloadToken(@Payload() data: VerifyDownloadTokenDto) {
-        return this.roomService.verifyDownloadToken(data.token);
-    }
+  @Post('poll/stats')
+  async getPollStats(@Body() data: { roomId: string; pollId: string }) {
+    return this.roomService.getPollStats(data);
+  }
 
-    @MessagePattern({ cmd: 'chat.systemMessage' })
-    sendSystemChatMessage(@Payload() data: SendSystemChatMessageDto) {
-        return this.roomService.sendSystemChatMessage(data);
-    }
+  @Post('file/saveMetadata')
+  async saveFileMetadata(@Body() data: any) {
+    return this.roomService.saveFileMetadata(data);
+  }
 
-    @MessagePattern({ cmd: 'poll.create' })
-    createPoll(@Payload() data: CreatePollDto) {
-        return this.roomService.createPoll(data);
-    }
+  @Post('ingress/create')
+  @UseInterceptors(ProtobufInterceptor(CreateIngressReq, CreateIngressRes))
+  createIngress(@Body() data: CreateIngressReq) {
+    return this.roomService.createIngress(data as any);
+  }
 
-    @MessagePattern({ cmd: 'poll.list' })
-    listPolls(@Payload() data: { roomId: string }) {
-        return this.roomService.listPolls(data);
-    }
+  @Post('waitingRoom/approve')
+  @UseInterceptors(ProtobufInterceptor(ApproveWaitingUsersReq, CommonResponse))
+  approveWaitingUsers(@Body() data: ApproveWaitingUsersReq) {
+    return this.roomService.approveWaitingUsers(data as any);
+  }
 
-    @MessagePattern({ cmd: 'poll.close' })
-    closePoll(@Payload() data: ClosePollDto) {
-        return this.roomService.closePoll(data);
-    }
+  @Post('waitingRoom/updateMsg')
+  @UseInterceptors(
+    ProtobufInterceptor(UpdateWaitingRoomMessageReq, CommonResponse),
+  )
+  updateWaitingRoomMessage(@Body() data: UpdateWaitingRoomMessageReq) {
+    return this.roomService.updateWaitingRoomMessage(data as any);
+  }
 
-    @MessagePattern({ cmd: 'poll.submit' })
-    submitPoll(@Payload() data: SubmitPollDto) {
-        return this.roomService.submitPollResponse(data);
-    }
+  @Post('breakoutRoom/create')
+  @UseInterceptors(ProtobufInterceptor(CreateBreakoutRoomsReq, CommonResponse))
+  createBreakoutRooms(@Body() data: CreateBreakoutRoomsReq) {
+    return this.breakoutRoomService.createBreakoutRooms(data as any);
+  }
 
-    @MessagePattern({ cmd: 'poll.stats' })
-    getPollStats(@Payload() data: GetPollStatsDto) {
-        return this.roomService.getPollStats(data);
-    }
+  @Post('breakoutRoom/join')
+  @UseInterceptors(ProtobufInterceptor(JoinBreakoutRoomReq, BreakoutRoomRes))
+  joinBreakoutRoom(@Body() data: JoinBreakoutRoomReq) {
+    return this.breakoutRoomService.joinBreakoutRoom(data as any);
+  }
 
-    @MessagePattern({ cmd: 'file.saveMetadata' })
-    saveFileMetadata(@Payload() data: SaveFileMetadataDto) {
-        return this.roomService.saveFileMetadata(data);
-    }
+  @Post('breakoutRoom/end')
+  @UseInterceptors(ProtobufInterceptor(EndBreakoutRoomReq, CommonResponse))
+  endBreakoutRoom(@Body() data: EndBreakoutRoomReq) {
+    return this.breakoutRoomService.endBreakoutRoom(data as any);
+  }
 
-    @MessagePattern({ cmd: 'ingress.create' })
-    createIngress(@Payload() data: CreateIngressDto) {
-        return this.roomService.createIngress(data);
-    }
-
-    @MessagePattern({ cmd: 'waitingRoom.approveUsers' })
-    approveWaitingUsers(@Payload() data: ApproveWaitingUsersDto) {
-        return this.roomService.approveWaitingUsers(data);
-    }
-
-    @MessagePattern({ cmd: 'waitingRoom.updateMsg' })
-    updateWaitingRoomMessage(@Payload() data: UpdateWaitingRoomMessageDto) {
-        return this.roomService.updateWaitingRoomMessage(data);
-    }
-
-    @MessagePattern({ cmd: 'breakoutRoom.create' })
-    createBreakoutRooms(@Payload() data: CreateBreakoutRoomsDto) {
-        return this.breakoutRoomService.createBreakoutRooms(data);
-    }
-
-    @MessagePattern({ cmd: 'breakoutRoom.join' })
-    joinBreakoutRoom(@Payload() data: JoinBreakoutRoomDto) {
-        return this.breakoutRoomService.joinBreakoutRoom(data);
-    }
-
-    @MessagePattern({ cmd: 'breakoutRoom.end' })
-    endBreakoutRoom(@Payload() data: EndBreakoutRoomDto) {
-        return this.breakoutRoomService.endBreakoutRoom(data);
-    }
-
-    @MessagePattern({ cmd: 'breakoutRoom.endAll' })
-    endAllBreakoutRooms(@Payload() data: { roomId: string }) {
-        return this.breakoutRoomService.endAllBreakoutRooms(data);
-    }
+  @Post('breakoutRoom/endAll')
+  @UseInterceptors(ProtobufInterceptor(RoomEndAPIReq, CommonResponse))
+  endAllBreakoutRooms(@Body() data: RoomEndAPIReq) {
+    return this.breakoutRoomService.endAllBreakoutRooms(data as any);
+  }
 }

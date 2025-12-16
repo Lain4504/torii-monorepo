@@ -4,12 +4,13 @@ import { RoomModule } from './room/room.module';
 import { SharedModule } from '@server/shared';
 
 @Module({
-    imports: [
-        ConfigModule.forRoot({
-            isGlobal: true,
-        }),
-        SharedModule,
-        RoomModule,
-    ],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '../../../.env', // Load from monorepo root
+    }),
+    SharedModule,
+    RoomModule,
+  ],
 })
-export class RoomServiceModule { }
+export class RoomServiceModule {}

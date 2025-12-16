@@ -33,6 +33,12 @@
       ],
       "@prisma/generated/*": [
         "./generated/prisma/*"
+      ],
+      "@server/proto": [
+        "./libs/proto/src"
+      ],
+      "@server/proto/*": [
+        "./libs/proto/src/*"
       ]
     }
   }

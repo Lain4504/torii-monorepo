@@ -4,7 +4,8 @@ import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { GatewayModule } from './gateway.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { TransformInterceptor, AllExceptionsFilter } from '@server/shared';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, RequestMethod } from '@nestjs/common';
+import { raw } from 'body-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(GatewayModule);
@@ -20,7 +21,19 @@ async function bootstrap() {
   const httpAdapter = app.get(HttpAdapterHost);
 
   app.enableCors();
-  app.setGlobalPrefix('api');
+
+  // Exclude 'webhook' from global prefix so it remains at /webhook root if needed,
+  // or at least available for standard external calls without /api if configured that way.
+  // We exclude both POST /webhook and POST /webhook/*
+  app.setGlobalPrefix('api', {
+    exclude: [
+      { path: 'webhook', method: RequestMethod.POST },
+      { path: 'webhook/(.*)', method: RequestMethod.POST },
+    ],
+  });
+
+  // Enable raw body parsing for protobuf
+  app.use(raw({ type: 'application/protobuf', limit: '10mb' }));
 
   // 1. Validation Pipe
   app.useGlobalPipes(
