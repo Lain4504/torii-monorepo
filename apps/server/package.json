@@ -31,6 +31,7 @@
     "@as-integrations/express5": "^1.1.2",
     "@bufbuild/protobuf": "^2.10.2",
     "@livekit/protocol": "^1.43.4",
+    "@nats-io/jwt": "0.0.10-5",
     "@nestjs/apollo": "^13.2.1",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",

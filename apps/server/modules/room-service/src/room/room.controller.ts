@@ -28,26 +28,39 @@ export class RoomController {
   constructor(
     private readonly roomService: RoomService,
     private readonly breakoutRoomService: BreakoutRoomService,
-  ) {}
+  ) { }
 
-  @Post('create')
-  @UseInterceptors(ProtobufInterceptor(CreateRoomReq, CreateRoomRes))
-  async create(@Body() data: CreateRoomReq) {
+  @MessagePattern({ cmd: 'room.create' })
+  async create(@Payload() data: CreateRoomReq) {
     return this.roomService.createRoom(data as any);
   }
 
-  @Post('end')
-  @UseInterceptors(ProtobufInterceptor(RoomEndAPIReq, CommonResponse))
-  end(@Body() data: RoomEndAPIReq) {
-    return this.roomService.endRoom({ roomName: data.roomId });
+  @MessagePattern({ cmd: 'room.end' })
+  end(@Payload() data: RoomEndAPIReq) {
+    return this.roomService.endRoom({ roomId: data.roomId });
   }
 
-  @Post('status')
-  async status(@Body() data: RoomEndAPIReq) {
-    return this.roomService.getRoomStatus({ roomName: data.roomId });
+  @MessagePattern({ cmd: 'room.status' })
+  async status(@Payload() data: RoomEndAPIReq) {
+    return this.roomService.getRoomStatus({ roomId: data.roomId });
   }
 
-  @Post('list')
+  @MessagePattern({ cmd: 'room.isRoomActive' })
+  async isRoomActive(@Payload() data: { roomId: string }) {
+    const status = await this.roomService.getRoomStatus({ roomId: data.roomId });
+    return {
+      status: true,
+      is_active: status.isRunning,
+      msg: status.isRunning ? 'active' : 'not active',
+    };
+  }
+
+  @MessagePattern({ cmd: 'room.getJoinToken' })
+  async getJoinToken(@Payload() data: any) {
+    return this.roomService.getJoinToken(data);
+  }
+
+  @MessagePattern({ cmd: 'room.list' })
   async list() {
     return this.roomService.listRooms();
   }

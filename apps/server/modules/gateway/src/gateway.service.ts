@@ -31,10 +31,14 @@ export class GatewayService {
   }
 
   async verifyPnmToken(authHeader: string, body: Buffer): Promise<Uint8Array> {
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (!authHeader) {
       throw new UnauthorizedException('Missing token');
     }
-    const token = authHeader.split(' ')[1];
+
+    let token = authHeader;
+    if (authHeader.startsWith('Bearer ')) {
+      token = authHeader.split(' ')[1];
+    }
 
     const secret = this.configService.get<string>('LIVEKIT_API_SECRET');
     if (!secret) {
@@ -57,20 +61,20 @@ export class GatewayService {
 
     // NATS configuration
     // Default to localhost if not set
-    const natsUrl = this.configService.get<string>('NATS_WS_URL', 'ws://localhost:9222');
+    const natsUrl = this.configService.get<string>('NATS_WS_URL', 'ws://localhost:8222');
 
     // Construct NATS Subjects
     // Using standard PlugNmeet patterns
     // Construct NATS Subjects
     // Using standard PlugNmeet patterns
     const natsSubjects: NatsSubjects = {
-      systemApiWorker: "pnm.api.worker",
-      systemJsWorker: "pnm.js.worker",
-      systemPublic: "pnm.system.public",
-      systemPrivate: "pnm.system.private",
-      chat: "pnm.chat",
-      whiteboard: "pnm.whiteboard",
-      dataChannel: "pnm.datachannel",
+      systemApiWorker: "sysApiWorker",
+      systemJsWorker: "sysJsWorker",
+      systemPublic: "sysPublic",
+      systemPrivate: "sysPrivate",
+      chat: "chat",
+      whiteboard: "whiteboard",
+      dataChannel: "dataChannel",
     };
 
     const res: VerifyTokenRes = {
@@ -83,7 +87,7 @@ export class GatewayService {
       isCloud: false,
       enabledSelfInsertEncryptionKey: false, // TODO: Configurable?
     };
-
+    console.log(`result of verifyPnmToken: `, res);
     return VerifyTokenRes.encode(res).finish();
   }
 }

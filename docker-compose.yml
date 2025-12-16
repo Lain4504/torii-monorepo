@@ -38,10 +38,11 @@ services:
   nats:
     image: nats:latest
     container_name: torii-nats
-    command: ['-js', '-sd', '/data']  # Enable JetStream
+    command: ['-js', '-sd', '/data', '--websocket_port', '9222']  # Enable JetStream & WebSocket
     ports:
       - '4222:4222'  # Client connections
       - '8222:8222'  # HTTP monitoring
+      - '9222:9222'  # WebSocket for Web Clients
     volumes:
       - natsdata:/data
     healthcheck:

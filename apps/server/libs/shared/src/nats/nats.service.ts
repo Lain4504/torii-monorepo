@@ -5,6 +5,9 @@ import {
   StringCodec,
   JetStreamClient,
   JetStreamManager,
+  nkeyAuthenticator,
+  AckPolicy,
+  DeliverPolicy,
 } from 'nats';
 
 @Injectable()
@@ -24,10 +27,16 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
   async connect() {
     try {
-      this.nc = await connect({
+      const opts: any = {
         servers: process.env.NATS_URL || 'nats://localhost:4222',
         name: 'nestjs-server',
-      });
+      };
+
+      if (process.env.NATS_NKEY_SEED) {
+        opts.authenticator = nkeyAuthenticator(new TextEncoder().encode(process.env.NATS_NKEY_SEED));
+      }
+
+      this.nc = await connect(opts);
       this.js = this.nc.jetstream();
       this.jsm = await this.nc.jetstreamManager();
       console.log('Connected to NATS JetStream');
@@ -41,6 +50,10 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
       await this.nc.drain();
       await this.nc.close();
     }
+  }
+
+  getConnection(): NatsConnection | undefined {
+    return this.nc;
   }
 
   async publish(subject: string, data: Uint8Array | Record<string, any>) {
@@ -240,6 +253,34 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     return this.publish(subj, payload);
   }
 
+  async createRoomStream(roomId: string) {
+    if (!this.jsm) return;
+    const subjects = [
+      `${roomId}:chat.*`,
+      `${roomId}:sysPublic.*`,
+      `${roomId}:sysPrivate.*.*`,
+      `${roomId}:whiteboard.*`,
+      `${roomId}:dataChannel.*`,
+    ];
+
+    try {
+      const stream = await this.jsm.streams.info(roomId).catch(() => null);
+      if (stream) {
+        await this.jsm.streams.update(roomId, {
+          subjects,
+        });
+      } else {
+        await this.jsm.streams.add({
+          name: roomId,
+          subjects,
+        });
+      }
+    } catch (e) {
+      console.error(`Error creating room stream ${roomId}:`, e);
+      throw e;
+    }
+  }
+
   async publishPayload(subject: string, payload: Uint8Array) {
     if (!this.js) return;
     return this.js.publish(subject, payload);
@@ -249,69 +290,75 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
   async createChatConsumer(roomId: string, userId: string) {
     if (!this.jsm) return;
-    const durable = `pnm.chat:${userId}`;
-    const filterSubject = `${roomId}:pnm.chat.>`;
+    const durable = `chat:${userId}`;
+    const filterSubject = `${roomId}:chat.>`;
     await this.jsm.consumers.add(roomId, {
       durable_name: durable,
       filter_subjects: [filterSubject],
-      ack_policy: 'Explicit' as any,
+      ack_policy: AckPolicy.Explicit,
     });
   }
 
   async createSystemPublicConsumer(roomId: string, userId: string) {
     if (!this.jsm) return;
-    const durable = `pnm.system.public:${userId}`;
-    const filterSubject = `${roomId}:pnm.system.public.>`;
+    const durable = `sysPublic:${userId}`;
+    const filterSubject = `${roomId}:sysPublic.>`;
     await this.jsm.consumers.add(roomId, {
       durable_name: durable,
-      deliver_policy: 'New' as any, // DeliverNewPolicy
+      deliver_policy: DeliverPolicy.New,
       filter_subjects: [filterSubject],
-      ack_policy: 'Explicit' as any,
+      ack_policy: AckPolicy.Explicit,
     });
   }
 
   async createSystemPrivateConsumer(roomId: string, userId: string) {
     if (!this.jsm) return;
-    const durable = `pnm.system.private:${userId}`;
-    const filterSubject = `${roomId}:pnm.system.private.${userId}.>`;
+    const durable = `sysPrivate:${userId}`;
+    const filterSubject = `${roomId}:sysPrivate.${userId}.>`;
     await this.jsm.consumers.add(roomId, {
       durable_name: durable,
-      deliver_policy: 'New' as any,
+      deliver_policy: DeliverPolicy.New,
       filter_subjects: [filterSubject],
-      ack_policy: 'Explicit' as any,
+      ack_policy: AckPolicy.Explicit,
     });
   }
 
   async createWhiteboardConsumer(roomId: string, userId: string) {
     if (!this.jsm) return;
-    const durable = `pnm.whiteboard:${userId}`;
-    const filterSubject = `${roomId}:pnm.whiteboard.>`;
+    const durable = `whiteboard:${userId}`;
+    const filterSubject = `${roomId}:whiteboard.>`;
     await this.jsm.consumers.add(roomId, {
       durable_name: durable,
-      deliver_policy: 'New' as any,
+      deliver_policy: DeliverPolicy.New,
       filter_subjects: [filterSubject],
-      ack_policy: 'Explicit' as any,
+      ack_policy: AckPolicy.Explicit,
     });
   }
 
   async createDataChannelConsumer(roomId: string, userId: string) {
     if (!this.jsm) return;
-    const durable = `pnm.datachannel:${userId}`;
-    const filterSubject = `${roomId}:pnm.datachannel.>`;
+    const durable = `dataChannel:${userId}`;
+    const filterSubject = `${roomId}:dataChannel.>`;
     await this.jsm.consumers.add(roomId, {
       durable_name: durable,
-      deliver_policy: 'New' as any,
+      deliver_policy: DeliverPolicy.New,
       filter_subjects: [filterSubject],
-      ack_policy: 'Explicit' as any,
+      ack_policy: AckPolicy.Explicit,
     });
   }
 
   async deleteConsumers(roomId: string, userId: string) {
     if (!this.jsm) return;
-    const subjects = ['pnm.chat', 'pnm.system.public', 'pnm.system.private', 'pnm.whiteboard', 'pnm.datachannel'];
-    for (const s of subjects) {
+    const consumers = [
+      `chat:${userId}`,
+      `sysPublic:${userId}`,
+      `sysPrivate:${userId}`,
+      `whiteboard:${userId}`,
+      `dataChannel:${userId}`
+    ];
+    for (const durable of consumers) {
       try {
-        await this.jsm.consumers.delete(roomId, `${s}:${userId}`);
+        await this.jsm.consumers.delete(roomId, durable);
       } catch (e) { }
     }
   }

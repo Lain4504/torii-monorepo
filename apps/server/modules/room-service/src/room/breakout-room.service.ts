@@ -196,7 +196,7 @@ export class BreakoutRoomService {
   }
 
   async endBreakoutRoom(data: EndBreakoutRoomReq) {
-    return this.roomService.endRoom({ roomName: data.breakoutRoomId });
+    return this.roomService.endRoom({ roomId: data.breakoutRoomId });
   }
 
   async endAllBreakoutRooms(data: { roomId: string }) {
@@ -210,7 +210,7 @@ export class BreakoutRoomService {
     });
 
     for (const room of rooms) {
-      await this.roomService.endRoom({ roomName: room.roomId });
+      await this.roomService.endRoom({ roomId: room.roomId });
       try {
         await this.natsService.kvDelete(
           `pnm-breakoutRoom-${data.roomId}`,

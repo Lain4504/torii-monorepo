@@ -74,20 +74,23 @@ export class RoomService implements OnModuleInit {
     }
 
     try {
-      this.logger.log(`Creating room: ${data.roomId}`);
+      const roomId = data.roomId || (data as any).room_id;
+      if (!roomId) throw new RpcException("Room ID is required");
+
+      this.logger.log(`Creating room: ${roomId}`);
 
       // Check if room exists in DB
       const existingRoom = await this.prisma.roomInfo.findFirst({
-        where: { roomId: data.roomId, isRunning: true },
+        where: { roomId: roomId, isRunning: true },
       });
 
       if (existingRoom) {
         // In full parity, we would check NATS KV and reconcile. 
         // For now, if DB says running, we respect it.
         return {
-          success: true,
-          room: existingRoom,
-          message: 'Room already active',
+          status: true,
+          room_info: existingRoom,
+          msg: 'Room already active',
         };
       }
 
@@ -96,7 +99,7 @@ export class RoomService implements OnModuleInit {
 
       // Create in LiveKit
       const room = await this.liveKitService.getRoomClient().createRoom({
-        name: data.roomId,
+        name: roomId,
         emptyTimeout: data.emptyTimeout || 60 * 60, // 1 hour default
         maxParticipants: data.maxParticipants || 100,
         metadata: data.metadata ? JSON.stringify(data.metadata) : undefined,
@@ -107,7 +110,7 @@ export class RoomService implements OnModuleInit {
         data: {
           roomId: room.name,
           sid: room.sid,
-          roomTitle: data.metadata?.roomTitle || data.roomId,
+          roomTitle: (data.metadata?.roomTitle) || roomId,
           isRunning: true,
           creationTime: Number(room.creationTime),
           metadata: data.metadata ? JSON.stringify(data.metadata) : undefined,
@@ -126,7 +129,7 @@ export class RoomService implements OnModuleInit {
       } as any);
 
       // Create NATS Streams
-      await this.createRoomNatsStreams(data.roomId);
+      await this.createRoomNatsStreams(room.name);
 
       // Analytics
       await this.analyticsService.sendAnalyticsData({
@@ -138,7 +141,7 @@ export class RoomService implements OnModuleInit {
         eventValueString: 'created',
       } as any);
 
-      return { success: true, room: dbRoom };
+      return { status: true, msg: 'success', room_info: dbRoom };
     } catch (error) {
       this.logger.error(`Error creating room: ${error.message}`);
       throw new RpcException(error.message);
@@ -195,18 +198,18 @@ export class RoomService implements OnModuleInit {
     }
   }
 
-  async endRoom(data: { roomName: string }) {
+  async endRoom(data: { roomId: string }) {
     try {
-      this.logger.log(`Ending room: ${data.roomName}`);
-      await this.liveKitService.getRoomClient().deleteRoom(data.roomName);
+      this.logger.log(`Ending room: ${data.roomId}`);
+      await this.liveKitService.getRoomClient().deleteRoom(data.roomId);
 
       await this.prisma.roomInfo.updateMany({
-        where: { roomId: data.roomName, isRunning: true },
+        where: { roomId: data.roomId, isRunning: true },
         data: { isRunning: false, endedAt: new Date() },
       });
 
       // NATS KV Sync
-      await this.natsService.updateRoomInfo(data.roomName, {
+      await this.natsService.updateRoomInfo(data.roomId, {
         status: 'ended',
       });
 
@@ -214,7 +217,7 @@ export class RoomService implements OnModuleInit {
       await this.analyticsService.sendAnalyticsData({
         eventType: AnalyticsEventType.ANALYTICS_EVENT_TYPE_ROOM,
         eventName: AnalyticsEvents.ANALYTICS_EVENT_UNKNOWN,
-        roomId: data.roomName,
+        roomId: data.roomId,
         time: Date.now(),
         eventValueString: 'ended',
       } as any);
@@ -226,11 +229,57 @@ export class RoomService implements OnModuleInit {
     }
   }
 
-  async getRoomStatus(data: { roomName: string }) {
+  async getRoomStatus(data: { roomId: string }) {
+    const roomId = data.roomId || (data as any).room_id || (data as any).roomName;
     const room = await this.prisma.roomInfo.findFirst({
-      where: { roomId: data.roomName, isRunning: true },
+      where: { roomId: roomId, isRunning: true },
     });
     return { isRunning: !!room, room };
+  }
+
+  async getJoinToken(data: any) {
+    const { room_id, user_info } = data;
+    if (!room_id || !user_info) {
+      return { status: false, msg: 'room_id and user_info are required' };
+    }
+
+    // 1. Check if room active
+    const roomInfo = await this.prisma.roomInfo.findFirst({
+      where: { roomId: room_id, isRunning: true },
+    });
+
+    if (!roomInfo) {
+      return { status: false, msg: 'room is not active. create room first' };
+    }
+
+    // 2. Generate Token
+    // TODO: Check blocked users via NATS (skipped for now as parity gap)
+
+    // LiveKit Token generation
+    // UserInfo: user_id, name, is_admin, user_metadata
+
+    const grants = {
+      roomJoin: true,
+      room: room_id,
+      canPublish: true,
+      canSubscribe: true,
+      canPublishData: true,
+      roomAdmin: user_info.is_admin,
+    };
+
+    const token = await this.liveKitService.createAccessToken(
+      user_info.user_id,
+      user_info.name,
+      grants,
+      user_info.user_metadata ? JSON.stringify(user_info.user_metadata) : undefined,
+    );
+
+
+    return {
+      status: true,
+      msg: 'success',
+      token,
+    };
   }
 
   async listRooms() {
