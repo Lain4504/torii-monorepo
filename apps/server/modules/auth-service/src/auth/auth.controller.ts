@@ -5,7 +5,7 @@ import { AuthService } from './auth.service';
 
 @Controller()
 export class AuthController {
-  constructor(private readonly authServiceService: AuthService) { }
+  constructor(private readonly authServiceService: AuthService) {}
 
   @MessagePattern({ cmd: 'auth.ping' })
   ping() {
@@ -33,7 +33,14 @@ export class AuthController {
   }
 
   @MessagePattern({ cmd: 'auth.token-generate' })
-  generateToken(@Payload() payload: { roomName: string; participantName: string; identity: string }) {
+  generateToken(
+    @Payload()
+    payload: {
+      roomName: string;
+      participantName: string;
+      identity: string;
+    },
+  ) {
     return this.authServiceService.createToken(payload);
   }
 }

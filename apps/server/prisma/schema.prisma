@@ -29,23 +29,25 @@ model Course {
 
 model RoomInfo {
   id                 Int         @id @default(autoincrement())
-  roomTitle          String      @default("")
-  roomId             String      @db.VarChar(64)
-  sid                String      @unique @db.VarChar(64)
-  joinedParticipants Int         @default(0)
-  isRunning          Boolean     @default(false)
-  isRecording        Boolean     @default(false)
-  recorderId         String      @default("") @db.VarChar(36)
-  isActiveRtmp       Boolean     @default(false)
-  rtmpNodeId         String      @default("") @db.VarChar(36)
-  webhookUrl         String      @default("")
-  metadata           Json?
+  roomTitle          String      @default("") @map("room_title")
+  roomId             String      @db.VarChar(64) @map("roomId") // Go model defines column as "roomId" (camelCase in DB? logic says snake_case usually but Go struct tag says roomId) checking Go file: `gorm:"column:roomId;...` -> It is actually roomId in Go.
+  sid                String      @unique @db.VarChar(64) @map("sid")
+  joinedParticipants Int         @default(0) @map("joined_participants")
+  isRunning          Boolean     @default(false) @map("is_running")
+  isRecording        Boolean     @default(false) @map("is_recording")
+  recorderId         String      @default("") @db.VarChar(36) @map("recorder_id")
+  isActiveRtmp       Boolean     @default(false) @map("is_active_rtmp")
+  rtmpNodeId         String      @default("") @db.VarChar(36) @map("rtmp_node_id")
+  webhookUrl         String      @default("") @map("webhook_url")
+  metadata           Json?       @map("metadata")
 
-  isBreakoutRoom     Boolean     @default(false)
-  parentRoomId       String      @default("") @db.VarChar(64)
-  creationTime       Int         @default(0)
-  createdAt          DateTime    @default(now())
-  endedAt            DateTime?
+  isBreakoutRoom     Boolean     @default(false) @map("is_breakout_room")
+  parentRoomId       String      @default("") @db.VarChar(64) @map("parent_room_id")
+  creationTime       Int         @default(0) @map("creation_time")
+  createdAt          DateTime    @default(now()) @map("created")
+  endedAt            DateTime?   @map("ended")
+  modified           DateTime    @default(now()) @updatedAt @map("modified")
+
   recordings         Recording[]
 
   @@index([roomId, isRunning])
@@ -54,18 +56,18 @@ model RoomInfo {
 
 model Recording {
   id               Int      @id @default(autoincrement())
-  recordId         String   @unique @db.VarChar(64)
-  roomId           String   @db.VarChar(64)
-  roomSid          String   @db.VarChar(64)
-  recorderId       String   @db.VarChar(36)
-  filePath         String
-  size             Float
-  published        Boolean  @default(true)
-  metadata         Json?
-  creationTime     Int      @default(0)
-  roomCreationTime Int      @default(0)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  recordId         String   @unique @db.VarChar(64) @map("record_id")
+  roomId           String   @db.VarChar(64) @map("room_id")
+  roomSid          String   @db.VarChar(64) @map("room_sid")
+  recorderId       String   @db.VarChar(36) @map("recorder_id")
+  filePath         String   @map("file_path")
+  size             Float    @map("size")
+  published        Boolean  @default(true) @map("published")
+  metadata         Json?    @map("metadata")
+  creationTime     Int      @default(0) @map("creation_time")
+  roomCreationTime Int      @default(0) @map("room_creation_time")
+  createdAt        DateTime @default(now()) @map("created")
+  updatedAt        DateTime @updatedAt @map("modified")
   
   room             RoomInfo @relation(fields: [roomSid], references: [sid])
 

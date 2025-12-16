@@ -8,7 +8,7 @@ COPY pnpm-lock.yaml package.json pnpm-workspace.yaml ./
 COPY apps ./apps
 COPY packages ./packages
 RUN pnpm install --frozen-lockfile
-RUN cd apps/server && npx prisma generate
+
 RUN pnpm --filter server build
 RUN pnpm prune --prod
 

@@ -4,8 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix: fix comment from copilot">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: listen worker for room state">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/nats/nats.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/nats/nats.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/system-worker.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/system-worker.service.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,6 +23,7 @@
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="ROOT_SYNC" value="DONT_SYNC" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
@@ -47,6 +52,7 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;Docker.docker-compose.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
     &quot;JavaScript Debug.localhost:5173.executor&quot;: &quot;Debug&quot;,
     &quot;Jest.AuthServiceController (1).executor&quot;: &quot;Run&quot;,
     &quot;Jest.AuthServiceController.executor&quot;: &quot;Run&quot;,
@@ -58,8 +64,9 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;bazel.project.detector.is.bazel.project&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;#5 on livekit-meet&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;migration-to-nats-protocol&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;E:/demo/team-source/torii-monorepo/apps/server&quot;,
@@ -88,7 +95,7 @@
       <recent name="E:\Ky9\torii-nihongo" />
     </key>
   </component>
-  <component name="RunManager" selected="Jest.AuthServiceController (1)">
+  <component name="RunManager" selected="Docker.docker-compose.yml: Compose Deployment">
     <configuration name="AuthServiceController (1)" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
       <node-interpreter value="project" />
       <jest-package value="$PROJECT_DIR$/apps/server/node_modules/jest" />
@@ -98,18 +105,6 @@
       <test-file value="$PROJECT_DIR$/apps/server/modules/auth-service/src/auth-service.controller.spec.ts" />
       <test-names>
         <test-name value="AuthServiceController" />
-      </test-names>
-      <method v="2" />
-    </configuration>
-    <configuration name="GatewayController" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
-      <node-interpreter value="project" />
-      <jest-package value="$PROJECT_DIR$/apps/server/node_modules/jest" />
-      <working-dir value="$PROJECT_DIR$/apps/server" />
-      <envs />
-      <scope-kind value="SUITE" />
-      <test-file value="$PROJECT_DIR$/apps/server/apps/gateway/src/gateway.controller.spec.ts" />
-      <test-names>
-        <test-name value="GatewayController" />
       </test-names>
       <method v="2" />
     </configuration>
@@ -144,13 +139,27 @@
       <test-file value="$PROJECT_DIR$/apps/server/apps/gateway/src/gateway.controller.spec.ts" />
       <method v="2" />
     </configuration>
+    <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
+      <deployment type="docker-compose.yml">
+        <settings />
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration name="docker-compose.yml: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="sourceFilePath" value="docker-compose.yml" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
         <item itemvalue="Jest.AuthServiceController (1)" />
         <item itemvalue="Jest.server &gt; gateway.controller.spec.ts" />
         <item itemvalue="Jest.server &gt; auth-service.controller.spec.ts" />
         <item itemvalue="Jest.GatewayController.pingAuth" />
-        <item itemvalue="Jest.GatewayController" />
       </list>
     </recent_temporary>
   </component>
@@ -183,278 +192,7 @@
       <workItem from="1765819424134" duration="879000" />
       <workItem from="1765820660014" duration="666000" />
       <workItem from="1765849677488" duration="719000" />
-    </task>
-    <task id="LOCAL-00027" summary="feat: setup ci/cd">
-      <option name="closed" value="true" />
-      <created>1765447995306</created>
-      <option name="number" value="00027" />
-      <option name="presentableId" value="LOCAL-00027" />
-      <option name="project" value="LOCAL" />
-      <updated>1765447995306</updated>
-    </task>
-    <task id="LOCAL-00028" summary="feat: setup ci/cd">
-      <option name="closed" value="true" />
-      <created>1765454868153</created>
-      <option name="number" value="00028" />
-      <option name="presentableId" value="LOCAL-00028" />
-      <option name="project" value="LOCAL" />
-      <updated>1765454868153</updated>
-    </task>
-    <task id="LOCAL-00029" summary="migration: setup and migration prisma">
-      <option name="closed" value="true" />
-      <created>1765725606260</created>
-      <option name="number" value="00029" />
-      <option name="presentableId" value="LOCAL-00029" />
-      <option name="project" value="LOCAL" />
-      <updated>1765725606260</updated>
-    </task>
-    <task id="LOCAL-00030" summary="migration: setup and migration prisma">
-      <option name="closed" value="true" />
-      <created>1765726418294</created>
-      <option name="number" value="00030" />
-      <option name="presentableId" value="LOCAL-00030" />
-      <option name="project" value="LOCAL" />
-      <updated>1765726418296</updated>
-    </task>
-    <task id="LOCAL-00031" summary="migration: setup and migration prisma">
-      <option name="closed" value="true" />
-      <created>1765728663954</created>
-      <option name="number" value="00031" />
-      <option name="presentableId" value="LOCAL-00031" />
-      <option name="project" value="LOCAL" />
-      <updated>1765728663954</updated>
-    </task>
-    <task id="LOCAL-00032" summary="migration: setup and migration prisma">
-      <option name="closed" value="true" />
-      <created>1765730679047</created>
-      <option name="number" value="00032" />
-      <option name="presentableId" value="LOCAL-00032" />
-      <option name="project" value="LOCAL" />
-      <updated>1765730679047</updated>
-    </task>
-    <task id="LOCAL-00033" summary="migration: setup and migration prisma">
-      <option name="closed" value="true" />
-      <created>1765730683659</created>
-      <option name="number" value="00033" />
-      <option name="presentableId" value="LOCAL-00033" />
-      <option name="project" value="LOCAL" />
-      <updated>1765730683659</updated>
-    </task>
-    <task id="LOCAL-00034" summary="migration: setup and migration prisma">
-      <option name="closed" value="true" />
-      <created>1765730961328</created>
-      <option name="number" value="00034" />
-      <option name="presentableId" value="LOCAL-00034" />
-      <option name="project" value="LOCAL" />
-      <updated>1765730961328</updated>
-    </task>
-    <task id="LOCAL-00035" summary="migration: setup and migration prisma">
-      <option name="closed" value="true" />
-      <created>1765730994993</created>
-      <option name="number" value="00035" />
-      <option name="presentableId" value="LOCAL-00035" />
-      <option name="project" value="LOCAL" />
-      <updated>1765730994993</updated>
-    </task>
-    <task id="LOCAL-00036" summary="migration: setup and migration prisma">
-      <option name="closed" value="true" />
-      <created>1765731225966</created>
-      <option name="number" value="00036" />
-      <option name="presentableId" value="LOCAL-00036" />
-      <option name="project" value="LOCAL" />
-      <updated>1765731225966</updated>
-    </task>
-    <task id="LOCAL-00037" summary="migration: setup and migration prisma">
-      <option name="closed" value="true" />
-      <created>1765731955201</created>
-      <option name="number" value="00037" />
-      <option name="presentableId" value="LOCAL-00037" />
-      <option name="project" value="LOCAL" />
-      <updated>1765731955201</updated>
-    </task>
-    <task id="LOCAL-00038" summary="fix: fix eslint with command &quot;pnpm lint&quot;">
-      <option name="closed" value="true" />
-      <created>1765734069628</created>
-      <option name="number" value="00038" />
-      <option name="presentableId" value="LOCAL-00038" />
-      <option name="project" value="LOCAL" />
-      <updated>1765734069628</updated>
-    </task>
-    <task id="LOCAL-00039" summary="fix: fix eslint with command &quot;pnpm lint&quot;">
-      <option name="closed" value="true" />
-      <created>1765734561329</created>
-      <option name="number" value="00039" />
-      <option name="presentableId" value="LOCAL-00039" />
-      <option name="project" value="LOCAL" />
-      <updated>1765734561329</updated>
-    </task>
-    <task id="LOCAL-00040" summary="fix: fix eslint with command &quot;pnpm lint&quot;">
-      <option name="closed" value="true" />
-      <created>1765734775248</created>
-      <option name="number" value="00040" />
-      <option name="presentableId" value="LOCAL-00040" />
-      <option name="project" value="LOCAL" />
-      <updated>1765734775248</updated>
-    </task>
-    <task id="LOCAL-00041" summary="fix: fix eslint with command &quot;pnpm lint&quot;">
-      <option name="closed" value="true" />
-      <created>1765735990961</created>
-      <option name="number" value="00041" />
-      <option name="presentableId" value="LOCAL-00041" />
-      <option name="project" value="LOCAL" />
-      <updated>1765735990961</updated>
-    </task>
-    <task id="LOCAL-00042" summary="fix: fix eslint with command &quot;pnpm lint&quot;">
-      <option name="closed" value="true" />
-      <created>1765736187094</created>
-      <option name="number" value="00042" />
-      <option name="presentableId" value="LOCAL-00042" />
-      <option name="project" value="LOCAL" />
-      <updated>1765736187094</updated>
-    </task>
-    <task id="LOCAL-00043" summary="fix: fix eslint with command &quot;pnpm lint&quot;">
-      <option name="closed" value="true" />
-      <created>1765736324371</created>
-      <option name="number" value="00043" />
-      <option name="presentableId" value="LOCAL-00043" />
-      <option name="project" value="LOCAL" />
-      <updated>1765736324371</updated>
-    </task>
-    <task id="LOCAL-00044" summary="feat(auth): auth logic with supabase">
-      <option name="closed" value="true" />
-      <created>1765782252870</created>
-      <option name="number" value="00044" />
-      <option name="presentableId" value="LOCAL-00044" />
-      <option name="project" value="LOCAL" />
-      <updated>1765782252871</updated>
-    </task>
-    <task id="LOCAL-00045" summary="fix(auth): can read global environments">
-      <option name="closed" value="true" />
-      <created>1765782985598</created>
-      <option name="number" value="00045" />
-      <option name="presentableId" value="LOCAL-00045" />
-      <option name="project" value="LOCAL" />
-      <updated>1765782985598</updated>
-    </task>
-    <task id="LOCAL-00046" summary="feat: add swagger gen with orval">
-      <option name="closed" value="true" />
-      <created>1765789167356</created>
-      <option name="number" value="00046" />
-      <option name="presentableId" value="LOCAL-00046" />
-      <option name="project" value="LOCAL" />
-      <updated>1765789167356</updated>
-    </task>
-    <task id="LOCAL-00047" summary="feat: add swagger gen with orval">
-      <option name="closed" value="true" />
-      <created>1765791126328</created>
-      <option name="number" value="00047" />
-      <option name="presentableId" value="LOCAL-00047" />
-      <option name="project" value="LOCAL" />
-      <updated>1765791126328</updated>
-    </task>
-    <task id="LOCAL-00048" summary="refactor: migration to use cookies">
-      <option name="closed" value="true" />
-      <created>1765792147187</created>
-      <option name="number" value="00048" />
-      <option name="presentableId" value="LOCAL-00048" />
-      <option name="project" value="LOCAL" />
-      <updated>1765792147187</updated>
-    </task>
-    <task id="LOCAL-00049" summary="refactor: migration to use cookies">
-      <option name="closed" value="true" />
-      <created>1765792429083</created>
-      <option name="number" value="00049" />
-      <option name="presentableId" value="LOCAL-00049" />
-      <option name="project" value="LOCAL" />
-      <updated>1765792429083</updated>
-    </task>
-    <task id="LOCAL-00050" summary="refactor: migration to use cookies">
-      <option name="closed" value="true" />
-      <created>1765792483700</created>
-      <option name="number" value="00050" />
-      <option name="presentableId" value="LOCAL-00050" />
-      <option name="project" value="LOCAL" />
-      <updated>1765792483700</updated>
-    </task>
-    <task id="LOCAL-00051" summary="feat: ad standard response">
-      <option name="closed" value="true" />
-      <created>1765793527012</created>
-      <option name="number" value="00051" />
-      <option name="presentableId" value="LOCAL-00051" />
-      <option name="project" value="LOCAL" />
-      <updated>1765793527012</updated>
-    </task>
-    <task id="LOCAL-00052" summary="feat: ad standard response">
-      <option name="closed" value="true" />
-      <created>1765794200957</created>
-      <option name="number" value="00052" />
-      <option name="presentableId" value="LOCAL-00052" />
-      <option name="project" value="LOCAL" />
-      <updated>1765794200957</updated>
-    </task>
-    <task id="LOCAL-00053" summary="feat: add standard response + error response">
-      <option name="closed" value="true" />
-      <created>1765795638171</created>
-      <option name="number" value="00053" />
-      <option name="presentableId" value="LOCAL-00053" />
-      <option name="project" value="LOCAL" />
-      <updated>1765795638171</updated>
-    </task>
-    <task id="LOCAL-00054" summary="feat: add standard response + error response">
-      <option name="closed" value="true" />
-      <created>1765795802422</created>
-      <option name="number" value="00054" />
-      <option name="presentableId" value="LOCAL-00054" />
-      <option name="project" value="LOCAL" />
-      <updated>1765795802422</updated>
-    </task>
-    <task id="LOCAL-00055" summary="feat: add standard response + error response">
-      <option name="closed" value="true" />
-      <created>1765795833480</created>
-      <option name="number" value="00055" />
-      <option name="presentableId" value="LOCAL-00055" />
-      <option name="project" value="LOCAL" />
-      <updated>1765795833480</updated>
-    </task>
-    <task id="LOCAL-00056" summary="feat: add standard response + error response">
-      <option name="closed" value="true" />
-      <created>1765795880747</created>
-      <option name="number" value="00056" />
-      <option name="presentableId" value="LOCAL-00056" />
-      <option name="project" value="LOCAL" />
-      <updated>1765795880747</updated>
-    </task>
-    <task id="LOCAL-00057" summary="feat: add standard response + error response">
-      <option name="closed" value="true" />
-      <created>1765796140200</created>
-      <option name="number" value="00057" />
-      <option name="presentableId" value="LOCAL-00057" />
-      <option name="project" value="LOCAL" />
-      <updated>1765796140200</updated>
-    </task>
-    <task id="LOCAL-00058" summary="refactor: update auth structure">
-      <option name="closed" value="true" />
-      <created>1765797664919</created>
-      <option name="number" value="00058" />
-      <option name="presentableId" value="LOCAL-00058" />
-      <option name="project" value="LOCAL" />
-      <updated>1765797664919</updated>
-    </task>
-    <task id="LOCAL-00059" summary="refactor: update auth structure">
-      <option name="closed" value="true" />
-      <created>1765797747450</created>
-      <option name="number" value="00059" />
-      <option name="presentableId" value="LOCAL-00059" />
-      <option name="project" value="LOCAL" />
-      <updated>1765797747450</updated>
-    </task>
-    <task id="LOCAL-00060" summary="feat: setup livekit service">
-      <option name="closed" value="true" />
-      <created>1765806175506</created>
-      <option name="number" value="00060" />
-      <option name="presentableId" value="LOCAL-00060" />
-      <option name="project" value="LOCAL" />
-      <updated>1765806175506</updated>
+      <workItem from="1765855909748" duration="4405000" />
     </task>
     <task id="LOCAL-00061" summary="chore: install dependencies">
       <option name="closed" value="true" />
@@ -576,11 +314,288 @@
       <option name="project" value="LOCAL" />
       <updated>1765820970749</updated>
     </task>
-    <option name="localTasksCounter" value="76" />
+    <task id="LOCAL-00076" summary="refactor: migration to use nats protocol and protobuf response">
+      <option name="closed" value="true" />
+      <created>1765860208084</created>
+      <option name="number" value="00076" />
+      <option name="presentableId" value="LOCAL-00076" />
+      <option name="project" value="LOCAL" />
+      <updated>1765860208085</updated>
+    </task>
+    <task id="LOCAL-00077" summary="refactor: migration to use nats protocol and protobuf response">
+      <option name="closed" value="true" />
+      <created>1765860969602</created>
+      <option name="number" value="00077" />
+      <option name="presentableId" value="LOCAL-00077" />
+      <option name="project" value="LOCAL" />
+      <updated>1765860969602</updated>
+    </task>
+    <task id="LOCAL-00078" summary="refactor: migration to use nats protocol and protobuf response">
+      <option name="closed" value="true" />
+      <created>1765862030774</created>
+      <option name="number" value="00078" />
+      <option name="presentableId" value="LOCAL-00078" />
+      <option name="project" value="LOCAL" />
+      <updated>1765862030774</updated>
+    </task>
+    <task id="LOCAL-00079" summary="refactor: migration to use nats protocol and protobuf response">
+      <option name="closed" value="true" />
+      <created>1765862174724</created>
+      <option name="number" value="00079" />
+      <option name="presentableId" value="LOCAL-00079" />
+      <option name="project" value="LOCAL" />
+      <updated>1765862174724</updated>
+    </task>
+    <task id="LOCAL-00080" summary="refactor: migration to use nats protocol and protobuf response">
+      <option name="closed" value="true" />
+      <created>1765863857740</created>
+      <option name="number" value="00080" />
+      <option name="presentableId" value="LOCAL-00080" />
+      <option name="project" value="LOCAL" />
+      <updated>1765863857740</updated>
+    </task>
+    <task id="LOCAL-00081" summary="refactor: migration to use nats protocol and protobuf response">
+      <option name="closed" value="true" />
+      <created>1765864809338</created>
+      <option name="number" value="00081" />
+      <option name="presentableId" value="LOCAL-00081" />
+      <option name="project" value="LOCAL" />
+      <updated>1765864809338</updated>
+    </task>
+    <task id="LOCAL-00082" summary="refactor: migration to use nats protocol and protobuf response">
+      <option name="closed" value="true" />
+      <created>1765866257821</created>
+      <option name="number" value="00082" />
+      <option name="presentableId" value="LOCAL-00082" />
+      <option name="project" value="LOCAL" />
+      <updated>1765866257821</updated>
+    </task>
+    <task id="LOCAL-00083" summary="refactor: migration to use nats protocol and protobuf response">
+      <option name="closed" value="true" />
+      <created>1765866290820</created>
+      <option name="number" value="00083" />
+      <option name="presentableId" value="LOCAL-00083" />
+      <option name="project" value="LOCAL" />
+      <updated>1765866290820</updated>
+    </task>
+    <task id="LOCAL-00084" summary="refactor: migration to use nats protocol and protobuf response">
+      <option name="closed" value="true" />
+      <created>1765866609844</created>
+      <option name="number" value="00084" />
+      <option name="presentableId" value="LOCAL-00084" />
+      <option name="project" value="LOCAL" />
+      <updated>1765866609844</updated>
+    </task>
+    <task id="LOCAL-00085" summary="refactor: migration to use nats protocol and protobuf response">
+      <option name="closed" value="true" />
+      <created>1765866664446</created>
+      <option name="number" value="00085" />
+      <option name="presentableId" value="LOCAL-00085" />
+      <option name="project" value="LOCAL" />
+      <updated>1765866664446</updated>
+    </task>
+    <task id="LOCAL-00086" summary="refactor: migration to use nats protocol and protobuf response">
+      <option name="closed" value="true" />
+      <created>1765866979415</created>
+      <option name="number" value="00086" />
+      <option name="presentableId" value="LOCAL-00086" />
+      <option name="project" value="LOCAL" />
+      <updated>1765866979415</updated>
+    </task>
+    <task id="LOCAL-00087" summary="refactor: migration to use nats protocol and protobuf response">
+      <option name="closed" value="true" />
+      <created>1765867310093</created>
+      <option name="number" value="00087" />
+      <option name="presentableId" value="LOCAL-00087" />
+      <option name="project" value="LOCAL" />
+      <updated>1765867310093</updated>
+    </task>
+    <task id="LOCAL-00088" summary="refactor: migration to use nats protocol and protobuf response">
+      <option name="closed" value="true" />
+      <created>1765867644260</created>
+      <option name="number" value="00088" />
+      <option name="presentableId" value="LOCAL-00088" />
+      <option name="project" value="LOCAL" />
+      <updated>1765867644260</updated>
+    </task>
+    <task id="LOCAL-00089" summary="refactor: migration to use nats protocol and protobuf response">
+      <option name="closed" value="true" />
+      <created>1765868745167</created>
+      <option name="number" value="00089" />
+      <option name="presentableId" value="LOCAL-00089" />
+      <option name="project" value="LOCAL" />
+      <updated>1765868745167</updated>
+    </task>
+    <task id="LOCAL-00090" summary="chore: update docker-compose.yml">
+      <option name="closed" value="true" />
+      <created>1765869221353</created>
+      <option name="number" value="00090" />
+      <option name="presentableId" value="LOCAL-00090" />
+      <option name="project" value="LOCAL" />
+      <updated>1765869221353</updated>
+    </task>
+    <task id="LOCAL-00091" summary="chore: update docker-compose.yml">
+      <option name="closed" value="true" />
+      <created>1765869396242</created>
+      <option name="number" value="00091" />
+      <option name="presentableId" value="LOCAL-00091" />
+      <option name="project" value="LOCAL" />
+      <updated>1765869396242</updated>
+    </task>
+    <task id="LOCAL-00092" summary="chore: update docker-compose.yml">
+      <option name="closed" value="true" />
+      <created>1765869422095</created>
+      <option name="number" value="00092" />
+      <option name="presentableId" value="LOCAL-00092" />
+      <option name="project" value="LOCAL" />
+      <updated>1765869422095</updated>
+    </task>
+    <task id="LOCAL-00093" summary="chore: update docker-compose.yml">
+      <option name="closed" value="true" />
+      <created>1765869709525</created>
+      <option name="number" value="00093" />
+      <option name="presentableId" value="LOCAL-00093" />
+      <option name="project" value="LOCAL" />
+      <updated>1765869709525</updated>
+    </task>
+    <task id="LOCAL-00094" summary="chore: update docker-compose.yml">
+      <option name="closed" value="true" />
+      <created>1765870993920</created>
+      <option name="number" value="00094" />
+      <option name="presentableId" value="LOCAL-00094" />
+      <option name="project" value="LOCAL" />
+      <updated>1765870993920</updated>
+    </task>
+    <task id="LOCAL-00095" summary="chore: update docker-compose.yml">
+      <option name="closed" value="true" />
+      <created>1765871150998</created>
+      <option name="number" value="00095" />
+      <option name="presentableId" value="LOCAL-00095" />
+      <option name="project" value="LOCAL" />
+      <updated>1765871150999</updated>
+    </task>
+    <task id="LOCAL-00096" summary="refactor: migration to use nats protocol and protobuf response">
+      <option name="closed" value="true" />
+      <created>1765871215974</created>
+      <option name="number" value="00096" />
+      <option name="presentableId" value="LOCAL-00096" />
+      <option name="project" value="LOCAL" />
+      <updated>1765871215974</updated>
+    </task>
+    <task id="LOCAL-00097" summary="refactor: migration to use nats protocol and protobuf response">
+      <option name="closed" value="true" />
+      <created>1765871841767</created>
+      <option name="number" value="00097" />
+      <option name="presentableId" value="LOCAL-00097" />
+      <option name="project" value="LOCAL" />
+      <updated>1765871841767</updated>
+    </task>
+    <task id="LOCAL-00098" summary="refactor: migration to use nats protocol and protobuf response">
+      <option name="closed" value="true" />
+      <created>1765873345580</created>
+      <option name="number" value="00098" />
+      <option name="presentableId" value="LOCAL-00098" />
+      <option name="project" value="LOCAL" />
+      <updated>1765873345580</updated>
+    </task>
+    <task id="LOCAL-00099" summary="refactor: migration to use nats protocol and protobuf response">
+      <option name="closed" value="true" />
+      <created>1765873825586</created>
+      <option name="number" value="00099" />
+      <option name="presentableId" value="LOCAL-00099" />
+      <option name="project" value="LOCAL" />
+      <updated>1765873825586</updated>
+    </task>
+    <task id="LOCAL-00100" summary="refactor: migration to use nats protocol and protobuf response">
+      <option name="closed" value="true" />
+      <created>1765874775157</created>
+      <option name="number" value="00100" />
+      <option name="presentableId" value="LOCAL-00100" />
+      <option name="project" value="LOCAL" />
+      <updated>1765874775157</updated>
+    </task>
+    <task id="LOCAL-00101" summary="refactor: migration to use nats protocol and protobuf response">
+      <option name="closed" value="true" />
+      <created>1765875062082</created>
+      <option name="number" value="00101" />
+      <option name="presentableId" value="LOCAL-00101" />
+      <option name="project" value="LOCAL" />
+      <updated>1765875062082</updated>
+    </task>
+    <task id="LOCAL-00102" summary="refactor: migration to use nats protocol and protobuf response">
+      <option name="closed" value="true" />
+      <created>1765876163359</created>
+      <option name="number" value="00102" />
+      <option name="presentableId" value="LOCAL-00102" />
+      <option name="project" value="LOCAL" />
+      <updated>1765876163359</updated>
+    </task>
+    <task id="LOCAL-00103" summary="refactor: migration to use nats protocol and protobuf response">
+      <option name="closed" value="true" />
+      <created>1765877565019</created>
+      <option name="number" value="00103" />
+      <option name="presentableId" value="LOCAL-00103" />
+      <option name="project" value="LOCAL" />
+      <updated>1765877565019</updated>
+    </task>
+    <task id="LOCAL-00104" summary="fix: fix api room service">
+      <option name="closed" value="true" />
+      <created>1765883833657</created>
+      <option name="number" value="00104" />
+      <option name="presentableId" value="LOCAL-00104" />
+      <option name="project" value="LOCAL" />
+      <updated>1765883833658</updated>
+    </task>
+    <task id="LOCAL-00105" summary="fix: fix api room service">
+      <option name="closed" value="true" />
+      <created>1765887026979</created>
+      <option name="number" value="00105" />
+      <option name="presentableId" value="LOCAL-00105" />
+      <option name="project" value="LOCAL" />
+      <updated>1765887026979</updated>
+    </task>
+    <task id="LOCAL-00106" summary="fix: fix pre-room and nats authentication">
+      <option name="closed" value="true" />
+      <created>1765889090148</created>
+      <option name="number" value="00106" />
+      <option name="presentableId" value="LOCAL-00106" />
+      <option name="project" value="LOCAL" />
+      <updated>1765889090148</updated>
+    </task>
+    <task id="LOCAL-00107" summary="fix: fix pre-room and nats authentication">
+      <option name="closed" value="true" />
+      <created>1765891945657</created>
+      <option name="number" value="00107" />
+      <option name="presentableId" value="LOCAL-00107" />
+      <option name="project" value="LOCAL" />
+      <updated>1765891945657</updated>
+    </task>
+    <task id="LOCAL-00108" summary="fix: fix pre-room and nats authentication">
+      <option name="closed" value="true" />
+      <created>1765905036785</created>
+      <option name="number" value="00108" />
+      <option name="presentableId" value="LOCAL-00108" />
+      <option name="project" value="LOCAL" />
+      <updated>1765905036785</updated>
+    </task>
+    <task id="LOCAL-00109" summary="feat: listen worker for room state">
+      <option name="closed" value="true" />
+      <created>1765906383882</created>
+      <option name="number" value="00109" />
+      <option name="presentableId" value="LOCAL-00109" />
+      <option name="project" value="LOCAL" />
+      <updated>1765906383883</updated>
+    </task>
+    <option name="localTasksCounter" value="110" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+    <option name="exactExcludedFiles">
+      <list>
+        <option value="$PROJECT_DIR$/apps/server/prisma.config.js" />
+      </list>
+    </option>
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
@@ -593,7 +608,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="livekit-meet" />
+                        <option value="migration-to-nats-protocol" />
                       </list>
                     </value>
                   </entry>
@@ -606,11 +621,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Initial commit" />
-    <MESSAGE value="feat: setup project structure" />
-    <MESSAGE value="feat: setup ci/cd" />
-    <MESSAGE value="migration: setup and migration prisma" />
-    <MESSAGE value="fix: fix eslint with command &quot;pnpm lint&quot;" />
     <MESSAGE value="feat(auth): auth logic with supabase" />
     <MESSAGE value="fix(auth): can read global environments" />
     <MESSAGE value="feat: add swagger gen with orval" />
@@ -631,7 +641,12 @@
     <MESSAGE value="feat: create chat and files upload logic" />
     <MESSAGE value="feat: create break room logic" />
     <MESSAGE value="fix: fix comment from copilot" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: fix comment from copilot" />
+    <MESSAGE value="chore: update docker-compose.yml" />
+    <MESSAGE value="refactor: migration to use nats protocol and protobuf response" />
+    <MESSAGE value="fix: fix api room service" />
+    <MESSAGE value="fix: fix pre-room and nats authentication" />
+    <MESSAGE value="feat: listen worker for room state" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: listen worker for room state" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
