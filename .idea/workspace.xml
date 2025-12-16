@@ -4,13 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix: fix pre-room and nats authentication">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: listen worker for room state">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/nats/nats-auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/nats/nats-auth.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nats_server.conf" beforeDir="false" afterPath="$PROJECT_DIR$/nats_server.conf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/nats/nats.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/nats/nats.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/system-worker.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/system-worker.service.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -194,22 +193,6 @@
       <workItem from="1765820660014" duration="666000" />
       <workItem from="1765849677488" duration="719000" />
       <workItem from="1765855909748" duration="4405000" />
-    </task>
-    <task id="LOCAL-00059" summary="refactor: update auth structure">
-      <option name="closed" value="true" />
-      <created>1765797747450</created>
-      <option name="number" value="00059" />
-      <option name="presentableId" value="LOCAL-00059" />
-      <option name="project" value="LOCAL" />
-      <updated>1765797747450</updated>
-    </task>
-    <task id="LOCAL-00060" summary="feat: setup livekit service">
-      <option name="closed" value="true" />
-      <created>1765806175506</created>
-      <option name="number" value="00060" />
-      <option name="presentableId" value="LOCAL-00060" />
-      <option name="project" value="LOCAL" />
-      <updated>1765806175506</updated>
     </task>
     <task id="LOCAL-00061" summary="chore: install dependencies">
       <option name="closed" value="true" />
@@ -587,7 +570,23 @@
       <option name="project" value="LOCAL" />
       <updated>1765891945657</updated>
     </task>
-    <option name="localTasksCounter" value="108" />
+    <task id="LOCAL-00108" summary="fix: fix pre-room and nats authentication">
+      <option name="closed" value="true" />
+      <created>1765905036785</created>
+      <option name="number" value="00108" />
+      <option name="presentableId" value="LOCAL-00108" />
+      <option name="project" value="LOCAL" />
+      <updated>1765905036785</updated>
+    </task>
+    <task id="LOCAL-00109" summary="feat: listen worker for room state">
+      <option name="closed" value="true" />
+      <created>1765906383882</created>
+      <option name="number" value="00109" />
+      <option name="presentableId" value="LOCAL-00109" />
+      <option name="project" value="LOCAL" />
+      <updated>1765906383883</updated>
+    </task>
+    <option name="localTasksCounter" value="110" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -622,7 +621,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="fix: fix eslint with command &quot;pnpm lint&quot;" />
     <MESSAGE value="feat(auth): auth logic with supabase" />
     <MESSAGE value="fix(auth): can read global environments" />
     <MESSAGE value="feat: add swagger gen with orval" />
@@ -647,7 +645,8 @@
     <MESSAGE value="refactor: migration to use nats protocol and protobuf response" />
     <MESSAGE value="fix: fix api room service" />
     <MESSAGE value="fix: fix pre-room and nats authentication" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: fix pre-room and nats authentication" />
+    <MESSAGE value="feat: listen worker for room state" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: listen worker for room state" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

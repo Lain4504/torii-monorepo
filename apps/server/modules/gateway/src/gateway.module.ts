@@ -12,6 +12,7 @@ import { FileModule } from './file/file.module';
 import { GatewayController } from './gateway.controller';
 import { GatewayService } from './gateway.service';
 import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
+import { SystemWorkerService } from './system-worker.service';
 
 @Module({
   imports: [
@@ -31,6 +32,6 @@ import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
     FileModule,
   ],
   controllers: [GatewayController],
-  providers: [GatewayService, ApiKeyGuard],
+  providers: [GatewayService, ApiKeyGuard, SystemWorkerService],
 })
 export class GatewayModule { }

@@ -1,21 +1,34 @@
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   connect,
   NatsConnection,
   StringCodec,
-  JetStreamClient,
-  JetStreamManager,
   nkeyAuthenticator,
   AckPolicy,
   DeliverPolicy,
+  ConsumerConfig,
+  JsMsg,
+  headers,
+  JetStreamClient,
+  JetStreamManager,
 } from 'nats';
+import {
+  NatsMsgServerToClient,
+  NatsMsgServerToClientEvents,
+} from '@server/proto';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class NatsService implements OnModuleInit, OnModuleDestroy {
   private nc: NatsConnection;
   private js: JetStreamClient;
   private jsm: JetStreamManager;
+  private logger = new Logger(NatsService.name);
   private sc = StringCodec();
+  private uid = { newId: () => uuidv4() }; // Simple helper to match usage
+
+  constructor(private configService: ConfigService) { }
 
   async onModuleInit() {
     await this.connect();
@@ -94,7 +107,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
         typeof value === 'string' ? this.sc.encode(value) : value,
       );
     } catch (err) {
-      console.error(`Error putting to KV bucket ${bucket}:`, err);
+      console.error(`Error putting to KV bucket ${bucket}: `, err);
       // Try creating checking if bucket missing?
       // For now just log.
     }
@@ -117,8 +130,107 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
       const kv = await this.js.views.kv(bucket);
       await kv.delete(key);
     } catch (err) {
-      console.error(`Error deleting from KV bucket ${bucket}:`, err);
+      console.error(`Error deleting from KV bucket ${bucket}: `, err);
     }
+  }
+
+  async getRoomInfo(roomId: string) {
+    const bucket = `pnm-roomInfo-${roomId}`;
+    const kv = await this.js.views.kv(bucket);
+    const roomInfo: any = {
+      dbTableId: 0,
+      roomId: "",
+      roomSid: "",
+      status: "", // Enum as string or number? Proto says string status, but logic used parse int? Checking proto again.. proto says string status.
+      emptyTimeout: 0,
+      maxParticipants: 0,
+      metadata: "{}",
+      createdAt: 0,
+    };
+
+    try {
+      const e = await kv.get('room_id');
+      if (e) roomInfo.roomId = this.sc.decode(e.value);
+    } catch (e) { }
+    try {
+      const e = await kv.get('sid');
+      if (e) roomInfo.roomSid = this.sc.decode(e.value);
+    } catch (e) { }
+    try {
+      const e = await kv.get('status');
+      // Helper previously parsedInt, but proto def shows `status: string`. 
+      // Checking simple grep output line 780: message.status = reader.string();
+      // So it should be string.
+      if (e) roomInfo.status = this.sc.decode(e.value);
+    } catch (e) { }
+    try {
+      const e = await kv.get('empty_timeout');
+      if (e) roomInfo.emptyTimeout = parseInt(this.sc.decode(e.value));
+    } catch (e) { }
+    try {
+      const e = await kv.get('max_participants');
+      if (e) roomInfo.maxParticipants = parseInt(this.sc.decode(e.value));
+    } catch (e) { }
+    try {
+      const e = await kv.get('created');
+      if (e) roomInfo.createdAt = parseInt(this.sc.decode(e.value));
+    } catch (e) { }
+    try {
+      const e = await kv.get('metadata');
+      if (e) {
+        const val = this.sc.decode(e.value);
+        roomInfo.metadata = val && val !== "" ? val : "{}";
+      }
+    } catch (e) { }
+
+    return roomInfo;
+  }
+
+  async getUserInfo(roomId: string, userId: string) {
+    const bucket = `pnm-userInfo-r_${roomId}-u_${userId}`;
+    const kv = await this.js.views.kv(bucket);
+    const userInfo: any = {
+      userId: "",
+      userSid: "",
+      name: "",
+      roomId: "",
+      isAdmin: false,
+      isPresenter: false,
+      metadata: "{}",
+      joinedAt: 0,
+      reconnectedAt: 0,
+      disconnectedAt: 0,
+    };
+
+    try {
+      const e = await kv.get('id');
+      if (e) userInfo.userId = this.sc.decode(e.value);
+    } catch (e) { }
+    try {
+      const e = await kv.get('name');
+      if (e) userInfo.name = this.sc.decode(e.value);
+    } catch (e) { }
+    try {
+      const e = await kv.get('is_admin');
+      if (e) userInfo.isAdmin = this.sc.decode(e.value) === 'true';
+    } catch (e) { }
+    try {
+      const e = await kv.get('is_presenter');
+      if (e) userInfo.isPresenter = this.sc.decode(e.value) === 'true';
+    } catch (e) { }
+    try {
+      const e = await kv.get('metadata');
+      if (e) {
+        const val = this.sc.decode(e.value);
+        userInfo.metadata = val && val !== "" ? val : "{}";
+      }
+    } catch (e) { }
+    try {
+      const e = await kv.get('joined_at');
+      if (e) userInfo.joinedAt = parseInt(this.sc.decode(e.value));
+    } catch (e) { }
+
+    return userInfo;
   }
 
   async createOrUpdateKv(bucket: string) {
@@ -217,40 +329,40 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
       });
     } catch (e) {
       if (!e.message.includes('already in use')) {
-        console.error(`Error creating stream ${name}:`, e);
+        console.error(`Error creating stream ${name}: `, e);
       }
     }
   }
 
   async broadcastSystemEvent(
-    event: number, // plugnmeet.NatsMsgServerToClientEvents enum
+    event: NatsMsgServerToClientEvents,
     roomId: string,
-    msg: any,
+    msg: Uint8Array | string,
     toUserId?: string,
   ) {
-    if (!this.js) return;
-
-    let subj = `pnm.system.public.${roomId}`;
-    if (toUserId) {
-      subj = `pnm.system.private.${roomId}.${toUserId}`;
-    }
-
-    // If msg is already binary (Protobuf), use it directly.
-    // Otherwise, assume it's a JSON object/string and encode it.
-    let payload: Uint8Array;
-
-    if (msg instanceof Uint8Array) {
-      payload = msg;
-    } else {
-      const payloadObj = {
+    let message: Uint8Array;
+    if (typeof msg === 'string') {
+      const payload: NatsMsgServerToClient = {
+        id: this.uid.newId(),
         event: event,
-        msg: typeof msg === 'string' ? msg : JSON.stringify(msg),
-        roomId: roomId,
+        msg: msg,
       };
-      payload = this.sc.encode(JSON.stringify(payloadObj));
+      message = NatsMsgServerToClient.encode(payload).finish();
+    } else {
+      const payload: NatsMsgServerToClient = {
+        id: this.uid.newId(),
+        event: event,
+        msg: this.sc.decode(msg),
+      };
+      message = NatsMsgServerToClient.encode(payload).finish();
     }
 
-    return this.publish(subj, payload);
+    let subj = `${roomId}:sysPublic.system`;
+    if (toUserId) {
+      subj = `${roomId}:sysPrivate.${toUserId}.system`;
+    }
+
+    return this.publish(subj, message);
   }
 
   async createRoomStream(roomId: string) {
@@ -261,6 +373,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
       `${roomId}:sysPrivate.*.*`,
       `${roomId}:whiteboard.*`,
       `${roomId}:dataChannel.*`,
+      `sysJsWorker.${roomId}.>`,
     ];
 
     try {
@@ -276,7 +389,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
         });
       }
     } catch (e) {
-      console.error(`Error creating room stream ${roomId}:`, e);
+      console.error(`Error creating room stream ${roomId}: `, e);
       throw e;
     }
   }
