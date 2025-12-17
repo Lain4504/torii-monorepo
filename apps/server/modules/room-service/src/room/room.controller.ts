@@ -46,8 +46,8 @@ export class RoomController {
   }
 
   @MessagePattern({ cmd: 'room.isRoomActive' })
-  async isRoomActive(@Payload() data: { roomId: string }) {
-    const status = await this.roomService.getRoomStatus({ roomId: data.roomId });
+  async isRoomActive(@Payload() data: any) {
+    const status = await this.roomService.getRoomStatus(data);
     return {
       status: true,
       is_active: status.isRunning,

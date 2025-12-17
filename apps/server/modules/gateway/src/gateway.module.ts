@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-
+import { ClientsModule, Transport } from '@nestjs/microservices';
 import { join } from 'node:path';
 
 import { CourseModule } from './course/course.module';
@@ -13,10 +13,22 @@ import { GatewayController } from './gateway.controller';
 import { GatewayService } from './gateway.service';
 import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
 import { SystemWorkerService } from './system-worker.service';
+import { UserTrackingService } from './user-tracking.service';
+import { NatsConnectionListener } from './nats-connection-listener.service';
+import { WebhookController } from './room/webhook.controller';
 
 @Module({
   imports: [
-
+    ClientsModule.register([
+      {
+        name: 'ROOM_SERVICE',
+        transport: Transport.REDIS,
+        options: {
+          host: process.env.REDIS_HOST || 'localhost',
+          port: parseInt(process.env.REDIS_PORT || '6379'),
+        },
+      },
+    ]),
     AuthModule,
     CourseModule,
     SharedModule,
@@ -25,8 +37,15 @@ import { SystemWorkerService } from './system-worker.service';
     FileModule,
     AdminModule,
   ],
-  controllers: [GatewayController],
-  providers: [GatewayService, ApiKeyGuard, SystemWorkerService],
+  controllers: [GatewayController, WebhookController],
+  providers: [
+    GatewayService,
+    ApiKeyGuard,
+    SystemWorkerService,
+    UserTrackingService,
+    NatsConnectionListener, // Matches Go: subscribeToUsersConnEvents
+  ],
+  exports: [UserTrackingService],
 })
 export class GatewayModule { }
 

@@ -94,7 +94,7 @@ export class NatsAuthService implements OnModuleInit, OnModuleDestroy {
     }
 
     async handleRequest(msg: any) {
-        this.logger.log('=== Auth Callout Request Received ===');
+
         try {
             let data = msg.data;
             const xKey = msg.headers?.get('Nats-Server-Xkey');
@@ -125,15 +125,11 @@ export class NatsAuthService implements OnModuleInit, OnModuleDestroy {
             const userNkey = decoded.nats?.user_nkey; // Client's ephemeral NKEY
             const serverId = decoded.iss;
 
-            this.logger.debug('=== Server ID Debug ===');
-            this.logger.debug('decoded.iss: ' + decoded.iss);
-            this.logger.debug('decoded.nats.server_id: ' + JSON.stringify(decoded.nats?.server_id, null, 2));
-            this.logger.debug('Extracted serverId: ' + serverId);
-            this.logger.debug('Extracted userNkey: ' + userNkey);
+
 
             // Token is in connect_opts.auth_token (confirmed via debug logs)
             const authToken = decoded.nats?.connect_opts?.auth_token;
-            this.logger.log('Auth token extracted: ' + (authToken ? 'YES' : 'NO'));
+
 
             if (!authToken) {
                 this.logger.error('Missing auth token in connect options');
@@ -145,7 +141,7 @@ export class NatsAuthService implements OnModuleInit, OnModuleDestroy {
             let pnmClaims: any;
             try {
                 pnmClaims = jwt.verify(authToken, this.configService.get('LIVEKIT_API_SECRET'));
-                this.logger.log('Token verified successfully for user: ' + (pnmClaims.sub || pnmClaims.userId));
+                // this.logger.log('Token verified successfully for user: ' + (pnmClaims.sub || pnmClaims.userId));
             } catch (e) {
                 this.logger.error(`Token verification failed: ${e.message}`);
                 this.respond(msg, userNkey, serverId, '', new Error('Invalid auth token'));
@@ -154,7 +150,7 @@ export class NatsAuthService implements OnModuleInit, OnModuleDestroy {
 
             // Generate User JWT
             const userJwt = await this.generateUserJwt(userNkey, pnmClaims, authToken);
-            this.logger.log('User JWT generated successfully');
+            // this.logger.log('User JWT generated successfully');
             this.respond(msg, userNkey, serverId, userJwt, null);
 
         } catch (e) {
@@ -238,7 +234,7 @@ export class NatsAuthService implements OnModuleInit, OnModuleDestroy {
             }
         };
 
-        this.logger.debug('User JWT claims before signing: ' + JSON.stringify(claims, null, 2));
+
         return this.signJwt(claims, this.issuerKp);
     }
 
@@ -276,11 +272,8 @@ export class NatsAuthService implements OnModuleInit, OnModuleDestroy {
             }
         };
 
-        this.logger.debug('Response JWT claims: ' + JSON.stringify(claims, null, 2));
+
         const token = await this.signJwt(claims, this.issuerKp);
-        this.logger.debug('Response JWT FULL TOKEN:');
-        this.logger.debug(token);
-        this.logger.log('Sending success response with user JWT');
         this.sendResponse(msg, token);
     }
 

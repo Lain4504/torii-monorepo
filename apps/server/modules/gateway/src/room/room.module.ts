@@ -27,5 +27,5 @@ import { SharedModule } from '@server/shared';
     PollsController,
   ],
 })
-export class RoomModule {}
+export class RoomModule { }
 

@@ -89,25 +89,45 @@ export class GatewayService {
       isCloud: false,
       enabledSelfInsertEncryptionKey: false, // TODO: Configurable?
     };
-    console.log(`result of verifyPnmToken: `, res);
 
     // Persist Room & User Info to JetStream KV
     // This is required for SystemWorkerService to handle REQ_INITIAL_DATA
-    await this.natsService.updateRoomInfo(roomId, {
-      roomId: roomId,
-      sid: this.randomString(12), // TODO: use real SID if available
-      status: 1, // Active
-      maxParticipants: 100, // TODO: Configurable
-      createdAt: Math.floor(Date.now() / 1000),
-      metadata: decoded.metadata || "",
-    });
+    // Room Info should be managed by RoomService (created at room creation).
+    // Updating it here with User Metadata overwrites the Room Features!
+    // await this.natsService.updateRoomInfo(roomId, {
+    //   roomId: roomId,
+    //   sid: this.randomString(12), // TODO: use real SID if available
+    //   status: 1, // Active
+    //   maxParticipants: 100, // TODO: Configurable
+    //   createdAt: Math.floor(Date.now() / 1000),
+    //   metadata: decoded.metadata || "",
+    // });
+
+    // Parse metadata to ensure consistency between top-level flags and metadata JSON
+    let metadataObj: any = {};
+    if (decoded.metadata) {
+      try {
+        metadataObj = JSON.parse(decoded.metadata);
+      } catch (e) {
+        // preserve original string if parse fails? fallback to empty obj
+      }
+    }
+
+    // Determine roles (using existing logic)
+    const isAdmin = decoded.video?.roomJoin === true || false;
+    const isPresenter = decoded.video?.canPublish === true || false;
+
+    // Sync roles into metadata
+    metadataObj.isAdmin = isAdmin;
+    metadataObj.isPresenter = isPresenter;
+    const metadataStr = JSON.stringify(metadataObj);
 
     await this.natsService.updateUserInfo(roomId, userId, {
       userId: userId,
       name: decoded.name || userId,
-      isAdmin: decoded.video?.roomJoin === true || false, // Simplify admin check
-      isPresenter: decoded.video?.canPublish === true || false,
-      metadata: decoded.metadata || "",
+      isAdmin: isAdmin,
+      isPresenter: isPresenter,
+      metadata: metadataStr,
       joinedAt: Math.floor(Date.now() / 1000),
     });
 

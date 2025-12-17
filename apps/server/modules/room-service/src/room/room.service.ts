@@ -27,6 +27,7 @@ import {
   NatsMsgServerToClientEvents,
   RoomMetadata,
 } from '@workspace/protocol';
+import { RoomUtils } from './room.utils';
 
 @Injectable()
 export class RoomService implements OnModuleInit {
@@ -85,24 +86,59 @@ export class RoomService implements OnModuleInit {
       });
 
       if (existingRoom) {
-        // In full parity, we would check NATS KV and reconcile. 
-        // For now, if DB says running, we respect it.
-        return {
-          status: true,
-          room_info: existingRoom,
-          msg: 'Room already active',
-        };
+        // Check NATS for liveness (Go Parity)
+        const rInfo = await this.natsService.getRoomInfo(roomId);
+        if (rInfo && rInfo.roomId) {
+          this.logger.log(`Room ${roomId} found active in NATS. Returning existing info.`);
+          // Ensure streams are active (Go logic)
+          await this.createRoomNatsStreams(roomId);
+
+          // Return existing room info
+          const activeRoomInfo = RoomUtils.toActiveRoomInfo({
+            roomId: existingRoom.roomId,
+            sid: existingRoom.sid,
+            roomTitle: existingRoom.roomTitle,
+            creationTime: Number(existingRoom.creationTime),
+            metadata: existingRoom.metadata as string,
+            webhookUrl: existingRoom.webhookUrl,
+          }, JSON.parse(existingRoom.metadata as string || '{}'));
+
+          return {
+            status: true,
+            room_info: activeRoomInfo,
+            msg: 'Room already active',
+          };
+        } else {
+          this.logger.warn(`Room ${roomId} found in DB but not in NATS (stale). Creating new session.`);
+          // Proceed to create new room...
+        }
       }
 
-      // Initialize defaults
-      this.setRoomDefaults(data);
+      // Initialize defaults using RoomUtils (Go parity)
+      // We gather config from ConfigService
+      const roomConfig = {
+        copyrightConf: this.configService.get('COPYRIGHT_CONF'), // Assuming loaded as object or we map it
+        insightsEnabled: !!this.configService.get('INSIGHTS_ENABLED'),
+        speechToTextEnabled: !!this.configService.get('SPEECH_TO_TEXT_ENABLED'),
+        maxSelectedOneTimeTransLangs: 2, // Default or fetch from config
+        maxNumTranLangsAllowSelecting: 2,
+        roomDefaultSettings: {
+          maxParticipants: this.configService.get('MAX_PARTICIPANTS'),
+          maxDuration: this.configService.get('MAX_DURATION'),
+          maxNumBreakoutRooms: 16,
+        }
+      };
+
+      RoomUtils.setRoomDefaults(data, roomConfig);
+
+      const metadataJson = data.metadata ? JSON.stringify(RoomUtils.toProtocolMetadata(data.metadata)) : '{}';
 
       // Create in LiveKit
       const room = await this.liveKitService.getRoomClient().createRoom({
         name: roomId,
         emptyTimeout: data.emptyTimeout || 60 * 60, // 1 hour default
         maxParticipants: data.maxParticipants || 100,
-        metadata: data.metadata ? JSON.stringify(data.metadata) : undefined,
+        metadata: metadataJson,
       });
 
       // Save to DB
@@ -113,23 +149,33 @@ export class RoomService implements OnModuleInit {
           roomTitle: (data.metadata?.roomTitle) || roomId,
           isRunning: true,
           creationTime: Number(room.creationTime),
-          metadata: data.metadata ? JSON.stringify(data.metadata) : undefined,
+          metadata: metadataJson,
         },
       });
 
       // NATS KV Sync
-      await this.natsService.updateRoomInfo(room.name, {
+      // Use snake_case manual object for NATS
+      await this.natsService.updateRoomInfo(room.name, RoomUtils.getSnakeCaseNatsKvRoomInfo({
         roomId: room.name,
-        roomSid: room.sid,
-        status: 'active',
-        emptyTimeout: room.emptyTimeout,
-        maxParticipants: room.maxParticipants,
-        createdAt: Number(room.creationTime),
-        metadata: data.metadata ? JSON.stringify(data.metadata) : '',
-      } as any);
+        sid: room.sid,
+        creationTime: Number(room.creationTime),
+        metadata: metadataJson,
+      }, data) as any);
 
       // Create NATS Streams
       await this.createRoomNatsStreams(room.name);
+
+      // Add room to NATS KV (Match Go: AddRoom)
+      this.logger.log(`Adding room to NATS KV: ${room.name}`);
+      await this.natsService.addRoom(
+        dbRoom.id.toString(),
+        dbRoom.roomId,
+        dbRoom.sid,
+        data.emptyTimeout || 0,
+        data.maxParticipants || 0,
+        data.metadata as any
+      );
+      this.logger.log(`Room ${room.name} added to NATS KV`);
 
       // Analytics
       await this.analyticsService.sendAnalyticsData({
@@ -141,7 +187,20 @@ export class RoomService implements OnModuleInit {
         eventValueString: 'created',
       } as any);
 
-      return { status: true, msg: 'success', room_info: dbRoom };
+      // Return ActiveRoomInfo (snake_case)
+      const activeRoomInfo = RoomUtils.toActiveRoomInfo({
+        roomId: dbRoom.roomId,
+        sid: dbRoom.sid,
+        roomTitle: dbRoom.roomTitle,
+        creationTime: Number(dbRoom.creationTime),
+        metadata: dbRoom.metadata as string,
+        webhookUrl: data.metadata?.webhookUrl,
+      }, data.metadata as any);
+
+      // Send Webhook (Go Parity)
+      this.sendRoomCreatedWebhook(activeRoomInfo, data.emptyTimeout, data.maxParticipants);
+
+      return { status: true, msg: 'success', room_info: activeRoomInfo };
     } catch (error) {
       this.logger.error(`Error creating room: ${error.message}`);
       throw new RpcException(error.message);
@@ -151,8 +210,6 @@ export class RoomService implements OnModuleInit {
   }
 
   private async createRoomNatsStreams(roomId: string) {
-    // Parity with plugNmeet-server/pkg/services/nats/js_stream.go
-    // Naming: roomId:SUBJECT.*
     const subjects = [
       `${roomId}:pnm.chat.*`,
       `${roomId}:pnm.system.public.*`,
@@ -161,41 +218,6 @@ export class RoomService implements OnModuleInit {
       `${roomId}:pnm.datachannel.*`,
     ];
     await this.natsService.createStream(roomId, subjects);
-  }
-
-  private setRoomDefaults(r: CreateRoomReq) {
-    // Basic implementation of setRoomDefaults (Go parity)
-    // In Go this modifies the request object in place.
-    if (!r.metadata) {
-      r.metadata = {
-        roomTitle: r.roomId,
-        isBreakoutRoom: false,
-        roomFeatures: {
-          chatFeatures: {
-            allowChat: true,
-            allowFileUpload: true,
-          },
-          whiteboardFeatures: {
-            whiteboardFileId: '',
-            fileName: '',
-            filePath: '',
-            totalPages: 0,
-            preloadFile: '', // Disabled as per user request
-          }
-        }
-      } as unknown as RoomMetadata; // Simplify for now
-    }
-
-    // Ensure room features structure exists
-    if (!r.metadata.roomFeatures) r.metadata.roomFeatures = { allowWebcams: true, allowScreenShare: true } as any; // Minimal defaults
-
-    // Copyright Config
-    if (!r.metadata.copyrightConf) {
-      r.metadata.copyrightConf = {
-        display: true,
-        text: 'Powered by <a href="https://www.plugnmeet.org" target="_blank">plugNmeet</a>',
-      };
-    }
   }
 
   async endRoom(data: { roomId: string }) {
@@ -231,6 +253,7 @@ export class RoomService implements OnModuleInit {
 
   async getRoomStatus(data: { roomId: string }) {
     const roomId = data.roomId || (data as any).room_id || (data as any).roomName;
+    if (!roomId) return { isRunning: false, room: null };
     const room = await this.prisma.roomInfo.findFirst({
       where: { roomId: roomId, isRunning: true },
     });
@@ -871,6 +894,32 @@ export class RoomService implements OnModuleInit {
     await this.natsService.createWhiteboardConsumer(roomId, userId);
     await this.natsService.createDataChannelConsumer(roomId, userId);
   }
+  // --- Webhook Sender ---
+  private async sendRoomCreatedWebhook(info: any, emptyTimeout?: number, maxParticipants?: number) {
+    if (!info.webhookUrl) return;
+
+    const event = {
+      event: "room_created",
+      room: {
+        room_id: info.roomId,
+        sid: info.sid,
+        creation_time: info.creationTime,
+        metadata: info.metadata,
+        empty_timeout: emptyTimeout,
+        max_participants: maxParticipants,
+      },
+      check_status: false // Simple field often used in PlugNmeet
+    };
+
+    try {
+      // Use axios to send
+      const axios = require('axios'); // Dynamic import or top-level if preferred
+      await axios.post(info.webhookUrl, event, {
+        headers: { 'Content-Type': 'application/json' }
+      });
+      this.logger.log(`Sent room_created webhook to ${info.webhookUrl}`);
+    } catch (e) {
+      this.logger.error(`Failed to send room_created webhook: ${e.message}`);
+    }
+  }
 }
-
-

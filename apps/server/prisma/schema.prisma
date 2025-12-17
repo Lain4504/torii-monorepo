@@ -30,7 +30,7 @@ model Course {
 model RoomInfo {
   id                 Int         @id @default(autoincrement())
   roomTitle          String      @default("") @map("room_title")
-  roomId             String      @db.VarChar(64) @map("roomId") // Go model defines column as "roomId" (camelCase in DB? logic says snake_case usually but Go struct tag says roomId) checking Go file: `gorm:"column:roomId;...` -> It is actually roomId in Go.
+  roomId             String      @db.VarChar(64) @map("room_id")
   sid                String      @unique @db.VarChar(64) @map("sid")
   joinedParticipants Int         @default(0) @map("joined_participants")
   isRunning          Boolean     @default(false) @map("is_running")
@@ -77,14 +77,14 @@ model Recording {
 
 model RoomFile {
   id        Int      @id @default(autoincrement())
-  fileId    String   @unique
-  roomId    String
-  userId    String
-  filePath  String
-  fileType  String
-  mimeType  String
-  fileSize  Float    @default(0)
-  createdAt DateTime @default(now())
+  fileId    String   @unique @map("file_id")
+  roomId    String   @map("room_id")
+  userId    String   @map("user_id")
+  filePath  String   @map("file_path")
+  fileType  String   @map("file_type")
+  mimeType  String   @map("mime_type")
+  fileSize  Float    @default(0) @map("file_size")
+  createdAt DateTime @default(now()) @map("created")
 
   @@index([roomId])
   @@map("room_files")
