@@ -41,9 +41,9 @@ export * from './generated/wajlc_recording';
 export * from './generated/wajlc_room_artifacts';
 // @ts-ignore
 export * from './generated/wajlc_speech_services';
-// @ts-ignore
 
 // LiveKit models
 // @ts-ignore
-export * from './generated/livekit_metrics';// @ts-ignore
+export * from './generated/livekit_metrics';
+// @ts-ignore
 export * from './generated/livekit_models';

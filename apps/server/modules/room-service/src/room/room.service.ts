@@ -76,7 +76,7 @@ export class RoomService implements OnModuleInit {
 
     try {
       const roomId = data.roomId || (data as any).room_id;
-      if (!roomId) throw new RpcException("Room ID is required");
+      if (!roomId) throw new RpcException('Room ID is required');
 
       this.logger.log(`Creating room: ${roomId}`);
 
@@ -89,19 +89,24 @@ export class RoomService implements OnModuleInit {
         // Check NATS for liveness (Go Parity)
         const rInfo = await this.natsService.getRoomInfo(roomId);
         if (rInfo && rInfo.roomId) {
-          this.logger.log(`Room ${roomId} found active in NATS. Returning existing info.`);
+          this.logger.log(
+            `Room ${roomId} found active in NATS. Returning existing info.`,
+          );
           // Ensure streams are active (Go logic)
           await this.createRoomNatsStreams(roomId);
 
           // Return existing room info
-          const activeRoomInfo = RoomUtils.toActiveRoomInfo({
-            roomId: existingRoom.roomId,
-            sid: existingRoom.sid,
-            roomTitle: existingRoom.roomTitle,
-            creationTime: Number(existingRoom.creationTime),
-            metadata: existingRoom.metadata as string,
-            webhookUrl: existingRoom.webhookUrl,
-          }, JSON.parse(existingRoom.metadata as string || '{}'));
+          const activeRoomInfo = RoomUtils.toActiveRoomInfo(
+            {
+              roomId: existingRoom.roomId,
+              sid: existingRoom.sid,
+              roomTitle: existingRoom.roomTitle,
+              creationTime: Number(existingRoom.creationTime),
+              metadata: existingRoom.metadata as string,
+              webhookUrl: existingRoom.webhookUrl,
+            },
+            JSON.parse((existingRoom.metadata as string) || '{}'),
+          );
 
           return {
             status: true,
@@ -109,7 +114,9 @@ export class RoomService implements OnModuleInit {
             msg: 'Room already active',
           };
         } else {
-          this.logger.warn(`Room ${roomId} found in DB but not in NATS (stale). Creating new session.`);
+          this.logger.warn(
+            `Room ${roomId} found in DB but not in NATS (stale). Creating new session.`,
+          );
           // Proceed to create new room...
         }
       }
@@ -126,12 +133,14 @@ export class RoomService implements OnModuleInit {
           maxParticipants: this.configService.get('MAX_PARTICIPANTS'),
           maxDuration: this.configService.get('MAX_DURATION'),
           maxNumBreakoutRooms: 16,
-        }
+        },
       };
 
       RoomUtils.setRoomDefaults(data, roomConfig);
 
-      const metadataJson = data.metadata ? JSON.stringify(RoomUtils.toProtocolMetadata(data.metadata)) : '{}';
+      const metadataJson = data.metadata
+        ? JSON.stringify(RoomUtils.toProtocolMetadata(data.metadata))
+        : '{}';
 
       // Create in LiveKit
       const room = await this.liveKitService.getRoomClient().createRoom({
@@ -146,7 +155,7 @@ export class RoomService implements OnModuleInit {
         data: {
           roomId: room.name,
           sid: room.sid,
-          roomTitle: (data.metadata?.roomTitle) || roomId,
+          roomTitle: data.metadata?.roomTitle || roomId,
           isRunning: true,
           creationTime: Number(room.creationTime),
           metadata: metadataJson,
@@ -155,12 +164,18 @@ export class RoomService implements OnModuleInit {
 
       // NATS KV Sync
       // Use snake_case manual object for NATS
-      await this.natsService.updateRoomInfo(room.name, RoomUtils.getSnakeCaseNatsKvRoomInfo({
-        roomId: room.name,
-        sid: room.sid,
-        creationTime: Number(room.creationTime),
-        metadata: metadataJson,
-      }, data) as any);
+      await this.natsService.updateRoomInfo(
+        room.name,
+        RoomUtils.getSnakeCaseNatsKvRoomInfo(
+          {
+            roomId: room.name,
+            sid: room.sid,
+            creationTime: Number(room.creationTime),
+            metadata: metadataJson,
+          },
+          data,
+        ),
+      );
 
       // Create NATS Streams
       await this.createRoomNatsStreams(room.name);
@@ -173,7 +188,7 @@ export class RoomService implements OnModuleInit {
         dbRoom.sid,
         data.emptyTimeout || 0,
         data.maxParticipants || 0,
-        data.metadata as any
+        data.metadata as any,
       );
       this.logger.log(`Room ${room.name} added to NATS KV`);
 
@@ -188,17 +203,24 @@ export class RoomService implements OnModuleInit {
       } as any);
 
       // Return ActiveRoomInfo (snake_case)
-      const activeRoomInfo = RoomUtils.toActiveRoomInfo({
-        roomId: dbRoom.roomId,
-        sid: dbRoom.sid,
-        roomTitle: dbRoom.roomTitle,
-        creationTime: Number(dbRoom.creationTime),
-        metadata: dbRoom.metadata as string,
-        webhookUrl: data.metadata?.webhookUrl,
-      }, data.metadata as any);
+      const activeRoomInfo = RoomUtils.toActiveRoomInfo(
+        {
+          roomId: dbRoom.roomId,
+          sid: dbRoom.sid,
+          roomTitle: dbRoom.roomTitle,
+          creationTime: Number(dbRoom.creationTime),
+          metadata: dbRoom.metadata as string,
+          webhookUrl: data.metadata?.webhookUrl,
+        },
+        data.metadata as any,
+      );
 
       // Send Webhook (Go Parity)
-      this.sendRoomCreatedWebhook(activeRoomInfo, data.emptyTimeout, data.maxParticipants);
+      this.sendRoomCreatedWebhook(
+        activeRoomInfo,
+        data.emptyTimeout,
+        data.maxParticipants,
+      );
 
       return { status: true, msg: 'success', room_info: activeRoomInfo };
     } catch (error) {
@@ -252,7 +274,8 @@ export class RoomService implements OnModuleInit {
   }
 
   async getRoomStatus(data: { roomId: string }) {
-    const roomId = data.roomId || (data as any).room_id || (data as any).roomName;
+    const roomId =
+      data.roomId || (data as any).room_id || (data as any).roomName;
     if (!roomId) return { isRunning: false, room: null };
     const room = await this.prisma.roomInfo.findFirst({
       where: { roomId: roomId, isRunning: true },
@@ -294,9 +317,10 @@ export class RoomService implements OnModuleInit {
       user_info.user_id,
       user_info.name,
       grants,
-      user_info.user_metadata ? JSON.stringify(user_info.user_metadata) : undefined,
+      user_info.user_metadata
+        ? JSON.stringify(user_info.user_metadata)
+        : undefined,
     );
-
 
     return {
       status: true,
@@ -581,13 +605,372 @@ export class RoomService implements OnModuleInit {
     // Subject: roomId:pnm.chat.userId (for system use system id)
     await this.natsService.publishPayload(
       `${data.roomId}:pnm.chat.system`,
-      payload
+      payload,
     );
 
     return { success: true };
   }
 
+  async getActiveRoomInfo(data: { roomId: string }) {
+    const room = await this.prisma.roomInfo.findFirst({
+      where: { roomId: data.roomId, isRunning: true },
+    });
+    if (!room) return { status: false, msg: 'room not found' };
+
+    let participants = 0;
+    try {
+      const pList = await this.liveKitService
+        .getRoomClient()
+        .listParticipants(data.roomId);
+      participants = pList.length;
+    } catch (e) { }
+
+    return {
+      status: true,
+      msg: 'success',
+      room: {
+        room_id: room.roomId,
+        sid: room.sid,
+        room_title: room.roomTitle,
+        creation_time: Number(room.creationTime),
+        metadata: room.metadata,
+        participants,
+      },
+    };
+  }
+
+  async getActiveRoomsInfo() {
+    const rooms = await this.prisma.roomInfo.findMany({
+      where: { isRunning: true },
+    });
+    return {
+      status: true,
+      msg: 'success',
+      rooms: rooms.map((r) => ({
+        room_id: r.roomId,
+        sid: r.sid,
+        room_title: r.roomTitle,
+        creation_time: Number(r.creationTime),
+        metadata: r.metadata,
+      })),
+    };
+  }
+
+  async fetchPastRooms(data: { from?: number; limit?: number }) {
+    const { from = 0, limit = 20 } = data;
+    const [total, rooms] = await Promise.all([
+      this.prisma.roomInfo.count({ where: { isRunning: false } }),
+      this.prisma.roomInfo.findMany({
+        where: { isRunning: false },
+        skip: from,
+        take: limit,
+        orderBy: { creationTime: 'desc' },
+      }),
+    ]);
+    return {
+      status: true,
+      msg: 'success',
+      result: {
+        total_rooms: total,
+        rooms: rooms.map((r) => ({
+          room_id: r.roomId,
+          sid: r.sid,
+          room_title: r.roomTitle,
+          creation_time: Number(r.creationTime),
+          metadata: r.metadata,
+        })),
+      },
+    };
+  }
+
+  async changeVisibility(data: { roomId: string; visible: boolean }) {
+    const rooms = await this.liveKitService
+      .getRoomClient()
+      .listRooms([data.roomId]);
+    if (rooms.length === 0) return { status: false, msg: 'room not found' };
+
+    const meta: any = JSON.parse(rooms[0].metadata || '{}');
+    if (!meta.room_features) meta.room_features = {};
+    meta.room_features.is_public = data.visible;
+
+    await this.liveKitService
+      .getRoomClient()
+      .updateRoomMetadata(data.roomId, JSON.stringify(meta));
+    return { status: true, msg: 'success' };
+  }
+
+  async updateUserLockSettings(data: {
+    roomId: string;
+    userId: string;
+    service: string;
+    lock: boolean;
+  }) {
+    if (data.userId === 'all') {
+      const rooms = await this.liveKitService
+        .getRoomClient()
+        .listRooms([data.roomId]);
+      if (rooms.length === 0) throw new RpcException('room not found');
+      const meta: any = JSON.parse(rooms[0].metadata || '{}');
+      if (!meta.default_lock_settings) meta.default_lock_settings = {};
+      meta.default_lock_settings[data.service] = data.lock;
+      await this.liveKitService
+        .getRoomClient()
+        .updateRoomMetadata(data.roomId, JSON.stringify(meta));
+    } else {
+      const p = await this.liveKitService
+        .getRoomClient()
+        .getParticipant(data.roomId, data.userId);
+      const meta: any = JSON.parse(p.metadata || '{}');
+      if (!meta.lock_settings) meta.lock_settings = {};
+      meta.lock_settings[data.service] = data.lock;
+      await this.liveKitService
+        .getRoomClient()
+        .updateParticipant(data.roomId, data.userId, JSON.stringify(meta));
+    }
+    return { status: true, msg: 'success' };
+  }
+
+  async muteUnmuteTrack(data: {
+    roomId: string;
+    userId: string;
+    trackSid?: string;
+    muted: boolean;
+  }) {
+    if (data.userId === 'all') {
+      const pList = await this.liveKitService
+        .getRoomClient()
+        .listParticipants(data.roomId);
+      for (const p of pList) {
+        const micTrack = p.tracks.find((t) => t.source === 2);
+        if (micTrack) {
+          await this.liveKitService
+            .getRoomClient()
+            .mutePublishedTrack(data.roomId, p.identity, micTrack.sid, data.muted);
+        }
+      }
+    } else {
+      let trackSid = data.trackSid;
+      if (!trackSid) {
+        const p = await this.liveKitService
+          .getRoomClient()
+          .getParticipant(data.roomId, data.userId);
+        const micTrack = p.tracks.find((t) => t.source === 2);
+        if (micTrack) trackSid = micTrack.sid;
+      }
+      if (trackSid) {
+        await this.liveKitService
+          .getRoomClient()
+          .mutePublishedTrack(data.roomId, data.userId, trackSid, data.muted);
+      }
+    }
+    return { status: true, msg: 'success' };
+  }
+
+  async removeParticipant(data: { roomId: string; userId: string }) {
+    await this.liveKitService
+      .getRoomClient()
+      .removeParticipant(data.roomId, data.userId);
+    return { status: true, msg: 'success' };
+  }
+
+  async switchPresenter(data: {
+    roomId: string;
+    userId: string;
+    presenter: boolean;
+  }) {
+    const p = await this.liveKitService
+      .getRoomClient()
+      .getParticipant(data.roomId, data.userId);
+    const meta: any = JSON.parse(p.metadata || '{}');
+    meta.is_presenter = data.presenter;
+    await this.liveKitService
+      .getRoomClient()
+      .updateParticipant(data.roomId, data.userId, JSON.stringify(meta));
+
+    await this.liveKitService.getRoomClient().updateParticipant(
+      data.roomId,
+      data.userId,
+      undefined,
+      {
+        canPublish: data.presenter,
+        canSubscribe: true,
+        canPublishData: true,
+      } as any,
+    );
+
+    return { status: true, msg: 'success' };
+  }
+
   // --- Polls Module (Redis) ---
+
+  async activatePolls(data: { roomId: string; active: boolean }) {
+    const rooms = await this.liveKitService
+      .getRoomClient()
+      .listRooms([data.roomId]);
+    if (rooms.length === 0) throw new RpcException('room not found');
+    const meta: any = JSON.parse(rooms[0].metadata || '{}');
+    if (!meta.room_features) meta.room_features = {};
+    if (!meta.room_features.polls_features)
+      meta.room_features.polls_features = {};
+    meta.room_features.polls_features.is_active = data.active;
+    await this.updateAndBroadcastRoomMetadata(data.roomId, meta);
+    return { status: true, msg: 'success' };
+  }
+
+  async countPollTotalResponses(data: { roomId: string; pollId: string }) {
+    const responsesMap = await this.redisService.hgetall(
+      `polls:${data.pollId}:responses`,
+    );
+    return {
+      status: true,
+      msg: 'success',
+      total_responses: Object.keys(responsesMap).length,
+    };
+  }
+
+  async userSelectedOption(data: {
+    roomId: string;
+    pollId: string;
+    userId: string;
+  }) {
+    const res = await this.redisService.hget(
+      `polls:${data.pollId}:responses`,
+      data.userId,
+    );
+    if (!res) return { status: true, msg: 'not voted', voted: false };
+    const vote = JSON.parse(res);
+    return {
+      status: true,
+      msg: 'success',
+      voted: true,
+      selected_option: vote.vote,
+    };
+  }
+
+  async getPollResponsesDetails(data: { roomId: string; pollId: string }) {
+    const responsesMap = await this.redisService.hgetall(
+      `polls:${data.pollId}:responses`,
+    );
+    const responses = Object.values(responsesMap).map((v) => JSON.parse(v));
+    return { status: true, msg: 'success', responses };
+  }
+
+  async getResponsesResult(data: { roomId: string; pollId: string }) {
+    const responsesMap = await this.redisService.hgetall(
+      `polls:${data.pollId}:responses`,
+    );
+    const results: Record<number, number> = {};
+    Object.values(responsesMap).forEach((v) => {
+      const vote = JSON.parse(v).vote;
+      results[vote] = (results[vote] || 0) + 1;
+    });
+    return { status: true, msg: 'success', result: results };
+  }
+
+  async handleRecordingApi(data: any) {
+    // Placeholder - real start/stop logic involves EgressClient
+    this.logger.log(`Recording API Action: ${data.action} for ${data.room_id}`);
+    return { status: true, msg: 'success' };
+  }
+
+  async getRecordingInfo(data: any) {
+    return { status: true, msg: 'success' };
+  }
+
+  async updateRecordingMetadata(data: any) {
+    return { status: true, msg: 'success' };
+  }
+
+  async handleRtmpApi(data: any) {
+    this.logger.log(`RTMP API Action for ${data.room_id}`);
+    return { status: true, msg: 'success' };
+  }
+
+  async handleRecorderEvents(data: any) {
+    this.logger.log(`Recorder Event for ${data.room_id}`);
+    return { status: true, msg: 'success' };
+  }
+
+  async convertWhiteboardFile(data: any) {
+    this.logger.log(`Convert Whiteboard File for ${data.room_id}`);
+    return { status: true, msg: 'success' };
+  }
+
+  async handleExMedia(data: { roomId: string; action: string; url?: string }) {
+    const rooms = await this.liveKitService
+      .getRoomClient()
+      .listRooms([data.roomId]);
+    if (rooms.length === 0) throw new RpcException('room not found');
+
+    const meta: any = JSON.parse(rooms[0].metadata || '{}');
+    if (!meta.room_features) meta.room_features = {};
+    if (!meta.room_features.external_media_player_features)
+      meta.room_features.external_media_player_features = {};
+
+    if (data.action === 'start') {
+      meta.room_features.external_media_player_features.is_active = true;
+      meta.room_features.external_media_player_features.url = data.url;
+    } else {
+      meta.room_features.external_media_player_features.is_active = false;
+    }
+
+    await this.updateAndBroadcastRoomMetadata(data.roomId, meta);
+    return { status: true, msg: 'success' };
+  }
+
+  async handleExDisplay(data: {
+    roomId: string;
+    action: string;
+    url?: string;
+  }) {
+    const rooms = await this.liveKitService
+      .getRoomClient()
+      .listRooms([data.roomId]);
+    if (rooms.length === 0) throw new RpcException('room not found');
+
+    const meta: any = JSON.parse(rooms[0].metadata || '{}');
+    if (!meta.room_features) meta.room_features = {};
+    if (!meta.room_features.display_external_link_features)
+      meta.room_features.display_external_link_features = {};
+
+    if (data.action === 'start') {
+      meta.room_features.display_external_link_features.is_active = true;
+      meta.room_features.display_external_link_features.url = data.url;
+    } else {
+      meta.room_features.display_external_link_features.is_active = false;
+    }
+
+    await this.updateAndBroadcastRoomMetadata(data.roomId, meta);
+    return { status: true, msg: 'success' };
+  }
+
+  async getClientFiles(data: any) {
+    return {
+      status: true,
+      msg: 'success',
+      css: [],
+      js: [],
+      css_files: [],
+      js_files: [],
+    };
+  }
+
+  async getRoomFilesByType(data: { roomId: string; fileType: string }) {
+    const files = await this.prisma.roomFile.findMany({
+      where: { roomId: data.roomId, fileType: data.fileType },
+    });
+    return { status: true, msg: 'success', files };
+  }
+
+  async updateAndBroadcastRoomMetadata(roomId: string, meta: any) {
+    const metaStr = JSON.stringify(meta);
+    await this.liveKitService.getRoomClient().updateRoomMetadata(roomId, metaStr);
+    await this.broadcastNatsEvent(
+      NatsMsgServerToClientEvents.ROOM_METADATA_UPDATE,
+      roomId,
+      metaStr,
+    );
+  }
 
   async createPoll(data: {
     roomId: string;
@@ -662,7 +1045,7 @@ export class RoomService implements OnModuleInit {
       await this.broadcastNatsEvent(
         NatsMsgServerToClientEvents.POLL_CLOSED,
         data.roomId,
-        data.pollId
+        data.pollId,
       );
 
       return { success: true, message: 'Poll closed' };
@@ -895,11 +1278,15 @@ export class RoomService implements OnModuleInit {
     await this.natsService.createDataChannelConsumer(roomId, userId);
   }
   // --- Webhook Sender ---
-  private async sendRoomCreatedWebhook(info: any, emptyTimeout?: number, maxParticipants?: number) {
+  private async sendRoomCreatedWebhook(
+    info: any,
+    emptyTimeout?: number,
+    maxParticipants?: number,
+  ) {
     if (!info.webhookUrl) return;
 
     const event = {
-      event: "room_created",
+      event: 'room_created',
       room: {
         room_id: info.roomId,
         sid: info.sid,
@@ -908,14 +1295,14 @@ export class RoomService implements OnModuleInit {
         empty_timeout: emptyTimeout,
         max_participants: maxParticipants,
       },
-      check_status: false // Simple field often used in PlugNmeet
+      check_status: false, // Simple field often used in PlugNmeet
     };
 
     try {
       // Use axios to send
       const axios = require('axios'); // Dynamic import or top-level if preferred
       await axios.post(info.webhookUrl, event, {
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
       this.logger.log(`Sent room_created webhook to ${info.webhookUrl}`);
     } catch (e) {

@@ -15,7 +15,7 @@ export class GatewayService {
     @Inject('AUTH_SERVICE') private readonly authClient: ClientProxy,
     private readonly configService: ConfigService,
     private readonly natsService: NatsService,
-  ) { }
+  ) {}
 
   async pingAuth(): Promise<AuthHealthResponse> {
     return lastValueFrom(
@@ -63,25 +63,28 @@ export class GatewayService {
 
     // NATS configuration
     // Default to localhost if not set
-    const natsUrl = this.configService.get<string>('NATS_WS_URL', 'ws://localhost:8222');
+    const natsUrl = this.configService.get<string>(
+      'NATS_WS_URL',
+      'ws://localhost:8222',
+    );
 
     // Construct NATS Subjects
     // Using standard PlugNmeet patterns
     // Construct NATS Subjects
     // Using standard PlugNmeet patterns
     const natsSubjects: NatsSubjects = {
-      systemApiWorker: "sysApiWorker",
-      systemJsWorker: "sysJsWorker",
-      systemPublic: "sysPublic",
-      systemPrivate: "sysPrivate",
-      chat: "chat",
-      whiteboard: "whiteboard",
-      dataChannel: "dataChannel",
+      systemApiWorker: 'sysApiWorker',
+      systemJsWorker: 'sysJsWorker',
+      systemPublic: 'sysPublic',
+      systemPrivate: 'sysPrivate',
+      chat: 'chat',
+      whiteboard: 'whiteboard',
+      dataChannel: 'dataChannel',
     };
 
     const res: VerifyTokenRes = {
       status: true,
-      msg: "success",
+      msg: 'success',
       natsWsUrls: [natsUrl],
       roomId: roomId,
       userId: userId,
@@ -137,7 +140,8 @@ export class GatewayService {
   // Define helper for random string if not imported
   private randomString(length: number) {
     let result = '';
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const characters =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     const charactersLength = characters.length;
     for (let i = 0; i < length; i++) {
       result += characters.charAt(Math.floor(Math.random() * charactersLength));

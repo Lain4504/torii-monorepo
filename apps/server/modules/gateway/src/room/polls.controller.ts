@@ -13,6 +13,11 @@ export class PollsController {
     @Inject('ROOM_SERVICE') private readonly roomClient: ClientProxy,
   ) { }
 
+  @Post('activate')
+  async activate(@Body() body: any) {
+    return firstValueFrom(this.roomClient.send({ cmd: 'poll.activate' }, body));
+  }
+
   @Post('create')
   async create(@Body() body: CreatePollReq) {
     return firstValueFrom(this.roomClient.send({ cmd: 'poll.create' }, body));
@@ -66,7 +71,9 @@ export class PollsController {
   // Client GET endpoints for poll details
   @Get('countTotalResponses/:pollId')
   async countTotalResponses(@Param('pollId') pollId: string) {
-    return firstValueFrom(this.roomClient.send({ cmd: 'poll.countResponses' }, { pollId }));
+    return firstValueFrom(
+      this.roomClient.send({ cmd: 'poll.countResponses' }, { pollId }),
+    );
   }
 
   @Get('userSelectedOption/:pollId/:userId')
@@ -74,17 +81,23 @@ export class PollsController {
     @Param('pollId') pollId: string,
     @Param('userId') userId: string,
   ) {
-    return firstValueFrom(this.roomClient.send({ cmd: 'poll.userOption' }, { pollId, userId }));
+    return firstValueFrom(
+      this.roomClient.send({ cmd: 'poll.userOption' }, { pollId, userId }),
+    );
   }
 
   @Get('pollResponsesDetails/:pollId')
   async pollResponsesDetails(@Param('pollId') pollId: string) {
-    return firstValueFrom(this.roomClient.send({ cmd: 'poll.responsesDetails' }, { pollId }));
+    return firstValueFrom(
+      this.roomClient.send({ cmd: 'poll.responsesDetails' }, { pollId }),
+    );
   }
 
   @Get('pollResponsesResult/:pollId')
   async pollResponsesResult(@Param('pollId') pollId: string) {
-    return firstValueFrom(this.roomClient.send({ cmd: 'poll.responsesResult' }, { pollId }));
+    return firstValueFrom(
+      this.roomClient.send({ cmd: 'poll.responsesResult' }, { pollId }),
+    );
   }
 }
 

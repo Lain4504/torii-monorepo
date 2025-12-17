@@ -8,8 +8,8 @@ import { ConfigModule } from '@nestjs/config';
  * This ensures auth callout handler runs on a single instance
  */
 @Module({
-    imports: [ConfigModule],
-    providers: [NatsAuthService],
-    exports: [NatsAuthService],
+  imports: [ConfigModule],
+  providers: [NatsAuthService],
+  exports: [NatsAuthService],
 })
-export class NatsAuthModule { }
+export class NatsAuthModule {}

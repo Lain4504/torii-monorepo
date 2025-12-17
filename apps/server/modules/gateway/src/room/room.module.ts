@@ -6,6 +6,11 @@ import { RecordingController } from './recording.controller';
 import { PollsController } from './polls.controller';
 import { SharedModule } from '@server/shared';
 
+import { BreakoutRoomController } from './breakout-room.controller';
+import { RecorderController } from './recorder.controller';
+import { WaitingRoomController } from './waiting-room.controller';
+import { IngressController } from './ingress.controller';
+
 @Module({
   imports: [
     ClientsModule.register([
@@ -25,6 +30,10 @@ import { SharedModule } from '@server/shared';
     WebhookController,
     RecordingController,
     PollsController,
+    BreakoutRoomController,
+    RecorderController,
+    WaitingRoomController,
+    IngressController,
   ],
 })
 export class RoomModule { }

@@ -29,17 +29,6 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // Exclude 'webhook' from global prefix so it remains at /webhook root if needed,
-  // or at least available for standard external calls without /api if configured that way.
-  // We exclude both POST /webhook and POST /webhook/*
-  app.setGlobalPrefix('api', {
-    exclude: [
-      { path: 'webhook', method: RequestMethod.POST },
-      { path: 'webhook/(.*)', method: RequestMethod.POST },
-    ],
-  });
-
-  // Enable raw body parsing for protobuf
   app.use(raw({ type: 'application/protobuf', limit: '10mb' }));
 
   // 1. Validation Pipe

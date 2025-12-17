@@ -1,4 +1,9 @@
-import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  OnModuleInit,
+  OnModuleDestroy,
+  Logger,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   connect,
@@ -39,9 +44,11 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
   async ensureGlobalStreams() {
     if (!this.jsm) {
-      this.logger.warn('JetStream Manager not available, skipping global stream creation.');
+      this.logger.warn(
+        'JetStream Manager not available, skipping global stream creation.',
+      );
       return;
-    };
+    }
 
     const streamName = 'plugnmeet_analytics';
     const subjects = ['plugnmeet_analytics'];
@@ -61,7 +68,9 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
         // await this.jsm.streams.update(streamName, { subjects });
       }
     } catch (e) {
-      this.logger.error(`Error ensuring global stream ${streamName}: ${e.message}`);
+      this.logger.error(
+        `Error ensuring global stream ${streamName}: ${e.message}`,
+      );
     }
   }
 
@@ -77,7 +86,9 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
       };
 
       if (process.env.NATS_NKEY_SEED) {
-        opts.authenticator = nkeyAuthenticator(new TextEncoder().encode(process.env.NATS_NKEY_SEED));
+        opts.authenticator = nkeyAuthenticator(
+          new TextEncoder().encode(process.env.NATS_NKEY_SEED),
+        );
       }
 
       this.nc = await connect(opts);
@@ -165,17 +176,33 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
+  async kvGetAll(bucket: string): Promise<Record<string, Uint8Array>> {
+    if (!this.js) return {};
+    try {
+      const kv = await this.js.views.kv(bucket);
+      const keys = await kv.keys();
+      const result: Record<string, Uint8Array> = {};
+      for await (const k of keys) {
+        const entry = await kv.get(k);
+        if (entry) result[k] = entry.value;
+      }
+      return result;
+    } catch (err) {
+      return {};
+    }
+  }
+
   async getRoomInfo(roomId: string) {
     const bucket = `pnm-roomInfo-${roomId}`;
     const kv = await this.js.views.kv(bucket);
     const roomInfo: any = {
       dbTableId: 0,
-      roomId: "",
-      roomSid: "",
-      status: "", // Enum as string or number? Proto says string status, but logic used parse int? Checking proto again.. proto says string status.
+      roomId: '',
+      roomSid: '',
+      status: '', // Enum as string or number? Proto says string status, but logic used parse int? Checking proto again.. proto says string status.
       emptyTimeout: 0,
       maxParticipants: 0,
-      metadata: "{}",
+      metadata: '{}',
       createdAt: 0,
     };
 
@@ -189,7 +216,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     } catch (e) { }
     try {
       const e = await kv.get('status');
-      // Helper previously parsedInt, but proto def shows `status: string`. 
+      // Helper previously parsedInt, but proto def shows `status: string`.
       // Checking simple grep output line 780: message.status = reader.string();
       // So it should be string.
       if (e) roomInfo.status = this.sc.decode(e.value);
@@ -210,7 +237,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
       const e = await kv.get('metadata');
       if (e) {
         const val = this.sc.decode(e.value);
-        roomInfo.metadata = val && val !== "" ? val : "{}";
+        roomInfo.metadata = val && val !== '' ? val : '{}';
       }
     } catch (e) { }
 
@@ -221,13 +248,13 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     const bucket = `pnm-userInfo-r_${roomId}-u_${userId}`;
     const kv = await this.js.views.kv(bucket);
     const userInfo: any = {
-      userId: "",
-      userSid: "",
-      name: "",
-      roomId: "",
+      userId: '',
+      userSid: '',
+      name: '',
+      roomId: '',
       isAdmin: false,
       isPresenter: false,
-      metadata: "{}",
+      metadata: '{}',
       joinedAt: 0,
       reconnectedAt: 0,
       disconnectedAt: 0,
@@ -253,7 +280,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
       const e = await kv.get('metadata');
       if (e) {
         const val = this.sc.decode(e.value);
-        userInfo.metadata = val && val !== "" ? val : "{}";
+        userInfo.metadata = val && val !== '' ? val : '{}';
       }
     } catch (e) { }
     try {
@@ -498,7 +525,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
       `sysPublic:${userId}`,
       `sysPrivate:${userId}`,
       `whiteboard:${userId}`,
-      `dataChannel:${userId}`
+      `dataChannel:${userId}`,
     ];
     for (const durable of consumers) {
       try {
@@ -517,10 +544,14 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     try {
       // Step 1: Get all online user IDs
       const userIds = await this.getOnlineUsersId(roomId);
-      this.logger.debug(`[getOnlineUsersList] Got ${userIds.length} online user IDs: ${JSON.stringify(userIds)}`);
+      this.logger.debug(
+        `[getOnlineUsersList] Got ${userIds.length} online user IDs: ${JSON.stringify(userIds)}`,
+      );
 
       if (!userIds || userIds.length === 0) {
-        this.logger.warn(`[getOnlineUsersList] No online users in room ${roomId}`);
+        this.logger.warn(
+          `[getOnlineUsersList] No online users in room ${roomId}`,
+        );
         return [];
       }
 
@@ -534,14 +565,20 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
             this.logger.debug(`[getOnlineUsersList] Added user ${userId}`);
           }
         } catch (e) {
-          this.logger.warn(`[getOnlineUsersList] Failed to get info for user ${userId}: ${e.message}`);
+          this.logger.warn(
+            `[getOnlineUsersList] Failed to get info for user ${userId}: ${e.message}`,
+          );
         }
       }
 
-      this.logger.log(`[getOnlineUsersList] Returning ${users.length} users for room ${roomId}`);
+      this.logger.log(
+        `[getOnlineUsersList] Returning ${users.length} users for room ${roomId}`,
+      );
       return users;
     } catch (e) {
-      this.logger.error(`[getOnlineUsersList] Error for room ${roomId}: ${e.message}`);
+      this.logger.error(
+        `[getOnlineUsersList] Error for room ${roomId}: ${e.message}`,
+      );
       return [];
     }
   }
@@ -579,7 +616,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     name: string,
     isAdmin: boolean,
     isPresenter: boolean,
-    metadata: any // UserMetadata object
+    metadata: any, // UserMetadata object
   ) {
     try {
       // 1. Add user to room users bucket (status: 'added')
@@ -634,7 +671,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     event: any, // NatsMsgServerToClientEvents
     roomId: string,
     data: any,
-    exceptUserId: string
+    exceptUserId: string,
   ) {
     try {
       // Get all online user IDs
@@ -652,7 +689,9 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
             try {
               await this.broadcastSystemEvent(event, roomId, data, userId);
             } catch (e) {
-              this.logger.error(`Failed to broadcast to ${userId}: ${e.message}`);
+              this.logger.error(
+                `Failed to broadcast to ${userId}: ${e.message}`,
+              );
             }
           });
         }
@@ -668,7 +707,9 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
    */
   async getOnlineUsersId(roomId: string): Promise<string[]> {
     const roomUsersBucket = `pnm-roomUsers-${roomId}`;
-    this.logger.debug(`[getOnlineUsersId] Getting IDs for room ${roomId} from bucket ${roomUsersBucket}`);
+    this.logger.debug(
+      `[getOnlineUsersId] Getting IDs for room ${roomId} from bucket ${roomUsersBucket}`,
+    );
 
     try {
       const kv = await this.js.views.kv(roomUsersBucket);
@@ -682,7 +723,9 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
         allKeys.push(key);
       }
 
-      this.logger.debug(`[getOnlineUsersId] Collected ${allKeys.length} total keys from KV: ${JSON.stringify(allKeys)}`);
+      this.logger.debug(
+        `[getOnlineUsersId] Collected ${allKeys.length} total keys from KV: ${JSON.stringify(allKeys)}`,
+      );
 
       // Now process the collected keys to filter for 'online' status
       const userIds: string[] = [];
@@ -697,7 +740,9 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
           }
 
           const status = this.sc.decode(entry.value);
-          this.logger.debug(`[getOnlineUsersId] Key ${key}: status='${status}'`);
+          this.logger.debug(
+            `[getOnlineUsersId] Key ${key}: status='${status}'`,
+          );
 
           // Only include online users
           if (status === 'online') {
@@ -706,15 +751,21 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
             this.logger.debug(`[getOnlineUsersId] Added ${key} to online list`);
           }
         } catch (e) {
-          this.logger.warn(`[getOnlineUsersId] Error processing key ${key}: ${e.message}`);
+          this.logger.warn(
+            `[getOnlineUsersId] Error processing key ${key}: ${e.message}`,
+          );
           continue;
         }
       }
 
-      this.logger.log(`[getOnlineUsersId] Processed ${allKeys.length} keys, found ${onlineCount} online: ${JSON.stringify(userIds)}`);
+      this.logger.log(
+        `[getOnlineUsersId] Processed ${allKeys.length} keys, found ${onlineCount} online: ${JSON.stringify(userIds)}`,
+      );
       return userIds;
     } catch (e) {
-      this.logger.error(`[getOnlineUsersId] Error for room ${roomId}: ${e.message}`);
+      this.logger.error(
+        `[getOnlineUsersId] Error for room ${roomId}: ${e.message}`,
+      );
       return [];
     }
   }
@@ -723,7 +774,12 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
    * Update a specific key-value pair for a user
    * Matches Go: UpdateUserKeyValue
    */
-  async updateUserKeyValue(roomId: string, userId: string, key: string, val: string) {
+  async updateUserKeyValue(
+    roomId: string,
+    userId: string,
+    key: string,
+    val: string,
+  ) {
     const userInfoBucket = `pnm-userInfo-r_${roomId}-u_${userId}`;
     try {
       const kv = await this.js.views.kv(userInfoBucket);
@@ -738,7 +794,12 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
    * Send info notification to user
    * Matches Go: NotifyInfoMsg → BroadcastSystemNotificationToRoom
    */
-  async notifyInfoMsg(roomId: string, msg: string, withSound: boolean, userId: string) {
+  async notifyInfoMsg(
+    roomId: string,
+    msg: string,
+    withSound: boolean,
+    userId: string,
+  ) {
     try {
       // Generate UUID for notification
       const crypto = require('crypto');
@@ -750,14 +811,14 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
         type: 0, // NATS_SYSTEM_NOTIFICATION_INFO
         msg: msg,
         sent_at: Date.now(),
-        with_sound: withSound
+        with_sound: withSound,
       };
 
       await this.broadcastSystemEvent(
         12, // SYSTEM_NOTIFICATION event (NatsMsgServerToClientEvents_SYSTEM_NOTIFICATION)
         roomId,
         JSON.stringify(notification),
-        userId
+        userId,
       );
     } catch (e) {
       this.logger.error(`Error sending info notification: ${e.message}`);
@@ -774,7 +835,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     roomSid: string,
     emptyTimeout: number,
     maxParticipants: number,
-    metadata: any
+    metadata: any,
   ) {
     const bucket = `pnm-roomInfo-${roomId}`;
     this.logger.debug(`Adding room to NATS KV bucket: ${bucket}`);

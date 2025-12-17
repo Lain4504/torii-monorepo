@@ -245,6 +245,102 @@ export class BreakoutRoomService {
 
     return { success: true };
   }
+
+  async getBreakoutRooms(data: { roomId: string }) {
+    const rooms = await this.fetchBreakoutRooms(data.roomId);
+    if (!rooms || rooms.length === 0) {
+      throw new RpcException('no breakout rooms found');
+    }
+    return { status: true, msg: 'success', rooms };
+  }
+
+  async getMyBreakoutRooms(data: { roomId: string; userId: string }) {
+    const rooms = await this.fetchBreakoutRooms(data.roomId);
+    if (!rooms || rooms.length === 0) {
+      throw new RpcException('no breakout rooms found');
+    }
+
+    for (const room of rooms) {
+      if (room.users.some((u: any) => u.id === data.userId)) {
+        return { status: true, msg: 'success', room };
+      }
+    }
+    throw new RpcException('not found');
+  }
+
+  async increaseBreakoutRoomDuration(data: {
+    roomId: string;
+    breakoutRoomId: string;
+    duration: number;
+  }) {
+    // 1. Fetch current info
+    const kv = await this.natsService.kvGet(
+      `pnm-breakoutRoom-${data.roomId}`,
+      data.breakoutRoomId,
+    );
+    if (!kv) throw new RpcException('breakout room not found');
+
+    const room = JSON.parse(new TextDecoder().decode(kv));
+
+    // 2. Update duration in LiveKit (metatada)
+    const newDuration = (room.duration || 0) + data.duration;
+    room.duration = newDuration;
+
+    // Update the actual room session duration if we have a checker,
+    // but here we focus on metadata persistence as per BKRoom logic.
+    await this.natsService.kvPut(
+      `pnm-breakoutRoom-${data.roomId}`,
+      data.breakoutRoomId,
+      JSON.stringify(room),
+    );
+
+    return { status: true, msg: 'success' };
+  }
+
+  async sendBreakoutRoomMsg(data: { roomId: string; msg: string }) {
+    const rooms = await this.fetchBreakoutRooms(data.roomId);
+    if (!rooms || rooms.length === 0) return { status: true, msg: 'success' };
+
+    for (const room of rooms) {
+      await this.roomService.broadcastNatsEvent(
+        NatsMsgServerToClientEvents.SYSTEM_CHAT_MSG,
+        room.id,
+        data.msg,
+      );
+    }
+    return { status: true, msg: 'success' };
+  }
+
+  private async fetchBreakoutRooms(roomId: string): Promise<any[]> {
+    const bucket = `pnm-breakoutRoom-${roomId}`;
+    // We'll use a manual approach since kvGetAll isn't in NatsService yet, 
+    // or better, I should add it to NatsService.
+    // For now, let's assume I'll add it.
+    const all = await this.natsService.kvGetAll(bucket);
+    const breakoutRooms: any[] = [];
+    const decoder = new TextDecoder();
+
+    for (const [key, val] of Object.entries(all)) {
+      try {
+        const room = JSON.parse(decoder.decode(val));
+        room.id = key;
+        // Check online status for users if started
+        if (room.started) {
+          for (const user of room.users) {
+            const status = await this.natsService.getRoomUserStatus(
+              room.id,
+              user.id,
+            );
+            if (status === 'online') {
+              user.joined = true;
+            }
+          }
+        }
+        breakoutRooms.push(room);
+      } catch (e) { }
+    }
+    return breakoutRooms;
+  }
 }
 
 

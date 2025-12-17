@@ -22,7 +22,7 @@ export class WebhookController {
     @Inject('ROOM_SERVICE') private readonly roomClient: ClientProxy,
   ) { }
 
-  @Post('livekit')
+  @Post()
   async handleWebhook(
     @Headers('authorization') authHeader: string,
     @Body() body: any,
@@ -64,12 +64,21 @@ export class WebhookController {
 
     // Handle participant_joined
     if (event.event === 'participant_joined') {
-      this.logger.log(`Participant joined: ${participantId} in room ${roomName}`);
+      this.logger.log(
+        `Participant joined: ${participantId} in room ${roomName}`,
+      );
 
       // For internal agents (ingress, TTS), manually trigger OnAfterUserJoined
       // because they don't use plugNmeet client interface
-      if (participantId.startsWith('ingres_') || participantId.startsWith('pnm_tts_agent-') || participantId.startsWith('pnm_agent-')) {
-        await this.userTrackingService.onAfterUserJoined(roomName, participantId);
+      if (
+        participantId.startsWith('ingres_') ||
+        participantId.startsWith('pnm_tts_agent-') ||
+        participantId.startsWith('pnm_agent-')
+      ) {
+        await this.userTrackingService.onAfterUserJoined(
+          roomName,
+          participantId,
+        );
       }
     }
 
@@ -78,8 +87,15 @@ export class WebhookController {
       this.logger.log(`Participant left: ${participantId} in room ${roomName}`);
 
       // For internal agents
-      if (participantId.startsWith('ingres_') || participantId.startsWith('pnm_tts_agent-') || participantId.startsWith('pnm_agent-')) {
-        await this.userTrackingService.onAfterUserDisconnected(roomName, participantId);
+      if (
+        participantId.startsWith('ingres_') ||
+        participantId.startsWith('pnm_tts_agent-') ||
+        participantId.startsWith('pnm_agent-')
+      ) {
+        await this.userTrackingService.onAfterUserDisconnected(
+          roomName,
+          participantId,
+        );
       }
     }
   }

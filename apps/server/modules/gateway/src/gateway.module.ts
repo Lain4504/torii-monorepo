@@ -47,5 +47,5 @@ import { WebhookController } from './room/webhook.controller';
   ],
   exports: [UserTrackingService],
 })
-export class GatewayModule { }
+export class GatewayModule {}
 

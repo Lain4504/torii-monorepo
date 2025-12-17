@@ -20,11 +20,11 @@ import {
   GetDownloadTokenReq,
 } from '@workspace/protocol';
 
-@Controller('recording')
+@Controller('auth/recording')
 export class RecordingController {
   constructor(
     @Inject('ROOM_SERVICE') private readonly roomClient: ClientProxy,
-  ) {}
+  ) { }
 
   @Post('start')
   async start(@Body() body: { roomName: string }) {
@@ -54,14 +54,29 @@ export class RecordingController {
     );
   }
 
-  @Post('token')
+  @Post('info')
+  async info(@Body() body: any) {
+    return firstValueFrom(this.roomClient.send({ cmd: 'recording.info' }, body));
+  }
+
+  @Post('recordingInfo')
+  async recordingInfo(@Body() body: any) {
+    return firstValueFrom(this.roomClient.send({ cmd: 'recording.info' }, body));
+  }
+
+  @Post('updateMetadata')
+  async updateMetadata(@Body() body: any) {
+    return firstValueFrom(this.roomClient.send({ cmd: 'recording.updateMetadata' }, body));
+  }
+
+  @Post('getDownloadToken')
   async getDownloadToken(@Body() body: GetDownloadTokenReq) {
     return firstValueFrom(
       this.roomClient.send({ cmd: 'recording.getDownloadToken' }, body),
     );
   }
 
-  @Get('download/:token')
+  @Get('/download/recording/:token')
   async download(
     @Param('token') token: string,
     @Res({ passthrough: true }) res: Response,
