@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { NatsService } from '@server/shared';
-import { NatsMsgServerToClientEvents } from '@server/proto';
+import { NatsMsgServerToClientEvents } from "@workspace/protocol";
 
 @Injectable()
 export class UserTrackingService {

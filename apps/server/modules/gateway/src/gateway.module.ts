@@ -13,9 +13,8 @@ import { GatewayController } from './gateway.controller';
 import { GatewayService } from './gateway.service';
 import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
 import { SystemWorkerService } from './system-worker.service';
-import { UserTrackingService } from './user-tracking.service';
 import { NatsConnectionListener } from './nats-connection-listener.service';
-import { WebhookController } from './room/webhook.controller';
+import { UserTrackingModule } from './user-tracking.module';
 
 @Module({
   imports: [
@@ -36,16 +35,16 @@ import { WebhookController } from './room/webhook.controller';
     RoomModule,
     FileModule,
     AdminModule,
+    UserTrackingModule,
   ],
-  controllers: [GatewayController, WebhookController],
+  controllers: [GatewayController],
   providers: [
     GatewayService,
     ApiKeyGuard,
     SystemWorkerService,
-    UserTrackingService,
-    NatsConnectionListener, // Matches Go: subscribeToUsersConnEvents
+    NatsConnectionListener,
   ],
-  exports: [UserTrackingService],
+  exports: [UserTrackingModule],
 })
-export class GatewayModule {}
+export class GatewayModule { }
 

@@ -29,7 +29,6 @@ export class PollsController {
     return firstValueFrom(this.roomClient.send({ cmd: 'poll.list' }, body));
   }
 
-  // GET endpoint (client-facing) - matches plugNmeet-client
   @Get('listPolls')
   async listPolls() {
     return firstValueFrom(this.roomClient.send({ cmd: 'poll.list' }, {}));

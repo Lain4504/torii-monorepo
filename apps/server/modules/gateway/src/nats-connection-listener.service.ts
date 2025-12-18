@@ -7,7 +7,6 @@ import * as jwt from 'jsonwebtoken';
 /**
  * NATS Connection Event Listener
  * Subscribes to $SYS.ACCOUNT.{account}.> to track user connections
- * Matches Go server: pkg/controllers/nats.go subscribeToUsersConnEvents
  */
 @Injectable()
 export class NatsConnectionListener implements OnModuleInit {
@@ -17,7 +16,7 @@ export class NatsConnectionListener implements OnModuleInit {
     private readonly natsService: NatsService,
     private readonly userTrackingService: UserTrackingService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   async onModuleInit() {
     await this.subscribeToUsersConnEvents();
@@ -25,7 +24,6 @@ export class NatsConnectionListener implements OnModuleInit {
 
   /**
    * Subscribe to NATS system connection events
-   * Matches: NatsController.subscribeToUsersConnEvents() in Go
    */
   private async subscribeToUsersConnEvents() {
     const accountName = this.configService.get<string>(
@@ -33,7 +31,7 @@ export class NatsConnectionListener implements OnModuleInit {
       'PNM',
     );
     const subject = `$SYS.ACCOUNT.${accountName}.>`;
-    const queueGroup = 'pnm-conn-event-queue';
+    const queueGroup = 'wajlc-conn-event-queue';
 
     // Wait for NATS connection
     let retries = 0;
@@ -82,7 +80,7 @@ export class NatsConnectionListener implements OnModuleInit {
         // Copy data to avoid race conditions (NATS message buffer is reused)
         const dataCopy = new Uint8Array(msg.data);
 
-        // Process in background (non-blocking like Go's goroutine)
+        // Process in background (non-blocking)
         setImmediate(() => this.handleUserConnectionEvent(dataCopy, isConnect));
       }
     } catch (err) {
@@ -92,7 +90,6 @@ export class NatsConnectionListener implements OnModuleInit {
 
   /**
    * Handle individual connection event
-   * Matches: NatsController.handleUserConnectionEvent() in Go
    */
   private async handleUserConnectionEvent(
     data: Uint8Array,
@@ -127,7 +124,6 @@ export class NatsConnectionListener implements OnModuleInit {
       this.logger.debug(`Found user token, length: ${userToken.length}`);
 
       // Parse JWT to get roomId and userId
-      // IMPORTANT: Unsafe parse without verification (like Go's UnsafeClaimsWithoutVerification)
       // Because we just need to extract roomId/userId, not validate the token
       const decoded: any = jwt.decode(userToken);
       if (!decoded) {

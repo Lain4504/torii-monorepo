@@ -55,7 +55,7 @@ export class BreakoutRoomService {
     bkMeta.roomFeatures.recordingFeatures = { isAllow: false };
     bkMeta.roomFeatures.allowRtmp = false;
 
-    // Disable External Media/Display features as per plugNmeet logic
+    // Disable External Media/Display features
     if (bkMeta.roomFeatures.displayExternalLinkFeatures) {
       bkMeta.roomFeatures.displayExternalLinkFeatures.isActive = false;
     }
@@ -98,7 +98,7 @@ export class BreakoutRoomService {
         // NATS KV Storage for Persistence/Legacy Compatibility
         try {
           await this.natsService.kvPut(
-            `pnm-breakoutRoom-${data.roomId}`,
+            `wajlc-breakoutRoom-${data.roomId}`,
             bkRoomId,
             JSON.stringify(thisRoomMeta),
           );
@@ -213,7 +213,7 @@ export class BreakoutRoomService {
       await this.roomService.endRoom({ roomId: room.roomId });
       try {
         await this.natsService.kvDelete(
-          `pnm-breakoutRoom-${data.roomId}`,
+          `wajlc-breakoutRoom-${data.roomId}`,
           room.roomId,
         );
       } catch (e) { }
@@ -275,7 +275,7 @@ export class BreakoutRoomService {
   }) {
     // 1. Fetch current info
     const kv = await this.natsService.kvGet(
-      `pnm-breakoutRoom-${data.roomId}`,
+      `wajlc-breakoutRoom-${data.roomId}`,
       data.breakoutRoomId,
     );
     if (!kv) throw new RpcException('breakout room not found');
@@ -289,7 +289,7 @@ export class BreakoutRoomService {
     // Update the actual room session duration if we have a checker,
     // but here we focus on metadata persistence as per BKRoom logic.
     await this.natsService.kvPut(
-      `pnm-breakoutRoom-${data.roomId}`,
+      `wajlc-breakoutRoom-${data.roomId}`,
       data.breakoutRoomId,
       JSON.stringify(room),
     );
@@ -312,7 +312,7 @@ export class BreakoutRoomService {
   }
 
   private async fetchBreakoutRooms(roomId: string): Promise<any[]> {
-    const bucket = `pnm-breakoutRoom-${roomId}`;
+    const bucket = `wajlc-breakoutRoom-${roomId}`;
     // We'll use a manual approach since kvGetAll isn't in NatsService yet, 
     // or better, I should add it to NatsService.
     // For now, let's assume I'll add it.

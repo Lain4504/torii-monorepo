@@ -1,3 +1,11 @@
+## 🔄 Key Hierarchy
+
+```
+Operator (SO...)
+  └─ Account (SA...) ← USE THIS for signing User JWTs
+       └─ User (SU...) ← For client connection only
+```
+
 # How to Get User Seed for auth-service
 
 You created a user `auth-service` with public key:
@@ -55,5 +63,5 @@ After getting the seed:
 ```bash
 NATS_ACCOUNT_SEED=SAAB4IFWUI2KFNAXDT44WX2SSUTGCT46TBBLU2BN2CXKPDXDELRK5DJI74
 NATS_XKEY_SEED=SXAMBYY64TKXZCLFQGWDATGPIPURA4SIV3GDCSGG7A74USK6XDO6WQTIUU
-NATS_NKEY_SEED=SUxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  # ← Paste here
+NATS_NKEY_SEED=SUAFSZR6YB5FXE3PELLSXNVJVAWCC5V4ZGZBRVFAITOYUE5PG4MIIIAHDI
 ```

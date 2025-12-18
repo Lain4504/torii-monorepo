@@ -69,7 +69,6 @@ export class WebhookController {
       );
 
       // For internal agents (ingress, TTS), manually trigger OnAfterUserJoined
-      // because they don't use plugNmeet client interface
       if (
         participantId.startsWith('ingres_') ||
         participantId.startsWith('pnm_tts_agent-') ||

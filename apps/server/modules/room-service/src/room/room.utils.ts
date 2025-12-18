@@ -24,7 +24,7 @@ import {
   LtiCustomParameters,
   LtiCustomDesign,
   CommonResponse,
-} from '@server/proto';
+} from "@workspace/protocol";
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -85,7 +85,7 @@ export class RoomUtils {
     };
   }
 
-  // --- Defaults Logic (Mirroring Go: utils.PrepareDefaultRoomFeatures, etc.) ---
+  // --- Defaults Logic
 
   public static setRoomDefaults(r: CreateRoomReq, config: any) {
     if (!r.metadata) {
@@ -101,11 +101,11 @@ export class RoomUtils {
     // 3. Set Lock Settings
     this.setRoomDefaultLockSettings(r);
 
-    // 4. Copyright Logic (Mirroring Go)
+    // 4. Copyright Logic
     const copyrightConf = config.copyrightConf;
     const defaultCopyright = {
       display: true,
-      text: 'Powered by <a href="https://www.plugnmeet.org" target="_blank">plugNmeet</a>',
+      text: 'Powered by Mirai Magic</a>',
     };
 
     if (!copyrightConf) {
@@ -344,7 +344,7 @@ export class RoomUtils {
     }
   }
 
-  // --- Clone of plugnmeet-protocol/utils/create_room.go: SetDefaultRoomSettings ---
+  // --- SetDefaultRoomSettings ---
   public static setDefaultRoomSettings(
     s: RoomDefaultSettings,
     r: CreateRoomReq,
@@ -387,7 +387,7 @@ export class RoomUtils {
     }
   }
 
-  // --- Clone of plugnmeet-protocol/utils/common.go: GenerateSecureRandomStrings ---
+  // ---  GenerateSecureRandomStrings ---
   public static generateSecureRandomStrings(length: number): string {
     try {
       return crypto
@@ -402,11 +402,10 @@ export class RoomUtils {
     }
   }
 
-  // --- Clone of plugnmeet-protocol/utils/common.go: PrepareCommonWebhookNotifyEvent ---
+  // --- PrepareCommonWebhookNotifyEvent ---
   // Note: Depends on receiving a LiveKit Webhook Event structure.
   // Simplifying assuming input is any matching the structure for now or generic map.
   public static prepareCommonWebhookNotifyEvent(event: any): CommonNotifyEvent {
-    // Mapping logic mirroring Go.
     const room = event.room;
     return {
       event: event.event,
@@ -427,7 +426,7 @@ export class RoomUtils {
     };
   }
 
-  // --- Clone of plugnmeet-protocol/utils/common.go: GetFilesFromDir ---
+  // --- GetFilesFromDir ---
   public static async getFilesFromDir(
     dirPath: string,
     ext: string,
@@ -459,8 +458,6 @@ export class RoomUtils {
     }
     return false;
   }
-
-  // --- Clone of plugnmeet-protocol/utils/lti_v1.go ---
 
   public static assignLTIV1CustomParams(
     params: URLSearchParams,

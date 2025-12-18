@@ -86,13 +86,13 @@ export class RoomService implements OnModuleInit {
       });
 
       if (existingRoom) {
-        // Check NATS for liveness (Go Parity)
+        // Check NATS for liveness
         const rInfo = await this.natsService.getRoomInfo(roomId);
         if (rInfo && rInfo.roomId) {
           this.logger.log(
             `Room ${roomId} found active in NATS. Returning existing info.`,
           );
-          // Ensure streams are active (Go logic)
+          // Ensure streams are active
           await this.createRoomNatsStreams(roomId);
 
           // Return existing room info
@@ -121,7 +121,7 @@ export class RoomService implements OnModuleInit {
         }
       }
 
-      // Initialize defaults using RoomUtils (Go parity)
+      // Initialize defaults using RoomUtils
       // We gather config from ConfigService
       const roomConfig = {
         copyrightConf: this.configService.get('COPYRIGHT_CONF'), // Assuming loaded as object or we map it
@@ -180,7 +180,7 @@ export class RoomService implements OnModuleInit {
       // Create NATS Streams
       await this.createRoomNatsStreams(room.name);
 
-      // Add room to NATS KV (Match Go: AddRoom)
+      // Add room to NATS KV
       this.logger.log(`Adding room to NATS KV: ${room.name}`);
       await this.natsService.addRoom(
         dbRoom.id.toString(),
@@ -215,7 +215,7 @@ export class RoomService implements OnModuleInit {
         data.metadata as any,
       );
 
-      // Send Webhook (Go Parity)
+      // Send Webhook
       this.sendRoomCreatedWebhook(
         activeRoomInfo,
         data.emptyTimeout,
@@ -233,11 +233,11 @@ export class RoomService implements OnModuleInit {
 
   private async createRoomNatsStreams(roomId: string) {
     const subjects = [
-      `${roomId}:pnm.chat.*`,
-      `${roomId}:pnm.system.public.*`,
-      `${roomId}:pnm.system.private.*.*`,
-      `${roomId}:pnm.whiteboard.*`,
-      `${roomId}:pnm.datachannel.*`,
+      `${roomId}:chat.*`,
+      `${roomId}:sysPublic.*`,
+      `${roomId}:sysPrivate.*.*`,
+      `${roomId}:whiteboard.*`,
+      `${roomId}:dataChannel.*`,
     ];
     await this.natsService.createStream(roomId, subjects);
   }
@@ -602,9 +602,9 @@ export class RoomService implements OnModuleInit {
     // Subject: chat (or room-specific if needed)
     // Using "chat" as global subject for now as per ChatService
     // Push to NATS for Legacy Clients / Backend Listeners
-    // Subject: roomId:pnm.chat.userId (for system use system id)
+    // Subject: roomId:chat.userId (for system use system id)
     await this.natsService.publishPayload(
-      `${data.roomId}:pnm.chat.system`,
+      `${data.roomId}:chat.system`,
       payload,
     );
 
@@ -1262,9 +1262,9 @@ export class RoomService implements OnModuleInit {
     });
     const binary = NatsMsgServerToClient.encode(payload).finish();
 
-    let subject = `${roomId}:pnm.system.public.system`;
+    let subject = `${roomId}:sysPublic.system`;
     if (toUserId) {
-      subject = `${roomId}:pnm.system.private.${toUserId}.system`;
+      subject = `${roomId}:sysPrivate.${toUserId}.system`;
     }
 
     await this.natsService.publishPayload(subject, binary);
@@ -1295,7 +1295,7 @@ export class RoomService implements OnModuleInit {
         empty_timeout: emptyTimeout,
         max_participants: maxParticipants,
       },
-      check_status: false, // Simple field often used in PlugNmeet
+      check_status: false,
     };
 
     try {

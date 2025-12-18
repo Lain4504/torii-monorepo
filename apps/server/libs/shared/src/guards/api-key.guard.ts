@@ -17,8 +17,8 @@ export class ApiKeyGuard implements CanActivate {
     const signature = request.headers['hash-signature'];
     const body = request.body;
 
-    const configApiKey = this.configService.get<string>('PLUGNMEET_API_KEY');
-    const configSecret = this.configService.get<string>('PLUGNMEET_API_SECRET');
+    const configApiKey = this.configService.get<string>('WAJLC_API_KEY');
+    const configSecret = this.configService.get<string>('WAJLC_API_SECRET');
 
     if (!configApiKey || !configSecret) {
       // If not configured, deny by default or log warning

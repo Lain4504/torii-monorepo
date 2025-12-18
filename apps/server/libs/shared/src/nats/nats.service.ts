@@ -193,7 +193,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
   }
 
   async getRoomInfo(roomId: string) {
-    const bucket = `pnm-roomInfo-${roomId}`;
+    const bucket = `wajlc-roomInfo-${roomId}`;
     const kv = await this.js.views.kv(bucket);
     const roomInfo: any = {
       dbTableId: 0,
@@ -245,7 +245,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
   }
 
   async getUserInfo(roomId: string, userId: string) {
-    const bucket = `pnm-userInfo-r_${roomId}-u_${userId}`;
+    const bucket = `wajlc-userInfo-r_${roomId}-u_${userId}`;
     const kv = await this.js.views.kv(bucket);
     const userInfo: any = {
       userId: '',
@@ -306,7 +306,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
   }
 
   async updateRoomInfo(roomId: string, info: any) {
-    const bucket = `pnm-roomInfo-${roomId}`;
+    const bucket = `wajlc-roomInfo-${roomId}`;
     const kv = await this.createOrUpdateKv(bucket);
     if (!kv) return;
 
@@ -333,14 +333,14 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
   }
 
   async deleteRoomInfo(roomId: string) {
-    const bucket = `pnm-roomInfo-${roomId}`;
+    const bucket = `wajlc-roomInfo-${roomId}`;
     try {
       await this.jsm?.streams.delete(`KV_${bucket}`);
     } catch (e) { }
   }
 
   async updateUserInfo(roomId: string, userId: string, info: any) {
-    const bucket = `pnm-userInfo-r_${roomId}-u_${userId}`;
+    const bucket = `wajlc-userInfo-r_${roomId}-u_${userId}`;
     const kv = await this.createOrUpdateKv(bucket);
     if (!kv) return;
 
@@ -358,7 +358,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     await Promise.all(p);
 
     // Also update room users bucket
-    const roomUsersBucket = `pnm-roomUsers-${roomId}`;
+    const roomUsersBucket = `wajlc-roomUsers-${roomId}`;
     const kvUsers = await this.createOrUpdateKv(roomUsersBucket);
     if (kvUsers) {
       await kvUsers.put(userId, this.sc.encode('online')); // Status
@@ -366,12 +366,12 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
   }
 
   async deleteUserInfo(roomId: string, userId: string) {
-    const bucket = `pnm-userInfo-r_${roomId}-u_${userId}`;
+    const bucket = `wajlc-userInfo-r_${roomId}-u_${userId}`;
     try {
       await this.jsm?.streams.delete(`KV_${bucket}`);
     } catch (e) { }
 
-    const roomUsersBucket = `pnm-roomUsers-${roomId}`;
+    const roomUsersBucket = `wajlc-roomUsers-${roomId}`;
     try {
       const kv = await this.js.views.kv(roomUsersBucket);
       await kv.delete(userId);
@@ -457,7 +457,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     return this.js.publish(subject, payload);
   }
 
-  // --- Consumer Creation (Parity with js_consumer.go) ---
+  // --- Consumer Creation ---
 
   async createChatConsumer(roomId: string, userId: string) {
     if (!this.jsm) return;
@@ -536,7 +536,6 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
   /**
    * Get online users list
-   * Matches Go: GetOnlineUsersList
    */
   async getOnlineUsersList(roomId: string): Promise<any[]> {
     this.logger.debug(`[getOnlineUsersList] Called for room ${roomId}`);
@@ -584,7 +583,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
   }
 
   async getRoomUserStatus(roomId: string, userId: string): Promise<string> {
-    const roomUsersBucket = `pnm-roomUsers-${roomId}`;
+    const roomUsersBucket = `wajlc-roomUsers-${roomId}`;
     try {
       const kv = await this.js.views.kv(roomUsersBucket);
       const entry = await kv.get(userId);
@@ -595,7 +594,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
   }
 
   async updateUserStatus(roomId: string, userId: string, status: string) {
-    const roomUsersBucket = `pnm-roomUsers-${roomId}`;
+    const roomUsersBucket = `wajlc-roomUsers-${roomId}`;
     try {
       const kv = await this.createOrUpdateKv(roomUsersBucket);
       if (kv) {
@@ -608,7 +607,6 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
   /**
    * Add/Save user to NATS KV
-   * Matches Go: NatsService.AddUser()
    */
   async addUser(
     roomId: string,
@@ -620,14 +618,14 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
   ) {
     try {
       // 1. Add user to room users bucket (status: 'added')
-      const roomUsersBucket = `pnm-roomUsers-${roomId}`;
+      const roomUsersBucket = `wajlc-roomUsers-${roomId}`;
       const roomKv = await this.createOrUpdateKv(roomUsersBucket);
       if (roomKv) {
         await roomKv.put(userId, this.sc.encode('added'));
       }
 
       // 2. Create user info bucket
-      const userInfoBucket = `pnm-userInfo-r_${roomId}-u_${userId}`;
+      const userInfoBucket = `wajlc-userInfo-r_${roomId}-u_${userId}`;
       const userKv = await this.createOrUpdateKv(userInfoBucket);
       if (!userKv) {
         throw new Error('Failed to create user info bucket');
@@ -665,7 +663,6 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
   /**
    * Broadcast system event to all online users except one
-   * Matches Go: BroadcastSystemEventToEveryoneExceptUserId
    */
   async broadcastSystemEventToEveryoneExceptUserId(
     event: any, // NatsMsgServerToClientEvents
@@ -684,7 +681,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
       // Broadcast to each user except the excluded one
       for (const userId of userIds) {
         if (userId !== exceptUserId) {
-          // Fire and forget (like Go's goroutine)
+          // Fire and forget
           setImmediate(async () => {
             try {
               await this.broadcastSystemEvent(event, roomId, data, userId);
@@ -703,10 +700,9 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
   /**
    * Get list of online user IDs
-   * Matches Go: GetOnlineUsersId via GetRoomAllUsersFromStatusBucket
    */
   async getOnlineUsersId(roomId: string): Promise<string[]> {
-    const roomUsersBucket = `pnm-roomUsers-${roomId}`;
+    const roomUsersBucket = `wajlc-roomUsers-${roomId}`;
     this.logger.debug(
       `[getOnlineUsersId] Getting IDs for room ${roomId} from bucket ${roomUsersBucket}`,
     );
@@ -714,7 +710,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     try {
       const kv = await this.js.views.kv(roomUsersBucket);
 
-      // CRITICAL: Collect ALL keys into array first (matching Go's ListKeys pattern)
+      // CRITICAL: Collect ALL keys into array first
       // This ensures we get a complete snapshot of ALL keys at this moment
       const keyIterator = await kv.keys();
       const allKeys: string[] = [];
@@ -772,7 +768,6 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
   /**
    * Update a specific key-value pair for a user
-   * Matches Go: UpdateUserKeyValue
    */
   async updateUserKeyValue(
     roomId: string,
@@ -780,7 +775,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     key: string,
     val: string,
   ) {
-    const userInfoBucket = `pnm-userInfo-r_${roomId}-u_${userId}`;
+    const userInfoBucket = `wajlc-userInfo-r_${roomId}-u_${userId}`;
     try {
       const kv = await this.js.views.kv(userInfoBucket);
       await kv.put(key, this.sc.encode(val));
@@ -792,7 +787,6 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
   /**
    * Send info notification to user
-   * Matches Go: NotifyInfoMsg → BroadcastSystemNotificationToRoom
    */
   async notifyInfoMsg(
     roomId: string,
@@ -827,7 +821,6 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
   /**
    * Add room to NATS KV
-   * Matches Go: NatsService.AddRoom()
    */
   async addRoom(
     tableId: string,
@@ -837,7 +830,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     maxParticipants: number,
     metadata: any,
   ) {
-    const bucket = `pnm-roomInfo-${roomId}`;
+    const bucket = `wajlc-roomInfo-${roomId}`;
     this.logger.debug(`Adding room to NATS KV bucket: ${bucket}`);
 
     try {

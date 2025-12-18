@@ -69,9 +69,7 @@ export class GatewayService {
     );
 
     // Construct NATS Subjects
-    // Using standard PlugNmeet patterns
-    // Construct NATS Subjects
-    // Using standard PlugNmeet patterns
+    // Using standard patterns
     const natsSubjects: NatsSubjects = {
       systemApiWorker: 'sysApiWorker',
       systemJsWorker: 'sysJsWorker',

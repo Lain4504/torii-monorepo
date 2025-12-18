@@ -21,7 +21,7 @@ export class NatsAuthService implements OnModuleInit, OnModuleDestroy {
   constructor(
     private readonly natsService: NatsService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   async onModuleInit() {
     // 🔑 MUST use Account Seed (SA...) - matches Account Public Key in nats_server.conf
@@ -75,7 +75,7 @@ export class NatsAuthService implements OnModuleInit, OnModuleDestroy {
       if (nc && !nc.isClosed()) {
         try {
           this.subscription = nc.subscribe('$SYS.REQ.USER.AUTH', {
-            queue: 'pnm-auth-queue',
+            queue: 'wajlc-auth-queue',
           });
 
           this.logger.log('NATS Auth Callout Service started');
@@ -208,7 +208,7 @@ export class NatsAuthService implements OnModuleInit, OnModuleDestroy {
     // Note: User info will be created AFTER successful auth when user joins room
     // Auth callout happens BEFORE user join, so we can't validate user info here
 
-    // Construct Allow List based on plugNmeet requirements
+    // Construct Allow List
     const pubAllow = [
       '$JS.API.INFO',
       `$JS.API.STREAM.INFO.${roomId}`,
@@ -269,7 +269,7 @@ export class NatsAuthService implements OnModuleInit, OnModuleDestroy {
       jti: uuidv4(),
       iat: Math.floor(Date.now() / 1000),
       iss: accountPublicKey,
-      name: authToken, // Store token for connection event tracking (like Go version)
+      name: authToken, // Store token for connection event tracking
       sub: userNkey,
       aud: 'PNM',
       nats: {

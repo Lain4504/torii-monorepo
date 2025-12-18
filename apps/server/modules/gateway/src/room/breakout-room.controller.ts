@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { BypassTransform } from '@server/shared';
 
 @Controller('api/breakoutRoom')
 export class BreakoutRoomController {
@@ -16,13 +15,11 @@ export class BreakoutRoomController {
     ) { }
 
     @Post('create')
-    @BypassTransform()
     async create(@Body() body: any) {
         return firstValueFrom(this.roomClient.send({ cmd: 'breakout.create' }, body));
     }
 
     @Post('join')
-    @BypassTransform()
     async join(@Body() body: any) {
         return firstValueFrom(this.roomClient.send({ cmd: 'breakout.join' }, body));
     }
@@ -38,7 +35,6 @@ export class BreakoutRoomController {
     }
 
     @Post('increaseDuration')
-    @BypassTransform()
     async increaseDuration(@Body() body: any) {
         return firstValueFrom(
             this.roomClient.send({ cmd: 'breakout.increaseDuration' }, body),
@@ -46,19 +42,16 @@ export class BreakoutRoomController {
     }
 
     @Post('sendMsg')
-    @BypassTransform()
     async sendMsg(@Body() body: any) {
         return firstValueFrom(this.roomClient.send({ cmd: 'breakout.sendMsg' }, body));
     }
 
     @Post('endRoom')
-    @BypassTransform()
     async endRoom(@Body() body: any) {
         return firstValueFrom(this.roomClient.send({ cmd: 'breakout.endRoom' }, body));
     }
 
     @Post('endAllRooms')
-    @BypassTransform()
     async endAllRooms(@Body() body: any) {
         return firstValueFrom(
             this.roomClient.send({ cmd: 'breakout.endAllRooms' }, body),

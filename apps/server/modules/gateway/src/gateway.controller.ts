@@ -53,13 +53,11 @@ export class GatewayController {
   }
 
   @Post('api/recording')
-  @BypassTransform()
   async handleRecording(@Body() body: any) {
     return firstValueFrom(this.roomClient.send({ cmd: 'recording.api' }, body));
   }
 
   @Post('api/endRoom')
-  @BypassTransform()
   async endRoom(@Body() body: any) {
     return firstValueFrom(this.roomClient.send({ cmd: 'room.end' }, body));
   }
@@ -77,55 +75,46 @@ export class GatewayController {
   }
 
   @Post('api/rtmp')
-  @BypassTransform()
   async handleRTMP(@Body() body: any) {
     return firstValueFrom(this.roomClient.send({ cmd: 'recorder.rtmp' }, body));
   }
 
   @Post('api/changeVisibility')
-  @BypassTransform()
   async changeVisibility(@Body() body: any) {
     return firstValueFrom(this.roomClient.send({ cmd: 'room.changeVisibility' }, body));
   }
 
   @Post('api/convertWhiteboardFile')
-  @BypassTransform()
   async convertWhiteboardFile(@Body() body: any) {
     return firstValueFrom(this.roomClient.send({ cmd: 'file.convertWhiteboardFile' }, body));
   }
 
   @Post('api/externalMediaPlayer')
-  @BypassTransform()
   async externalMediaPlayer(@Body() body: any) {
     return firstValueFrom(this.roomClient.send({ cmd: 'exMedia.handle' }, body));
   }
 
   @Post('api/externalDisplayLink')
-  @BypassTransform()
   async externalDisplayLink(@Body() body: any) {
     return firstValueFrom(this.roomClient.send({ cmd: 'exDisplay.handle' }, body));
   }
 
   @Post('api/updateLockSettings')
-  @BypassTransform()
   async updateLockSettings(@Body() body: any) {
     return firstValueFrom(this.roomClient.send({ cmd: 'user.updateLockSettings' }, body));
   }
 
   @Post('api/muteUnmuteTrack')
-  @BypassTransform()
   async muteUnmuteTrack(@Body() body: any) {
     return firstValueFrom(this.roomClient.send({ cmd: 'user.muteUnmuteTrack' }, body));
   }
 
   @Post('api/removeParticipant')
-  @BypassTransform()
   async removeParticipant(@Body() body: any) {
     return firstValueFrom(this.roomClient.send({ cmd: 'user.removeParticipant' }, body));
   }
 
   @Post('api/switchPresenter')
-  @BypassTransform()
   async switchPresenter(@Body() body: any) {
     return firstValueFrom(this.roomClient.send({ cmd: 'user.switchPresenter' }, body));
   }

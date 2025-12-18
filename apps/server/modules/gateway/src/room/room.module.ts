@@ -10,6 +10,7 @@ import { BreakoutRoomController } from './breakout-room.controller';
 import { RecorderController } from './recorder.controller';
 import { WaitingRoomController } from './waiting-room.controller';
 import { IngressController } from './ingress.controller';
+import { UserTrackingModule } from '../user-tracking.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { IngressController } from './ingress.controller';
       },
     ]),
     SharedModule,
+    UserTrackingModule,
   ],
   controllers: [
     RoomController,
