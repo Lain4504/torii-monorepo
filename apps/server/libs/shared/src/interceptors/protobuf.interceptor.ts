@@ -11,11 +11,14 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Request, Response } from 'express';
 
+/**
+ * ProtoMessage interface for ts-proto generated types
+ * ts-proto generates encode/decode methods by default
+ * fromJSON/toJSON are only generated if outputJsonMethods=true is set
+ */
 export interface ProtoMessage<T> {
   encode(message: T): { finish(): Uint8Array };
   decode(input: Uint8Array): T;
-  fromJSON(object: any): T;
-  toJSON(message: T): unknown;
 }
 
 export function ProtobufInterceptor<T extends object>(

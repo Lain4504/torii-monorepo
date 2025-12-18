@@ -3,7 +3,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 import { lastValueFrom } from 'rxjs';
 import { verify } from 'jsonwebtoken';
-import { VerifyTokenRes, NatsSubjects } from '@server/proto';
+import { VerifyTokenRes, NatsSubjects } from '@workspace/protocol';
 import { NatsService } from '@server/shared';
 
 export type AuthHealthResponse = { service: string; status: string };
@@ -125,3 +125,4 @@ export class GatewayService {
     return result;
   }
 }
+

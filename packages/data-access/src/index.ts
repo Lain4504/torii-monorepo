@@ -1,3 +1,4 @@
-export * from './apollo-client';
-export * from '../generated/graphql';
-
+// @ts-ignore
+export * from './rest/generated';
+// @ts-ignore
+export * from './rest/axios-client';

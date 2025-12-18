@@ -94,3 +94,4 @@ const toCourse = (data: any): Course => ({
   createdAt: data?.createdAt ? new Date(data.createdAt) : data?.createdAt,
   updatedAt: data?.updatedAt ? new Date(data.updatedAt) : data?.updatedAt,
 });
+

@@ -44,3 +44,4 @@ export class AuthController {
     return this.authServiceService.createToken(payload);
   }
 }
+

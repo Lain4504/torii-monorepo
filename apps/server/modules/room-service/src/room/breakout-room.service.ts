@@ -10,7 +10,7 @@ import {
   JoinBreakoutRoomReq,
   EndBreakoutRoomReq,
   NatsMsgServerToClientEvents,
-} from '@server/proto';
+} from '@workspace/protocol';
 import { RoomService } from './room.service';
 import { RpcException } from '@nestjs/microservices';
 
@@ -246,3 +246,5 @@ export class BreakoutRoomService {
     return { success: true };
   }
 }
+
+

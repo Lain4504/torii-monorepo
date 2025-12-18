@@ -16,7 +16,7 @@ import {
   CreateIngressReq,
   ApproveWaitingUsersReq,
   UpdateWaitingRoomMessageReq,
-} from '@server/proto';
+} from '@workspace/protocol';
 import { AnalyticsService } from '../analytics/analytics.service';
 import {
   AnalyticsEvents,
@@ -26,7 +26,7 @@ import {
   NatsMsgServerToClient,
   NatsMsgServerToClientEvents,
   RoomMetadata,
-} from '@server/proto';
+} from '@workspace/protocol';
 
 @Injectable()
 export class RoomService implements OnModuleInit {
@@ -872,3 +872,5 @@ export class RoomService implements OnModuleInit {
     await this.natsService.createDataChannelConsumer(roomId, userId);
   }
 }
+
+

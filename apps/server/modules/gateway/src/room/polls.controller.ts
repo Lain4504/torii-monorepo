@@ -5,7 +5,7 @@ import {
   CreatePollReq,
   SubmitPollResponseReq,
   ClosePollReq,
-} from '@server/proto';
+} from '@workspace/protocol';
 
 @Controller('polls')
 export class PollsController {
@@ -38,3 +38,4 @@ export class PollsController {
     return firstValueFrom(this.roomClient.send({ cmd: 'poll.stats' }, body));
   }
 }
+

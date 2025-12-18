@@ -21,7 +21,7 @@ import {
   ClosePollReq,
   PollResponse,
   DataMessageReq,
-} from '@server/proto';
+} from '@workspace/protocol';
 
 @Controller('room')
 export class RoomController {
@@ -156,3 +156,5 @@ export class RoomController {
     return this.breakoutRoomService.endAllBreakoutRooms(data as any);
   }
 }
+
+

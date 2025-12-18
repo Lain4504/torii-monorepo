@@ -1,7 +1,7 @@
 import { Controller, Get, Query, Post, Req, Header, HttpCode, Res, UseGuards } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
-import { BypassTransform } from '@server/shared';
+
 
 import { GatewayService } from './gateway.service';
 
@@ -20,7 +20,7 @@ export class GatewayController {
   }
 
   @Post('api/verifyToken')
-  @BypassTransform()
+
   async verifyToken(@Req() req: any, @Res() res: Response) {
     const authHeader = req.headers['authorization'] || '';
     // raw body is guaranteed by main.ts middleware for application/protobuf
@@ -31,3 +31,4 @@ export class GatewayController {
     res.status(200).send(Buffer.from(result));
   }
 }
+

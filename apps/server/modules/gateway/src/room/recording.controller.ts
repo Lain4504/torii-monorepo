@@ -18,7 +18,7 @@ import {
   FetchRecordingsReq,
   DeleteRecordingReq,
   GetDownloadTokenReq,
-} from '@server/proto';
+} from '@workspace/protocol';
 
 @Controller('recording')
 export class RecordingController {
@@ -93,3 +93,4 @@ export class RecordingController {
     }
   }
 }
+

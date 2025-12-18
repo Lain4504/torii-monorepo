@@ -8,7 +8,7 @@ import {
     NatsInitialData,
     MediaServerConnInfo,
     NatsMsgServerToClient,
-} from '@server/proto';
+} from '@workspace/protocol';
 import { AccessToken } from 'livekit-server-sdk';
 import { StringCodec } from 'nats';
 
@@ -155,3 +155,4 @@ export class SystemWorkerService implements OnModuleInit {
         };
     }
 }
+

@@ -1,0 +1,29 @@
+{
+    "name": "@workspace/protocol",
+    "version": "0.0.1",
+    "type": "commonjs",
+    "main": "dist/index.js",
+    "module": "dist/index.js",
+    "exports": {
+        ".": {
+            "require": "./dist/index.js",
+            "import": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        }
+    },
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "generate": "protoc --plugin=./node_modules/.bin/protoc-gen-ts_proto.cmd -I ./proto -I ./proto/dependencies/livekit -I ./proto/dependencies/protovalidate --ts_proto_out=./src/generated ./proto/*.proto --ts_proto_opt=outputEncodeMethods=true,outputJsonMethods=false,outputClientImpl=false,esModuleInterop=true"
+    },
+    "dependencies": {
+        "ts-proto": "^1.157.0",
+        "@nestjs/microservices": "^10.0.0",
+        "rxjs": "^7.8.1",
+        "protobufjs": "^7.2.5",
+        "long": "^5.2.3"
+    },
+    "devDependencies": {
+        "typescript": "^5.0.0"
+    }
+}

@@ -16,7 +16,7 @@ import {
 import {
   NatsMsgServerToClient,
   NatsMsgServerToClientEvents,
-} from '@server/proto';
+} from '@workspace/protocol';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
@@ -476,3 +476,4 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     }
   }
 }
+

@@ -2,10 +2,12 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "declaration": false,
+    "rootDir": "../../",
     "outDir": "../../dist/modules/auth-service"
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "../../libs/shared/src/**/*"
   ],
   "exclude": [
     "node_modules",
