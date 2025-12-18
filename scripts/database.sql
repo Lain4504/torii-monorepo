@@ -2,14 +2,13 @@
 
 -- Bảng chính người dùng
 CREATE TABLE users (
-                       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                       id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
                        email VARCHAR(255) UNIQUE NOT NULL,
-                       password_hash VARCHAR(255) NOT NULL,
                        full_name VARCHAR(100) NOT NULL,
                        phone VARCHAR(20),
                        avatar_url TEXT,
-                       role VARCHAR(20) NOT NULL CHECK (role IN ('learner', 'lecturer', 'staff', 'admin')),
                        status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'suspended', 'pending')),
+                       role_id UUID REFERENCES roles(id), -- 1:1 Relationship Enforced
                        date_of_birth DATE,
                        gender VARCHAR(10) CHECK (gender IN ('male', 'female', 'other')),
                        address TEXT,
@@ -24,6 +23,77 @@ CREATE TABLE users (
                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                        deleted_at TIMESTAMP
 );
+
+-- Bảng Roles (Vai trò)
+CREATE TABLE roles (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code VARCHAR(50) UNIQUE NOT NULL, -- admin, staff, lecturer, learner
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Bảng Permissions (Quyền hạn) - Defines specific actions
+CREATE TABLE permissions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code VARCHAR(100) UNIQUE NOT NULL, -- e.g., 'course.create', 'user.view'
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Bảng Role Permissions (Mapping Role - Permission) - Base permissions for a role
+CREATE TABLE role_permissions (
+    role_id UUID REFERENCES roles(id) ON DELETE CASCADE,
+    permission_id UUID REFERENCES permissions(id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (role_id, permission_id)
+);
+
+-- Bảng User Roles REMOVED (Ensuring 1:1 relationship via users.role_id)
+-- table user_roles is deleted
+
+
+-- Bảng User Permissions (Override/Additional Permissions for specific users)
+-- Allows fine-grained control (e.g., a Staff doing Sales vs Academic work)
+CREATE TABLE user_permissions (
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    permission_id UUID REFERENCES permissions(id) ON DELETE CASCADE,
+    is_granted BOOLEAN DEFAULT TRUE, -- TRUE = Grant, FALSE = Revoke (Optional, for advanced denial)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, permission_id)
+);
+
+-- Trigger to create user in public.users when a user signs up in auth.users
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+    RETURNS TRIGGER
+    LANGUAGE plpgsql
+    SECURITY DEFINER SET search_path = ''
+AS $$
+BEGIN
+    INSERT INTO public.users (id, email, full_name, avatar_url, created_at, updated_at)
+    VALUES (
+               NEW.id,
+               NEW.email,
+               COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.raw_user_meta_data->>'name', 'New User'),
+               NEW.raw_user_meta_data->>'avatar_url',
+               NEW.created_at,
+               NEW.updated_at
+           );
+    
+    -- Assign default 'learner' role logic here.
+    -- Assuming 'learner' role exists in roles table.
+    -- We need to fetch the learner role ID first.
+    UPDATE public.users 
+    SET role_id = (SELECT id FROM public.roles WHERE code = 'learner')
+    WHERE id = NEW.id;
+    
+    RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER on_auth_user_created
+    AFTER INSERT ON auth.users
+    FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
 
 -- Bảng học viên (mở rộng từ users)
 CREATE TABLE learners (
@@ -59,8 +129,7 @@ CREATE TABLE staff (
                        user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
                        employee_id VARCHAR(50) UNIQUE,
                        department VARCHAR(50),
-                       position VARCHAR(50),
-                       permissions JSONB DEFAULT '[]'
+                       position VARCHAR(50)
 );
 
 -- Bảng refresh token
@@ -178,6 +247,34 @@ CREATE TABLE course_instructors (
                                     assigned_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                     UNIQUE(course_id, lecturer_id)
 );
+
+-- Bảng đánh giá khóa học
+CREATE TABLE reviews (
+                         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                         user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                         course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+                         rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
+                         comment TEXT,
+                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                         UNIQUE(user_id, course_id)
+);
+
+-- Bảng danh sách yêu thích
+CREATE TABLE wishlist (
+                          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                          user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                          course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+                          added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                          UNIQUE(user_id, course_id)
+);
+
+
+-- Cập nhật bảng Enrollments cho tính năng Gifting
+ALTER TABLE enrollments 
+ADD COLUMN is_gift BOOLEAN DEFAULT FALSE,
+ADD COLUMN gift_message TEXT,
+ADD COLUMN sender_id UUID REFERENCES users(id) ON DELETE SET NULL;
 
 
 -- 3. BẢNG LỚP HỌC TRỰC TUYẾN (WebRTC)
@@ -498,6 +595,15 @@ CREATE TABLE study_recommendations (
 
 -- 8. BẢNG BLOG VÀ NỘI DUNG
 
+-- Bảng quản lý Tags
+CREATE TABLE tags (
+                      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                      name VARCHAR(50) UNIQUE NOT NULL,
+                      slug VARCHAR(50) UNIQUE NOT NULL,
+                      type VARCHAR(20) DEFAULT 'general', -- general, course, blog
+                      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Bảng bài viết blog
 CREATE TABLE blog_posts (
                             id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -621,8 +727,8 @@ CREATE TABLE submissions (
 
 -- Indexes for performance optimization
 CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_users_role ON users(role);
 CREATE INDEX idx_users_status ON users(status);
+CREATE INDEX idx_users_role_id ON users(role_id);
 
 CREATE INDEX idx_courses_jlpt_level ON courses(jlpt_level);
 CREATE INDEX idx_courses_status ON courses(status);

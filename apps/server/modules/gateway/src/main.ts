@@ -3,7 +3,7 @@ import { NestFactory, HttpAdapterHost, Reflector } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { GatewayModule } from './gateway.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { TransformInterceptor, AllExceptionsFilter } from '@server/shared';
+import { AllExceptionsFilter } from '@server/shared';
 import { ValidationPipe, RequestMethod } from '@nestjs/common';
 import { raw } from 'body-parser';
 
@@ -44,7 +44,7 @@ async function bootstrap() {
   );
 
   // 2. Global Interceptor (Success Response)
-  app.useGlobalInterceptors(new TransformInterceptor(app.get(Reflector)));
+
 
   // 3. Global Filter (Error Response)
   app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));

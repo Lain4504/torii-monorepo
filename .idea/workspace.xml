@@ -4,17 +4,28 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: listen worker for room state">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(users): implement user management with new user table and service">
+      <change afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/interfaces/pagination-meta.dto.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/nats/nats.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/nats/nats.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/system-worker.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/system-worker.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/decorators/bypass-transform.decorator.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/interceptors/transform.interceptor.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/interfaces/api-response.interface.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/main.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/room/room.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/room/room.controller.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="TypeScript File" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
@@ -50,39 +61,39 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Docker.docker-compose.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.localhost:5173.executor&quot;: &quot;Debug&quot;,
-    &quot;Jest.AuthServiceController (1).executor&quot;: &quot;Run&quot;,
-    &quot;Jest.AuthServiceController.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.GatewayController.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.GatewayController.pingAuth.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.server &gt; auth-service.controller.spec.ts.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.server &gt; gateway.controller.spec.ts.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;bazel.project.detector.is.bazel.project&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;migration-to-nats-protocol&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;E:/demo/team-source/torii-monorepo/apps/server&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.standard&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.standard&quot;: &quot;&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs.jest.jest_package&quot;: &quot;E:/Ky9/apps/server/node_modules/jest&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;settings.javascript.linters.eslint&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;E:\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
+    "JavaScript Debug.localhost:5173.executor": "Debug",
+    "Jest.AuthServiceController (1).executor": "Run",
+    "Jest.AuthServiceController.executor": "Run",
+    "Jest.GatewayController.executor": "Run",
+    "Jest.GatewayController.pingAuth.executor": "Run",
+    "Jest.server > auth-service.controller.spec.ts.executor": "Run",
+    "Jest.server > gateway.controller.spec.ts.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "bazel.project.detector.is.bazel.project": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "#8 on user-sync-supbase-auth",
+    "ignore.virus.scanning.warn.message": "true",
+    "junie.onboarding.icon.badge.shown": "true",
+    "last_opened_file_path": "E:/demo/team-source/torii-monorepo/apps/server",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.standard": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.standard": "",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs.jest.jest_package": "E:/Ky9/apps/server/node_modules/jest",
+    "nodejs_package_manager_path": "pnpm",
+    "settings.editor.selected.configurable": "settings.javascript.linters.eslint",
+    "ts.external.directory.path": "E:\\Ky9\\node_modules\\typescript\\lib",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="E:\demo\team-source\torii-monorepo\apps\server" />
@@ -193,30 +204,6 @@
       <workItem from="1765820660014" duration="666000" />
       <workItem from="1765849677488" duration="719000" />
       <workItem from="1765855909748" duration="4405000" />
-    </task>
-    <task id="LOCAL-00061" summary="chore: install dependencies">
-      <option name="closed" value="true" />
-      <created>1765806347993</created>
-      <option name="number" value="00061" />
-      <option name="presentableId" value="LOCAL-00061" />
-      <option name="project" value="LOCAL" />
-      <updated>1765806347993</updated>
-    </task>
-    <task id="LOCAL-00062" summary="feat: setup livekit service">
-      <option name="closed" value="true" />
-      <created>1765806414783</created>
-      <option name="number" value="00062" />
-      <option name="presentableId" value="LOCAL-00062" />
-      <option name="project" value="LOCAL" />
-      <updated>1765806414783</updated>
-    </task>
-    <task id="LOCAL-00063" summary="feat: create room service">
-      <option name="closed" value="true" />
-      <created>1765806435271</created>
-      <option name="number" value="00063" />
-      <option name="presentableId" value="LOCAL-00063" />
-      <option name="project" value="LOCAL" />
-      <updated>1765806435271</updated>
     </task>
     <task id="LOCAL-00064" summary="feat: create webhook livekit service">
       <option name="closed" value="true" />
@@ -586,7 +573,31 @@
       <option name="project" value="LOCAL" />
       <updated>1765906383883</updated>
     </task>
-    <option name="localTasksCounter" value="110" />
+    <task id="LOCAL-00110" summary="feat(users): implement user management with new user table and service">
+      <option name="closed" value="true" />
+      <created>1766064525664</created>
+      <option name="number" value="00110" />
+      <option name="presentableId" value="LOCAL-00110" />
+      <option name="project" value="LOCAL" />
+      <updated>1766064525664</updated>
+    </task>
+    <task id="LOCAL-00111" summary="feat(users): implement user management with new user table and service">
+      <option name="closed" value="true" />
+      <created>1766065390438</created>
+      <option name="number" value="00111" />
+      <option name="presentableId" value="LOCAL-00111" />
+      <option name="project" value="LOCAL" />
+      <updated>1766065390438</updated>
+    </task>
+    <task id="LOCAL-00112" summary="feat(users): implement user management with new user table and service">
+      <option name="closed" value="true" />
+      <created>1766067026107</created>
+      <option name="number" value="00112" />
+      <option name="presentableId" value="LOCAL-00112" />
+      <option name="project" value="LOCAL" />
+      <updated>1766067026107</updated>
+    </task>
+    <option name="localTasksCounter" value="113" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -621,7 +632,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat(auth): auth logic with supabase" />
     <MESSAGE value="fix(auth): can read global environments" />
     <MESSAGE value="feat: add swagger gen with orval" />
     <MESSAGE value="refactor: migration to use cookies" />
@@ -646,7 +656,8 @@
     <MESSAGE value="fix: fix api room service" />
     <MESSAGE value="fix: fix pre-room and nats authentication" />
     <MESSAGE value="feat: listen worker for room state" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: listen worker for room state" />
+    <MESSAGE value="feat(users): implement user management with new user table and service" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(users): implement user management with new user table and service" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
