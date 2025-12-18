@@ -4,8 +4,6 @@
   "type": "module",
   "private": true,
   "exports": {
-    "./apollo-client": "./src/apollo-client.ts",
-    "./generated": "./generated/graphql.tsx",
     "./rest": "./src/rest/generated.ts",
     ".": "./src/index.ts"
   },
@@ -14,10 +12,8 @@
     "gen:api": "orval"
   },
   "dependencies": {
-    "@apollo/client": "^3.12.7",
     "@tanstack/react-query": "^5.90.12",
-    "axios": "^1.13.2",
-    "graphql": "^16.12.0"
+    "axios": "^1.13.2"
   },
   "devDependencies": {
     "@types/node": "^22.10.7",

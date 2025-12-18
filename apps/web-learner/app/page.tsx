@@ -1,13 +1,14 @@
-// Client-side CRUD demo using generated GraphQL hooks
+// Client-side CRUD demo using generated REST hooks
 "use client"
 
 import { FormEvent, useMemo, useState } from "react"
 
 import {
-  useCreateCourseMutation,
-  useDeleteCourseMutation,
-  useGetCoursesQuery,
-  useUpdateCourseMutation,
+  useCourseControllerFindAll,
+  useCourseControllerCreate,
+  useCourseControllerUpdate,
+  useCourseControllerDelete,
+  type Course
 } from "@workspace/data-access"
 import { Button } from "@workspace/ui/components/button"
 
@@ -27,31 +28,56 @@ const emptyDraft: Draft = {
 }
 
 export default function Page() {
-  const { data, loading, refetch } = useGetCoursesQuery()
-  const [createCourse, { loading: creating }] = useCreateCourseMutation()
-  const [updateCourse, { loading: updating }] = useUpdateCourseMutation()
-  const [deleteCourse, { loading: deleting }] = useDeleteCourseMutation()
+  const { data: courses, isLoading: loading, refetch } = useCourseControllerFindAll()
+
+  const { mutate: createCourse, isPending: creating } = useCourseControllerCreate()
+  const { mutate: updateCourse, isPending: updating } = useCourseControllerUpdate()
+  const { mutate: deleteCourse, isPending: deleting } = useCourseControllerDelete()
 
   const [draft, setDraft] = useState<Draft>(emptyDraft)
 
   const isEditing = useMemo(() => Boolean(draft.id), [draft.id])
 
-  async function handleSubmit(e: FormEvent) {
+  function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    const { id, ...input } = draft
+    const { title, description, price, published } = draft
+    const input = { title, description, price, published }
+
     if (isEditing && draft.id) {
-      await updateCourse({ variables: { id: draft.id, input } })
+      // ID conversion to string if needed by the hook, checking generated types:
+      // courseControllerUpdate(id: string, data: UpdateCourseInput)
+      updateCourse(
+        { id: draft.id.toString(), data: input },
+        {
+          onSuccess: () => {
+            setDraft(emptyDraft)
+            refetch()
+          }
+        }
+      )
     } else {
-      await createCourse({ variables: { input } })
+      createCourse(
+        { data: input },
+        {
+          onSuccess: () => {
+            setDraft(emptyDraft)
+            refetch()
+          }
+        }
+      )
     }
-    setDraft(emptyDraft)
-    refetch()
   }
 
-  async function handleDelete(id: number) {
-    await deleteCourse({ variables: { id } })
-    if (draft.id === id) setDraft(emptyDraft)
-    refetch()
+  function handleDelete(id: number) {
+    deleteCourse(
+      { id: id.toString() },
+      {
+        onSuccess: () => {
+          if (draft.id === id) setDraft(emptyDraft)
+          refetch()
+        }
+      }
+    )
   }
 
   return (
@@ -60,7 +86,7 @@ export default function Page() {
         <p className="text-sm text-muted-foreground">Learner (Next.js)</p>
         <h1 className="text-3xl font-semibold">Course CRUD demo</h1>
         <p className="text-sm text-muted-foreground">
-          Đang gọi trực tiếp GraphQL gateway và dùng hooks sinh tự động.
+          Đang gọi REST API gateway và dùng hooks sinh tự động (Orval + React Query).
         </p>
       </header>
 
@@ -150,7 +176,7 @@ export default function Page() {
               </tr>
             </thead>
             <tbody>
-              {data?.courses.map((course) => (
+              {courses?.map((course: Course) => (
                 <tr key={course.id} className="border-t">
                   <td className="py-2 pr-4">{course.title}</td>
                   <td className="py-2 pr-4">${course.price.toFixed(2)}</td>
@@ -184,7 +210,7 @@ export default function Page() {
                   </td>
                 </tr>
               ))}
-              {!loading && (data?.courses.length ?? 0) === 0 && (
+              {!loading && (courses?.length ?? 0) === 0 && (
                 <tr>
                   <td className="py-4 text-muted-foreground" colSpan={4}>
                     Chưa có khóa học nào. Thêm mới ở form phía trên.
@@ -193,7 +219,7 @@ export default function Page() {
               )}
             </tbody>
           </table>
-      </div>
+        </div>
       </section>
     </div>
   )

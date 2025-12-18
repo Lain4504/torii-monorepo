@@ -6,14 +6,14 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
-import { GqlContextType } from '@nestjs/graphql';
+
 import { HttpAdapterHost } from '@nestjs/core';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
   private readonly logger = new Logger(AllExceptionsFilter.name);
 
-  constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
+  constructor(private readonly httpAdapterHost: HttpAdapterHost) { }
 
   catch(exception: unknown, host: ArgumentsHost): void {
     // In certain situations `httpAdapter` might not be available in the
@@ -22,10 +22,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     const ctx = host.switchToHttp();
 
-    // Ignore GraphQL context
-    if (host.getType<GqlContextType>() === 'graphql') {
-      return;
-    }
+
 
     const httpStatus =
       exception instanceof HttpException

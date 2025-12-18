@@ -19,6 +19,7 @@ import type {
   UseQueryResult
 } from '@tanstack/react-query';
 
+// @ts-ignore
 import { customInstance } from './axios-client';
 export interface Course {
   /** The unique identifier of the course */
