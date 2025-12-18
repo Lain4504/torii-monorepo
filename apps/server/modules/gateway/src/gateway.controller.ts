@@ -31,3 +31,4 @@ export class GatewayController {
     res.status(200).send(Buffer.from(result));
   }
 }
+

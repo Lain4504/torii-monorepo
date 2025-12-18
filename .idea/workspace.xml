@@ -4,17 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(users): implement user management with new user table and service">
-      <change afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/interfaces/pagination-meta.dto.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/decorators/bypass-transform.decorator.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/interceptors/transform.interceptor.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/interfaces/api-response.interface.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/main.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/room/room.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/room/room.controller.ts" afterDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor(users): implement user management with proto" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -101,6 +91,8 @@
       <recent name="E:\Ky9\apps\server" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\Ky9\packages\protocol\proto" />
+      <recent name="E:\Ky9\docs\task" />
       <recent name="E:\Ky9\apps\server\modules\auth-service\src\auth" />
       <recent name="E:\Ky9\apps\server\modules\course-service\src" />
       <recent name="E:\Ky9\torii-nihongo" />
@@ -204,46 +196,6 @@
       <workItem from="1765820660014" duration="666000" />
       <workItem from="1765849677488" duration="719000" />
       <workItem from="1765855909748" duration="4405000" />
-    </task>
-    <task id="LOCAL-00064" summary="feat: create webhook livekit service">
-      <option name="closed" value="true" />
-      <created>1765806747018</created>
-      <option name="number" value="00064" />
-      <option name="presentableId" value="LOCAL-00064" />
-      <option name="project" value="LOCAL" />
-      <updated>1765806747018</updated>
-    </task>
-    <task id="LOCAL-00065" summary="feat: create recording logic">
-      <option name="closed" value="true" />
-      <created>1765807378140</created>
-      <option name="number" value="00065" />
-      <option name="presentableId" value="LOCAL-00065" />
-      <option name="project" value="LOCAL" />
-      <updated>1765807378142</updated>
-    </task>
-    <task id="LOCAL-00066" summary="feat: create recording logic">
-      <option name="closed" value="true" />
-      <created>1765810911607</created>
-      <option name="number" value="00066" />
-      <option name="presentableId" value="LOCAL-00066" />
-      <option name="project" value="LOCAL" />
-      <updated>1765810911607</updated>
-    </task>
-    <task id="LOCAL-00067" summary="feat: create poll logic">
-      <option name="closed" value="true" />
-      <created>1765812421664</created>
-      <option name="number" value="00067" />
-      <option name="presentableId" value="LOCAL-00067" />
-      <option name="project" value="LOCAL" />
-      <updated>1765812421665</updated>
-    </task>
-    <task id="LOCAL-00068" summary="feat: create chat and files upload logic">
-      <option name="closed" value="true" />
-      <created>1765814175673</created>
-      <option name="number" value="00068" />
-      <option name="presentableId" value="LOCAL-00068" />
-      <option name="project" value="LOCAL" />
-      <updated>1765814175673</updated>
     </task>
     <task id="LOCAL-00069" summary="feat: create chat and files upload logic">
       <option name="closed" value="true" />
@@ -597,7 +549,47 @@
       <option name="project" value="LOCAL" />
       <updated>1766067026107</updated>
     </task>
-    <option name="localTasksCounter" value="113" />
+    <task id="LOCAL-00113" summary="feat(users): implement user management with new user table and service">
+      <option name="closed" value="true" />
+      <created>1766069201874</created>
+      <option name="number" value="00113" />
+      <option name="presentableId" value="LOCAL-00113" />
+      <option name="project" value="LOCAL" />
+      <updated>1766069201874</updated>
+    </task>
+    <task id="LOCAL-00114" summary="feat(users): implement user management with new user table and service">
+      <option name="closed" value="true" />
+      <created>1766069240865</created>
+      <option name="number" value="00114" />
+      <option name="presentableId" value="LOCAL-00114" />
+      <option name="project" value="LOCAL" />
+      <updated>1766069240865</updated>
+    </task>
+    <task id="LOCAL-00115" summary="feat(users): implement user management with new user table and service">
+      <option name="closed" value="true" />
+      <created>1766070203990</created>
+      <option name="number" value="00115" />
+      <option name="presentableId" value="LOCAL-00115" />
+      <option name="project" value="LOCAL" />
+      <updated>1766070203990</updated>
+    </task>
+    <task id="LOCAL-00116" summary="refactor(users): implement user management with proto">
+      <option name="closed" value="true" />
+      <created>1766070555000</created>
+      <option name="number" value="00116" />
+      <option name="presentableId" value="LOCAL-00116" />
+      <option name="project" value="LOCAL" />
+      <updated>1766070555000</updated>
+    </task>
+    <task id="LOCAL-00117" summary="refactor(users): implement user management with proto">
+      <option name="closed" value="true" />
+      <created>1766071554097</created>
+      <option name="number" value="00117" />
+      <option name="presentableId" value="LOCAL-00117" />
+      <option name="project" value="LOCAL" />
+      <updated>1766071554097</updated>
+    </task>
+    <option name="localTasksCounter" value="118" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -619,7 +611,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="migration-to-nats-protocol" />
+                        <option value="user-sync-supbase-auth" />
                       </list>
                     </value>
                   </entry>
@@ -632,7 +624,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="fix(auth): can read global environments" />
     <MESSAGE value="feat: add swagger gen with orval" />
     <MESSAGE value="refactor: migration to use cookies" />
     <MESSAGE value="feat: ad standard response" />
@@ -657,7 +648,8 @@
     <MESSAGE value="fix: fix pre-room and nats authentication" />
     <MESSAGE value="feat: listen worker for room state" />
     <MESSAGE value="feat(users): implement user management with new user table and service" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(users): implement user management with new user table and service" />
+    <MESSAGE value="refactor(users): implement user management with proto" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor(users): implement user management with proto" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

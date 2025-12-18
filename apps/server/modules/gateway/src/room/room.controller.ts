@@ -1,7 +1,7 @@
 import { Body, Controller, Inject, Post, Get, Param, HttpCode } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { CreateRoomReq, RoomEndAPIReq } from '@server/proto';
+import { CreateRoomReq, RoomEndAPIReq } from '@workspace/protocol';
 
 
 @Controller('auth/room')
@@ -50,3 +50,4 @@ export class RoomController {
     return firstValueFrom(this.roomClient.send({ cmd: 'room.list' }, {}));
   }
 }
+

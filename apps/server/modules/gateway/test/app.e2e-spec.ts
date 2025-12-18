@@ -22,3 +22,4 @@ describe('GatewayController (e2e)', () => {
       .expect('Hello World!');
   });
 });
+

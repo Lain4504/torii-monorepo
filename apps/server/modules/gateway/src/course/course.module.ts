@@ -19,3 +19,4 @@ import { CourseController } from './course.controller';
   controllers: [CourseController],
 })
 export class CourseModule { }
+

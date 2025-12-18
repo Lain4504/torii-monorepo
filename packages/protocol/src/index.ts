@@ -1,4 +1,11 @@
 // Export all generated protobuf types
+
+
+// @ts-ignore
+export * from './generated/users';
+// @ts-ignore
+export *  from './generated/common';
+// @ts-ignore
 export * from './generated/wajlc_common';
 // @ts-ignore
 export * from './generated/wajlc_analytics';

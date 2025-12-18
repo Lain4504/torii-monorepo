@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "npx prisma generate && nest build gateway && nest build auth-service && nest build course-service",
+    "build": "cd ../../packages/protocol && npm run build && cd ../../apps/server && npx prisma generate && nest build gateway && nest build auth-service && nest build course-service && nest build room-service",
     "format": "prettier --write \"modules/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -16,9 +16,10 @@
     "dev:auth": "dotenv -e ../../.env -- nest start auth-service --watch",
     "dev:course": "dotenv -e ../../.env -- nest start course-service --watch",
     "dev:room": "dotenv -e ../../.env -- nest start room-service --watch",
-    "prod:gateway": "node dist/modules/gateway/main",
-    "prod:auth": "node dist/modules/auth-service/main",
-    "prod:course": "node dist/modules/course-service/main",
+    "prod:gateway": "node dist/modules/gateway/apps/server/modules/gateway/src/main",
+    "prod:auth": "node dist/modules/auth-service/apps/server/modules/auth-service/src/main",
+    "prod:course": "node dist/modules/course-service/apps/server/modules/course-service/src/main",
+    "prod:room": "node dist/modules/room-service/apps/server/modules/room-service/src/main",
     "lint": "eslint \"{modules,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -27,6 +28,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@workspace/protocol": "workspace:*",
     "@bufbuild/protobuf": "^2.10.2",
     "@livekit/protocol": "^1.43.4",
     "@nats-io/jwt": "0.0.10-5",

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { NatsService } from '@server/shared';
-import { AnalyticsDataMsg } from '@server/proto';
+import { AnalyticsDataMsg } from '@workspace/protocol';
 
 @Injectable()
 export class AnalyticsService {
@@ -17,3 +17,5 @@ export class AnalyticsService {
     }
   }
 }
+
+

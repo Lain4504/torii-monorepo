@@ -1,13 +1,15 @@
 import { Controller } from '@nestjs/common';
-import { MessagePattern } from '@nestjs/microservices';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import { UsersService } from './users.service';
+import { FindAllUsersRequest } from '@workspace/protocol';
 
 @Controller()
 export class UsersController {
     constructor(private readonly usersService: UsersService) { }
 
     @MessagePattern({ cmd: 'users.findAll' })
-    findAll() {
-        return this.usersService.findAll();
+    findAll(@Payload() data: FindAllUsersRequest) {
+        return this.usersService.findAll(data);
     }
 }
+

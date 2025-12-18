@@ -23,3 +23,4 @@ export class AuthController {
     return firstValueFrom(this.authClient.send({ cmd: 'auth.signout' }, {}));
   }
 }
+

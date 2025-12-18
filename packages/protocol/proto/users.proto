@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package users;
+
+import "common.proto";
+
+message FindAllUsersRequest {
+  int32 page = 1;
+  int32 limit = 2;
+  string search = 3;
+}
+
+message User {
+  string id = 1;
+  string email = 2;
+  string full_name = 3;
+  string avatar_url = 4;
+  string role = 5;
+  string status = 6;
+  string phone = 7;
+  string created_at = 8;
+  string updated_at = 9;
+}
+
+message FindAllUsersResponse {
+  repeated User data = 1;
+  common.PaginationMeta meta = 2;
+}
+
+service UsersService {
+  rpc FindAll (FindAllUsersRequest) returns (FindAllUsersResponse);
+}

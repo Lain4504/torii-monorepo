@@ -51,3 +51,4 @@ export class UpdateCourseInput {
     @ApiProperty({ required: false })
     published?: boolean;
 }
+
