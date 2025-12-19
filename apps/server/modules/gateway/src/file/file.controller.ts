@@ -15,6 +15,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { FileService } from './file.service';
 import type { Response } from 'express';
 import * as fs from 'fs';
+import {ApiParam, ApiQuery} from "@nestjs/swagger";
 
 @Controller('file')
 export class FileController {
@@ -41,17 +42,19 @@ export class FileController {
     return this.fileService.mergeFile(body);
   }
 
-  @Get('download/:sid/*')
+  @Get('download/:sid')
+  @ApiParam({ name: 'sid', required: true })
+  @ApiQuery({ name: 'filename', required: true })
   async downloadFile(
-    @Param('sid') sid: string,
-    @Param('0') filename: string,
-    @Res() res: Response,
+      @Param('sid') sid: string,
+      @Query('filename') filename: string,
+      @Res() res: Response,
   ) {
     const fullPath = this.fileService.getFilePath(sid, filename);
-    if (fs.existsSync(fullPath)) {
-      return res.download(fullPath);
+    if (!fs.existsSync(fullPath)) {
+      return res.status(HttpStatus.NOT_FOUND).send('File not found');
     }
-    return res.status(HttpStatus.NOT_FOUND).send('File not found');
+    return res.download(fullPath);
   }
 }
 

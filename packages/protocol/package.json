@@ -3,17 +3,17 @@
     "version": "0.0.1",
     "type": "commonjs",
     "main": "dist/index.js",
-    "module": "dist/index.js",
+    "module": "dist/esm/index.js",
     "exports": {
         ".": {
             "require": "./dist/index.js",
-            "import": "./dist/index.js",
+            "import": "./dist/esm/index.js",
             "types": "./dist/index.d.ts"
         }
     },
     "types": "dist/index.d.ts",
     "scripts": {
-        "build": "tsc",
+        "build": "tsc && tsc -p tsconfig.esm.json && echo '{\"type\": \"module\"}' > dist/esm/package.json",
         "generate": "protoc --plugin=./node_modules/.bin/protoc-gen-ts_proto.cmd -I ./proto -I ./proto/dependencies/livekit -I ./proto/dependencies/protovalidate --ts_proto_out=./src/generated ./proto/*.proto --ts_proto_opt=outputEncodeMethods=true,outputJsonMethods=false,outputClientImpl=false,esModuleInterop=true"
     },
     "dependencies": {

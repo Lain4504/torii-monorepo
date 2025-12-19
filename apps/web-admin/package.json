@@ -11,8 +11,8 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.12",
+    "@workspace/dtos": "workspace:^",
     "@workspace/protocol": "workspace:*",
-    "@workspace/data-access": "workspace:*",
     "@workspace/ui": "workspace:*",
     "axios": "^1.13.2",
     "lucide-react": "^0.475.0",

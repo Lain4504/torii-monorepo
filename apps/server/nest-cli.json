@@ -7,7 +7,16 @@
   "compilerOptions": {
     "deleteOutDir": true,
     "webpack": true,
-    "tsConfigPath": "tsconfig.build.json"
+    "tsConfigPath": "tsconfig.build.json",
+    "plugins": [
+      {
+        "name": "@nestjs/swagger",
+        "options": {
+          "classValidatorShim": true,
+          "introspectComments": true
+        }
+      }
+    ]
   },
   "projects": {
     "gateway": {
@@ -47,6 +56,46 @@
       "sourceRoot": "modules/room-service/src",
       "compilerOptions": {
         "tsConfigPath": "modules/room-service/tsconfig.app.json",
+        "webpack": false
+      }
+    },
+    "assessment-service": {
+      "type": "application",
+      "root": "modules/assessment-service",
+      "entryFile": "main",
+      "sourceRoot": "modules/assessment-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "modules/assessment-service/tsconfig.app.json",
+        "webpack": false
+      }
+    },
+    "payment-service": {
+      "type": "application",
+      "root": "modules/payment-service",
+      "entryFile": "main",
+      "sourceRoot": "modules/payment-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "modules/payment-service/tsconfig.app.json",
+        "webpack": false
+      }
+    },
+    "ai-service": {
+      "type": "application",
+      "root": "modules/ai-service",
+      "entryFile": "main",
+      "sourceRoot": "modules/ai-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "modules/ai-service/tsconfig.app.json",
+        "webpack": false
+      }
+    },
+    "notification-service": {
+      "type": "application",
+      "root": "modules/notification-service",
+      "entryFile": "main",
+      "sourceRoot": "modules/notification-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "modules/notification-service/tsconfig.app.json",
         "webpack": false
       }
     }

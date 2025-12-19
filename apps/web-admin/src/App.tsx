@@ -1,6 +1,5 @@
 
-import { AppRestTest } from './AppRestTest';
-import { UsersList } from './UsersTest';
+import { UsersPage } from './pages/UsersPage';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const queryClient = new QueryClient();
@@ -15,9 +14,7 @@ function App() {
             <h1 className="text-3xl font-semibold tracking-tight">Admin Control Panel</h1>
           </header>
 
-          <AppRestTest />
-
-          <UsersList />
+          <UsersPage />
         </div>
       </main>
     </QueryClientProvider>

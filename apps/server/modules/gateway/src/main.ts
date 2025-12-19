@@ -20,7 +20,14 @@ async function bootstrap() {
   await app.startAllMicroservices();
   const httpAdapter = app.get(HttpAdapterHost);
 
-  app.enableCors();
+  app.enableCors({
+    origin: [
+      'http://localhost:5173',
+      'http://localhost:3000',
+    ],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+  });
 
   // Exclude 'webhook' from global prefix so it remains at /webhook root if needed,
   // or at least available for standard external calls without /api if configured that way.

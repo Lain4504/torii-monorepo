@@ -1,73 +1,46 @@
-# React + TypeScript + Vite
+# Web Admin Console
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Dự án quản trị cho hệ thống Torii Nihongo.
 
-Currently, two official plugins are available:
+## 🚀 Tính năng
+- Quản lý người dùng.
+- Quản lý khóa học & bài học.
+- Giám sát lớp học trực tuyến.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🛠 Công nghệ sử dụng
+- **React (Vite)**
+- **TanStack Query (React Query)**
+- **TailwindCSS**
+- **Orval**: Tự động tạo API client từ Swagger.
 
-## React Compiler
+## 🛰 API Consumption (Auto-generated)
+Dự án không viết tay code gọi API. Thay vào đó, chúng ta sử dụng các hooks được gen tự động từ `packages/data-access`.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Cách cập nhật API Client
+1. Đảm bảo Backend (Gateway) đang chạy tại port 8080.
+2. Chạy lệnh tại thư mục root:
+```bash
+pnpm --filter @workspace/data-access gen:api
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Cách sử dụng trong component
+```tsx
+import { useUsersControllerFindAll } from '@workspace/data-access';
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+export function MyComponent() {
+  const { data, isLoading } = useUsersControllerFindAll({ page: 1, limit: 10 });
+  
+  if (isLoading) return <div>Loading...</div>;
+  
+  return (
+    <ul>
+      {data?.data.map(user => <li key={user.id}>{user.email}</li>)}
+    </ul>
+  );
+}
+```
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 🏁 Phát triển local
+```bash
+pnpm dev
 ```

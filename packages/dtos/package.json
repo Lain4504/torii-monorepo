@@ -1,0 +1,26 @@
+{
+    "name": "@workspace/dtos",
+    "version": "0.0.1",
+    "type": "commonjs",
+    "main": "dist/index.js",
+    "module": "dist/esm/index.js",
+    "exports": {
+        ".": {
+            "require": "./dist/index.js",
+            "import": "./dist/esm/index.js",
+            "types": "./dist/index.d.ts"
+        }
+    },
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsc && tsc -p tsconfig.esm.json && node -e \"require('fs').writeFileSync('./dist/esm/package.json', '{\\\"type\\\": \\\"module\\\"}')\"",
+        "dev": "tsc --watch"
+    },
+    "dependencies": {
+        "class-validator": "^0.14.0",
+        "class-transformer": "^0.5.1"
+    },
+    "devDependencies": {
+        "typescript": "^5.0.0"
+    }
+}
