@@ -1,0 +1,278 @@
+syntax = "proto3";
+
+package flashcard;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+import "common.proto";
+
+/**
+ * Flashcard entity
+ * Map từ bảng flashcards trong database
+ */
+message Flashcard {
+  // Primary key (UUID)
+  string id = 1;
+
+  // Foreign key -> flashcard_decks.id
+  string deck_id = 2;
+
+  // Nội dung chính
+  string front_text = 3;
+  string back_text = 4;
+
+  // Optional fields
+  google.protobuf.StringValue example_sentence = 5;
+  google.protobuf.StringValue pronunciation = 6;
+  google.protobuf.StringValue image_url = 7;
+  google.protobuf.StringValue audio_url = 8;
+
+  // Tags
+  repeated string tags = 9;
+
+  // Difficulty: easy | medium | hard
+  // Default: MEDIUM (handled in backend logic)
+  DifficultyLevel difficulty = 10;
+
+  // Spaced repetition fields (SM-2 Algorithm)
+  // next_review_date: nullable, format "YYYY-MM-DD"
+  google.protobuf.StringValue next_review_date = 11;
+  
+  int32 interval_days = 12;        // default: 1
+  double ease_factor = 13;         // default: 2.50
+  int32 review_count = 14;         // default: 0
+  int32 correct_count = 15;        // default: 0
+
+  // Audit fields
+  google.protobuf.Timestamp created_at = 16;
+  google.protobuf.Timestamp updated_at = 17;
+}
+
+/**
+ * Difficulty enum
+ * Map từ CHECK constraint trong DB
+ */
+enum DifficultyLevel {
+  DIFFICULTY_UNSPECIFIED = 0;
+  EASY = 1;
+  MEDIUM = 2;
+  HARD = 3;
+}
+
+/**
+ * Flashcard List Item - Lightweight version for list views
+ * Chỉ chứa các field cần thiết, giảm payload size
+ */
+message FlashcardListItem {
+  string id = 1;
+  string deck_id = 2;
+  string front_text = 3;
+  string back_text = 4;  // Có thể truncate ở backend nếu quá dài
+  repeated string tags = 5;
+  DifficultyLevel difficulty = 6;
+  google.protobuf.StringValue next_review_date = 7;  // Để biết card nào cần review
+  int32 review_count = 8;  // Để hiển thị progress
+}
+
+// ==================== REQUEST/RESPONSE MESSAGES ====================
+
+/**
+ * Create flashcard request
+ * Pattern: flashcard.create
+ */
+message CreateFlashcardRequest {
+  string deck_id = 1;
+  string front_text = 2;
+  string back_text = 3;
+  google.protobuf.StringValue example_sentence = 4;
+  google.protobuf.StringValue pronunciation = 5;
+  google.protobuf.StringValue image_url = 6;
+  google.protobuf.StringValue audio_url = 7;
+  repeated string tags = 8;
+  DifficultyLevel difficulty = 9;
+}
+
+/**
+ * Create flashcard response
+ */
+message CreateFlashcardResponse {
+  bool success = 1;
+  string message = 2;
+  string error = 3;
+  Flashcard data = 4;
+}
+
+/**
+ * Update flashcard request
+ * Pattern: flashcard.update
+ */
+message UpdateFlashcardRequest {
+  string id = 1;
+  google.protobuf.StringValue deck_id = 2;
+  google.protobuf.StringValue front_text = 3;
+  google.protobuf.StringValue back_text = 4;
+  google.protobuf.StringValue example_sentence = 5;
+  google.protobuf.StringValue pronunciation = 6;
+  google.protobuf.StringValue image_url = 7;
+  google.protobuf.StringValue audio_url = 8;
+  repeated string tags = 9;
+  DifficultyLevel difficulty = 10;
+}
+
+/**
+ * Update flashcard response
+ */
+message UpdateFlashcardResponse {
+  bool success = 1;
+  string message = 2;
+  string error = 3;
+  Flashcard data = 4;
+}
+
+/**
+ * Delete flashcard request
+ * Pattern: flashcard.delete
+ */
+message DeleteFlashcardRequest {
+  string id = 1;
+}
+
+/**
+ * Delete flashcard response
+ */
+message DeleteFlashcardResponse {
+  bool success = 1;
+  string message = 2;
+  string error = 3;
+}
+
+/**
+ * Get flashcard by ID request
+ * Pattern: flashcard.getById
+ */
+message GetFlashcardByIdRequest {
+  string id = 1;
+}
+
+/**
+ * Get flashcard by ID response
+ */
+message GetFlashcardByIdResponse {
+  bool success = 1;
+  string message = 2;
+  string error = 3;
+  Flashcard data = 4;
+}
+
+/**
+ * Find all flashcards request with pagination and filtering
+ * Pattern: flashcard.getAll
+ */
+message FindAllFlashcardsRequest {
+  // Pagination
+  int32 page = 1;           // default: 1
+  int32 limit = 2;          // default: 20
+  
+  // Filters
+  google.protobuf.StringValue deck_id = 3;
+  DifficultyLevel difficulty = 4;
+  repeated string tags = 5;
+  google.protobuf.StringValue jlpt_level = 6;
+  
+  // Search
+  google.protobuf.StringValue search_text = 7; // Search in front_text or back_text
+  
+  // Review filters (for study session)
+  bool due_for_review = 8;  // Cards with next_review_date <= today
+  google.protobuf.StringValue user_id = 9;
+}
+
+/**
+ * Find all flashcards response
+ */
+message FindAllFlashcardsResponse {
+  bool success = 1;
+  string message = 2;
+  string error = 3;
+  repeated Flashcard data = 4;
+  common.PaginationMeta meta = 5;
+}
+
+/**
+ * Flashcard View List Response
+ * Dùng cho list view - lightweight, chỉ field cần thiết
+ */
+message FlashcardViewListResponse {
+  bool success = 1;
+  string message = 2;
+  string error = 3;
+  repeated FlashcardListItem data = 4;
+  common.PaginationMeta meta = 5;
+}
+
+/**
+ * Bulk operations request
+ * Pattern: flashcard.bulkOperations
+ */
+message BulkFlashcardOperationsRequest {
+  oneof operation {
+    BulkCreateFlashcards bulk_create = 1;
+    BulkUpdateFlashcards bulk_update = 2;
+    BulkDeleteFlashcards bulk_delete = 3;
+    BulkReviewFlashcards bulk_review = 4;
+  }
+}
+
+/**
+ * Bulk create flashcards
+ */
+message BulkCreateFlashcards {
+  string deck_id = 1;
+  repeated CreateFlashcardRequest flashcards = 2;
+}
+
+/**
+ * Bulk update flashcards
+ */
+message BulkUpdateFlashcards {
+  repeated UpdateFlashcardRequest flashcards = 1;
+}
+
+/**
+ * Bulk delete flashcards
+ */
+message BulkDeleteFlashcards {
+  repeated string ids = 1;
+}
+
+/**
+ * Bulk review flashcards (for study session)
+ */
+message BulkReviewFlashcards {
+  repeated FlashcardReview reviews = 1;
+}
+
+/**
+ * Flashcard review (for recording study session)
+ */
+message FlashcardReview {
+  string flashcard_id = 1;
+  string user_id = 2;
+  int32 rating = 3;  // 1: Again, 2: Hard, 3: Good, 4: Easy
+  google.protobuf.Timestamp review_date = 4;
+  google.protobuf.Int32Value time_spent_seconds = 5;
+}
+
+/**
+ * Bulk operations response
+ */
+message BulkFlashcardOperationsResponse {
+  bool success = 1;
+  string message = 2;
+  string error = 3;
+  int32 success_count = 4;
+  int32 failed_count = 5;
+  repeated string error_messages = 6;
+}
+
+
