@@ -1,6 +1,6 @@
-import {Controller} from "@nestjs/common";
-import {MessagePattern, Payload} from "@nestjs/microservices";
-import {FlashcardService} from "./flashcard.service";
+import { Controller, Logger, OnModuleInit } from "@nestjs/common";
+import { MessagePattern, Payload } from "@nestjs/microservices";
+import { FlashcardService } from "./flashcard.service";
 import {
     BulkFlashcardOperationsRequestDto,
     CreateFlashcardRequestDto,
@@ -11,36 +11,43 @@ import {
 } from "@workspace/dtos";
 
 @Controller()
-export class FlashcardController {
+export class FlashcardController implements OnModuleInit {
+    private readonly logger = new Logger(FlashcardController.name);
+
     constructor(private readonly flashcardService: FlashcardService) {
     }
 
-    @MessagePattern({cmd: 'flashcard.create'})
+    onModuleInit() {
+        this.logger.log('FlashcardController initialized and listening for events');
+    }
+
+    @MessagePattern({ cmd: 'flashcard.create' })
     createFlashcard(@Payload() data: CreateFlashcardRequestDto) {
+        this.logger.log('Received flashcard.create request');
         return this.flashcardService.createFlashcard(data);
     }
 
-    @MessagePattern({cmd: 'flashcard.getAll'})
+    @MessagePattern({ cmd: 'flashcard.getAll' })
     getFlashcards(@Payload() data: FindAllFlashcardsRequestDto) {
         return this.flashcardService.getFlashcards(data);
     }
 
-    @MessagePattern({cmd: 'flashcard.update'})
+    @MessagePattern({ cmd: 'flashcard.update' })
     updateFlashcard(@Payload() data: UpdateFlashcardRequestDto) {
         return this.flashcardService.updateFlashcard(data);
     }
 
-    @MessagePattern({cmd: 'flashcard.delete'})
+    @MessagePattern({ cmd: 'flashcard.delete' })
     deleteFlashcard(@Payload() data: DeleteFlashcardRequestDto) {
         return this.flashcardService.deleteFlashcard(data);
     }
 
-    @MessagePattern({cmd: 'flashcard.getById'})
+    @MessagePattern({ cmd: 'flashcard.getById' })
     getFlashcardById(@Payload() data: GetFlashcardByIdRequestDto) {
         return this.flashcardService.getFlashcardById(data);
     }
 
-    @MessagePattern({cmd: 'flashcard.bulkOperations'})
+    @MessagePattern({ cmd: 'flashcard.bulkOperations' })
     bulkOperations(@Payload() data: BulkFlashcardOperationsRequestDto) {
         return this.flashcardService.bulkOperations(data);
     }

@@ -25,7 +25,7 @@ export class AuthController {
 
   @Post('getClientFiles')
   async getClientFiles(@Body() body: any) {
-    return firstValueFrom(this.authClient.send({ cmd: 'file.getClientFiles' }, body));
+    return firstValueFrom(this.natsClient.send({ cmd: 'file.getClientFiles' }, body));
   }
 }
 

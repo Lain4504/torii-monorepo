@@ -37,3 +37,4 @@ npm-debug.log*
 /packages/protocol/src/generated/
 /packages/data-access/src/rest/generated.ts
 /.idea/
+/packages/protocol/src/gen/

@@ -22,7 +22,7 @@ import { ClientProxy } from "@nestjs/microservices";
 export class GatewayController {
   constructor(
     private readonly gatewayService: GatewayService,
-    @Inject('ROOM_SERVICE') private readonly roomClient: ClientProxy,
+    @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
   ) { }
 
   @Get('/health/auth')
@@ -54,12 +54,12 @@ export class GatewayController {
 
   @Post('api/recording')
   async handleRecording(@Body() body: any) {
-    return firstValueFrom(this.roomClient.send({ cmd: 'recording.api' }, body));
+    return firstValueFrom(this.natsClient.send({ cmd: 'recording.api' }, body));
   }
 
   @Post('api/endRoom')
   async endRoom(@Body() body: any) {
-    return firstValueFrom(this.roomClient.send({ cmd: 'room.end' }, body));
+    return firstValueFrom(this.natsClient.send({ cmd: 'room.end' }, body));
   }
 
   @Get('/download/analytics/:token')
@@ -76,47 +76,47 @@ export class GatewayController {
 
   @Post('api/rtmp')
   async handleRTMP(@Body() body: any) {
-    return firstValueFrom(this.roomClient.send({ cmd: 'recorder.rtmp' }, body));
+    return firstValueFrom(this.natsClient.send({ cmd: 'recorder.rtmp' }, body));
   }
 
   @Post('api/changeVisibility')
   async changeVisibility(@Body() body: any) {
-    return firstValueFrom(this.roomClient.send({ cmd: 'room.changeVisibility' }, body));
+    return firstValueFrom(this.natsClient.send({ cmd: 'room.changeVisibility' }, body));
   }
 
   @Post('api/convertWhiteboardFile')
   async convertWhiteboardFile(@Body() body: any) {
-    return firstValueFrom(this.roomClient.send({ cmd: 'file.convertWhiteboardFile' }, body));
+    return firstValueFrom(this.natsClient.send({ cmd: 'file.convertWhiteboardFile' }, body));
   }
 
   @Post('api/externalMediaPlayer')
   async externalMediaPlayer(@Body() body: any) {
-    return firstValueFrom(this.roomClient.send({ cmd: 'exMedia.handle' }, body));
+    return firstValueFrom(this.natsClient.send({ cmd: 'exMedia.handle' }, body));
   }
 
   @Post('api/externalDisplayLink')
   async externalDisplayLink(@Body() body: any) {
-    return firstValueFrom(this.roomClient.send({ cmd: 'exDisplay.handle' }, body));
+    return firstValueFrom(this.natsClient.send({ cmd: 'exDisplay.handle' }, body));
   }
 
   @Post('api/updateLockSettings')
   async updateLockSettings(@Body() body: any) {
-    return firstValueFrom(this.roomClient.send({ cmd: 'user.updateLockSettings' }, body));
+    return firstValueFrom(this.natsClient.send({ cmd: 'user.updateLockSettings' }, body));
   }
 
   @Post('api/muteUnmuteTrack')
   async muteUnmuteTrack(@Body() body: any) {
-    return firstValueFrom(this.roomClient.send({ cmd: 'user.muteUnmuteTrack' }, body));
+    return firstValueFrom(this.natsClient.send({ cmd: 'user.muteUnmuteTrack' }, body));
   }
 
   @Post('api/removeParticipant')
   async removeParticipant(@Body() body: any) {
-    return firstValueFrom(this.roomClient.send({ cmd: 'user.removeParticipant' }, body));
+    return firstValueFrom(this.natsClient.send({ cmd: 'user.removeParticipant' }, body));
   }
 
   @Post('api/switchPresenter')
   async switchPresenter(@Body() body: any) {
-    return firstValueFrom(this.roomClient.send({ cmd: 'user.switchPresenter' }, body));
+    return firstValueFrom(this.natsClient.send({ cmd: 'user.switchPresenter' }, body));
   }
 }
 

@@ -10,11 +10,11 @@ import { firstValueFrom } from 'rxjs';
 @Controller('auth/recorder')
 export class RecorderController {
     constructor(
-        @Inject('ROOM_SERVICE') private readonly roomClient: ClientProxy,
+        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     ) { }
 
     @Post('notify')
     async notify(@Body() body: any) {
-        return firstValueFrom(this.roomClient.send({ cmd: 'recorder.events' }, body));
+        return firstValueFrom(this.natsClient.send({ cmd: 'recorder.events' }, body));
     }
 }

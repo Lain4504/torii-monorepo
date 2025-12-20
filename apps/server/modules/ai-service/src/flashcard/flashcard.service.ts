@@ -13,7 +13,7 @@ import {
     UpdateFlashcardRequestDto,
     UpdateFlashcardResponseDto
 } from "@workspace/dtos";
-import {PrismaService} from "@server/shared";
+import { PrismaService } from "@server/shared";
 
 /**
  * Helper function to convert difficulty string to DifficultyLevel enum
@@ -53,47 +53,41 @@ export class FlashcardService {
 
     async createFlashcard(data: CreateFlashcardRequestDto): Promise<CreateFlashcardResponseDto> {
         try {
-            const {
-                deckId,
-                frontText,
-                backText,
-                exampleSentence,
-                pronunciation,
-                imageUrl,
-                audioUrl,
-                tags,
-                difficulty
-            } = data;
+            const { deckId } = data; // Only take deckId from request
 
-            // TODO: Validate deck existence if needed (omitted for speed)
+            console.log(`[FlashcardService] Creating flashcard for deck ${deckId} (USING MOCK DATA)`);
+
+            // Hardcoded Mock Data
+            const mockFront = "Mock Front " + Date.now();
+            const mockBack = "Mock Back " + Date.now();
 
             const flashcard = await this.prisma.flashcard.create({
                 data: {
-                    deckId,
-                    frontText,
-                    backText,
-                    exampleSentence: exampleSentence || null,
-                    pronunciation: pronunciation || null,
-                    imageUrl: imageUrl || null,
-                    audioUrl: audioUrl || null,
-                    tags: tags || [],
-                    difficulty: fromDifficultyLevel(difficulty || DifficultyLevel.DIFFICULTY_UNSPECIFIED),
+                    deckId: deckId,
+                    frontText: mockFront,
+                    backText: mockBack,
+                    exampleSentence: "This is a mock example sentence.",
+                    pronunciation: "Mock Pronunciation",
+                    imageUrl: "https://via.placeholder.com/150",
+                    tags: ["mock", "test"],
+                    difficulty: "medium",
                     // Default SM-2 values
                     intervalDays: 1,
                     easeFactor: 2.5,
                     reviewCount: 0,
                     correctCount: 0,
-                    nextReviewDate: null // New cards don't have a next review date set until reviewed or explicitly set
+                    nextReviewDate: null
                 }
             });
 
             return {
                 success: true,
-                message: 'Flashcard created successfully',
+                message: 'Flashcard created successfully (MOCK DATA SAVED TO DB)',
                 error: '',
                 data: this.mapToProto(flashcard)
             };
         } catch (error) {
+            console.error(`[FlashcardService] Error creating flashcard: ${error.message}`, error);
             return {
                 success: false,
                 message: 'Failed to create flashcard',
@@ -105,7 +99,7 @@ export class FlashcardService {
 
     async getFlashcards(params: FindAllFlashcardsRequestDto): Promise<FlashcardViewListResponseDto> {
         try {
-            const {page = 1, limit = 10, deckId} = params;
+            const { page = 1, limit = 10, deckId } = params;
             const skip = (page - 1) * limit;
             const whereClause: any = {};
             if (deckId) {
@@ -113,16 +107,14 @@ export class FlashcardService {
             }
 
             const [total, flashcards] = await Promise.all([
-                this.prisma.flashcard.count({where: whereClause}),
+                this.prisma.flashcard.count({ where: whereClause }),
                 this.prisma.flashcard.findMany({
                     take: limit,
                     skip: skip,
                     where: whereClause,
-                    orderBy: {createdAt: 'desc'},
+                    orderBy: { createdAt: 'desc' },
                 }),
             ]);
-
-            const totalPages = Math.ceil(total / limit);
 
             return {
                 success: true,
@@ -140,13 +132,15 @@ export class FlashcardService {
                     intervalDays: fc.intervalDays,
                     easeFactor: Number(fc.easeFactor),
                     correctCount: fc.correctCount,
+                    createdAt: fc.createdAt,
+                    updatedAt: fc.updatedAt
                 })),
                 meta: {
                     page,
                     limit,
                     total,
-                    totalPages,
-                    hasNext: page < totalPages,
+                    totalPages: Math.ceil(total / limit),
+                    hasNext: page * limit < total,
                     hasPrev: page > 1
                 }
             };
@@ -184,7 +178,7 @@ export class FlashcardService {
             } = data;
 
             // Check if exists
-            const existing = await this.prisma.flashcard.findUnique({where: {id}});
+            const existing = await this.prisma.flashcard.findUnique({ where: { id } });
             if (!existing) {
                 return {
                     success: false,
@@ -195,7 +189,7 @@ export class FlashcardService {
             }
 
             const updated = await this.prisma.flashcard.update({
-                where: {id},
+                where: { id },
                 data: {
                     deckId: deckId ?? undefined,
                     frontText: frontText ?? undefined,
@@ -228,7 +222,7 @@ export class FlashcardService {
     async deleteFlashcard(data: DeleteFlashcardRequestDto): Promise<DeleteFlashcardResponseDto> {
         try {
             await this.prisma.flashcard.delete({
-                where: {id: data.id}
+                where: { id: data.id }
             });
 
             return {
@@ -259,7 +253,7 @@ export class FlashcardService {
     async getFlashcardById(req: GetFlashcardByIdRequestDto): Promise<GetFlashcardByIdResponseDto> {
         try {
             const flashcard = await this.prisma.flashcard.findUnique({
-                where: {id: req.id}
+                where: { id: req.id }
             });
 
             if (!flashcard) {

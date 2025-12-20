@@ -18,6 +18,7 @@ export class WebhookController {
 
   constructor(
     private readonly liveKitService: LiveKitService,
+    private readonly userTrackingService: UserTrackingService,
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
   ) { }
 

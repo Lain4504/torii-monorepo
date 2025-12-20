@@ -23,8 +23,8 @@ export class CourseService {
   async create(input: CreateCourseDto): Promise<Course> {
     return this.prisma.course.create({
       data: {
-        title: input.title,
-        description: input.description,
+        title: "input.title",
+        description: "input.description",
         price: input.price,
         published: input.published ?? false,
       },

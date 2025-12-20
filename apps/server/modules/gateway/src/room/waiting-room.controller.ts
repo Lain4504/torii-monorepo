@@ -10,16 +10,16 @@ import { firstValueFrom } from 'rxjs';
 @Controller('api/waitingRoom')
 export class WaitingRoomController {
     constructor(
-        @Inject('ROOM_SERVICE') private readonly roomClient: ClientProxy,
+        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     ) { }
 
     @Post('approveUsers')
     async approveUsers(@Body() body: any) {
-        return firstValueFrom(this.roomClient.send({ cmd: 'waitingRoom.approve' }, body));
+        return firstValueFrom(this.natsClient.send({ cmd: 'waitingRoom.approve' }, body));
     }
 
     @Post('updateMsg')
     async updateMsg(@Body() body: any) {
-        return firstValueFrom(this.roomClient.send({ cmd: 'waitingRoom.updateMsg' }, body));
+        return firstValueFrom(this.natsClient.send({ cmd: 'waitingRoom.updateMsg' }, body));
     }
 }
