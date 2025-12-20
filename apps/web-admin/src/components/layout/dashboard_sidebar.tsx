@@ -15,7 +15,7 @@ import {
   Sparkles,
 } from "lucide-react"
 
-import { cn } from "../../lib/utils/cn"
+import { cn } from "@workspace/ui/lib/utils"
 import { Button } from "@workspace/ui/components/button"
 import {
   Tooltip,
