@@ -2,7 +2,6 @@ import { Controller, Post, UseInterceptors, Body } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { RoomService } from './room.service';
 import { BreakoutRoomService } from './breakout-room.service';
-import { ProtobufInterceptor } from '@server/shared/interceptors/protobuf.interceptor';
 import {
   CommonResponse,
   // Schemas for interceptor
@@ -21,25 +20,22 @@ import {
   BreakoutRoomResSchema,
   EndBreakoutRoomReqSchema,
   RoomEndAPIReqSchema,
-} from '@workspace/protocol';
+  } from '@workspace/protocol';
 import type {
   CreateRoomReq,
-  CreateRoomRes,
   RoomEndAPIReq,
   CreateBreakoutRoomsReq,
   JoinBreakoutRoomReq,
-  BreakoutRoomRes,
   EndBreakoutRoomReq,
   CreateIngressReq,
-  CreateIngressRes,
   ApproveWaitingUsersReq,
   UpdateWaitingRoomMessageReq,
   CreatePollReq,
   SubmitPollResponseReq,
   ClosePollReq,
-  PollResponse,
   DataMessageReq,
 } from '@workspace/protocol';
+import {ProtobufInterceptor} from "@server/shared";
 
 @Controller('room')
 export class RoomController {
@@ -47,6 +43,10 @@ export class RoomController {
     private readonly roomService: RoomService,
     private readonly breakoutRoomService: BreakoutRoomService,
   ) { }
+
+  // ============================================
+  // NATS Message Patterns (Called via Gateway)
+  // ============================================
 
   @MessagePattern({ cmd: 'room.create' })
   async create(@Payload() data: CreateRoomReq) {
@@ -268,92 +268,99 @@ export class RoomController {
     this.roomService.handleWebhookEvent(event);
   }
 
-  @Post('chat/systemMessage')
-  @UseInterceptors(ProtobufInterceptor(DataMessageReqSchema, CommonResponseSchema))
-  async sendSystemChatMessage(@Body() data: DataMessageReq) {
+  @MessagePattern({ cmd: 'room.chat.systemMessage' })
+  async sendSystemChatMessage(@Payload() data: DataMessageReq) {
     return this.roomService.sendSystemChatMessage({
       roomId: data.roomId,
       msg: data.msg,
     });
   }
 
-  @Post('poll/create')
-  @UseInterceptors(ProtobufInterceptor(CreatePollReqSchema, PollResponseSchema))
+  // ============================================
+  // Polls
+  // ============================================
+
+  @MessagePattern({ cmd: 'poll.create' })
   async createPoll(@Body() data: CreatePollReq) {
     return this.roomService.createPoll(data);
   }
 
-  @Post('poll/list')
-  async listPolls(@Body() data: { roomId: string }) {
+  @MessagePattern({ cmd: 'poll.list' })
+  async listPolls(@Payload() data: { roomId: string }) {
     return this.roomService.listPolls(data);
   }
 
-  @Post('poll/close')
-  @UseInterceptors(ProtobufInterceptor(ClosePollReqSchema, PollResponseSchema))
-  async closePoll(@Body() data: ClosePollReq) {
+  @MessagePattern({ cmd: 'poll.close' })
+  async closePoll(@Payload() data: ClosePollReq) {
     return this.roomService.closePoll(data);
   }
 
-  @Post('poll/submit')
-  @UseInterceptors(ProtobufInterceptor(SubmitPollResponseReqSchema, PollResponseSchema))
-  async submitPoll(@Body() data: SubmitPollResponseReq) {
+  @MessagePattern({ cmd: 'poll.submit' })
+  async submitPoll(@Payload() data: SubmitPollResponseReq) {
     return this.roomService.submitPollResponse({
       ...data,
       selectedOption: Number(data.selectedOption),
     });
   }
 
-  @Post('poll/stats')
-  async getPollStats(@Body() data: { roomId: string; pollId: string }) {
+  @MessagePattern({ cmd: 'poll.stats' })
+  async getPollStats(@Payload() data: { roomId: string; pollId: string }) {
     return this.roomService.getPollStats(data);
   }
 
-  @Post('file/saveMetadata')
-  async saveFileMetadata(@Body() data: any) {
+  // ============================================
+  // Files
+  // ============================================
+
+  @MessagePattern({ cmd: 'room.file.saveMetadata' })
+  async saveFileMetadata(@Payload() data: any) {
     return this.roomService.saveFileMetadata(data);
   }
 
-  @Post('ingress/create')
-  @UseInterceptors(ProtobufInterceptor(CreateIngressReqSchema, CreateIngressResSchema))
-  createIngress(@Body() data: CreateIngressReq) {
+  // ============================================
+  // Ingress
+  // ============================================
+
+  @MessagePattern({ cmd: 'room.ingress.create' })
+  createIngress(@Payload() data: CreateIngressReq) {
     return this.roomService.createIngress(data as any);
   }
 
-  @Post('waitingRoom/approve')
-  @UseInterceptors(ProtobufInterceptor(ApproveWaitingUsersReqSchema, CommonResponseSchema))
-  approveWaitingUsers(@Body() data: ApproveWaitingUsersReq) {
+  // ============================================
+  // Waiting Room
+  // ============================================
+
+  @MessagePattern({ cmd: 'room.waitingRoom.approve' })
+  approveWaitingUsers(@Payload() data: ApproveWaitingUsersReq) {
     return this.roomService.approveWaitingUsers(data as any);
   }
 
-  @Post('waitingRoom/updateMsg')
-  @UseInterceptors(
-    ProtobufInterceptor(UpdateWaitingRoomMessageReqSchema, CommonResponseSchema),
-  )
-  updateWaitingRoomMessage(@Body() data: UpdateWaitingRoomMessageReq) {
+  @MessagePattern({ cmd: 'room.waitingRoom.updateMsg' })
+  updateWaitingRoomMessage(@Payload() data: UpdateWaitingRoomMessageReq) {
     return this.roomService.updateWaitingRoomMessage(data as any);
   }
 
-  @Post('breakoutRoom/create')
-  @UseInterceptors(ProtobufInterceptor(CreateBreakoutRoomsReqSchema, CommonResponseSchema))
-  createBreakoutRooms(@Body() data: CreateBreakoutRoomsReq) {
+  // ============================================
+  // Breakout Rooms
+  // ============================================
+
+  @MessagePattern({ cmd: 'breakoutRoom.create' })
+  createBreakoutRooms(@Payload() data: CreateBreakoutRoomsReq) {
     return this.breakoutRoomService.createBreakoutRooms(data as any);
   }
 
-  @Post('breakoutRoom/join')
-  @UseInterceptors(ProtobufInterceptor(JoinBreakoutRoomReqSchema, BreakoutRoomResSchema))
-  joinBreakoutRoom(@Body() data: JoinBreakoutRoomReq) {
+  @MessagePattern({ cmd: 'breakoutRoom.join' })
+  joinBreakoutRoom(@Payload() data: JoinBreakoutRoomReq) {
     return this.breakoutRoomService.joinBreakoutRoom(data as any);
   }
 
-  @Post('breakoutRoom/end')
-  @UseInterceptors(ProtobufInterceptor(EndBreakoutRoomReqSchema, CommonResponseSchema))
-  endBreakoutRoom(@Body() data: EndBreakoutRoomReq) {
+  @MessagePattern({ cmd: 'breakoutRoom.end' })
+  endBreakoutRoom(@Payload() data: EndBreakoutRoomReq) {
     return this.breakoutRoomService.endBreakoutRoom(data as any);
   }
 
-  @Post('breakoutRoom/endAll')
-  @UseInterceptors(ProtobufInterceptor(RoomEndAPIReqSchema, CommonResponseSchema))
-  endAllBreakoutRooms(@Body() data: RoomEndAPIReq) {
+  @MessagePattern({ cmd: 'breakoutRoom.endAll' })
+  endAllBreakoutRooms(@Payload() data: RoomEndAPIReq) {
     return this.breakoutRoomService.endAllBreakoutRooms(data as any);
   }
 }

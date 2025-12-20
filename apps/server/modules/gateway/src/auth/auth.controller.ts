@@ -5,22 +5,22 @@ import { firstValueFrom } from 'rxjs';
 @Controller('auth')
 export class AuthController {
   constructor(
-    @Inject('AUTH_SERVICE') private readonly authClient: ClientProxy,
+    @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
   ) { }
 
   @Post('register')
   async register(@Body() body: any) {
-    return firstValueFrom(this.authClient.send({ cmd: 'auth.signup' }, body));
+    return firstValueFrom(this.natsClient.send({ cmd: 'auth.signup' }, body));
   }
 
   @Post('login')
   async login(@Body() body: any) {
-    return firstValueFrom(this.authClient.send({ cmd: 'auth.signin' }, body));
+    return firstValueFrom(this.natsClient.send({ cmd: 'auth.signin' }, body));
   }
 
   @Post('logout')
   async logout() {
-    return firstValueFrom(this.authClient.send({ cmd: 'auth.signout' }, {}));
+    return firstValueFrom(this.natsClient.send({ cmd: 'auth.signout' }, {}));
   }
 
   @Post('getClientFiles')

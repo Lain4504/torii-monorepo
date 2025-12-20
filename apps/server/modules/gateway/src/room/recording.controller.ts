@@ -23,56 +23,56 @@ import type {
 @Controller('auth/recording')
 export class RecordingController {
   constructor(
-    @Inject('ROOM_SERVICE') private readonly roomClient: ClientProxy,
+    @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
   ) { }
 
   @Post('start')
   async start(@Body() body: { roomName: string }) {
     return firstValueFrom(
-      this.roomClient.send({ cmd: 'recording.start' }, body),
+      this.natsClient.send({ cmd: 'recording.start' }, body),
     );
   }
 
   @Post('stop')
   async stop(@Body() body: { roomName: string }) {
     return firstValueFrom(
-      this.roomClient.send({ cmd: 'recording.stop' }, body),
+      this.natsClient.send({ cmd: 'recording.stop' }, body),
     );
   }
 
   @Post('fetch')
   async fetch(@Body() body: FetchRecordingsReq) {
     return firstValueFrom(
-      this.roomClient.send({ cmd: 'recording.fetch' }, body),
+      this.natsClient.send({ cmd: 'recording.fetch' }, body),
     );
   }
 
   @Post('delete')
   async delete(@Body() body: DeleteRecordingReq) {
     return firstValueFrom(
-      this.roomClient.send({ cmd: 'recording.delete' }, body),
+      this.natsClient.send({ cmd: 'recording.delete' }, body),
     );
   }
 
   @Post('info')
   async info(@Body() body: any) {
-    return firstValueFrom(this.roomClient.send({ cmd: 'recording.info' }, body));
+    return firstValueFrom(this.natsClient.send({ cmd: 'recording.info' }, body));
   }
 
   @Post('recordingInfo')
   async recordingInfo(@Body() body: any) {
-    return firstValueFrom(this.roomClient.send({ cmd: 'recording.info' }, body));
+    return firstValueFrom(this.natsClient.send({ cmd: 'recording.info' }, body));
   }
 
   @Post('updateMetadata')
   async updateMetadata(@Body() body: any) {
-    return firstValueFrom(this.roomClient.send({ cmd: 'recording.updateMetadata' }, body));
+    return firstValueFrom(this.natsClient.send({ cmd: 'recording.updateMetadata' }, body));
   }
 
   @Post('getDownloadToken')
   async getDownloadToken(@Body() body: GetDownloadTokenReq) {
     return firstValueFrom(
-      this.roomClient.send({ cmd: 'recording.getDownloadToken' }, body),
+      this.natsClient.send({ cmd: 'recording.getDownloadToken' }, body),
     );
   }
 
@@ -83,7 +83,7 @@ export class RecordingController {
   ) {
     try {
       const result = await firstValueFrom(
-        this.roomClient.send(
+        this.natsClient.send(
           { cmd: 'recording.verifyDownloadToken' },
           { token },
         ),

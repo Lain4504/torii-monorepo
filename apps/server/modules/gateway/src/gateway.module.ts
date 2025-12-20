@@ -1,10 +1,13 @@
 import { Module } from '@nestjs/common';
-import { ClientsModule, Transport } from '@nestjs/microservices';
+import { CacheModule } from '@nestjs/cache-manager';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import KeyvRedis from '@keyv/redis';
+
 import { join } from 'node:path';
 
 import { CourseModule } from './course/course.module';
 import { AuthModule } from './auth/auth.module';
-import { SharedModule, NatsAuthModule } from '@server/shared';
+import { SharedModule, NatsAuthModule, NatsClientModule } from '@server/shared';
 import { RoomModule } from './room/room.module';
 import { FileModule } from './file/file.module';
 import { AdminModule } from './admin/admin.module';
@@ -19,16 +22,24 @@ import { UserTrackingModule } from './user-tracking.module';
 
 @Module({
   imports: [
-    ClientsModule.register([
-      {
-        name: 'ROOM_SERVICE',
-        transport: Transport.REDIS,
-        options: {
-          host: process.env.REDIS_HOST || 'localhost',
-          port: parseInt(process.env.REDIS_PORT || '6379'),
-        },
+    CacheModule.registerAsync({
+      isGlobal: true,
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => {
+        const host = configService.get('REDIS_HOST') || 'localhost';
+        const port = configService.get('REDIS_PORT') || 6379;
+        const password = configService.get('REDIS_PASSWORD');
+        const url = `redis://${password ? `:${password}@` : ''}${host}:${port}`;
+        return {
+          stores: [
+            new KeyvRedis(url),
+          ],
+        };
       },
-    ]),
+      inject: [ConfigService],
+    }),
+
+    NatsClientModule, // Add NATS client for GatewayService
     AuthModule,
     FlashcardModule,
     CourseModule,
