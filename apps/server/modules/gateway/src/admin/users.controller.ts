@@ -8,7 +8,7 @@ import { PaginatedResponseDto } from '@workspace/dtos';
 @Controller('admin/users')
 export class UsersController {
     constructor(
-        @Inject('AUTH_SERVICE') private readonly authClient: ClientProxy,
+        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     ) { }
 
     @Get()
@@ -23,7 +23,7 @@ export class UsersController {
         const pattern = { cmd: 'users.findAll' };
         const payload = { page: Number(page), limit: Number(limit), search };
 
-        return await firstValueFrom<PaginatedResponseDto<any>>(this.authClient.send(pattern, payload));
+        return await firstValueFrom<PaginatedResponseDto<any>>(this.natsClient.send(pattern, payload));
     }
 }
 

@@ -19,7 +19,7 @@ export class WebhookController {
   constructor(
     private readonly liveKitService: LiveKitService,
     private readonly userTrackingService: UserTrackingService,
-    @Inject('ROOM_SERVICE') private readonly roomClient: ClientProxy,
+    @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
   ) { }
 
   @Post()
@@ -45,7 +45,7 @@ export class WebhookController {
       await this.handleParticipantEvents(event);
 
       // Forward to RoomService for other processing
-      this.roomClient.emit({ cmd: 'webhook.event' }, event);
+      this.natsClient.emit({ cmd: 'webhook.event' }, event);
 
       return { status: 'ok' };
     } catch (error) {

@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
+import { FlashcardModule } from './flashcard/flashcard.module';
 
 @Module({
-    imports: [],
+    imports: [FlashcardModule],
     controllers: [],
     providers: [],
 })

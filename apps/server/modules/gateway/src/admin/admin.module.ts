@@ -1,10 +1,9 @@
 import { Module } from '@nestjs/common';
 import { UsersController } from './users.controller';
-import { AuthModule } from '../auth/auth.module'; // To get AUTH_SERVICE client
+import { NatsClientModule } from '@server/shared';
 
 @Module({
-    imports: [AuthModule],
+    imports: [NatsClientModule],
     controllers: [UsersController],
 })
 export class AdminModule { }
-

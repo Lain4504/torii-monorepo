@@ -13,20 +13,20 @@ export type ValidateTokenResponse = { isValid: boolean };
 @Injectable()
 export class GatewayService {
   constructor(
-    @Inject('AUTH_SERVICE') private readonly authClient: ClientProxy,
+    @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     private readonly configService: ConfigService,
     private readonly natsService: NatsService,
   ) { }
 
   async pingAuth(): Promise<AuthHealthResponse> {
     return lastValueFrom(
-      this.authClient.send<AuthHealthResponse>({ cmd: 'auth.ping' }, {}),
+      this.natsClient.send<AuthHealthResponse>({ cmd: 'auth.ping' }, {}),
     );
   }
 
   async validateToken(token?: string): Promise<ValidateTokenResponse> {
     return lastValueFrom(
-      this.authClient.send<ValidateTokenResponse>(
+      this.natsClient.send<ValidateTokenResponse>(
         { cmd: 'auth.validate-token' },
         { token },
       ),

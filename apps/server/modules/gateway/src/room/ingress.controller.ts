@@ -10,11 +10,11 @@ import { firstValueFrom } from 'rxjs';
 @Controller('api/ingress')
 export class IngressController {
     constructor(
-        @Inject('ROOM_SERVICE') private readonly roomClient: ClientProxy,
+        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     ) { }
 
     @Post('create')
     async create(@Body() body: any) {
-        return firstValueFrom(this.roomClient.send({ cmd: 'ingress.create' }, body));
+        return firstValueFrom(this.natsClient.send({ cmd: 'ingress.create' }, body));
     }
 }

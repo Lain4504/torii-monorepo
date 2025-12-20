@@ -1,21 +1,17 @@
 import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions } from '@nestjs/microservices';
-import { createTcpServiceConfig } from '@server/shared';
-
+import { createNatsServiceConfig } from '@server/shared';
 import { NotificationServiceModule } from './notification-service.module';
 
 async function bootstrap() {
     const app = await NestFactory.createMicroservice<MicroserviceOptions>(
         NotificationServiceModule,
-        createTcpServiceConfig({
-            hostEnvKey: 'NOTIFICATION_HOST',
-            portEnvKey: 'NOTIFICATION_PORT',
-            defaultPort: 8087,
-        }),
+        createNatsServiceConfig(),
     );
 
     await app.listen();
+    console.log('Notification Microservice is listening on NATS...');
 }
 
 bootstrap();

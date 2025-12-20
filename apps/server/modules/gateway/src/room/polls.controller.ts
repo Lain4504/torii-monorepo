@@ -10,68 +10,68 @@ import type {
 @Controller('api/polls')
 export class PollsController {
   constructor(
-    @Inject('ROOM_SERVICE') private readonly roomClient: ClientProxy,
+    @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
   ) { }
 
   @Post('activate')
   async activate(@Body() body: any) {
-    return firstValueFrom(this.roomClient.send({ cmd: 'poll.activate' }, body));
+    return firstValueFrom(this.natsClient.send({ cmd: 'poll.activate' }, body));
   }
 
   @Post('create')
   async create(@Body() body: CreatePollReq) {
-    return firstValueFrom(this.roomClient.send({ cmd: 'poll.create' }, body));
+    return firstValueFrom(this.natsClient.send({ cmd: 'poll.create' }, body));
   }
 
   // POST endpoint (legacy/internal)
   @Post('list')
   async list(@Body() body: any) {
-    return firstValueFrom(this.roomClient.send({ cmd: 'poll.list' }, body));
+    return firstValueFrom(this.natsClient.send({ cmd: 'poll.list' }, body));
   }
 
   @Get('listPolls')
   async listPolls() {
-    return firstValueFrom(this.roomClient.send({ cmd: 'poll.list' }, {}));
+    return firstValueFrom(this.natsClient.send({ cmd: 'poll.list' }, {}));
   }
 
   @Post('close')
   async close(@Body() body: ClosePollReq) {
-    return firstValueFrom(this.roomClient.send({ cmd: 'poll.close' }, body));
+    return firstValueFrom(this.natsClient.send({ cmd: 'poll.close' }, body));
   }
 
   // Match client endpoint name
   @Post('closePoll')
   async closePoll(@Body() body: ClosePollReq) {
-    return firstValueFrom(this.roomClient.send({ cmd: 'poll.close' }, body));
+    return firstValueFrom(this.natsClient.send({ cmd: 'poll.close' }, body));
   }
 
   @Post('submit')
   async submit(@Body() body: SubmitPollResponseReq) {
-    return firstValueFrom(this.roomClient.send({ cmd: 'poll.submit' }, body));
+    return firstValueFrom(this.natsClient.send({ cmd: 'poll.submit' }, body));
   }
 
   // Match client endpoint name
   @Post('submitResponse')
   async submitResponse(@Body() body: SubmitPollResponseReq) {
-    return firstValueFrom(this.roomClient.send({ cmd: 'poll.submit' }, body));
+    return firstValueFrom(this.natsClient.send({ cmd: 'poll.submit' }, body));
   }
 
   @Post('stats')
   async stats(@Body() body: any) {
-    return firstValueFrom(this.roomClient.send({ cmd: 'poll.stats' }, body));
+    return firstValueFrom(this.natsClient.send({ cmd: 'poll.stats' }, body));
   }
 
   // GET endpoint (client-facing)
   @Get('pollsStats')
   async pollsStats() {
-    return firstValueFrom(this.roomClient.send({ cmd: 'poll.stats' }, {}));
+    return firstValueFrom(this.natsClient.send({ cmd: 'poll.stats' }, {}));
   }
 
   // Client GET endpoints for poll details
   @Get('countTotalResponses/:pollId')
   async countTotalResponses(@Param('pollId') pollId: string) {
     return firstValueFrom(
-      this.roomClient.send({ cmd: 'poll.countResponses' }, { pollId }),
+      this.natsClient.send({ cmd: 'poll.countResponses' }, { pollId }),
     );
   }
 
@@ -81,21 +81,21 @@ export class PollsController {
     @Param('userId') userId: string,
   ) {
     return firstValueFrom(
-      this.roomClient.send({ cmd: 'poll.userOption' }, { pollId, userId }),
+      this.natsClient.send({ cmd: 'poll.userOption' }, { pollId, userId }),
     );
   }
 
   @Get('pollResponsesDetails/:pollId')
   async pollResponsesDetails(@Param('pollId') pollId: string) {
     return firstValueFrom(
-      this.roomClient.send({ cmd: 'poll.responsesDetails' }, { pollId }),
+      this.natsClient.send({ cmd: 'poll.responsesDetails' }, { pollId }),
     );
   }
 
   @Get('pollResponsesResult/:pollId')
   async pollResponsesResult(@Param('pollId') pollId: string) {
     return firstValueFrom(
-      this.roomClient.send({ cmd: 'poll.responsesResult' }, { pollId }),
+      this.natsClient.send({ cmd: 'poll.responsesResult' }, { pollId }),
     );
   }
 }

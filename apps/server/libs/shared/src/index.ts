@@ -1,4 +1,4 @@
-export * from './tcp-client.util';
+export * from './nats-service.config';
 export * from './prisma.service';
 export * from './services/livekit.service';
 export * from './services/redis.service';
@@ -12,4 +12,5 @@ export * from './filters/all-exceptions.filter';
 export * from './interceptors/protobuf.interceptor';
 export * from './nats/nats.service';
 export * from './nats/nats-auth.module';
+export * from './nats/nats-client.module';
 

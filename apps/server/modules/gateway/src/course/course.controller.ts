@@ -24,8 +24,8 @@ import { Course, CreateCourseInput, UpdateCourseInput } from './course.schema';
 @Controller('api/courses')
 export class CourseController {
   constructor(
-    @Inject('COURSE_SERVICE')
-    private readonly courseClient: ClientProxy,
+    @Inject('NATS_SERVICE')
+    private readonly natsClient: ClientProxy,
   ) { }
 
   @Get()
@@ -33,7 +33,7 @@ export class CourseController {
   @ApiOkResponse({ type: [Course] })
   findAll(): Promise<Course[]> {
     return lastValueFrom(
-      this.courseClient.send<Course[]>({ cmd: 'course.findAll' }, {}),
+      this.natsClient.send<Course[]>({ cmd: 'course.findAll' }, {}),
     ).then((courses) => courses.map(toCourse));
   }
 
@@ -42,7 +42,7 @@ export class CourseController {
   @ApiOkResponse({ type: Course })
   async findOne(@Param('id') id: string): Promise<Course | null> {
     const course = await lastValueFrom(
-      this.courseClient.send<Course | null>(
+      this.natsClient.send<Course | null>(
         { cmd: 'course.findOne' },
         parseInt(id, 10),
       ),
@@ -55,7 +55,7 @@ export class CourseController {
   @ApiCreatedResponse({ type: Course })
   async create(@Body() input: CreateCourseInput): Promise<Course> {
     const course = await lastValueFrom(
-      this.courseClient.send<Course>({ cmd: 'course.create' }, input),
+      this.natsClient.send<Course>({ cmd: 'course.create' }, input),
     );
     return toCourse(course);
   }
@@ -68,7 +68,7 @@ export class CourseController {
     @Body() input: UpdateCourseInput,
   ): Promise<Course> {
     const course = await lastValueFrom(
-      this.courseClient.send<Course>(
+      this.natsClient.send<Course>(
         { cmd: 'course.update' },
         { id: parseInt(id, 10), input },
       ),
@@ -81,7 +81,7 @@ export class CourseController {
   @ApiOkResponse({ type: Boolean })
   delete(@Param('id') id: string): Promise<boolean> {
     return lastValueFrom(
-      this.courseClient.send<boolean>(
+      this.natsClient.send<boolean>(
         { cmd: 'course.delete' },
         parseInt(id, 10),
       ),
