@@ -44,6 +44,11 @@ export function UsersPage() {
 
     return (
         <div className="p-6">
+            <div className="mb-6">
+                <h1 className="text-3xl font-bold tracking-tight">Users</h1>
+                <p className="text-muted-foreground mt-1">Manage user accounts and permissions</p>
+            </div>
+
             <div className="mb-4 flex gap-4">
                 <input
                     type="text"
