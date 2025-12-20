@@ -14,16 +14,18 @@
     "types": "dist/index.d.ts",
     "scripts": {
         "build": "tsc && tsc -p tsconfig.esm.json && echo '{\"type\": \"module\"}' > dist/esm/package.json",
-        "generate": "protoc --plugin=./node_modules/.bin/protoc-gen-ts_proto.cmd -I ./proto -I ./proto/dependencies/livekit -I ./proto/dependencies/protovalidate --ts_proto_out=./src/generated ./proto/*.proto --ts_proto_opt=outputEncodeMethods=true,outputJsonMethods=false,outputClientImpl=false,esModuleInterop=true"
+        "generate": "pnpm exec buf generate",
+        "clean": "rimraf src/gen"
     },
     "dependencies": {
-        "ts-proto": "^1.157.0",
+        "@bufbuild/protobuf": "^2.10.1",
         "@nestjs/microservices": "^10.0.0",
-        "rxjs": "^7.8.1",
-        "protobufjs": "^7.2.5",
-        "long": "^5.2.3"
+        "rxjs": "^7.8.1"
     },
     "devDependencies": {
+        "@bufbuild/buf": "^1.61.0",
+        "@bufbuild/protoc-gen-es": "^2.10.1",
+        "rimraf": "^5.0.5",
         "typescript": "^5.0.0"
     }
 }
