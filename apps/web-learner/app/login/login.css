@@ -1,0 +1,230 @@
+/* Login Page Styles - Cloned from plugNmeet-client login.html */
+/* These styles are scoped to .plugnmeet-login to avoid affecting shared packages */
+
+.plugnmeet-login {
+  min-height: 100vh;
+  display: flex;
+  background-color: #f0f6fc;
+  font-family: 'Inter', sans-serif;
+}
+
+.plugnmeet-login * {
+  box-sizing: border-box;
+}
+
+.plugnmeet-login input:-webkit-autofill,
+.plugnmeet-login input:-webkit-autofill:hover,
+.plugnmeet-login input:-webkit-autofill:focus,
+.plugnmeet-login input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px white inset !important;
+  -webkit-text-fill-color: #000 !important;
+}
+
+.plugnmeet-login .container {
+  margin: auto;
+  width: 100%;
+  max-width: 1000px;
+  padding: 40px 20px;
+}
+
+.plugnmeet-login input,
+.plugnmeet-login select {
+  border-radius: 15px;
+  border: 1px solid #c2daf2;
+  background: #fff;
+  box-shadow: 0px 1px 2px 0px rgba(0, 43, 64, 0.05);
+  padding: 10px 14px;
+  width: 100%;
+  outline: none;
+  font-size: 16px;
+  transition: all 0.2s ease;
+}
+
+.plugnmeet-login label {
+  display: block;
+  font-size: 16px;
+  font-weight: 500;
+  color: #233240;
+  margin-bottom: 8px;
+}
+
+.plugnmeet-login input:focus,
+.plugnmeet-login select:focus {
+  box-shadow: 0px 0px 0px 4px rgba(124, 206, 247, 0.25);
+  border-color: #00a1f2;
+}
+
+.plugnmeet-login .login-form {
+  background-color: #fff;
+  padding: 40px 30px 30px;
+  border-radius: 24px;
+  box-shadow: 0 2px 8px rgba(0, 43, 64, 0.08);
+}
+
+.plugnmeet-login .inputs-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px 20px;
+}
+
+.plugnmeet-login .btn {
+  height: 40px;
+  border-radius: 15px;
+  box-shadow:
+    0px 2px 2px 0px rgba(255, 255, 255, 0.3) inset,
+    0px 1px 2px 0px rgba(0, 43, 64, 0.05);
+  min-width: 140px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease-in;
+  border: none;
+}
+
+.plugnmeet-login .btn-danger {
+  border: 1px solid #c00;
+  background: #fa3232;
+}
+
+.plugnmeet-login .btn-primary {
+  border: 1px solid #08c;
+  background: #00a1f2;
+}
+
+.plugnmeet-login .btn-danger:hover {
+  background-color: #cc0000;
+}
+
+.plugnmeet-login .btn-primary:hover {
+  background-color: #08c;
+}
+
+.plugnmeet-login .btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.plugnmeet-login .buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.plugnmeet-login .card-title {
+  font-size: 22px;
+  text-align: center;
+  margin-bottom: 20px;
+  font-weight: 500;
+  color: #233240;
+}
+
+.plugnmeet-login select {
+  background-color: #fff;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='20' viewBox='0 0 20 20' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M5.516 7.548l4.484 4.487 4.484-4.487L15.484 8.5 10 14l-5.484-5.5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+}
+
+.plugnmeet-login .logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.plugnmeet-login .logo img {
+  height: 55px;
+}
+
+.plugnmeet-login .error-message {
+  color: #fa3232;
+  font-size: 14px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background-color: #fff5f5;
+  border-radius: 8px;
+  border: 1px solid #fecaca;
+}
+
+.plugnmeet-login .loading-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 0.6s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Mobile responsive */
+@media screen and (max-width: 767px) {
+  .plugnmeet-login .inputs-wrapper {
+    grid-template-columns: 1fr;
+  }
+
+  .plugnmeet-login input,
+  .plugnmeet-login select {
+    padding: 7px 14px;
+  }
+
+  .plugnmeet-login label {
+    font-size: 14px;
+  }
+
+  .plugnmeet-login .btn {
+    min-width: 130px;
+    height: 38px;
+    font-size: 15px;
+  }
+
+  .plugnmeet-login .login-form {
+    padding: 40px 15px 30px;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .plugnmeet-login {
+    background-color: #01102b;
+  }
+
+  .plugnmeet-login .login-form {
+    background-color: #001222;
+    border: 1px solid #4d6680;
+  }
+
+  .plugnmeet-login label,
+  .plugnmeet-login .card-title {
+    color: #fff;
+  }
+
+  .plugnmeet-login input,
+  .plugnmeet-login select {
+    background-color: transparent !important;
+    color: #fff;
+    border-color: #4d6680;
+  }
+
+  .plugnmeet-login select {
+    background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='20' viewBox='0 0 20 20' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M5.516 7.548l4.484 4.487 4.484-4.487L15.484 8.5 10 14l-5.484-5.5z'/></svg>");
+  }
+
+  .plugnmeet-login .error-message {
+    background-color: #2d1a1a;
+    border-color: #5c2020;
+    color: #fca5a5;
+  }
+}

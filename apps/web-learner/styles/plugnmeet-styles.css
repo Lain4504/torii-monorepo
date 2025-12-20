@@ -1,0 +1,45 @@
+/**
+ * PlugNmeet Styles - Main Entry Point
+ * Import this file to use all plugNmeet styles in your application
+ */
+
+/* Base Variables & Theme */
+@import './plugnmeet/variables.css';
+
+/* Core Styles */
+@import './plugnmeet/index.css';
+@import './plugnmeet/common.css';
+@import './plugnmeet/dark-mode.css';
+
+/* Font Definitions */
+@import './plugnmeet/plugnmeet-font.css';
+
+/* Animations */
+@import './plugnmeet/keyframes-animation.css';
+
+/* Specific Components */
+@import './plugnmeet/recorder.css';
+
+/* Responsive Media Queries */
+/* Mobile & Small Screens */
+@import './plugnmeet/media_screens/max_370.css';
+@import './plugnmeet/media_screens/max_57.css';
+@import './plugnmeet/media_screens/max_640.css';
+@import './plugnmeet/media_screens/min_641.css';
+@import './plugnmeet/media_screens/max_767.css';
+
+/* Tablets */
+@import './plugnmeet/media_screens/max_1023.css';
+@import './plugnmeet/media_screens/min_1024.css';
+@import './plugnmeet/media_screens/max_1025.css';
+@import './plugnmeet/media_screens/min_641_max_1025.css';
+
+/* Desktop */
+@import './plugnmeet/media_screens/max_1279.css';
+@import './plugnmeet/media_screens/max_1640.css';
+@import './plugnmeet/media_screens/min_1800.css';
+
+/* Specific Height Constraints */
+@import './plugnmeet/media_screens/h-max-800.css';
+@import './plugnmeet/media_screens/max_h_720.css';
+@import './plugnmeet/media_screens/max_w_980_max_h_450.css';
