@@ -26,7 +26,9 @@ import {
   NatsMsgServerToClient,
   NatsMsgServerToClientEvents,
   RoomMetadata,
+  NatsMsgServerToClientSchema,
 } from '@workspace/protocol';
+import { create, toBinary } from '@bufbuild/protobuf';
 import { RoomUtils } from './room.utils';
 
 @Injectable()
@@ -194,7 +196,7 @@ export class RoomService implements OnModuleInit {
 
       // Analytics
       await this.analyticsService.sendAnalyticsData({
-        eventType: AnalyticsEventType.ANALYTICS_EVENT_TYPE_ROOM,
+        eventType: AnalyticsEventType.ROOM,
         eventName: AnalyticsEvents.ANALYTICS_EVENT_UNKNOWN,
         roomId: room.name,
         roomSid: room.sid,
@@ -259,7 +261,7 @@ export class RoomService implements OnModuleInit {
 
       // Analytics
       await this.analyticsService.sendAnalyticsData({
-        eventType: AnalyticsEventType.ANALYTICS_EVENT_TYPE_ROOM,
+        eventType: AnalyticsEventType.ROOM,
         eventName: AnalyticsEvents.ANALYTICS_EVENT_UNKNOWN,
         roomId: data.roomId,
         time: Date.now(),
@@ -355,7 +357,7 @@ export class RoomService implements OnModuleInit {
             },
           });
           await this.analyticsService.sendAnalyticsData({
-            eventType: AnalyticsEventType.ANALYTICS_EVENT_TYPE_ROOM,
+            eventType: AnalyticsEventType.ROOM,
             eventName: AnalyticsEvents.ANALYTICS_EVENT_UNKNOWN,
             roomId: roomId,
             roomSid: event.room.sid,
@@ -370,7 +372,7 @@ export class RoomService implements OnModuleInit {
             data: { isRunning: false, endedAt: new Date() },
           });
           await this.analyticsService.sendAnalyticsData({
-            eventType: AnalyticsEventType.ANALYTICS_EVENT_TYPE_ROOM,
+            eventType: AnalyticsEventType.ROOM,
             eventName: AnalyticsEvents.ANALYTICS_EVENT_UNKNOWN,
             roomId: roomId,
             roomSid: event.room.sid,
@@ -400,7 +402,7 @@ export class RoomService implements OnModuleInit {
             await this.createNatsConsumers(roomId, user.identity);
 
             await this.analyticsService.sendAnalyticsData({
-              eventType: AnalyticsEventType.ANALYTICS_EVENT_TYPE_USER,
+              eventType: AnalyticsEventType.USER,
               eventName: AnalyticsEvents.ANALYTICS_EVENT_USER_JOINED,
               roomId: roomId,
               roomSid: event.room.sid,
@@ -423,7 +425,7 @@ export class RoomService implements OnModuleInit {
               event.participant.identity,
             );
             await this.analyticsService.sendAnalyticsData({
-              eventType: AnalyticsEventType.ANALYTICS_EVENT_TYPE_USER,
+              eventType: AnalyticsEventType.USER,
               eventName: AnalyticsEvents.ANALYTICS_EVENT_USER_LEFT,
               roomId: roomId,
               roomSid: event.room.sid,
@@ -450,7 +452,7 @@ export class RoomService implements OnModuleInit {
               },
             });
             await this.analyticsService.sendAnalyticsData({
-              eventType: AnalyticsEventType.ANALYTICS_EVENT_TYPE_ROOM,
+              eventType: AnalyticsEventType.ROOM,
               eventName: AnalyticsEvents.ANALYTICS_EVENT_ROOM_RECORDING_STATUS,
               roomId: roomId,
               roomSid: event.room.sid,
@@ -1255,12 +1257,12 @@ export class RoomService implements OnModuleInit {
     msg: string,
     toUserId?: string,
   ) {
-    const payload = NatsMsgServerToClient.fromPartial({
+    const payload = create(NatsMsgServerToClientSchema, {
       event: event,
       msg: msg,
       id: uuidv4(),
     });
-    const binary = NatsMsgServerToClient.encode(payload).finish();
+    const binary = toBinary(NatsMsgServerToClientSchema, payload);
 
     let subject = `${roomId}:sysPublic.system`;
     if (toUserId) {

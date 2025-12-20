@@ -10,7 +10,9 @@ import {
   JoinBreakoutRoomReq,
   EndBreakoutRoomReq,
   NatsMsgServerToClientEvents,
+  CreateRoomReqSchema,
 } from '@workspace/protocol';
+import { create } from '@bufbuild/protobuf';
 import { RoomService } from './room.service';
 import { RpcException } from '@nestjs/microservices';
 
@@ -67,7 +69,7 @@ export class BreakoutRoomService {
     // This answers the user's question: "Yes, Chat is available if Parent has it."
 
     if (bkMeta.roomFeatures.roomDuration) {
-      bkMeta.roomFeatures.roomDuration = data.duration * 60; // Duration in seconds
+      bkMeta.roomFeatures.roomDuration = Number(data.duration) * 60; // Duration in seconds
     }
 
     // 3. Create Each Room
@@ -79,11 +81,13 @@ export class BreakoutRoomService {
         thisRoomMeta.roomTitle = roomReq.title;
 
         // Create via RoomService (to handle DB + LiveKit + Webhooks)
-        await this.roomService.createRoom({
-          roomId: bkRoomId,
-          metadata: thisRoomMeta,
-          emptyTimeout: data.duration * 60, // Auto close after duration
-        });
+        await this.roomService.createRoom(
+          create(CreateRoomReqSchema, {
+            roomId: bkRoomId,
+            metadata: thisRoomMeta,
+            emptyTimeout: Number(data.duration) * 60, // Auto close after duration
+          }),
+        );
 
         // Notify Assigned Users via System Event (Parity: JOIN_BREAKOUT_ROOM)
         for (const user of roomReq.users) {

@@ -3,7 +3,8 @@ import { ClientProxy } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 import { lastValueFrom } from 'rxjs';
 import { verify } from 'jsonwebtoken';
-import { VerifyTokenRes, NatsSubjects } from '@workspace/protocol';
+import { VerifyTokenRes, NatsSubjects, VerifyTokenResSchema, NatsSubjectsSchema } from '@workspace/protocol';
+import { create, toBinary } from '@bufbuild/protobuf';
 import { NatsService } from '@server/shared';
 
 export type AuthHealthResponse = { service: string; status: string };
@@ -15,7 +16,7 @@ export class GatewayService {
     @Inject('AUTH_SERVICE') private readonly authClient: ClientProxy,
     private readonly configService: ConfigService,
     private readonly natsService: NatsService,
-  ) {}
+  ) { }
 
   async pingAuth(): Promise<AuthHealthResponse> {
     return lastValueFrom(
@@ -68,9 +69,9 @@ export class GatewayService {
       'ws://localhost:8222',
     );
 
-    // Construct NATS Subjects
+    //  Construct NATS Subjects
     // Using standard patterns
-    const natsSubjects: NatsSubjects = {
+    const natsSubjects = create(NatsSubjectsSchema, {
       systemApiWorker: 'sysApiWorker',
       systemJsWorker: 'sysJsWorker',
       systemPublic: 'sysPublic',
@@ -78,9 +79,9 @@ export class GatewayService {
       chat: 'chat',
       whiteboard: 'whiteboard',
       dataChannel: 'dataChannel',
-    };
+    });
 
-    const res: VerifyTokenRes = {
+    const res = create(VerifyTokenResSchema, {
       status: true,
       msg: 'success',
       natsWsUrls: [natsUrl],
@@ -89,7 +90,7 @@ export class GatewayService {
       natsSubjects: natsSubjects,
       isCloud: false,
       enabledSelfInsertEncryptionKey: false, // TODO: Configurable?
-    };
+    });
 
     // Persist Room & User Info to JetStream KV
     // This is required for SystemWorkerService to handle REQ_INITIAL_DATA
@@ -132,7 +133,7 @@ export class GatewayService {
       joinedAt: Math.floor(Date.now() / 1000),
     });
 
-    return VerifyTokenRes.encode(res).finish();
+    return toBinary(VerifyTokenResSchema, res);
   }
 
   // Define helper for random string if not imported

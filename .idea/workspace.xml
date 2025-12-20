@@ -4,53 +4,20 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix: fix conflict code after rebase">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add buf configuration and generated protobuf files for integration">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/interceptors/protobuf.interceptor.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/interceptors/protobuf.interceptor.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/nats/nats.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/nats/nats.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/room/polls.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/room/polls.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/room/recording.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/room/recording.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/room/room.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/room/room.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/system-worker.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/system-worker.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/breakout-room.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/breakout-room.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/room.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/room.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/room.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/room.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/room.utils.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/room.utils.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/packages/protocol/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/agent/livekit_agent_session.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/cloud_replay.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/infra/link.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/livekit_agent.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/livekit_agent_dispatch.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/livekit_analytics.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/livekit_cloud_agent.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/livekit_connector.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/livekit_connector_twilio.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/livekit_connector_whatsapp.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/livekit_egress.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/livekit_ingress.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/livekit_internal.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/livekit_metrics.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/livekit_models.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/livekit_phone_number.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/livekit_room.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/livekit_rtc.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/livekit_sip.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/livekit_token_source.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/livekit_webhook.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/logger/options.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/rpc/agent.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/rpc/agent_dispatch.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/rpc/analytics.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/rpc/common.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/rpc/connector.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/rpc/egress.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/rpc/ingress.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/rpc/io.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/rpc/keepalive.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/rpc/participant.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/rpc/room.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/rpc/roommanager.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/rpc/signal.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/rpc/sip.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/livekit/rpc/whip_signal.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/protovalidate/BUILD.bazel" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/protovalidate/LICENSE" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/protovalidate/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/protovalidate/buf/validate/BUILD.bazel" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/dependencies/protovalidate/buf/validate/validate.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -244,14 +211,8 @@
       <workItem from="1765849677488" duration="719000" />
       <workItem from="1765855909748" duration="4405000" />
       <workItem from="1766234169229" duration="360000" />
-    </task>
-    <task id="LOCAL-00074" summary="feat: create break room logic">
-      <option name="closed" value="true" />
-      <created>1765819809299</created>
-      <option name="number" value="00074" />
-      <option name="presentableId" value="LOCAL-00074" />
-      <option name="project" value="LOCAL" />
-      <updated>1765819809299</updated>
+      <workItem from="1766239733743" duration="3002000" />
+      <workItem from="1766242844280" duration="342000" />
     </task>
     <task id="LOCAL-00075" summary="fix: fix comment from copilot">
       <option name="closed" value="true" />
@@ -637,7 +598,15 @@
       <option name="project" value="LOCAL" />
       <updated>1766234529320</updated>
     </task>
-    <option name="localTasksCounter" value="123" />
+    <task id="LOCAL-00123" summary="feat: add buf configuration and generated protobuf files for integration">
+      <option name="closed" value="true" />
+      <created>1766238641182</created>
+      <option name="number" value="00123" />
+      <option name="presentableId" value="LOCAL-00123" />
+      <option name="project" value="LOCAL" />
+      <updated>1766238641182</updated>
+    </task>
+    <option name="localTasksCounter" value="124" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -665,7 +634,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="user-sync-supbase-auth" />
+                        <option value="event-meet-handler" />
                       </list>
                     </value>
                   </entry>
@@ -678,7 +647,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="chore: remove unsused import&#10;&#10;Co-authored-by: Copilot &lt;175728472+Copilot@users.noreply.github.com&gt;" />
     <MESSAGE value="feat: add standard response + error response" />
     <MESSAGE value="refactor: update auth structure" />
     <MESSAGE value="chore: install dependencies" />
@@ -703,7 +671,8 @@
     <MESSAGE value="feat: add microservices for assessment, payment, AI, and notification services" />
     <MESSAGE value="feat: add microservices for assessment, payment, AI, and notification services&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml&#10;#&#9;README.md&#10;#&#9;apps/web-admin/src/api/users.ts&#10;#&#9;apps/web-admin/src/pages/UsersPage.tsx&#10;#&#9;apps/web-learner/package.json&#10;#&#9;pnpm-lock.yaml" />
     <MESSAGE value="fix: fix conflict code after rebase" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: fix conflict code after rebase" />
+    <MESSAGE value="feat: add buf configuration and generated protobuf files for integration" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: add buf configuration and generated protobuf files for integration" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

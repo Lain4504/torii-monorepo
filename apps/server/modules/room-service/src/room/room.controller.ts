@@ -4,10 +4,28 @@ import { RoomService } from './room.service';
 import { BreakoutRoomService } from './breakout-room.service';
 import { ProtobufInterceptor } from '@server/shared/interceptors/protobuf.interceptor';
 import {
+  CommonResponse,
+  // Schemas for interceptor
+  DataMessageReqSchema,
+  CommonResponseSchema,
+  CreatePollReqSchema,
+  PollResponseSchema,
+  ClosePollReqSchema,
+  SubmitPollResponseReqSchema,
+  CreateIngressReqSchema,
+  CreateIngressResSchema,
+  ApproveWaitingUsersReqSchema,
+  UpdateWaitingRoomMessageReqSchema,
+  CreateBreakoutRoomsReqSchema,
+  JoinBreakoutRoomReqSchema,
+  BreakoutRoomResSchema,
+  EndBreakoutRoomReqSchema,
+  RoomEndAPIReqSchema,
+} from '@workspace/protocol';
+import type {
   CreateRoomReq,
   CreateRoomRes,
   RoomEndAPIReq,
-  CommonResponse,
   CreateBreakoutRoomsReq,
   JoinBreakoutRoomReq,
   BreakoutRoomRes,
@@ -251,7 +269,7 @@ export class RoomController {
   }
 
   @Post('chat/systemMessage')
-  @UseInterceptors(ProtobufInterceptor(DataMessageReq, CommonResponse))
+  @UseInterceptors(ProtobufInterceptor(DataMessageReqSchema, CommonResponseSchema))
   async sendSystemChatMessage(@Body() data: DataMessageReq) {
     return this.roomService.sendSystemChatMessage({
       roomId: data.roomId,
@@ -260,7 +278,7 @@ export class RoomController {
   }
 
   @Post('poll/create')
-  @UseInterceptors(ProtobufInterceptor(CreatePollReq, PollResponse))
+  @UseInterceptors(ProtobufInterceptor(CreatePollReqSchema, PollResponseSchema))
   async createPoll(@Body() data: CreatePollReq) {
     return this.roomService.createPoll(data);
   }
@@ -271,15 +289,18 @@ export class RoomController {
   }
 
   @Post('poll/close')
-  @UseInterceptors(ProtobufInterceptor(ClosePollReq, PollResponse))
+  @UseInterceptors(ProtobufInterceptor(ClosePollReqSchema, PollResponseSchema))
   async closePoll(@Body() data: ClosePollReq) {
     return this.roomService.closePoll(data);
   }
 
   @Post('poll/submit')
-  @UseInterceptors(ProtobufInterceptor(SubmitPollResponseReq, PollResponse))
+  @UseInterceptors(ProtobufInterceptor(SubmitPollResponseReqSchema, PollResponseSchema))
   async submitPoll(@Body() data: SubmitPollResponseReq) {
-    return this.roomService.submitPollResponse(data);
+    return this.roomService.submitPollResponse({
+      ...data,
+      selectedOption: Number(data.selectedOption),
+    });
   }
 
   @Post('poll/stats')
@@ -293,48 +314,47 @@ export class RoomController {
   }
 
   @Post('ingress/create')
-  @UseInterceptors(ProtobufInterceptor(CreateIngressReq, CreateIngressRes))
+  @UseInterceptors(ProtobufInterceptor(CreateIngressReqSchema, CreateIngressResSchema))
   createIngress(@Body() data: CreateIngressReq) {
     return this.roomService.createIngress(data as any);
   }
 
   @Post('waitingRoom/approve')
-  @UseInterceptors(ProtobufInterceptor(ApproveWaitingUsersReq, CommonResponse))
+  @UseInterceptors(ProtobufInterceptor(ApproveWaitingUsersReqSchema, CommonResponseSchema))
   approveWaitingUsers(@Body() data: ApproveWaitingUsersReq) {
     return this.roomService.approveWaitingUsers(data as any);
   }
 
   @Post('waitingRoom/updateMsg')
   @UseInterceptors(
-    ProtobufInterceptor(UpdateWaitingRoomMessageReq, CommonResponse),
+    ProtobufInterceptor(UpdateWaitingRoomMessageReqSchema, CommonResponseSchema),
   )
   updateWaitingRoomMessage(@Body() data: UpdateWaitingRoomMessageReq) {
     return this.roomService.updateWaitingRoomMessage(data as any);
   }
 
   @Post('breakoutRoom/create')
-  @UseInterceptors(ProtobufInterceptor(CreateBreakoutRoomsReq, CommonResponse))
+  @UseInterceptors(ProtobufInterceptor(CreateBreakoutRoomsReqSchema, CommonResponseSchema))
   createBreakoutRooms(@Body() data: CreateBreakoutRoomsReq) {
     return this.breakoutRoomService.createBreakoutRooms(data as any);
   }
 
   @Post('breakoutRoom/join')
-  @UseInterceptors(ProtobufInterceptor(JoinBreakoutRoomReq, BreakoutRoomRes))
+  @UseInterceptors(ProtobufInterceptor(JoinBreakoutRoomReqSchema, BreakoutRoomResSchema))
   joinBreakoutRoom(@Body() data: JoinBreakoutRoomReq) {
     return this.breakoutRoomService.joinBreakoutRoom(data as any);
   }
 
   @Post('breakoutRoom/end')
-  @UseInterceptors(ProtobufInterceptor(EndBreakoutRoomReq, CommonResponse))
+  @UseInterceptors(ProtobufInterceptor(EndBreakoutRoomReqSchema, CommonResponseSchema))
   endBreakoutRoom(@Body() data: EndBreakoutRoomReq) {
     return this.breakoutRoomService.endBreakoutRoom(data as any);
   }
 
   @Post('breakoutRoom/endAll')
-  @UseInterceptors(ProtobufInterceptor(RoomEndAPIReq, CommonResponse))
+  @UseInterceptors(ProtobufInterceptor(RoomEndAPIReqSchema, CommonResponseSchema))
   endAllBreakoutRooms(@Body() data: RoomEndAPIReq) {
     return this.breakoutRoomService.endAllBreakoutRooms(data as any);
   }
 }
-
 

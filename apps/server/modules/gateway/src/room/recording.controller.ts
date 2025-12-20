@@ -14,7 +14,7 @@ import { firstValueFrom } from 'rxjs';
 import type { Response } from 'express';
 import { createReadStream, existsSync } from 'fs';
 import { basename } from 'path';
-import {
+import type {
   FetchRecordingsReq,
   DeleteRecordingReq,
   GetDownloadTokenReq,

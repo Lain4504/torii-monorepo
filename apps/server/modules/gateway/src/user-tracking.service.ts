@@ -1,12 +1,13 @@
+import { create, fromBinary, toJsonString } from '@bufbuild/protobuf';
 import { Injectable, Logger } from '@nestjs/common';
 import { NatsService } from '@server/shared';
-import { NatsMsgServerToClientEvents } from "@workspace/protocol";
+import { NatsMsgServerToClientEvents, NatsKvUserInfoSchema } from "@workspace/protocol";
 
 @Injectable()
 export class UserTrackingService {
   private readonly logger = new Logger(UserTrackingService.name);
 
-  constructor(private readonly natsService: NatsService) {}
+  constructor(private readonly natsService: NatsService) { }
 
   /**
    * Called when user connects to NATS websocket
@@ -24,7 +25,7 @@ export class UserTrackingService {
       );
       this.logger.debug(`Current status for ${userId}: '${currentStatus}'`);
 
-      // Always update to online and broadcast
+      // Always update to online and broadcasts
       // Don't skip even if already 'online' - user may have reconnected
       this.logger.log(`Updating ${userId} status to 'online'...`);
       await this.natsService.updateUserStatus(roomId, userId, 'online');
@@ -37,11 +38,13 @@ export class UserTrackingService {
         this.logger.warn(`User info not found for ${userId} after join`);
         return;
       }
-      this.logger.debug(`User info fetched: ${JSON.stringify(userInfo)}`);
+      // 4. Construct Response (Wrap in create to ensure it's a valid Message)
+      const userInfoMsg = create(NatsKvUserInfoSchema, userInfo);
+      this.logger.debug(`User info fetched: ${toJsonString(NatsKvUserInfoSchema, userInfoMsg)}`);
 
       // Broadcast USER_JOINED to all other users
       this.logger.log(`Broadcasting USER_JOINED for ${userId}...`);
-      await this.broadcastUserJoined(roomId, userId, userInfo);
+      await this.broadcastUserJoined(roomId, userId, userInfoMsg);
 
       this.logger.log(`Successfully processed user joined: ${userId}`);
     } catch (error) {
@@ -129,10 +132,11 @@ export class UserTrackingService {
       this.logger.log(
         `Broadcasting USER_JOINED for ${userId} in room ${roomId}`,
       );
+      const userInfoMsg = create(NatsKvUserInfoSchema, userInfo);
       await this.natsService.broadcastSystemEventToEveryoneExceptUserId(
         NatsMsgServerToClientEvents.USER_JOINED,
         roomId,
-        JSON.stringify(userInfo), // MUST be JSON string for NATS encoding
+        toJsonString(NatsKvUserInfoSchema, userInfoMsg), // MUST be JSON string for NATS encoding
         userId,
       );
       this.logger.log(`Successfully broadcasted USER_JOINED for ${userId}`);
@@ -148,10 +152,17 @@ export class UserTrackingService {
   ) {
     try {
       this.logger.log(`Broadcasting USER_DISCONNECTED for ${userId}`);
+      let payload = JSON.stringify({ userId, roomId });
+      if (userInfo) {
+        // Create a valid Message instance if userInfo is a plain object
+        const userInfoMsg = create(NatsKvUserInfoSchema, userInfo);
+        payload = toJsonString(NatsKvUserInfoSchema, userInfoMsg);
+      }
+
       await this.natsService.broadcastSystemEventToEveryoneExceptUserId(
         NatsMsgServerToClientEvents.USER_DISCONNECTED,
         roomId,
-        JSON.stringify(userInfo || { userId, roomId }),
+        payload,
         userId,
       );
     } catch (error) {
@@ -168,10 +179,17 @@ export class UserTrackingService {
   ) {
     try {
       this.logger.log(`Broadcasting USER_OFFLINE for ${userId}`);
+      let payload = JSON.stringify({ userId });
+      if (userInfo) {
+        // Create a valid Message instance if userInfo is a plain object
+        const userInfoMsg = create(NatsKvUserInfoSchema, userInfo);
+        payload = toJsonString(NatsKvUserInfoSchema, userInfoMsg);
+      }
+
       await this.natsService.broadcastSystemEventToEveryoneExceptUserId(
         NatsMsgServerToClientEvents.USER_OFFLINE,
         roomId,
-        JSON.stringify(userInfo || { userId }),
+        payload,
         userId,
       );
     } catch (error) {

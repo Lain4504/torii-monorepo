@@ -23,7 +23,9 @@ import {
 import {
   NatsMsgServerToClient,
   NatsMsgServerToClientEvents,
+  NatsMsgServerToClientSchema,
 } from '@workspace/protocol';
+import { create, toBinary } from '@bufbuild/protobuf';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
@@ -196,14 +198,14 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     const bucket = `wajlc-roomInfo-${roomId}`;
     const kv = await this.js.views.kv(bucket);
     const roomInfo: any = {
-      dbTableId: 0,
+      dbTableId: 0n,
       roomId: '',
       roomSid: '',
-      status: '', // Enum as string or number? Proto says string status, but logic used parse int? Checking proto again.. proto says string status.
-      emptyTimeout: 0,
-      maxParticipants: 0,
+      status: '',
+      emptyTimeout: 0n,
+      maxParticipants: 0n,
       metadata: '{}',
-      createdAt: 0,
+      createdAt: 0n,
     };
 
     try {
@@ -216,22 +218,19 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     } catch (e) { }
     try {
       const e = await kv.get('status');
-      // Helper previously parsedInt, but proto def shows `status: string`.
-      // Checking simple grep output line 780: message.status = reader.string();
-      // So it should be string.
       if (e) roomInfo.status = this.sc.decode(e.value);
     } catch (e) { }
     try {
       const e = await kv.get('empty_timeout');
-      if (e) roomInfo.emptyTimeout = parseInt(this.sc.decode(e.value));
+      if (e) roomInfo.emptyTimeout = BigInt(this.sc.decode(e.value));
     } catch (e) { }
     try {
       const e = await kv.get('max_participants');
-      if (e) roomInfo.maxParticipants = parseInt(this.sc.decode(e.value));
+      if (e) roomInfo.maxParticipants = BigInt(this.sc.decode(e.value));
     } catch (e) { }
     try {
       const e = await kv.get('created');
-      if (e) roomInfo.createdAt = parseInt(this.sc.decode(e.value));
+      if (e) roomInfo.createdAt = BigInt(this.sc.decode(e.value));
     } catch (e) { }
     try {
       const e = await kv.get('metadata');
@@ -255,9 +254,9 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
       isAdmin: false,
       isPresenter: false,
       metadata: '{}',
-      joinedAt: 0,
-      reconnectedAt: 0,
-      disconnectedAt: 0,
+      joinedAt: 0n,
+      reconnectedAt: 0n,
+      disconnectedAt: 0n,
     };
 
     try {
@@ -285,7 +284,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     } catch (e) { }
     try {
       const e = await kv.get('joined_at');
-      if (e) userInfo.joinedAt = parseInt(this.sc.decode(e.value));
+      if (e) userInfo.joinedAt = BigInt(this.sc.decode(e.value));
     } catch (e) { }
 
     return userInfo;
@@ -400,19 +399,19 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
   ) {
     let message: Uint8Array;
     if (typeof msg === 'string') {
-      const payload: NatsMsgServerToClient = {
+      const payload = create(NatsMsgServerToClientSchema, {
         id: this.uid.newId(),
         event: event,
         msg: msg,
-      };
-      message = NatsMsgServerToClient.encode(payload).finish();
+      });
+      message = toBinary(NatsMsgServerToClientSchema, payload);
     } else {
-      const payload: NatsMsgServerToClient = {
+      const payload = create(NatsMsgServerToClientSchema, {
         id: this.uid.newId(),
         event: event,
         msg: this.sc.decode(msg),
-      };
-      message = NatsMsgServerToClient.encode(payload).finish();
+      });
+      message = toBinary(NatsMsgServerToClientSchema, payload);
     }
 
     let subj = `${roomId}:sysPublic.system`;

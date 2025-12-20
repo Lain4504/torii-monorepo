@@ -2,13 +2,19 @@ import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NatsService } from '@server/shared';
 import {
-    NatsMsgClientToServer,
-    NatsMsgClientToServerEvents,
-    NatsMsgServerToClientEvents,
-    NatsInitialData,
-    MediaServerConnInfo,
-    NatsMsgServerToClient,
+  NatsMsgClientToServer,
+  NatsMsgClientToServerEvents,
+  NatsMsgServerToClientEvents,
+  NatsInitialData,
+  MediaServerConnInfo,
+  NatsMsgServerToClient,
+  NatsMsgClientToServerSchema,
+  NatsInitialDataSchema,
+  MediaServerConnInfoSchema,
+  NatsKvUserInfoSchema,
+  NatsUserMetadataUpdateSchema,
 } from '@workspace/protocol';
+import { create, fromBinary, toJsonString, toJson } from '@bufbuild/protobuf';
 import { AccessToken } from 'livekit-server-sdk';
 import { StringCodec } from 'nats';
 import { RoomUtils } from '../../room-service/src/room/room.utils';
@@ -21,7 +27,7 @@ export class SystemWorkerService implements OnModuleInit {
   constructor(
     private readonly natsService: NatsService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   async onModuleInit() {
     this.subscribeToSystemWorker().catch((err) =>
@@ -46,7 +52,7 @@ export class SystemWorkerService implements OnModuleInit {
         const roomId = parts[1];
         const userId = parts[2];
 
-        const req = NatsMsgClientToServer.decode(data);
+        const req = fromBinary(NatsMsgClientToServerSchema, data);
         await this.handleClientRequest(roomId, userId, req);
       } catch (e) {
         this.logger.error('Error handling system worker message', e);
@@ -121,11 +127,11 @@ export class SystemWorkerService implements OnModuleInit {
     const mediaServerInfo = undefined;
 
     // 4. Construct Response
-    const initialData: NatsInitialData = {
+    const initialData = create(NatsInitialDataSchema, {
       room: roomInfo,
       localUser: userInfo,
       mediaServerInfo: mediaServerInfo,
-    };
+    });
 
     // 5. Send Response
     // Use broadcastSystemEvent with specific event type
@@ -133,7 +139,7 @@ export class SystemWorkerService implements OnModuleInit {
     await this.natsService.broadcastSystemEvent(
       NatsMsgServerToClientEvents.RES_INITIAL_DATA,
       roomId,
-      JSON.stringify(initialData),
+      toJsonString(NatsInitialDataSchema, initialData),
       userId,
     );
 
@@ -146,7 +152,8 @@ export class SystemWorkerService implements OnModuleInit {
     );
 
     const userInfo = await this.natsService.getUserInfo(roomId, userId);
-    this.logger.debug(`Fetch UserInfo from NATS: ${JSON.stringify(userInfo)}`);
+    const userInfoMsg = create(NatsKvUserInfoSchema, userInfo);
+    this.logger.debug(`Fetch UserInfo from NATS: ${toJsonString(NatsKvUserInfoSchema, userInfoMsg)}`);
 
     if (!userInfo || !userInfo.userId) {
       this.logger.error(`User info not found for ${userId} in room ${roomId}`);
@@ -169,7 +176,7 @@ export class SystemWorkerService implements OnModuleInit {
     await this.natsService.broadcastSystemEvent(
       NatsMsgServerToClientEvents.RES_MEDIA_SERVER_DATA,
       roomId,
-      JSON.stringify(mediaServerInfo),
+      toJsonString(MediaServerConnInfoSchema, mediaServerInfo),
       userId,
     );
     this.logger.debug(`Sent RES_MEDIA_SERVER_DATA to ${userId}`);
@@ -199,7 +206,12 @@ export class SystemWorkerService implements OnModuleInit {
       }
 
       // Convert to JSON array format that client expects
-      const usersListJson = JSON.stringify(usersList);
+      // We must Convert each user object to a Proto Message then to JSON (which handles BigInt as string)
+      const usersListSafe = usersList.map((u) => {
+        const msg = create(NatsKvUserInfoSchema, u);
+        return toJson(NatsKvUserInfoSchema, msg);
+      });
+      const usersListJson = JSON.stringify(usersListSafe);
 
       await this.natsService.broadcastSystemEvent(
         NatsMsgServerToClientEvents.RES_JOINED_USERS_LIST,
@@ -243,14 +255,15 @@ export class SystemWorkerService implements OnModuleInit {
       );
 
       // Broadcast metadata update to all users (matching protobuf schema)
-      const metadataUpdate = {
-        user_id: userId,
+      // Broadcast metadata update to all users (matching protobuf schema)
+      const metadataUpdate = create(NatsUserMetadataUpdateSchema, {
+        userId: userId,
         metadata: metadataJson,
-      };
+      });
       await this.natsService.broadcastSystemEvent(
         NatsMsgServerToClientEvents.USER_METADATA_UPDATE,
         roomId,
-        JSON.stringify(metadataUpdate),
+        toJsonString(NatsUserMetadataUpdateSchema, metadataUpdate),
         undefined, // Send to all users
       );
 
@@ -297,14 +310,15 @@ export class SystemWorkerService implements OnModuleInit {
       );
 
       // Broadcast metadata update to all users (matching protobuf schema)
-      const metadataUpdate = {
-        user_id: userId,
+      // Broadcast metadata update to all users (matching protobuf schema)
+      const metadataUpdate = create(NatsUserMetadataUpdateSchema, {
+        userId: userId,
         metadata: metadataJson,
-      };
+      });
       await this.natsService.broadcastSystemEvent(
         NatsMsgServerToClientEvents.USER_METADATA_UPDATE,
         roomId,
-        JSON.stringify(metadataUpdate),
+        toJsonString(NatsUserMetadataUpdateSchema, metadataUpdate),
         undefined,
       );
 
@@ -359,10 +373,10 @@ export class SystemWorkerService implements OnModuleInit {
 
     const token = await at.toJwt();
 
-    return {
+    return create(MediaServerConnInfoSchema, {
       url: livekitHost,
       token: token,
       enabledE2ee: false,
-    };
+    });
   }
 }

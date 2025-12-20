@@ -24,7 +24,32 @@ import {
   LtiCustomParameters,
   LtiCustomDesign,
   CommonResponse,
+  // Schema imports
+  ActiveRoomInfoSchema,
+  CopyrightConfSchema,
+  RecordingFeaturesSchema,
+  SharedNotePadFeaturesSchema,
+  WhiteboardFeaturesSchema,
+  ExternalMediaPlayerFeaturesSchema,
+  WaitingRoomFeaturesSchema,
+  BreakoutRoomFeaturesSchema,
+  DisplayExternalLinkFeaturesSchema,
+  IngressFeaturesSchema,
+  PollsFeaturesSchema,
+  LockSettingsSchema,
+  LtiCustomDesignSchema,
+  CreateRoomReqSchema,
+  RoomCreateFeaturesSchema,
+  RoomMetadataSchema,
+  ChatFeaturesSchema,
+  NotifyEventRoomSchema,
+  LtiCustomParametersSchema,
+  CommonNotifyEventSchema,
+  SpeechToTextTranslationFeaturesSchema,
+  EndToEndEncryptionFeaturesSchema,
+  InsightsFeaturesSchema,
 } from "@workspace/protocol";
+import { create } from '@bufbuild/protobuf';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -49,20 +74,20 @@ export class RoomUtils {
     },
     meta: RoomMetadata,
   ): ActiveRoomInfo {
-    return {
+    return create(ActiveRoomInfoSchema, {
       roomTitle: room.roomTitle,
       roomId: room.roomId,
       sid: room.sid,
-      joinedParticipants: 0, // Initial creation
+      joinedParticipants: '0', // Initial creation
       isRunning: 1, // active
       isRecording: meta.isRecording ? 1 : 0,
       isActiveRtmp: meta.isActiveRtmp ? 1 : 0,
       webhookUrl: room.webhookUrl || '',
       isBreakoutRoom: meta.isBreakoutRoom ? 1 : 0,
       parentRoomId: meta.parentRoomId,
-      creationTime: room.creationTime,
+      creationTime: room.creationTime.toString(),
       metadata: room.metadata,
-    };
+    });
   }
 
   public static getSnakeCaseNatsKvRoomInfo(
@@ -103,20 +128,20 @@ export class RoomUtils {
 
     // 4. Copyright Logic
     const copyrightConf = config.copyrightConf;
-    const defaultCopyright = {
+    const defaultCopyright = create(CopyrightConfSchema, {
       display: true,
       text: 'Powered by Mirai Magic</a>',
-    };
+    });
 
     if (!copyrightConf) {
       if (!r.metadata.copyrightConf) {
         r.metadata.copyrightConf = defaultCopyright;
       }
     } else {
-      const d = {
+      const d = create(CopyrightConfSchema, {
         display: copyrightConf.display,
         text: copyrightConf.text,
-      };
+      });
       // If override not allowed, enforce server config
       if (r.metadata.copyrightConf && !copyrightConf.allowOverride) {
         r.metadata.copyrightConf = d;
@@ -165,14 +190,14 @@ export class RoomUtils {
   }
 
   private static createDefaultMetadata(roomId: string): RoomMetadata {
-    return {
+    return create(RoomMetadataSchema, {
       roomTitle: roomId,
       isRecording: false,
       isActiveRtmp: false,
       parentRoomId: '',
       isBreakoutRoom: false,
-      startedAt: 0,
-      roomFeatures: {
+      startedAt: '0',
+      roomFeatures: create(RoomCreateFeaturesSchema, {
         allowWebcams: true,
         muteOnStart: false,
         allowScreenShare: true,
@@ -183,20 +208,20 @@ export class RoomUtils {
         enableAnalytics: true,
         allowVirtualBg: true,
         allowRaiseHand: true,
-        recordingFeatures: {
+        recordingFeatures: create(RecordingFeaturesSchema, {
           isAllow: true,
           isAllowCloud: true,
           isAllowLocal: true,
           enableAutoCloudRecording: false,
           onlyRecordAdminWebcams: false,
-        },
-        chatFeatures: {
+        }),
+        chatFeatures: create(ChatFeaturesSchema, {
           isAllow: true,
           isAllowFileUpload: true,
           allowedFileTypes: ['jpg', 'jpeg', 'png', 'zip', 'pdf'],
-          maxFileSize: 10 * 1024 * 1024,
-        },
-        sharedNotePadFeatures: {
+          maxFileSize: (10 * 1024 * 1024).toString(),
+        }),
+        sharedNotePadFeatures: create(SharedNotePadFeaturesSchema, {
           isAllow: true,
           isActive: false,
           visible: false,
@@ -204,34 +229,34 @@ export class RoomUtils {
           host: '',
           notePadId: '',
           readOnlyPadId: '',
-        },
-        whiteboardFeatures: {
+        }),
+        whiteboardFeatures: create(WhiteboardFeaturesSchema, {
           isAllow: true,
           visible: false,
           whiteboardFileId: '',
           fileName: '',
           filePath: '',
           totalPages: 0,
-        },
-        externalMediaPlayerFeatures: { isAllow: true, isActive: false },
-        waitingRoomFeatures: { isActive: false, waitingRoomMsg: '' },
-        breakoutRoomFeatures: {
+        }),
+        externalMediaPlayerFeatures: create(ExternalMediaPlayerFeaturesSchema, { isAllow: true, isActive: false }),
+        waitingRoomFeatures: create(WaitingRoomFeaturesSchema, { isActive: false, waitingRoomMsg: '' }),
+        breakoutRoomFeatures: create(BreakoutRoomFeaturesSchema, {
           isAllow: true,
           isActive: false,
           allowedNumberRooms: 6,
-        },
-        displayExternalLinkFeatures: { isAllow: true, isActive: false },
-        ingressFeatures: {
+        }),
+        displayExternalLinkFeatures: create(DisplayExternalLinkFeaturesSchema, { isAllow: true, isActive: false }),
+        ingressFeatures: create(IngressFeaturesSchema, {
           isAllow: true,
           inputType: 0,
           url: '',
           streamKey: '',
-        },
-        pollsFeatures: { isAllow: true, isActive: false },
+        }),
+        pollsFeatures: create(PollsFeaturesSchema, { isAllow: true, isActive: false }),
         // ... insights default undefined
-      },
+      }),
       extraData: {},
-    } as RoomMetadata;
+    });
   }
 
   private static prepareDefaultRoomFeatures(r: CreateRoomReq) {
@@ -252,22 +277,22 @@ export class RoomUtils {
 
     // Initializing sub-features if missing
     if (!f.recordingFeatures)
-      f.recordingFeatures = {
+      f.recordingFeatures = create(RecordingFeaturesSchema, {
         isAllow: true,
         isAllowCloud: true,
         isAllowLocal: true,
         enableAutoCloudRecording: false,
         onlyRecordAdminWebcams: false,
-      };
+      });
     if (!f.chatFeatures)
-      f.chatFeatures = {
+      f.chatFeatures = create(ChatFeaturesSchema, {
         isAllow: true,
         isAllowFileUpload: true,
         allowedFileTypes: [],
-        maxFileSize: 0,
-      };
+        maxFileSize: '0',
+      });
     if (!f.sharedNotePadFeatures)
-      f.sharedNotePadFeatures = {
+      f.sharedNotePadFeatures = create(SharedNotePadFeaturesSchema, {
         isAllow: true,
         isActive: false,
         visible: false,
@@ -275,36 +300,36 @@ export class RoomUtils {
         host: '',
         notePadId: '',
         readOnlyPadId: '',
-      };
+      });
     if (!f.whiteboardFeatures)
-      f.whiteboardFeatures = {
+      f.whiteboardFeatures = create(WhiteboardFeaturesSchema, {
         isAllow: true,
         visible: false,
         whiteboardFileId: '',
         fileName: '',
         filePath: '',
         totalPages: 0,
-      };
+      });
     if (!f.externalMediaPlayerFeatures)
-      f.externalMediaPlayerFeatures = { isAllow: true, isActive: false };
+      f.externalMediaPlayerFeatures = create(ExternalMediaPlayerFeaturesSchema, { isAllow: true, isActive: false });
     if (!f.waitingRoomFeatures)
-      f.waitingRoomFeatures = { isActive: false, waitingRoomMsg: '' };
+      f.waitingRoomFeatures = create(WaitingRoomFeaturesSchema, { isActive: false, waitingRoomMsg: '' });
     if (!f.breakoutRoomFeatures)
-      f.breakoutRoomFeatures = {
+      f.breakoutRoomFeatures = create(BreakoutRoomFeaturesSchema, {
         isAllow: true,
         isActive: false,
         allowedNumberRooms: 6,
-      };
+      });
     if (!f.displayExternalLinkFeatures)
-      f.displayExternalLinkFeatures = { isAllow: true, isActive: false };
+      f.displayExternalLinkFeatures = create(DisplayExternalLinkFeaturesSchema, { isAllow: true, isActive: false });
     if (!f.ingressFeatures)
-      f.ingressFeatures = {
+      f.ingressFeatures = create(IngressFeaturesSchema, {
         isAllow: true,
         inputType: 0,
         url: '',
         streamKey: '',
-      };
-    if (!f.pollsFeatures) f.pollsFeatures = { isAllow: true, isActive: false };
+      });
+    if (!f.pollsFeatures) f.pollsFeatures = create(PollsFeaturesSchema, { isAllow: true, isActive: false });
   }
 
   private static setCreateRoomDefaultValues(r: CreateRoomReq) {
@@ -322,7 +347,7 @@ export class RoomUtils {
         ];
       }
       if (!f.chatFeatures.maxFileSize) {
-        f.chatFeatures.maxFileSize = 0; // 0 = unlimited or handled by logic
+        f.chatFeatures.maxFileSize = '0'; // 0 = unlimited or handled by logic
       }
     }
 
@@ -331,7 +356,7 @@ export class RoomUtils {
       f.whiteboardFeatures?.isAllow &&
       !f.whiteboardFeatures.maxAllowedFileSize
     ) {
-      f.whiteboardFeatures.maxAllowedFileSize = 30; // Default 30MB
+      f.whiteboardFeatures.maxAllowedFileSize = '30'; // Default 30MB
     }
 
     // Encryption key gen
@@ -364,13 +389,13 @@ export class RoomUtils {
     if (s.maxDuration && s.maxDuration > 0) {
       if (r.metadata?.roomFeatures?.roomDuration) {
         if (
-          r.metadata.roomFeatures.roomDuration === 0 ||
-          r.metadata.roomFeatures.roomDuration > s.maxDuration
+          r.metadata.roomFeatures.roomDuration === '0' ||
+          Number(r.metadata.roomFeatures.roomDuration) > s.maxDuration
         ) {
-          r.metadata.roomFeatures.roomDuration = s.maxDuration;
+          r.metadata.roomFeatures.roomDuration = s.maxDuration.toString();
         }
       } else if (r.metadata?.roomFeatures) {
-        r.metadata.roomFeatures.roomDuration = s.maxDuration;
+        r.metadata.roomFeatures.roomDuration = s.maxDuration.toString();
       }
     }
 
@@ -407,9 +432,9 @@ export class RoomUtils {
   // Simplifying assuming input is any matching the structure for now or generic map.
   public static prepareCommonWebhookNotifyEvent(event: any): CommonNotifyEvent {
     const room = event.room;
-    return {
+    return create(CommonNotifyEventSchema, {
       event: event.event,
-      room: {
+      room: create(NotifyEventRoomSchema, {
         sid: room?.sid,
         roomId: room?.name,
         emptyTimeout: room?.emptyTimeout,
@@ -418,12 +443,12 @@ export class RoomUtils {
         enabledCodecs: room?.enabledCodecs || [],
         metadata: room?.metadata,
         numParticipants: room?.numParticipants,
-      } as NotifyEventRoom,
+      }),
       participant: event.participant,
       track: event.track,
       id: event.id,
       createdAt: event.createdAt,
-    };
+    });
   }
 
   // --- GetFilesFromDir ---
@@ -463,10 +488,8 @@ export class RoomUtils {
     params: URLSearchParams,
     claims: LtiClaims,
   ) {
-    const customPara: LtiCustomParameters = {
-      roomDuration: params.get('custom_room_duration')
-        ? parseInt(params.get('custom_room_duration')!)
-        : undefined,
+    const customPara = create(LtiCustomParametersSchema, {
+      roomDuration: params.get('custom_room_duration') || undefined,
       allowPolls:
         params.get('custom_allow_polls') === 'false' ? false : undefined,
       allowSharedNotePad:
@@ -492,15 +515,16 @@ export class RoomUtils {
       muteOnStart:
         params.get('custom_mute_on_start') === 'true' ? true : undefined,
       ltiCustomDesign: undefined, // Fix missing property
-    };
+    });
 
     // Custom Design
-    const customDesign: LtiCustomDesign = {
+    // Custom Design
+    const customDesign = create(LtiCustomDesignSchema, {
       primaryColor: params.get('custom_primary_color') || undefined,
       secondaryColor: params.get('custom_secondary_color') || undefined,
       backgroundColor: params.get('custom_background_color') || undefined,
       customLogo: params.get('custom_custom_logo') || undefined,
-    };
+    });
 
     // Assign only if not empty logic could be added but explicit undefined is fine for Proto helpers often
     claims.ltiCustomParameters = customPara;
@@ -510,11 +534,11 @@ export class RoomUtils {
   }
 
   public static prepareLTIV1RoomCreateReq(c: LtiClaims): CreateRoomReq {
-    const req: CreateRoomReq = {
+    const req = create(CreateRoomReqSchema, {
       roomId: c.roomId,
-      metadata: {
+      metadata: create(RoomMetadataSchema, {
         roomTitle: c.roomTitle,
-        roomFeatures: {
+        roomFeatures: create(RoomCreateFeaturesSchema, {
           allowWebcams: true,
           allowScreenShare: true,
           allowRtmp: true,
@@ -526,27 +550,27 @@ export class RoomUtils {
           allowVirtualBg: true, // Added default
           allowRaiseHand: true, // Added default
           autoGenUserId: false, // Added default
-          waitingRoomFeatures: { isActive: false, waitingRoomMsg: '' }, // Added default
-          ingressFeatures: {
+          waitingRoomFeatures: create(WaitingRoomFeaturesSchema, { isActive: false, waitingRoomMsg: '' }), // Added default
+          ingressFeatures: create(IngressFeaturesSchema, {
             isAllow: true,
             inputType: 0,
             url: '',
             streamKey: '',
-          }, // Added default
-          recordingFeatures: {
+          }), // Added default
+          recordingFeatures: create(RecordingFeaturesSchema, {
             isAllow: true,
             isAllowCloud: true,
             isAllowLocal: true,
             enableAutoCloudRecording: false,
             onlyRecordAdminWebcams: false,
-          },
-          chatFeatures: {
+          }),
+          chatFeatures: create(ChatFeaturesSchema, {
             isAllow: true,
             isAllowFileUpload: true,
             allowedFileTypes: [],
-            maxFileSize: 0,
-          },
-          sharedNotePadFeatures: {
+            maxFileSize: '0',
+          }),
+          sharedNotePadFeatures: create(SharedNotePadFeaturesSchema, {
             isAllow: true,
             isActive: false,
             visible: false,
@@ -554,29 +578,29 @@ export class RoomUtils {
             host: '',
             notePadId: '',
             readOnlyPadId: '',
-          },
-          whiteboardFeatures: {
+          }),
+          whiteboardFeatures: create(WhiteboardFeaturesSchema, {
             isAllow: true,
             visible: false,
             whiteboardFileId: '',
             fileName: '',
             filePath: '',
             totalPages: 0,
-          },
-          externalMediaPlayerFeatures: { isAllow: true, isActive: false },
-          breakoutRoomFeatures: {
+          }),
+          externalMediaPlayerFeatures: create(ExternalMediaPlayerFeaturesSchema, { isAllow: true, isActive: false }),
+          breakoutRoomFeatures: create(BreakoutRoomFeaturesSchema, {
             isAllow: true,
             isActive: false,
             allowedNumberRooms: 6,
-          },
-          displayExternalLinkFeatures: {
+          }),
+          displayExternalLinkFeatures: create(DisplayExternalLinkFeaturesSchema, {
             isAllow: true,
             isActive: false,
             link: '',
             sharedBy: '',
-          },
-          pollsFeatures: { isAllow: true, isActive: false },
-          speechToTextTranslationFeatures: {
+          }),
+          pollsFeatures: create(PollsFeaturesSchema, { isAllow: true, isActive: false }),
+          speechToTextTranslationFeatures: create(SpeechToTextTranslationFeaturesSchema, {
             isAllow: false,
             isAllowTranslation: false,
             isEnabled: false,
@@ -586,31 +610,31 @@ export class RoomUtils {
             allowedSpeechUsers: [],
             allowedTransLangs: [],
             defaultSubtitleLang: '',
-          }, // Added defaults
-          endToEndEncryptionFeatures: {
+          }), // Added defaults
+          endToEndEncryptionFeatures: create(EndToEndEncryptionFeaturesSchema, {
             isEnabled: false,
             includedChatMessages: false,
             includedWhiteboard: false,
             enabledSelfInsertEncryptionKey: false,
             encryptionKey: '',
-          }, // Added defaults
-          insightsFeatures: {
+          }), // Added defaults
+          insightsFeatures: create(InsightsFeaturesSchema, {
             isAllow: false,
             transcriptionFeatures: undefined,
             chatTranslationFeatures: undefined,
             aiFeatures: undefined,
-          },
+          }),
           // Initialize others as needed or rely on Defaults method later
-        } as RoomCreateFeatures,
-      } as RoomMetadata,
-    };
+        }),
+      }),
+    });
 
     // Apply Custom Params if present
     if (c.ltiCustomParameters) {
       const p = c.ltiCustomParameters;
       const f = req.metadata!.roomFeatures!;
 
-      if (p.roomDuration && p.roomDuration > 0) f.roomDuration = p.roomDuration;
+      if (p.roomDuration && Number(p.roomDuration) > 0) f.roomDuration = p.roomDuration;
       if (p.muteOnStart !== undefined) f.muteOnStart = p.muteOnStart;
       if (p.allowSharedNotePad !== undefined && f.sharedNotePadFeatures)
         f.sharedNotePadFeatures.isAllow = p.allowSharedNotePad;
@@ -632,7 +656,7 @@ export class RoomUtils {
 
   private static setRoomDefaultLockSettings(r: CreateRoomReq) {
     if (!r.metadata!.defaultLockSettings) {
-      r.metadata!.defaultLockSettings = {
+      r.metadata!.defaultLockSettings = create(LockSettingsSchema, {
         lockMicrophone: false,
         lockWebcam: false,
         lockScreenSharing: false,
@@ -642,7 +666,7 @@ export class RoomUtils {
         lockPrivateChat: false,
         lockWhiteboard: false,
         lockSharedNotepad: false,
-      };
+      });
     }
   }
 
@@ -904,19 +928,19 @@ export class RoomUtils {
       is_allow: f.isAllow,
       ai_text_chat_features: f.aiTextChatFeatures
         ? {
-            is_allow: f.aiTextChatFeatures.isAllow,
-            is_enabled: f.aiTextChatFeatures.isEnabled,
-            is_allowed_everyone: f.aiTextChatFeatures.isAllowedEveryone,
-            allowed_user_ids: f.aiTextChatFeatures.allowedUserIds,
-          }
+          is_allow: f.aiTextChatFeatures.isAllow,
+          is_enabled: f.aiTextChatFeatures.isEnabled,
+          is_allowed_everyone: f.aiTextChatFeatures.isAllowedEveryone,
+          allowed_user_ids: f.aiTextChatFeatures.allowedUserIds,
+        }
         : undefined,
       meeting_summarization_features: f.meetingSummarizationFeatures
         ? {
-            is_allow: f.meetingSummarizationFeatures.isAllow,
-            summarization_prompt:
-              f.meetingSummarizationFeatures.summarizationPrompt,
-            is_enabled: f.meetingSummarizationFeatures.isEnabled,
-          }
+          is_allow: f.meetingSummarizationFeatures.isAllow,
+          summarization_prompt:
+            f.meetingSummarizationFeatures.summarizationPrompt,
+          is_enabled: f.meetingSummarizationFeatures.isEnabled,
+        }
         : undefined,
     };
   }
@@ -1211,19 +1235,19 @@ export class RoomUtils {
       isAllow: f.is_allow,
       aiTextChatFeatures: f.ai_text_chat_features
         ? {
-            isAllow: f.ai_text_chat_features.is_allow,
-            isEnabled: f.ai_text_chat_features.is_enabled,
-            isAllowedEveryone: f.ai_text_chat_features.is_allowed_everyone,
-            allowedUserIds: f.ai_text_chat_features.allowed_user_ids,
-          }
+          isAllow: f.ai_text_chat_features.is_allow,
+          isEnabled: f.ai_text_chat_features.is_enabled,
+          isAllowedEveryone: f.ai_text_chat_features.is_allowed_everyone,
+          allowedUserIds: f.ai_text_chat_features.allowed_user_ids,
+        }
         : undefined,
       meetingSummarizationFeatures: f.meeting_summarization_features
         ? {
-            isAllow: f.meeting_summarization_features.is_allow,
-            summarizationPrompt:
-              f.meeting_summarization_features.summarization_prompt,
-            isEnabled: f.meeting_summarization_features.is_enabled,
-          }
+          isAllow: f.meeting_summarization_features.is_allow,
+          summarizationPrompt:
+            f.meeting_summarization_features.summarization_prompt,
+          isEnabled: f.meeting_summarization_features.is_enabled,
+        }
         : undefined,
     };
   }
