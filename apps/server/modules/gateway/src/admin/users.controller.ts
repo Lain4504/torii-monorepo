@@ -15,6 +15,7 @@ export class UsersController {
     @ApiOperation({ summary: 'Get all users' })
     @ApiResponse({ status: 200, description: 'Return all users' })
     async findAll(
+
         @Query('page') page: number = 1,
         @Query('limit') limit: number = 10,
         @Query('search') search: string = '',

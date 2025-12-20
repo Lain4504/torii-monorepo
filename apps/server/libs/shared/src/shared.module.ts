@@ -10,6 +10,12 @@ import { NatsService } from './nats/nats.service';
 @Module({
   imports: [ConfigModule],
   providers: [PrismaService, LiveKitService, RedisService, NatsService],
-  exports: [PrismaService, LiveKitService, RedisService, NatsService, ConfigModule],
+  exports: [
+    PrismaService,
+    LiveKitService,
+    RedisService,
+    NatsService,
+    ConfigModule,
+  ],
 })
-export class SharedModule { }
+export class SharedModule {}

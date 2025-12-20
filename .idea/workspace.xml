@@ -4,7 +4,21 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="revert" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add buf configuration and generated protobuf files for integration">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/interceptors/protobuf.interceptor.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/interceptors/protobuf.interceptor.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/nats/nats.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/nats/nats.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/room/polls.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/room/polls.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/room/recording.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/room/recording.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/room/room.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/room/room.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/system-worker.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/system-worker.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/breakout-room.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/breakout-room.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/room.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/room.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/room.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/room.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/room.utils.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/room.utils.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/protocol/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/package.json" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -61,37 +75,37 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
-    "JavaScript Debug.localhost:5173.executor": "Debug",
-    "Jest.AuthServiceController (1).executor": "Run",
-    "Jest.AuthServiceController.executor": "Run",
-    "Jest.GatewayController.executor": "Run",
-    "Jest.GatewayController.pingAuth.executor": "Run",
-    "Jest.server > auth-service.controller.spec.ts.executor": "Run",
-    "Jest.server > gateway.controller.spec.ts.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "bazel.project.detector.is.bazel.project": "true",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "#11 on admin-UI",
-    "ignore.virus.scanning.warn.message": "true",
-    "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "E:/demo/team-source/torii-monorepo/apps/server",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.standard": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.standard": "",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs.jest.jest_package": "E:/Ky9/apps/server/node_modules/jest",
-    "nodejs_package_manager_path": "pnpm",
-    "settings.editor.selected.configurable": "settings.javascript.linters.eslint",
-    "ts.external.directory.path": "E:\\Ky9\\node_modules\\typescript\\lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Docker.docker-compose.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
+    &quot;JavaScript Debug.localhost:5173.executor&quot;: &quot;Debug&quot;,
+    &quot;Jest.AuthServiceController (1).executor&quot;: &quot;Run&quot;,
+    &quot;Jest.AuthServiceController.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.GatewayController.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.GatewayController.pingAuth.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.server &gt; auth-service.controller.spec.ts.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.server &gt; gateway.controller.spec.ts.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;bazel.project.detector.is.bazel.project&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;#7 on event-meet-handler&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;E:/demo/team-source/torii-monorepo/apps/server&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.standard&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.standard&quot;: &quot;&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs.jest.jest_package&quot;: &quot;E:/Ky9/apps/server/node_modules/jest&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;settings.javascript.linters.eslint&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;E:\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }]]></component>
   <component name="RecentsManager">
@@ -206,14 +220,9 @@
       <workItem from="1765820660014" duration="666000" />
       <workItem from="1765849677488" duration="719000" />
       <workItem from="1765855909748" duration="4405000" />
-    </task>
-    <task id="LOCAL-00074" summary="feat: create break room logic">
-      <option name="closed" value="true" />
-      <created>1765819809299</created>
-      <option name="number" value="00074" />
-      <option name="presentableId" value="LOCAL-00074" />
-      <option name="project" value="LOCAL" />
-      <updated>1765819809299</updated>
+      <workItem from="1766234169229" duration="360000" />
+      <workItem from="1766239733743" duration="3002000" />
+      <workItem from="1766242844280" duration="342000" />
     </task>
     <task id="LOCAL-00075" summary="fix: fix comment from copilot">
       <option name="closed" value="true" />
@@ -591,15 +600,23 @@
       <option name="project" value="LOCAL" />
       <updated>1766161982774</updated>
     </task>
-    <task id="LOCAL-00122" summary="revert">
+    <task id="LOCAL-00122" summary="fix: fix conflict code after rebase">
       <option name="closed" value="true" />
-      <created>1766243234998</created>
+      <created>1766234529320</created>
       <option name="number" value="00122" />
       <option name="presentableId" value="LOCAL-00122" />
       <option name="project" value="LOCAL" />
-      <updated>1766243234999</updated>
+      <updated>1766234529320</updated>
     </task>
-    <option name="localTasksCounter" value="123" />
+    <task id="LOCAL-00123" summary="feat: add buf configuration and generated protobuf files for integration">
+      <option name="closed" value="true" />
+      <created>1766238641182</created>
+      <option name="number" value="00123" />
+      <option name="presentableId" value="LOCAL-00123" />
+      <option name="project" value="LOCAL" />
+      <updated>1766238641182</updated>
+    </task>
+    <option name="localTasksCounter" value="124" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -627,7 +644,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="user-sync-supbase-auth" />
+                        <option value="event-meet-handler" />
                       </list>
                     </value>
                   </entry>
@@ -640,8 +657,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat(auth): auth logic with supabase&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml&#10;#&#9;apps/server/libs/shared/src/supabase/supabase.module.ts&#10;#&#9;apps/server/libs/shared/src/tcp-client.util.ts&#10;#&#9;apps/server/modules/auth-service/src/auth-service.module.ts&#10;#&#9;apps/server/modules/auth-service/src/auth-service.service.ts&#10;#&#9;apps/server/modules/gateway/src/auth/auth.controller.ts&#10;#&#9;apps/server/modules/gateway/src/auth/auth.module.ts&#10;#&#9;apps/server/modules/gateway/src/course/course.resolver.ts&#10;#&#9;apps/server/modules/gateway/src/course/course.schema.ts" />
-    <MESSAGE value="chore: remove unsused import&#10;&#10;Co-authored-by: Copilot &lt;175728472+Copilot@users.noreply.github.com&gt;" />
     <MESSAGE value="feat: add standard response + error response" />
     <MESSAGE value="refactor: update auth structure" />
     <MESSAGE value="chore: install dependencies" />
@@ -664,8 +679,10 @@
     <MESSAGE value="refactor(users): implement user management with proto" />
     <MESSAGE value="feat(flashcard): implement flashcard management with CRUD operations and protobuf definitions" />
     <MESSAGE value="feat: add microservices for assessment, payment, AI, and notification services" />
-    <MESSAGE value="revert" />
-    <option name="LAST_COMMIT_MESSAGE" value="revert" />
+    <MESSAGE value="feat: add microservices for assessment, payment, AI, and notification services&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml&#10;#&#9;README.md&#10;#&#9;apps/web-admin/src/api/users.ts&#10;#&#9;apps/web-admin/src/pages/UsersPage.tsx&#10;#&#9;apps/web-learner/package.json&#10;#&#9;pnpm-lock.yaml" />
+    <MESSAGE value="fix: fix conflict code after rebase" />
+    <MESSAGE value="feat: add buf configuration and generated protobuf files for integration" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: add buf configuration and generated protobuf files for integration" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

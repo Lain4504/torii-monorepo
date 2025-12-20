@@ -12,7 +12,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(RedisService.name);
   private client: Redis;
 
-  constructor(private readonly configService: ConfigService) { }
+  constructor(private readonly configService: ConfigService) {}
 
   onModuleInit() {
     const host = this.configService.get<string>('REDIS_HOST') || 'localhost';
@@ -74,13 +74,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     value: string,
     ttlSeconds: number,
   ): Promise<boolean> {
-    const result = await this.client.set(
-      key,
-      value,
-      'EX',
-      ttlSeconds,
-      'NX',
-    );
+    const result = await this.client.set(key, value, 'EX', ttlSeconds, 'NX');
     return result === 'OK';
   }
 

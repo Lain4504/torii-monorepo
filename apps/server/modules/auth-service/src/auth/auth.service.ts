@@ -7,7 +7,7 @@ export class AuthService {
   constructor(
     @Inject(SUPABASE_CLIENT) private readonly supabase: SupabaseClient,
     private readonly liveKitService: LiveKitService,
-  ) {}
+  ) { }
 
   ping() {
     return { service: 'auth', status: 'ok' };
@@ -68,6 +68,17 @@ export class AuthService {
       },
     );
     return { token };
+  }
+
+  async getClientFiles(data: any) {
+    return {
+      status: true,
+      msg: 'success',
+      css: [],
+      js: [],
+      css_files: [],
+      js_files: [],
+    };
   }
 }
 

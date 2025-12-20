@@ -21,12 +21,12 @@ import { Course, CreateCourseInput, UpdateCourseInput } from './course.schema';
 
 @ApiTags('courses')
 @ApiBearerAuth()
-@Controller('courses')
+@Controller('api/courses')
 export class CourseController {
   constructor(
     @Inject('COURSE_SERVICE')
     private readonly courseClient: ClientProxy,
-  ) {}
+  ) { }
 
   @Get()
   @ApiOperation({ summary: 'Get all courses' })

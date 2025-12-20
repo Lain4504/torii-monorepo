@@ -5,7 +5,7 @@ import { AuthService } from './auth.service';
 
 @Controller()
 export class AuthController {
-  constructor(private readonly authServiceService: AuthService) {}
+  constructor(private readonly authServiceService: AuthService) { }
 
   @MessagePattern({ cmd: 'auth.ping' })
   ping() {
@@ -42,6 +42,11 @@ export class AuthController {
     },
   ) {
     return this.authServiceService.createToken(payload);
+  }
+
+  @MessagePattern({ cmd: 'file.getClientFiles' })
+  getClientFiles(@Payload() data: any) {
+    return this.authServiceService.getClientFiles(data);
   }
 }
 

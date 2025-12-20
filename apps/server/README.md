@@ -402,10 +402,10 @@ apps/server/
 Server sử dụng NATS KV để lưu "hot" state (tránh query DB liên tục):
 
 ### **KV Buckets:**
-- `pnm-roomInfo-<roomId>`: Room metadata (status, participants count, etc.)
-- `pnm-userInfo-r_<roomId>-u_<userId>`: User info in room
-- `pnm-roomUsers-<roomId>`: List of online users
-- `pnm-breakoutRoom-<roomId>`: Breakout room metadata
+- `wajlc-roomInfo-<roomId>`: Room metadata (status, participants count, etc.)
+- `wajlc-userInfo-r_<roomId>-u_<userId>`: User info in room
+- `wajlc-roomUsers-<roomId>`: List of online users
+- `wajlc-breakoutRoom-<roomId>`: Breakout room metadata
 
 ### **Subjects:**
 - `chat`: System chat messages
@@ -490,7 +490,7 @@ choco install nats  # Windows
 nats kv ls
 
 # View bucket contents
-nats kv get pnm-roomInfo-<roomId>
+nats kv get wajlc-roomInfo-<roomId>
 ```
 
 ---

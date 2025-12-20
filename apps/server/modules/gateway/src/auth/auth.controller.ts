@@ -6,7 +6,7 @@ import { firstValueFrom } from 'rxjs';
 export class AuthController {
   constructor(
     @Inject('AUTH_SERVICE') private readonly authClient: ClientProxy,
-  ) {}
+  ) { }
 
   @Post('register')
   async register(@Body() body: any) {
@@ -21,6 +21,11 @@ export class AuthController {
   @Post('logout')
   async logout() {
     return firstValueFrom(this.authClient.send({ cmd: 'auth.signout' }, {}));
+  }
+
+  @Post('getClientFiles')
+  async getClientFiles(@Body() body: any) {
+    return firstValueFrom(this.authClient.send({ cmd: 'file.getClientFiles' }, body));
   }
 }
 
