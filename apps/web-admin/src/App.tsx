@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import DashboardLayout from './components/layout/DashboardLayout'
+import DashboardLayout from './components/layout/dashboard_layout'
 import DashboardPage from './pages/DashboardPage'
 import { UsersPage } from './page-components/UsersPage'
 import CoursesPage from './pages/CoursesPage'

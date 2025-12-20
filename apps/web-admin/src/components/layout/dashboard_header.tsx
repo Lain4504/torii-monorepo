@@ -1,5 +1,5 @@
 import React from "react"
-import { DashboardSidebar } from "./DashboardSidebar"
+import { DashboardSidebar } from "./dashboard_sidebar"
 import { Zap, Menu, User } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import {
