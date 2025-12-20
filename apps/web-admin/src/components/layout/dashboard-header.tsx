@@ -1,5 +1,4 @@
 import React from "react"
-import { DashboardSidebar } from "./DashboardSidebar"
 import { Zap, Menu, User } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -10,6 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
+import {DashboardSidebar} from "./dashboard-sidebar.tsx";
 
 export function DashboardHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
