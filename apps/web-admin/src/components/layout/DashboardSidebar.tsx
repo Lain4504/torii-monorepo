@@ -1,8 +1,5 @@
-"use client"
-
 import React from "react"
-import { usePathname } from "next/navigation"
-import Link from "next/link"
+import { useLocation, Link } from "react-router-dom"
 import {
   Home,
   Users,
@@ -109,7 +106,8 @@ const secondaryNavItems: NavItem[] = [
 ]
 
 export function DashboardSidebar() {
-  const pathname = usePathname()
+  const location = useLocation()
+  const pathname = location.pathname
   const [sidebarModeState, setSidebarModeState] = React.useState<'expanded' | 'collapsed' | 'hover'>('hover')
 
   React.useEffect(() => {
@@ -201,7 +199,7 @@ export function DashboardSidebar() {
                             pathname === item.url && "bg-accent"
                           )}
                         >
-                          <Link href={item.url}>
+                          <Link to={item.url}>
                             <item.icon className={cn(
                               "size-4",
                               sidebarModeState === 'expanded' && "mr-2",
@@ -273,7 +271,7 @@ export function DashboardSidebar() {
                           pathname === item.url && "bg-accent"
                         )}
                       >
-                        <Link href={item.url}>
+                        <Link to={item.url}>
                           <item.icon className={cn(
                             "size-4",
                             sidebarModeState === 'expanded' && "mr-2",
@@ -351,7 +349,7 @@ export function DashboardSidebar() {
                           pathname === item.url && "bg-accent"
                         )}
                       >
-                        <Link href={item.url}>
+                        <Link to={item.url}>
                           <item.icon className={cn(
                             "size-4",
                             sidebarModeState === 'expanded' && "mr-2",

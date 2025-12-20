@@ -1,15 +1,10 @@
-"use client"
-
 import React, { useState, useEffect } from "react"
+import { Outlet } from "react-router-dom"
 import { DashboardSidebar } from "./DashboardSidebar"
 import { DashboardHeader } from "./DashboardHeader"
 
 // Main layout component
-interface DashboardLayoutProps {
-  children: React.ReactNode
-}
-
-export default function DashboardLayout({ children }: DashboardLayoutProps) {
+export default function DashboardLayout() {
   const [sidebarMode, setSidebarMode] = useState<"expanded" | "collapsed" | "hover">("hover")
 
   useEffect(() => {
@@ -42,7 +37,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           {/* Main Content Area */}
           <div className={"flex flex-col flex-1 pt-12 min-h-0 max-w-full overflow-hidden dashboard-content " + (sidebarMode === 'expanded' ? 'lg:ml-64' : 'lg:ml-12')}>
             <main className="flex-1 overflow-x-hidden max-w-full">
-              {children}
+              <Outlet />
             </main>
           </div>
         </div>

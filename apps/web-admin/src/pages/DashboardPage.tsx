@@ -49,64 +49,41 @@ export default function DashboardPage() {
           <div className="space-y-3">
             <div className="flex items-center gap-3 text-sm">
               <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-              <span className="text-muted-foreground">New course published:</span>
-              <span className="font-medium">Introduction to React</span>
-              <span className="text-muted-foreground text-xs ml-auto">2 hours ago</span>
+              <span className="text-muted-foreground">New user registered:</span>
+              <span className="font-medium">John Doe</span>
             </div>
             <div className="flex items-center gap-3 text-sm">
               <div className="w-2 h-2 rounded-full bg-green-500"></div>
-              <span className="text-muted-foreground">New user registered:</span>
-              <span className="font-medium">John Doe</span>
-              <span className="text-muted-foreground text-xs ml-auto">5 hours ago</span>
+              <span className="text-muted-foreground">Course published:</span>
+              <span className="font-medium">Advanced React Patterns</span>
             </div>
             <div className="flex items-center gap-3 text-sm">
-              <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
-              <span className="text-muted-foreground">Assessment submitted:</span>
-              <span className="font-medium">Midterm Exam - CS101</span>
-              <span className="text-muted-foreground text-xs ml-auto">1 day ago</span>
+              <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+              <span className="text-muted-foreground">Payment received:</span>
+              <span className="font-medium">$149.99</span>
             </div>
           </div>
         </div>
 
         {/* Quick Actions */}
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="rounded-lg border bg-card p-6">
-            <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
-            <div className="space-y-2">
-              <button className="w-full text-left px-4 py-2 rounded-md hover:bg-accent transition-colors">
-                + Create New Course
-              </button>
-              <button className="w-full text-left px-4 py-2 rounded-md hover:bg-accent transition-colors">
-                + Add New User
-              </button>
-              <button className="w-full text-left px-4 py-2 rounded-md hover:bg-accent transition-colors">
-                + Schedule Room Session
-              </button>
-            </div>
-          </div>
-          <div className="rounded-lg border bg-card p-6">
-            <h3 className="text-lg font-semibold mb-4">System Health</h3>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Auth Service</span>
-                <span className="text-xs text-green-500 font-medium">● Online</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Course Service</span>
-                <span className="text-xs text-green-500 font-medium">● Online</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Payment Service</span>
-                <span className="text-xs text-green-500 font-medium">● Online</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">AI Service</span>
-                <span className="text-xs text-green-500 font-medium">● Online</span>
-              </div>
-            </div>
+        <div className="rounded-lg border bg-card p-6">
+          <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
+          <div className="grid gap-3 md:grid-cols-3">
+            <button className="flex items-center gap-2 p-3 rounded-lg border hover:bg-accent transition-colors">
+              <span className="text-2xl">👤</span>
+              <span className="text-sm font-medium">Add New User</span>
+            </button>
+            <button className="flex items-center gap-2 p-3 rounded-lg border hover:bg-accent transition-colors">
+              <span className="text-2xl">📚</span>
+              <span className="text-sm font-medium">Create Course</span>
+            </button>
+            <button className="flex items-center gap-2 p-3 rounded-lg border hover:bg-accent transition-colors">
+              <span className="text-2xl">📊</span>
+              <span className="text-sm font-medium">View Analytics</span>
+            </button>
           </div>
         </div>
       </div>
     </div>
-  );
+  )
 }
