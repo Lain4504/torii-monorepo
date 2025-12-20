@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 
 import { HttpAdapterHost } from '@nestjs/core';
+import { ApiResponseDto } from '@workspace/dtos';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -29,16 +30,12 @@ export class AllExceptionsFilter implements ExceptionFilter {
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    const responseBody = {
+    const responseBody: ApiResponseDto<null> & { statusCode: number } = {
       success: false,
+      message: exception instanceof HttpException ? exception.message : 'Internal server error',
+      error: (exception as any).response?.message || (exception as any).message || 'Unknown error',
+      data: null,
       statusCode: httpStatus,
-      message:
-        exception instanceof HttpException
-          ? exception.message
-          : 'Internal server error',
-      timestamp: new Date().toISOString(),
-      path: httpAdapter.getRequestUrl(ctx.getRequest()),
-      errors: (exception as any).response?.message || null,
     };
 
     this.logger.error(`Exception: ${JSON.stringify(responseBody)}`);

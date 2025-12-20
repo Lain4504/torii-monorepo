@@ -114,3 +114,27 @@ model User {
 
   @@map("users")
 }
+
+// Bảng flashcard - Clone từ SQL schema
+model Flashcard {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  deckId         String    @map("deck_id") @db.Uuid
+  frontText      String    @map("front_text") @db.Text
+  backText       String    @map("back_text") @db.Text
+  exampleSentence String?  @map("example_sentence") @db.Text
+  pronunciation  String?   @db.Text
+  imageUrl       String?   @map("image_url") @db.Text
+  audioUrl       String?   @map("audio_url") @db.Text
+  tags           String[]  @default([]) @db.VarChar(50)
+  difficulty     String    @default("medium") @db.VarChar(20)
+  nextReviewDate DateTime? @map("next_review_date") @db.Date
+  intervalDays   Int       @default(1) @map("interval_days")
+  easeFactor     Decimal   @default(2.50) @map("ease_factor") @db.Decimal(4, 2)
+  reviewCount    Int       @default(0) @map("review_count")
+  correctCount   Int       @default(0) @map("correct_count")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  @@map("flashcards")
+}
+
