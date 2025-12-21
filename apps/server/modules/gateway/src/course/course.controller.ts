@@ -11,25 +11,17 @@ import {
   Query,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import {
-  ApiBearerAuth,
-  ApiCreatedResponse,
-  ApiOkResponse,
-  ApiOperation,
-  ApiTags,
-  ApiQuery,
-} from '@nestjs/swagger';
 import { lastValueFrom } from 'rxjs';
 import {
-  Course,
-  CreateCourseInput,
-  UpdateCourseInput,
-  CourseListResponse,
-} from './course.schema';
+  CreateCourseDto,
+  UpdateCourseDto,
+  CourseQueryDto,
+  CourseResponseDto,
+  UpdateCourseRequestDto,
+  PaginatedResponseDto,
+} from '@workspace/dtos';
 
-@ApiTags('admin/courses')
-@ApiBearerAuth()
-@Controller('api/v1/admin/courses')
+@Controller('api/admin/courses')
 export class CourseController {
   constructor(
     @Inject('NATS_SERVICE')
@@ -37,14 +29,6 @@ export class CourseController {
   ) {}
 
   @Get()
-  @ApiOperation({ summary: 'Get all courses with pagination and filters' })
-  @ApiOkResponse({ type: CourseListResponse })
-  @ApiQuery({ name: 'page', required: false, type: Number })
-  @ApiQuery({ name: 'limit', required: false, type: Number })
-  @ApiQuery({ name: 'jlptLevel', required: false, enum: ['N5', 'N4', 'N3', 'N2', 'N1'] })
-  @ApiQuery({ name: 'status', required: false, enum: ['draft', 'published', 'archived'] })
-  @ApiQuery({ name: 'search', required: false, type: String })
-  @ApiQuery({ name: 'featured', required: false, type: Boolean })
   async findAll(
     @Query('page') page?: number,
     @Query('limit') limit?: number,
@@ -52,50 +36,46 @@ export class CourseController {
     @Query('status') status?: string,
     @Query('search') search?: string,
     @Query('featured') featured?: string,
-  ): Promise<CourseListResponse> {
-    const payload = {
+  ): Promise<PaginatedResponseDto<CourseResponseDto>> {
+    const payload: CourseQueryDto = {
       page: page ? Number(page) : 1,
       limit: limit ? Number(limit) : 10,
-      ...(jlptLevel && { jlptLevel }),
-      ...(status && { status }),
+      ...(jlptLevel && { jlptLevel: jlptLevel as any }),
+      ...(status && { status: status as any }),
       ...(search && { search }),
       ...(featured !== undefined && { 
         featured: featured === 'true' 
       }),
     };
 
-    const response = await lastValueFrom<CourseListResponse>(
+    const response = await lastValueFrom<PaginatedResponseDto<CourseResponseDto>>(
       this.natsClient.send({ cmd: 'course.findAll' }, payload),
     );
 
     // Map courses to ensure proper formatting
     return {
       ...response,
-      data: response.data.map(toCourse),
+      data: response.data.map(toCourseResponse),
     };
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get a course by id' })
-  @ApiOkResponse({ type: Course })
-  async findOne(@Param('id') id: string): Promise<Course | null> {
-    const course = await lastValueFrom<Course | null>(
-      this.natsClient.send<Course | null>({ cmd: 'course.findOne' }, id),
+  async findOne(@Param('id') id: string): Promise<CourseResponseDto | null> {
+    const course = await lastValueFrom<CourseResponseDto | null>(
+      this.natsClient.send<CourseResponseDto | null>({ cmd: 'course.findOne' }, id),
     );
-    return course ? toCourse(course) : null;
+    return course ? toCourseResponse(course) : null;
   }
 
   @Post()
-  @ApiOperation({ summary: 'Create a new course' })
-  @ApiCreatedResponse({ type: Course })
-  async create(@Body() input: CreateCourseInput): Promise<Course> {
+  async create(@Body() input: CreateCourseDto): Promise<CourseResponseDto> {
     try {
       console.log('Gateway: Sending course.create request with input:', JSON.stringify(input, null, 2));
-      const course = await lastValueFrom<Course>(
-        this.natsClient.send<Course>({ cmd: 'course.create' }, input),
+      const course = await lastValueFrom<CourseResponseDto>(
+        this.natsClient.send<CourseResponseDto>({ cmd: 'course.create' }, input),
       );
       console.log('Gateway: Received response from course-service');
-      return toCourse(course);
+      return toCourseResponse(course);
     } catch (error: any) {
       console.error('Gateway: Error in course.create:', error);
       console.error('Gateway: Error details:', {
@@ -142,22 +122,20 @@ export class CourseController {
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Update a course' })
-  @ApiOkResponse({ type: Course })
   async update(
     @Param('id') id: string,
-    @Body() input: UpdateCourseInput,
-  ): Promise<Course> {
+    @Body() input: UpdateCourseDto,
+  ): Promise<CourseResponseDto> {
     try {
       console.log(`Gateway: Updating course ${id} with input:`, JSON.stringify(input, null, 2));
-      const course = await lastValueFrom<Course>(
-        this.natsClient.send<Course>(
+      const course = await lastValueFrom<CourseResponseDto>(
+        this.natsClient.send<CourseResponseDto>(
           { cmd: 'course.update' },
-          { id, input },
+          { id, input } as UpdateCourseRequestDto,
         ),
       );
       console.log('Gateway: Course updated successfully');
-      return toCourse(course);
+      return toCourseResponse(course);
     } catch (error: any) {
       console.error('Gateway: Error updating course:', error);
       throw error;
@@ -165,8 +143,6 @@ export class CourseController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete a course (soft delete)' })
-  @ApiOkResponse({ type: Boolean })
   delete(@Param('id') id: string): Promise<boolean> {
     return lastValueFrom<boolean>(
       this.natsClient.send<boolean>({ cmd: 'course.delete' }, id),
@@ -174,16 +150,14 @@ export class CourseController {
   }
 
   @Patch(':id/restore')
-  @ApiOperation({ summary: 'Restore a soft-deleted course' })
-  @ApiOkResponse({ type: Course })
-  async restore(@Param('id') id: string): Promise<Course> {
+  async restore(@Param('id') id: string): Promise<CourseResponseDto> {
     try {
       console.log(`Gateway: Restoring course ${id}`);
-      const course = await lastValueFrom<Course>(
-        this.natsClient.send<Course>({ cmd: 'course.restore' }, id),
+      const course = await lastValueFrom<CourseResponseDto>(
+        this.natsClient.send<CourseResponseDto>({ cmd: 'course.restore' }, id),
       );
       console.log('Gateway: Course restored successfully');
-      return toCourse(course);
+      return toCourseResponse(course);
     } catch (error: any) {
       console.error('Gateway: Error restoring course:', error);
       throw error;
@@ -191,7 +165,7 @@ export class CourseController {
   }
 }
 
-const toCourse = (data: any): Course => ({
+const toCourseResponse = (data: any): CourseResponseDto => ({
   ...data,
   createdAt: data?.createdAt ? new Date(data.createdAt) : data?.createdAt,
   updatedAt: data?.updatedAt ? new Date(data.updatedAt) : data?.updatedAt,

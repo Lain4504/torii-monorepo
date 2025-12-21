@@ -6,7 +6,6 @@ import {
   IsArray,
   IsNumber,
   IsBoolean,
-  IsUrl,
   Min,
   Max,
   ValidateNested,
@@ -213,3 +212,36 @@ export class UpdateCourseRequestDto {
   @Type(() => UpdateCourseDto)
   input!: UpdateCourseDto;
 }
+
+export class CourseResponseDto {
+  id: string;
+  title: string;
+  slug: string;
+  description?: string;
+  shortDescription?: string;
+  jlptLevel: JlptLevel;
+  thumbnailUrl?: string;
+  previewVideoUrl?: string;
+  price: number;
+  discountPrice?: number;
+  durationWeeks?: number;
+  totalLessons: number;
+  totalQuizzes: number;
+  totalStudents: number;
+  averageRating: number;
+  totalReviews: number;
+  status: CourseStatus;
+  featured: boolean;
+  isFree: boolean;
+  tags: string[];
+  learningOutcomes?: any;
+  requirements?: any;
+  createdBy?: string;
+  approvedBy?: string;
+  approvedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt?: Date;
+}
+
+

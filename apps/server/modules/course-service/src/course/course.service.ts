@@ -1,35 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
-import { PrismaService } from '@server/shared';
+import { PrismaService, generateSlug } from '@server/shared';
 import { Course, Prisma } from '@prisma/generated';
 import { PaginatedResponseDto } from '@workspace/dtos';
+import { validate as uuidValidate } from 'uuid';
 
 import {
   CreateCourseDto,
   UpdateCourseDto,
   CourseQueryDto,
   CourseStatus,
-} from './course.dto';
+} from '@workspace/dtos';
 
 @Injectable()
 export class CourseService {
   constructor(private readonly prisma: PrismaService) {}
-
-  /**
-   * Generate URL-friendly slug from title
-   */
-  private generateSlug(title: string): string {
-    if (!title || typeof title !== 'string') {
-      throw new Error('Title is required and must be a string');
-    }
-    return title
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
-      .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric with hyphen
-      .replace(/^-+|-+$/g, '') // Remove leading/trailing hyphens
-      .substring(0, 255); // Ensure max length
-  }
 
   /**
    * Ensure unique slug by appending number if needed
@@ -167,7 +152,7 @@ export class CourseService {
       console.log('Creating course with input:', JSON.stringify(input, null, 2));
 
       // Generate slug from title
-      const baseSlug = this.generateSlug(input.title);
+      const baseSlug = generateSlug(input.title);
       const slug = await this.ensureUniqueSlug(baseSlug);
 
       // Prepare data for creation
@@ -237,49 +222,33 @@ export class CourseService {
       // If title is being updated, regenerate slug
       let slug = existing.slug;
       if (input.title && input.title !== existing.title) {
-        const baseSlug = this.generateSlug(input.title);
+        const baseSlug = generateSlug(input.title);
         slug = await this.ensureUniqueSlug(baseSlug);
       }
 
       // Prepare update data - only update fields that are provided AND different from existing values
-      // This prevents updating fields that are just default values from Swagger UI
-      // Helper function to check if a value looks like a Swagger default value
-      // Swagger UI often pre-fills with defaults: "string" for strings, 0 for numbers, ["string"] for arrays, {} for objects
-      const isSwaggerDefaultValue = (value: any): boolean => {
-        if (value === undefined || value === null) return false;
-        if (typeof value === 'string') return value === 'string';
-        if (typeof value === 'number') return value === 0;
-        if (Array.isArray(value)) return value.length === 1 && value[0] === 'string';
-        if (typeof value === 'object') return Object.keys(value).length === 0;
-        return false;
-      };
-      
       const updateData: Prisma.CourseUpdateInput = {};
       
-      // Title: only update if provided, different from existing, and not a Swagger default ("string")
+      // Title: only update if provided and different from existing
       if (input.title !== undefined && input.title !== existing.title) {
-        // Don't update if it's a Swagger default value ("string") and existing value is different
-        if (!isSwaggerDefaultValue(input.title) || existing.title === 'string') {
-          updateData.title = input.title;
-          updateData.slug = slug;
-        }
+        updateData.title = input.title;
+        updateData.slug = slug;
       }
       
-      // Description: only update if provided, different from existing, and not a Swagger default
+      // Description: only update if provided and different from existing
       if (input.description !== undefined) {
         const existingDesc = existing.description || null;
         const newDesc = input.description || null;
-        // Only update if different AND not a Swagger default value being applied to existing non-default value
-        if (existingDesc !== newDesc && !(isSwaggerDefaultValue(input.description) && existingDesc !== null && existingDesc !== '')) {
+        if (existingDesc !== newDesc) {
           updateData.description = input.description;
         }
       }
       
-      // ShortDescription: only update if provided, different from existing, and not a Swagger default
+      // ShortDescription: only update if provided and different from existing
       if (input.shortDescription !== undefined) {
         const existingShortDesc = existing.shortDescription || null;
         const newShortDesc = input.shortDescription || null;
-        if (existingShortDesc !== newShortDesc && !(isSwaggerDefaultValue(input.shortDescription) && existingShortDesc !== null && existingShortDesc !== '')) {
+        if (existingShortDesc !== newShortDesc) {
           updateData.shortDescription = input.shortDescription;
         }
       }
@@ -289,47 +258,47 @@ export class CourseService {
         updateData.jlptLevel = input.jlptLevel;
       }
       
-      // ThumbnailUrl: only update if provided, different from existing, and not a Swagger default
+      // ThumbnailUrl: only update if provided and different from existing
       if (input.thumbnailUrl !== undefined) {
         const existingThumb = existing.thumbnailUrl || null;
         const newThumb = input.thumbnailUrl || null;
-        if (existingThumb !== newThumb && !(isSwaggerDefaultValue(input.thumbnailUrl) && existingThumb !== null && existingThumb !== '')) {
+        if (existingThumb !== newThumb) {
           updateData.thumbnailUrl = input.thumbnailUrl;
         }
       }
       
-      // PreviewVideoUrl: only update if provided, different from existing, and not a Swagger default
+      // PreviewVideoUrl: only update if provided and different from existing
       if (input.previewVideoUrl !== undefined) {
         const existingPreview = existing.previewVideoUrl || null;
         const newPreview = input.previewVideoUrl || null;
-        if (existingPreview !== newPreview && !(isSwaggerDefaultValue(input.previewVideoUrl) && existingPreview !== null && existingPreview !== '')) {
+        if (existingPreview !== newPreview) {
           updateData.previewVideoUrl = input.previewVideoUrl;
         }
       }
       
-      // Price: only update if provided, different from existing, and not a Swagger default (0)
+      // Price: only update if provided and different from existing
       if (input.price !== undefined) {
         const existingPrice = Number(existing.price);
         const newPrice = Number(input.price);
-        if (existingPrice !== newPrice && !(newPrice === 0 && existingPrice !== 0)) {
+        if (existingPrice !== newPrice) {
           updateData.price = input.price;
         }
       }
       
-      // DiscountPrice: only update if provided and different from existing (allow null, but ignore Swagger default 0)
+      // DiscountPrice: only update if provided and different from existing
       if (input.discountPrice !== undefined) {
         const existingDiscount = existing.discountPrice ? Number(existing.discountPrice) : null;
         const newDiscount = input.discountPrice ? Number(input.discountPrice) : null;
-        if (existingDiscount !== newDiscount && !(newDiscount === 0 && existingDiscount !== null && existingDiscount !== 0)) {
+        if (existingDiscount !== newDiscount) {
           updateData.discountPrice = input.discountPrice;
         }
       }
       
-      // DurationWeeks: only update if provided, different from existing, and not a Swagger default (0)
+      // DurationWeeks: only update if provided and different from existing
       if (input.durationWeeks !== undefined) {
         const existingDuration = existing.durationWeeks || null;
         const newDuration = input.durationWeeks || null;
-        if (existingDuration !== newDuration && !(newDuration === 0 && existingDuration !== null && existingDuration !== 0)) {
+        if (existingDuration !== newDuration) {
           updateData.durationWeeks = input.durationWeeks;
         }
       }
@@ -341,11 +310,9 @@ export class CourseService {
         // If status is being changed to published, set approvedBy and approvedAt
         if (input.status === CourseStatus.PUBLISHED) {
           // Only set approvedBy if it's a valid UUID format
-          // UUID format: 8-4-4-4-12 hexadecimal digits
-          const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
           const validApprovedBy = input.approvedBy && 
             typeof input.approvedBy === 'string' && 
-            uuidRegex.test(input.approvedBy.trim())
+            uuidValidate(input.approvedBy.trim())
             ? input.approvedBy.trim() 
             : null;
           updateData.approvedBy = validApprovedBy;
@@ -369,34 +336,31 @@ export class CourseService {
         updateData.isFree = input.isFree;
       }
       
-      // Tags: only update if provided, different from existing, and not a Swagger default (["string"])
+      // Tags: only update if provided and different from existing
       if (input.tags !== undefined) {
         const existingTags = existing.tags || [];
         const newTags = input.tags || [];
         const tagsChanged = existingTags.length !== newTags.length ||
           existingTags.some((tag, index) => tag !== newTags[index]);
-        const isDefaultTagArray = isSwaggerDefaultValue(input.tags);
-        if (tagsChanged && !(isDefaultTagArray && existingTags.length > 0 && !isSwaggerDefaultValue(existingTags))) {
+        if (tagsChanged) {
           updateData.tags = input.tags;
         }
       }
       
-      // LearningOutcomes: only update if provided, different from existing, and not a Swagger default ({})
+      // LearningOutcomes: only update if provided and different from existing
       if (input.learningOutcomes !== undefined) {
         const existingOutcomes = JSON.stringify(existing.learningOutcomes || {});
         const newOutcomes = JSON.stringify(input.learningOutcomes || {});
-        const isDefaultObject = isSwaggerDefaultValue(input.learningOutcomes);
-        if (existingOutcomes !== newOutcomes && !(isDefaultObject && existingOutcomes !== '{}' && existingOutcomes !== 'null')) {
+        if (existingOutcomes !== newOutcomes) {
           updateData.learningOutcomes = input.learningOutcomes;
         }
       }
       
-      // Requirements: only update if provided, different from existing, and not a Swagger default ({})
+      // Requirements: only update if provided and different from existing
       if (input.requirements !== undefined) {
         const existingReqs = JSON.stringify(existing.requirements || {});
         const newReqs = JSON.stringify(input.requirements || {});
-        const isDefaultObject = isSwaggerDefaultValue(input.requirements);
-        if (existingReqs !== newReqs && !(isDefaultObject && existingReqs !== '{}' && existingReqs !== 'null')) {
+        if (existingReqs !== newReqs) {
           updateData.requirements = input.requirements;
         }
       }
