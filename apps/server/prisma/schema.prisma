@@ -150,15 +150,23 @@ model FileAsset {
   fileSize    BigInt?  @map("file_size")
   isPublic    Boolean  @default(false) @map("is_public")
   
+  // Upload Status: 'pending' | 'uploaded' | 'failed'
+  status      String   @default("pending") @db.VarChar(20)
+  
   // Flexible Metadata (JSONB)
   metadata    Json?    @default("{}") @map("metadata")
   
   // Ownership
   ownerId     String?  @map("owner_id") @db.Uuid
   moduleOrigin String? @map("module_origin") @db.VarChar(50) // 'USER', 'COURSE', 'CHAT'
+  
+  // Timestamps
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@index([ownerId])
   @@index([fileUrl])
+  @@index([status])
   @@map("file_assets")
 }
 

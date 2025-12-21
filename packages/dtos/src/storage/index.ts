@@ -1,4 +1,13 @@
-import { IsString, IsNotEmpty, IsOptional, IsObject, IsNumber, IsBoolean } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsObject, IsNumber, IsBoolean, IsIn } from 'class-validator';
+
+/**
+ * File upload status enum
+ */
+export enum FileStatus {
+  PENDING = 'pending',
+  UPLOADED = 'uploaded',
+  FAILED = 'failed',
+}
 
 export class PresignedUploadUrlRequest {
   @IsString()
@@ -27,8 +36,8 @@ export class PresignedUploadUrlResponse {
   fileId: string;
   fileUrl: string;
   expiresIn: number;
-  supabaseUrl?: string;
 }
+
 
 export class ConfirmUploadRequest {
   @IsString()
@@ -67,3 +76,86 @@ export class VideoMetadata {
   format?: string; // container format (e.g., 'mp4', 'webm', 'mov')
 }
 
+/**
+ * Audio metadata structure for audio files
+ */
+export class AudioMetadata {
+  type: 'audio';
+  duration?: number; // in seconds
+  bitrate?: number; // in bps
+  sampleRate?: number; // in Hz (e.g., 44100, 48000)
+  channels?: number; // 1 for mono, 2 for stereo
+  codec?: string; // audio codec (e.g., 'mp3', 'aac', 'opus')
+}
+
+/**
+ * Image metadata structure for image files
+ */
+export class ImageMetadata {
+  type: 'image';
+  width?: number; // in pixels
+  height?: number; // in pixels
+  format?: string; // image format (e.g., 'jpeg', 'png', 'webp', 'gif')
+}
+
+/**
+ * Request for direct file upload (server handles upload to R2)
+ */
+export class DirectUploadRequest {
+  @IsString()
+  @IsNotEmpty()
+  filename: string;
+
+  @IsString()
+  @IsNotEmpty()
+  contentType: string;
+
+  @IsString()
+  @IsNotEmpty()
+  module: string;
+
+  @IsString()
+  @IsOptional()
+  ownerId?: string;
+
+  @IsObject()
+  @IsOptional()
+  metadata?: Record<string, any>;
+
+  // Base64 encoded file content
+  @IsString()
+  @IsNotEmpty()
+  fileData: string;
+}
+
+/**
+ * Response for direct file upload
+ */
+export class DirectUploadResponse {
+  success: boolean;
+  fileId: string;
+  fileUrl: string;
+  fileSize: number;
+}
+
+/**
+ * Request for getting signed URL to access file
+ */
+export class GetSignedUrlRequest {
+  @IsString()
+  @IsNotEmpty()
+  fileId: string;
+
+  @IsNumber()
+  @IsOptional()
+  expiresIn?: number; // in seconds, default 3600
+}
+
+/**
+ * Response for signed URL
+ */
+export class GetSignedUrlResponse {
+  fileId: string;
+  signedUrl: string;
+  expiresIn: number;
+}
