@@ -198,8 +198,9 @@ export class NatsAuthService implements OnModuleInit, OnModuleDestroy {
     pnmClaims: any,
     authToken: string,
   ): Promise<string> {
-    const roomId = pnmClaims.video?.room || pnmClaims.room;
-    const userId = pnmClaims.sub || pnmClaims.userId;
+    // plugNmeet JWT has: room_id, user_id (snake_case), is_admin
+    const roomId = pnmClaims.room_id || pnmClaims.video?.room || pnmClaims.room;
+    const userId = pnmClaims.user_id || pnmClaims.sub || pnmClaims.userId;
 
     if (!roomId || !userId) {
       throw new Error('Invalid claim data: roomId or userId missing');

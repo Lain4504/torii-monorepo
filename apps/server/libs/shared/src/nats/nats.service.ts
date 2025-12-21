@@ -868,5 +868,38 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
       throw e;
     }
   }
+
+  /**
+   * Get room metadata as structured protobuf object
+   * Matches Go server: GetRoomMetadataStruct()
+   */
+  async getRoomMetadataStruct(roomId: string): Promise<any | null> {
+    try {
+      // Get room info from NATS KV
+      const roomInfo = await this.getRoomInfo(roomId);
+      if (!roomInfo) {
+        this.logger.warn(`[getRoomMetadataStruct] Room ${roomId} not found in NATS`);
+        return null;
+      }
+
+      // Check if metadata exists
+      if (!roomInfo.metadata || roomInfo.metadata === '{}' || roomInfo.metadata.length === 0) {
+        this.logger.warn(`[getRoomMetadataStruct] No metadata for room ${roomId}`);
+        return null;
+      }
+
+      // Parse JSON metadata (like Go's UnmarshalRoomMetadata)
+      try {
+        const metadata = JSON.parse(roomInfo.metadata);
+        return metadata;
+      } catch (e) {
+        this.logger.error(`[getRoomMetadataStruct] Failed to parse metadata for ${roomId}: ${e.message}`);
+        return null;
+      }
+    } catch (e) {
+      this.logger.error(`[getRoomMetadataStruct] Error getting metadata for ${roomId}: ${e.message}`);
+      throw e;
+    }
+  }
 }
 

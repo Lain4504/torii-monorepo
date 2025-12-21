@@ -71,31 +71,9 @@ model RoomInfo {
   endedAt            DateTime?   @map("ended")
   modified           DateTime    @default(now()) @updatedAt @map("modified")
 
-  recordings         Recording[]
 
   @@index([roomId, isRunning])
   @@map("room_info")
-}
-
-model Recording {
-  id               Int      @id @default(autoincrement())
-  recordId         String   @unique @db.VarChar(64) @map("record_id")
-  roomId           String   @db.VarChar(64) @map("room_id")
-  roomSid          String   @db.VarChar(64) @map("room_sid")
-  recorderId       String   @db.VarChar(36) @map("recorder_id")
-  filePath         String   @map("file_path")
-  size             Float    @map("size")
-  published        Boolean  @default(true) @map("published")
-  metadata         Json?    @map("metadata")
-  creationTime     Int      @default(0) @map("creation_time")
-  roomCreationTime Int      @default(0) @map("room_creation_time")
-  createdAt        DateTime @default(now()) @map("created")
-  updatedAt        DateTime @updatedAt @map("modified")
-  
-  room             RoomInfo @relation(fields: [roomSid], references: [sid])
-
-  @@index([roomId])
-  @@map("recordings")
 }
 
 model RoomFile {

@@ -136,9 +136,10 @@ export class NatsConnectionListener implements OnModuleInit {
         `Decoded JWT claims: ${JSON.stringify(decoded, null, 2)}`,
       );
 
-      // Extract roomId from video.room (LiveKit JWT format)
-      const roomId = decoded.video?.room || decoded.roomId || decoded.room_id;
-      const userId = decoded.sub || decoded.userId || decoded.user_id;
+      // Extract roomId/userId from plugNmeet JWT format (room_id, user_id)
+      // Fallback to LiveKit format (video.room) for backward compatibility
+      const roomId = decoded.room_id || decoded.video?.room || decoded.roomId || decoded.room;
+      const userId = decoded.user_id || decoded.sub || decoded.userId;
 
       if (!roomId || !userId) {
         this.logger.warn(

@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { NatsService } from '@server/shared';
+import { NatsService, AuthService } from '@server/shared';
 import {
   NatsMsgClientToServer,
   NatsMsgClientToServerEvents,
@@ -13,8 +13,9 @@ import {
   MediaServerConnInfoSchema,
   NatsKvUserInfoSchema,
   NatsUserMetadataUpdateSchema,
+  RoomMetadataSchema,
 } from '@workspace/protocol';
-import { create, fromBinary, toJsonString, toJson } from '@bufbuild/protobuf';
+import { create, fromBinary, fromJsonString, toJsonString, toJson } from '@bufbuild/protobuf';
 import { AccessToken } from 'livekit-server-sdk';
 import { StringCodec } from 'nats';
 import { RoomUtils } from '../../room-service/src/room/room.utils';
@@ -27,6 +28,7 @@ export class SystemWorkerService implements OnModuleInit {
   constructor(
     private readonly natsService: NatsService,
     private readonly configService: ConfigService,
+    private readonly authService: AuthService,
   ) { }
 
   async onModuleInit() {
@@ -85,6 +87,9 @@ export class SystemWorkerService implements OnModuleInit {
       case NatsMsgClientToServerEvents.REQ_LOWER_OTHER_USER_HAND:
         await this.handleLowerOtherUserHand(roomId, req.msg);
         break;
+      case NatsMsgClientToServerEvents.REQ_RENEW_PNM_TOKEN:
+        await this.handleRenewToken(roomId, userId, req.msg);
+        break;
       case NatsMsgClientToServerEvents.PING:
         // PING is just keep-alive, no action needed
         // User join is tracked via $SYS.ACCOUNT connection events
@@ -108,12 +113,8 @@ export class SystemWorkerService implements OnModuleInit {
       return;
     }
 
-    // Convert Metadata from Snake Case (DB/Proto) to Camel Case (Client)
-    if (roomInfo.metadata) {
-      roomInfo.metadata = RoomUtils.convertSnakeToCamelCaseMetadata(
-        roomInfo.metadata,
-      );
-    }
+    // Metadata is already stored in correct JSON format in NATS
+    // No conversion needed - just use as-is
 
     // 2. Get User Info
     const userInfo = await this.natsService.getUserInfo(roomId, userId);
@@ -340,43 +341,76 @@ export class SystemWorkerService implements OnModuleInit {
     }
   }
 
+  /**
+   * Generate LiveKit server connection info
+   * Matches Go: NatsModel.GenerateLivekitToken() + HandleMediaServerInfo()
+   */
   private async generateMediaServerInfo(
     roomId: string,
     userId: string,
     userInfo: any,
   ): Promise<MediaServerConnInfo | undefined> {
-    const apiKey = this.configService.get<string>('LIVEKIT_API_KEY');
-    const apiSecret = this.configService.get<string>('LIVEKIT_API_SECRET');
-    // Fix: Use LIVEKIT_API_URL to match user's env
-    const livekitHost = this.configService.get<string>(
-      'LIVEKIT_API_URL',
-      'ws://localhost:7880',
-    );
+    try {
+      // Get LiveKit host URL
+      // Go server: strings.Replace(m.app.LivekitInfo.Host, "host.docker.internal", "localhost", 1)
+      let livekitHost = this.configService.get<string>(
+        'LIVEKIT_API_URL',
+        'ws://localhost:7880',
+      );
 
-    if (!apiKey || !apiSecret) {
-      this.logger.error('LiveKit API Key/Secret not configured');
+      // Replace docker internal host with localhost (matching Go server)
+      livekitHost = livekitHost.replace('host.docker.internal', 'localhost');
+
+      // Generate LiveKit token using AuthService
+      // Matches Go: auth.GenerateLivekitAccessToken()
+      const token = await this.authService.generateLivekitAccessToken({
+        name: userInfo.name,
+        user_id: userId,
+        room_id: roomId,
+        is_admin: userInfo.isAdmin,
+        is_hidden: userInfo.isHidden || false,
+      });
+
+      return create(MediaServerConnInfoSchema, {
+        url: livekitHost,
+        token: token,
+        enabledE2ee: false,
+      });
+    } catch (error: any) {
+      this.logger.error(`Failed to generate media server info: ${error.message}`);
       return undefined;
     }
+  }
 
-    const at = new AccessToken(apiKey, apiSecret, {
-      identity: userId,
-      name: userInfo.name,
-      metadata: userInfo.metadata,
-    });
+  /**
+   * Handle token renewal request
+   * Matches Go: NatsModel.RenewPNMToken()
+   */
+  private async handleRenewToken(roomId: string, userId: string, oldToken?: string) {
+    this.logger.log(`Renewing token for user ${userId} in room ${roomId}`);
 
-    at.addGrant({
-      roomJoin: true,
-      room: roomId,
-      canPublish: true, // TODO: refine based on user role/permissions
-      canSubscribe: true,
-    });
+    if (!oldToken) {
+      this.logger.error('No token provided for renewal');
+      return;
+    }
 
-    const token = await at.toJwt();
+    try {
+      // Use 3-hour grace period like Go server (line 17)
+      const gracefulPeriod = 60 * 60 * 3; // 3 hours in seconds
+      const newToken = this.authService.renewPlugNmeetToken(oldToken, gracefulPeriod);
 
-    return create(MediaServerConnInfoSchema, {
-      url: livekitHost,
-      token: token,
-      enabledE2ee: false,
-    });
+      // Broadcast new token to user
+      await this.natsService.broadcastSystemEvent(
+        NatsMsgServerToClientEvents.RESP_RENEW_PNM_TOKEN,
+        roomId,
+        newToken,
+        userId,
+      );
+
+      this.logger.log(`Successfully renewed token for ${userId}`);
+    } catch (error: any) {
+      this.logger.error(`Error renewing token for ${userId}: ${error.message}`);
+      // Don't send error to client - they'll get expired token error
+    }
   }
 }

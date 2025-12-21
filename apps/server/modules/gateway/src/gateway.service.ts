@@ -8,7 +8,6 @@ import { create, toBinary } from '@bufbuild/protobuf';
 import { NatsService } from '@server/shared';
 
 export type AuthHealthResponse = { service: string; status: string };
-export type ValidateTokenResponse = { isValid: boolean };
 
 @Injectable()
 export class GatewayService {
@@ -21,15 +20,6 @@ export class GatewayService {
   async pingAuth(): Promise<AuthHealthResponse> {
     return lastValueFrom(
       this.natsClient.send<AuthHealthResponse>({ cmd: 'auth.ping' }, {}),
-    );
-  }
-
-  async validateToken(token?: string): Promise<ValidateTokenResponse> {
-    return lastValueFrom(
-      this.natsClient.send<ValidateTokenResponse>(
-        { cmd: 'auth.validate-token' },
-        { token },
-      ),
     );
   }
 
@@ -55,8 +45,12 @@ export class GatewayService {
       throw new UnauthorizedException('Invalid token');
     }
 
-    const roomId = decoded.video?.room || decoded.room;
-    const userId = decoded.sub;
+    // Extract claims from plugNmeet JWT format
+    // plugNmeet JWT has: room_id, user_id, is_admin (not video.room)
+    const roomId = decoded.room_id || decoded.video?.room || decoded.room;
+    const userId = decoded.user_id || decoded.sub;
+    const isAdmin = decoded.is_admin ?? decoded.video?.roomAdmin ?? false;
+    const isHidden = decoded.is_hidden ?? decoded.video?.hidden ?? false;
 
     if (!roomId || !userId) {
       throw new UnauthorizedException('Invalid token claims');
@@ -115,20 +109,21 @@ export class GatewayService {
       }
     }
 
-    // Determine roles (using existing logic)
-    const isAdmin = decoded.video?.roomJoin === true || false;
-    const isPresenter = decoded.video?.canPublish === true || false;
+    // Determine roles (using values from token)
+    // If token doesn't have is_admin, fall back to old video.roomJoin logic
+    // const isAdmin = already extracted above
+    // const isPresenter = decoded.video?.canPublish === true || false;
 
     // Sync roles into metadata
     metadataObj.isAdmin = isAdmin;
-    metadataObj.isPresenter = isPresenter;
+    metadataObj.isPresenter = isAdmin; // Admin users are presenters in plugNmeet
     const metadataStr = JSON.stringify(metadataObj);
 
     await this.natsService.updateUserInfo(roomId, userId, {
       userId: userId,
       name: decoded.name || userId,
       isAdmin: isAdmin,
-      isPresenter: isPresenter,
+      isPresenter: isAdmin, // Use same value
       metadata: metadataStr,
       joinedAt: Math.floor(Date.now() / 1000),
     });

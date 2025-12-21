@@ -4,72 +4,71 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="revert">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/flash_card.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/buf/validate/validate_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/buf/validate/validate_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/cloud_replay_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/cloud_replay_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_agent_dispatch_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_agent_dispatch_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_agent_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_agent_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_analytics_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_analytics_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_cloud_agent_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_cloud_agent_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_connector_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_connector_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_connector_twilio_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_connector_twilio_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_connector_whatsapp_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_connector_whatsapp_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_egress_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_egress_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_ingress_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_ingress_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_internal_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_internal_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_metrics_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_metrics_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_models_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_models_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_phone_number_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_phone_number_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_room_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_room_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_rtc_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_rtc_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_sip_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_sip_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_token_source_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_token_source_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_webhook_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/livekit_webhook_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/logger/options_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/logger/options_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_analytics_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_analytics_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_auth_analytics_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_auth_analytics_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_auth_artifact_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_auth_artifact_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_auth_recording_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_auth_recording_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_auth_room_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_auth_room_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_breakout_room_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_breakout_room_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_common_api_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_common_api_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_common_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_common_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_create_room_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_create_room_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_datamessage_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_datamessage_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_gen_token_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_gen_token_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_ingress_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_ingress_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_insights_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_insights_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_lti_v1_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_lti_v1_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_nats_msg_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_nats_msg_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_polls_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_polls_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_recorder_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_recorder_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_recording_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_recording_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_room_artifacts_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_room_artifacts_pb.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_speech_services_pb.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/src/gen/wajlc_speech_services_pb.ts" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: split room controllers and servces for diffrent features">
+      <change beforePath="$PROJECT_DIR$/packages/protocol/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/.gitignore" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="TypeScript File" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="course-crud-api" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Lain4504&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Lain4504/torii-monorepo.git&quot;,
+    &quot;accountId&quot;: &quot;b00df774-879c-47f6-b5d3-0a65d83c1c54&quot;
+  }
+}</component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
+  <component name="ProjectId" id="37A0yfZgCJQYTxlmthXWuaUq33u" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "#10 on redis",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "ts.external.directory.path": "E:\\Ky9\\node_modules\\typescript\\lib"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;listen-event-room&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;E:\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -77,6 +76,9 @@
         <option value="bundled-js-predefined-d6986cc7102b-6a121458b545-JavaScript-IU-251.25410.109" />
       </set>
     </attachedChunks>
+  </component>
+  <component name="SwiftWorkspaceSettings">
+    <option name="detectedToolchain" value="true" />
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -98,246 +100,8 @@
       <workItem from="1765849677488" duration="719000" />
       <workItem from="1765855909748" duration="4405000" />
       <workItem from="1766253712286" duration="774000" />
-    </task>
-    <task id="LOCAL-00074" summary="feat: create break room logic">
-      <option name="closed" value="true" />
-      <created>1765819809299</created>
-      <option name="number" value="00074" />
-      <option name="presentableId" value="LOCAL-00074" />
-      <option name="project" value="LOCAL" />
-      <updated>1765819809299</updated>
-    </task>
-    <task id="LOCAL-00075" summary="fix: fix comment from copilot">
-      <option name="closed" value="true" />
-      <created>1765820970748</created>
-      <option name="number" value="00075" />
-      <option name="presentableId" value="LOCAL-00075" />
-      <option name="project" value="LOCAL" />
-      <updated>1765820970749</updated>
-    </task>
-    <task id="LOCAL-00076" summary="refactor: migration to use nats protocol and protobuf response">
-      <option name="closed" value="true" />
-      <created>1765860208084</created>
-      <option name="number" value="00076" />
-      <option name="presentableId" value="LOCAL-00076" />
-      <option name="project" value="LOCAL" />
-      <updated>1765860208085</updated>
-    </task>
-    <task id="LOCAL-00077" summary="refactor: migration to use nats protocol and protobuf response">
-      <option name="closed" value="true" />
-      <created>1765860969602</created>
-      <option name="number" value="00077" />
-      <option name="presentableId" value="LOCAL-00077" />
-      <option name="project" value="LOCAL" />
-      <updated>1765860969602</updated>
-    </task>
-    <task id="LOCAL-00078" summary="refactor: migration to use nats protocol and protobuf response">
-      <option name="closed" value="true" />
-      <created>1765862030774</created>
-      <option name="number" value="00078" />
-      <option name="presentableId" value="LOCAL-00078" />
-      <option name="project" value="LOCAL" />
-      <updated>1765862030774</updated>
-    </task>
-    <task id="LOCAL-00079" summary="refactor: migration to use nats protocol and protobuf response">
-      <option name="closed" value="true" />
-      <created>1765862174724</created>
-      <option name="number" value="00079" />
-      <option name="presentableId" value="LOCAL-00079" />
-      <option name="project" value="LOCAL" />
-      <updated>1765862174724</updated>
-    </task>
-    <task id="LOCAL-00080" summary="refactor: migration to use nats protocol and protobuf response">
-      <option name="closed" value="true" />
-      <created>1765863857740</created>
-      <option name="number" value="00080" />
-      <option name="presentableId" value="LOCAL-00080" />
-      <option name="project" value="LOCAL" />
-      <updated>1765863857740</updated>
-    </task>
-    <task id="LOCAL-00081" summary="refactor: migration to use nats protocol and protobuf response">
-      <option name="closed" value="true" />
-      <created>1765864809338</created>
-      <option name="number" value="00081" />
-      <option name="presentableId" value="LOCAL-00081" />
-      <option name="project" value="LOCAL" />
-      <updated>1765864809338</updated>
-    </task>
-    <task id="LOCAL-00082" summary="refactor: migration to use nats protocol and protobuf response">
-      <option name="closed" value="true" />
-      <created>1765866257821</created>
-      <option name="number" value="00082" />
-      <option name="presentableId" value="LOCAL-00082" />
-      <option name="project" value="LOCAL" />
-      <updated>1765866257821</updated>
-    </task>
-    <task id="LOCAL-00083" summary="refactor: migration to use nats protocol and protobuf response">
-      <option name="closed" value="true" />
-      <created>1765866290820</created>
-      <option name="number" value="00083" />
-      <option name="presentableId" value="LOCAL-00083" />
-      <option name="project" value="LOCAL" />
-      <updated>1765866290820</updated>
-    </task>
-    <task id="LOCAL-00084" summary="refactor: migration to use nats protocol and protobuf response">
-      <option name="closed" value="true" />
-      <created>1765866609844</created>
-      <option name="number" value="00084" />
-      <option name="presentableId" value="LOCAL-00084" />
-      <option name="project" value="LOCAL" />
-      <updated>1765866609844</updated>
-    </task>
-    <task id="LOCAL-00085" summary="refactor: migration to use nats protocol and protobuf response">
-      <option name="closed" value="true" />
-      <created>1765866664446</created>
-      <option name="number" value="00085" />
-      <option name="presentableId" value="LOCAL-00085" />
-      <option name="project" value="LOCAL" />
-      <updated>1765866664446</updated>
-    </task>
-    <task id="LOCAL-00086" summary="refactor: migration to use nats protocol and protobuf response">
-      <option name="closed" value="true" />
-      <created>1765866979415</created>
-      <option name="number" value="00086" />
-      <option name="presentableId" value="LOCAL-00086" />
-      <option name="project" value="LOCAL" />
-      <updated>1765866979415</updated>
-    </task>
-    <task id="LOCAL-00087" summary="refactor: migration to use nats protocol and protobuf response">
-      <option name="closed" value="true" />
-      <created>1765867310093</created>
-      <option name="number" value="00087" />
-      <option name="presentableId" value="LOCAL-00087" />
-      <option name="project" value="LOCAL" />
-      <updated>1765867310093</updated>
-    </task>
-    <task id="LOCAL-00088" summary="refactor: migration to use nats protocol and protobuf response">
-      <option name="closed" value="true" />
-      <created>1765867644260</created>
-      <option name="number" value="00088" />
-      <option name="presentableId" value="LOCAL-00088" />
-      <option name="project" value="LOCAL" />
-      <updated>1765867644260</updated>
-    </task>
-    <task id="LOCAL-00089" summary="refactor: migration to use nats protocol and protobuf response">
-      <option name="closed" value="true" />
-      <created>1765868745167</created>
-      <option name="number" value="00089" />
-      <option name="presentableId" value="LOCAL-00089" />
-      <option name="project" value="LOCAL" />
-      <updated>1765868745167</updated>
-    </task>
-    <task id="LOCAL-00090" summary="chore: update docker-compose.yml">
-      <option name="closed" value="true" />
-      <created>1765869221353</created>
-      <option name="number" value="00090" />
-      <option name="presentableId" value="LOCAL-00090" />
-      <option name="project" value="LOCAL" />
-      <updated>1765869221353</updated>
-    </task>
-    <task id="LOCAL-00091" summary="chore: update docker-compose.yml">
-      <option name="closed" value="true" />
-      <created>1765869396242</created>
-      <option name="number" value="00091" />
-      <option name="presentableId" value="LOCAL-00091" />
-      <option name="project" value="LOCAL" />
-      <updated>1765869396242</updated>
-    </task>
-    <task id="LOCAL-00092" summary="chore: update docker-compose.yml">
-      <option name="closed" value="true" />
-      <created>1765869422095</created>
-      <option name="number" value="00092" />
-      <option name="presentableId" value="LOCAL-00092" />
-      <option name="project" value="LOCAL" />
-      <updated>1765869422095</updated>
-    </task>
-    <task id="LOCAL-00093" summary="chore: update docker-compose.yml">
-      <option name="closed" value="true" />
-      <created>1765869709525</created>
-      <option name="number" value="00093" />
-      <option name="presentableId" value="LOCAL-00093" />
-      <option name="project" value="LOCAL" />
-      <updated>1765869709525</updated>
-    </task>
-    <task id="LOCAL-00094" summary="chore: update docker-compose.yml">
-      <option name="closed" value="true" />
-      <created>1765870993920</created>
-      <option name="number" value="00094" />
-      <option name="presentableId" value="LOCAL-00094" />
-      <option name="project" value="LOCAL" />
-      <updated>1765870993920</updated>
-    </task>
-    <task id="LOCAL-00095" summary="chore: update docker-compose.yml">
-      <option name="closed" value="true" />
-      <created>1765871150998</created>
-      <option name="number" value="00095" />
-      <option name="presentableId" value="LOCAL-00095" />
-      <option name="project" value="LOCAL" />
-      <updated>1765871150999</updated>
-    </task>
-    <task id="LOCAL-00096" summary="refactor: migration to use nats protocol and protobuf response">
-      <option name="closed" value="true" />
-      <created>1765871215974</created>
-      <option name="number" value="00096" />
-      <option name="presentableId" value="LOCAL-00096" />
-      <option name="project" value="LOCAL" />
-      <updated>1765871215974</updated>
-    </task>
-    <task id="LOCAL-00097" summary="refactor: migration to use nats protocol and protobuf response">
-      <option name="closed" value="true" />
-      <created>1765871841767</created>
-      <option name="number" value="00097" />
-      <option name="presentableId" value="LOCAL-00097" />
-      <option name="project" value="LOCAL" />
-      <updated>1765871841767</updated>
-    </task>
-    <task id="LOCAL-00098" summary="refactor: migration to use nats protocol and protobuf response">
-      <option name="closed" value="true" />
-      <created>1765873345580</created>
-      <option name="number" value="00098" />
-      <option name="presentableId" value="LOCAL-00098" />
-      <option name="project" value="LOCAL" />
-      <updated>1765873345580</updated>
-    </task>
-    <task id="LOCAL-00099" summary="refactor: migration to use nats protocol and protobuf response">
-      <option name="closed" value="true" />
-      <created>1765873825586</created>
-      <option name="number" value="00099" />
-      <option name="presentableId" value="LOCAL-00099" />
-      <option name="project" value="LOCAL" />
-      <updated>1765873825586</updated>
-    </task>
-    <task id="LOCAL-00100" summary="refactor: migration to use nats protocol and protobuf response">
-      <option name="closed" value="true" />
-      <created>1765874775157</created>
-      <option name="number" value="00100" />
-      <option name="presentableId" value="LOCAL-00100" />
-      <option name="project" value="LOCAL" />
-      <updated>1765874775157</updated>
-    </task>
-    <task id="LOCAL-00101" summary="refactor: migration to use nats protocol and protobuf response">
-      <option name="closed" value="true" />
-      <created>1765875062082</created>
-      <option name="number" value="00101" />
-      <option name="presentableId" value="LOCAL-00101" />
-      <option name="project" value="LOCAL" />
-      <updated>1765875062082</updated>
-    </task>
-    <task id="LOCAL-00102" summary="refactor: migration to use nats protocol and protobuf response">
-      <option name="closed" value="true" />
-      <created>1765876163359</created>
-      <option name="number" value="00102" />
-      <option name="presentableId" value="LOCAL-00102" />
-      <option name="project" value="LOCAL" />
-      <updated>1765876163359</updated>
-    </task>
-    <task id="LOCAL-00103" summary="refactor: migration to use nats protocol and protobuf response">
-      <option name="closed" value="true" />
-      <created>1765877565019</created>
-      <option name="number" value="00103" />
-      <option name="presentableId" value="LOCAL-00103" />
-      <option name="project" value="LOCAL" />
-      <updated>1765877565019</updated>
+      <workItem from="1766330829836" duration="8918000" />
+      <workItem from="1766380346197" duration="69000" />
     </task>
     <task id="LOCAL-00104" summary="fix: fix api room service">
       <option name="closed" value="true" />
@@ -491,8 +255,251 @@
       <option name="project" value="LOCAL" />
       <updated>1766243234999</updated>
     </task>
-    <option name="localTasksCounter" value="123" />
+    <task id="LOCAL-00123" summary="feat(webhook): implement WebhookService for room event notifications">
+      <option name="closed" value="true" />
+      <created>1766302311950</created>
+      <option name="number" value="00123" />
+      <option name="presentableId" value="LOCAL-00123" />
+      <option name="project" value="LOCAL" />
+      <updated>1766302311950</updated>
+    </task>
+    <task id="LOCAL-00124" summary="feat(webhook): implement WebhookService for room event notifications">
+      <option name="closed" value="true" />
+      <created>1766302393360</created>
+      <option name="number" value="00124" />
+      <option name="presentableId" value="LOCAL-00124" />
+      <option name="project" value="LOCAL" />
+      <updated>1766302393360</updated>
+    </task>
+    <task id="LOCAL-00125" summary="refactor: split room controllers and servces for diffrent features">
+      <option name="closed" value="true" />
+      <created>1766313559838</created>
+      <option name="number" value="00125" />
+      <option name="presentableId" value="LOCAL-00125" />
+      <option name="project" value="LOCAL" />
+      <updated>1766313559838</updated>
+    </task>
+    <task id="LOCAL-00126" summary="refactor: split room controllers and servces for diffrent features">
+      <option name="closed" value="true" />
+      <created>1766313584286</created>
+      <option name="number" value="00126" />
+      <option name="presentableId" value="LOCAL-00126" />
+      <option name="project" value="LOCAL" />
+      <updated>1766313584286</updated>
+    </task>
+    <task id="LOCAL-00127" summary="refactor: split room controllers and servces for diffrent features">
+      <option name="closed" value="true" />
+      <created>1766323641497</created>
+      <option name="number" value="00127" />
+      <option name="presentableId" value="LOCAL-00127" />
+      <option name="project" value="LOCAL" />
+      <updated>1766323641497</updated>
+    </task>
+    <task id="LOCAL-00128" summary="refactor: split room controllers and servces for diffrent features">
+      <option name="closed" value="true" />
+      <created>1766326264081</created>
+      <option name="number" value="00128" />
+      <option name="presentableId" value="LOCAL-00128" />
+      <option name="project" value="LOCAL" />
+      <updated>1766326264081</updated>
+    </task>
+    <task id="LOCAL-00129" summary="refactor: split room controllers and servces for diffrent features">
+      <option name="closed" value="true" />
+      <created>1766326327765</created>
+      <option name="number" value="00129" />
+      <option name="presentableId" value="LOCAL-00129" />
+      <option name="project" value="LOCAL" />
+      <updated>1766326327765</updated>
+    </task>
+    <task id="LOCAL-00130" summary="refactor: split room controllers and servces for diffrent features">
+      <option name="closed" value="true" />
+      <created>1766326332238</created>
+      <option name="number" value="00130" />
+      <option name="presentableId" value="LOCAL-00130" />
+      <option name="project" value="LOCAL" />
+      <updated>1766326332239</updated>
+    </task>
+    <task id="LOCAL-00131" summary="refactor: split room controllers and servces for diffrent features">
+      <option name="closed" value="true" />
+      <created>1766326341003</created>
+      <option name="number" value="00131" />
+      <option name="presentableId" value="LOCAL-00131" />
+      <option name="project" value="LOCAL" />
+      <updated>1766326341003</updated>
+    </task>
+    <task id="LOCAL-00132" summary="refactor: split room controllers and servces for diffrent features">
+      <option name="closed" value="true" />
+      <created>1766326378306</created>
+      <option name="number" value="00132" />
+      <option name="presentableId" value="LOCAL-00132" />
+      <option name="project" value="LOCAL" />
+      <updated>1766326378306</updated>
+    </task>
+    <task id="LOCAL-00133" summary="refactor: split room controllers and servces for diffrent features">
+      <option name="closed" value="true" />
+      <created>1766326844814</created>
+      <option name="number" value="00133" />
+      <option name="presentableId" value="LOCAL-00133" />
+      <option name="project" value="LOCAL" />
+      <updated>1766326844814</updated>
+    </task>
+    <task id="LOCAL-00134" summary="refactor: split room controllers and servces for diffrent features">
+      <option name="closed" value="true" />
+      <created>1766328219777</created>
+      <option name="number" value="00134" />
+      <option name="presentableId" value="LOCAL-00134" />
+      <option name="project" value="LOCAL" />
+      <updated>1766328219777</updated>
+    </task>
+    <task id="LOCAL-00135" summary="refactor: split room controllers and servces for diffrent features">
+      <option name="closed" value="true" />
+      <created>1766328242158</created>
+      <option name="number" value="00135" />
+      <option name="presentableId" value="LOCAL-00135" />
+      <option name="project" value="LOCAL" />
+      <updated>1766328242158</updated>
+    </task>
+    <task id="LOCAL-00136" summary="refactor: split room controllers and servces for diffrent features">
+      <option name="closed" value="true" />
+      <created>1766328354119</created>
+      <option name="number" value="00136" />
+      <option name="presentableId" value="LOCAL-00136" />
+      <option name="project" value="LOCAL" />
+      <updated>1766328354119</updated>
+    </task>
+    <task id="LOCAL-00137" summary="refactor: split room controllers and servces for diffrent features">
+      <option name="closed" value="true" />
+      <created>1766328362778</created>
+      <option name="number" value="00137" />
+      <option name="presentableId" value="LOCAL-00137" />
+      <option name="project" value="LOCAL" />
+      <updated>1766328362778</updated>
+    </task>
+    <task id="LOCAL-00138" summary="refactor: split room controllers and servces for diffrent features">
+      <option name="closed" value="true" />
+      <created>1766328394998</created>
+      <option name="number" value="00138" />
+      <option name="presentableId" value="LOCAL-00138" />
+      <option name="project" value="LOCAL" />
+      <updated>1766328394998</updated>
+    </task>
+    <task id="LOCAL-00139" summary="refactor: split room controllers and servces for diffrent features">
+      <option name="closed" value="true" />
+      <created>1766328406239</created>
+      <option name="number" value="00139" />
+      <option name="presentableId" value="LOCAL-00139" />
+      <option name="project" value="LOCAL" />
+      <updated>1766328406240</updated>
+    </task>
+    <task id="LOCAL-00140" summary="refactor: split room controllers and servces for diffrent features">
+      <option name="closed" value="true" />
+      <created>1766328418234</created>
+      <option name="number" value="00140" />
+      <option name="presentableId" value="LOCAL-00140" />
+      <option name="project" value="LOCAL" />
+      <updated>1766328418234</updated>
+    </task>
+    <task id="LOCAL-00141" summary="refactor: split room controllers and servces for diffrent features">
+      <option name="closed" value="true" />
+      <created>1766328424518</created>
+      <option name="number" value="00141" />
+      <option name="presentableId" value="LOCAL-00141" />
+      <option name="project" value="LOCAL" />
+      <updated>1766328424518</updated>
+    </task>
+    <task id="LOCAL-00142" summary="refactor: split room controllers and servces for diffrent features">
+      <option name="closed" value="true" />
+      <created>1766328430165</created>
+      <option name="number" value="00142" />
+      <option name="presentableId" value="LOCAL-00142" />
+      <option name="project" value="LOCAL" />
+      <updated>1766328430165</updated>
+    </task>
+    <task id="LOCAL-00143" summary="refactor: split room controllers and servces for diffrent features">
+      <option name="closed" value="true" />
+      <created>1766328497758</created>
+      <option name="number" value="00143" />
+      <option name="presentableId" value="LOCAL-00143" />
+      <option name="project" value="LOCAL" />
+      <updated>1766328497758</updated>
+    </task>
+    <task id="LOCAL-00144" summary="refactor: split room controllers and servces for diffrent features">
+      <option name="closed" value="true" />
+      <created>1766330296496</created>
+      <option name="number" value="00144" />
+      <option name="presentableId" value="LOCAL-00144" />
+      <option name="project" value="LOCAL" />
+      <updated>1766330296496</updated>
+    </task>
+    <task id="LOCAL-00145" summary="refactor: split room controllers and servces for diffrent features">
+      <option name="closed" value="true" />
+      <created>1766330301912</created>
+      <option name="number" value="00145" />
+      <option name="presentableId" value="LOCAL-00145" />
+      <option name="project" value="LOCAL" />
+      <updated>1766330301912</updated>
+    </task>
+    <task id="LOCAL-00146" summary="refactor: split room controllers and servces for diffrent features">
+      <option name="closed" value="true" />
+      <created>1766330327434</created>
+      <option name="number" value="00146" />
+      <option name="presentableId" value="LOCAL-00146" />
+      <option name="project" value="LOCAL" />
+      <updated>1766330327434</updated>
+    </task>
+    <task id="LOCAL-00147" summary="refactor: split room controllers and servces for diffrent features">
+      <option name="closed" value="true" />
+      <created>1766331462316</created>
+      <option name="number" value="00147" />
+      <option name="presentableId" value="LOCAL-00147" />
+      <option name="project" value="LOCAL" />
+      <updated>1766331462316</updated>
+    </task>
+    <task id="LOCAL-00148" summary="refactor: split room controllers and servces for diffrent features">
+      <option name="closed" value="true" />
+      <created>1766332577282</created>
+      <option name="number" value="00148" />
+      <option name="presentableId" value="LOCAL-00148" />
+      <option name="project" value="LOCAL" />
+      <updated>1766332577282</updated>
+    </task>
+    <task id="LOCAL-00149" summary="refactor: split room controllers and servces for diffrent features">
+      <option name="closed" value="true" />
+      <created>1766339532758</created>
+      <option name="number" value="00149" />
+      <option name="presentableId" value="LOCAL-00149" />
+      <option name="project" value="LOCAL" />
+      <updated>1766339532758</updated>
+    </task>
+    <task id="LOCAL-00150" summary="refactor: split room controllers and servces for diffrent features">
+      <option name="closed" value="true" />
+      <created>1766377552581</created>
+      <option name="number" value="00150" />
+      <option name="presentableId" value="LOCAL-00150" />
+      <option name="project" value="LOCAL" />
+      <updated>1766377552583</updated>
+    </task>
+    <task id="LOCAL-00151" summary="refactor: split room controllers and servces for diffrent features">
+      <option name="closed" value="true" />
+      <created>1766377558954</created>
+      <option name="number" value="00151" />
+      <option name="presentableId" value="LOCAL-00151" />
+      <option name="project" value="LOCAL" />
+      <updated>1766377558954</updated>
+    </task>
+    <task id="LOCAL-00152" summary="refactor: split room controllers and servces for diffrent features">
+      <option name="closed" value="true" />
+      <created>1766380411138</created>
+      <option name="number" value="00152" />
+      <option name="presentableId" value="LOCAL-00152" />
+      <option name="project" value="LOCAL" />
+      <updated>1766380411138</updated>
+    </task>
+    <option name="localTasksCounter" value="153" />
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
@@ -505,7 +512,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="user-sync-supbase-auth" />
+                        <option value="listen-event-room" />
                       </list>
                     </value>
                   </entry>
@@ -516,6 +523,14 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="feat(webhook): implement WebhookService for room event notifications" />
+    <MESSAGE value="feat(lti): implement LTI V1 service with room management and JWT authentication" />
+    <MESSAGE value="feat: implement WebhookService for room event notifications" />
+    <MESSAGE value="feat(storage): integrate Cloudflare R2 for file storage - add R2 provider and update storage service for presigned URLs - enhance file metadata handling and implement direct upload functionality" />
+    <MESSAGE value="refactor: split room controllers and servces for diffrent features" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor: split room controllers and servces for diffrent features" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

@@ -1,30 +1,10 @@
 import {
   CreateRoomReq,
   RoomMetadata,
-  RoomCreateFeatures,
-  RecordingFeatures,
-  ChatFeatures,
-  SharedNotePadFeatures,
-  WhiteboardFeatures,
-  ExternalMediaPlayerFeatures,
-  WaitingRoomFeatures,
-  BreakoutRoomFeatures,
-  DisplayExternalLinkFeatures,
-  IngressFeatures,
-  SpeechToTextTranslationFeatures,
-  EndToEndEncryptionFeatures,
-  PollsFeatures,
-  InsightsFeatures,
-  LockSettings,
-  CopyrightConf,
   ActiveRoomInfo,
   CommonNotifyEvent,
-  NotifyEventRoom,
   LtiClaims,
-  LtiCustomParameters,
-  LtiCustomDesign,
-  CommonResponse,
-  // Schema imports
+  WebhookEvent,
   ActiveRoomInfoSchema,
   CopyrightConfSchema,
   RecordingFeaturesSchema,
@@ -49,7 +29,7 @@ import {
   EndToEndEncryptionFeaturesSchema,
   InsightsFeaturesSchema,
 } from "@workspace/protocol";
-import { create } from '@bufbuild/protobuf';
+import { create, toJson, fromJson, toJsonString, fromJsonString, type JsonValue } from '@bufbuild/protobuf';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -58,6 +38,19 @@ export interface RoomDefaultSettings {
   maxParticipants?: number;
   maxDuration?: number;
   maxNumBreakoutRooms?: number;
+}
+
+export interface RoomConfig {
+  copyrightConf?: {
+    display: boolean;
+    text: string;
+    allowOverride?: boolean;
+  };
+  insightsEnabled?: boolean;
+  maxSelectedOneTimeTransLangs?: number;
+  speechToTextEnabled?: boolean;
+  maxNumTranLangsAllowSelecting?: number;
+  roomDefaultSettings?: RoomDefaultSettings;
 }
 
 export class RoomUtils {
@@ -90,6 +83,16 @@ export class RoomUtils {
     });
   }
 
+  /**
+   * INTERNAL: Get snake_case format for NATS KV storage
+   * 
+   * NOTE: This uses manual snake_case mapping because:
+   * 1. NATS KV storage format (internal only, not public API)
+   * 2. No corresponding Protobuf message exists for this structure
+   * 3. Different from public API responses (which use Protobuf)
+   * 
+   * DO NOT use this for API responses - use Protobuf messages instead
+   */
   public static getSnakeCaseNatsKvRoomInfo(
     room: {
       roomId: string;
@@ -112,7 +115,7 @@ export class RoomUtils {
 
   // --- Defaults Logic
 
-  public static setRoomDefaults(r: CreateRoomReq, config: any) {
+  public static setRoomDefaults(r: CreateRoomReq, config: RoomConfig) {
     if (!r.metadata) {
       r.metadata = this.createDefaultMetadata(r.roomId);
     }
@@ -186,7 +189,7 @@ export class RoomUtils {
     }
 
     // 6. Global Limits
-    this.setDefaultRoomSettings(config.roomDefaultSettings, r);
+    this.setDefaultRoomSettings(config.roomDefaultSettings ?? {}, r);
   }
 
   private static createDefaultMetadata(roomId: string): RoomMetadata {
@@ -201,7 +204,7 @@ export class RoomUtils {
         allowWebcams: true,
         muteOnStart: false,
         allowScreenShare: true,
-        allowRtmp: true,
+        allowRtmp: false, // RTMP disabled
         allowViewOtherWebcams: true,
         allowViewOtherUsersList: true,
         adminOnlyWebcams: false,
@@ -209,9 +212,9 @@ export class RoomUtils {
         allowVirtualBg: true,
         allowRaiseHand: true,
         recordingFeatures: create(RecordingFeaturesSchema, {
-          isAllow: true,
-          isAllowCloud: true,
-          isAllowLocal: true,
+          isAllow: false, // Recording disabled
+          isAllowCloud: false, // disable
+          isAllowLocal: false, // disable
           enableAutoCloudRecording: false,
           onlyRecordAdminWebcams: false,
         }),
@@ -270,7 +273,7 @@ export class RoomUtils {
     // Ensure strict booleans and sub-objects exist
     if (f.allowWebcams === undefined) f.allowWebcams = true;
     if (f.allowScreenShare === undefined) f.allowScreenShare = true;
-    if (f.allowRtmp === undefined) f.allowRtmp = true;
+    if (f.allowRtmp === undefined) f.allowRtmp = false; // RTMP disabled
     if (f.allowViewOtherWebcams === undefined) f.allowViewOtherWebcams = true;
     if (f.allowViewOtherUsersList === undefined)
       f.allowViewOtherUsersList = true;
@@ -278,9 +281,9 @@ export class RoomUtils {
     // Initializing sub-features if missing
     if (!f.recordingFeatures)
       f.recordingFeatures = create(RecordingFeaturesSchema, {
-        isAllow: true,
-        isAllowCloud: true,
-        isAllowLocal: true,
+        isAllow: false, // Recording disabled
+        isAllowCloud: false, // disable
+        isAllowLocal: false, // disable
         enableAutoCloudRecording: false,
         onlyRecordAdminWebcams: false,
       });
@@ -430,20 +433,20 @@ export class RoomUtils {
   // --- PrepareCommonWebhookNotifyEvent ---
   // Note: Depends on receiving a LiveKit Webhook Event structure.
   // Simplifying assuming input is any matching the structure for now or generic map.
-  public static prepareCommonWebhookNotifyEvent(event: any): CommonNotifyEvent {
+  public static prepareCommonWebhookNotifyEvent(event: WebhookEvent): CommonNotifyEvent {
     const room = event.room;
     return create(CommonNotifyEventSchema, {
       event: event.event,
-      room: create(NotifyEventRoomSchema, {
-        sid: room?.sid,
-        roomId: room?.name,
-        emptyTimeout: room?.emptyTimeout,
-        maxParticipants: room?.maxParticipants,
-        creationTime: room?.creationTime,
-        enabledCodecs: room?.enabledCodecs || [],
-        metadata: room?.metadata,
-        numParticipants: room?.numParticipants,
-      }),
+      room: room ? create(NotifyEventRoomSchema, {
+        sid: room.sid,
+        roomId: room.name,
+        emptyTimeout: room.emptyTimeout,
+        maxParticipants: room.maxParticipants,
+        creationTime: room.creationTime?.toString(),
+        enabledCodecs: room.enabledCodecs,
+        metadata: room.metadata,
+        numParticipants: room.numParticipants,
+      }) : undefined,
       participant: event.participant,
       track: event.track,
       id: event.id,
@@ -541,7 +544,7 @@ export class RoomUtils {
         roomFeatures: create(RoomCreateFeaturesSchema, {
           allowWebcams: true,
           allowScreenShare: true,
-          allowRtmp: true,
+          allowRtmp: false, // RTMP disabled
           allowViewOtherWebcams: true,
           allowViewOtherUsersList: true,
           muteOnStart: false, // Added default
@@ -558,9 +561,9 @@ export class RoomUtils {
             streamKey: '',
           }), // Added default
           recordingFeatures: create(RecordingFeaturesSchema, {
-            isAllow: true,
-            isAllowCloud: true,
-            isAllowLocal: true,
+            isAllow: false, // Recording disabled
+            isAllowCloud: false, // disable
+            isAllowLocal: false, // disable
             enableAutoCloudRecording: false,
             onlyRecordAdminWebcams: false,
           }),
@@ -670,608 +673,12 @@ export class RoomUtils {
     }
   }
 
-  // --- Snake Case Serialization (Crucial for Client compatibility) ---
-
-  public static toProtocolMetadata(m: RoomMetadata): any {
-    return {
-      room_title: m.roomTitle,
-      welcome_message: m.welcomeMessage,
-      is_recording: m.isRecording,
-      is_active_rtmp: m.isActiveRtmp,
-      parent_room_id: m.parentRoomId,
-      is_breakout_room: m.isBreakoutRoom,
-      webhook_url: m.webhookUrl,
-      started_at: m.startedAt,
-      logout_url: m.logoutUrl,
-      room_features: this.mapRoomFeatures(m.roomFeatures),
-      default_lock_settings: this.mapLockSettings(m.defaultLockSettings),
-      copyright_conf: this.mapCopyrightConf(m.copyrightConf),
-      metadata_id: m.metadataId,
-      extra_data: m.extraData,
-    };
+  /**
+   * Convert RoomMetadata to Protocol JSON format
+   * Uses @bufbuild/protobuf to automatically handle camelCase → snake_case
+   */
+  public static toProtocolMetadata(m: RoomMetadata): JsonValue {
+    return toJson(RoomMetadataSchema, m);
   }
 
-  private static mapRoomFeatures(f?: RoomCreateFeatures): any {
-    if (!f) return undefined;
-    return {
-      allow_webcams: f.allowWebcams,
-      mute_on_start: f.muteOnStart,
-      allow_screen_share: f.allowScreenShare,
-      allow_rtmp: f.allowRtmp,
-      allow_view_other_webcams: f.allowViewOtherWebcams,
-      allow_view_other_users_list: f.allowViewOtherUsersList,
-      admin_only_webcams: f.adminOnlyWebcams,
-      allow_polls: f.allowPolls, // deprecated but mapped
-      room_duration: f.roomDuration,
-      enable_analytics: f.enableAnalytics,
-      allow_virtual_bg: f.allowVirtualBg,
-      allow_raise_hand: f.allowRaiseHand,
-      auto_gen_user_id: f.autoGenUserId,
-      recording_features: this.mapRecordingFeatures(f.recordingFeatures),
-      chat_features: this.mapChatFeatures(f.chatFeatures),
-      shared_note_pad_features: this.mapSharedNotePadFeatures(
-        f.sharedNotePadFeatures,
-      ),
-      whiteboard_features: this.mapWhiteboardFeatures(f.whiteboardFeatures),
-      external_media_player_features: this.mapExternalMediaPlayerFeatures(
-        f.externalMediaPlayerFeatures,
-      ),
-      waiting_room_features: this.mapWaitingRoomFeatures(f.waitingRoomFeatures),
-      breakout_room_features: this.mapBreakoutRoomFeatures(
-        f.breakoutRoomFeatures,
-      ),
-      display_external_link_features: this.mapDisplayExternalLinkFeatures(
-        f.displayExternalLinkFeatures,
-      ),
-      ingress_features: this.mapIngressFeatures(f.ingressFeatures),
-      speech_to_text_translation_features:
-        this.mapSpeechToTextTranslationFeatures(
-          f.speechToTextTranslationFeatures,
-        ),
-      end_to_end_encryption_features: this.mapEndToEndEncryptionFeatures(
-        f.endToEndEncryptionFeatures,
-      ),
-      polls_features: this.mapPollsFeatures(f.pollsFeatures),
-      insights_features: this.mapInsightsFeatures(f.insightsFeatures),
-    };
-  }
-
-  private static mapRecordingFeatures(f?: RecordingFeatures): any {
-    if (!f) return undefined;
-    return {
-      is_allow: f.isAllow,
-      is_allow_cloud: f.isAllowCloud,
-      enable_auto_cloud_recording: f.enableAutoCloudRecording,
-      is_allow_local: f.isAllowLocal,
-      only_record_admin_webcams: f.onlyRecordAdminWebcams,
-    };
-  }
-
-  private static mapChatFeatures(f?: ChatFeatures): any {
-    if (!f) return undefined;
-    return {
-      allow_chat: f.allowChat, // deprecated
-      allow_file_upload: f.allowFileUpload, // deprecated
-      is_allow: f.isAllow,
-      is_allow_file_upload: f.isAllowFileUpload,
-      allowed_file_types: f.allowedFileTypes,
-      max_file_size: f.maxFileSize,
-    };
-  }
-
-  private static mapSharedNotePadFeatures(f?: SharedNotePadFeatures): any {
-    if (!f) return undefined;
-    return {
-      allowed_shared_note_pad: f.allowedSharedNotePad, // deprecated
-      is_allow: f.isAllow,
-      is_active: f.isActive,
-      visible: f.visible,
-      node_id: f.nodeId,
-      host: f.host,
-      note_pad_id: f.notePadId,
-      read_only_pad_id: f.readOnlyPadId,
-    };
-  }
-
-  private static mapWhiteboardFeatures(f?: WhiteboardFeatures): any {
-    if (!f) return undefined;
-    return {
-      allowed_whiteboard: f.allowedWhiteboard, // deprecated
-      is_allow: f.isAllow,
-      visible: f.visible,
-      preload_file: f.preloadFile,
-      whiteboard_file_id: f.whiteboardFileId,
-      file_name: f.fileName,
-      file_path: f.filePath,
-      total_pages: f.totalPages,
-      max_allowed_file_size: f.maxAllowedFileSize,
-    };
-  }
-
-  private static mapExternalMediaPlayerFeatures(
-    f?: ExternalMediaPlayerFeatures,
-  ): any {
-    if (!f) return undefined;
-    return {
-      allowed_external_media_player: f.allowedExternalMediaPlayer, // deprecated
-      is_allow: f.isAllow,
-      is_active: f.isActive,
-      shared_by: f.sharedBy,
-      url: f.url,
-    };
-  }
-
-  private static mapWaitingRoomFeatures(f?: WaitingRoomFeatures): any {
-    if (!f) return undefined;
-    return {
-      is_active: f.isActive,
-      waiting_room_msg: f.waitingRoomMsg,
-    };
-  }
-
-  private static mapBreakoutRoomFeatures(f?: BreakoutRoomFeatures): any {
-    if (!f) return undefined;
-    return {
-      is_allow: f.isAllow,
-      is_active: f.isActive,
-      allowed_number_rooms: f.allowedNumberRooms,
-    };
-  }
-
-  private static mapDisplayExternalLinkFeatures(
-    f?: DisplayExternalLinkFeatures,
-  ): any {
-    if (!f) return undefined;
-    return {
-      is_allow: f.isAllow,
-      is_active: f.isActive,
-      link: f.link,
-      shared_by: f.sharedBy,
-    };
-  }
-
-  private static mapIngressFeatures(f?: IngressFeatures): any {
-    if (!f) return undefined;
-    return {
-      is_allow: f.isAllow,
-      input_type: f.inputType,
-      url: f.url,
-      stream_key: f.streamKey,
-    };
-  }
-
-  private static mapSpeechToTextTranslationFeatures(
-    f?: SpeechToTextTranslationFeatures,
-  ): any {
-    if (!f) return undefined;
-    return {
-      is_allow: f.isAllow,
-      is_allow_translation: f.isAllowTranslation,
-      is_enabled: f.isEnabled,
-      is_enabled_translation: f.isEnabledTranslation,
-      max_num_tran_langs_allow_selecting: f.maxNumTranLangsAllowSelecting,
-      allowed_speech_langs: f.allowedSpeechLangs,
-      allowed_speech_users: f.allowedSpeechUsers,
-      allowed_trans_langs: f.allowedTransLangs,
-      default_subtitle_lang: f.defaultSubtitleLang,
-    };
-  }
-
-  private static mapEndToEndEncryptionFeatures(
-    f?: EndToEndEncryptionFeatures,
-  ): any {
-    if (!f) return undefined;
-    return {
-      is_enabled: f.isEnabled,
-      included_chat_messages: f.includedChatMessages,
-      included_whiteboard: f.includedWhiteboard,
-      enabled_self_insert_encryption_key: f.enabledSelfInsertEncryptionKey,
-      encryption_key: f.encryptionKey,
-    };
-  }
-
-  private static mapPollsFeatures(f?: PollsFeatures): any {
-    if (!f) return undefined;
-    return {
-      is_allow: f.isAllow,
-      is_active: f.isActive,
-    };
-  }
-
-  private static mapInsightsFeatures(f?: InsightsFeatures): any {
-    if (!f) return undefined;
-    // We can expand this with sub-maps if needed, but for now simple recursion or direct mapping if structure matches
-    // Since InsightsFeatures has sub-objects, we should map them too to be safe/consistent
-    return {
-      is_allow: f.isAllow,
-      transcription_features: this.mapInsightsTranscriptionFeatures(
-        f.transcriptionFeatures,
-      ),
-      chat_translation_features: this.mapInsightsChatTranslationFeatures(
-        f.chatTranslationFeatures,
-      ),
-      ai_features: this.mapInsightsAIFeatures(f.aiFeatures),
-    };
-  }
-
-  private static mapInsightsTranscriptionFeatures(f?: any): any {
-    if (!f) return undefined;
-    return {
-      is_allow: f.isAllow,
-      is_allow_translation: f.isAllowTranslation,
-      is_allow_speech_synthesis: f.isAllowSpeechSynthesis,
-      is_enabled: f.isEnabled,
-      allowed_spoken_langs: f.allowedSpokenLangs,
-      allowed_speech_users: f.allowedSpeechUsers,
-      is_enabled_translation: f.isEnabledTranslation,
-      max_selected_trans_langs: f.maxSelectedTransLangs,
-      allowed_trans_langs: f.allowedTransLangs,
-      default_subtitle_lang: f.defaultSubtitleLang,
-      is_enabled_speech_synthesis: f.isEnabledSpeechSynthesis,
-    };
-  }
-
-  private static mapInsightsChatTranslationFeatures(f?: any): any {
-    if (!f) return undefined;
-    return {
-      is_allow: f.isAllow,
-      is_enabled: f.isEnabled,
-      allowed_trans_langs: f.allowedTransLangs,
-      max_selected_trans_langs: f.maxSelectedTransLangs,
-      default_lang: f.defaultLang,
-    };
-  }
-
-  private static mapInsightsAIFeatures(f?: any): any {
-    if (!f) return undefined;
-    return {
-      is_allow: f.isAllow,
-      ai_text_chat_features: f.aiTextChatFeatures
-        ? {
-          is_allow: f.aiTextChatFeatures.isAllow,
-          is_enabled: f.aiTextChatFeatures.isEnabled,
-          is_allowed_everyone: f.aiTextChatFeatures.isAllowedEveryone,
-          allowed_user_ids: f.aiTextChatFeatures.allowedUserIds,
-        }
-        : undefined,
-      meeting_summarization_features: f.meetingSummarizationFeatures
-        ? {
-          is_allow: f.meetingSummarizationFeatures.isAllow,
-          summarization_prompt:
-            f.meetingSummarizationFeatures.summarizationPrompt,
-          is_enabled: f.meetingSummarizationFeatures.isEnabled,
-        }
-        : undefined,
-    };
-  }
-
-  private static mapLockSettings(l?: LockSettings): any {
-    if (!l) return undefined;
-    return {
-      lock_microphone: l.lockMicrophone,
-      lock_webcam: l.lockWebcam,
-      lock_screen_sharing: l.lockScreenSharing,
-      lock_chat: l.lockChat,
-      lock_chat_send_message: l.lockChatSendMessage,
-      lock_chat_file_share: l.lockChatFileShare,
-      lock_private_chat: l.lockPrivateChat,
-      lock_whiteboard: l.lockWhiteboard,
-      lock_shared_notepad: l.lockSharedNotepad,
-    };
-  }
-
-  private static mapCopyrightConf(c?: CopyrightConf): any {
-    if (!c) return undefined;
-    return {
-      display: c.display,
-      text: c.text,
-    };
-  }
-
-  // --- Snake to Camel Case Conversion (For Client Compatibility) ---
-
-  public static convertSnakeToCamelCaseMetadata(metadataStr: string): string {
-    try {
-      if (!metadataStr || metadataStr === '') return '{}';
-      const snake = JSON.parse(metadataStr);
-      const camel: any = {
-        roomTitle: snake.room_title,
-        welcomeMessage: snake.welcome_message,
-        isRecording: snake.is_recording,
-        isActiveRtmp: snake.is_active_rtmp,
-        parentRoomId: snake.parent_room_id,
-        isBreakoutRoom: snake.is_breakout_room,
-        webhookUrl: snake.webhook_url,
-        startedAt: snake.started_at,
-        logoutUrl: snake.logout_url,
-        roomFeatures: this.mapSnakeRoomFeatures(snake.room_features),
-        defaultLockSettings: this.mapSnakeLockSettings(
-          snake.default_lock_settings,
-        ),
-        copyrightConf: this.mapSnakeCopyrightConf(snake.copyright_conf),
-        metadataId: snake.metadata_id,
-        extraData: snake.extra_data,
-      };
-      // Also preserve any top-level keys that might be relevant (like isAdmin, isPresenter if injected)
-      if (snake.isAdmin !== undefined) camel.isAdmin = snake.isAdmin;
-      if (snake.isPresenter !== undefined)
-        camel.isPresenter = snake.isPresenter;
-
-      return JSON.stringify(camel);
-    } catch (e) {
-      console.error('Error converting metadata case:', e);
-      return metadataStr; // Fallback to original if parse fails
-    }
-  }
-
-  private static mapSnakeRoomFeatures(f: any): any {
-    if (!f) return undefined;
-    return {
-      allowWebcams: f.allow_webcams,
-      muteOnStart: f.mute_on_start,
-      allowScreenShare: f.allow_screen_share,
-      allowRtmp: f.allow_rtmp,
-      allowViewOtherWebcams: f.allow_view_other_webcams,
-      allowViewOtherUsersList: f.allow_view_other_users_list,
-      adminOnlyWebcams: f.admin_only_webcams,
-      allowPolls: f.allow_polls,
-      roomDuration: f.room_duration,
-      enableAnalytics: f.enable_analytics,
-      allowVirtualBg: f.allow_virtual_bg,
-      allowRaiseHand: f.allow_raise_hand,
-      autoGenUserId: f.auto_gen_user_id,
-      recordingFeatures: this.mapSnakeRecordingFeatures(f.recording_features),
-      chatFeatures: this.mapSnakeChatFeatures(f.chat_features),
-      sharedNotePadFeatures: this.mapSnakeSharedNotePadFeatures(
-        f.shared_note_pad_features,
-      ),
-      whiteboardFeatures: this.mapSnakeWhiteboardFeatures(
-        f.whiteboard_features,
-      ),
-      externalMediaPlayerFeatures: this.mapSnakeExternalMediaPlayerFeatures(
-        f.external_media_player_features,
-      ),
-      waitingRoomFeatures: this.mapSnakeWaitingRoomFeatures(
-        f.waiting_room_features,
-      ),
-      breakoutRoomFeatures: this.mapSnakeBreakoutRoomFeatures(
-        f.breakout_room_features,
-      ),
-      displayExternalLinkFeatures: this.mapSnakeDisplayExternalLinkFeatures(
-        f.display_external_link_features,
-      ),
-      ingressFeatures: this.mapSnakeIngressFeatures(f.ingress_features),
-      speechToTextTranslationFeatures:
-        this.mapSnakeSpeechToTextTranslationFeatures(
-          f.speech_to_text_translation_features,
-        ),
-      endToEndEncryptionFeatures: this.mapSnakeEndToEndEncryptionFeatures(
-        f.end_to_end_encryption_features,
-      ),
-      pollsFeatures: this.mapSnakePollsFeatures(f.polls_features),
-      insightsFeatures: this.mapSnakeInsightsFeatures(f.insights_features),
-    };
-  }
-
-  private static mapSnakeRecordingFeatures(f: any): any {
-    if (!f) return undefined;
-    return {
-      isAllow: f.is_allow,
-      isAllowCloud: f.is_allow_cloud,
-      enableAutoCloudRecording: f.enable_auto_cloud_recording,
-      isAllowLocal: f.is_allow_local,
-      onlyRecordAdminWebcams: f.only_record_admin_webcams,
-    };
-  }
-
-  private static mapSnakeChatFeatures(f: any): any {
-    if (!f) return undefined;
-    return {
-      allowChat: f.allow_chat,
-      allowFileUpload: f.allow_file_upload,
-      isAllow: f.is_allow,
-      isAllowFileUpload: f.is_allow_file_upload,
-      allowedFileTypes: f.allowed_file_types,
-      maxFileSize: f.max_file_size,
-    };
-  }
-
-  private static mapSnakeSharedNotePadFeatures(f: any): any {
-    if (!f) return undefined;
-    return {
-      allowedSharedNotePad: f.allowed_shared_note_pad,
-      isAllow: f.is_allow,
-      isActive: f.is_active,
-      visible: f.visible,
-      nodeId: f.node_id,
-      host: f.host,
-      notePadId: f.note_pad_id,
-      readOnlyPadId: f.read_only_pad_id,
-    };
-  }
-
-  private static mapSnakeWhiteboardFeatures(f: any): any {
-    if (!f) return undefined;
-    return {
-      allowedWhiteboard: f.allowed_whiteboard,
-      isAllow: f.is_allow,
-      visible: f.visible,
-      preloadFile: f.preload_file,
-      whiteboardFileId: f.whiteboard_file_id,
-      fileName: f.file_name,
-      filePath: f.file_path,
-      totalPages: f.total_pages,
-      maxAllowedFileSize: f.max_allowed_file_size,
-    };
-  }
-
-  private static mapSnakeExternalMediaPlayerFeatures(f: any): any {
-    if (!f) return undefined;
-    return {
-      allowedExternalMediaPlayer: f.allowed_external_media_player,
-      isAllow: f.is_allow,
-      isActive: f.is_active,
-      sharedBy: f.shared_by,
-      url: f.url,
-    };
-  }
-
-  private static mapSnakeWaitingRoomFeatures(f: any): any {
-    if (!f) return undefined;
-    return {
-      isActive: f.is_active,
-      waitingRoomMsg: f.waiting_room_msg,
-    };
-  }
-
-  private static mapSnakeBreakoutRoomFeatures(f: any): any {
-    if (!f) return undefined;
-    return {
-      isAllow: f.is_allow,
-      isActive: f.is_active,
-      allowedNumberRooms: f.allowed_number_rooms,
-    };
-  }
-
-  private static mapSnakeDisplayExternalLinkFeatures(f: any): any {
-    if (!f) return undefined;
-    return {
-      isAllow: f.is_allow,
-      isActive: f.is_active,
-      link: f.link,
-      sharedBy: f.shared_by,
-    };
-  }
-
-  private static mapSnakeIngressFeatures(f: any): any {
-    if (!f) return undefined;
-    return {
-      isAllow: f.is_allow,
-      inputType: f.input_type,
-      url: f.url,
-      streamKey: f.stream_key,
-    };
-  }
-
-  private static mapSnakeSpeechToTextTranslationFeatures(f: any): any {
-    if (!f) return undefined;
-    return {
-      isAllow: f.is_allow,
-      isAllowTranslation: f.is_allow_translation,
-      isEnabled: f.is_enabled,
-      isEnabledTranslation: f.is_enabled_translation,
-      maxNumTranLangsAllowSelecting: f.max_num_tran_langs_allow_selecting,
-      allowedSpeechLangs: f.allowed_speech_langs,
-      allowedSpeechUsers: f.allowed_speech_users,
-      allowedTransLangs: f.allowed_trans_langs,
-      defaultSubtitleLang: f.default_subtitle_lang,
-    };
-  }
-
-  private static mapSnakeEndToEndEncryptionFeatures(f: any): any {
-    if (!f) return undefined;
-    return {
-      isEnabled: f.is_enabled,
-      includedChatMessages: f.included_chat_messages,
-      includedWhiteboard: f.included_whiteboard,
-      enabledSelfInsertEncryptionKey: f.enabled_self_insert_encryption_key,
-      encryptionKey: f.encryption_key,
-    };
-  }
-
-  private static mapSnakePollsFeatures(f: any): any {
-    if (!f) return undefined;
-    return {
-      isAllow: f.is_allow,
-      isActive: f.is_active,
-    };
-  }
-
-  private static mapSnakeInsightsFeatures(f: any): any {
-    if (!f) return undefined;
-    return {
-      isAllow: f.is_allow,
-      transcriptionFeatures: this.mapSnakeInsightsTranscriptionFeatures(
-        f.transcription_features,
-      ),
-      chatTranslationFeatures: this.mapSnakeInsightsChatTranslationFeatures(
-        f.chat_translation_features,
-      ),
-      aiFeatures: this.mapSnakeInsightsAIFeatures(f.ai_features),
-    };
-  }
-
-  private static mapSnakeInsightsTranscriptionFeatures(f: any): any {
-    if (!f) return undefined;
-    return {
-      isAllow: f.is_allow,
-      isAllowTranslation: f.is_allow_translation,
-      isAllowSpeechSynthesis: f.is_allow_speech_synthesis,
-      isEnabled: f.is_enabled,
-      allowedSpokenLangs: f.allowed_spoken_langs,
-      allowedSpeechUsers: f.allowed_speech_users,
-      isEnabledTranslation: f.is_enabled_translation,
-      maxSelectedTransLangs: f.max_selected_trans_langs,
-      allowedTransLangs: f.allowed_trans_langs,
-      defaultSubtitleLang: f.default_subtitle_lang,
-      isEnabledSpeechSynthesis: f.is_enabled_speech_synthesis,
-    };
-  }
-
-  private static mapSnakeInsightsChatTranslationFeatures(f: any): any {
-    if (!f) return undefined;
-    return {
-      isAllow: f.is_allow,
-      isEnabled: f.is_enabled,
-      allowedTransLangs: f.allowed_trans_langs,
-      maxSelectedTransLangs: f.max_selected_trans_langs,
-      defaultLang: f.default_lang,
-    };
-  }
-
-  private static mapSnakeInsightsAIFeatures(f: any): any {
-    if (!f) return undefined;
-    return {
-      isAllow: f.is_allow,
-      aiTextChatFeatures: f.ai_text_chat_features
-        ? {
-          isAllow: f.ai_text_chat_features.is_allow,
-          isEnabled: f.ai_text_chat_features.is_enabled,
-          isAllowedEveryone: f.ai_text_chat_features.is_allowed_everyone,
-          allowedUserIds: f.ai_text_chat_features.allowed_user_ids,
-        }
-        : undefined,
-      meetingSummarizationFeatures: f.meeting_summarization_features
-        ? {
-          isAllow: f.meeting_summarization_features.is_allow,
-          summarizationPrompt:
-            f.meeting_summarization_features.summarization_prompt,
-          isEnabled: f.meeting_summarization_features.is_enabled,
-        }
-        : undefined,
-    };
-  }
-
-  private static mapSnakeLockSettings(l: any): any {
-    if (!l) return undefined;
-    return {
-      lockMicrophone: l.lock_microphone,
-      lockWebcam: l.lock_webcam,
-      lockScreenSharing: l.lock_screen_sharing,
-      lockChat: l.lock_chat,
-      lockChatSendMessage: l.lock_chat_send_message,
-      lockChatFileShare: l.lock_chat_file_share,
-      lockPrivateChat: l.lock_private_chat,
-      lockWhiteboard: l.lock_whiteboard,
-      lockSharedNotepad: l.lock_shared_notepad,
-    };
-  }
-
-  private static mapSnakeCopyrightConf(c: any): any {
-    if (!c) return undefined;
-    return {
-      display: c.display,
-      text: c.text,
-    };
-  }
 }

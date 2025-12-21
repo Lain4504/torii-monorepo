@@ -1,21 +1,21 @@
 import { Injectable, Logger } from '@nestjs/common';
-import {
-  PrismaService,
-  LiveKitService,
-  RedisService,
-  NatsService,
-} from '@server/shared';
+import { PrismaService, LiveKitService, RedisService, NatsService } from '@server/shared';
 import {
   CreateBreakoutRoomsReq,
   JoinBreakoutRoomReq,
   EndBreakoutRoomReq,
   NatsMsgServerToClientEvents,
   CreateRoomReqSchema,
+  RoomEndAPIReqSchema,
+  BreakoutRoom,
+  BreakoutRoomRes,
+  BreakoutRoomResSchema,
+  IncreaseBreakoutRoomDurationReq,
+  BroadcastBreakoutRoomMsgReq,
 } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 import { RoomService } from './room.service';
 import { RpcException } from '@nestjs/microservices';
-
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -30,11 +30,11 @@ export class BreakoutRoomService {
     private readonly natsService: NatsService,
   ) { }
 
-  async createBreakoutRooms(data: CreateBreakoutRoomsReq) {
+  async createBreakoutRooms(data: CreateBreakoutRoomsReq): Promise<BreakoutRoomRes> {
     this.logger.log(
       `Creating ${data.rooms.length} breakout rooms for parent: ${data.roomId}`,
     );
-    const responses: any[] = [];
+    const responses: Array<{ success: boolean; roomId: string; error?: string }> = [];
 
     // 1. Fetch Parent Room Metadata
     const parentRoomList = await this.liveKitService
@@ -43,7 +43,14 @@ export class BreakoutRoomService {
     if (parentRoomList.length === 0)
       throw new RpcException('Parent room not found');
     const parentRoom = parentRoomList[0];
-    let parentMeta: any = {};
+    interface RoomMetadata {
+      [key: string]: any;
+      isBreakoutRoom?: boolean;
+      parentRoomId?: string;
+      roomTitle?: string;
+      roomFeatures?: any;
+    }
+    let parentMeta: RoomMetadata = {};
     try {
       parentMeta = JSON.parse(parentRoom.metadata);
     } catch (e) { }
@@ -134,10 +141,14 @@ export class BreakoutRoomService {
       .getRoomClient()
       .updateRoomMetadata(data.roomId, JSON.stringify(parentMeta));
 
-    return { success: true, results: responses };
+    return create(BreakoutRoomResSchema, {
+      status: true,
+      msg: 'success',
+      rooms: [],
+    });
   }
 
-  async joinBreakoutRoom(data: JoinBreakoutRoomReq) {
+  async joinBreakoutRoom(data: JoinBreakoutRoomReq): Promise<BreakoutRoomRes> {
     this.logger.log(
       `User ${data.userId} joining breakout room ${data.breakoutRoomId}`,
     );
@@ -196,14 +207,18 @@ export class BreakoutRoomService {
       room.metadata as string,
     );
 
-    return { success: true, token };
+    return create(BreakoutRoomResSchema, {
+      status: true,
+      msg: 'success',
+      token,
+    });
   }
 
   async endBreakoutRoom(data: EndBreakoutRoomReq) {
-    return this.roomService.endRoom({ roomId: data.breakoutRoomId });
+    return this.roomService.endRoom(create(RoomEndAPIReqSchema, { roomId: data.breakoutRoomId }));
   }
 
-  async endAllBreakoutRooms(data: { roomId: string }) {
+  async endAllBreakoutRooms(data: { roomId: string }): Promise<BreakoutRoomRes> {
     this.logger.log(`Ending all breakout rooms for parent: ${data.roomId}`);
     const rooms = await this.prisma.roomInfo.findMany({
       where: {
@@ -214,7 +229,7 @@ export class BreakoutRoomService {
     });
 
     for (const room of rooms) {
-      await this.roomService.endRoom({ roomId: room.roomId });
+      await this.roomService.endRoom(create(RoomEndAPIReqSchema, { roomId: room.roomId }));
       try {
         await this.natsService.kvDelete(
           `wajlc-breakoutRoom-${data.roomId}`,
@@ -247,36 +262,44 @@ export class BreakoutRoomService {
       } catch (e) { }
     }
 
-    return { success: true };
+    return create(BreakoutRoomResSchema, {
+      status: true,
+      msg: 'success',
+      rooms: [],
+    });
   }
 
-  async getBreakoutRooms(data: { roomId: string }) {
+  async getBreakoutRooms(data: { roomId: string }): Promise<BreakoutRoomRes> {
     const rooms = await this.fetchBreakoutRooms(data.roomId);
     if (!rooms || rooms.length === 0) {
       throw new RpcException('no breakout rooms found');
     }
-    return { status: true, msg: 'success', rooms };
+    return create(BreakoutRoomResSchema, {
+      status: true,
+      msg: 'success',
+      rooms,
+    });
   }
 
-  async getMyBreakoutRooms(data: { roomId: string; userId: string }) {
+  async getMyBreakoutRooms(data: { roomId: string; userId: string }): Promise<BreakoutRoomRes> {
     const rooms = await this.fetchBreakoutRooms(data.roomId);
     if (!rooms || rooms.length === 0) {
       throw new RpcException('no breakout rooms found');
     }
 
     for (const room of rooms) {
-      if (room.users.some((u: any) => u.id === data.userId)) {
-        return { status: true, msg: 'success', room };
+      if (room.users.some((u) => u.id === data.userId)) {
+        return create(BreakoutRoomResSchema, {
+          status: true,
+          msg: 'success',
+          room,
+        });
       }
     }
     throw new RpcException('not found');
   }
 
-  async increaseBreakoutRoomDuration(data: {
-    roomId: string;
-    breakoutRoomId: string;
-    duration: number;
-  }) {
+  async increaseBreakoutRoomDuration(data: IncreaseBreakoutRoomDurationReq): Promise<BreakoutRoomRes> {
     // 1. Fetch current info
     const kv = await this.natsService.kvGet(
       `wajlc-breakoutRoom-${data.roomId}`,
@@ -298,12 +321,20 @@ export class BreakoutRoomService {
       JSON.stringify(room),
     );
 
-    return { status: true, msg: 'success' };
+    return create(BreakoutRoomResSchema, {
+      status: true,
+      msg: 'success',
+      rooms: [],
+    });
   }
 
-  async sendBreakoutRoomMsg(data: { roomId: string; msg: string }) {
+  async sendBreakoutRoomMsg(data: BroadcastBreakoutRoomMsgReq): Promise<BreakoutRoomRes> {
     const rooms = await this.fetchBreakoutRooms(data.roomId);
-    if (!rooms || rooms.length === 0) return { status: true, msg: 'success' };
+    if (!rooms || rooms.length === 0) return create(BreakoutRoomResSchema, {
+      status: true,
+      msg: 'success',
+      rooms: [],
+    });
 
     for (const room of rooms) {
       await this.roomService.broadcastNatsEvent(
@@ -312,10 +343,14 @@ export class BreakoutRoomService {
         data.msg,
       );
     }
-    return { status: true, msg: 'success' };
+    return create(BreakoutRoomResSchema, {
+      status: true,
+      msg: 'success',
+      rooms: [],
+    });
   }
 
-  private async fetchBreakoutRooms(roomId: string): Promise<any[]> {
+  private async fetchBreakoutRooms(roomId: string): Promise<BreakoutRoom[]> {
     const bucket = `wajlc-breakoutRoom-${roomId}`;
     // We'll use a manual approach since kvGetAll isn't in NatsService yet, 
     // or better, I should add it to NatsService.

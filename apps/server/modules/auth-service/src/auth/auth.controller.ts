@@ -12,11 +12,6 @@ export class AuthController {
     return this.authServiceService.ping();
   }
 
-  @MessagePattern({ cmd: 'auth.validate-token' })
-  validateToken(@Payload() payload: { token?: string }) {
-    return this.authServiceService.validateToken(payload.token);
-  }
-
   @MessagePattern({ cmd: 'auth.signup' })
   signUp(@Payload() payload: any) {
     return this.authServiceService.signUp(payload);

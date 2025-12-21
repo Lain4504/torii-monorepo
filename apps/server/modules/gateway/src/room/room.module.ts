@@ -1,14 +1,15 @@
 import { Module } from '@nestjs/common';
 import { RoomController } from './room.controller';
 import { WebhookController } from './webhook.controller';
-import { RecordingController } from './recording.controller';
 import { PollsController } from './polls.controller';
 import { NatsClientModule, SharedModule } from '@server/shared';
 import { BreakoutRoomController } from './breakout-room.controller';
-import { RecorderController } from './recorder.controller';
 import { WaitingRoomController } from './waiting-room.controller';
 import { IngressController } from './ingress.controller';
 import { UserTrackingModule } from '../user-tracking.module';
+import { UserController } from './user.controller';
+import { FileController } from './file.controller';
+import { ExternalMediaController } from './external-media.controller';
 
 @Module({
   imports: [
@@ -19,12 +20,13 @@ import { UserTrackingModule } from '../user-tracking.module';
   controllers: [
     RoomController,
     WebhookController,
-    RecordingController,
     PollsController,
     BreakoutRoomController,
-    RecorderController,
     WaitingRoomController,
     IngressController,
+    UserController,
+    FileController,
+    ExternalMediaController,
   ],
 })
 export class RoomModule { }

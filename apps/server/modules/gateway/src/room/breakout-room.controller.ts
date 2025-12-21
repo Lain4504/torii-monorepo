@@ -7,6 +7,13 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import type {
+    CreateBreakoutRoomsReq,
+    JoinBreakoutRoomReq,
+    IncreaseBreakoutRoomDurationReq,
+    BroadcastBreakoutRoomMsgReq,
+    EndBreakoutRoomReq,
+} from '@workspace/protocol';
 
 @Controller('api/breakoutRoom')
 export class BreakoutRoomController {
@@ -15,12 +22,12 @@ export class BreakoutRoomController {
     ) { }
 
     @Post('create')
-    async create(@Body() body: any) {
+    async create(@Body() body: CreateBreakoutRoomsReq) {
         return firstValueFrom(this.natsClient.send({ cmd: 'breakout.create' }, body));
     }
 
     @Post('join')
-    async join(@Body() body: any) {
+    async join(@Body() body: JoinBreakoutRoomReq) {
         return firstValueFrom(this.natsClient.send({ cmd: 'breakout.join' }, body));
     }
 
@@ -35,24 +42,24 @@ export class BreakoutRoomController {
     }
 
     @Post('increaseDuration')
-    async increaseDuration(@Body() body: any) {
+    async increaseDuration(@Body() body: IncreaseBreakoutRoomDurationReq) {
         return firstValueFrom(
             this.natsClient.send({ cmd: 'breakout.increaseDuration' }, body),
         );
     }
 
     @Post('sendMsg')
-    async sendMsg(@Body() body: any) {
+    async sendMsg(@Body() body: BroadcastBreakoutRoomMsgReq) {
         return firstValueFrom(this.natsClient.send({ cmd: 'breakout.sendMsg' }, body));
     }
 
     @Post('endRoom')
-    async endRoom(@Body() body: any) {
+    async endRoom(@Body() body: EndBreakoutRoomReq) {
         return firstValueFrom(this.natsClient.send({ cmd: 'breakout.endRoom' }, body));
     }
 
     @Post('endAllRooms')
-    async endAllRooms(@Body() body: any) {
+    async endAllRooms(@Body() body: { roomId: string }) {
         return firstValueFrom(
             this.natsClient.send({ cmd: 'breakout.endAllRooms' }, body),
         );

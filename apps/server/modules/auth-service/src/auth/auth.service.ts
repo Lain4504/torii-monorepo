@@ -13,11 +13,6 @@ export class AuthService {
     return { service: 'auth', status: 'ok' };
   }
 
-  validateToken(token?: string) {
-    const isValid = Boolean(token && token.length > 10);
-    return { isValid };
-  }
-
   async signUp(dto: any) {
     const { email, password } = dto;
     const { data, error } = await this.supabase.auth.signUp({

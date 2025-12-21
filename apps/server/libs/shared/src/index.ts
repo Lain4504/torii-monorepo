@@ -1,5 +1,6 @@
 export * from './nats-service.config';
 export * from './prisma.service';
+export * from './services/auth.service';
 export * from './services/livekit.service';
 export * from './services/redis.service';
 export * from './shared.module';
@@ -13,5 +14,6 @@ export * from './nats/nats.service';
 export * from './nats/nats-auth.module';
 export * from './nats/nats-client.module';
 export * from './utils/slug.utils';
+export * from './pipes/protobuf-parser.pipe';
 
 
