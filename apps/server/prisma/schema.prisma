@@ -138,3 +138,38 @@ model Flashcard {
   @@map("flashcards")
 }
 
+// File Assets - Source of Truth for all files in the system
+model FileAsset {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  
+  // File Identification
+  fileName    String   @map("file_name") @db.Text
+  fileKey     String   @unique @map("file_key") @db.Text
+  bucketName  String   @map("bucket_name") @db.Text
+  
+  // System Info
+  provider    String   @db.VarChar(50) // 'SUPABASE_STORAGE', 'AWS_S3', 'LOCAL'
+  region      String?  @db.VarChar(50)
+  
+  // File Details
+  mimeType    String?  @map("mime_type") @db.VarChar(100)
+  fileSize    BigInt?  @map("file_size")
+  isPublic    Boolean  @default(false) @map("is_public")
+  
+  // Flexible Metadata (JSONB)
+  metadata    Json?    @default("{}") @map("metadata")
+  
+  // Ownership & Status
+  ownerId     String?  @map("owner_id") @db.Uuid
+  moduleOrigin String? @map("module_origin") @db.VarChar(50) // 'USER', 'COURSE', 'CHAT'
+  status      String   @default("PENDING") @db.VarChar(20) // 'PENDING', 'UPLOADED', 'DELETED'
+  
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@index([ownerId])
+  @@index([fileKey])
+  @@index([status])
+  @@map("file_assets")
+}
+
