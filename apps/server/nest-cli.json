@@ -98,6 +98,16 @@
         "tsConfigPath": "modules/notification-service/tsconfig.app.json",
         "webpack": false
       }
+    },
+    "storage-service": {
+      "type": "application",
+      "root": "modules/storage-service",
+      "entryFile": "main",
+      "sourceRoot": "modules/storage-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "modules/storage-service/tsconfig.app.json",
+        "webpack": false
+      }
     }
   }
 }
