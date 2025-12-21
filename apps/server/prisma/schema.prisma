@@ -143,13 +143,7 @@ model FileAsset {
   id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   
   // File Identification
-  fileName    String   @map("file_name") @db.Text
-  fileKey     String   @unique @map("file_key") @db.Text
-  bucketName  String   @map("bucket_name") @db.Text
-  
-  // System Info
-  provider    String   @db.VarChar(50) // 'SUPABASE_STORAGE', 'AWS_S3', 'LOCAL'
-  region      String?  @db.VarChar(50)
+  fileUrl     String   @unique @map("file_url") @db.Text
   
   // File Details
   mimeType    String?  @map("mime_type") @db.VarChar(100)
@@ -159,17 +153,12 @@ model FileAsset {
   // Flexible Metadata (JSONB)
   metadata    Json?    @default("{}") @map("metadata")
   
-  // Ownership & Status
+  // Ownership
   ownerId     String?  @map("owner_id") @db.Uuid
   moduleOrigin String? @map("module_origin") @db.VarChar(50) // 'USER', 'COURSE', 'CHAT'
-  status      String   @default("PENDING") @db.VarChar(20) // 'PENDING', 'UPLOADED', 'DELETED'
-  
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@index([ownerId])
-  @@index([fileKey])
-  @@index([status])
+  @@index([fileUrl])
   @@map("file_assets")
 }
 
