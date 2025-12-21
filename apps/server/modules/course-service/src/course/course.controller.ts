@@ -1,11 +1,11 @@
 import { Controller, Logger } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
 
 import {
   CreateCourseDto,
   UpdateCourseDto,
   CourseQueryDto,
-  UpdateCourseStatusDto,
+  UpdateCourseRequestDto,
 } from './course.dto';
 import { CourseService } from './course.service';
 import { PaginatedResponseDto } from '@workspace/dtos';
@@ -42,8 +42,17 @@ export class CourseController {
   }
 
   @MessagePattern({ cmd: 'course.update' })
-  update(@Payload() data: { id: string; input: UpdateCourseDto }): Promise<Course> {
-    return this.courseService.update(data.id, data.input);
+  async update(@Payload() data: UpdateCourseRequestDto): Promise<Course> {
+    try {
+      this.logger.log(`Updating course: ${data.id}`);
+      this.logger.debug('Update input data:', JSON.stringify(data.input, null, 2));
+      const result = await this.courseService.update(data.id, data.input);
+      this.logger.log('Course updated successfully');
+      return result;
+    } catch (error: any) {
+      this.logger.error('Error in course.update:', error);
+      throw error;
+    }
   }
 
   @MessagePattern({ cmd: 'course.delete' })
@@ -51,10 +60,16 @@ export class CourseController {
     return this.courseService.delete(id);
   }
 
-  @MessagePattern({ cmd: 'course.updateStatus' })
-  updateStatus(
-    @Payload() data: { id: string; input: UpdateCourseStatusDto },
-  ): Promise<Course> {
-    return this.courseService.updateStatus(data.id, data.input);
+  @MessagePattern({ cmd: 'course.restore' })
+  async restore(@Payload() id: string): Promise<Course> {
+    try {
+      this.logger.log(`Restoring course: ${id}`);
+      const result = await this.courseService.restore(id);
+      this.logger.log('Course restored successfully');
+      return result;
+    } catch (error: any) {
+      this.logger.error('Error in course.restore:', error);
+      throw error;
+    }
   }
 }

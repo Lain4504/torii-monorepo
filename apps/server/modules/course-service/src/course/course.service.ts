@@ -8,7 +8,6 @@ import {
   CreateCourseDto,
   UpdateCourseDto,
   CourseQueryDto,
-  UpdateCourseStatusDto,
   CourseStatus,
 } from './course.dto';
 
@@ -213,6 +212,10 @@ export class CourseService {
   }
 
   async update(id: string, input: UpdateCourseDto): Promise<Course> {
+    console.log('=== UPDATE COURSE ===');
+    console.log('Course ID:', id);
+    console.log('Input data:', JSON.stringify(input, null, 2));
+
     // Check if course exists and not deleted
     const existing = await this.prisma.course.findFirst({
       where: {
@@ -228,6 +231,8 @@ export class CourseService {
       });
     }
 
+    console.log('Existing course:', JSON.stringify(existing, null, 2));
+
     try {
       // If title is being updated, regenerate slug
       let slug = existing.slug;
@@ -236,43 +241,182 @@ export class CourseService {
         slug = await this.ensureUniqueSlug(baseSlug);
       }
 
-      // Prepare update data
-      const updateData: Prisma.CourseUpdateInput = {
-        ...(input.title && { title: input.title, slug }),
-        ...(input.description !== undefined && { description: input.description }),
-        ...(input.shortDescription !== undefined && {
-          shortDescription: input.shortDescription,
-        }),
-        ...(input.jlptLevel && { jlptLevel: input.jlptLevel }),
-        ...(input.thumbnailUrl !== undefined && {
-          thumbnailUrl: input.thumbnailUrl,
-        }),
-        ...(input.previewVideoUrl !== undefined && {
-          previewVideoUrl: input.previewVideoUrl,
-        }),
-        ...(input.price !== undefined && { price: input.price }),
-        ...(input.discountPrice !== undefined && {
-          discountPrice: input.discountPrice,
-        }),
-        ...(input.durationWeeks !== undefined && {
-          durationWeeks: input.durationWeeks,
-        }),
-        ...(input.status && { status: input.status }),
-        ...(input.featured !== undefined && { featured: input.featured }),
-        ...(input.isFree !== undefined && { isFree: input.isFree }),
-        ...(input.tags !== undefined && { tags: input.tags }),
-        ...(input.learningOutcomes !== undefined && {
-          learningOutcomes: input.learningOutcomes,
-        }),
-        ...(input.requirements !== undefined && {
-          requirements: input.requirements,
-        }),
+      // Prepare update data - only update fields that are provided AND different from existing values
+      // This prevents updating fields that are just default values from Swagger UI
+      // Helper function to check if a value looks like a Swagger default value
+      // Swagger UI often pre-fills with defaults: "string" for strings, 0 for numbers, ["string"] for arrays, {} for objects
+      const isSwaggerDefaultValue = (value: any): boolean => {
+        if (value === undefined || value === null) return false;
+        if (typeof value === 'string') return value === 'string';
+        if (typeof value === 'number') return value === 0;
+        if (Array.isArray(value)) return value.length === 1 && value[0] === 'string';
+        if (typeof value === 'object') return Object.keys(value).length === 0;
+        return false;
       };
+      
+      const updateData: Prisma.CourseUpdateInput = {};
+      
+      // Title: only update if provided, different from existing, and not a Swagger default ("string")
+      if (input.title !== undefined && input.title !== existing.title) {
+        // Don't update if it's a Swagger default value ("string") and existing value is different
+        if (!isSwaggerDefaultValue(input.title) || existing.title === 'string') {
+          updateData.title = input.title;
+          updateData.slug = slug;
+        }
+      }
+      
+      // Description: only update if provided, different from existing, and not a Swagger default
+      if (input.description !== undefined) {
+        const existingDesc = existing.description || null;
+        const newDesc = input.description || null;
+        // Only update if different AND not a Swagger default value being applied to existing non-default value
+        if (existingDesc !== newDesc && !(isSwaggerDefaultValue(input.description) && existingDesc !== null && existingDesc !== '')) {
+          updateData.description = input.description;
+        }
+      }
+      
+      // ShortDescription: only update if provided, different from existing, and not a Swagger default
+      if (input.shortDescription !== undefined) {
+        const existingShortDesc = existing.shortDescription || null;
+        const newShortDesc = input.shortDescription || null;
+        if (existingShortDesc !== newShortDesc && !(isSwaggerDefaultValue(input.shortDescription) && existingShortDesc !== null && existingShortDesc !== '')) {
+          updateData.shortDescription = input.shortDescription;
+        }
+      }
+      
+      // JlptLevel: only update if provided and different from existing
+      if (input.jlptLevel !== undefined && input.jlptLevel !== existing.jlptLevel) {
+        updateData.jlptLevel = input.jlptLevel;
+      }
+      
+      // ThumbnailUrl: only update if provided, different from existing, and not a Swagger default
+      if (input.thumbnailUrl !== undefined) {
+        const existingThumb = existing.thumbnailUrl || null;
+        const newThumb = input.thumbnailUrl || null;
+        if (existingThumb !== newThumb && !(isSwaggerDefaultValue(input.thumbnailUrl) && existingThumb !== null && existingThumb !== '')) {
+          updateData.thumbnailUrl = input.thumbnailUrl;
+        }
+      }
+      
+      // PreviewVideoUrl: only update if provided, different from existing, and not a Swagger default
+      if (input.previewVideoUrl !== undefined) {
+        const existingPreview = existing.previewVideoUrl || null;
+        const newPreview = input.previewVideoUrl || null;
+        if (existingPreview !== newPreview && !(isSwaggerDefaultValue(input.previewVideoUrl) && existingPreview !== null && existingPreview !== '')) {
+          updateData.previewVideoUrl = input.previewVideoUrl;
+        }
+      }
+      
+      // Price: only update if provided, different from existing, and not a Swagger default (0)
+      if (input.price !== undefined) {
+        const existingPrice = Number(existing.price);
+        const newPrice = Number(input.price);
+        if (existingPrice !== newPrice && !(newPrice === 0 && existingPrice !== 0)) {
+          updateData.price = input.price;
+        }
+      }
+      
+      // DiscountPrice: only update if provided and different from existing (allow null, but ignore Swagger default 0)
+      if (input.discountPrice !== undefined) {
+        const existingDiscount = existing.discountPrice ? Number(existing.discountPrice) : null;
+        const newDiscount = input.discountPrice ? Number(input.discountPrice) : null;
+        if (existingDiscount !== newDiscount && !(newDiscount === 0 && existingDiscount !== null && existingDiscount !== 0)) {
+          updateData.discountPrice = input.discountPrice;
+        }
+      }
+      
+      // DurationWeeks: only update if provided, different from existing, and not a Swagger default (0)
+      if (input.durationWeeks !== undefined) {
+        const existingDuration = existing.durationWeeks || null;
+        const newDuration = input.durationWeeks || null;
+        if (existingDuration !== newDuration && !(newDuration === 0 && existingDuration !== null && existingDuration !== 0)) {
+          updateData.durationWeeks = input.durationWeeks;
+        }
+      }
+      
+      // Status: only update if provided and different from existing
+      if (input.status !== undefined && input.status !== existing.status) {
+        updateData.status = input.status;
+        
+        // If status is being changed to published, set approvedBy and approvedAt
+        if (input.status === CourseStatus.PUBLISHED) {
+          // Only set approvedBy if it's a valid UUID format
+          // UUID format: 8-4-4-4-12 hexadecimal digits
+          const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+          const validApprovedBy = input.approvedBy && 
+            typeof input.approvedBy === 'string' && 
+            uuidRegex.test(input.approvedBy.trim())
+            ? input.approvedBy.trim() 
+            : null;
+          updateData.approvedBy = validApprovedBy;
+          updateData.approvedAt = validApprovedBy ? new Date() : null;
+        }
+        
+        // If status is being changed from published to something else, clear approval
+        if (existing.status === CourseStatus.PUBLISHED && input.status !== CourseStatus.PUBLISHED) {
+          updateData.approvedBy = null;
+          updateData.approvedAt = null;
+        }
+      }
+      
+      // Featured: only update if provided and different from existing
+      if (input.featured !== undefined && input.featured !== existing.featured) {
+        updateData.featured = input.featured;
+      }
+      
+      // IsFree: only update if provided and different from existing
+      if (input.isFree !== undefined && input.isFree !== existing.isFree) {
+        updateData.isFree = input.isFree;
+      }
+      
+      // Tags: only update if provided, different from existing, and not a Swagger default (["string"])
+      if (input.tags !== undefined) {
+        const existingTags = existing.tags || [];
+        const newTags = input.tags || [];
+        const tagsChanged = existingTags.length !== newTags.length ||
+          existingTags.some((tag, index) => tag !== newTags[index]);
+        const isDefaultTagArray = isSwaggerDefaultValue(input.tags);
+        if (tagsChanged && !(isDefaultTagArray && existingTags.length > 0 && !isSwaggerDefaultValue(existingTags))) {
+          updateData.tags = input.tags;
+        }
+      }
+      
+      // LearningOutcomes: only update if provided, different from existing, and not a Swagger default ({})
+      if (input.learningOutcomes !== undefined) {
+        const existingOutcomes = JSON.stringify(existing.learningOutcomes || {});
+        const newOutcomes = JSON.stringify(input.learningOutcomes || {});
+        const isDefaultObject = isSwaggerDefaultValue(input.learningOutcomes);
+        if (existingOutcomes !== newOutcomes && !(isDefaultObject && existingOutcomes !== '{}' && existingOutcomes !== 'null')) {
+          updateData.learningOutcomes = input.learningOutcomes;
+        }
+      }
+      
+      // Requirements: only update if provided, different from existing, and not a Swagger default ({})
+      if (input.requirements !== undefined) {
+        const existingReqs = JSON.stringify(existing.requirements || {});
+        const newReqs = JSON.stringify(input.requirements || {});
+        const isDefaultObject = isSwaggerDefaultValue(input.requirements);
+        if (existingReqs !== newReqs && !(isDefaultObject && existingReqs !== '{}' && existingReqs !== 'null')) {
+          updateData.requirements = input.requirements;
+        }
+      }
+
+      // Check if there's anything to update
+      if (Object.keys(updateData).length === 0) {
+        // No changes, return existing course
+        return existing;
+      }
+
+      console.log('Update data to be applied:', JSON.stringify(updateData, null, 2));
+      console.log('Number of fields to update:', Object.keys(updateData).length);
 
       const course = await this.prisma.course.update({
         where: { id },
         data: updateData,
       });
+
+      console.log('Course after update:', JSON.stringify(course, null, 2));
+      console.log('=== UPDATE COMPLETE ===');
 
       return course;
     } catch (error: any) {
@@ -319,15 +463,10 @@ export class CourseService {
     }
   }
 
-  async updateStatus(
-    id: string,
-    input: UpdateCourseStatusDto,
-  ): Promise<Course> {
-    const existing = await this.prisma.course.findFirst({
-      where: {
-        id,
-        deletedAt: null,
-      },
+  async restore(id: string): Promise<Course> {
+    // Check if course exists (including soft-deleted ones)
+    const existing = await this.prisma.course.findUnique({
+      where: { id },
     });
 
     if (!existing) {
@@ -337,27 +476,26 @@ export class CourseService {
       });
     }
 
+    if (!existing.deletedAt) {
+      throw new RpcException({
+        status: 400,
+        message: `Course with id ${id} is not deleted`,
+      });
+    }
+
     try {
-      const updateData: Prisma.CourseUpdateInput = {
-        status: input.status,
-      };
-
-      // If status is being changed to published, set approvedBy and approvedAt
-      if (input.status === CourseStatus.PUBLISHED) {
-        updateData.approvedBy = input.approvedBy || null;
-        updateData.approvedAt = input.approvedBy ? new Date() : null;
-      }
-
       const course = await this.prisma.course.update({
         where: { id },
-        data: updateData,
+        data: { deletedAt: null },
       });
+
+      console.log('Course restored successfully:', course.id);
 
       return course;
     } catch (error: any) {
       throw new RpcException({
         status: 400,
-        message: `Failed to update course status: ${error?.message || 'Unknown error'}`,
+        message: `Failed to restore course: ${error?.message || 'Unknown error'}`,
       });
     }
   }

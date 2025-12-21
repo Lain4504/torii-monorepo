@@ -9,6 +9,7 @@ import {
   IsUrl,
   Min,
   Max,
+  ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -165,6 +166,9 @@ export class UpdateCourseDto {
 
   @IsOptional()
   requirements?: any;
+
+  @IsOptional()
+  approvedBy?: string; // UUID - will be set from auth context (validated in service)
 }
 
 export class CourseQueryDto {
@@ -199,12 +203,13 @@ export class CourseQueryDto {
   featured?: boolean;
 }
 
-export class UpdateCourseStatusDto {
-  @IsEnum(CourseStatus)
-  @IsNotEmpty()
-  status!: CourseStatus;
-
+export class UpdateCourseRequestDto {
   @IsString()
-  @IsOptional()
-  approvedBy?: string; // UUID - will be set from auth context
+  @IsNotEmpty()
+  id!: string;
+
+  @IsNotEmpty()
+  @ValidateNested()
+  @Type(() => UpdateCourseDto)
+  input!: UpdateCourseDto;
 }

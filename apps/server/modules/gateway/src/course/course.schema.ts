@@ -197,54 +197,91 @@ export class CreateCourseInput {
 
 export class UpdateCourseInput {
   @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
   title?: string;
 
   @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
   description?: string;
 
   @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
   shortDescription?: string;
 
   @ApiPropertyOptional({ enum: JlptLevel })
+  @IsEnum(JlptLevel)
+  @IsOptional()
   jlptLevel?: JlptLevel;
 
   @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
   thumbnailUrl?: string;
 
   @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
   previewVideoUrl?: string;
 
   @ApiPropertyOptional()
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  @Type(() => Number)
   price?: number;
 
   @ApiPropertyOptional()
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  @Type(() => Number)
   discountPrice?: number;
 
   @ApiPropertyOptional()
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  @Type(() => Number)
   durationWeeks?: number;
 
   @ApiPropertyOptional({ enum: CourseStatus })
+  @IsEnum(CourseStatus)
+  @IsOptional()
   status?: CourseStatus;
 
   @ApiPropertyOptional()
+  @IsBoolean()
+  @IsOptional()
+  @Type(() => Boolean)
   featured?: boolean;
 
   @ApiPropertyOptional()
+  @IsBoolean()
+  @IsOptional()
+  @Type(() => Boolean)
   isFree?: boolean;
 
   @ApiPropertyOptional({ type: [String] })
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
   tags?: string[];
 
   @ApiPropertyOptional()
+  @IsOptional()
   learningOutcomes?: any;
 
   @ApiPropertyOptional()
+  @IsOptional()
   requirements?: any;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  approvedBy?: string;
 }
 
-export class UpdateCourseStatusInput {
-  @ApiProperty({ enum: CourseStatus })
-  status: CourseStatus;
-}
 
 export class CourseListResponse extends PaginatedResponseDto<Course> {}

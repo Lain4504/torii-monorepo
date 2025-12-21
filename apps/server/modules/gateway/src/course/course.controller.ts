@@ -24,7 +24,6 @@ import {
   Course,
   CreateCourseInput,
   UpdateCourseInput,
-  UpdateCourseStatusInput,
   CourseListResponse,
 } from './course.schema';
 
@@ -149,29 +148,20 @@ export class CourseController {
     @Param('id') id: string,
     @Body() input: UpdateCourseInput,
   ): Promise<Course> {
-    const course = await lastValueFrom<Course>(
-      this.natsClient.send<Course>(
-        { cmd: 'course.update' },
-        { id, input },
-      ),
-    );
-    return toCourse(course);
-  }
-
-  @Patch(':id/status')
-  @ApiOperation({ summary: 'Update course status (draft/published/archived)' })
-  @ApiOkResponse({ type: Course })
-  async updateStatus(
-    @Param('id') id: string,
-    @Body() input: UpdateCourseStatusInput,
-  ): Promise<Course> {
-    const course = await lastValueFrom<Course>(
-      this.natsClient.send<Course>(
-        { cmd: 'course.updateStatus' },
-        { id, input },
-      ),
-    );
-    return toCourse(course);
+    try {
+      console.log(`Gateway: Updating course ${id} with input:`, JSON.stringify(input, null, 2));
+      const course = await lastValueFrom<Course>(
+        this.natsClient.send<Course>(
+          { cmd: 'course.update' },
+          { id, input },
+        ),
+      );
+      console.log('Gateway: Course updated successfully');
+      return toCourse(course);
+    } catch (error: any) {
+      console.error('Gateway: Error updating course:', error);
+      throw error;
+    }
   }
 
   @Delete(':id')
@@ -181,6 +171,23 @@ export class CourseController {
     return lastValueFrom<boolean>(
       this.natsClient.send<boolean>({ cmd: 'course.delete' }, id),
     );
+  }
+
+  @Patch(':id/restore')
+  @ApiOperation({ summary: 'Restore a soft-deleted course' })
+  @ApiOkResponse({ type: Course })
+  async restore(@Param('id') id: string): Promise<Course> {
+    try {
+      console.log(`Gateway: Restoring course ${id}`);
+      const course = await lastValueFrom<Course>(
+        this.natsClient.send<Course>({ cmd: 'course.restore' }, id),
+      );
+      console.log('Gateway: Course restored successfully');
+      return toCourse(course);
+    } catch (error: any) {
+      console.error('Gateway: Error restoring course:', error);
+      throw error;
+    }
   }
 }
 
