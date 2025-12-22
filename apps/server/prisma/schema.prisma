@@ -15,15 +15,38 @@ datasource db {
 }
 
 model Course {
-  id          Int      @id @default(autoincrement())
-  title       String   @db.VarChar(255)
-  description String?  @db.Text
-  price       Decimal  @default(0) @db.Decimal(10, 2)
-  published   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title            String    @db.VarChar(255)
+  slug             String    @unique @db.VarChar(255)
+  description      String?   @db.Text
+  shortDescription String?   @map("short_description") @db.VarChar(500)
+  jlptLevel        String    @map("jlpt_level") @db.VarChar(5)
+  thumbnailUrl     String?   @map("thumbnail_url") @db.Text
+  previewVideoUrl  String?   @map("preview_video_url") @db.Text
+  price            Decimal   @default(0.00) @db.Decimal(10, 2)
+  discountPrice    Decimal?  @map("discount_price") @db.Decimal(10, 2)
+  durationWeeks    Int?      @map("duration_weeks")
+  totalLessons     Int       @default(0) @map("total_lessons")
+  totalQuizzes     Int       @default(0) @map("total_quizzes")
+  totalStudents    Int       @default(0) @map("total_students")
+  averageRating    Decimal   @default(0.00) @map("average_rating") @db.Decimal(3, 2)
+  totalReviews     Int       @default(0) @map("total_reviews")
+  status           String    @default("draft") @db.VarChar(20)
+  featured         Boolean   @default(false)
+  isFree           Boolean   @default(false) @map("is_free")
+  tags             String[]  @default([]) @db.VarChar(50)
+  learningOutcomes Json      @default("[]") @map("learning_outcomes")
+  requirements     Json      @default("[]")
+  createdBy        String?   @map("created_by") @db.Uuid
+  approvedBy       String?   @map("approved_by") @db.Uuid
+  approvedAt       DateTime? @map("approved_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @default(now()) @updatedAt @map("updated_at")
+  deletedAt        DateTime? @map("deleted_at")
 
-
+  @@index([jlptLevel])
+  @@index([status])
+  @@index([createdBy])
   @@map("courses")
 }
 

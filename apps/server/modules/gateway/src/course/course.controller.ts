@@ -3,95 +3,154 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
   Inject,
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import {
-  ApiBearerAuth,
-  ApiCreatedResponse,
-  ApiOkResponse,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
 import { lastValueFrom } from 'rxjs';
-import { Course, CreateCourseInput, UpdateCourseInput } from './course.schema';
+import {
+  CreateCourseDto,
+  UpdateCourseDto,
+  CourseQueryDto,
+  CourseResponseDto,
+  UpdateCourseRequestDto,
+  PaginatedResponseDto,
+} from '@workspace/dtos';
 
-@ApiTags('courses')
-@ApiBearerAuth()
-@Controller('api/courses')
+@Controller('api/admin/courses')
 export class CourseController {
   constructor(
     @Inject('NATS_SERVICE')
     private readonly natsClient: ClientProxy,
-  ) { }
+  ) {}
 
   @Get()
-  @ApiOperation({ summary: 'Get all courses' })
-  @ApiOkResponse({ type: [Course] })
-  findAll(): Promise<Course[]> {
-    return lastValueFrom(
-      this.natsClient.send<Course[]>({ cmd: 'course.findAll' }, {}),
-    ).then((courses) => courses.map(toCourse));
+  async findAll(
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('jlptLevel') jlptLevel?: string,
+    @Query('status') status?: string,
+    @Query('search') search?: string,
+    @Query('featured') featured?: string,
+  ): Promise<PaginatedResponseDto<CourseResponseDto>> {
+    const payload: CourseQueryDto = {
+      page: page ? Number(page) : 1,
+      limit: limit ? Number(limit) : 10,
+      ...(jlptLevel && { jlptLevel: jlptLevel as any }),
+      ...(status && { status: status as any }),
+      ...(search && { search }),
+      ...(featured !== undefined && { 
+        featured: featured === 'true' 
+      }),
+    };
+
+    const response = await lastValueFrom<PaginatedResponseDto<CourseResponseDto>>(
+      this.natsClient.send({ cmd: 'course.findAll' }, payload),
+    );
+
+    return response;
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get a course by id' })
-  @ApiOkResponse({ type: Course })
-  async findOne(@Param('id') id: string): Promise<Course | null> {
-    const course = await lastValueFrom(
-      this.natsClient.send<Course | null>(
-        { cmd: 'course.findOne' },
-        parseInt(id, 10),
-      ),
+  async findOne(@Param('id') id: string): Promise<CourseResponseDto | null> {
+    const course = await lastValueFrom<CourseResponseDto | null>(
+      this.natsClient.send<CourseResponseDto | null>({ cmd: 'course.findOne' }, id),
     );
-    return course ? toCourse(course) : null;
+    return course;
   }
 
   @Post()
-  @ApiOperation({ summary: 'Create a new course' })
-  @ApiCreatedResponse({ type: Course })
-  async create(@Body() input: CreateCourseInput): Promise<Course> {
-    const course = await lastValueFrom(
-      this.natsClient.send<Course>({ cmd: 'course.create' }, input),
-    );
-    return toCourse(course);
+  async create(@Body() input: CreateCourseDto): Promise<CourseResponseDto> {
+    try {
+      const course = await lastValueFrom<CourseResponseDto>(
+        this.natsClient.send<CourseResponseDto>({ cmd: 'course.create' }, input),
+      );
+      return course;
+    } catch (error: any) {
+      console.error('Gateway: Error in course.create:', error);
+      console.error('Gateway: Error details:', {
+        status: error?.status,
+        message: error?.message,
+        error: error?.error,
+        code: error?.code,
+        name: error?.name,
+      });
+      
+      // If it's an RpcException, extract the message
+      if (error?.error && typeof error.error === 'object') {
+        const rpcError = error.error;
+        if (rpcError.status && rpcError.message) {
+          throw new HttpException(
+            {
+              success: false,
+              message: rpcError.message,
+              error: rpcError.message,
+              data: null,
+              statusCode: rpcError.status,
+            },
+            rpcError.status,
+          );
+        }
+      }
+      
+      // If error has message directly (from RpcException)
+      if (error?.message && error?.status) {
+        throw new HttpException(
+          {
+            success: false,
+            message: error.message,
+            error: error.message,
+            data: null,
+            statusCode: error.status,
+          },
+          error.status,
+        );
+      }
+      
+      throw error;
+    }
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Update a course' })
-  @ApiOkResponse({ type: Course })
   async update(
     @Param('id') id: string,
-    @Body() input: UpdateCourseInput,
-  ): Promise<Course> {
-    const course = await lastValueFrom(
-      this.natsClient.send<Course>(
-        { cmd: 'course.update' },
-        { id: parseInt(id, 10), input },
-      ),
-    );
-    return toCourse(course);
+    @Body() input: UpdateCourseDto,
+  ): Promise<CourseResponseDto> {
+    try {
+      const course = await lastValueFrom<CourseResponseDto>(
+        this.natsClient.send<CourseResponseDto>(
+          { cmd: 'course.update' },
+          { id, input } as UpdateCourseRequestDto,
+        ),
+      );
+      return course;
+    } catch (error: any) {
+      console.error('Gateway: Error updating course:', error);
+      throw error;
+    }
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete a course' })
-  @ApiOkResponse({ type: Boolean })
   delete(@Param('id') id: string): Promise<boolean> {
-    return lastValueFrom(
-      this.natsClient.send<boolean>(
-        { cmd: 'course.delete' },
-        parseInt(id, 10),
-      ),
+    return lastValueFrom<boolean>(
+      this.natsClient.send<boolean>({ cmd: 'course.delete' }, id),
     );
   }
+
+  @Patch(':id/restore')
+  async restore(@Param('id') id: string): Promise<CourseResponseDto> {
+    try {
+      const course = await lastValueFrom<CourseResponseDto>(
+        this.natsClient.send<CourseResponseDto>({ cmd: 'course.restore' }, id),
+      );
+      return course;
+    } catch (error: any) {
+      console.error('Gateway: Error restoring course:', error);
+      throw error;
+    }
+  }
 }
-
-const toCourse = (data: any): Course => ({
-  ...data,
-  createdAt: data?.createdAt ? new Date(data.createdAt) : data?.createdAt,
-  updatedAt: data?.updatedAt ? new Date(data.updatedAt) : data?.updatedAt,
-});
-
