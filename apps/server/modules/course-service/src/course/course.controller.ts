@@ -10,7 +10,6 @@ import {
   PaginatedResponseDto,
 } from '@workspace/dtos';
 import { CourseService } from './course.service';
-import { Course } from '@prisma/generated';
 
 @Controller()
 export class CourseController {
@@ -20,17 +19,12 @@ export class CourseController {
 
   @MessagePattern({ cmd: 'course.findAll' })
   async findAll(@Payload() query: CourseQueryDto): Promise<PaginatedResponseDto<CourseResponseDto>> {
-    const result = await this.courseService.findAll(query);
-    return {
-      ...result,
-      data: result.data.map(toCourseResponseDto),
-    };
+    return await this.courseService.findAll(query);
   }
 
   @MessagePattern({ cmd: 'course.findOne' })
   async findOne(@Payload() id: string): Promise<CourseResponseDto | null> {
-    const course = await this.courseService.findOne(id);
-    return course ? toCourseResponseDto(course) : null;
+    return await this.courseService.findOne(id);
   }
 
   @MessagePattern({ cmd: 'course.create' })
@@ -40,7 +34,7 @@ export class CourseController {
       this.logger.debug('Input data:', JSON.stringify(input, null, 2));
       const result = await this.courseService.create(input);
       this.logger.log('Course created successfully');
-      return toCourseResponseDto(result);
+      return result;
     } catch (error: any) {
       this.logger.error('Error in course.create:', error);
       throw error;
@@ -54,7 +48,7 @@ export class CourseController {
       this.logger.debug('Update input data:', JSON.stringify(data.input, null, 2));
       const result = await this.courseService.update(data.id, data.input);
       this.logger.log('Course updated successfully');
-      return toCourseResponseDto(result);
+      return result;
     } catch (error: any) {
       this.logger.error('Error in course.update:', error);
       throw error;
@@ -72,43 +66,10 @@ export class CourseController {
       this.logger.log(`Restoring course: ${id}`);
       const result = await this.courseService.restore(id);
       this.logger.log('Course restored successfully');
-      return toCourseResponseDto(result);
+      return result;
     } catch (error: any) {
       this.logger.error('Error in course.restore:', error);
       throw error;
     }
   }
-}
-
-function toCourseResponseDto(course: Course): CourseResponseDto {
-  return {
-    id: course.id,
-    title: course.title,
-    slug: course.slug,
-    description: course.description || undefined,
-    shortDescription: course.shortDescription || undefined,
-    jlptLevel: course.jlptLevel as any,
-    thumbnailUrl: course.thumbnailUrl || undefined,
-    previewVideoUrl: course.previewVideoUrl || undefined,
-    price: Number(course.price),
-    discountPrice: course.discountPrice ? Number(course.discountPrice) : undefined,
-    durationWeeks: course.durationWeeks || undefined,
-    totalLessons: course.totalLessons,
-    totalQuizzes: course.totalQuizzes,
-    totalStudents: course.totalStudents,
-    averageRating: Number(course.averageRating),
-    totalReviews: course.totalReviews,
-    status: course.status as any,
-    featured: course.featured,
-    isFree: course.isFree,
-    tags: course.tags,
-    learningOutcomes: course.learningOutcomes || undefined,
-    requirements: course.requirements || undefined,
-    createdBy: course.createdBy || undefined,
-    approvedBy: course.approvedBy || undefined,
-    approvedAt: course.approvedAt || undefined,
-    createdAt: course.createdAt,
-    updatedAt: course.updatedAt,
-    deletedAt: course.deletedAt || undefined,
-  };
 }

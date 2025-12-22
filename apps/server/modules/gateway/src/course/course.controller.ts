@@ -52,11 +52,7 @@ export class CourseController {
       this.natsClient.send({ cmd: 'course.findAll' }, payload),
     );
 
-    // Map courses to ensure proper formatting
-    return {
-      ...response,
-      data: response.data.map(toCourseResponse),
-    };
+    return response;
   }
 
   @Get(':id')
@@ -64,18 +60,16 @@ export class CourseController {
     const course = await lastValueFrom<CourseResponseDto | null>(
       this.natsClient.send<CourseResponseDto | null>({ cmd: 'course.findOne' }, id),
     );
-    return course ? toCourseResponse(course) : null;
+    return course;
   }
 
   @Post()
   async create(@Body() input: CreateCourseDto): Promise<CourseResponseDto> {
     try {
-      console.log('Gateway: Sending course.create request with input:', JSON.stringify(input, null, 2));
       const course = await lastValueFrom<CourseResponseDto>(
         this.natsClient.send<CourseResponseDto>({ cmd: 'course.create' }, input),
       );
-      console.log('Gateway: Received response from course-service');
-      return toCourseResponse(course);
+      return course;
     } catch (error: any) {
       console.error('Gateway: Error in course.create:', error);
       console.error('Gateway: Error details:', {
@@ -127,15 +121,13 @@ export class CourseController {
     @Body() input: UpdateCourseDto,
   ): Promise<CourseResponseDto> {
     try {
-      console.log(`Gateway: Updating course ${id} with input:`, JSON.stringify(input, null, 2));
       const course = await lastValueFrom<CourseResponseDto>(
         this.natsClient.send<CourseResponseDto>(
           { cmd: 'course.update' },
           { id, input } as UpdateCourseRequestDto,
         ),
       );
-      console.log('Gateway: Course updated successfully');
-      return toCourseResponse(course);
+      return course;
     } catch (error: any) {
       console.error('Gateway: Error updating course:', error);
       throw error;
@@ -152,32 +144,13 @@ export class CourseController {
   @Patch(':id/restore')
   async restore(@Param('id') id: string): Promise<CourseResponseDto> {
     try {
-      console.log(`Gateway: Restoring course ${id}`);
       const course = await lastValueFrom<CourseResponseDto>(
         this.natsClient.send<CourseResponseDto>({ cmd: 'course.restore' }, id),
       );
-      console.log('Gateway: Course restored successfully');
-      return toCourseResponse(course);
+      return course;
     } catch (error: any) {
       console.error('Gateway: Error restoring course:', error);
       throw error;
     }
   }
 }
-
-const toCourseResponse = (data: any): CourseResponseDto => ({
-  ...data,
-  createdAt: data?.createdAt ? new Date(data.createdAt) : data?.createdAt,
-  updatedAt: data?.updatedAt ? new Date(data.updatedAt) : data?.updatedAt,
-  approvedAt: data?.approvedAt ? new Date(data.approvedAt) : data?.approvedAt,
-  deletedAt: data?.deletedAt ? new Date(data.deletedAt) : data?.deletedAt,
-  price: typeof data.price === 'string' ? parseFloat(data.price) : data.price,
-  discountPrice:
-    typeof data.discountPrice === 'string'
-      ? parseFloat(data.discountPrice)
-      : data.discountPrice,
-  averageRating:
-    typeof data.averageRating === 'string'
-      ? parseFloat(data.averageRating)
-      : data.averageRating,
-});

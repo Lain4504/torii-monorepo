@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { PrismaService, generateSlug } from '@server/shared';
-import { Course, Prisma } from '@prisma/generated';
-import { PaginatedResponseDto } from '@workspace/dtos';
+import { Course } from '@prisma/generated';
+import { PaginatedResponseDto, CourseResponseDto } from '@workspace/dtos';
 import { validate as uuidValidate } from 'uuid';
 
 import {
@@ -14,38 +14,76 @@ import {
 
 @Injectable()
 export class CourseService {
+  private readonly logger = new Logger(CourseService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * Ensure unique slug by appending number if needed
+   * Map Course entity to CourseResponseDto
+   */
+  private toCourseResponseDto(course: Course): CourseResponseDto {
+    return {
+      id: course.id,
+      title: course.title,
+      slug: course.slug,
+      description: course.description || undefined,
+      shortDescription: course.shortDescription || undefined,
+      jlptLevel: course.jlptLevel as any,
+      thumbnailUrl: course.thumbnailUrl || undefined,
+      previewVideoUrl: course.previewVideoUrl || undefined,
+      price: Number(course.price),
+      discountPrice: course.discountPrice ? Number(course.discountPrice) : undefined,
+      durationWeeks: course.durationWeeks || undefined,
+      totalLessons: course.totalLessons,
+      totalQuizzes: course.totalQuizzes,
+      totalStudents: course.totalStudents,
+      averageRating: Number(course.averageRating),
+      totalReviews: course.totalReviews,
+      status: course.status as any,
+      featured: course.featured,
+      isFree: course.isFree,
+      tags: course.tags,
+      learningOutcomes: course.learningOutcomes || undefined,
+      requirements: course.requirements || undefined,
+      createdBy: course.createdBy || undefined,
+      approvedBy: course.approvedBy || undefined,
+      approvedAt: course.approvedAt || undefined,
+      createdAt: course.createdAt,
+      updatedAt: course.updatedAt,
+      deletedAt: course.deletedAt || undefined,
+    };
+  }
+
+  /**
+   * Ensure unique slug by appending date and timestamp if needed
    */
   private async ensureUniqueSlug(baseSlug: string): Promise<string> {
-    let slug = baseSlug;
-    let counter = 1;
+    const today = new Date();
+    const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    let slug = `${baseSlug}-${dateStr}`;
 
-    while (true) {
-      const existing = await this.prisma.course.findUnique({
-        where: { slug },
-      });
+    const existing = await this.prisma.course.findUnique({
+      where: { slug },
+    });
 
-      if (!existing) {
-        return slug;
-      }
-
-      slug = `${baseSlug}-${counter}`;
-      counter++;
+    if (!existing) {
+      return slug;
     }
+
+    // If slug exists, append timestamp to ensure uniqueness
+    const timestamp = Date.now();
+    return `${baseSlug}-${dateStr}-${timestamp}`;
   }
 
   async findAll(
     query: CourseQueryDto,
-  ): Promise<PaginatedResponseDto<Course>> {
+  ): Promise<PaginatedResponseDto<CourseResponseDto>> {
     try {
       const { page = 1, limit = 10, jlptLevel, status, search, featured } =
         query;
       const skip = (page - 1) * limit;
 
-      const whereClause: Prisma.CourseWhereInput = {
+      const whereClause: Record<string, any> = {
         deletedAt: null, // Exclude soft-deleted courses
       };
 
@@ -85,7 +123,7 @@ export class CourseService {
         success: true,
         message: `${courses.length} course(s) retrieved successfully`,
         error: '',
-        data: courses,
+        data: courses.map(course => this.toCourseResponseDto(course)),
         meta: {
           page,
           limit,
@@ -96,6 +134,7 @@ export class CourseService {
         },
       };
     } catch (error) {
+      this.logger.error('Failed to retrieve courses', error);
       return {
         success: false,
         message: 'Failed to retrieve courses',
@@ -113,7 +152,7 @@ export class CourseService {
     }
   }
 
-  async findOne(id: string): Promise<Course | null> {
+  async findOne(id: string): Promise<CourseResponseDto | null> {
     const course = await this.prisma.course.findFirst({
       where: {
         id,
@@ -121,42 +160,17 @@ export class CourseService {
       },
     });
 
-    return course;
+    return course ? this.toCourseResponseDto(course) : null;
   }
 
-  async create(input: CreateCourseDto): Promise<Course> {
+  async create(input: CreateCourseDto): Promise<CourseResponseDto> {
     try {
-      // Validate required fields
-      if (!input || !input.title) {
-        throw new RpcException({
-          status: 400,
-          message: 'Title is required',
-        });
-      }
-
-      if (!input.jlptLevel) {
-        throw new RpcException({
-          status: 400,
-          message: 'JLPT level is required',
-        });
-      }
-
-      if (input.price === undefined || input.price === null) {
-        throw new RpcException({
-          status: 400,
-          message: 'Price is required',
-        });
-      }
-
-      // Log input for debugging
-      console.log('Creating course with input:', JSON.stringify(input, null, 2));
-
       // Generate slug from title
       const baseSlug = generateSlug(input.title);
       const slug = await this.ensureUniqueSlug(baseSlug);
 
       // Prepare data for creation
-      const data: Prisma.CourseCreateInput = {
+      const data = {
         title: input.title,
         slug,
         description: input.description || null,
@@ -178,17 +192,9 @@ export class CourseService {
 
       const course = await this.prisma.course.create({ data });
 
-      return course;
+      return this.toCourseResponseDto(course);
     } catch (error: any) {
-      if (error?.code === 'P2002') {
-        // Unique constraint violation
-        throw new RpcException({
-          status: 409,
-          message: 'Course with this slug already exists',
-        });
-      }
-      // Log the full error for debugging
-      console.error('Error creating course:', error);
+      this.logger.error('Error creating course', error);
       throw new RpcException({
         status: 400,
         message: `Failed to create course: ${error?.message || 'Unknown error'}`,
@@ -196,11 +202,7 @@ export class CourseService {
     }
   }
 
-  async update(id: string, input: UpdateCourseDto): Promise<Course> {
-    console.log('=== UPDATE COURSE ===');
-    console.log('Course ID:', id);
-    console.log('Input data:', JSON.stringify(input, null, 2));
-
+  async update(id: string, input: UpdateCourseDto): Promise<CourseResponseDto> {
     // Check if course exists and not deleted
     const existing = await this.prisma.course.findFirst({
       where: {
@@ -216,8 +218,6 @@ export class CourseService {
       });
     }
 
-    console.log('Existing course:', JSON.stringify(existing, null, 2));
-
     try {
       // If title is being updated, regenerate slug
       let slug = existing.slug;
@@ -227,7 +227,7 @@ export class CourseService {
       }
 
       // Prepare update data - only update fields that are provided AND different from existing values
-      const updateData: Prisma.CourseUpdateInput = {};
+      const updateData: Record<string, any> = {};
       
       // Title: only update if provided and different from existing
       if (input.title !== undefined && input.title !== existing.title) {
@@ -368,28 +368,17 @@ export class CourseService {
       // Check if there's anything to update
       if (Object.keys(updateData).length === 0) {
         // No changes, return existing course
-        return existing;
+        return this.toCourseResponseDto(existing);
       }
-
-      console.log('Update data to be applied:', JSON.stringify(updateData, null, 2));
-      console.log('Number of fields to update:', Object.keys(updateData).length);
 
       const course = await this.prisma.course.update({
         where: { id },
         data: updateData,
       });
 
-      console.log('Course after update:', JSON.stringify(course, null, 2));
-      console.log('=== UPDATE COMPLETE ===');
-
-      return course;
+      return this.toCourseResponseDto(course);
     } catch (error: any) {
-      if (error?.code === 'P2002') {
-        throw new RpcException({
-          status: 409,
-          message: 'Course with this slug already exists',
-        });
-      }
+      this.logger.error('Error updating course', error);
       throw new RpcException({
         status: 400,
         message: `Failed to update course: ${error?.message || 'Unknown error'}`,
@@ -427,7 +416,7 @@ export class CourseService {
     }
   }
 
-  async restore(id: string): Promise<Course> {
+  async restore(id: string): Promise<CourseResponseDto> {
     // Check if course exists (including soft-deleted ones)
     const existing = await this.prisma.course.findUnique({
       where: { id },
@@ -453,10 +442,9 @@ export class CourseService {
         data: { deletedAt: null },
       });
 
-      console.log('Course restored successfully:', course.id);
-
-      return course;
+      return this.toCourseResponseDto(course);
     } catch (error: any) {
+      this.logger.error('Error restoring course', error);
       throw new RpcException({
         status: 400,
         message: `Failed to restore course: ${error?.message || 'Unknown error'}`,
