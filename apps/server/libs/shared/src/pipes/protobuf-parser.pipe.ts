@@ -24,7 +24,7 @@ export class ProtobufParserPipe implements PipeTransform {
             const jsonString = typeof value === 'string' ? value : JSON.stringify(value);
 
             // Use fromJsonString to convert snake_case JSON → camelCase protobuf message
-            return fromJsonString(this.schema, jsonString);
+            return fromJsonString(this.schema, jsonString, { ignoreUnknownFields: true });
         } catch (error) {
             throw new BadRequestException(
                 `Invalid protobuf data: ${error.message}`

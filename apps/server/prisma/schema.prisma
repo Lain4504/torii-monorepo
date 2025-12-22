@@ -14,19 +14,6 @@ datasource db {
   provider = "postgresql"
 }
 
-enum RoomArtifactType {
-  UNKNOWN_ARTIFACT
-  MEETING_ANALYTICS
-  MEETING_SUMMARY
-  MEETING_SUMMARY_USAGE
-  SPEECH_TRANSCRIPTION
-  SPEECH_TRANSCRIPTION_USAGE
-  SYNTHESIZED_SPEECH_USAGE
-  CHAT_TRANSLATION_USAGE
-  AI_TEXT_CHAT_INTERACTION_USAGE
-  AI_TEXT_CHAT_SUMMARIZATION_USAGE
-}
-
 model Course {
   id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   title            String    @db.VarChar(255)
@@ -83,27 +70,10 @@ model RoomInfo {
   ended              DateTime?   @map("ended")
   modified           DateTime    @default(now()) @updatedAt @map("modified")
 
-  artifacts          RoomArtifact[] @relation("RoomInfoArtifacts")
-
+  analytics          RoomAnalytics[]
 
   @@index([roomId, isRunning])
   @@map("room_info")
-}
-
-model RoomArtifact {
-  id          Int              @id @default(autoincrement())
-  artifactId  String           @unique @map("artifact_id")
-  roomTableId Int              @map("room_table_id")
-  roomId      String           @db.VarChar(255) @map("room_id")
-  type        RoomArtifactType @map("type")
-  metadata    Json?            @map("metadata")
-  created     DateTime         @default(now()) @map("created")
-
-  roomInfo    RoomInfo         @relation("RoomInfoArtifacts", fields: [roomTableId], references: [id], onUpdate: Cascade, onDelete: Restrict)
-
-  @@index([roomId])
-  @@index([type])
-  @@map("room_artifacts")
 }
 
 model RoomFile {
@@ -120,6 +90,25 @@ model RoomFile {
   @@index([roomId])
   @@map("room_files")
 }
+
+model RoomAnalytics {
+  id               Int      @id @default(autoincrement())
+  roomTableId      Int      @map("room_table_id")
+  roomId           String   @db.VarChar(64) @map("room_id")
+  fileId           String   @unique @map("file_id")
+  fileName         String   @map("file_name")
+  fileSize         Float    @map("file_size")
+  roomCreationTime BigInt   @map("room_creation_time")
+  creationTime     BigInt   @default(0) @map("creation_time")
+  created          DateTime @default(now()) @map("created")
+
+  roomInfo         RoomInfo @relation(fields: [roomTableId], references: [id], onUpdate: Cascade, onDelete: Restrict)
+
+  @@index([roomId])
+  @@index([roomTableId])
+  @@map("room_analytics")
+}
+
 
 model User {
   id            String          @id @db.Uuid

@@ -1,342 +1,276 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService, LiveKitService, RedisService, NatsService } from '@server/shared';
+import { Inject, Injectable, Logger, forwardRef } from '@nestjs/common';
+import { LiveKitService, NatsService } from '@server/shared';
 import {
-  CreateBreakoutRoomsReq,
-  JoinBreakoutRoomReq,
-  EndBreakoutRoomReq,
-  NatsMsgServerToClientEvents,
-  CreateRoomReqSchema,
-  RoomEndAPIReqSchema,
-  BreakoutRoom,
   BreakoutRoomRes,
   BreakoutRoomResSchema,
-  IncreaseBreakoutRoomDurationReq,
+  BreakoutRoom,
   BroadcastBreakoutRoomMsgReq,
+  CreateBreakoutRoomsReq,
+  CreateRoomReqSchema,
+  EndBreakoutRoomReq,
+  IncreaseBreakoutRoomDurationReq,
+  JoinBreakoutRoomReq,
+  BreakoutRoomSchema,
+  BreakoutRoomUserSchema,
+  NatsMsgServerToClientEvents,
+  RoomEndAPIReqSchema,
 } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 import { RoomService } from './room.service';
-import { RpcException } from '@nestjs/microservices';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class BreakoutRoomService {
   private readonly logger = new Logger(BreakoutRoomService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
     private readonly liveKitService: LiveKitService,
-    private readonly roomService: RoomService, // Reuse room creation logic
-    private readonly configService: ConfigService,
+    @Inject(forwardRef(() => RoomService)) private readonly roomService: RoomService,
     private readonly natsService: NatsService,
   ) { }
 
   async createBreakoutRooms(data: CreateBreakoutRoomsReq): Promise<BreakoutRoomRes> {
-    this.logger.log(
-      `Creating ${data.rooms.length} breakout rooms for parent: ${data.roomId}`,
-    );
-    const responses: Array<{ success: boolean; roomId: string; error?: string }> = [];
-
-    // 1. Fetch Parent Room Metadata
-    const parentRoomList = await this.liveKitService
-      .getRoomClient()
-      .listRooms([data.roomId]);
-    if (parentRoomList.length === 0)
-      throw new RpcException('Parent room not found');
-    const parentRoom = parentRoomList[0];
-    interface RoomMetadata {
-      [key: string]: any;
-      isBreakoutRoom?: boolean;
-      parentRoomId?: string;
-      roomTitle?: string;
-      roomFeatures?: any;
-    }
-    let parentMeta: RoomMetadata = {};
-    try {
-      parentMeta = JSON.parse(parentRoom.metadata);
-    } catch (e) { }
-
-    // 2. Prepare Metadata for Breakout Rooms (disable some features)
-    const bkMeta = structuredClone(parentMeta);
-    bkMeta.isBreakoutRoom = true;
-    bkMeta.parentRoomId = data.roomId;
-    bkMeta.roomFeatures.breakoutRoomFeatures = { isAllow: false }; // Disable nested breakout
-    bkMeta.roomFeatures.waitingRoomFeatures = { isActive: false };
-    bkMeta.roomFeatures.recordingFeatures = { isAllow: false };
-    bkMeta.roomFeatures.allowRtmp = false;
-
-    // Disable External Media/Display features
-    if (bkMeta.roomFeatures.displayExternalLinkFeatures) {
-      bkMeta.roomFeatures.displayExternalLinkFeatures.isActive = false;
-    }
-    if (bkMeta.roomFeatures.externalMediaPlayerFeatures) {
-      bkMeta.roomFeatures.externalMediaPlayerFeatures.isActive = false;
+    const parentRoomId = data.roomId;
+    const durationSec = this.toNumber(data.duration);
+    const parentInfo = await this.natsService.getRoomInfo(parentRoomId);
+    if (!parentInfo || !parentInfo.roomId) {
+      return create(BreakoutRoomResSchema, { status: false, msg: 'parent room not found', rooms: [] });
     }
 
-    // Note: Chat features are NOT disabled, so they inherit from Parent Room.
-    // This answers the user's question: "Yes, Chat is available if Parent has it."
+    const parentMeta = this.safeJson(parentInfo.metadata) || {};
+    if (!parentMeta.roomFeatures) parentMeta.roomFeatures = {};
+    if (!parentMeta.roomFeatures.breakoutRoomFeatures) parentMeta.roomFeatures.breakoutRoomFeatures = {};
 
-    if (bkMeta.roomFeatures.roomDuration) {
-      bkMeta.roomFeatures.roomDuration = Number(data.duration) * 60; // Duration in seconds
+    // Treat 0/undefined as "no limit" because parent createRoom may omit roomDuration
+    const parentDuration = this.toNumber(parentMeta.roomFeatures.roomDuration);
+    if (parentDuration > 0 && durationSec > parentDuration) {
+      this.logger.warn(
+        `breakout create rejected: requested duration ${durationSec}s exceeds parent duration ${parentDuration}s for ${parentRoomId}`,
+      );
+      return create(BreakoutRoomResSchema, {
+        status: false,
+        msg: "breakout room's duration can't exceed parent room duration",
+        rooms: [],
+      });
     }
 
-    // 3. Create Each Room
+    const baseMeta = this.prepareBreakoutMetadata(parentMeta, parentRoomId, durationSec, data.welcomeMsg);
+
+    let createdCount = 0;
     for (const roomReq of data.rooms) {
-      const bkRoomId = `${data.roomId}-${roomReq.id}`;
-      try {
-        // Update specific metadata for this room
-        const thisRoomMeta = structuredClone(bkMeta);
-        thisRoomMeta.roomTitle = roomReq.title;
+      const breakoutRoomId = `${parentRoomId}-${roomReq.id}`;
+      const roomMeta = { ...baseMeta, roomTitle: roomReq.title };
+      const roomDuration = this.toNumber(roomReq.duration) || durationSec;
+      const breakoutRoom = create(BreakoutRoomSchema, {
+        id: breakoutRoomId,
+        title: roomReq.title,
+        duration: String(roomDuration),
+        started: false,
+        created: String(Math.floor(Date.now() / 1000)),
+        users: roomReq.users?.map((u) =>
+          create(BreakoutRoomUserSchema, { id: u.id, name: u.name, joined: false }),
+        ) || [],
+      });
 
-        // Create via RoomService (to handle DB + LiveKit + Webhooks)
+      try {
         await this.roomService.createRoom(
           create(CreateRoomReqSchema, {
-            roomId: bkRoomId,
-            metadata: thisRoomMeta,
-            emptyTimeout: Number(data.duration) * 60, // Auto close after duration
+            roomId: breakoutRoomId,
+            metadata: roomMeta,
+            emptyTimeout: roomDuration > 0 ? roomDuration : undefined,
           }),
         );
 
-        // Notify Assigned Users via System Event (Parity: JOIN_BREAKOUT_ROOM)
-        for (const user of roomReq.users) {
+        await this.saveBreakoutRoom(parentRoomId, breakoutRoomId, breakoutRoom);
+
+        for (const user of breakoutRoom.users) {
           await this.roomService.broadcastNatsEvent(
             NatsMsgServerToClientEvents.JOIN_BREAKOUT_ROOM,
-            data.roomId,
-            bkRoomId,
+            parentRoomId,
+            breakoutRoomId,
             user.id,
           );
         }
+        createdCount += 1;
+      } catch (err: any) {
+        this.logger.error(`Failed to create breakout room ${breakoutRoomId}: ${err.message}`);
+      }
+    }
 
-        // NATS KV Storage for Persistence/Legacy Compatibility
-        try {
-          await this.natsService.kvPut(
-            `wajlc-breakoutRoom-${data.roomId}`,
-            bkRoomId,
-            JSON.stringify(thisRoomMeta),
-          );
-        } catch (e) {
-          this.logger.warn(
-            `Failed to update NATS KV for breakout room ${bkRoomId}: ${e.message}`,
-          );
-        }
+    parentMeta.roomFeatures.breakoutRoomFeatures.isActive = true;
+    try {
+      await this.liveKitService.getRoomClient().updateRoomMetadata(parentRoomId, JSON.stringify(parentMeta));
+    } catch (err: any) {
+      this.logger.warn(`Failed to update parent room metadata: ${err.message}`);
+    }
 
-        responses.push({ success: true, roomId: bkRoomId });
-      } catch (error) {
-        this.logger.error(
-          `Failed to create breakout room ${bkRoomId}: ${error.message}`,
-        );
-        responses.push({
-          success: false,
-          roomId: bkRoomId,
-          error: error.message,
+    if (createdCount === 0) {
+      return create(BreakoutRoomResSchema, { status: false, msg: 'breakout room creation failed', rooms: [] });
+    }
+
+    return create(BreakoutRoomResSchema, { status: true, msg: 'success', rooms: [] });
+  }
+
+  async joinBreakoutRoom(data: JoinBreakoutRoomReq): Promise<BreakoutRoomRes> {
+    const parentRoomId = data.roomId;
+    let effectiveBreakoutId = this.normalizeBreakoutId(parentRoomId, data.breakoutRoomId);
+
+    if (!effectiveBreakoutId) {
+      const ids = await this.natsService.getBreakoutRoomIdsByParentRoomId(parentRoomId).catch(() => [] as string[]);
+      if (ids.length >= 1) {
+        effectiveBreakoutId = ids[0];
+        this.logger.warn(`join breakout: missing breakoutRoomId, defaulting to ${effectiveBreakoutId} for parent=${parentRoomId} available=${ids.join(',')}`);
+      } else {
+        this.logger.warn(`join breakout: missing breakoutRoomId. parent=${parentRoomId} available=none`);
+        return create(BreakoutRoomResSchema, { status: false, msg: 'breakout room not found', rooms: [] });
+      }
+    }
+
+    const status = await this.natsService.getRoomUserStatus(effectiveBreakoutId, data.userId);
+    if (status === 'online') {
+      return create(BreakoutRoomResSchema, { status: false, msg: 'user has already been joined', token: undefined, rooms: [] });
+    }
+
+    const breakoutRoom = await this.fetchBreakoutRoom(parentRoomId, effectiveBreakoutId);
+    if (!breakoutRoom) {
+      const ids = await this.natsService.getBreakoutRoomIdsByParentRoomId(parentRoomId).catch(() => [] as string[]);
+      this.logger.warn(`join breakout: room not found in KV. parent=${parentRoomId} breakout=${effectiveBreakoutId} existing=${ids.join(',')}`);
+      return create(BreakoutRoomResSchema, { status: false, msg: 'breakout room not found', rooms: [] });
+    }
+
+    if (!data.isAdmin) {
+      const allowed = breakoutRoom.users?.some((u) => u.id === data.userId);
+      if (!allowed) {
+        return create(BreakoutRoomResSchema, {
+          status: false,
+          msg: 'user is not allowed to join this breakout room',
+          rooms: [],
         });
       }
     }
 
-    // 4. Update Parent Room Metadata to indicate Breakout Active
-    if (!parentMeta.roomFeatures) parentMeta.roomFeatures = {};
-    if (!parentMeta.roomFeatures.breakoutRoomFeatures)
-      parentMeta.roomFeatures.breakoutRoomFeatures = {};
-    parentMeta.roomFeatures.breakoutRoomFeatures.isActive = true;
-    await this.liveKitService
-      .getRoomClient()
-      .updateRoomMetadata(data.roomId, JSON.stringify(parentMeta));
-
-    return create(BreakoutRoomResSchema, {
-      status: true,
-      msg: 'success',
-      rooms: [],
-    });
-  }
-
-  async joinBreakoutRoom(data: JoinBreakoutRoomReq): Promise<BreakoutRoomRes> {
-    this.logger.log(
-      `User ${data.userId} joining breakout room ${data.breakoutRoomId}`,
-    );
-    // 1. Verify Breakout Room Exists
-    const room = await this.prisma.roomInfo.findFirst({
-      where: {
-        roomId: data.breakoutRoomId,
-        isRunning: true,
-        isBreakoutRoom: true,
-      },
-    });
-    if (!room) throw new RpcException('Breakout room not active');
-
-    // 2. Access Control (Simplified: Check if user was assigned? Or just allow if valid)
-    // For strict parity, we should check if user is in the assignment list.
-    // But since we don't store assignment list persistently yet (was in NATS),
-    // we'll rely on the fact that only invited users get the token request triggered by client.
-    // We DO need to get User Info (Name, etc) to generate token.
-
-    // We'll fetch user info from Parent Room
-    // Assuming user is online in parent room
-    // But user might have left parent room to join here? No, they switch.
-    // Actually, we can just generate a new token with provided Name/ID.
-
-    // TODO: Ideally fetch user info from Parent Room participants list to ensure consistency
-
-    // 3. Generate Token
-    // Fetch user info from Parent Room participants list to ensure consistency
-    let name = data.userId;
-    try {
-      const participants = await this.liveKitService
-        .getRoomClient()
-        .listParticipants(room.parentRoomId);
-      const p = participants.find((p) => p.identity === data.userId);
-      if (p && p.name) {
-        name = p.name;
-      }
-    } catch (e) {
-      this.logger.warn(
-        `Could not fetch participant ${data.userId} from parent room ${room.parentRoomId}: ${e.message}`,
-      );
+    const userInfo = await this.natsService.getUserInfo(parentRoomId, data.userId);
+    if (!userInfo) {
+      return create(BreakoutRoomResSchema, { status: false, msg: 'user not found in parent room', rooms: [] });
     }
+    const name = userInfo.name || data.userId;
 
     const videoGrant = {
       roomJoin: true,
-      room: data.breakoutRoomId,
+      room: effectiveBreakoutId,
       canPublish: true,
       canSubscribe: true,
       canPublishData: true,
     };
 
-    const roomInfo = await this.natsService.getRoomInfo(room.roomId);
-
+    const breakoutInfo = await this.natsService.getRoomInfo(effectiveBreakoutId);
     const token = await this.liveKitService.createAccessToken(
       data.userId,
       name,
       videoGrant,
-      roomInfo?.metadata || '',
+      breakoutInfo?.metadata || '',
     );
 
-    return create(BreakoutRoomResSchema, {
-      status: true,
-      msg: 'success',
-      token,
-    });
+    return create(BreakoutRoomResSchema, { status: true, msg: 'success', token, rooms: [] });
   }
 
   async endBreakoutRoom(data: EndBreakoutRoomReq) {
-    return this.roomService.endRoom(create(RoomEndAPIReqSchema, { roomId: data.breakoutRoomId }));
+    await this.roomService.endRoom(create(RoomEndAPIReqSchema, { roomId: data.breakoutRoomId }));
+    await this.natsService.kvDelete(this.breakoutBucket(data.roomId), data.breakoutRoomId);
+    await this.roomService.broadcastNatsEvent(
+      NatsMsgServerToClientEvents.BREAKOUT_ROOM_ENDED,
+      data.roomId,
+      data.breakoutRoomId,
+    );
+    return create(BreakoutRoomResSchema, { status: true, msg: 'success', rooms: [] });
   }
 
   async endAllBreakoutRooms(data: { roomId: string }): Promise<BreakoutRoomRes> {
-    this.logger.log(`Ending all breakout rooms for parent: ${data.roomId}`);
-    const rooms = await this.prisma.roomInfo.findMany({
-      where: {
-        parentRoomId: data.roomId,
-        isRunning: true,
-        isBreakoutRoom: true,
-      },
-    });
+    const rooms = await this.fetchBreakoutRooms(data.roomId);
 
     for (const room of rooms) {
-      await this.roomService.endRoom(create(RoomEndAPIReqSchema, { roomId: room.roomId }));
-      try {
-        await this.natsService.kvDelete(
-          `wajlc-breakoutRoom-${data.roomId}`,
-          room.roomId,
-        );
-      } catch (e) { }
+      await this.roomService.endRoom(create(RoomEndAPIReqSchema, { roomId: room.id }));
+      await this.natsService.kvDelete(this.breakoutBucket(data.roomId), room.id);
     }
 
-    // Update Parent Metadata
-    const parentRoomList = await this.liveKitService
-      .getRoomClient()
-      .listRooms([data.roomId]);
-    if (parentRoomList.length > 0) {
-      const parentRoom = parentRoomList[0];
-      try {
-        const meta = JSON.parse(parentRoom.metadata);
+    try {
+      const info = await this.natsService.getRoomInfo(data.roomId);
+      if (info?.metadata) {
+        const meta = this.safeJson(info.metadata) || {};
         if (meta.roomFeatures?.breakoutRoomFeatures) {
           meta.roomFeatures.breakoutRoomFeatures.isActive = false;
-          await this.liveKitService
-            .getRoomClient()
-            .updateRoomMetadata(data.roomId, JSON.stringify(meta));
+          await this.liveKitService.getRoomClient().updateRoomMetadata(data.roomId, JSON.stringify(meta));
         }
-
-        // Notify all users
-        await this.roomService.broadcastNatsEvent(
-          NatsMsgServerToClientEvents.BREAKOUT_ROOM_ENDED,
-          data.roomId,
-          data.roomId, // msg is usually ignored or ID
-        );
-      } catch (e) { }
+      }
+    } catch (err: any) {
+      this.logger.warn(`Failed to update parent metadata after ending all breakout rooms: ${err.message}`);
     }
 
-    return create(BreakoutRoomResSchema, {
-      status: true,
-      msg: 'success',
-      rooms: [],
-    });
+    await this.roomService.broadcastNatsEvent(
+      NatsMsgServerToClientEvents.BREAKOUT_ROOM_ENDED,
+      data.roomId,
+      data.roomId,
+    );
+
+    return create(BreakoutRoomResSchema, { status: true, msg: 'success', rooms: [] });
   }
 
   async getBreakoutRooms(data: { roomId: string }): Promise<BreakoutRoomRes> {
     const rooms = await this.fetchBreakoutRooms(data.roomId);
     if (!rooms || rooms.length === 0) {
-      throw new RpcException('no breakout rooms found');
+      return create(BreakoutRoomResSchema, { status: false, msg: 'no breakout rooms found', rooms: [] });
     }
-    return create(BreakoutRoomResSchema, {
-      status: true,
-      msg: 'success',
-      rooms,
-    });
+    return create(BreakoutRoomResSchema, { status: true, msg: 'success', rooms });
   }
 
   async getMyBreakoutRooms(data: { roomId: string; userId: string }): Promise<BreakoutRoomRes> {
     const rooms = await this.fetchBreakoutRooms(data.roomId);
     if (!rooms || rooms.length === 0) {
-      throw new RpcException('no breakout rooms found');
+      return create(BreakoutRoomResSchema, { status: false, msg: 'no breakout rooms found', rooms: [] });
     }
 
     for (const room of rooms) {
       if (room.users.some((u) => u.id === data.userId)) {
-        return create(BreakoutRoomResSchema, {
-          status: true,
-          msg: 'success',
-          room,
-        });
+        return create(BreakoutRoomResSchema, { status: true, msg: 'success', room });
       }
     }
-    throw new RpcException('not found');
+    return create(BreakoutRoomResSchema, { status: false, msg: 'not found', rooms: [] });
   }
 
   async increaseBreakoutRoomDuration(data: IncreaseBreakoutRoomDurationReq): Promise<BreakoutRoomRes> {
-    // 1. Fetch current info
-    const kv = await this.natsService.kvGet(
-      `wajlc-breakoutRoom-${data.roomId}`,
-      data.breakoutRoomId,
-    );
-    if (!kv) throw new RpcException('breakout room not found');
+    const breakoutRoom = await this.fetchBreakoutRoom(data.roomId, data.breakoutRoomId);
+    if (!breakoutRoom) {
+      return create(BreakoutRoomResSchema, { status: false, msg: 'breakout room not found', rooms: [] });
+    }
 
-    const room = JSON.parse(new TextDecoder().decode(kv));
+    const parentInfo = await this.natsService.getRoomInfo(data.roomId);
+    const parentMeta = this.safeJson(parentInfo?.metadata || '{}') || {};
+    const parentDuration = this.toNumber(parentMeta?.roomFeatures?.roomDuration || 0);
 
-    // 2. Update duration in LiveKit (metatada)
-    const newDuration = (room.duration || 0) + data.duration;
-    room.duration = newDuration;
+    const current = this.toNumber(breakoutRoom.duration);
+    const requested = this.toNumber(data.duration);
+    const newDuration = current + requested;
+    if (parentDuration > 0 && newDuration > parentDuration) {
+      this.logger.warn(
+        `breakout increase rejected: requested total ${newDuration}s exceeds parent duration ${parentDuration}s for ${data.roomId}`,
+      );
+      return create(BreakoutRoomResSchema, {
+        status: false,
+        msg: "breakout room's duration can't exceed parent room duration",
+        rooms: [],
+      });
+    }
 
-    // Update the actual room session duration if we have a checker,
-    // but here we focus on metadata persistence as per BKRoom logic.
-    await this.natsService.kvPut(
-      `wajlc-breakoutRoom-${data.roomId}`,
-      data.breakoutRoomId,
-      JSON.stringify(room),
-    );
+    breakoutRoom.duration = String(newDuration);
+    await this.saveBreakoutRoom(data.roomId, data.breakoutRoomId, breakoutRoom);
 
-    return create(BreakoutRoomResSchema, {
-      status: true,
-      msg: 'success',
-      rooms: [],
-    });
+    return create(BreakoutRoomResSchema, { status: true, msg: 'success', rooms: [] });
   }
 
   async sendBreakoutRoomMsg(data: BroadcastBreakoutRoomMsgReq): Promise<BreakoutRoomRes> {
     const rooms = await this.fetchBreakoutRooms(data.roomId);
-    if (!rooms || rooms.length === 0) return create(BreakoutRoomResSchema, {
-      status: true,
-      msg: 'success',
-      rooms: [],
-    });
+    if (!rooms || rooms.length === 0) {
+      return create(BreakoutRoomResSchema, { status: true, msg: 'success', rooms: [] });
+    }
 
     for (const room of rooms) {
       await this.roomService.broadcastNatsEvent(
@@ -345,42 +279,222 @@ export class BreakoutRoomService {
         data.msg,
       );
     }
-    return create(BreakoutRoomResSchema, {
-      status: true,
-      msg: 'success',
-      rooms: [],
+    return create(BreakoutRoomResSchema, { status: true, msg: 'success', rooms: [] });
+  }
+
+  async postTaskAfterRoomStartWebhook(roomId: string, metadata: any) {
+    const parentRoomId = metadata?.parentRoomId || metadata?.parent_room_id;
+    if (!parentRoomId) {
+      this.logger.warn(`post-start breakout task: missing parentRoomId for ${roomId}`);
+      return;
+    }
+
+    // Allow LiveKit/NATS time to materialize the breakout room entry (mirrors Go wait)
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    const breakoutRoom = await this.fetchBreakoutRoom(parentRoomId, roomId);
+    if (!breakoutRoom) {
+      this.logger.warn(`post-start breakout task: breakout room not found in KV for ${roomId}`);
+      return;
+    }
+
+    const startedAt = metadata?.startedAt || metadata?.started_at || Math.floor(Date.now() / 1000);
+    breakoutRoom.created = String(startedAt);
+    breakoutRoom.started = true;
+
+    await this.saveBreakoutRoom(parentRoomId, roomId, breakoutRoom);
+    this.logger.log(`post-start breakout task: marked ${roomId} as started`);
+  }
+
+  async postTaskAfterRoomEndWebhook(roomId: string, metadata?: string) {
+    if (!metadata) return;
+    const meta = this.safeJson(metadata);
+    if (!meta) return;
+
+    if (meta.isBreakoutRoom || meta.is_breakout_room) {
+      const parentRoomId = meta.parentRoomId || meta.parent_room_id;
+      if (!parentRoomId) {
+        this.logger.warn(`post-end breakout task: missing parentRoomId for ${roomId}`);
+        return;
+      }
+      await this.natsService.deleteBreakoutRoom(parentRoomId, roomId);
+      await this.onAfterBkRoomEnded(parentRoomId, roomId);
+      return;
+    }
+
+    // Parent room ended: end all child breakout rooms
+    await this.endAllBreakoutRooms({ roomId }).catch((err) => {
+      this.logger.warn(`post-end breakout task: failed to end all breakout rooms for ${roomId}: ${err.message}`);
     });
   }
 
   private async fetchBreakoutRooms(roomId: string): Promise<BreakoutRoom[]> {
-    const bucket = `wajlc-breakoutRoom-${roomId}`;
-    // We'll use a manual approach since kvGetAll isn't in NatsService yet, 
-    // or better, I should add it to NatsService.
-    // For now, let's assume I'll add it.
-    const all = await this.natsService.kvGetAll(bucket);
-    const breakoutRooms: any[] = [];
+    const all = await this.natsService.kvGetAll(this.breakoutBucket(roomId));
     const decoder = new TextDecoder();
+    const breakoutRooms: BreakoutRoom[] = [];
 
     for (const [key, val] of Object.entries(all)) {
-      try {
-        const room = JSON.parse(decoder.decode(val));
-        room.id = key;
-        // Check online status for users if started
-        if (room.started) {
-          for (const user of room.users) {
-            const status = await this.natsService.getRoomUserStatus(
-              room.id,
-              user.id,
-            );
-            if (status === 'online') {
-              user.joined = true;
-            }
+      const parsed = this.safeJson(decoder.decode(val));
+      if (!parsed) continue;
+      const room = create(BreakoutRoomSchema, {
+        id: key,
+        title: parsed.title || '',
+        duration: String(this.toNumber(parsed.duration)),
+        started: Boolean(parsed.started),
+        created: String(parsed.created || 0),
+        users: Array.isArray(parsed.users)
+          ? parsed.users.map((u: any) =>
+            create(BreakoutRoomUserSchema, { id: u.id, name: u.name, joined: Boolean(u.joined) }))
+          : [],
+      });
+
+      if (room.started) {
+        for (const user of room.users) {
+          const status = await this.natsService.getRoomUserStatus(room.id, user.id);
+          if (status === 'online') {
+            user.joined = true;
           }
         }
-        breakoutRooms.push(room);
-      } catch (e) { }
+      }
+
+      breakoutRooms.push(room);
     }
     return breakoutRooms;
+  }
+
+  private async fetchBreakoutRoom(parentRoomId: string, breakoutRoomId: string): Promise<BreakoutRoom | null> {
+    const val = await this.natsService.kvGet(this.breakoutBucket(parentRoomId), breakoutRoomId);
+    if (!val) return null;
+    const parsed = this.safeJson(new TextDecoder().decode(val));
+    if (!parsed) return null;
+    return create(BreakoutRoomSchema, {
+      id: breakoutRoomId,
+      title: parsed.title || '',
+      duration: String(this.toNumber(parsed.duration)),
+      started: Boolean(parsed.started),
+      created: String(parsed.created || 0),
+      users: Array.isArray(parsed.users)
+        ? parsed.users.map((u: any) =>
+          create(BreakoutRoomUserSchema, { id: u.id, name: u.name, joined: Boolean(u.joined) }))
+        : [],
+    });
+  }
+
+  private async saveBreakoutRoom(parentRoomId: string, breakoutRoomId: string, room: BreakoutRoom) {
+    const payload = {
+      ...room,
+      duration: room.duration,
+      created: room.created,
+      started: room.started,
+      users: room.users,
+    };
+    await this.natsService.kvPut(this.breakoutBucket(parentRoomId), breakoutRoomId, JSON.stringify(payload));
+    this.logger.debug(`saved breakout room ${breakoutRoomId} under parent ${parentRoomId}`);
+  }
+
+  private async onAfterBkRoomEnded(parentRoomId: string, bkRoomId: string) {
+    try {
+      const count = await this.natsService.countBreakoutRooms(parentRoomId);
+      if (count === 0) {
+        await this.natsService.deleteAllBreakoutRoomsByParentRoomId(parentRoomId);
+        await this.updateParentRoomMetadata(parentRoomId);
+      }
+    } catch (err: any) {
+      this.logger.warn(`post-end breakout task: metadata cleanup failed for parent ${parentRoomId}: ${err.message}`);
+    }
+
+    try {
+      await this.roomService.broadcastNatsEvent(
+        NatsMsgServerToClientEvents.BREAKOUT_ROOM_ENDED,
+        parentRoomId,
+        bkRoomId,
+      );
+    } catch (err: any) {
+      this.logger.warn(`post-end breakout task: failed to broadcast BREAKOUT_ROOM_ENDED for ${bkRoomId}: ${err.message}`);
+    }
+  }
+
+  private async updateParentRoomMetadata(parentRoomId: string) {
+    const info = await this.natsService.getRoomInfo(parentRoomId).catch(() => null as any);
+    if (!info?.metadata) return;
+    const meta = this.safeJson(info.metadata) || {};
+    if (!meta.roomFeatures) meta.roomFeatures = {};
+    if (!meta.roomFeatures.breakoutRoomFeatures) meta.roomFeatures.breakoutRoomFeatures = {};
+    if (!meta.room_features) meta.room_features = meta.roomFeatures;
+    if (!meta.room_features) meta.room_features = {} as any;
+    if (!meta.room_features.breakout_room_features) {
+      meta.room_features.breakout_room_features = meta.roomFeatures.breakoutRoomFeatures;
+    }
+
+    if (meta.roomFeatures.breakoutRoomFeatures.isActive === false) return;
+
+    meta.roomFeatures.breakoutRoomFeatures.isActive = false;
+    meta.roomFeatures.breakoutRoomFeatures.is_active = false;
+    meta.room_features.breakout_room_features.isActive = false;
+    meta.room_features.breakout_room_features.is_active = false;
+    try {
+      await this.liveKitService.getRoomClient().updateRoomMetadata(parentRoomId, JSON.stringify(meta));
+    } catch (err: any) {
+      this.logger.warn(`post-end breakout task: failed to update parent metadata for ${parentRoomId}: ${err.message}`);
+    }
+  }
+
+  private breakoutBucket(parentRoomId: string) {
+    return `wajlc-breakoutRoom-${parentRoomId}`;
+  }
+
+  private normalizeBreakoutId(parentRoomId: string, breakoutRoomId?: string | null): string | null {
+    const trimmed = (breakoutRoomId || '').trim();
+    if (!trimmed) return null;
+    if (trimmed.startsWith(`${parentRoomId}-`)) return trimmed;
+    return `${parentRoomId}-${trimmed}`;
+  }
+
+  private toNumber(val?: string | number) {
+    if (typeof val === 'number') return val;
+    if (typeof val === 'string' && val.trim() !== '') {
+      const n = Number(val);
+      return Number.isFinite(n) ? n : 0;
+    }
+    return 0;
+  }
+
+  private safeJson(str: any): any {
+    if (!str) return null;
+    try {
+      return typeof str === 'string' ? JSON.parse(str) : str;
+    } catch {
+      return null;
+    }
+  }
+
+  private prepareBreakoutMetadata(baseMeta: any, parentRoomId: string, duration: number, welcomeMsg?: string) {
+    const meta = JSON.parse(JSON.stringify(baseMeta || {}));
+    meta.isBreakoutRoom = true;
+    meta.parentRoomId = parentRoomId;
+    meta.welcomeMessage = welcomeMsg ?? meta.welcomeMessage;
+    if (!meta.roomFeatures) meta.roomFeatures = {};
+    if (!meta.roomFeatures.breakoutRoomFeatures) meta.roomFeatures.breakoutRoomFeatures = {};
+    meta.roomFeatures.breakoutRoomFeatures.isAllow = false;
+    meta.roomFeatures.breakoutRoomFeatures.isActive = true;
+    if (!meta.roomFeatures.waitingRoomFeatures) meta.roomFeatures.waitingRoomFeatures = {};
+    meta.roomFeatures.waitingRoomFeatures.isActive = false;
+    if (!meta.roomFeatures.recordingFeatures) meta.roomFeatures.recordingFeatures = {};
+    meta.roomFeatures.recordingFeatures.isAllow = false;
+    meta.roomFeatures.allowRtmp = false;
+    if (meta.roomFeatures.displayExternalLinkFeatures) {
+      meta.roomFeatures.displayExternalLinkFeatures.isActive = false;
+    }
+    if (meta.roomFeatures.externalMediaPlayerFeatures) {
+      meta.roomFeatures.externalMediaPlayerFeatures.isActive = false;
+    }
+    // Ensure roomDuration is always encoded as string; 0 means "no limit" for breakouts
+    const durationVal = duration > 0 ? duration : 0;
+    meta.roomFeatures.roomDuration = String(durationVal);
+    if (!meta.room_features) meta.room_features = meta.roomFeatures;
+    if (!meta.room_features) meta.room_features = {} as any;
+    meta.room_features.room_duration = String(durationVal);
+    return meta;
   }
 }
 

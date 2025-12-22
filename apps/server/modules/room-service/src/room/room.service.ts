@@ -46,7 +46,7 @@ import {
 import { create, toBinary } from '@bufbuild/protobuf';
 import { RoomUtils } from '../utils/room.utils';
 import { PollService } from './poll.service';
-import { ArtifactService } from './artifact.service';
+import { BreakoutRoomService } from './breakout-room.service';
 
 @Injectable()
 export class RoomService implements OnModuleInit {
@@ -62,7 +62,7 @@ export class RoomService implements OnModuleInit {
     private readonly webhookService: WebhookService,
     private readonly authService: AuthService,
     @Inject(forwardRef(() => PollService)) private readonly pollService: PollService,
-    private readonly artifactService: ArtifactService,
+    @Inject(forwardRef(() => BreakoutRoomService)) private readonly breakoutRoomService: BreakoutRoomService,
   ) { }
 
   async onModuleInit() {
@@ -270,7 +270,7 @@ export class RoomService implements OnModuleInit {
       );
 
       // Analytics
-      await this.analyticsService.sendAnalyticsData({
+      await this.analyticsService.handleEvent({
         eventType: AnalyticsEventType.ROOM,
         eventName: AnalyticsEvents.ANALYTICS_EVENT_UNKNOWN,
         roomId: room.name,
@@ -442,8 +442,12 @@ export class RoomService implements OnModuleInit {
       // Step 9: Clean up polls (placeholder)
       try { await this.pollService.cleanUpPolls(roomId); } catch (e) { log.warn(`Poll cleanup failed: ${e.message}`); }
 
-      // Step 10: Breakout room cleanup (placeholder)
-      // await this.breakoutRoomService.postEndCleanup(roomId, metadata);
+      // Step 10: Breakout room cleanup
+      try {
+        await this.breakoutRoomService.postTaskAfterRoomEndWebhook(roomId, metadata);
+      } catch (e: any) {
+        log.warn(`Breakout cleanup failed: ${e.message}`);
+      }
 
       // Step 11: Speech service cleanup (placeholder)
       // await this.speechService.onAfterRoomEnded(roomId, roomSid);
@@ -487,7 +491,7 @@ export class RoomService implements OnModuleInit {
     this.logger.log(`Exporting analytics for room: ${roomId}`);
 
     // Send final analytics event
-    await this.analyticsService.sendAnalyticsData({
+    await this.analyticsService.handleEvent({
       eventType: AnalyticsEventType.ROOM,
       eventName: AnalyticsEvents.ANALYTICS_EVENT_UNKNOWN,
       roomId: roomId,
@@ -785,10 +789,22 @@ export class RoomService implements OnModuleInit {
     if (!event || !event.room) return;
     const roomId = event.room.name;
     const eventType = event.event;
+    const loadMetadataStr = async () => {
+      if (event.room?.metadata) return event.room.metadata as string;
+      const info = await this.natsService.getRoomInfo(roomId).catch(() => null as any);
+      return info?.metadata || '';
+    };
+    const parseMetadata = (val?: string) => {
+      try {
+        return val ? JSON.parse(val) : null;
+      } catch {
+        return null;
+      }
+    };
 
     try {
       switch (eventType) {
-        case 'room_started':
+        case 'room_started': {
           await this.prisma.roomInfo.upsert({
             where: { sid: event.room.sid },
             update: { isRunning: true },
@@ -800,7 +816,7 @@ export class RoomService implements OnModuleInit {
               creationTime: Number(event.room.creationTime),
             },
           });
-          await this.analyticsService.sendAnalyticsData({
+          await this.analyticsService.handleEvent({
             eventType: AnalyticsEventType.ROOM,
             eventName: AnalyticsEvents.ANALYTICS_EVENT_UNKNOWN,
             roomId: roomId,
@@ -808,14 +824,33 @@ export class RoomService implements OnModuleInit {
             time: Date.now(),
             eventValueString: 'started',
           } as any);
-          break;
+          const metadataStr = await loadMetadataStr();
+          const meta = parseMetadata(metadataStr);
+          if (meta) {
+            const startedAt = Math.floor(Date.now() / 1000);
+            meta.startedAt = startedAt;
+            meta.started_at = startedAt;
+            try {
+              await this.updateAndBroadcastRoomMetadata(roomId, meta);
+            } catch (err: any) {
+              this.logger.warn(`room_started webhook: failed to update metadata for ${roomId}: ${err.message}`);
+            }
 
-        case 'room_finished':
+            if (meta.isBreakoutRoom || meta.is_breakout_room) {
+              await this.breakoutRoomService.postTaskAfterRoomStartWebhook(roomId, meta).catch((err) => {
+                this.logger.warn(`room_started webhook: breakout post-task failed for ${roomId}: ${err.message}`);
+              });
+            }
+          }
+          break;
+        }
+
+        case 'room_finished': {
           await this.prisma.roomInfo.updateMany({
             where: { sid: event.room.sid },
             data: { isRunning: false, ended: new Date() },
           });
-          await this.analyticsService.sendAnalyticsData({
+          await this.analyticsService.handleEvent({
             eventType: AnalyticsEventType.ROOM,
             eventName: AnalyticsEvents.ANALYTICS_EVENT_UNKNOWN,
             roomId: roomId,
@@ -823,7 +858,12 @@ export class RoomService implements OnModuleInit {
             time: Date.now(),
             eventValueString: 'finished',
           } as any);
+          const metadataStr = await loadMetadataStr();
+          await this.breakoutRoomService.postTaskAfterRoomEndWebhook(roomId, metadataStr).catch((err) => {
+            this.logger.warn(`room_finished webhook: breakout post-task failed for ${roomId}: ${err.message}`);
+          });
           break;
+        }
 
         case 'participant_joined':
           await this.prisma.roomInfo.updateMany({
@@ -845,7 +885,7 @@ export class RoomService implements OnModuleInit {
             // Create NATS Consumers
             await this.createNatsConsumers(roomId, user.identity);
 
-            await this.analyticsService.sendAnalyticsData({
+            await this.analyticsService.handleEvent({
               eventType: AnalyticsEventType.USER,
               eventName: AnalyticsEvents.ANALYTICS_EVENT_USER_JOINED,
               roomId: roomId,
@@ -868,7 +908,7 @@ export class RoomService implements OnModuleInit {
               roomId,
               event.participant.identity,
             );
-            await this.analyticsService.sendAnalyticsData({
+            await this.analyticsService.handleEvent({
               eventType: AnalyticsEventType.USER,
               eventName: AnalyticsEvents.ANALYTICS_EVENT_USER_LEFT,
               roomId: roomId,
@@ -883,7 +923,7 @@ export class RoomService implements OnModuleInit {
         case 'egress_ended': // Recording finished
           if (event.egressInfo && (event.egressInfo as any).file) {
             // Recording persistence disabled (no recording table in Prisma schema).
-            await this.analyticsService.sendAnalyticsData({
+            await this.analyticsService.handleEvent({
               eventType: AnalyticsEventType.ROOM,
               eventName: AnalyticsEvents.ANALYTICS_EVENT_ROOM_RECORDING_STATUS,
               roomId: roomId,
@@ -1076,8 +1116,17 @@ export class RoomService implements OnModuleInit {
       }),
     ]);
 
-    // Fetch analytics artifact ids via dedicated service (Go parity)
-    const artifactsMap = await this.artifactService.getAnalyticsArtifactsByRoomTableIds(rooms.map((r) => r.id));
+    // Fetch analytics file ids from RoomAnalytics table
+    const roomIds = rooms.map(r => r.id);
+    const analyticsRecords = await this.prisma.roomAnalytics.findMany({
+      where: { roomTableId: { in: roomIds } },
+      select: { roomTableId: true, fileId: true },
+    });
+    const artifactsMap: Record<number, string> = {};
+    analyticsRecords.forEach(a => {
+      artifactsMap[a.roomTableId] = a.fileId;
+    });
+
     const pastRooms = rooms.map((r) =>
       create(PastRoomInfoSchema, {
         roomTitle: r.roomTitle,

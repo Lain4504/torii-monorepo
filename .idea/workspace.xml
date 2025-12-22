@@ -4,10 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="migration: remove metadata form room_info">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(room): update breakroom logic">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/artifact.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/artifact.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/artifact.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/artifact.service.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -114,46 +112,6 @@
       <workItem from="1766389136679" duration="276000" />
       <workItem from="1766389564407" duration="209000" />
       <workItem from="1766389953908" duration="3574000" />
-    </task>
-    <task id="LOCAL-00106" summary="fix: fix pre-room and nats authentication">
-      <option name="closed" value="true" />
-      <created>1765889090148</created>
-      <option name="number" value="00106" />
-      <option name="presentableId" value="LOCAL-00106" />
-      <option name="project" value="LOCAL" />
-      <updated>1765889090148</updated>
-    </task>
-    <task id="LOCAL-00107" summary="fix: fix pre-room and nats authentication">
-      <option name="closed" value="true" />
-      <created>1765891945657</created>
-      <option name="number" value="00107" />
-      <option name="presentableId" value="LOCAL-00107" />
-      <option name="project" value="LOCAL" />
-      <updated>1765891945657</updated>
-    </task>
-    <task id="LOCAL-00108" summary="fix: fix pre-room and nats authentication">
-      <option name="closed" value="true" />
-      <created>1765905036785</created>
-      <option name="number" value="00108" />
-      <option name="presentableId" value="LOCAL-00108" />
-      <option name="project" value="LOCAL" />
-      <updated>1765905036785</updated>
-    </task>
-    <task id="LOCAL-00109" summary="feat: listen worker for room state">
-      <option name="closed" value="true" />
-      <created>1765906383882</created>
-      <option name="number" value="00109" />
-      <option name="presentableId" value="LOCAL-00109" />
-      <option name="project" value="LOCAL" />
-      <updated>1765906383883</updated>
-    </task>
-    <task id="LOCAL-00110" summary="feat(users): implement user management with new user table and service">
-      <option name="closed" value="true" />
-      <created>1766064525664</created>
-      <option name="number" value="00110" />
-      <option name="presentableId" value="LOCAL-00110" />
-      <option name="project" value="LOCAL" />
-      <updated>1766064525664</updated>
     </task>
     <task id="LOCAL-00111" summary="feat(users): implement user management with new user table and service">
       <option name="closed" value="true" />
@@ -507,7 +465,47 @@
       <option name="project" value="LOCAL" />
       <updated>1766400057425</updated>
     </task>
-    <option name="localTasksCounter" value="155" />
+    <task id="LOCAL-00155" summary="migration: remove metadata form room_info">
+      <option name="closed" value="true" />
+      <created>1766400578218</created>
+      <option name="number" value="00155" />
+      <option name="presentableId" value="LOCAL-00155" />
+      <option name="project" value="LOCAL" />
+      <updated>1766400578218</updated>
+    </task>
+    <task id="LOCAL-00156" summary="migration: remove metadata form room_info">
+      <option name="closed" value="true" />
+      <created>1766401045951</created>
+      <option name="number" value="00156" />
+      <option name="presentableId" value="LOCAL-00156" />
+      <option name="project" value="LOCAL" />
+      <updated>1766401045951</updated>
+    </task>
+    <task id="LOCAL-00157" summary="feat(room): update breakroom logic">
+      <option name="closed" value="true" />
+      <created>1766403333103</created>
+      <option name="number" value="00157" />
+      <option name="presentableId" value="LOCAL-00157" />
+      <option name="project" value="LOCAL" />
+      <updated>1766403333103</updated>
+    </task>
+    <task id="LOCAL-00158" summary="feat(room): update breakroom logic">
+      <option name="closed" value="true" />
+      <created>1766409753073</created>
+      <option name="number" value="00158" />
+      <option name="presentableId" value="LOCAL-00158" />
+      <option name="project" value="LOCAL" />
+      <updated>1766409753073</updated>
+    </task>
+    <task id="LOCAL-00159" summary="feat(room): update breakroom logic">
+      <option name="closed" value="true" />
+      <created>1766410462685</created>
+      <option name="number" value="00159" />
+      <option name="presentableId" value="LOCAL-00159" />
+      <option name="project" value="LOCAL" />
+      <updated>1766410462686</updated>
+    </task>
+    <option name="localTasksCounter" value="160" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -543,7 +541,8 @@
     <MESSAGE value="feat(storage): integrate Cloudflare R2 for file storage - add R2 provider and update storage service for presigned URLs - enhance file metadata handling and implement direct upload functionality" />
     <MESSAGE value="refactor: split room controllers and servces for diffrent features" />
     <MESSAGE value="migration: remove metadata form room_info" />
-    <option name="LAST_COMMIT_MESSAGE" value="migration: remove metadata form room_info" />
+    <MESSAGE value="feat(room): update breakroom logic" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(room): update breakroom logic" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

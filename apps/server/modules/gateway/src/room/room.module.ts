@@ -10,7 +10,7 @@ import { UserTrackingModule } from '../user-tracking.module';
 import { UserController } from './user.controller';
 import { FileController } from './file.controller';
 import { ExternalMediaController } from './external-media.controller';
-import { ArtifactController, ArtifactDownloadController } from './artifact.controller';
+import { AnalyticsController, AnalyticsDownloadController } from './analytics.controller';
 
 @Module({
   imports: [
@@ -29,8 +29,8 @@ import { ArtifactController, ArtifactDownloadController } from './artifact.contr
     FileController,
     ExternalMediaController,
     RoomApiController,
-    ArtifactController,
-    ArtifactDownloadController,
+    AnalyticsController,
+    AnalyticsDownloadController,
   ],
 })
 export class RoomModule { }

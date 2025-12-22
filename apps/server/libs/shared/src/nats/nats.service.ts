@@ -194,6 +194,45 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
+  // --- Breakout room helpers (parity with Go server) ---
+
+  private breakoutBucket(parentRoomId: string) {
+    return `wajlc-breakoutRoom-${parentRoomId}`;
+  }
+
+  async insertOrUpdateBreakoutRoom(parentRoomId: string, breakoutRoomId: string, value: string | Uint8Array) {
+    return this.kvPut(this.breakoutBucket(parentRoomId), breakoutRoomId, value);
+  }
+
+  async getBreakoutRoom(parentRoomId: string, breakoutRoomId: string): Promise<Uint8Array | null> {
+    return this.kvGet(this.breakoutBucket(parentRoomId), breakoutRoomId);
+  }
+
+  async getAllBreakoutRoomsByParentRoomId(parentRoomId: string): Promise<Record<string, Uint8Array>> {
+    return this.kvGetAll(this.breakoutBucket(parentRoomId));
+  }
+
+  async getBreakoutRoomIdsByParentRoomId(parentRoomId: string): Promise<string[]> {
+    const all = await this.kvGetAll(this.breakoutBucket(parentRoomId));
+    return Object.keys(all);
+  }
+
+  async deleteBreakoutRoom(parentRoomId: string, breakoutRoomId: string) {
+    return this.kvDelete(this.breakoutBucket(parentRoomId), breakoutRoomId);
+  }
+
+  async deleteAllBreakoutRoomsByParentRoomId(parentRoomId: string) {
+    const all = await this.getBreakoutRoomIdsByParentRoomId(parentRoomId);
+    for (const id of all) {
+      await this.deleteBreakoutRoom(parentRoomId, id);
+    }
+  }
+
+  async countBreakoutRooms(parentRoomId: string): Promise<number> {
+    const all = await this.getBreakoutRoomIdsByParentRoomId(parentRoomId);
+    return all.length;
+  }
+
   async getRoomInfo(roomId: string) {
     const bucket = `wajlc-roomInfo-${roomId}`;
     const kv = await this.js.views.kv(bucket);
