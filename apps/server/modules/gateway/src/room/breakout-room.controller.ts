@@ -28,7 +28,7 @@ import {
     BreakoutRoomResSchema,
 } from '@workspace/protocol';
 import { create, toBinary, fromBinary } from '@bufbuild/protobuf';
-import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { JwtAuthGuard } from '@server/shared';
 import type { Response } from 'express';
 import { BadRequestException } from '@nestjs/common';
 import { ProtobufParserPipe } from '@server/shared';

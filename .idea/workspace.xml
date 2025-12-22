@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(room): update breakroom logic">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: create utils for meet features">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/protocol/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/.gitignore" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -22,7 +23,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="course-crud-api" />
+        <entry key="$PROJECT_DIR$" value="flashcard-desk-crud" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -59,7 +60,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;listen-event-room&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;#15 on listen-event-room&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -72,6 +73,7 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\demo\team-source\torii-monorepo\apps\server\libs\shared\src\utils" />
       <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\room-service\src\utils" />
     </key>
   </component>
@@ -112,400 +114,401 @@
       <workItem from="1766389136679" duration="276000" />
       <workItem from="1766389564407" duration="209000" />
       <workItem from="1766389953908" duration="3574000" />
+      <workItem from="1766495967127" duration="3090000" />
     </task>
-    <task id="LOCAL-00111" summary="feat(users): implement user management with new user table and service">
+    <task id="LOCAL-00162" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766065390438</created>
-      <option name="number" value="00111" />
-      <option name="presentableId" value="LOCAL-00111" />
+      <created>1766412590304</created>
+      <option name="number" value="00162" />
+      <option name="presentableId" value="LOCAL-00162" />
       <option name="project" value="LOCAL" />
-      <updated>1766065390438</updated>
+      <updated>1766412590304</updated>
     </task>
-    <task id="LOCAL-00112" summary="feat(users): implement user management with new user table and service">
+    <task id="LOCAL-00163" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766067026107</created>
-      <option name="number" value="00112" />
-      <option name="presentableId" value="LOCAL-00112" />
+      <created>1766413676520</created>
+      <option name="number" value="00163" />
+      <option name="presentableId" value="LOCAL-00163" />
       <option name="project" value="LOCAL" />
-      <updated>1766067026107</updated>
+      <updated>1766413676520</updated>
     </task>
-    <task id="LOCAL-00113" summary="feat(users): implement user management with new user table and service">
+    <task id="LOCAL-00164" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766069201874</created>
-      <option name="number" value="00113" />
-      <option name="presentableId" value="LOCAL-00113" />
+      <created>1766415270334</created>
+      <option name="number" value="00164" />
+      <option name="presentableId" value="LOCAL-00164" />
       <option name="project" value="LOCAL" />
-      <updated>1766069201874</updated>
+      <updated>1766415270334</updated>
     </task>
-    <task id="LOCAL-00114" summary="feat(users): implement user management with new user table and service">
+    <task id="LOCAL-00165" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766069240865</created>
-      <option name="number" value="00114" />
-      <option name="presentableId" value="LOCAL-00114" />
+      <created>1766415279159</created>
+      <option name="number" value="00165" />
+      <option name="presentableId" value="LOCAL-00165" />
       <option name="project" value="LOCAL" />
-      <updated>1766069240865</updated>
+      <updated>1766415279159</updated>
     </task>
-    <task id="LOCAL-00115" summary="feat(users): implement user management with new user table and service">
+    <task id="LOCAL-00166" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766070203990</created>
-      <option name="number" value="00115" />
-      <option name="presentableId" value="LOCAL-00115" />
+      <created>1766415998251</created>
+      <option name="number" value="00166" />
+      <option name="presentableId" value="LOCAL-00166" />
       <option name="project" value="LOCAL" />
-      <updated>1766070203990</updated>
+      <updated>1766415998251</updated>
     </task>
-    <task id="LOCAL-00116" summary="refactor(users): implement user management with proto">
+    <task id="LOCAL-00167" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766070555000</created>
-      <option name="number" value="00116" />
-      <option name="presentableId" value="LOCAL-00116" />
+      <created>1766416010663</created>
+      <option name="number" value="00167" />
+      <option name="presentableId" value="LOCAL-00167" />
       <option name="project" value="LOCAL" />
-      <updated>1766070555000</updated>
+      <updated>1766416010663</updated>
     </task>
-    <task id="LOCAL-00117" summary="refactor(users): implement user management with proto">
+    <task id="LOCAL-00168" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766071554097</created>
-      <option name="number" value="00117" />
-      <option name="presentableId" value="LOCAL-00117" />
+      <created>1766416092072</created>
+      <option name="number" value="00168" />
+      <option name="presentableId" value="LOCAL-00168" />
       <option name="project" value="LOCAL" />
-      <updated>1766071554097</updated>
+      <updated>1766416092072</updated>
     </task>
-    <task id="LOCAL-00118" summary="feat: add microservices for assessment, payment, AI, and notification services">
+    <task id="LOCAL-00169" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766159698772</created>
-      <option name="number" value="00118" />
-      <option name="presentableId" value="LOCAL-00118" />
+      <created>1766416103225</created>
+      <option name="number" value="00169" />
+      <option name="presentableId" value="LOCAL-00169" />
       <option name="project" value="LOCAL" />
-      <updated>1766159698772</updated>
+      <updated>1766416103225</updated>
     </task>
-    <task id="LOCAL-00119" summary="feat: add microservices for assessment, payment, AI, and notification services">
+    <task id="LOCAL-00170" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766159951652</created>
-      <option name="number" value="00119" />
-      <option name="presentableId" value="LOCAL-00119" />
+      <created>1766416653062</created>
+      <option name="number" value="00170" />
+      <option name="presentableId" value="LOCAL-00170" />
       <option name="project" value="LOCAL" />
-      <updated>1766159951653</updated>
+      <updated>1766416653062</updated>
     </task>
-    <task id="LOCAL-00120" summary="feat: add microservices for assessment, payment, AI, and notification services">
+    <task id="LOCAL-00171" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766160530057</created>
-      <option name="number" value="00120" />
-      <option name="presentableId" value="LOCAL-00120" />
+      <created>1766416880100</created>
+      <option name="number" value="00171" />
+      <option name="presentableId" value="LOCAL-00171" />
       <option name="project" value="LOCAL" />
-      <updated>1766160530058</updated>
+      <updated>1766416880100</updated>
     </task>
-    <task id="LOCAL-00121" summary="feat: add microservices for assessment, payment, AI, and notification services">
+    <task id="LOCAL-00172" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766161982774</created>
-      <option name="number" value="00121" />
-      <option name="presentableId" value="LOCAL-00121" />
+      <created>1766417101590</created>
+      <option name="number" value="00172" />
+      <option name="presentableId" value="LOCAL-00172" />
       <option name="project" value="LOCAL" />
-      <updated>1766161982774</updated>
+      <updated>1766417101591</updated>
     </task>
-    <task id="LOCAL-00122" summary="revert">
+    <task id="LOCAL-00173" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766243234998</created>
-      <option name="number" value="00122" />
-      <option name="presentableId" value="LOCAL-00122" />
+      <created>1766417311572</created>
+      <option name="number" value="00173" />
+      <option name="presentableId" value="LOCAL-00173" />
       <option name="project" value="LOCAL" />
-      <updated>1766243234999</updated>
+      <updated>1766417311572</updated>
     </task>
-    <task id="LOCAL-00123" summary="feat(webhook): implement WebhookService for room event notifications">
+    <task id="LOCAL-00174" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766302311950</created>
-      <option name="number" value="00123" />
-      <option name="presentableId" value="LOCAL-00123" />
+      <created>1766417499184</created>
+      <option name="number" value="00174" />
+      <option name="presentableId" value="LOCAL-00174" />
       <option name="project" value="LOCAL" />
-      <updated>1766302311950</updated>
+      <updated>1766417499185</updated>
     </task>
-    <task id="LOCAL-00124" summary="feat(webhook): implement WebhookService for room event notifications">
+    <task id="LOCAL-00175" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766302393360</created>
-      <option name="number" value="00124" />
-      <option name="presentableId" value="LOCAL-00124" />
+      <created>1766417900766</created>
+      <option name="number" value="00175" />
+      <option name="presentableId" value="LOCAL-00175" />
       <option name="project" value="LOCAL" />
-      <updated>1766302393360</updated>
+      <updated>1766417900766</updated>
     </task>
-    <task id="LOCAL-00125" summary="refactor: split room controllers and servces for diffrent features">
+    <task id="LOCAL-00176" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766313559838</created>
-      <option name="number" value="00125" />
-      <option name="presentableId" value="LOCAL-00125" />
+      <created>1766417904783</created>
+      <option name="number" value="00176" />
+      <option name="presentableId" value="LOCAL-00176" />
       <option name="project" value="LOCAL" />
-      <updated>1766313559838</updated>
+      <updated>1766417904783</updated>
     </task>
-    <task id="LOCAL-00126" summary="refactor: split room controllers and servces for diffrent features">
+    <task id="LOCAL-00177" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766313584286</created>
-      <option name="number" value="00126" />
-      <option name="presentableId" value="LOCAL-00126" />
+      <created>1766418069918</created>
+      <option name="number" value="00177" />
+      <option name="presentableId" value="LOCAL-00177" />
       <option name="project" value="LOCAL" />
-      <updated>1766313584286</updated>
+      <updated>1766418069918</updated>
     </task>
-    <task id="LOCAL-00127" summary="refactor: split room controllers and servces for diffrent features">
+    <task id="LOCAL-00178" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766323641497</created>
-      <option name="number" value="00127" />
-      <option name="presentableId" value="LOCAL-00127" />
+      <created>1766418236320</created>
+      <option name="number" value="00178" />
+      <option name="presentableId" value="LOCAL-00178" />
       <option name="project" value="LOCAL" />
-      <updated>1766323641497</updated>
+      <updated>1766418236320</updated>
     </task>
-    <task id="LOCAL-00128" summary="refactor: split room controllers and servces for diffrent features">
+    <task id="LOCAL-00179" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766326264081</created>
-      <option name="number" value="00128" />
-      <option name="presentableId" value="LOCAL-00128" />
+      <created>1766418587448</created>
+      <option name="number" value="00179" />
+      <option name="presentableId" value="LOCAL-00179" />
       <option name="project" value="LOCAL" />
-      <updated>1766326264081</updated>
+      <updated>1766418587448</updated>
     </task>
-    <task id="LOCAL-00129" summary="refactor: split room controllers and servces for diffrent features">
+    <task id="LOCAL-00180" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766326327765</created>
-      <option name="number" value="00129" />
-      <option name="presentableId" value="LOCAL-00129" />
+      <created>1766419254590</created>
+      <option name="number" value="00180" />
+      <option name="presentableId" value="LOCAL-00180" />
       <option name="project" value="LOCAL" />
-      <updated>1766326327765</updated>
+      <updated>1766419254590</updated>
     </task>
-    <task id="LOCAL-00130" summary="refactor: split room controllers and servces for diffrent features">
+    <task id="LOCAL-00181" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766326332238</created>
-      <option name="number" value="00130" />
-      <option name="presentableId" value="LOCAL-00130" />
+      <created>1766419538747</created>
+      <option name="number" value="00181" />
+      <option name="presentableId" value="LOCAL-00181" />
       <option name="project" value="LOCAL" />
-      <updated>1766326332239</updated>
+      <updated>1766419538747</updated>
     </task>
-    <task id="LOCAL-00131" summary="refactor: split room controllers and servces for diffrent features">
+    <task id="LOCAL-00182" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766326341003</created>
-      <option name="number" value="00131" />
-      <option name="presentableId" value="LOCAL-00131" />
+      <created>1766420275200</created>
+      <option name="number" value="00182" />
+      <option name="presentableId" value="LOCAL-00182" />
       <option name="project" value="LOCAL" />
-      <updated>1766326341003</updated>
+      <updated>1766420275200</updated>
     </task>
-    <task id="LOCAL-00132" summary="refactor: split room controllers and servces for diffrent features">
+    <task id="LOCAL-00183" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766326378306</created>
-      <option name="number" value="00132" />
-      <option name="presentableId" value="LOCAL-00132" />
+      <created>1766420602781</created>
+      <option name="number" value="00183" />
+      <option name="presentableId" value="LOCAL-00183" />
       <option name="project" value="LOCAL" />
-      <updated>1766326378306</updated>
+      <updated>1766420602781</updated>
     </task>
-    <task id="LOCAL-00133" summary="refactor: split room controllers and servces for diffrent features">
+    <task id="LOCAL-00184" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766326844814</created>
-      <option name="number" value="00133" />
-      <option name="presentableId" value="LOCAL-00133" />
+      <created>1766421596243</created>
+      <option name="number" value="00184" />
+      <option name="presentableId" value="LOCAL-00184" />
       <option name="project" value="LOCAL" />
-      <updated>1766326844814</updated>
+      <updated>1766421596243</updated>
     </task>
-    <task id="LOCAL-00134" summary="refactor: split room controllers and servces for diffrent features">
+    <task id="LOCAL-00185" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766328219777</created>
-      <option name="number" value="00134" />
-      <option name="presentableId" value="LOCAL-00134" />
+      <created>1766422258935</created>
+      <option name="number" value="00185" />
+      <option name="presentableId" value="LOCAL-00185" />
       <option name="project" value="LOCAL" />
-      <updated>1766328219777</updated>
+      <updated>1766422258937</updated>
     </task>
-    <task id="LOCAL-00135" summary="refactor: split room controllers and servces for diffrent features">
+    <task id="LOCAL-00186" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766328242158</created>
-      <option name="number" value="00135" />
-      <option name="presentableId" value="LOCAL-00135" />
+      <created>1766482821996</created>
+      <option name="number" value="00186" />
+      <option name="presentableId" value="LOCAL-00186" />
       <option name="project" value="LOCAL" />
-      <updated>1766328242158</updated>
+      <updated>1766482821996</updated>
     </task>
-    <task id="LOCAL-00136" summary="refactor: split room controllers and servces for diffrent features">
+    <task id="LOCAL-00187" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766328354119</created>
-      <option name="number" value="00136" />
-      <option name="presentableId" value="LOCAL-00136" />
+      <created>1766483296621</created>
+      <option name="number" value="00187" />
+      <option name="presentableId" value="LOCAL-00187" />
       <option name="project" value="LOCAL" />
-      <updated>1766328354119</updated>
+      <updated>1766483296621</updated>
     </task>
-    <task id="LOCAL-00137" summary="refactor: split room controllers and servces for diffrent features">
+    <task id="LOCAL-00188" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766328362778</created>
-      <option name="number" value="00137" />
-      <option name="presentableId" value="LOCAL-00137" />
+      <created>1766483601709</created>
+      <option name="number" value="00188" />
+      <option name="presentableId" value="LOCAL-00188" />
       <option name="project" value="LOCAL" />
-      <updated>1766328362778</updated>
+      <updated>1766483601709</updated>
     </task>
-    <task id="LOCAL-00138" summary="refactor: split room controllers and servces for diffrent features">
+    <task id="LOCAL-00189" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766328394998</created>
-      <option name="number" value="00138" />
-      <option name="presentableId" value="LOCAL-00138" />
+      <created>1766484210028</created>
+      <option name="number" value="00189" />
+      <option name="presentableId" value="LOCAL-00189" />
       <option name="project" value="LOCAL" />
-      <updated>1766328394998</updated>
+      <updated>1766484210028</updated>
     </task>
-    <task id="LOCAL-00139" summary="refactor: split room controllers and servces for diffrent features">
+    <task id="LOCAL-00190" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766328406239</created>
-      <option name="number" value="00139" />
-      <option name="presentableId" value="LOCAL-00139" />
+      <created>1766484217024</created>
+      <option name="number" value="00190" />
+      <option name="presentableId" value="LOCAL-00190" />
       <option name="project" value="LOCAL" />
-      <updated>1766328406240</updated>
+      <updated>1766484217024</updated>
     </task>
-    <task id="LOCAL-00140" summary="refactor: split room controllers and servces for diffrent features">
+    <task id="LOCAL-00191" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766328418234</created>
-      <option name="number" value="00140" />
-      <option name="presentableId" value="LOCAL-00140" />
+      <created>1766484777050</created>
+      <option name="number" value="00191" />
+      <option name="presentableId" value="LOCAL-00191" />
       <option name="project" value="LOCAL" />
-      <updated>1766328418234</updated>
+      <updated>1766484777050</updated>
     </task>
-    <task id="LOCAL-00141" summary="refactor: split room controllers and servces for diffrent features">
+    <task id="LOCAL-00192" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766328424518</created>
-      <option name="number" value="00141" />
-      <option name="presentableId" value="LOCAL-00141" />
+      <created>1766484783974</created>
+      <option name="number" value="00192" />
+      <option name="presentableId" value="LOCAL-00192" />
       <option name="project" value="LOCAL" />
-      <updated>1766328424518</updated>
+      <updated>1766484783975</updated>
     </task>
-    <task id="LOCAL-00142" summary="refactor: split room controllers and servces for diffrent features">
+    <task id="LOCAL-00193" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766328430165</created>
-      <option name="number" value="00142" />
-      <option name="presentableId" value="LOCAL-00142" />
+      <created>1766485192190</created>
+      <option name="number" value="00193" />
+      <option name="presentableId" value="LOCAL-00193" />
       <option name="project" value="LOCAL" />
-      <updated>1766328430165</updated>
+      <updated>1766485192190</updated>
     </task>
-    <task id="LOCAL-00143" summary="refactor: split room controllers and servces for diffrent features">
+    <task id="LOCAL-00194" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766328497758</created>
-      <option name="number" value="00143" />
-      <option name="presentableId" value="LOCAL-00143" />
+      <created>1766486388062</created>
+      <option name="number" value="00194" />
+      <option name="presentableId" value="LOCAL-00194" />
       <option name="project" value="LOCAL" />
-      <updated>1766328497758</updated>
+      <updated>1766486388062</updated>
     </task>
-    <task id="LOCAL-00144" summary="refactor: split room controllers and servces for diffrent features">
+    <task id="LOCAL-00195" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766330296496</created>
-      <option name="number" value="00144" />
-      <option name="presentableId" value="LOCAL-00144" />
+      <created>1766486655032</created>
+      <option name="number" value="00195" />
+      <option name="presentableId" value="LOCAL-00195" />
       <option name="project" value="LOCAL" />
-      <updated>1766330296496</updated>
+      <updated>1766486655032</updated>
     </task>
-    <task id="LOCAL-00145" summary="refactor: split room controllers and servces for diffrent features">
+    <task id="LOCAL-00196" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766330301912</created>
-      <option name="number" value="00145" />
-      <option name="presentableId" value="LOCAL-00145" />
+      <created>1766492092147</created>
+      <option name="number" value="00196" />
+      <option name="presentableId" value="LOCAL-00196" />
       <option name="project" value="LOCAL" />
-      <updated>1766330301912</updated>
+      <updated>1766492092147</updated>
     </task>
-    <task id="LOCAL-00146" summary="refactor: split room controllers and servces for diffrent features">
+    <task id="LOCAL-00197" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766330327434</created>
-      <option name="number" value="00146" />
-      <option name="presentableId" value="LOCAL-00146" />
+      <created>1766492538961</created>
+      <option name="number" value="00197" />
+      <option name="presentableId" value="LOCAL-00197" />
       <option name="project" value="LOCAL" />
-      <updated>1766330327434</updated>
+      <updated>1766492538962</updated>
     </task>
-    <task id="LOCAL-00147" summary="refactor: split room controllers and servces for diffrent features">
+    <task id="LOCAL-00198" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766331462316</created>
-      <option name="number" value="00147" />
-      <option name="presentableId" value="LOCAL-00147" />
+      <created>1766492767249</created>
+      <option name="number" value="00198" />
+      <option name="presentableId" value="LOCAL-00198" />
       <option name="project" value="LOCAL" />
-      <updated>1766331462316</updated>
+      <updated>1766492767249</updated>
     </task>
-    <task id="LOCAL-00148" summary="refactor: split room controllers and servces for diffrent features">
+    <task id="LOCAL-00199" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766332577282</created>
-      <option name="number" value="00148" />
-      <option name="presentableId" value="LOCAL-00148" />
+      <created>1766493131118</created>
+      <option name="number" value="00199" />
+      <option name="presentableId" value="LOCAL-00199" />
       <option name="project" value="LOCAL" />
-      <updated>1766332577282</updated>
+      <updated>1766493131118</updated>
     </task>
-    <task id="LOCAL-00149" summary="refactor: split room controllers and servces for diffrent features">
+    <task id="LOCAL-00200" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766339532758</created>
-      <option name="number" value="00149" />
-      <option name="presentableId" value="LOCAL-00149" />
+      <created>1766496550361</created>
+      <option name="number" value="00200" />
+      <option name="presentableId" value="LOCAL-00200" />
       <option name="project" value="LOCAL" />
-      <updated>1766339532758</updated>
+      <updated>1766496550361</updated>
     </task>
-    <task id="LOCAL-00150" summary="refactor: split room controllers and servces for diffrent features">
+    <task id="LOCAL-00201" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766377552581</created>
-      <option name="number" value="00150" />
-      <option name="presentableId" value="LOCAL-00150" />
+      <created>1766496847357</created>
+      <option name="number" value="00201" />
+      <option name="presentableId" value="LOCAL-00201" />
       <option name="project" value="LOCAL" />
-      <updated>1766377552583</updated>
+      <updated>1766496847357</updated>
     </task>
-    <task id="LOCAL-00151" summary="refactor: split room controllers and servces for diffrent features">
+    <task id="LOCAL-00202" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766377558954</created>
-      <option name="number" value="00151" />
-      <option name="presentableId" value="LOCAL-00151" />
+      <created>1766497208939</created>
+      <option name="number" value="00202" />
+      <option name="presentableId" value="LOCAL-00202" />
       <option name="project" value="LOCAL" />
-      <updated>1766377558954</updated>
+      <updated>1766497208939</updated>
     </task>
-    <task id="LOCAL-00152" summary="refactor: split room controllers and servces for diffrent features">
+    <task id="LOCAL-00203" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766380411138</created>
-      <option name="number" value="00152" />
-      <option name="presentableId" value="LOCAL-00152" />
+      <created>1766497277011</created>
+      <option name="number" value="00203" />
+      <option name="presentableId" value="LOCAL-00203" />
       <option name="project" value="LOCAL" />
-      <updated>1766380411138</updated>
+      <updated>1766497277011</updated>
     </task>
-    <task id="LOCAL-00153" summary="migration: remove metadata form room_info">
+    <task id="LOCAL-00204" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766395509111</created>
-      <option name="number" value="00153" />
-      <option name="presentableId" value="LOCAL-00153" />
+      <created>1766497293108</created>
+      <option name="number" value="00204" />
+      <option name="presentableId" value="LOCAL-00204" />
       <option name="project" value="LOCAL" />
-      <updated>1766395509111</updated>
+      <updated>1766497293108</updated>
     </task>
-    <task id="LOCAL-00154" summary="migration: remove metadata form room_info">
+    <task id="LOCAL-00205" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766400057425</created>
-      <option name="number" value="00154" />
-      <option name="presentableId" value="LOCAL-00154" />
+      <created>1766497481156</created>
+      <option name="number" value="00205" />
+      <option name="presentableId" value="LOCAL-00205" />
       <option name="project" value="LOCAL" />
-      <updated>1766400057425</updated>
+      <updated>1766497481156</updated>
     </task>
-    <task id="LOCAL-00155" summary="migration: remove metadata form room_info">
+    <task id="LOCAL-00206" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766400578218</created>
-      <option name="number" value="00155" />
-      <option name="presentableId" value="LOCAL-00155" />
+      <created>1766497769452</created>
+      <option name="number" value="00206" />
+      <option name="presentableId" value="LOCAL-00206" />
       <option name="project" value="LOCAL" />
-      <updated>1766400578218</updated>
+      <updated>1766497769452</updated>
     </task>
-    <task id="LOCAL-00156" summary="migration: remove metadata form room_info">
+    <task id="LOCAL-00207" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766401045951</created>
-      <option name="number" value="00156" />
-      <option name="presentableId" value="LOCAL-00156" />
+      <created>1766498419218</created>
+      <option name="number" value="00207" />
+      <option name="presentableId" value="LOCAL-00207" />
       <option name="project" value="LOCAL" />
-      <updated>1766401045951</updated>
+      <updated>1766498419218</updated>
     </task>
-    <task id="LOCAL-00157" summary="feat(room): update breakroom logic">
+    <task id="LOCAL-00208" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766403333103</created>
-      <option name="number" value="00157" />
-      <option name="presentableId" value="LOCAL-00157" />
+      <created>1766498453893</created>
+      <option name="number" value="00208" />
+      <option name="presentableId" value="LOCAL-00208" />
       <option name="project" value="LOCAL" />
-      <updated>1766403333103</updated>
+      <updated>1766498453893</updated>
     </task>
-    <task id="LOCAL-00158" summary="feat(room): update breakroom logic">
+    <task id="LOCAL-00209" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766409753073</created>
-      <option name="number" value="00158" />
-      <option name="presentableId" value="LOCAL-00158" />
+      <created>1766498672079</created>
+      <option name="number" value="00209" />
+      <option name="presentableId" value="LOCAL-00209" />
       <option name="project" value="LOCAL" />
-      <updated>1766409753073</updated>
+      <updated>1766498672080</updated>
     </task>
-    <task id="LOCAL-00159" summary="feat(room): update breakroom logic">
+    <task id="LOCAL-00210" summary="refactor: create utils for meet features">
       <option name="closed" value="true" />
-      <created>1766410462685</created>
-      <option name="number" value="00159" />
-      <option name="presentableId" value="LOCAL-00159" />
+      <created>1766499044104</created>
+      <option name="number" value="00210" />
+      <option name="presentableId" value="LOCAL-00210" />
       <option name="project" value="LOCAL" />
-      <updated>1766410462686</updated>
+      <updated>1766499044104</updated>
     </task>
-    <option name="localTasksCounter" value="160" />
+    <option name="localTasksCounter" value="211" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -542,7 +545,8 @@
     <MESSAGE value="refactor: split room controllers and servces for diffrent features" />
     <MESSAGE value="migration: remove metadata form room_info" />
     <MESSAGE value="feat(room): update breakroom logic" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(room): update breakroom logic" />
+    <MESSAGE value="refactor: create utils for meet features" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor: create utils for meet features" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

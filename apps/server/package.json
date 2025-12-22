@@ -55,6 +55,7 @@
     "@workspace/dtos": "workspace:^",
     "@workspace/protocol": "workspace:*",
     "axios": "^1.13.2",
+    "axios-retry": "^4.5.0",
     "body-parser": "^2.2.1",
     "cache-manager": "^7.2.7",
     "class-transformer": "^0.5.1",

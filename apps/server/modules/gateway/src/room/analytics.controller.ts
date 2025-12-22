@@ -16,7 +16,7 @@ import {
 } from '@workspace/protocol';
 import { ProtobufParserPipe } from '@server/shared';
 import { firstValueFrom } from 'rxjs';
-import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { JwtAuthGuard } from '@server/shared';
 import * as fs from 'fs';
 
 @Controller('analytics')

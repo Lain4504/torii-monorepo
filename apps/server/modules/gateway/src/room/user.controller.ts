@@ -17,7 +17,7 @@ import type {
 } from '@workspace/protocol';
 import { UpdateUserLockSettingsReqSchema, MuteUnMuteTrackReqSchema, RemoveParticipantReqSchema, SwitchPresenterReqSchema } from '@workspace/protocol';
 import { fromBinary } from '@bufbuild/protobuf';
-import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { JwtAuthGuard } from '@server/shared';
 
 @Controller('api')
 @UseGuards(JwtAuthGuard)

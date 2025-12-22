@@ -116,7 +116,7 @@ export class RoomService implements OnModuleInit {
 
       // Check if room exists in DB (running)
       const existingRoom = await this.prisma.roomInfo.findFirst({
-        where: { roomId: roomId, isRunning: true },
+        where: { roomId: roomId, isRunning: 1 },  // Int type: 1 = running
       });
 
       if (existingRoom) {
@@ -204,12 +204,11 @@ export class RoomService implements OnModuleInit {
             roomId: room.name,
             sid: room.sid,
             roomTitle: data.metadata?.roomTitle || roomId,
-            isRunning: true,
-            isBreakoutRoom: !!data.metadata?.isBreakoutRoom,
+            isRunning: 1,  // Int type: 1 = running
+            isBreakoutRoom: data.metadata?.isBreakoutRoom ? 1 : 0,  // Int type
             parentRoomId: data.metadata?.parentRoomId || '',
             webhookUrl: data.metadata?.webhookUrl || existingRoom.webhookUrl,
-            creationTime: BigInt(room.creationTime),
-            ended: null,
+            creationTime: Number(room.creationTime),  // Convert bigint to number
           },
         });
       } else {
@@ -218,11 +217,11 @@ export class RoomService implements OnModuleInit {
             roomId: room.name,
             sid: room.sid,
             roomTitle: data.metadata?.roomTitle || roomId,
-            isRunning: true,
-            isBreakoutRoom: !!data.metadata?.isBreakoutRoom,
+            isRunning: 1,  // Int type: 1 = running
+            isBreakoutRoom: data.metadata?.isBreakoutRoom ? 1 : 0,  // Int type
             parentRoomId: data.metadata?.parentRoomId || '',
             webhookUrl: data.metadata?.webhookUrl || '',
-            creationTime: BigInt(room.creationTime),
+            creationTime: Number(room.creationTime),  // Convert bigint to number
           },
         });
       }
@@ -321,7 +320,7 @@ export class RoomService implements OnModuleInit {
     try {
       // Get room info from DB
       const roomDbInfo = await this.prisma.roomInfo.findFirst({
-        where: { roomId: roomId, isRunning: true },
+        where: { roomId: roomId, isRunning: 1 },  // Int type: 1 = running
       });
 
       if (!roomDbInfo) {
@@ -418,7 +417,7 @@ export class RoomService implements OnModuleInit {
       // Step 3: Update DB status
       await this.prisma.roomInfo.updateMany({
         where: { roomId: roomId },
-        data: { isRunning: false, ended: new Date() },
+        data: { isRunning: 0, ended: new Date() },  // Int type: 0 = ended
       });
 
       // Step 4: Clear user blocklists (if NATS service has this method)
@@ -575,7 +574,7 @@ export class RoomService implements OnModuleInit {
       });
     }
     const room = await this.prisma.roomInfo.findFirst({
-      where: { roomId: roomId, isRunning: true },
+      where: { roomId: roomId, isRunning: 1 },  // Int type: 1 = running
     });
 
     // Align with Go: trust NATS as source of truth, mark stale DB rows inactive
@@ -583,7 +582,7 @@ export class RoomService implements OnModuleInit {
     const isActiveInNats = rInfo && (rInfo.status === 'created' || rInfo.status === 'active');
 
     if (!isActiveInNats && room) {
-      await this.prisma.roomInfo.updateMany({ where: { roomId }, data: { isRunning: false } });
+      await this.prisma.roomInfo.updateMany({ where: { roomId }, data: { isRunning: 0 } });  // Int type: 0
     }
 
     return create(IsRoomActiveResSchema, {
@@ -807,12 +806,12 @@ export class RoomService implements OnModuleInit {
         case 'room_started': {
           await this.prisma.roomInfo.upsert({
             where: { sid: event.room.sid },
-            update: { isRunning: true },
+            update: { isRunning: 1 },  // Int type: 1 = running
             create: {
               roomId: roomId,
               sid: event.room.sid,
               roomTitle: roomId,
-              isRunning: true,
+              isRunning: 1,  // Int type: 1 = running
               creationTime: Number(event.room.creationTime),
             },
           });
@@ -848,7 +847,7 @@ export class RoomService implements OnModuleInit {
         case 'room_finished': {
           await this.prisma.roomInfo.updateMany({
             where: { sid: event.room.sid },
-            data: { isRunning: false, ended: new Date() },
+            data: { isRunning: 0, ended: new Date() },  // Int type: 0 = ended
           });
           await this.analyticsService.handleEvent({
             eventType: AnalyticsEventType.ROOM,
@@ -969,7 +968,7 @@ export class RoomService implements OnModuleInit {
 
   async getActiveRoomInfo(data: GetActiveRoomInfoReq) {
     const room = await this.prisma.roomInfo.findFirst({
-      where: { roomId: data.roomId, isRunning: true },
+      where: { roomId: data.roomId, isRunning: 1 },  // Int type: 1 = running
     });
     if (!room) {
       return create(GetActiveRoomInfoResSchema, {
@@ -981,7 +980,7 @@ export class RoomService implements OnModuleInit {
     const rInfo = await this.natsService.getRoomInfo(data.roomId);
     const isActiveInNats = rInfo && rInfo.roomId && (rInfo.status === 'created' || rInfo.status === 'active');
     if (!isActiveInNats) {
-      await this.prisma.roomInfo.updateMany({ where: { roomId: data.roomId }, data: { isRunning: false } });
+      await this.prisma.roomInfo.updateMany({ where: { roomId: data.roomId }, data: { isRunning: 0 } });  // Int type: 0
       return create(GetActiveRoomInfoResSchema, {
         status: false,
         msg: 'room is not active'
@@ -1037,7 +1036,7 @@ export class RoomService implements OnModuleInit {
 
   async getActiveRoomsInfo() {
     const rooms = await this.prisma.roomInfo.findMany({
-      where: { isRunning: true },
+      where: { isRunning: 1 },  // Int type: 1 = running
     });
     if (!rooms.length) {
       return create(GetActiveRoomsInfoResSchema, {
@@ -1267,7 +1266,7 @@ export class RoomService implements OnModuleInit {
 
       // Check if ingress is allowed (via DB metadata or default policy)
       const room = await this.prisma.roomInfo.findFirst({
-        where: { roomId: data.roomId, isRunning: true },
+        where: { roomId: data.roomId, isRunning: 1 },  // Int type: 1 = running
       });
       if (!room) throw new Error('Room not found or not active');
 

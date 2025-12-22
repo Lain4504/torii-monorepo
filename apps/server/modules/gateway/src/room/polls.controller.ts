@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Inject, Logger, Param, Post, Req, Res, UseGuards, BadRequestException } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { JwtAuthGuard } from '@server/shared';
 import type {
   ActivatePollsReq,
   CreatePollReq,

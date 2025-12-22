@@ -1,72 +1,283 @@
+/**
+ * Room Controller
+ * Equivalent to Go: plugNmeet-server/pkg/controllers/room.go
+ * 
+ * Handles all room-related API endpoints
+ */
+
 import {
-  Body,
   Controller,
-  Inject,
   Post,
-  HttpCode,
-  UseGuards,
+  Body,
   Req,
   Res,
+  UseGuards,
 } from '@nestjs/common';
+import type { Request, Response } from 'express';
+import { Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { firstValueFrom } from 'rxjs';
-import type { CreateRoomReq, RoomEndAPIReq, GenerateTokenReq, GetActiveRoomInfoReq, IsRoomActiveReq, FetchPastRoomsReq, ChangeVisibilityRes } from '@workspace/protocol';
-import { CreateRoomReqSchema, RoomEndAPIReqSchema, RoomEndResSchema, GenerateTokenReqSchema, GetActiveRoomInfoReqSchema, IsRoomActiveReqSchema, FetchPastRoomsReqSchema, ChangeVisibilityResSchema } from '@workspace/protocol';
-import { ProtobufParserPipe } from '@server/shared';
-import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
-import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { fromBinary, toBinary, create } from '@bufbuild/protobuf';
+import {
+  CreateRoomReq,
+  CreateRoomReqSchema,
+  CreateRoomRes,
+  CreateRoomResSchema,
+  IsRoomActiveReq,
+  IsRoomActiveReqSchema,
+  IsRoomActiveRes,
+  IsRoomActiveResSchema,
+  GetActiveRoomInfoReq,
+  GetActiveRoomInfoReqSchema,
+  GetActiveRoomInfoRes,
+  GetActiveRoomInfoResSchema,
+  GetActiveRoomsInfoRes,
+  GetActiveRoomsInfoResSchema,
+  RoomEndReq,
+  RoomEndReqSchema,
+  FetchPastRoomsReq,
+  FetchPastRoomsReqSchema,
+  FetchPastRoomsRes,
+  FetchPastRoomsResSchema,
+  ChangeVisibilityRes,
+  ChangeVisibilityResSchema,
+} from '@workspace/protocol';
+import {
+  sendCommonProtoJsonResponse,
+  sendProtoJsonResponse,
+  sendCommonProtobufResponse,
+  ApiKeyGuard,
+  JwtAuthGuard,
+} from '@server/shared';
 
+/**
+ * RoomController handles room-related operations
+ * Routes under /auth/room (with ApiKeyGuard)
+ * Equivalent to Go: controllers.RoomController
+ */
 @Controller('auth/room')
+@UseGuards(ApiKeyGuard)
 export class RoomController {
   constructor(
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
   ) { }
 
+  /**
+   * HandleRoomCreate handles creating a new room
+   * Equivalent to Go: rc.HandleRoomCreate
+   * 
+   * @route POST /auth/room/create
+   */
   @Post('create')
-  @HttpCode(200)
-  async create(@Body(new ProtobufParserPipe(CreateRoomReqSchema)) body: CreateRoomReq) {
-    return firstValueFrom(this.natsClient.send({ cmd: 'room.create' }, body));
+  async handleRoomCreate(
+    @Body() bodyBuffer: Buffer,
+    @Res() res: Response,
+  ): Promise<void> {
+    // Parse protobuf request
+    let request: CreateRoomReq;
+    try {
+      request = fromBinary(CreateRoomReqSchema, bodyBuffer);
+    } catch (error) {
+      sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Invalid request');
+      return;
+    }
+
+    // Call room service via NATS
+    try {
+      const roomInfo = await this.natsClient
+        .send('room.create', toBinary(CreateRoomReqSchema, request))
+        .toPromise();
+
+      const response = create(CreateRoomResSchema, {
+        status: true,
+        msg: 'success',
+        roomInfo: roomInfo,
+      });
+
+      sendProtoJsonResponse(res, response, CreateRoomResSchema);
+    } catch (error) {
+      sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error creating room');
+    }
   }
 
-  @Post('endRoom')
-  @HttpCode(200)
-  async endRoom(@Body(new ProtobufParserPipe(RoomEndAPIReqSchema)) body: RoomEndAPIReq) {
-    return firstValueFrom(this.natsClient.send({ cmd: 'room.end' }, body));
-  }
-
+  /**
+   * HandleIsRoomActive checks if a room is active
+   * Equivalent to Go: rc.HandleIsRoomActive
+   * 
+   * @route POST /auth/room/isRoomActive
+   */
   @Post('isRoomActive')
-  @HttpCode(200)
-  async isRoomActive(@Body(new ProtobufParserPipe(IsRoomActiveReqSchema)) body: IsRoomActiveReq) {
-    return firstValueFrom(
-      this.natsClient.send({ cmd: 'room.isRoomActive' }, body),
-    );
+  async handleIsRoomActive(
+    @Body() bodyBuffer: Buffer,
+    @Res() res: Response,
+  ): Promise<void> {
+    // Parse protobuf request
+    let request: IsRoomActiveReq;
+    try {
+      request = fromBinary(IsRoomActiveReqSchema, bodyBuffer);
+    } catch (error) {
+      sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Invalid request');
+      return;
+    }
+
+    // Call room service via NATS
+    try {
+      const response = await this.natsClient
+        .send('room.isActive', toBinary(IsRoomActiveReqSchema, request))
+        .toPromise();
+
+      sendProtoJsonResponse(res, response, IsRoomActiveResSchema);
+    } catch (error) {
+      sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error checking room status');
+    }
   }
 
-  @Post('getJoinToken')
-  @HttpCode(200)
-  async getJoinToken(@Body(new ProtobufParserPipe(GenerateTokenReqSchema)) body: GenerateTokenReq) {
-    return firstValueFrom(
-      this.natsClient.send({ cmd: 'room.getJoinToken' }, body),
-    );
-  }
-
-
+  /**
+   * HandleGetActiveRoomInfo gets information about an active room
+   * Equivalent to Go: rc.HandleGetActiveRoomInfo
+   * 
+   * @route POST /auth/room/getActiveRoomInfo
+   */
   @Post('getActiveRoomInfo')
-  async getActiveRoomInfo(@Body(new ProtobufParserPipe(GetActiveRoomInfoReqSchema)) body: GetActiveRoomInfoReq) {
-    return firstValueFrom(this.natsClient.send({ cmd: 'room.getActiveRoomInfo' }, body));
+  async handleGetActiveRoomInfo(
+    @Body() bodyBuffer: Buffer,
+    @Res() res: Response,
+  ): Promise<void> {
+    // Parse protobuf request
+    let request: GetActiveRoomInfoReq;
+    try {
+      request = fromBinary(GetActiveRoomInfoReqSchema, bodyBuffer);
+    } catch (error) {
+      sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Invalid request');
+      return;
+    }
+
+    // Call room service via NATS
+    try {
+      const result = await this.natsClient
+        .send('room.getActiveInfo', toBinary(GetActiveRoomInfoReqSchema, request))
+        .toPromise();
+
+      const response = create(GetActiveRoomInfoResSchema, {
+        status: result.status,
+        msg: result.msg,
+        room: result.room,
+      });
+
+      sendProtoJsonResponse(res, response, GetActiveRoomInfoResSchema);
+    } catch (error) {
+      sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error getting room info');
+    }
   }
 
+  /**
+   * HandleGetActiveRoomsInfo gets information about all active rooms
+   * Equivalent to Go: rc.HandleGetActiveRoomsInfo
+   * 
+   * @route POST /auth/room/getActiveRoomsInfo
+   */
   @Post('getActiveRoomsInfo')
-  async getActiveRoomsInfo() {
-    return firstValueFrom(this.natsClient.send({ cmd: 'room.getActiveRoomsInfo' }, {}));
+  async handleGetActiveRoomsInfo(
+    @Res() res: Response,
+  ): Promise<void> {
+    // Call room service via NATS (no request body)
+    try {
+      const result = await this.natsClient
+        .send('room.getActiveRoomsInfo', {})
+        .toPromise();
+
+      const response = create(GetActiveRoomsInfoResSchema, {
+        status: result.status,
+        msg: result.msg,
+        rooms: result.rooms,
+      });
+
+      sendProtoJsonResponse(res, response, GetActiveRoomsInfoResSchema);
+    } catch (error) {
+      sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error getting rooms info');
+    }
   }
 
+  /**
+   * HandleEndRoom handles ending a room
+   * Equivalent to Go: rc.HandleEndRoom
+   * internal / trusted
+   * @route POST /auth/room/endRoom
+   */
+  @Post('endRoom')
+  async handleEndRoom(
+    @Body() bodyBuffer: Buffer,
+    @Res() res: Response,
+  ): Promise<void> {
+    // Parse protobuf request
+    let request: RoomEndReq;
+    try {
+      request = fromBinary(RoomEndReqSchema, bodyBuffer);
+    } catch (error) {
+      sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Invalid request');
+      return;
+    }
+
+    // Call room service via NATS
+    try {
+      const result = await this.natsClient
+        .send('room.end', toBinary(RoomEndReqSchema, request))
+        .toPromise();
+
+      sendCommonProtoJsonResponse(res, result.status, result.msg);
+    } catch (error) {
+      sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error ending room');
+    }
+  }
+
+  /**
+   * HandleFetchPastRooms handles fetching past rooms
+   * Equivalent to Go: rc.HandleFetchPastRooms
+   * 
+   * @route POST /auth/room/fetchPastRooms
+   */
   @Post('fetchPastRooms')
-  async fetchPastRooms(@Body(new ProtobufParserPipe(FetchPastRoomsReqSchema)) body: FetchPastRoomsReq) {
-    return firstValueFrom(this.natsClient.send({ cmd: 'room.fetchPastRooms' }, body));
+  async handleFetchPastRooms(
+    @Body() bodyBuffer: Buffer,
+    @Res() res: Response,
+  ): Promise<void> {
+    // Parse protobuf request
+    let request: FetchPastRoomsReq;
+    try {
+      request = fromBinary(FetchPastRoomsReqSchema, bodyBuffer);
+    } catch (error) {
+      sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Invalid request');
+      return;
+    }
+
+    // Call room service via NATS
+    try {
+      const result = await this.natsClient
+        .send('room.fetchPast', toBinary(FetchPastRoomsReqSchema, request))
+        .toPromise();
+
+      if (result.totalRooms === 0) {
+        sendCommonProtoJsonResponse(res, false, 'no info found');
+        return;
+      }
+
+      const response = create(FetchPastRoomsResSchema, {
+        status: true,
+        msg: 'success',
+        result: result,
+      });
+
+      sendProtoJsonResponse(res, response, FetchPastRoomsResSchema);
+    } catch (error) {
+      sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error fetching past rooms');
+    }
   }
 }
 
+/**
+ * RoomApiController handles room-related API operations with JWT auth
+ * Routes under /api (with JwtAuthGuard)
+ * Equivalent to Go: HandleEndRoomForAPI, HandleChangeVisibilityForAPI
+ */
 @Controller('api')
 @UseGuards(JwtAuthGuard)
 export class RoomApiController {
@@ -74,70 +285,101 @@ export class RoomApiController {
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
   ) { }
 
-  private decode<T>(req: any, body: any, schema: any): T {
-    const raw = req?.body;
-    if (raw && Buffer.isBuffer(raw) && raw.length > 0) {
-      try {
-        return fromBinary(schema, raw) as T;
-      } catch { /* fall back */ }
-    }
-    return body as T;
-  }
-
-  private getAuthContext(req: any) {
-    const user = req.user || {};
-    const roomId = user.room_id || user.room || user.video?.room;
-    const userId = user.user_id || user.userId || user.sub;
-    const isAdmin = user.is_admin ?? user.isAdmin ?? user.metadata?.is_admin ?? user.metadata?.isAdmin ?? false;
-    return { roomId, userId, isAdmin };
-  }
-
+  /**
+   * HandleEndRoomForAPI handles ending a room via API call
+   * Equivalent to Go: rc.HandleEndRoomForAPI
+   * external / strict security
+   * @route POST /api/endRoom
+   */
   @Post('endRoom')
-  @HttpCode(200)
-  async endRoom(@Body() body: RoomEndAPIReq, @Req() req: any, @Res() res: any) {
-    const { roomId, isAdmin } = this.getAuthContext(req);
-    if (!isAdmin) return { status: false, msg: 'only admin can perform this task' };
+  async handleEndRoomForAPI(
+    @Req() req: Request,
+    @Body() bodyBuffer: Buffer,
+    @Res() res: Response,
+  ): Promise<void> {
+    // Get locals from JwtAuthGuard
+    const isAdmin = (req as any).isAdmin as boolean;
+    const tokenRoomId = (req as any).roomId as string;
 
-    const parsed = this.decode<RoomEndAPIReq>(req, body, RoomEndAPIReqSchema);
-    if (parsed.roomId && roomId && parsed.roomId !== roomId) {
-      return { status: false, msg: 'requested roomId & token roomId mismatched' };
-    }
-
-    const resolvedRoomId = roomId || parsed.roomId;
-    if (!resolvedRoomId) return { status: false, msg: 'roomId required' };
-
-    const response = await firstValueFrom(
-      this.natsClient.send({ cmd: 'room.end' }, { ...parsed, roomId: resolvedRoomId }),
-    );
-
-    const wantsProto = (req.headers?.['content-type'] || '').includes('application/protobuf') || Buffer.isBuffer(req?.body);
-    if (wantsProto) {
-      const message = (response as any)?.$typeName ? response : create(RoomEndResSchema, response as any);
-      const binary = toBinary(RoomEndResSchema, message as any);
-      res.setHeader('Content-Type', 'application/protobuf');
-      res.send(Buffer.from(binary));
+    // Check admin permission
+    if (!isAdmin) {
+      sendCommonProtobufResponse(res, false, 'only admin can perform this task');
       return;
     }
 
-    return response;
-  }
-
-  @Post('changeVisibility')
-  @HttpCode(200)
-  async changeVisibility(@Body() body: ChangeVisibilityRes, @Req() req: any) {
-    const { roomId, isAdmin } = this.getAuthContext(req);
-    if (!isAdmin) return { status: false, msg: 'only admin can perform this task' };
-
-    const parsed = this.decode<ChangeVisibilityRes>(req, body, ChangeVisibilityResSchema);
-    if (parsed.roomId && roomId && parsed.roomId !== roomId) {
-      return { status: false, msg: 'requested roomId & token roomId mismatched' };
+    // Parse protobuf request
+    let request: RoomEndReq;
+    try {
+      request = fromBinary(RoomEndReqSchema, bodyBuffer);
+    } catch (error) {
+      sendCommonProtobufResponse(res, false, error instanceof Error ? error.message : 'Invalid request');
+      return;
     }
 
-    const resolvedRoomId = roomId || parsed.roomId;
-    if (!resolvedRoomId) return { status: false, msg: 'roomId required' };
+    // Validate room ID matches token
+    if (tokenRoomId !== request.roomId) {
+      sendCommonProtobufResponse(res, false, 'requested roomId & token roomId mismatched');
+      return;
+    }
 
-    return firstValueFrom(
-      this.natsClient.send({ cmd: 'room.changeVisibility' }, { ...parsed, roomId: resolvedRoomId }),
-    );
+    // Call room service via NATS
+    try {
+      const result = await this.natsClient
+        .send('room.end', toBinary(RoomEndReqSchema, request))
+        .toPromise();
+
+      sendCommonProtobufResponse(res, result.status, result.msg);
+    } catch (error) {
+      sendCommonProtobufResponse(res, false, error instanceof Error ? error.message : 'Error ending room');
+    }
+  }
+
+  /**
+   * HandleChangeVisibilityForAPI handles changing room visibility via API call
+   * Equivalent to Go: rc.HandleChangeVisibilityForAPI
+   * 
+   * @route POST /api/changeVisibility
+   */
+  @Post('changeVisibility')
+  async handleChangeVisibilityForAPI(
+    @Req() req: Request,
+    @Body() bodyBuffer: Buffer,
+    @Res() res: Response,
+  ): Promise<void> {
+    // Get locals from JwtAuthGuard
+    const isAdmin = (req as any).isAdmin as boolean;
+    const tokenRoomId = (req as any).roomId as string;
+
+    // Check admin permission
+    if (!isAdmin) {
+      sendCommonProtobufResponse(res, false, 'only admin can perform this task');
+      return;
+    }
+
+    // Parse protobuf request
+    let request: ChangeVisibilityRes;
+    try {
+      request = fromBinary(ChangeVisibilityResSchema, bodyBuffer);
+    } catch (error) {
+      sendCommonProtobufResponse(res, false, error instanceof Error ? error.message : 'Invalid request');
+      return;
+    }
+
+    // Validate room ID matches token
+    if (tokenRoomId !== request.roomId) {
+      sendCommonProtobufResponse(res, false, 'requested roomId & token roomId mismatched');
+      return;
+    }
+
+    // Call room service via NATS
+    try {
+      const result = await this.natsClient
+        .send('room.changeVisibility', toBinary(ChangeVisibilityResSchema, request))
+        .toPromise();
+
+      sendCommonProtobufResponse(res, result.status, result.msg);
+    } catch (error) {
+      sendCommonProtobufResponse(res, false, error instanceof Error ? error.message : 'Error changing visibility');
+    }
   }
 }

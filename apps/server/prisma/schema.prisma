@@ -50,29 +50,35 @@ model Course {
   @@map("courses")
 }
 
+// RoomInfo table - Matches Go SQL: pnm_room_info
+// Source: plugnmeet-server/pkg/dbmodels/room.go
 model RoomInfo {
-  id                 Int         @id @default(autoincrement())
-  roomTitle          String      @default("") @map("room_title")
-  roomId             String      @db.VarChar(64) @map("room_id")
-  sid                String      @unique @db.VarChar(64) @map("sid")
-  joinedParticipants BigInt      @default(0) @map("joined_participants")
-  isRunning          Boolean     @default(false) @map("is_running")
-  isRecording        Boolean     @default(false) @map("is_recording")
-  recorderId         String      @default("") @db.VarChar(36) @map("recorder_id")
-  isActiveRtmp       Boolean     @default(false) @map("is_active_rtmp")
-  rtmpNodeId         String      @default("") @db.VarChar(36) @map("rtmp_node_id")
-  webhookUrl         String      @default("") @map("webhook_url")
+  id                 Int       @id @default(autoincrement())
+  roomTitle          String    @default("") @map("room_title") @db.VarChar(255)
+  roomId             String    @map("room_id") @db.VarChar(64)
+  sid                String    @unique @map("sid") @db.VarChar(64)
+  joinedParticipants Int       @default(0) @map("joined_participants")
+  
+  // Int(1) fields matching Go database (not Boolean!)
+  isRunning          Int       @default(0) @map("is_running")
+  isRecording        Int       @default(0) @map("is_recording")
+  recorderId         String    @default("") @db.VarChar(36) @map("recorder_id")
+  isActiveRtmp       Int       @default(0) @map("is_active_rtmp")
+  rtmpNodeId         String    @default("") @db.VarChar(36) @map("rtmp_node_id")
+  webhookUrl         String    @default("") @map("webhook_url") @db.VarChar(255)
+  
+  isBreakoutRoom     Int       @default(0) @map("is_breakout_room")
+  parentRoomId       String    @default("") @db.VarChar(64) @map("parent_room_id")
+  creationTime       Int       @default(0) @map("creation_time")
+  created            DateTime  @default(now()) @map("created")
+  ended              DateTime? @map("ended")  // Nullable - null means not ended yet (PostgreSQL compatible)
+  modified           DateTime  @default(now()) @updatedAt @map("modified")
 
-  isBreakoutRoom     Boolean     @default(false) @map("is_breakout_room")
-  parentRoomId       String      @default("") @db.VarChar(64) @map("parent_room_id")
-  creationTime       BigInt      @default(0) @map("creation_time")
-  created            DateTime    @default(now()) @map("created")
-  ended              DateTime?   @map("ended")
-  modified           DateTime    @default(now()) @updatedAt @map("modified")
-
+  // Relations
   analytics          RoomAnalytics[]
+  artifacts          RoomArtifact[]
 
-  @@index([roomId, isRunning])
+  @@index([roomId, isRunning], map: "idx_room_id")
   @@map("room_info")
 }
 
@@ -91,23 +97,46 @@ model RoomFile {
   @@map("room_files")
 }
 
+// RoomAnalytics table - Matches Go SQL: pnm_room_analytics
+// Source: plugnmeet-server/pkg/dbmodels/artifact.go
 model RoomAnalytics {
   id               Int      @id @default(autoincrement())
   roomTableId      Int      @map("room_table_id")
   roomId           String   @db.VarChar(64) @map("room_id")
-  fileId           String   @unique @map("file_id")
-  fileName         String   @map("file_name")
+  fileId           String   @map("file_id") @db.VarChar(255)
+  fileName         String   @map("file_name") @db.VarChar(255)
   fileSize         Float    @map("file_size")
-  roomCreationTime BigInt   @map("room_creation_time")
-  creationTime     BigInt   @default(0) @map("creation_time")
-  created          DateTime @default(now()) @map("created")
+  roomCreationTime Int      @map("room_creation_time")
+  creationTime     Int      @map("creation_time")
 
+  // Relation to RoomInfo
   roomInfo         RoomInfo @relation(fields: [roomTableId], references: [id], onUpdate: Cascade, onDelete: Restrict)
 
-  @@index([roomId])
-  @@index([roomTableId])
+  @@index([roomId], map: "idx_analytics_room_id")
+  @@index([fileId], map: "idx_analytics_file_id")
   @@map("room_analytics")
 }
+
+// RoomArtifact table - Matches Go SQL: pnm_room_artifacts
+// Source: plugnmeet-server/pkg/dbmodels/artifact.go
+model RoomArtifact {
+  id          BigInt   @id @default(autoincrement())
+  artifactId  String   @unique @map("artifact_id") @db.VarChar(64)
+  roomTableId Int      @map("room_table_id")
+  roomId      String   @map("room_id") @db.VarChar(255)
+  type        String   @db.VarChar(100)
+  metadata    Json?
+  created     DateTime @default(now())
+
+  // Relation to RoomInfo
+  roomInfo    RoomInfo @relation(fields: [roomTableId], references: [id], onUpdate: Cascade, onDelete: Restrict)
+
+  @@index([artifactId], map: "idx_artifact_artifact_id")
+  @@index([roomId], map: "idx_artifact_room_id")
+  @@index([type], map: "idx_artifact_type")
+  @@map("room_artifacts")
+}
+
 
 
 model User {

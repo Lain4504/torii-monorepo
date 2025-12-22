@@ -221,8 +221,8 @@ export class AnalyticsService {
           fileId: `analytics_${roomId}_${Date.now()}`,
           fileName,
           fileSize: stats.size,
-          roomCreationTime: roomInfo?.creationTime || BigInt(0),
-          creationTime: BigInt(Date.now()),
+          roomCreationTime: roomInfo?.creationTime || 0,  // Int type, not BigInt
+          creationTime: Date.now(),  // Int type, not BigInt
         },
       });
 
@@ -284,7 +284,8 @@ export class AnalyticsService {
    */
   async deleteAnalytics(fileId: string): Promise<boolean> {
     try {
-      const record = await this.prisma.roomAnalytics.findUnique({
+      // Use findFirst since fileId is no longer unique
+      const record = await this.prisma.roomAnalytics.findFirst({
         where: { fileId },
       });
 
@@ -302,8 +303,8 @@ export class AnalyticsService {
         this.logger.warn(`Failed to delete analytics file: ${err.message}`);
       }
 
-      // Delete DB record
-      await this.prisma.roomAnalytics.delete({
+      // Delete DB record  
+      await this.prisma.roomAnalytics.deleteMany({
         where: { fileId },
       });
 
@@ -318,7 +319,8 @@ export class AnalyticsService {
    * Get analytics download token
    */
   async getDownloadToken(fileId: string): Promise<string> {
-    const record = await this.prisma.roomAnalytics.findUnique({
+    // Use findFirst since fileId is no longer unique constraint
+    const record = await this.prisma.roomAnalytics.findFirst({
       where: { fileId },
     });
 
