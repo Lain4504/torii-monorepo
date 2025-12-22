@@ -13,11 +13,11 @@ import {
     PollResponsesResultOptionsSchema,
     PollsStatsSchema,
 } from "@workspace/protocol";
+import { Inject, forwardRef, Injectable, Logger } from "@nestjs/common";
 import { RpcException } from "@nestjs/microservices";
 import { RedisService, NatsService } from "@server/shared";
 import { RoomService } from "./room.service";
 import { v4 as uuidv4 } from "uuid";
-import { Injectable, Logger } from "@nestjs/common";
 import { create, fromJson, toJsonString } from "@bufbuild/protobuf";
 import { Redis } from "ioredis";
 
@@ -34,7 +34,7 @@ export class PollService {
     private readonly logger = new Logger(PollService.name);
     constructor(
         private readonly redisService: RedisService,
-        private readonly roomService: RoomService,
+        @Inject(forwardRef(() => RoomService)) private readonly roomService: RoomService,
         private readonly natsService: NatsService,
     ) { }
 

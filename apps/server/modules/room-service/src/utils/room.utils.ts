@@ -47,10 +47,15 @@ export interface RoomConfig {
     allowOverride?: boolean;
   };
   insightsEnabled?: boolean;
-  maxSelectedOneTimeTransLangs?: number;
+  insightsMaxTranscriptionLangs?: number;
+  insightsMaxChatTransLangs?: number;
   speechToTextEnabled?: boolean;
   maxNumTranLangsAllowSelecting?: number;
   roomDefaultSettings?: RoomDefaultSettings;
+  uploadMaxSize?: number;
+  uploadMaxWhiteboardFile?: number;
+  uploadAllowedTypes?: string[];
+  sharedNotePadEnabled?: boolean;
 }
 
 export class RoomUtils {
@@ -120,20 +125,29 @@ export class RoomUtils {
       r.metadata = this.createDefaultMetadata(r.roomId);
     }
 
+    // refresh startedAt (Go sets on creation)
+    r.metadata.startedAt = (Math.floor(Date.now() / 1000)).toString();
+
     // 1. Prepare Features (init objects)
     this.prepareDefaultRoomFeatures(r);
 
-    // 2. Set Default Values (e.g. file sizes)
-    this.setCreateRoomDefaultValues(r);
+    // 2. Set Default Values (e.g. file sizes) based on server config
+    this.setCreateRoomDefaultValues(
+      r,
+      config.uploadMaxSize,
+      config.uploadMaxWhiteboardFile,
+      config.uploadAllowedTypes,
+      config.sharedNotePadEnabled,
+    );
 
-    // 3. Set Lock Settings
+    // 3. Set Lock Settings (defaults to locked for share/whiteboard/notepad)
     this.setRoomDefaultLockSettings(r);
 
     // 4. Copyright Logic
     const copyrightConf = config.copyrightConf;
     const defaultCopyright = create(CopyrightConfSchema, {
       display: true,
-      text: 'Powered by Mirai Magic</a>',
+      text: 'Powered by <a href="https://www.plugnmeet.org" target="_blank">plugNmeet</a>',
     });
 
     if (!copyrightConf) {
@@ -145,7 +159,6 @@ export class RoomUtils {
         display: copyrightConf.display,
         text: copyrightConf.text,
       });
-      // If override not allowed, enforce server config
       if (r.metadata.copyrightConf && !copyrightConf.allowOverride) {
         r.metadata.copyrightConf = d;
       } else if (!r.metadata.copyrightConf) {
@@ -164,27 +177,29 @@ export class RoomUtils {
     if (rf.insightsFeatures) {
       if (!config.insightsEnabled) {
         rf.insightsFeatures.isAllow = false;
+        if (rf.insightsFeatures.transcriptionFeatures) rf.insightsFeatures.transcriptionFeatures.isAllow = false;
+        if (rf.insightsFeatures.chatTranslationFeatures) rf.insightsFeatures.chatTranslationFeatures.isAllow = false;
+        if (rf.insightsFeatures.aiFeatures) rf.insightsFeatures.aiFeatures.isAllow = false;
       } else {
         if (rf.insightsFeatures.transcriptionFeatures) {
           rf.insightsFeatures.transcriptionFeatures.maxSelectedTransLangs =
-            config.maxSelectedOneTimeTransLangs || 2;
+            config.insightsMaxTranscriptionLangs || 2;
         }
         if (rf.insightsFeatures.chatTranslationFeatures) {
           rf.insightsFeatures.chatTranslationFeatures.maxSelectedTransLangs =
-            config.maxSelectedOneTimeTransLangs || 5;
+            config.insightsMaxChatTransLangs || 5;
         }
       }
     }
 
-    // Speech Services (Azure/etc) - simplifying to check generic enable flag
+    // Speech Services
     if (rf.speechToTextTranslationFeatures) {
       if (!config.speechToTextEnabled) {
         rf.speechToTextTranslationFeatures.isAllow = false;
-      } else {
-        if (config.maxNumTranLangsAllowSelecting) {
-          rf.speechToTextTranslationFeatures.maxNumTranLangsAllowSelecting =
-            config.maxNumTranLangsAllowSelecting;
-        }
+        rf.speechToTextTranslationFeatures.isAllowTranslation = false;
+      } else if (config.maxNumTranLangsAllowSelecting) {
+        rf.speechToTextTranslationFeatures.maxNumTranLangsAllowSelecting =
+          config.maxNumTranLangsAllowSelecting;
       }
     }
 
@@ -200,64 +215,7 @@ export class RoomUtils {
       parentRoomId: '',
       isBreakoutRoom: false,
       startedAt: '0',
-      roomFeatures: create(RoomCreateFeaturesSchema, {
-        allowWebcams: true,
-        muteOnStart: false,
-        allowScreenShare: true,
-        allowRtmp: false, // RTMP disabled
-        allowViewOtherWebcams: true,
-        allowViewOtherUsersList: true,
-        adminOnlyWebcams: false,
-        enableAnalytics: true,
-        allowVirtualBg: true,
-        allowRaiseHand: true,
-        recordingFeatures: create(RecordingFeaturesSchema, {
-          isAllow: false, // Recording disabled
-          isAllowCloud: false, // disable
-          isAllowLocal: false, // disable
-          enableAutoCloudRecording: false,
-          onlyRecordAdminWebcams: false,
-        }),
-        chatFeatures: create(ChatFeaturesSchema, {
-          isAllow: true,
-          isAllowFileUpload: true,
-          allowedFileTypes: ['jpg', 'jpeg', 'png', 'zip', 'pdf'],
-          maxFileSize: (10 * 1024 * 1024).toString(),
-        }),
-        sharedNotePadFeatures: create(SharedNotePadFeaturesSchema, {
-          isAllow: true,
-          isActive: false,
-          visible: false,
-          nodeId: '',
-          host: '',
-          notePadId: '',
-          readOnlyPadId: '',
-        }),
-        whiteboardFeatures: create(WhiteboardFeaturesSchema, {
-          isAllow: true,
-          visible: false,
-          whiteboardFileId: '',
-          fileName: '',
-          filePath: '',
-          totalPages: 0,
-        }),
-        externalMediaPlayerFeatures: create(ExternalMediaPlayerFeaturesSchema, { isAllow: true, isActive: false }),
-        waitingRoomFeatures: create(WaitingRoomFeaturesSchema, { isActive: false, waitingRoomMsg: '' }),
-        breakoutRoomFeatures: create(BreakoutRoomFeaturesSchema, {
-          isAllow: true,
-          isActive: false,
-          allowedNumberRooms: 6,
-        }),
-        displayExternalLinkFeatures: create(DisplayExternalLinkFeaturesSchema, { isAllow: true, isActive: false }),
-        ingressFeatures: create(IngressFeaturesSchema, {
-          isAllow: true,
-          inputType: 0,
-          url: '',
-          streamKey: '',
-        }),
-        pollsFeatures: create(PollsFeaturesSchema, { isAllow: true, isActive: false }),
-        // ... insights default undefined
-      }),
+      roomFeatures: create(RoomCreateFeaturesSchema, {}),
       extraData: {},
     });
   }
@@ -270,105 +228,116 @@ export class RoomUtils {
     }
     const f = r.metadata!.roomFeatures!;
 
-    // Ensure strict booleans and sub-objects exist
-    if (f.allowWebcams === undefined) f.allowWebcams = true;
-    if (f.allowScreenShare === undefined) f.allowScreenShare = true;
-    if (f.allowRtmp === undefined) f.allowRtmp = false; // RTMP disabled
-    if (f.allowViewOtherWebcams === undefined) f.allowViewOtherWebcams = true;
-    if (f.allowViewOtherUsersList === undefined)
-      f.allowViewOtherUsersList = true;
-
-    // Initializing sub-features if missing
+    // Initialize sub-features if missing (Go parity defaults)
     if (!f.recordingFeatures)
       f.recordingFeatures = create(RecordingFeaturesSchema, {
-        isAllow: false, // Recording disabled
-        isAllowCloud: false, // disable
-        isAllowLocal: false, // disable
+        isAllow: true,
+        isAllowCloud: true,
+        isAllowLocal: true,
         enableAutoCloudRecording: false,
-        onlyRecordAdminWebcams: false,
       });
     if (!f.chatFeatures)
       f.chatFeatures = create(ChatFeaturesSchema, {
-        isAllow: true,
-        isAllowFileUpload: true,
-        allowedFileTypes: [],
-        maxFileSize: '0',
+        isAllow: false,
+        isAllowFileUpload: false,
       });
     if (!f.sharedNotePadFeatures)
       f.sharedNotePadFeatures = create(SharedNotePadFeaturesSchema, {
-        isAllow: true,
+        isAllow: false,
         isActive: false,
         visible: false,
-        nodeId: '',
-        host: '',
-        notePadId: '',
-        readOnlyPadId: '',
       });
     if (!f.whiteboardFeatures)
       f.whiteboardFeatures = create(WhiteboardFeaturesSchema, {
-        isAllow: true,
+        isAllow: false,
         visible: false,
-        whiteboardFileId: '',
-        fileName: '',
-        filePath: '',
-        totalPages: 0,
+        whiteboardFileId: 'default',
+        fileName: 'default',
+        totalPages: 10,
       });
     if (!f.externalMediaPlayerFeatures)
-      f.externalMediaPlayerFeatures = create(ExternalMediaPlayerFeaturesSchema, { isAllow: true, isActive: false });
+      f.externalMediaPlayerFeatures = create(ExternalMediaPlayerFeaturesSchema, { isAllow: false, isActive: false });
     if (!f.waitingRoomFeatures)
       f.waitingRoomFeatures = create(WaitingRoomFeaturesSchema, { isActive: false, waitingRoomMsg: '' });
     if (!f.breakoutRoomFeatures)
       f.breakoutRoomFeatures = create(BreakoutRoomFeaturesSchema, {
-        isAllow: true,
+        isAllow: false,
         isActive: false,
         allowedNumberRooms: 6,
       });
     if (!f.displayExternalLinkFeatures)
-      f.displayExternalLinkFeatures = create(DisplayExternalLinkFeaturesSchema, { isAllow: true, isActive: false });
+      f.displayExternalLinkFeatures = create(DisplayExternalLinkFeaturesSchema, { isAllow: false, isActive: false });
     if (!f.ingressFeatures)
       f.ingressFeatures = create(IngressFeaturesSchema, {
-        isAllow: true,
-        inputType: 0,
-        url: '',
-        streamKey: '',
+        isAllow: false,
       });
-    if (!f.pollsFeatures) f.pollsFeatures = create(PollsFeaturesSchema, { isAllow: true, isActive: false });
+    if (!f.pollsFeatures) f.pollsFeatures = create(PollsFeaturesSchema, { isAllow: false, isActive: false });
+
+    if (!f.speechToTextTranslationFeatures)
+      f.speechToTextTranslationFeatures = create(SpeechToTextTranslationFeaturesSchema, {
+        isAllow: false,
+        isAllowTranslation: false,
+      });
+
+    if (!f.endToEndEncryptionFeatures)
+      f.endToEndEncryptionFeatures = create(EndToEndEncryptionFeaturesSchema, {
+        isEnabled: false,
+      });
+
+    if (!f.insightsFeatures)
+      f.insightsFeatures = create(InsightsFeaturesSchema, {
+        isAllow: false,
+        transcriptionFeatures: {
+          isAllow: false,
+          maxSelectedTransLangs: 2,
+        },
+        chatTranslationFeatures: {
+          isAllow: false,
+          maxSelectedTransLangs: 5,
+        },
+      });
   }
 
-  private static setCreateRoomDefaultValues(r: CreateRoomReq) {
-    // defaults for file limits, etc.
+  private static setCreateRoomDefaultValues(
+    r: CreateRoomReq,
+    uploadMaxSize?: number,
+    uploadMaxWhiteboardFile?: number,
+    uploadAllowedTypes?: string[],
+    sharedNotePadEnabled?: boolean,
+  ) {
     const f = r.metadata!.roomFeatures!;
-    if (f.chatFeatures) {
-      if (f.chatFeatures.allowedFileTypes.length === 0) {
-        f.chatFeatures.allowedFileTypes = [
-          'jpg',
-          'jpeg',
-          'png',
-          'gif',
-          'zip',
-          'pdf',
-        ];
+
+    // AutoGenUserId default disabled (match Go: pointer bool)
+    if (f.autoGenUserId === undefined) {
+      f.autoGenUserId = false;
+    }
+
+    if (f.sharedNotePadFeatures?.isAllow && sharedNotePadEnabled === false) {
+      f.sharedNotePadFeatures.isAllow = false;
+    }
+
+    if (f.chatFeatures?.isAllowFileUpload) {
+      if (!f.chatFeatures.allowedFileTypes || f.chatFeatures.allowedFileTypes.length === 0) {
+        f.chatFeatures.allowedFileTypes = uploadAllowedTypes && uploadAllowedTypes.length > 0
+          ? uploadAllowedTypes
+          : ['jpg', 'jpeg', 'png', 'gif', 'zip', 'pdf'];
       }
-      if (!f.chatFeatures.maxFileSize) {
-        f.chatFeatures.maxFileSize = '0'; // 0 = unlimited or handled by logic
+      f.chatFeatures.maxFileSize = (uploadMaxSize ?? 0).toString();
+    }
+
+    if (f.whiteboardFeatures?.isAllow) {
+      const maxSize = uploadMaxWhiteboardFile ?? 30;
+      if (!f.whiteboardFeatures.maxAllowedFileSize) {
+        f.whiteboardFeatures.maxAllowedFileSize = maxSize.toString();
       }
     }
 
-    // Whiteboard size default
-    if (
-      f.whiteboardFeatures?.isAllow &&
-      !f.whiteboardFeatures.maxAllowedFileSize
-    ) {
-      f.whiteboardFeatures.maxAllowedFileSize = '30'; // Default 30MB
+    if (f.breakoutRoomFeatures?.isAllow && f.breakoutRoomFeatures.allowedNumberRooms === 0) {
+      f.breakoutRoomFeatures.allowedNumberRooms = 6;
     }
 
-    // Encryption key gen
-    if (
-      f.endToEndEncryptionFeatures?.isEnabled &&
-      !f.endToEndEncryptionFeatures.enabledSelfInsertEncryptionKey
-    ) {
-      f.endToEndEncryptionFeatures.encryptionKey =
-        this.generateSecureRandomStrings(32);
+    if (f.endToEndEncryptionFeatures?.isEnabled && !f.endToEndEncryptionFeatures.enabledSelfInsertEncryptionKey) {
+      f.endToEndEncryptionFeatures.encryptionKey = this.generateSecureRandomStrings(32);
     }
   }
 
@@ -662,14 +631,19 @@ export class RoomUtils {
       r.metadata!.defaultLockSettings = create(LockSettingsSchema, {
         lockMicrophone: false,
         lockWebcam: false,
-        lockScreenSharing: false,
+        lockScreenSharing: true,
         lockChat: false,
         lockChatSendMessage: false,
         lockChatFileShare: false,
         lockPrivateChat: false,
-        lockWhiteboard: false,
-        lockSharedNotepad: false,
+        lockWhiteboard: true,
+        lockSharedNotepad: true,
       });
+    } else {
+      const d = r.metadata!.defaultLockSettings;
+      if (d.lockScreenSharing === undefined || d.lockScreenSharing === null) d.lockScreenSharing = true;
+      if (d.lockWhiteboard === undefined || d.lockWhiteboard === null) d.lockWhiteboard = true;
+      if (d.lockSharedNotepad === undefined || d.lockSharedNotepad === null) d.lockSharedNotepad = true;
     }
   }
 

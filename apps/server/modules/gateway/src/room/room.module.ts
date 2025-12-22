@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { RoomController } from './room.controller';
+import { RoomApiController, RoomController } from './room.controller';
 import { WebhookController } from './webhook.controller';
 import { PollsController } from './polls.controller';
 import { NatsClientModule, SharedModule } from '@server/shared';
@@ -10,6 +10,7 @@ import { UserTrackingModule } from '../user-tracking.module';
 import { UserController } from './user.controller';
 import { FileController } from './file.controller';
 import { ExternalMediaController } from './external-media.controller';
+import { ArtifactController, ArtifactDownloadController } from './artifact.controller';
 
 @Module({
   imports: [
@@ -27,6 +28,9 @@ import { ExternalMediaController } from './external-media.controller';
     UserController,
     FileController,
     ExternalMediaController,
+    RoomApiController,
+    ArtifactController,
+    ArtifactDownloadController,
   ],
 })
 export class RoomModule { }

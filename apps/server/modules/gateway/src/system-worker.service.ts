@@ -13,12 +13,9 @@ import {
   MediaServerConnInfoSchema,
   NatsKvUserInfoSchema,
   NatsUserMetadataUpdateSchema,
-  RoomMetadataSchema,
 } from '@workspace/protocol';
-import { create, fromBinary, fromJsonString, toJsonString, toJson } from '@bufbuild/protobuf';
-import { AccessToken } from 'livekit-server-sdk';
+import { create, fromBinary, toJsonString, toJson } from '@bufbuild/protobuf';
 import { StringCodec } from 'nats';
-import { RoomUtils } from '../../room-service/src/room/room.utils';
 
 @Injectable()
 export class SystemWorkerService implements OnModuleInit {

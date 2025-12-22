@@ -213,7 +213,15 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
       if (e) roomInfo.roomId = this.sc.decode(e.value);
     } catch (e) { }
     try {
+      const e = await kv.get('id');
+      if (e) roomInfo.dbTableId = BigInt(this.sc.decode(e.value));
+    } catch (e) { }
+    try {
       const e = await kv.get('sid');
+      if (e) roomInfo.roomSid = this.sc.decode(e.value);
+    } catch (e) { }
+    try {
+      const e = await kv.get('room_sid');
       if (e) roomInfo.roomSid = this.sc.decode(e.value);
     } catch (e) { }
     try {
@@ -230,6 +238,10 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     } catch (e) { }
     try {
       const e = await kv.get('created');
+      if (e) roomInfo.createdAt = BigInt(this.sc.decode(e.value));
+    } catch (e) { }
+    try {
+      const e = await kv.get('created_at');
       if (e) roomInfo.createdAt = BigInt(this.sc.decode(e.value));
     } catch (e) { }
     try {

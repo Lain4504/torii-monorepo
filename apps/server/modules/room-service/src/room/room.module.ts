@@ -18,6 +18,7 @@ import { WaitingRoomService } from './waiting-room.service';
 import { UserService } from './user.service';
 import { FileService } from './file.service';
 import { ExternalMediaService } from './external-media.service';
+import { ArtifactService } from './artifact.service';
 
 // Other services
 import { AnalyticsService } from '../analytics/analytics.service';
@@ -42,6 +43,7 @@ import { WebhookService } from '../webhook/webhook.service';
     UserService,
     FileService,
     ExternalMediaService,
+    ArtifactService,
     AnalyticsService,
     WebhookService,
   ],
@@ -53,6 +55,7 @@ import { WebhookService } from '../webhook/webhook.service';
     UserService,
     FileService,
     ExternalMediaService,
+    ArtifactService,
     AnalyticsService,
   ],
 })

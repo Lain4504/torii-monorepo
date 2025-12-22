@@ -14,6 +14,19 @@ datasource db {
   provider = "postgresql"
 }
 
+enum RoomArtifactType {
+  UNKNOWN_ARTIFACT
+  MEETING_ANALYTICS
+  MEETING_SUMMARY
+  MEETING_SUMMARY_USAGE
+  SPEECH_TRANSCRIPTION
+  SPEECH_TRANSCRIPTION_USAGE
+  SYNTHESIZED_SPEECH_USAGE
+  CHAT_TRANSLATION_USAGE
+  AI_TEXT_CHAT_INTERACTION_USAGE
+  AI_TEXT_CHAT_SUMMARIZATION_USAGE
+}
+
 model Course {
   id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   title            String    @db.VarChar(255)
@@ -55,25 +68,42 @@ model RoomInfo {
   roomTitle          String      @default("") @map("room_title")
   roomId             String      @db.VarChar(64) @map("room_id")
   sid                String      @unique @db.VarChar(64) @map("sid")
-  joinedParticipants Int         @default(0) @map("joined_participants")
+  joinedParticipants BigInt      @default(0) @map("joined_participants")
   isRunning          Boolean     @default(false) @map("is_running")
   isRecording        Boolean     @default(false) @map("is_recording")
   recorderId         String      @default("") @db.VarChar(36) @map("recorder_id")
   isActiveRtmp       Boolean     @default(false) @map("is_active_rtmp")
   rtmpNodeId         String      @default("") @db.VarChar(36) @map("rtmp_node_id")
   webhookUrl         String      @default("") @map("webhook_url")
-  metadata           Json?       @map("metadata")
 
   isBreakoutRoom     Boolean     @default(false) @map("is_breakout_room")
   parentRoomId       String      @default("") @db.VarChar(64) @map("parent_room_id")
-  creationTime       Int         @default(0) @map("creation_time")
-  createdAt          DateTime    @default(now()) @map("created")
-  endedAt            DateTime?   @map("ended")
+  creationTime       BigInt      @default(0) @map("creation_time")
+  created            DateTime    @default(now()) @map("created")
+  ended              DateTime?   @map("ended")
   modified           DateTime    @default(now()) @updatedAt @map("modified")
+
+  artifacts          RoomArtifact[] @relation("RoomInfoArtifacts")
 
 
   @@index([roomId, isRunning])
   @@map("room_info")
+}
+
+model RoomArtifact {
+  id          Int              @id @default(autoincrement())
+  artifactId  String           @unique @map("artifact_id")
+  roomTableId Int              @map("room_table_id")
+  roomId      String           @db.VarChar(255) @map("room_id")
+  type        RoomArtifactType @map("type")
+  metadata    Json?            @map("metadata")
+  created     DateTime         @default(now()) @map("created")
+
+  roomInfo    RoomInfo         @relation("RoomInfoArtifacts", fields: [roomTableId], references: [id], onUpdate: Cascade, onDelete: Restrict)
+
+  @@index([roomId])
+  @@index([type])
+  @@map("room_artifacts")
 }
 
 model RoomFile {

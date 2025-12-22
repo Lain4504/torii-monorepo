@@ -8,6 +8,7 @@ import type {
   GetActiveRoomInfoReq,
   IsRoomActiveReq,
   FetchPastRoomsReq,
+  ChangeVisibilityRes,
 } from '@workspace/protocol';
 
 @Controller()
@@ -52,7 +53,7 @@ export class RoomController {
   }
 
   @MessagePattern({ cmd: 'room.changeVisibility' })
-  async changeVisibility(@Payload() data: { roomId: string; visible: boolean }) {
+  async changeVisibility(@Payload() data: ChangeVisibilityRes) {
     return this.roomService.changeVisibility(data);
   }
 

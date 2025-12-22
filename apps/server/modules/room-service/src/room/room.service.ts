@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleInit, forwardRef } from '@nestjs/common';
 import {
   PrismaService,
   LiveKitService,
@@ -20,6 +20,7 @@ import {
   GetActiveRoomInfoReq,
   FetchPastRoomsReq,
   RoomEndAPIReq,
+  ChangeVisibilityRes,
   RoomMetadataSchema,
   CreateRoomResSchema,
   RoomEndResSchema,
@@ -43,7 +44,9 @@ import {
   NatsMsgServerToClientSchema,
 } from '@workspace/protocol';
 import { create, toBinary } from '@bufbuild/protobuf';
-import { RoomUtils } from './room.utils';
+import { RoomUtils } from '../utils/room.utils';
+import { PollService } from './poll.service';
+import { ArtifactService } from './artifact.service';
 
 @Injectable()
 export class RoomService implements OnModuleInit {
@@ -58,6 +61,8 @@ export class RoomService implements OnModuleInit {
     private readonly analyticsService: AnalyticsService,
     private readonly webhookService: WebhookService,
     private readonly authService: AuthService,
+    @Inject(forwardRef(() => PollService)) private readonly pollService: PollService,
+    private readonly artifactService: ArtifactService,
   ) { }
 
   async onModuleInit() {
@@ -81,7 +86,15 @@ export class RoomService implements OnModuleInit {
   }
 
   async createRoom(data: CreateRoomReq) {
+    const logPrefix = `createRoom room=${data.roomId}`;
     const lockKey = `room_creation_lock:${data.roomId}`;
+    const safeParseJson = (val?: string) => {
+      try {
+        return val ? JSON.parse(val) : {};
+      } catch {
+        return {};
+      }
+    };
 
     // Try to acquire lock with retries (handle concurrent requests)
     let acquired = false;
@@ -89,8 +102,6 @@ export class RoomService implements OnModuleInit {
     for (let i = 0; i < maxRetries; i++) {
       acquired = await this.redisService.acquireLock(lockKey, 'locked', 10); // 10s TTL
       if (acquired) break;
-
-      // Wait before retry (exponential backoff)
       await new Promise((r) => setTimeout(r, 500 * (i + 1)));
     }
 
@@ -101,64 +112,74 @@ export class RoomService implements OnModuleInit {
     try {
       const roomId = data.roomId;
       if (!roomId) throw new RpcException('Room ID is required');
+      this.logger.log(`${logPrefix} start`);
 
-      this.logger.log(`Creating room: ${roomId}`);
-
-      // Check if room exists in DB
+      // Check if room exists in DB (running)
       const existingRoom = await this.prisma.roomInfo.findFirst({
         where: { roomId: roomId, isRunning: true },
       });
 
       if (existingRoom) {
-        // Check NATS for liveness
         const rInfo = await this.natsService.getRoomInfo(roomId);
-        if (rInfo && rInfo.roomId) {
-          this.logger.log(
-            `Room ${roomId} found active in NATS. Returning existing info.`,
-          );
-          // Ensure streams are active
-          await this.createRoomNatsStreams(roomId);
+        const metadataStr = rInfo?.metadata || '{}';
+        const meta = fromJson(RoomMetadataSchema, safeParseJson(metadataStr));
 
-          // Return existing room info
+        if (rInfo && rInfo.roomId && (!rInfo.dbTableId || Number(rInfo.dbTableId) === existingRoom.id)) {
+          await this.createRoomNatsStreams(roomId);
+          try { await this.natsService.updateRoomInfo(roomId, { status: 'active' }); } catch { /* ignore */ }
+
           const activeRoomInfo = RoomUtils.toActiveRoomInfo(
             {
               roomId: existingRoom.roomId,
               sid: existingRoom.sid,
               roomTitle: existingRoom.roomTitle,
               creationTime: Number(existingRoom.creationTime),
-              metadata: existingRoom.metadata as string,
+              metadata: metadataStr,
               webhookUrl: existingRoom.webhookUrl,
             },
-            fromJson(RoomMetadataSchema, JSON.parse((existingRoom.metadata as string) || '{}')), // ✅ Parse to protobuf object
+            meta,
           );
 
+          this.logger.log(`${logPrefix} found active in NATS, returning existing info`);
           return create(CreateRoomResSchema, {
             status: true,
             roomInfo: activeRoomInfo,
             msg: 'Room already active',
           });
-        } else {
-          this.logger.warn(
-            `Room ${roomId} found in DB but not in NATS (stale). Creating new session.`,
-          );
-          // Proceed to create new room...
         }
+
+        this.logger.warn(`${logPrefix} stale DB/NATS entry, creating new session`);
       }
 
-      // Initialize defaults using RoomUtils
-      // We gather config from ConfigService
+      // Initialize defaults using RoomUtils (Go-parity defaults)
+      const uploadAllowedTypes = (() => {
+        const raw = this.configService.get<string>('UPLOAD_ALLOWED_TYPES');
+        if (raw) return raw.split(',').map((s) => s.trim()).filter(Boolean);
+        return undefined;
+      })();
+
       const roomConfig = {
-        copyrightConf: this.configService.get('COPYRIGHT_CONF'), // Assuming loaded as object or we map it
+        copyrightConf: this.configService.get('COPYRIGHT_CONF'),
         insightsEnabled: !!this.configService.get('INSIGHTS_ENABLED'),
+        insightsMaxTranscriptionLangs: Number(this.configService.get('INSIGHTS_MAX_TRANS_LANGS') ?? 2),
+        insightsMaxChatTransLangs: Number(this.configService.get('INSIGHTS_MAX_CHAT_LANGS') ?? 5),
         speechToTextEnabled: !!this.configService.get('SPEECH_TO_TEXT_ENABLED'),
-        maxSelectedOneTimeTransLangs: 2, // Default or fetch from config
-        maxNumTranLangsAllowSelecting: 2,
+        maxNumTranLangsAllowSelecting: Number(this.configService.get('MAX_NUM_TRAN_LANGS_ALLOW_SELECTING') ?? 2),
         roomDefaultSettings: {
-          maxParticipants: this.configService.get('MAX_PARTICIPANTS'),
-          maxDuration: this.configService.get('MAX_DURATION'),
-          maxNumBreakoutRooms: 16,
+          maxParticipants: Number(this.configService.get('MAX_PARTICIPANTS') ?? 0) || undefined,
+          maxDuration: Number(this.configService.get('MAX_DURATION') ?? 0) || undefined,
+          maxNumBreakoutRooms: Number(this.configService.get('MAX_NUM_BREAKOUT_ROOMS') ?? 0) || undefined,
         },
-      };
+        uploadMaxSize: Number(this.configService.get('UPLOAD_MAX_SIZE') ?? 0) || undefined,
+        uploadMaxWhiteboardFile: Number(this.configService.get('UPLOAD_WHITEBOARD_MAX_SIZE') ?? 30) || undefined,
+        uploadAllowedTypes,
+        sharedNotePadEnabled: (() => {
+          const raw = this.configService.get('SHARED_NOTEPAD_ENABLED');
+          if (raw === undefined || raw === null) return true;
+          if (typeof raw === 'string') return raw.toLowerCase() === 'true';
+          return !!raw;
+        })(),
+      } as any;
 
       RoomUtils.setRoomDefaults(data, roomConfig);
 
@@ -169,84 +190,59 @@ export class RoomService implements OnModuleInit {
       // Create in LiveKit
       const room = await this.liveKitService.getRoomClient().createRoom({
         name: roomId,
-        emptyTimeout: data.emptyTimeout || 60 * 60, // 1 hour default
+        emptyTimeout: data.emptyTimeout || 60 * 60, // default 1h
         maxParticipants: data.maxParticipants || 100,
         metadata: metadataJson,
       });
 
-      // Save to DB
-      const dbRoom = await this.prisma.roomInfo.create({
-        data: {
-          roomId: room.name,
-          sid: room.sid,
-          roomTitle: data.metadata?.roomTitle || roomId,
-          isRunning: true,
-          creationTime: Number(room.creationTime),
-          metadata: metadataJson,
-        },
-      });
-
-      // NATS KV Sync
-      // Use snake_case manual object for NATS
-      await this.natsService.updateRoomInfo(
-        room.name,
-        RoomUtils.getSnakeCaseNatsKvRoomInfo(
-          {
+      // Upsert DB (insert or update existing stale record)
+      let dbRoom;
+      if (existingRoom) {
+        dbRoom = await this.prisma.roomInfo.update({
+          where: { id: existingRoom.id },
+          data: {
             roomId: room.name,
             sid: room.sid,
-            creationTime: Number(room.creationTime),
-            metadata: metadataJson,
+            roomTitle: data.metadata?.roomTitle || roomId,
+            isRunning: true,
+            isBreakoutRoom: !!data.metadata?.isBreakoutRoom,
+            parentRoomId: data.metadata?.parentRoomId || '',
+            webhookUrl: data.metadata?.webhookUrl || existingRoom.webhookUrl,
+            creationTime: BigInt(room.creationTime),
+            ended: null,
           },
-          data,
-        ),
+        });
+      } else {
+        dbRoom = await this.prisma.roomInfo.create({
+          data: {
+            roomId: room.name,
+            sid: room.sid,
+            roomTitle: data.metadata?.roomTitle || roomId,
+            isRunning: true,
+            isBreakoutRoom: !!data.metadata?.isBreakoutRoom,
+            parentRoomId: data.metadata?.parentRoomId || '',
+            webhookUrl: data.metadata?.webhookUrl || '',
+            creationTime: BigInt(room.creationTime),
+          },
+        });
+      }
+
+      // Add room to NATS KV (status created)
+      this.logger.log(`${logPrefix} adding to NATS KV`);
+      await this.natsService.addRoom(
+        dbRoom.id.toString(),
+        room.name,
+        room.sid,
+        data.emptyTimeout || 0,
+        data.maxParticipants || 0,
+        JSON.parse(metadataJson),
       );
 
       // Create NATS Streams
       await this.createRoomNatsStreams(room.name);
 
-      // Add room to NATS KV
-      this.logger.log(`Adding room to NATS KV: ${room.name}`);
-      await this.natsService.addRoom(
-        dbRoom.id.toString(),
-        dbRoom.roomId,
-        dbRoom.sid,
-        data.emptyTimeout || 0,
-        data.maxParticipants || 0,
-        JSON.parse(metadataJson), // ✅ Use parsed JSON instead of protobuf object
-      );
-      this.logger.log(`Room ${room.name} added to NATS KV`);
-
-      // Analytics
-      await this.analyticsService.sendAnalyticsData({
-        eventType: AnalyticsEventType.ROOM,
-        eventName: AnalyticsEvents.ANALYTICS_EVENT_UNKNOWN,
-        roomId: room.name,
-        roomSid: room.sid,
-        time: Date.now(),
-        eventValueString: 'created',
-      } as any);
-
-      // Return ActiveRoomInfo (snake_case)
-      const activeRoomInfo = RoomUtils.toActiveRoomInfo(
-        {
-          roomId: dbRoom.roomId,
-          sid: dbRoom.sid,
-          roomTitle: dbRoom.roomTitle,
-          creationTime: Number(dbRoom.creationTime),
-          metadata: dbRoom.metadata as string,
-          webhookUrl: data.metadata?.webhookUrl,
-        },
-        data.metadata as any,
-      );
-
-      // Send webhook asynchronously
-      this.webhookService.sendRoomCreatedWebhook(
-        activeRoomInfo,
-        data.emptyTimeout,
-        data.maxParticipants,
-      ).catch(err => {
-        this.logger.error(`Webhook send failed: ${err.message}`);
-      });
+      const rInfo = await this.natsService.getRoomInfo(room.name);
+      if (!rInfo) throw new RpcException('room not found in KV');
 
       // Preload whiteboard file if needed
       if (!data.metadata?.isBreakoutRoom) {
@@ -259,7 +255,40 @@ export class RoomService implements OnModuleInit {
         });
       }
 
-      this.logger.log(`Room created successfully: ${room.name}`);
+      // Build ActiveRoomInfo from NATS metadata (snake_case)
+      const metaProto = fromJson(RoomMetadataSchema, safeParseJson(rInfo.metadata));
+      const activeRoomInfo = RoomUtils.toActiveRoomInfo(
+        {
+          roomId: dbRoom.roomId,
+          sid: dbRoom.sid,
+          roomTitle: dbRoom.roomTitle,
+          creationTime: Number(dbRoom.creationTime),
+          metadata: rInfo.metadata || metadataJson,
+          webhookUrl: dbRoom.webhookUrl,
+        },
+        metaProto,
+      );
+
+      // Analytics
+      await this.analyticsService.sendAnalyticsData({
+        eventType: AnalyticsEventType.ROOM,
+        eventName: AnalyticsEvents.ANALYTICS_EVENT_UNKNOWN,
+        roomId: room.name,
+        roomSid: room.sid,
+        time: Date.now(),
+        eventValueString: 'created',
+      } as any);
+
+      // Send webhook asynchronously
+      this.webhookService.sendRoomCreatedWebhook(
+        activeRoomInfo,
+        data.emptyTimeout,
+        data.maxParticipants,
+      ).catch(err => {
+        this.logger.error(`Webhook send failed: ${err.message}`);
+      });
+
+      this.logger.log(`${logPrefix} success`);
 
       return create(CreateRoomResSchema, {
         status: true,
@@ -305,13 +334,20 @@ export class RoomService implements OnModuleInit {
       // Get room info from NATS
       const natsRoomInfo = await this.natsService.getRoomInfo(roomId);
 
+      // Broadcast SESSION_ENDED like Go server
+      await this.broadcastNatsEvent(
+        NatsMsgServerToClientEvents.SESSION_ENDED,
+        roomId,
+        'notifications.room-disconnected-room-ended',
+      );
+
       // Trigger async cleanup
       setImmediate(() => {
         this.onAfterRoomEnded(
           BigInt(roomDbInfo.id),  // Convert number to bigint
           roomDbInfo.roomId,
           roomDbInfo.sid,
-          roomDbInfo.metadata as string || '',
+          natsRoomInfo?.metadata || '',
           natsRoomInfo?.status || ''
         ).catch(err => {
           this.logger.error(`Error in room cleanup: ${err.message}`, err.stack);
@@ -382,7 +418,7 @@ export class RoomService implements OnModuleInit {
       // Step 3: Update DB status
       await this.prisma.roomInfo.updateMany({
         where: { roomId: roomId },
-        data: { isRunning: false, endedAt: new Date() },
+        data: { isRunning: false, ended: new Date() },
       });
 
       // Step 4: Clear user blocklists (if NATS service has this method)
@@ -404,7 +440,7 @@ export class RoomService implements OnModuleInit {
       // await this.etherpadService.cleanupAfterRoomEnd(roomId, metadata);
 
       // Step 9: Clean up polls (placeholder)
-      // await this.pollService.cleanupPolls(roomId);
+      try { await this.pollService.cleanUpPolls(roomId); } catch (e) { log.warn(`Poll cleanup failed: ${e.message}`); }
 
       // Step 10: Breakout room cleanup (placeholder)
       // await this.breakoutRoomService.postEndCleanup(roomId, metadata);
@@ -417,8 +453,11 @@ export class RoomService implements OnModuleInit {
 
       // Step 13: Final NATS cleanup
       // Delete room-specific streams and KV
-      // TODO: Implement deleteRoom method in NatsService
-      // await this.natsService.deleteRoom(roomId);
+      try {
+        await this.natsService.deleteRoomInfo(roomId);
+      } catch (e) {
+        log.warn(`Failed to delete room info from NATS: ${e.message}`);
+      }
 
       // Step 14: Send webhook notification
       await this.webhookService.sendRoomFinishedWebhook(roomId, roomSid, metadata);
@@ -534,10 +573,19 @@ export class RoomService implements OnModuleInit {
     const room = await this.prisma.roomInfo.findFirst({
       where: { roomId: roomId, isRunning: true },
     });
+
+    // Align with Go: trust NATS as source of truth, mark stale DB rows inactive
+    const rInfo = await this.natsService.getRoomInfo(roomId).catch(() => null as any);
+    const isActiveInNats = rInfo && (rInfo.status === 'created' || rInfo.status === 'active');
+
+    if (!isActiveInNats && room) {
+      await this.prisma.roomInfo.updateMany({ where: { roomId }, data: { isRunning: false } });
+    }
+
     return create(IsRoomActiveResSchema, {
       status: true,
-      isActive: !!room,
-      msg: room ? 'active' : 'not active'
+      isActive: !!room && isActiveInNats,
+      msg: !!room && isActiveInNats ? 'active' : 'not active'
     });
   }
 
@@ -608,6 +656,13 @@ export class RoomService implements OnModuleInit {
       metadata.exUserId = userInfo.userId; // Use userId as default
     }
 
+    // Auto generate userId if feature enabled (Go parity)
+    const roomFeatures = roomMetadata.roomFeatures || roomMetadata.room_features || {};
+    const autoGenUserId = roomFeatures.autoGenUserId ?? roomFeatures.auto_gen_user_id;
+    if (autoGenUserId && !RESERVED_NAMES.includes(userInfo.userId)) {
+      userInfo.userId = uuidv4();
+    }
+
     // Step 7: Validate user ID format (Go: line 104-108)
     const validUserIdRegex = /^[a-zA-Z0-9-_]+$/;
     if (!validUserIdRegex.test(userInfo.userId)) {
@@ -621,9 +676,10 @@ export class RoomService implements OnModuleInit {
     try {
       const userStatus = await this.natsService.getRoomUserStatus(roomId, userInfo.userId);
       if (userStatus === 'online') {
-        this.logger.warn(`Duplicate user ${userInfo.userId} in room ${roomId}, this may cause issues`);
-        // Note: In production, should remove existing user first
-        // For now, we'll allow it but log warning
+        return create(GenerateTokenResSchema, {
+          status: false,
+          msg: 'duplicate user is online, please retry after the user disconnects'
+        });
       }
     } catch (e) {
       // User not found - this is fine
@@ -632,6 +688,8 @@ export class RoomService implements OnModuleInit {
     // Step 9: Assign permissions and lock settings (Go: line 111-137)
     metadata.isAdmin = userInfo.isAdmin;
     metadata.recordWebcam = metadata.recordWebcam ?? true;
+
+    const defaultLock = roomMetadata.default_lock_settings || roomMetadata.defaultLockSettings;
 
     if (userInfo.isAdmin) {
       // Admin user setup
@@ -656,30 +714,31 @@ export class RoomService implements OnModuleInit {
 
       // Admin: no locks except whiteboard for non-presenters
       metadata.lockSettings = {};
-      if (!metadata.isPresenter && roomMetadata.default_lock_settings) {
-        metadata.lockSettings.lockWhiteboard = roomMetadata.default_lock_settings.lock_whiteboard;
+      if (!metadata.isPresenter && defaultLock) {
+        metadata.lockSettings.lockWhiteboard = defaultLock.lock_whiteboard ?? defaultLock.lockWhiteboard;
       }
 
     } else {
       // Regular user: apply default lock settings
       metadata.isPresenter = false;
 
-      if (roomMetadata.default_lock_settings) {
+      if (defaultLock) {
         metadata.lockSettings = {
-          lockMicrophone: roomMetadata.default_lock_settings.lock_microphone,
-          lockWebcam: roomMetadata.default_lock_settings.lock_webcam,
-          lockScreenSharing: roomMetadata.default_lock_settings.lock_screen_sharing,
-          lockChat: roomMetadata.default_lock_settings.lock_chat,
-          lockChatSendMessage: roomMetadata.default_lock_settings.lock_chat_send_message,
-          lockChatFileShare: roomMetadata.default_lock_settings.lock_chat_file_share,
-          lockPrivateChat: roomMetadata.default_lock_settings.lock_private_chat,
-          lockWhiteboard: roomMetadata.default_lock_settings.lock_whiteboard,
-          lockSharedNotepad: roomMetadata.default_lock_settings.lock_shared_notepad,
-        };
+          lockMicrophone: defaultLock.lock_microphone ?? defaultLock.lockMicrophone,
+          lockWebcam: defaultLock.lock_webcam ?? defaultLock.lockWebcam,
+          lockScreenSharing: defaultLock.lock_screen_sharing ?? defaultLock.lockScreenSharing,
+          lockChat: defaultLock.lock_chat ?? defaultLock.lockChat,
+          lockChatSendMessage: defaultLock.lock_chat_send_message ?? defaultLock.lockChatSendMessage,
+          lockChatFileShare: defaultLock.lock_chat_file_share ?? defaultLock.lockChatFileShare,
+          lockPrivateChat: defaultLock.lock_private_chat ?? defaultLock.lockPrivateChat,
+          lockWhiteboard: defaultLock.lock_whiteboard ?? defaultLock.lockWhiteboard,
+          lockSharedNotepad: defaultLock.lock_shared_notepad ?? defaultLock.lockSharedNotepad,
+        } as any;
       }
 
       // Waiting room check (Go: line 134-136)
-      if (roomMetadata.room_features?.waiting_room_features?.is_active) {
+      const waitingRoom = roomFeatures.waitingRoomFeatures || roomFeatures.waiting_room_features;
+      if (waitingRoom?.isActive || waitingRoom?.is_active) {
         metadata.waitForApproval = true;
       } else {
         metadata.waitForApproval = false;
@@ -754,7 +813,7 @@ export class RoomService implements OnModuleInit {
         case 'room_finished':
           await this.prisma.roomInfo.updateMany({
             where: { sid: event.room.sid },
-            data: { isRunning: false, endedAt: new Date() },
+            data: { isRunning: false, ended: new Date() },
           });
           await this.analyticsService.sendAnalyticsData({
             eventType: AnalyticsEventType.ROOM,
@@ -823,19 +882,7 @@ export class RoomService implements OnModuleInit {
 
         case 'egress_ended': // Recording finished
           if (event.egressInfo && (event.egressInfo as any).file) {
-            const recordingInfo = event.egressInfo as any;
-            await this.prisma.recording.create({
-              data: {
-                recordId: recordingInfo.egressId,
-                roomSid: recordingInfo.roomSid,
-                roomId: roomId,
-                recorderId: recordingInfo.egressId,
-                filePath: recordingInfo.file.location,
-                size: Number(recordingInfo.file.size),
-                roomCreationTime: 0,
-                creationTime: Number(recordingInfo.startedAt) || 0,
-              },
-            });
+            // Recording persistence disabled (no recording table in Prisma schema).
             await this.analyticsService.sendAnalyticsData({
               eventType: AnalyticsEventType.ROOM,
               eventName: AnalyticsEvents.ANALYTICS_EVENT_ROOM_RECORDING_STATUS,
@@ -891,11 +938,32 @@ export class RoomService implements OnModuleInit {
       });
     }
 
+    const rInfo = await this.natsService.getRoomInfo(data.roomId);
+    const isActiveInNats = rInfo && rInfo.roomId && (rInfo.status === 'created' || rInfo.status === 'active');
+    if (!isActiveInNats) {
+      await this.prisma.roomInfo.updateMany({ where: { roomId: data.roomId }, data: { isRunning: false } });
+      return create(GetActiveRoomInfoResSchema, {
+        status: false,
+        msg: 'room is not active'
+      });
+    }
+
     let participantsInfo: any[] = [];
     try {
-      participantsInfo = await this.liveKitService
+      const lkParticipants = await this.liveKitService
         .getRoomClient()
         .listParticipants(data.roomId);
+
+      // Enrich participants with metadata from NATS (Go parity)
+      participantsInfo = await Promise.all(lkParticipants.map(async (p) => {
+        try {
+          const natsUser = await this.natsService.getUserInfo(data.roomId, p.identity);
+          if (natsUser?.metadata) {
+            p.metadata = natsUser.metadata;
+          }
+        } catch { /* ignore */ }
+        return p;
+      }));
     } catch (e) {
       this.logger.warn(`Failed to fetch participants for room ${data.roomId}`);
     }
@@ -912,7 +980,7 @@ export class RoomService implements OnModuleInit {
       isBreakoutRoom: 0,
       parentRoomId: '',
       creationTime: String(room.creationTime),
-      metadata: room.metadata as string || '',
+      metadata: rInfo?.metadata || '',
     });
 
     const roomWithParticipants = create(ActiveRoomWithParticipantSchema, {
@@ -931,12 +999,40 @@ export class RoomService implements OnModuleInit {
     const rooms = await this.prisma.roomInfo.findMany({
       where: { isRunning: true },
     });
-    const roomsWithParticipants = rooms.map((r) => {
+    if (!rooms.length) {
+      return create(GetActiveRoomsInfoResSchema, {
+        status: false,
+        msg: 'no active room found',
+        rooms: [],
+      });
+    }
+
+    const roomsWithParticipants = await Promise.all(rooms.map(async (r) => {
+      const rInfo = await this.natsService.getRoomInfo(r.roomId);
+      const isActive = rInfo && (rInfo.status === 'created' || rInfo.status === 'active');
+      if (!isActive) return null;
+
+      let participantsInfo: any[] = [];
+      try {
+        const lkParticipants = await this.liveKitService
+          .getRoomClient()
+          .listParticipants(r.roomId);
+        participantsInfo = await Promise.all(lkParticipants.map(async (p) => {
+          try {
+            const natsUser = await this.natsService.getUserInfo(r.roomId, p.identity);
+            if (natsUser?.metadata) {
+              p.metadata = natsUser.metadata;
+            }
+          } catch { /* ignore */ }
+          return p;
+        }));
+      } catch { /* ignore */ }
+
       const activeRoomInfo = create(ActiveRoomInfoSchema, {
         roomTitle: r.roomTitle,
         roomId: r.roomId,
         sid: r.sid,
-        joinedParticipants: String(r.joinedParticipants || 0),
+        joinedParticipants: participantsInfo.length ? String(participantsInfo.length) : String(r.joinedParticipants || 0),
         isRunning: r.isRunning ? 1 : 0,
         isRecording: 0,
         isActiveRtmp: 0,
@@ -944,33 +1040,44 @@ export class RoomService implements OnModuleInit {
         isBreakoutRoom: 0,
         parentRoomId: '',
         creationTime: String(r.creationTime),
-        metadata: r.metadata as string || '',
+        metadata: rInfo?.metadata || '',
       });
 
       return create(ActiveRoomWithParticipantSchema, {
         roomInfo: activeRoomInfo,
-        participantsInfo: [],
+        participantsInfo: participantsInfo,
       });
-    });
+    }));
+
+    const filtered = roomsWithParticipants.filter(Boolean) as any[];
 
     return create(GetActiveRoomsInfoResSchema, {
-      status: true,
-      msg: 'success',
-      rooms: roomsWithParticipants,
+      status: filtered.length > 0,
+      msg: filtered.length > 0 ? 'success' : 'no active room found',
+      rooms: filtered,
     });
   }
 
   async fetchPastRooms(data: FetchPastRoomsReq) {
-    const { from = 0, limit = 20 } = data;
+    const from = data.from || 0;
+    let limit = data.limit || 20;
+    if (limit > 100) limit = 100; // Go parity cap
+    const orderBy = data.orderBy || 'DESC';
+    const roomIdsFilter = data.roomIds && data.roomIds.length ? data.roomIds : undefined;
+    const whereClause: any = { isRunning: false, ...(roomIdsFilter ? { roomId: { in: roomIdsFilter } } : {}) };
+
     const [total, rooms] = await Promise.all([
-      this.prisma.roomInfo.count({ where: { isRunning: false } }),
+      this.prisma.roomInfo.count({ where: whereClause }),
       this.prisma.roomInfo.findMany({
-        where: { isRunning: false },
+        where: whereClause,
         skip: from,
         take: limit,
-        orderBy: { creationTime: 'desc' },
+        orderBy: { creationTime: orderBy.toLowerCase() === 'asc' ? 'asc' : 'desc' },
       }),
     ]);
+
+    // Fetch analytics artifact ids via dedicated service (Go parity)
+    const artifactsMap = await this.artifactService.getAnalyticsArtifactsByRoomTableIds(rooms.map((r) => r.id));
     const pastRooms = rooms.map((r) =>
       create(PastRoomInfoSchema, {
         roomTitle: r.roomTitle,
@@ -978,8 +1085,9 @@ export class RoomService implements OnModuleInit {
         roomSid: r.sid,
         joinedParticipants: String(r.joinedParticipants || 0),
         webhookUrl: r.webhookUrl || '',
-        created: r.createdAt?.toISOString() || '',
-        ended: r.endedAt?.toISOString() || '',
+        created: (r as any).created?.toISOString?.() || '',
+        ended: (r as any).ended?.toISOString?.() || '',
+        analyticsFileId: artifactsMap[r.id] || undefined,
       })
     );
 
@@ -987,7 +1095,7 @@ export class RoomService implements OnModuleInit {
       totalRooms: String(total),
       from: from,
       limit: limit,
-      orderBy: data.orderBy || 'DESC',
+      orderBy,
       roomsList: pastRooms,
     });
 
@@ -998,19 +1106,45 @@ export class RoomService implements OnModuleInit {
     });
   }
 
-  async changeVisibility(data: { roomId: string; visible: boolean }) {
-    const rooms = await this.liveKitService
-      .getRoomClient()
-      .listRooms([data.roomId]);
-    if (rooms.length === 0) return { status: false, msg: 'room not found' };
+  async changeVisibility(data: ChangeVisibilityRes) {
+    if (!data.roomId) return { status: false, msg: 'roomId required' };
+    const rInfo = await this.natsService.getRoomInfo(data.roomId);
+    if (!rInfo || !rInfo.metadata) return { status: false, msg: 'room not found' };
 
-    const meta: any = JSON.parse(rooms[0].metadata || '{}');
-    if (!meta.room_features) meta.room_features = {};
-    meta.room_features.is_public = data.visible;
+    let meta: any = {};
+    try { meta = JSON.parse(rInfo.metadata); } catch { meta = {}; }
 
-    await this.liveKitService
-      .getRoomClient()
-      .updateRoomMetadata(data.roomId, JSON.stringify(meta));
+    const roomFeatures = meta.room_features ?? meta.roomFeatures ?? {};
+    const whiteboardFeatures = roomFeatures.whiteboard_features ?? roomFeatures.whiteboardFeatures ?? {};
+    const notepadFeatures = roomFeatures.shared_note_pad_features ?? roomFeatures.sharedNotePadFeatures ?? {};
+
+    // Optional toggles align with Go implementation
+    if (data.visibleWhiteBoard !== undefined) {
+      whiteboardFeatures.visible = data.visibleWhiteBoard;
+      whiteboardFeatures.isActive = data.visibleWhiteBoard;
+      whiteboardFeatures.is_active = data.visibleWhiteBoard;
+    }
+
+    if (data.visibleNotepad !== undefined) {
+      notepadFeatures.visible = data.visibleNotepad;
+      notepadFeatures.isActive = data.visibleNotepad;
+      notepadFeatures.is_active = data.visibleNotepad;
+    }
+
+    // Legacy public visibility flag
+    if ((data as any).visible !== undefined) {
+      roomFeatures.is_public = (data as any).visible;
+      roomFeatures.isPublic = (data as any).visible;
+    }
+
+    roomFeatures.whiteboard_features = whiteboardFeatures;
+    roomFeatures.whiteboardFeatures = whiteboardFeatures;
+    roomFeatures.shared_note_pad_features = notepadFeatures;
+    roomFeatures.sharedNotePadFeatures = notepadFeatures;
+    meta.room_features = roomFeatures;
+    meta.roomFeatures = roomFeatures;
+
+    await this.updateAndBroadcastRoomMetadata(data.roomId, meta);
     return { status: true, msg: 'success' };
   }
 

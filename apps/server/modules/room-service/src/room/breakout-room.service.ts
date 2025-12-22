@@ -200,11 +200,13 @@ export class BreakoutRoomService {
       canPublishData: true,
     };
 
+    const roomInfo = await this.natsService.getRoomInfo(room.roomId);
+
     const token = await this.liveKitService.createAccessToken(
       data.userId,
       name,
       videoGrant,
-      room.metadata as string,
+      roomInfo?.metadata || '',
     );
 
     return create(BreakoutRoomResSchema, {

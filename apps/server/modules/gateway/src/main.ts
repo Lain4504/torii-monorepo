@@ -23,7 +23,7 @@ async function bootstrap() {
 
   // Ensure poll endpoints can read protobuf payloads even if the client misses Content-Type
   // Use a narrow path scope so the rest of the app still benefits from JSON parsing
-  // Polls: always capture raw body; controller will decode protobuf or JSON
+  // Polls: capture raw body; controller will decode protobuf or JSON
   app.use('/api/polls', raw({ type: '*/*', limit: '10mb' }));
   // Fallback collector in case body-parser raw is skipped (e.g., missing content-type)
   app.use('/api/polls', (req, _res, next) => {
@@ -32,6 +32,17 @@ async function bootstrap() {
     req.on('data', (chunk: Buffer) => chunks.push(chunk));
     req.on('end', () => {
       (req as any).body = Buffer.concat(chunks);
+      next();
+    });
+  });
+  // User APIs: accept protobuf bodies for mute/remove/lock/presenter
+  app.use('/api', raw({ type: ['application/protobuf', 'application/octet-stream'], limit: '5mb' }));
+  app.use('/api', (req, _res, next) => {
+    if (req.body) return next();
+    const chunks: Buffer[] = [];
+    req.on('data', (chunk: Buffer) => chunks.push(chunk));
+    req.on('end', () => {
+      if (chunks.length > 0) (req as any).body = Buffer.concat(chunks);
       next();
     });
   });

@@ -4,8 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: split room controllers and servces for diffrent features">
-      <change beforePath="$PROJECT_DIR$/packages/protocol/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/.gitignore" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="migration: remove metadata form room_info">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/artifact.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/artifact.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/artifact.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/artifact.service.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,10 +67,16 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
     &quot;ts.external.directory.path&quot;: &quot;E:\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\room-service\src\utils" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -102,22 +110,10 @@
       <workItem from="1766253712286" duration="774000" />
       <workItem from="1766330829836" duration="8918000" />
       <workItem from="1766380346197" duration="69000" />
-    </task>
-    <task id="LOCAL-00104" summary="fix: fix api room service">
-      <option name="closed" value="true" />
-      <created>1765883833657</created>
-      <option name="number" value="00104" />
-      <option name="presentableId" value="LOCAL-00104" />
-      <option name="project" value="LOCAL" />
-      <updated>1765883833658</updated>
-    </task>
-    <task id="LOCAL-00105" summary="fix: fix api room service">
-      <option name="closed" value="true" />
-      <created>1765887026979</created>
-      <option name="number" value="00105" />
-      <option name="presentableId" value="LOCAL-00105" />
-      <option name="project" value="LOCAL" />
-      <updated>1765887026979</updated>
+      <workItem from="1766388692239" duration="170000" />
+      <workItem from="1766389136679" duration="276000" />
+      <workItem from="1766389564407" duration="209000" />
+      <workItem from="1766389953908" duration="3574000" />
     </task>
     <task id="LOCAL-00106" summary="fix: fix pre-room and nats authentication">
       <option name="closed" value="true" />
@@ -495,7 +491,23 @@
       <option name="project" value="LOCAL" />
       <updated>1766380411138</updated>
     </task>
-    <option name="localTasksCounter" value="153" />
+    <task id="LOCAL-00153" summary="migration: remove metadata form room_info">
+      <option name="closed" value="true" />
+      <created>1766395509111</created>
+      <option name="number" value="00153" />
+      <option name="presentableId" value="LOCAL-00153" />
+      <option name="project" value="LOCAL" />
+      <updated>1766395509111</updated>
+    </task>
+    <task id="LOCAL-00154" summary="migration: remove metadata form room_info">
+      <option name="closed" value="true" />
+      <created>1766400057425</created>
+      <option name="number" value="00154" />
+      <option name="presentableId" value="LOCAL-00154" />
+      <option name="project" value="LOCAL" />
+      <updated>1766400057425</updated>
+    </task>
+    <option name="localTasksCounter" value="155" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -530,7 +542,8 @@
     <MESSAGE value="feat: implement WebhookService for room event notifications" />
     <MESSAGE value="feat(storage): integrate Cloudflare R2 for file storage - add R2 provider and update storage service for presigned URLs - enhance file metadata handling and implement direct upload functionality" />
     <MESSAGE value="refactor: split room controllers and servces for diffrent features" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: split room controllers and servces for diffrent features" />
+    <MESSAGE value="migration: remove metadata form room_info" />
+    <option name="LAST_COMMIT_MESSAGE" value="migration: remove metadata form room_info" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>
