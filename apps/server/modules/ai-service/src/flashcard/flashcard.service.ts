@@ -14,6 +14,7 @@ import {
     UpdateFlashcardResponseDto
 } from "@workspace/dtos";
 import { PrismaService } from "@server/shared";
+import { RpcException } from '@nestjs/microservices';
 
 /**
  * Helper function to convert difficulty string to DifficultyLevel enum
@@ -51,26 +52,52 @@ export class FlashcardService {
     constructor(private readonly prisma: PrismaService) {
     }
 
-    async createFlashcard(data: CreateFlashcardRequestDto): Promise<CreateFlashcardResponseDto> {
+    /**
+     * Verify that a deck belongs to a specific user
+     * Throws RpcException if not owned
+     */
+    private async verifyDeckOwnership(userId: string, deckId: string): Promise<void> {
+        const deck = await this.prisma.flashcardDeck.findUnique({
+            where: { id: deckId },
+            select: { userId: true },
+        });
+
+        if (!deck) {
+            throw new RpcException({
+                status: 404,
+                message: 'Flashcard deck not found',
+            });
+        }
+
+        if (deck.userId !== userId) {
+            throw new RpcException({
+                status: 403,
+                message: 'You do not have permission to access this flashcard deck',
+            });
+        }
+    }
+
+    async createFlashcard(
+        userId: string,
+        data: CreateFlashcardRequestDto,
+    ): Promise<CreateFlashcardResponseDto> {
         try {
-            const { deckId } = data; // Only take deckId from request
+            const { deckId } = data;
 
-            console.log(`[FlashcardService] Creating flashcard for deck ${deckId} (USING MOCK DATA)`);
-
-            // Hardcoded Mock Data
-            const mockFront = "Mock Front " + Date.now();
-            const mockBack = "Mock Back " + Date.now();
+            // Verify deck ownership
+            await this.verifyDeckOwnership(userId, deckId);
 
             const flashcard = await this.prisma.flashcard.create({
                 data: {
                     deckId: deckId,
-                    frontText: mockFront,
-                    backText: mockBack,
-                    exampleSentence: "This is a mock example sentence.",
-                    pronunciation: "Mock Pronunciation",
-                    imageUrl: "https://via.placeholder.com/150",
-                    tags: ["mock", "test"],
-                    difficulty: "medium",
+                    frontText: data.frontText,
+                    backText: data.backText,
+                    exampleSentence: data.exampleSentence || null,
+                    pronunciation: data.pronunciation || null,
+                    imageUrl: data.imageUrl || null,
+                    audioUrl: data.audioUrl || null,
+                    tags: data.tags || [],
+                    difficulty: data.difficulty ? fromDifficultyLevel(data.difficulty) : 'medium',
                     // Default SM-2 values
                     intervalDays: 1,
                     easeFactor: 2.5,
@@ -80,20 +107,31 @@ export class FlashcardService {
                 }
             });
 
+            // Update deck card count
+            await this.prisma.flashcardDeck.update({
+                where: { id: deckId },
+                data: {
+                    cardCount: {
+                        increment: 1
+                    }
+                }
+            });
+
             return {
                 success: true,
-                message: 'Flashcard created successfully (MOCK DATA SAVED TO DB)',
+                message: 'Flashcard created successfully',
                 error: '',
                 data: this.mapToProto(flashcard)
             };
         } catch (error) {
+            if (error instanceof RpcException) {
+                throw error;
+            }
             console.error(`[FlashcardService] Error creating flashcard: ${error.message}`, error);
-            return {
-                success: false,
-                message: 'Failed to create flashcard',
-                error: error?.message || 'Unknown error',
-                data: null as any
-            };
+            throw new RpcException({
+                status: 400,
+                message: `Failed to create flashcard: ${error?.message || 'Unknown error'}`,
+            });
         }
     }
 
@@ -162,7 +200,10 @@ export class FlashcardService {
         }
     }
 
-    async updateFlashcard(data: UpdateFlashcardRequestDto): Promise<UpdateFlashcardResponseDto> {
+    async updateFlashcard(
+        userId: string,
+        data: UpdateFlashcardRequestDto,
+    ): Promise<UpdateFlashcardResponseDto> {
         try {
             const {
                 id,
@@ -177,16 +218,22 @@ export class FlashcardService {
                 difficulty
             } = data;
 
-            // Check if exists
-            const existing = await this.prisma.flashcard.findUnique({ where: { id } });
+            // Check if flashcard exists
+            const existing = await this.prisma.flashcard.findUnique({
+                where: { id },
+                include: { deck: { select: { userId: true } } }
+            });
+
             if (!existing) {
-                return {
-                    success: false,
+                throw new RpcException({
+                    status: 404,
                     message: 'Flashcard not found',
-                    error: `Flashcard with ID ${id} does not exist`,
-                    data: null as any
-                };
+                });
             }
+
+            // Verify deck ownership (use existing deck or new deckId if provided)
+            const targetDeckId = deckId || existing.deckId;
+            await this.verifyDeckOwnership(userId, targetDeckId);
 
             const updated = await this.prisma.flashcard.update({
                 where: { id },
@@ -210,12 +257,13 @@ export class FlashcardService {
                 data: this.mapToProto(updated)
             };
         } catch (error) {
-            return {
-                success: false,
-                message: 'Failed to update flashcard',
-                error: error?.message || 'Unknown error',
-                data: null as any
-            };
+            if (error instanceof RpcException) {
+                throw error;
+            }
+            throw new RpcException({
+                status: 400,
+                message: `Failed to update flashcard: ${error?.message || 'Unknown error'}`,
+            });
         }
     }
 
