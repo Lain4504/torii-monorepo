@@ -295,7 +295,8 @@ REDIS_PASSWORD=""                      # If Redis requires password
 
 # Supabase (only if using Supabase-specific features)
 SUPABASE_URL="https://your-project.supabase.co"
-SUPABASE_KEY="your-anon-key"
+SUPABASE_SERVICE_ROLE_KEY="your-service-role-key"  # Recommended for backend
+SUPABASE_ANON_KEY="your-anon-key"  # Fallback if service role key not available
 ```
 
 ### **Verification:**

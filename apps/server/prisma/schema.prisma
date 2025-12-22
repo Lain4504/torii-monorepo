@@ -161,3 +161,35 @@ model Flashcard {
   @@map("flashcards")
 }
 
+// File Assets - Source of Truth for all files in the system
+model FileAsset {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  
+  // File Identification
+  fileUrl     String   @unique @map("file_url") @db.Text
+  
+  // File Details
+  mimeType    String?  @map("mime_type") @db.VarChar(100)
+  fileSize    BigInt?  @map("file_size")
+  isPublic    Boolean  @default(false) @map("is_public")
+  
+  // Upload Status: 'pending' | 'uploaded' | 'failed'
+  status      String   @default("pending") @db.VarChar(20)
+  
+  // Flexible Metadata (JSONB)
+  metadata    Json?    @default("{}") @map("metadata")
+  
+  // Ownership
+  ownerId     String?  @map("owner_id") @db.Uuid
+  moduleOrigin String? @map("module_origin") @db.VarChar(50) // 'USER', 'COURSE', 'CHAT'
+  
+  // Timestamps
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([ownerId])
+  @@index([fileUrl])
+  @@index([status])
+  @@map("file_assets")
+}
+
