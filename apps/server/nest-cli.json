@@ -89,6 +89,16 @@
         "webpack": false
       }
     },
+    "blog-service": {
+      "type": "application",
+      "root": "modules/blog-service",
+      "entryFile": "main",
+      "sourceRoot": "modules/blog-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "modules/blog-service/tsconfig.app.json",
+        "webpack": false
+      }
+    },
     "notification-service": {
       "type": "application",
       "root": "modules/notification-service",

@@ -135,6 +135,11 @@ model User {
   updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at")
   deletedAt     DateTime? @map("deleted_at")
 
+  // blogPosts removed - authorId references Supabase Auth, not PostgreSQL users
+  blogComments  BlogComment[]
+  blogLikes     BlogPostLike[]
+  blogViews     BlogPostView[]
+
   @@map("users")
 }
 
@@ -185,11 +190,190 @@ model FileAsset {
   
   // Timestamps
   createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@index([ownerId])
   @@index([fileUrl])
   @@index([status])
   @@map("file_assets")
+}
+
+// =========================
+// BLOG & CONTENT MANAGEMENT
+// =========================
+
+// Blog Categories
+model BlogCategory {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String   @db.VarChar(100)
+  slug        String   @unique @db.VarChar(100)
+  description String?  @db.Text
+  icon        String?  @db.VarChar(50)
+  parentId    String?  @map("parent_id") @db.Uuid
+  orderIndex  Int      @default(0) @map("order_index")
+  postCount   Int      @default(0) @map("post_count")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  parent      BlogCategory?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    BlogCategory[] @relation("CategoryHierarchy")
+  posts       BlogPost[]
+
+  @@index([parentId])
+  @@index([slug])
+  @@map("blog_categories")
+}
+
+// Tags (Extended)
+model Tag {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String   @unique @db.VarChar(50)
+  slug        String   @unique @db.VarChar(50)
+  type        String   @default("general") @db.VarChar(20) // general, course, blog
+  description String?  @db.Text
+  icon        String?  @db.VarChar(50)
+  usageCount  Int      @default(0) @map("usage_count")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  blogPosts   BlogPostTag[]
+
+  @@index([slug])
+  @@index([type])
+  @@map("tags")
+}
+
+// Blog Posts
+model BlogPost {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title           String   @db.VarChar(255)
+  slug            String   @unique @db.VarChar(255)
+  excerpt         String?  @db.VarChar(500)
+  content         String   @db.Text
+  coverImageUrl   String?  @map("cover_image_url") @db.Text
+  authorId        String   @map("author_id") @db.Uuid
+  status          String   @default("draft") @db.VarChar(20) // draft, published, archived
+  publishedAt     DateTime? @map("published_at")
+  viewCount       Int      @default(0) @map("view_count")
+  likeCount       Int      @default(0) @map("like_count")
+  commentCount    Int      @default(0) @map("comment_count")
+  seoTitle        String?  @map("seo_title") @db.VarChar(255)
+  seoDescription  String?  @map("seo_description") @db.Text
+  
+  // Extended fields
+  readingTime     Int?     @map("reading_time")
+  featured        Boolean  @default(false)
+  pinned          Boolean  @default(false)
+  metaKeywords    String[] @default([]) @map("meta_keywords") @db.VarChar(50)
+  ogImageUrl      String?  @map("og_image_url") @db.Text
+  categoryId      String?  @map("category_id") @db.Uuid
+  relatedPostIds  String[] @default([]) @map("related_post_ids") @db.Uuid
+
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  // authorId references Supabase Auth users, not PostgreSQL users table
+  // No foreign key constraint - user exists in Supabase Auth only
+  category        BlogCategory? @relation(fields: [categoryId], references: [id])
+  tags            BlogPostTag[]
+  comments        BlogComment[]
+  likes           BlogPostLike[]
+  views           BlogPostView[]
+  images          BlogPostImage[]
+
+  @@index([status])
+  @@index([publishedAt(sort: Desc)])
+  @@index([authorId])
+  @@index([featured])
+  @@index([categoryId])
+  @@map("blog_posts")
+}
+
+// Blog Post Tags (Many-to-Many)
+model BlogPostTag {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  postId    String   @map("post_id") @db.Uuid
+  tagId     String   @map("tag_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+
+  post      BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, tagId])
+  @@index([postId])
+  @@index([tagId])
+  @@map("blog_post_tags")
+}
+
+// Blog Comments
+model BlogComment {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  postId          String   @map("post_id") @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  parentCommentId String?  @map("parent_comment_id") @db.Uuid
+  content         String   @db.Text
+  status          String   @default("approved") @db.VarChar(20) // pending, approved, spam, deleted
+  likes           Int      @default(0)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  post            BlogPost       @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent          BlogComment?   @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
+  replies         BlogComment[]  @relation("CommentReplies")
+
+  @@index([postId])
+  @@index([userId])
+  @@index([parentCommentId])
+  @@index([status])
+  @@map("blog_comments")
+}
+
+// Blog Post Likes
+model BlogPostLike {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  postId    String   @map("post_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+
+  post      BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@index([postId])
+  @@index([userId])
+  @@map("blog_post_likes")
+}
+
+// Blog Post Views
+model BlogPostView {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  postId    String   @map("post_id") @db.Uuid
+  userId    String?  @map("user_id") @db.Uuid
+  ipAddress String?  @map("ip_address") @db.VarChar(45)
+  userAgent String?  @map("user_agent") @db.Text
+  referrer  String?  @db.Text
+  viewedAt  DateTime @default(now()) @map("viewed_at")
+
+  post      BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([postId])
+  @@index([userId])
+  @@index([viewedAt(sort: Desc)])
+  @@map("blog_post_views")
+}
+
+// Blog Post Images
+model BlogPostImage {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  postId    String   @map("post_id") @db.Uuid
+  imageUrl  String   @map("image_url") @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  post      BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@map("blog_post_images")
 }
 
