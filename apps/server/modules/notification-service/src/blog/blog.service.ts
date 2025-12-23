@@ -1,14 +1,11 @@
 import { Injectable, NotFoundException, BadRequestException, Logger, Inject } from '@nestjs/common';
-import { PrismaService, SUPABASE_CLIENT } from '@server/shared';
+import { PrismaService, SUPABASE_CLIENT, ensureUniqueSlug, generateSlug } from '@server/shared';
 import { SupabaseClient } from '@supabase/supabase-js';
 import {
   CreateBlogPostDto,
   UpdateBlogPostDto,
   BlogPostQueryDto,
-  CreateBlogCategoryDto,
-  UpdateBlogCategoryDto,
   CreateTagDto,
-  UpdateTagDto,
   TagQueryDto,
   BlogPostStatus,
 } from '@workspace/dtos';
@@ -27,28 +24,19 @@ export class BlogService {
   // =========================
 
   async createPost(dto: CreateBlogPostDto) {
+    // Auto-generate slug from title if not provided
+    const baseSlug = dto.slug || generateSlug(dto.title);
+    
     // Auto-generate unique slug if slug already exists
-    let slug = dto.slug;
-    let counter = 1;
-    let existing = await this.prisma.blogPost.findUnique({
-      where: { slug },
-    });
-
-    // Nếu slug đã tồn tại, tự động thêm suffix
-    while (existing) {
-      slug = `${dto.slug}-${counter}`;
-      existing = await this.prisma.blogPost.findUnique({
-        where: { slug },
-      });
-      counter++;
-      
-      // Giới hạn tối đa 100 lần thử để tránh vòng lặp vô hạn
-      if (counter > 100) {
-        throw new BadRequestException(
-          `Unable to generate unique slug for "${dto.slug}". Please use a different slug.`,
-        );
-      }
-    }
+    const slug = await ensureUniqueSlug(
+      baseSlug,
+      async (slugToCheck) => {
+        const existing = await this.prisma.blogPost.findUnique({
+          where: { slug: slugToCheck },
+        });
+        return !!existing;
+      },
+    );
 
     // Sử dụng slug đã được đảm bảo unique
     const finalDto = { ...dto, slug };
@@ -88,18 +76,10 @@ export class BlogService {
         pinned: finalDto.pinned || false,
         metaKeywords: finalDto.metaKeywords || [],
         ogImageUrl: finalDto.ogImageUrl,
-        categoryId: finalDto.categoryId,
         relatedPostIds: finalDto.relatedPostIds || [],
       },
       include: {
         // Author info sẽ lấy từ Supabase, không cần từ Prisma
-        category: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-          },
-        },
         tags: {
           include: {
             tag: {
@@ -135,29 +115,10 @@ export class BlogService {
       this.logger.log(`Added ${finalDto.images.length} image(s) to post ${post.id}`);
     }
 
-    // Update category post count
-    if (finalDto.categoryId) {
-      await this.updateCategoryPostCount(finalDto.categoryId);
-    }
-
-    // Log nếu slug đã được tự động thay đổi
-    if (finalDto.slug !== dto.slug) {
-      this.logger.log(
-        `Slug auto-generated: "${dto.slug}" -> "${finalDto.slug}"`,
-      );
-    }
-
     // Reload post with images
     const postWithImages = await this.prisma.blogPost.findUnique({
       where: { id: post.id },
       include: {
-        category: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-          },
-        },
         tags: {
           include: {
             tag: {
@@ -197,10 +158,6 @@ export class BlogService {
       where.authorId = query.authorId;
     }
 
-    if (query.categoryId) {
-      where.categoryId = query.categoryId;
-    }
-
     if (query.featured !== undefined) {
       where.featured = query.featured;
     }
@@ -236,13 +193,6 @@ export class BlogService {
         orderBy,
         include: {
           // Author info sẽ lấy từ Supabase, không cần từ Prisma
-          category: {
-            select: {
-              id: true,
-              name: true,
-              slug: true,
-            },
-          },
           tags: {
             include: {
               tag: {
@@ -283,13 +233,6 @@ export class BlogService {
       where: { id },
       include: {
         // Author info sẽ lấy từ Supabase, không cần từ Prisma
-        category: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-          },
-        },
         tags: {
           include: {
             tag: {
@@ -312,45 +255,6 @@ export class BlogService {
 
     if (!post) {
       throw new NotFoundException(`Post with id "${id}" not found`);
-    }
-
-    return this.formatPostResponseWithSupabaseAuthor(post);
-  }
-
-  async findPostBySlug(slug: string) {
-    const post = await this.prisma.blogPost.findUnique({
-      where: { slug },
-      include: {
-        // Author info sẽ lấy từ Supabase, không cần từ Prisma
-        category: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-          },
-        },
-        tags: {
-          include: {
-            tag: {
-              select: {
-                id: true,
-                name: true,
-                slug: true,
-              },
-            },
-          },
-        },
-        images: {
-          select: {
-            id: true,
-            imageUrl: true,
-          },
-        },
-      },
-    });
-
-    if (!post) {
-      throw new NotFoundException(`Post with slug "${slug}" not found`);
     }
 
     return this.formatPostResponseWithSupabaseAuthor(post);
@@ -395,13 +299,6 @@ export class BlogService {
       data: updateData,
       include: {
         // Author info sẽ lấy từ Supabase, không cần từ Prisma
-        category: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-          },
-        },
         tags: {
           include: {
             tag: {
@@ -427,16 +324,6 @@ export class BlogService {
       await this.replacePostTags(id, dto.tagIds);
     }
 
-    // Update category post count if category changed
-    if (dto.categoryId !== undefined && dto.categoryId !== existing.categoryId) {
-      if (existing.categoryId) {
-        await this.updateCategoryPostCount(existing.categoryId);
-      }
-      if (dto.categoryId) {
-        await this.updateCategoryPostCount(dto.categoryId);
-      }
-    }
-
     return this.formatPostResponseWithSupabaseAuthor(post);
   }
 
@@ -449,112 +336,7 @@ export class BlogService {
       throw new NotFoundException(`Post with id "${id}" not found`);
     }
 
-    const categoryId = post.categoryId;
-
     await this.prisma.blogPost.delete({
-      where: { id },
-    });
-
-    // Update category post count
-    if (categoryId) {
-      await this.updateCategoryPostCount(categoryId);
-    }
-
-    return { success: true };
-  }
-
-  // =========================
-  // BLOG CATEGORY METHODS
-  // =========================
-
-  async createCategory(dto: CreateBlogCategoryDto) {
-    const existing = await this.prisma.blogCategory.findUnique({
-      where: { slug: dto.slug },
-    });
-
-    if (existing) {
-      throw new BadRequestException(`Category with slug "${dto.slug}" already exists`);
-    }
-
-    return this.prisma.blogCategory.create({
-      data: dto,
-    });
-  }
-
-  async findAllCategories() {
-    return this.prisma.blogCategory.findMany({
-      orderBy: [{ orderIndex: 'asc' }, { name: 'asc' }],
-      include: {
-        parent: true,
-        _count: {
-          select: { posts: true },
-        },
-      },
-    });
-  }
-
-  async findCategoryById(id: string) {
-    const category = await this.prisma.blogCategory.findUnique({
-      where: { id },
-      include: {
-        parent: true,
-        _count: {
-          select: { posts: true },
-        },
-      },
-    });
-
-    if (!category) {
-      throw new NotFoundException(`Category with id "${id}" not found`);
-    }
-
-    return category;
-  }
-
-  async updateCategory(id: string, dto: UpdateBlogCategoryDto) {
-    const existing = await this.prisma.blogCategory.findUnique({
-      where: { id },
-    });
-
-    if (!existing) {
-      throw new NotFoundException(`Category with id "${id}" not found`);
-    }
-
-    if (dto.slug && dto.slug !== existing.slug) {
-      const slugExists = await this.prisma.blogCategory.findUnique({
-        where: { slug: dto.slug },
-      });
-
-      if (slugExists) {
-        throw new BadRequestException(`Category with slug "${dto.slug}" already exists`);
-      }
-    }
-
-    return this.prisma.blogCategory.update({
-      where: { id },
-      data: dto,
-    });
-  }
-
-  async deleteCategory(id: string) {
-    const category = await this.prisma.blogCategory.findUnique({
-      where: { id },
-    });
-
-    if (!category) {
-      throw new NotFoundException(`Category with id "${id}" not found`);
-    }
-
-    // Check if category has posts
-    const postCount = await this.prisma.blogPost.count({
-      where: { categoryId: id },
-    });
-
-    if (postCount > 0) {
-      throw new BadRequestException(`Cannot delete category with ${postCount} posts`);
-    }
-
-    await this.prisma.blogCategory.delete({
       where: { id },
     });
 
@@ -566,18 +348,24 @@ export class BlogService {
   // =========================
 
   async createTag(dto: CreateTagDto) {
-    const existing = await this.prisma.tag.findUnique({
-      where: { slug: dto.slug },
-    });
-
-    if (existing) {
-      throw new BadRequestException(`Tag with slug "${dto.slug}" already exists`);
-    }
+    // Auto-generate slug from name if not provided
+    const baseSlug = dto.slug || generateSlug(dto.name);
+    
+    // Auto-generate unique slug if slug already exists
+    const slug = await ensureUniqueSlug(
+      baseSlug,
+      async (slugToCheck) => {
+        const existing = await this.prisma.tag.findUnique({
+          where: { slug: slugToCheck },
+        });
+        return !!existing;
+      },
+    );
 
     return this.prisma.tag.create({
       data: {
         name: dto.name,
-        slug: dto.slug,
+        slug,
         type: dto.type || 'blog',
         description: dto.description,
         icon: dto.icon,
@@ -626,58 +414,6 @@ export class BlogService {
     };
   }
 
-  async findTagById(id: string) {
-    const tag = await this.prisma.tag.findUnique({
-      where: { id },
-    });
-
-    if (!tag) {
-      throw new NotFoundException(`Tag with id "${id}" not found`);
-    }
-
-    return tag;
-  }
-
-  async updateTag(id: string, dto: UpdateTagDto) {
-    const existing = await this.prisma.tag.findUnique({
-      where: { id },
-    });
-
-    if (!existing) {
-      throw new NotFoundException(`Tag with id "${id}" not found`);
-    }
-
-    if (dto.slug && dto.slug !== existing.slug) {
-      const slugExists = await this.prisma.tag.findUnique({
-        where: { slug: dto.slug },
-      });
-
-      if (slugExists) {
-        throw new BadRequestException(`Tag with slug "${dto.slug}" already exists`);
-      }
-    }
-
-    return this.prisma.tag.update({
-      where: { id },
-      data: dto,
-    });
-  }
-
-  async deleteTag(id: string) {
-    const tag = await this.prisma.tag.findUnique({
-      where: { id },
-    });
-
-    if (!tag) {
-      throw new NotFoundException(`Tag with id "${id}" not found`);
-    }
-
-    await this.prisma.tag.delete({
-      where: { id },
-    });
-
-    return { success: true };
-  }
 
   // =========================
   // HELPER METHODS
@@ -746,20 +482,6 @@ export class BlogService {
     if (toAdd.length > 0) {
       await this.addTagsToPost(postId, toAdd);
     }
-  }
-
-  private async updateCategoryPostCount(categoryId: string) {
-    const count = await this.prisma.blogPost.count({
-      where: {
-        categoryId,
-        status: BlogPostStatus.PUBLISHED,
-      },
-    });
-
-    await this.prisma.blogCategory.update({
-      where: { id: categoryId },
-      data: { postCount: count },
-    });
   }
 
   private calculateReadingTime(content: string): number {
@@ -842,6 +564,4 @@ export class BlogService {
     };
   }
 }
-
-
 

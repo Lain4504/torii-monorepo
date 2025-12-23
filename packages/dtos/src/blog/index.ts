@@ -11,12 +11,6 @@ export enum BlogPostStatus {
   ARCHIVED = 'archived',
 }
 
-export enum CommentStatus {
-  PENDING = 'pending',
-  APPROVED = 'approved',
-  SPAM = 'spam',
-  DELETED = 'deleted',
-}
 
 // =========================
 // BLOG POST DTOs
@@ -26,8 +20,9 @@ export class CreateBlogPostDto {
   @IsString()
   title!: string;
 
+  @IsOptional()
   @IsString()
-  slug!: string;
+  slug?: string; // Optional - sẽ tự động generate từ title nếu không có
 
   @IsOptional()
   @IsString()
@@ -80,10 +75,6 @@ export class CreateBlogPostDto {
   @IsOptional()
   @IsString()
   ogImageUrl?: string;
-
-  @IsOptional()
-  @IsUUID()
-  categoryId?: string;
 
   @IsOptional()
   @IsArray()
@@ -161,10 +152,6 @@ export class UpdateBlogPostDto {
   ogImageUrl?: string;
 
   @IsOptional()
-  @IsUUID()
-  categoryId?: string;
-
-  @IsOptional()
   @IsArray()
   @IsUUID(4, { each: true })
   relatedPostIds?: string[];
@@ -203,10 +190,6 @@ export class BlogPostQueryDto {
 
   @IsOptional()
   @IsUUID()
-  categoryId?: string;
-
-  @IsOptional()
-  @IsUUID()
   tagId?: string;
 
   @IsOptional()
@@ -224,62 +207,6 @@ export class BlogPostQueryDto {
 }
 
 // =========================
-// BLOG CATEGORY DTOs
-// =========================
-
-export class CreateBlogCategoryDto {
-  @IsString()
-  name!: string;
-
-  @IsString()
-  slug!: string;
-
-  @IsOptional()
-  @IsString()
-  description?: string;
-
-  @IsOptional()
-  @IsString()
-  icon?: string;
-
-  @IsOptional()
-  @IsUUID()
-  parentId?: string;
-
-  @IsOptional()
-  @IsInt()
-  @Min(0)
-  orderIndex?: number;
-}
-
-export class UpdateBlogCategoryDto {
-  @IsOptional()
-  @IsString()
-  name?: string;
-
-  @IsOptional()
-  @IsString()
-  slug?: string;
-
-  @IsOptional()
-  @IsString()
-  description?: string;
-
-  @IsOptional()
-  @IsString()
-  icon?: string;
-
-  @IsOptional()
-  @IsUUID()
-  parentId?: string;
-
-  @IsOptional()
-  @IsInt()
-  @Min(0)
-  orderIndex?: number;
-}
-
-// =========================
 // TAG DTOs
 // =========================
 
@@ -287,8 +214,9 @@ export class CreateTagDto {
   @IsString()
   name!: string;
 
+  @IsOptional()
   @IsString()
-  slug!: string;
+  slug?: string; // Optional - sẽ tự động generate từ name nếu không có
 
   @IsOptional()
   @IsString()
@@ -371,35 +299,6 @@ export class UploadImageBase64Dto {
 }
 
 // =========================
-// BLOG COMMENT DTOs
-// =========================
-
-export class CreateBlogCommentDto {
-  @IsUUID()
-  postId!: string;
-
-  @IsUUID()
-  userId!: string;
-
-  @IsString()
-  content!: string;
-
-  @IsOptional()
-  @IsUUID()
-  parentCommentId?: string;
-}
-
-export class UpdateBlogCommentDto {
-  @IsOptional()
-  @IsString()
-  content?: string;
-
-  @IsOptional()
-  @IsEnum(CommentStatus)
-  status?: CommentStatus;
-}
-
-// =========================
 // RESPONSE DTOs
 // =========================
 
@@ -428,12 +327,6 @@ export class BlogPostResponseDto {
   pinned!: boolean;
   metaKeywords!: string[];
   ogImageUrl?: string;
-  categoryId?: string;
-  category?: {
-    id: string;
-    name: string;
-    slug: string;
-  };
   relatedPostIds!: string[];
   tags!: Array<{
     id: string;
@@ -444,20 +337,6 @@ export class BlogPostResponseDto {
     id: string;
     imageUrl: string;
   }>;
-  createdAt!: Date;
-  updatedAt!: Date;
-}
-
-export class BlogCategoryResponseDto {
-  id!: string;
-  name!: string;
-  slug!: string;
-  description?: string;
-  icon?: string;
-  parentId?: string;
-  parent?: BlogCategoryResponseDto;
-  orderIndex!: number;
-  postCount!: number;
   createdAt!: Date;
   updatedAt!: Date;
 }
@@ -473,4 +352,5 @@ export class TagResponseDto {
   createdAt!: Date;
   updatedAt!: Date;
 }
+
 

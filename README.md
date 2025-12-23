@@ -39,6 +39,7 @@ Toàn bộ hệ thống backend đã được chuyển dịch từ HTTP/TCP sang
 | 7 | **AI (FastMCP)**| AI Agents, Flashcards, Personalized Learning | `flashcards`, `ai_interactions` |
 | 8 | **Social/Noti** | Thông báo (Push/Email), Blog & Achievements | `notifications`, `blog_posts`, `achievements` |
 
+
 ---
 
 ## 🛠 Infrastructure Setup
