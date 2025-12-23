@@ -8,6 +8,8 @@ import {
   FlashcardDeckQueryDto,
   DeleteFlashcardDeckRequestDto,
   DeleteFlashcardDeckResponseDto,
+  UpdateFlashcardDeckDto,
+  UpdateFlashcardDeckResponseDto,
 } from '@workspace/dtos';
 
 @Controller()
@@ -34,6 +36,14 @@ export class FlashcardDeckController implements OnModuleInit {
   ): Promise<FlashcardDeckListResponseDto> {
     this.logger.log(`Received flashcard-deck.findAll request for user ${data.userId}`);
     return this.flashcardDeckService.findAllDecks(data.userId, data.query);
+  }
+
+  @MessagePattern({ cmd: 'flashcard-deck.update' })
+  async updateDeck(
+    @Payload() data: { userId: string; deckId: string; input: UpdateFlashcardDeckDto },
+  ): Promise<UpdateFlashcardDeckResponseDto> {
+    this.logger.log(`Received flashcard-deck.update request for deck ${data.deckId} by user ${data.userId}`);
+    return this.flashcardDeckService.updateDeck(data.userId, data.deckId, data.input);
   }
 
   @MessagePattern({ cmd: 'flashcard-deck.delete' })

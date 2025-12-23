@@ -6,9 +6,6 @@ export * from './shared.module';
 export * from './prisma.module';
 export * from './supabase/supabase.constants';
 export * from './supabase/supabase.module';
-export * from './guards/jwt-auth.guard';
-export * from './decorators/current-user.decorator';
-
 
 export * from './filters/all-exceptions.filter';
 export * from './interceptors/protobuf.interceptor';

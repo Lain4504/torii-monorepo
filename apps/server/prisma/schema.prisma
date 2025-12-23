@@ -245,3 +245,22 @@ model QuestionBank {
   @@map("question_bank")
 }
 
+// Notification model - matches database.sql schema
+model Notification {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId           String   @map("user_id") @db.Uuid
+  title            String   @db.VarChar(255)
+  message          String   @db.Text
+  notificationType String?  @map("notification_type") @db.VarChar(50)
+  data             Json?    @map("data")
+  isRead           Boolean  @default(false) @map("is_read")
+  readAt           DateTime? @map("read_at")
+  sentVia          String[] @default([]) @map("sent_via") @db.VarChar(20)
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
