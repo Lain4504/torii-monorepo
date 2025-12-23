@@ -11,7 +11,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { lastValueFrom } from 'rxjs';
 import { JwtAuthGuard, CurrentUser } from '@server/shared';
 import {
@@ -22,10 +21,8 @@ import {
   DeleteFlashcardDeckResponseDto,
 } from '@workspace/dtos';
 
-@ApiTags('flashcard-decks')
 @Controller('api/me/flashcard-decks')
 @UseGuards(JwtAuthGuard)
-@ApiBearerAuth()
 export class FlashcardDeckController {
   constructor(
     @Inject('NATS_SERVICE')
@@ -33,9 +30,6 @@ export class FlashcardDeckController {
   ) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a new flashcard deck' })
-  @ApiResponse({ status: 201, description: 'Flashcard deck created successfully' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async create(
     @CurrentUser() userId: string,
     @Body() input: CreateFlashcardDeckDto,
@@ -85,12 +79,6 @@ export class FlashcardDeckController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all flashcard decks for current user' })
-  @ApiResponse({ status: 200, description: 'Return flashcard deck list' })
-  @ApiQuery({ name: 'page', required: false, type: Number })
-  @ApiQuery({ name: 'limit', required: false, type: Number })
-  @ApiQuery({ name: 'search', required: false, type: String })
-  @ApiQuery({ name: 'jlptLevel', required: false, type: String })
   async findAll(
     @CurrentUser() userId: string,
     @Query('page') page?: number,
@@ -116,10 +104,6 @@ export class FlashcardDeckController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete a flashcard deck' })
-  @ApiResponse({ status: 200, description: 'Flashcard deck deleted successfully' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Not owner of deck' })
-  @ApiResponse({ status: 404, description: 'Flashcard deck not found' })
   async delete(
     @CurrentUser() userId: string,
     @Param('id') id: string,
