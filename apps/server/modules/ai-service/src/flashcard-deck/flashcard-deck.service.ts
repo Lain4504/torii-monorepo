@@ -9,6 +9,8 @@ import {
   FlashcardDeckQueryDto,
   DeleteFlashcardDeckRequestDto,
   DeleteFlashcardDeckResponseDto,
+  UpdateFlashcardDeckDto,
+  UpdateFlashcardDeckResponseDto,
 } from '@workspace/dtos';
 
 @Injectable()
@@ -168,6 +170,67 @@ export class FlashcardDeckService {
       throw new RpcException({
         status: 500,
         message: `Failed to retrieve flashcard decks: ${error?.message || 'Unknown error'}`,
+      });
+    }
+  }
+
+  /**
+   * Update a flashcard deck
+   */
+  async updateDeck(
+    userId: string,
+    deckId: string,
+    data: UpdateFlashcardDeckDto,
+  ): Promise<UpdateFlashcardDeckResponseDto> {
+    try {
+      // Verify ownership
+      await this.verifyDeckOwnership(userId, deckId);
+
+      // Build update data - only include fields that are provided
+      const updateData: Record<string, any> = {};
+
+      if (data.name !== undefined) {
+        updateData.name = data.name;
+      }
+
+      if (data.description !== undefined) {
+        updateData.description = data.description || null;
+      }
+
+      if (data.jlptLevel !== undefined) {
+        updateData.jlptLevel = data.jlptLevel || null;
+      }
+
+      if (data.isPublic !== undefined) {
+        updateData.isPublic = data.isPublic;
+      }
+
+      if (data.tags !== undefined) {
+        updateData.tags = data.tags;
+      }
+
+      // Update the deck
+      const deck = await this.prisma.flashcardDeck.update({
+        where: { id: deckId },
+        data: updateData,
+      });
+
+      this.logger.log(`Flashcard deck updated: ${deckId} by user ${userId}`);
+
+      return {
+        success: true,
+        message: 'Flashcard deck updated successfully',
+        error: '',
+        data: this.toFlashcardDeckDto(deck),
+      };
+    } catch (error: any) {
+      if (error instanceof RpcException) {
+        throw error;
+      }
+      this.logger.error('Error updating flashcard deck', error);
+      throw new RpcException({
+        status: 500,
+        message: `Failed to update flashcard deck: ${error?.message || 'Unknown error'}`,
       });
     }
   }

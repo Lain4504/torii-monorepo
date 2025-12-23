@@ -14,6 +14,7 @@ import { AdminModule } from './admin/admin.module';
 import { FlashcardModule } from './flashcard/flashcard.module';
 import { FlashcardDeckModule } from './flashcard-deck/flashcard-deck.module';
 import { StorageModule } from './storage/storage.module';
+import { NotificationModule } from './notification/notification.module';
 import { QuestionBankModule } from './question-bank/question-bank.module';
 
 import { GatewayController } from './gateway.controller';
@@ -54,6 +55,7 @@ import { UserTrackingModule } from './user-tracking.module';
     AdminModule,
     StorageModule,
     QuestionBankModule,
+    NotificationModule,
     UserTrackingModule,
   ],
   controllers: [GatewayController],

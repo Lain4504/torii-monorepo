@@ -3,27 +3,28 @@ import {
   Controller,
   Delete,
   Get,
-  HttpException,
   Inject,
   Param,
+  Patch,
   Post,
   Query,
-  UseGuards,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
-import { JwtAuthGuard, CurrentUser } from '@server/shared';
 import {
   CreateFlashcardDeckDto,
   CreateFlashcardDeckResponseDto,
   FlashcardDeckListResponseDto,
   FlashcardDeckQueryDto,
   DeleteFlashcardDeckResponseDto,
+  UpdateFlashcardDeckDto,
+  UpdateFlashcardDeckResponseDto,
 } from '@workspace/dtos';
 
 @Controller('api/me/flashcard-decks')
-@UseGuards(JwtAuthGuard)
 export class FlashcardDeckController {
+  private readonly MOCK_USER_ID = '5e808603-1e54-4dc9-ae93-f1e347c101ab';
+
   constructor(
     @Inject('NATS_SERVICE')
     private readonly natsClient: ClientProxy,
@@ -31,9 +32,9 @@ export class FlashcardDeckController {
 
   @Post()
   async create(
-    @CurrentUser() userId: string,
     @Body() input: CreateFlashcardDeckDto,
   ): Promise<CreateFlashcardDeckResponseDto> {
+    const userId = this.MOCK_USER_ID;
     try {
       const response = await lastValueFrom<CreateFlashcardDeckResponseDto>(
         this.natsClient.send(
@@ -44,48 +45,18 @@ export class FlashcardDeckController {
       return response;
     } catch (error: any) {
       console.error('Gateway: Error in flashcard-deck.create:', error);
-      
-      if (error?.error && typeof error.error === 'object') {
-        const rpcError = error.error;
-        if (rpcError.status && rpcError.message) {
-          throw new HttpException(
-            {
-              success: false,
-              message: rpcError.message,
-              error: rpcError.message,
-              data: null,
-              statusCode: rpcError.status,
-            },
-            rpcError.status,
-          );
-        }
-      }
-      
-      if (error?.message && error?.status) {
-        throw new HttpException(
-          {
-            success: false,
-            message: error.message,
-            error: error.message,
-            data: null,
-            statusCode: error.status,
-          },
-          error.status,
-        );
-      }
-      
       throw error;
     }
   }
 
   @Get()
   async findAll(
-    @CurrentUser() userId: string,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
     @Query('search') search?: string,
     @Query('jlptLevel') jlptLevel?: string,
   ): Promise<FlashcardDeckListResponseDto> {
+    const userId = this.MOCK_USER_ID;
     const query: FlashcardDeckQueryDto = {
       page: page ? Number(page) : 1,
       limit: limit ? Number(limit) : 10,
@@ -103,11 +74,31 @@ export class FlashcardDeckController {
     return response;
   }
 
+  @Patch(':id')
+  async update(
+    @Param('id') id: string,
+    @Body() input: UpdateFlashcardDeckDto,
+  ): Promise<UpdateFlashcardDeckResponseDto> {
+    const userId = this.MOCK_USER_ID;
+    try {
+      const response = await lastValueFrom<UpdateFlashcardDeckResponseDto>(
+        this.natsClient.send(
+          { cmd: 'flashcard-deck.update' },
+          { userId, deckId: id, input },
+        ),
+      );
+      return response;
+    } catch (error: any) {
+      console.error('Gateway: Error in flashcard-deck.update:', error);
+      throw error;
+    }
+  }
+
   @Delete(':id')
   async delete(
-    @CurrentUser() userId: string,
     @Param('id') id: string,
   ): Promise<DeleteFlashcardDeckResponseDto> {
+    const userId = this.MOCK_USER_ID;
     try {
       const response = await lastValueFrom<DeleteFlashcardDeckResponseDto>(
         this.natsClient.send(
@@ -118,36 +109,6 @@ export class FlashcardDeckController {
       return response;
     } catch (error: any) {
       console.error('Gateway: Error deleting flashcard deck:', error);
-      
-      if (error?.error && typeof error.error === 'object') {
-        const rpcError = error.error;
-        if (rpcError.status && rpcError.message) {
-          throw new HttpException(
-            {
-              success: false,
-              message: rpcError.message,
-              error: rpcError.message,
-              data: null,
-              statusCode: rpcError.status,
-            },
-            rpcError.status,
-          );
-        }
-      }
-      
-      if (error?.message && error?.status) {
-        throw new HttpException(
-          {
-            success: false,
-            message: error.message,
-            error: error.message,
-            data: null,
-            statusCode: error.status,
-          },
-          error.status,
-        );
-      }
-      
       throw error;
     }
   }

@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpException,
   Inject,
   Param,
   Patch,
@@ -72,45 +71,6 @@ export class CourseController {
       return course;
     } catch (error: any) {
       console.error('Gateway: Error in course.create:', error);
-      console.error('Gateway: Error details:', {
-        status: error?.status,
-        message: error?.message,
-        error: error?.error,
-        code: error?.code,
-        name: error?.name,
-      });
-      
-      // If it's an RpcException, extract the message
-      if (error?.error && typeof error.error === 'object') {
-        const rpcError = error.error;
-        if (rpcError.status && rpcError.message) {
-          throw new HttpException(
-            {
-              success: false,
-              message: rpcError.message,
-              error: rpcError.message,
-              data: null,
-              statusCode: rpcError.status,
-            },
-            rpcError.status,
-          );
-        }
-      }
-      
-      // If error has message directly (from RpcException)
-      if (error?.message && error?.status) {
-        throw new HttpException(
-          {
-            success: false,
-            message: error.message,
-            error: error.message,
-            data: null,
-            statusCode: error.status,
-          },
-          error.status,
-        );
-      }
-      
       throw error;
     }
   }
