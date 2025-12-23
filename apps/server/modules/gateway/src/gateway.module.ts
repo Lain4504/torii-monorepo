@@ -6,7 +6,6 @@ import { CourseModule } from './course/course.module';
 import { AuthModule } from './auth/auth.module';
 import { SharedModule, NatsAuthModule, NatsClientModule } from '@server/shared';
 import { RoomModule } from './room/room.module';
-import { FileModule } from './file/file.module';
 import { AdminModule } from './admin/admin.module';
 import { FlashcardModule } from './flashcard/flashcard.module';
 import { FlashcardDeckModule } from './flashcard-deck/flashcard-deck.module';
@@ -45,7 +44,6 @@ import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
     SharedModule,
     NatsAuthModule, // Auth callout handler - only in Gateway
     RoomModule,
-    FileModule,
     AdminModule,
     StorageModule,
     BlogModule,

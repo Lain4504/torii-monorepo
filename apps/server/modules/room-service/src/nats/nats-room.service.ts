@@ -15,7 +15,7 @@ import { NatsStreamService } from './nats-stream.service';
 import { NatsUserService } from './nats-user.service';
 
 // Constants matching Go
-const NATS_PREFIX = 'pnm:';
+const NATS_PREFIX = 'pnm-';  // Must use dash, not colon! NATS bucket names cannot contain ':'
 const ROOM_INFO_BUCKET_PREFIX = `${NATS_PREFIX}roomInfo-`;
 const ROOM_INFO_BUCKET = `${ROOM_INFO_BUCKET_PREFIX}%s`;
 const DEFAULT_TTL = 7 * 24 * 60 * 60 * 1000 * 1000000; // 7 days in nanoseconds

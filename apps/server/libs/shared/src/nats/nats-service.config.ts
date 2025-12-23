@@ -20,6 +20,7 @@ export function createNatsServiceConfig(): MicroserviceOptions {
 
     const options: any = {
         servers: [natsUrl],
+        queue: 'torii_queue', // IMPORTANT: Queue group for load balancing across instances
     };
 
     // Add NKEY authentication if provided

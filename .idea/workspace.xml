@@ -4,7 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix: format type" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix: to go">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/livekit/livekit.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/livekit/livekit.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/nats/nats-user.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/nats/nats-user.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/room-user.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/room-user.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/protocol/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/.gitignore" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -112,400 +118,401 @@
       <workItem from="1766389564407" duration="209000" />
       <workItem from="1766389953908" duration="3574000" />
       <workItem from="1766495967127" duration="4561000" />
+      <workItem from="1766538393698" duration="11108000" />
     </task>
-    <task id="LOCAL-00174" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00231" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766417499184</created>
-      <option name="number" value="00174" />
-      <option name="presentableId" value="LOCAL-00174" />
+      <created>1766508310749</created>
+      <option name="number" value="00231" />
+      <option name="presentableId" value="LOCAL-00231" />
       <option name="project" value="LOCAL" />
-      <updated>1766417499185</updated>
+      <updated>1766508310750</updated>
     </task>
-    <task id="LOCAL-00175" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00232" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766417900766</created>
-      <option name="number" value="00175" />
-      <option name="presentableId" value="LOCAL-00175" />
+      <created>1766540086999</created>
+      <option name="number" value="00232" />
+      <option name="presentableId" value="LOCAL-00232" />
       <option name="project" value="LOCAL" />
-      <updated>1766417900766</updated>
+      <updated>1766540087000</updated>
     </task>
-    <task id="LOCAL-00176" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00233" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766417904783</created>
-      <option name="number" value="00176" />
-      <option name="presentableId" value="LOCAL-00176" />
+      <created>1766540665905</created>
+      <option name="number" value="00233" />
+      <option name="presentableId" value="LOCAL-00233" />
       <option name="project" value="LOCAL" />
-      <updated>1766417904783</updated>
+      <updated>1766540665905</updated>
     </task>
-    <task id="LOCAL-00177" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00234" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766418069918</created>
-      <option name="number" value="00177" />
-      <option name="presentableId" value="LOCAL-00177" />
+      <created>1766540970527</created>
+      <option name="number" value="00234" />
+      <option name="presentableId" value="LOCAL-00234" />
       <option name="project" value="LOCAL" />
-      <updated>1766418069918</updated>
+      <updated>1766540970527</updated>
     </task>
-    <task id="LOCAL-00178" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00235" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766418236320</created>
-      <option name="number" value="00178" />
-      <option name="presentableId" value="LOCAL-00178" />
+      <created>1766541501779</created>
+      <option name="number" value="00235" />
+      <option name="presentableId" value="LOCAL-00235" />
       <option name="project" value="LOCAL" />
-      <updated>1766418236320</updated>
+      <updated>1766541501779</updated>
     </task>
-    <task id="LOCAL-00179" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00236" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766418587448</created>
-      <option name="number" value="00179" />
-      <option name="presentableId" value="LOCAL-00179" />
+      <created>1766541915386</created>
+      <option name="number" value="00236" />
+      <option name="presentableId" value="LOCAL-00236" />
       <option name="project" value="LOCAL" />
-      <updated>1766418587448</updated>
+      <updated>1766541915386</updated>
     </task>
-    <task id="LOCAL-00180" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00237" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766419254590</created>
-      <option name="number" value="00180" />
-      <option name="presentableId" value="LOCAL-00180" />
+      <created>1766541922747</created>
+      <option name="number" value="00237" />
+      <option name="presentableId" value="LOCAL-00237" />
       <option name="project" value="LOCAL" />
-      <updated>1766419254590</updated>
+      <updated>1766541922747</updated>
     </task>
-    <task id="LOCAL-00181" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00238" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766419538747</created>
-      <option name="number" value="00181" />
-      <option name="presentableId" value="LOCAL-00181" />
+      <created>1766541936632</created>
+      <option name="number" value="00238" />
+      <option name="presentableId" value="LOCAL-00238" />
       <option name="project" value="LOCAL" />
-      <updated>1766419538747</updated>
+      <updated>1766541936632</updated>
     </task>
-    <task id="LOCAL-00182" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00239" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766420275200</created>
-      <option name="number" value="00182" />
-      <option name="presentableId" value="LOCAL-00182" />
+      <created>1766542199192</created>
+      <option name="number" value="00239" />
+      <option name="presentableId" value="LOCAL-00239" />
       <option name="project" value="LOCAL" />
-      <updated>1766420275200</updated>
+      <updated>1766542199192</updated>
     </task>
-    <task id="LOCAL-00183" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00240" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766420602781</created>
-      <option name="number" value="00183" />
-      <option name="presentableId" value="LOCAL-00183" />
+      <created>1766542205013</created>
+      <option name="number" value="00240" />
+      <option name="presentableId" value="LOCAL-00240" />
       <option name="project" value="LOCAL" />
-      <updated>1766420602781</updated>
+      <updated>1766542205013</updated>
     </task>
-    <task id="LOCAL-00184" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00241" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766421596243</created>
-      <option name="number" value="00184" />
-      <option name="presentableId" value="LOCAL-00184" />
+      <created>1766542324226</created>
+      <option name="number" value="00241" />
+      <option name="presentableId" value="LOCAL-00241" />
       <option name="project" value="LOCAL" />
-      <updated>1766421596243</updated>
+      <updated>1766542324226</updated>
     </task>
-    <task id="LOCAL-00185" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00242" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766422258935</created>
-      <option name="number" value="00185" />
-      <option name="presentableId" value="LOCAL-00185" />
+      <created>1766542516846</created>
+      <option name="number" value="00242" />
+      <option name="presentableId" value="LOCAL-00242" />
       <option name="project" value="LOCAL" />
-      <updated>1766422258937</updated>
+      <updated>1766542516846</updated>
     </task>
-    <task id="LOCAL-00186" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00243" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766482821996</created>
-      <option name="number" value="00186" />
-      <option name="presentableId" value="LOCAL-00186" />
+      <created>1766542556907</created>
+      <option name="number" value="00243" />
+      <option name="presentableId" value="LOCAL-00243" />
       <option name="project" value="LOCAL" />
-      <updated>1766482821996</updated>
+      <updated>1766542556907</updated>
     </task>
-    <task id="LOCAL-00187" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00244" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766483296621</created>
-      <option name="number" value="00187" />
-      <option name="presentableId" value="LOCAL-00187" />
+      <created>1766542581955</created>
+      <option name="number" value="00244" />
+      <option name="presentableId" value="LOCAL-00244" />
       <option name="project" value="LOCAL" />
-      <updated>1766483296621</updated>
+      <updated>1766542581955</updated>
     </task>
-    <task id="LOCAL-00188" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00245" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766483601709</created>
-      <option name="number" value="00188" />
-      <option name="presentableId" value="LOCAL-00188" />
+      <created>1766543005534</created>
+      <option name="number" value="00245" />
+      <option name="presentableId" value="LOCAL-00245" />
       <option name="project" value="LOCAL" />
-      <updated>1766483601709</updated>
+      <updated>1766543005534</updated>
     </task>
-    <task id="LOCAL-00189" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00246" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766484210028</created>
-      <option name="number" value="00189" />
-      <option name="presentableId" value="LOCAL-00189" />
+      <created>1766543079561</created>
+      <option name="number" value="00246" />
+      <option name="presentableId" value="LOCAL-00246" />
       <option name="project" value="LOCAL" />
-      <updated>1766484210028</updated>
+      <updated>1766543079561</updated>
     </task>
-    <task id="LOCAL-00190" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00247" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766484217024</created>
-      <option name="number" value="00190" />
-      <option name="presentableId" value="LOCAL-00190" />
+      <created>1766543882316</created>
+      <option name="number" value="00247" />
+      <option name="presentableId" value="LOCAL-00247" />
       <option name="project" value="LOCAL" />
-      <updated>1766484217024</updated>
+      <updated>1766543882316</updated>
     </task>
-    <task id="LOCAL-00191" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00248" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766484777050</created>
-      <option name="number" value="00191" />
-      <option name="presentableId" value="LOCAL-00191" />
+      <created>1766544141375</created>
+      <option name="number" value="00248" />
+      <option name="presentableId" value="LOCAL-00248" />
       <option name="project" value="LOCAL" />
-      <updated>1766484777050</updated>
+      <updated>1766544141375</updated>
     </task>
-    <task id="LOCAL-00192" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00249" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766484783974</created>
-      <option name="number" value="00192" />
-      <option name="presentableId" value="LOCAL-00192" />
+      <created>1766544159700</created>
+      <option name="number" value="00249" />
+      <option name="presentableId" value="LOCAL-00249" />
       <option name="project" value="LOCAL" />
-      <updated>1766484783975</updated>
+      <updated>1766544159700</updated>
     </task>
-    <task id="LOCAL-00193" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00250" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766485192190</created>
-      <option name="number" value="00193" />
-      <option name="presentableId" value="LOCAL-00193" />
+      <created>1766544225131</created>
+      <option name="number" value="00250" />
+      <option name="presentableId" value="LOCAL-00250" />
       <option name="project" value="LOCAL" />
-      <updated>1766485192190</updated>
+      <updated>1766544225131</updated>
     </task>
-    <task id="LOCAL-00194" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00251" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766486388062</created>
-      <option name="number" value="00194" />
-      <option name="presentableId" value="LOCAL-00194" />
+      <created>1766544297415</created>
+      <option name="number" value="00251" />
+      <option name="presentableId" value="LOCAL-00251" />
       <option name="project" value="LOCAL" />
-      <updated>1766486388062</updated>
+      <updated>1766544297415</updated>
     </task>
-    <task id="LOCAL-00195" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00252" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766486655032</created>
-      <option name="number" value="00195" />
-      <option name="presentableId" value="LOCAL-00195" />
+      <created>1766544342227</created>
+      <option name="number" value="00252" />
+      <option name="presentableId" value="LOCAL-00252" />
       <option name="project" value="LOCAL" />
-      <updated>1766486655032</updated>
+      <updated>1766544342227</updated>
     </task>
-    <task id="LOCAL-00196" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00253" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766492092147</created>
-      <option name="number" value="00196" />
-      <option name="presentableId" value="LOCAL-00196" />
+      <created>1766544732173</created>
+      <option name="number" value="00253" />
+      <option name="presentableId" value="LOCAL-00253" />
       <option name="project" value="LOCAL" />
-      <updated>1766492092147</updated>
+      <updated>1766544732173</updated>
     </task>
-    <task id="LOCAL-00197" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00254" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766492538961</created>
-      <option name="number" value="00197" />
-      <option name="presentableId" value="LOCAL-00197" />
+      <created>1766545021885</created>
+      <option name="number" value="00254" />
+      <option name="presentableId" value="LOCAL-00254" />
       <option name="project" value="LOCAL" />
-      <updated>1766492538962</updated>
+      <updated>1766545021885</updated>
     </task>
-    <task id="LOCAL-00198" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00255" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766492767249</created>
-      <option name="number" value="00198" />
-      <option name="presentableId" value="LOCAL-00198" />
+      <created>1766545034005</created>
+      <option name="number" value="00255" />
+      <option name="presentableId" value="LOCAL-00255" />
       <option name="project" value="LOCAL" />
-      <updated>1766492767249</updated>
+      <updated>1766545034005</updated>
     </task>
-    <task id="LOCAL-00199" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00256" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766493131118</created>
-      <option name="number" value="00199" />
-      <option name="presentableId" value="LOCAL-00199" />
+      <created>1766545352999</created>
+      <option name="number" value="00256" />
+      <option name="presentableId" value="LOCAL-00256" />
       <option name="project" value="LOCAL" />
-      <updated>1766493131118</updated>
+      <updated>1766545352999</updated>
     </task>
-    <task id="LOCAL-00200" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00257" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766496550361</created>
-      <option name="number" value="00200" />
-      <option name="presentableId" value="LOCAL-00200" />
+      <created>1766545432091</created>
+      <option name="number" value="00257" />
+      <option name="presentableId" value="LOCAL-00257" />
       <option name="project" value="LOCAL" />
-      <updated>1766496550361</updated>
+      <updated>1766545432091</updated>
     </task>
-    <task id="LOCAL-00201" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00258" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766496847357</created>
-      <option name="number" value="00201" />
-      <option name="presentableId" value="LOCAL-00201" />
+      <created>1766545512981</created>
+      <option name="number" value="00258" />
+      <option name="presentableId" value="LOCAL-00258" />
       <option name="project" value="LOCAL" />
-      <updated>1766496847357</updated>
+      <updated>1766545512981</updated>
     </task>
-    <task id="LOCAL-00202" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00259" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766497208939</created>
-      <option name="number" value="00202" />
-      <option name="presentableId" value="LOCAL-00202" />
+      <created>1766546168289</created>
+      <option name="number" value="00259" />
+      <option name="presentableId" value="LOCAL-00259" />
       <option name="project" value="LOCAL" />
-      <updated>1766497208939</updated>
+      <updated>1766546168289</updated>
     </task>
-    <task id="LOCAL-00203" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00260" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766497277011</created>
-      <option name="number" value="00203" />
-      <option name="presentableId" value="LOCAL-00203" />
+      <created>1766546589693</created>
+      <option name="number" value="00260" />
+      <option name="presentableId" value="LOCAL-00260" />
       <option name="project" value="LOCAL" />
-      <updated>1766497277011</updated>
+      <updated>1766546589693</updated>
     </task>
-    <task id="LOCAL-00204" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00261" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766497293108</created>
-      <option name="number" value="00204" />
-      <option name="presentableId" value="LOCAL-00204" />
+      <created>1766546595623</created>
+      <option name="number" value="00261" />
+      <option name="presentableId" value="LOCAL-00261" />
       <option name="project" value="LOCAL" />
-      <updated>1766497293108</updated>
+      <updated>1766546595623</updated>
     </task>
-    <task id="LOCAL-00205" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00262" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766497481156</created>
-      <option name="number" value="00205" />
-      <option name="presentableId" value="LOCAL-00205" />
+      <created>1766546666844</created>
+      <option name="number" value="00262" />
+      <option name="presentableId" value="LOCAL-00262" />
       <option name="project" value="LOCAL" />
-      <updated>1766497481156</updated>
+      <updated>1766546666844</updated>
     </task>
-    <task id="LOCAL-00206" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00263" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766497769452</created>
-      <option name="number" value="00206" />
-      <option name="presentableId" value="LOCAL-00206" />
+      <created>1766546723100</created>
+      <option name="number" value="00263" />
+      <option name="presentableId" value="LOCAL-00263" />
       <option name="project" value="LOCAL" />
-      <updated>1766497769452</updated>
+      <updated>1766546723100</updated>
     </task>
-    <task id="LOCAL-00207" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00264" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766498419218</created>
-      <option name="number" value="00207" />
-      <option name="presentableId" value="LOCAL-00207" />
+      <created>1766546913977</created>
+      <option name="number" value="00264" />
+      <option name="presentableId" value="LOCAL-00264" />
       <option name="project" value="LOCAL" />
-      <updated>1766498419218</updated>
+      <updated>1766546913977</updated>
     </task>
-    <task id="LOCAL-00208" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00265" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766498453893</created>
-      <option name="number" value="00208" />
-      <option name="presentableId" value="LOCAL-00208" />
+      <created>1766547200596</created>
+      <option name="number" value="00265" />
+      <option name="presentableId" value="LOCAL-00265" />
       <option name="project" value="LOCAL" />
-      <updated>1766498453893</updated>
+      <updated>1766547200596</updated>
     </task>
-    <task id="LOCAL-00209" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00266" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766498672079</created>
-      <option name="number" value="00209" />
-      <option name="presentableId" value="LOCAL-00209" />
+      <created>1766547609163</created>
+      <option name="number" value="00266" />
+      <option name="presentableId" value="LOCAL-00266" />
       <option name="project" value="LOCAL" />
-      <updated>1766498672080</updated>
+      <updated>1766547609163</updated>
     </task>
-    <task id="LOCAL-00210" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00267" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766499044104</created>
-      <option name="number" value="00210" />
-      <option name="presentableId" value="LOCAL-00210" />
+      <created>1766547789592</created>
+      <option name="number" value="00267" />
+      <option name="presentableId" value="LOCAL-00267" />
       <option name="project" value="LOCAL" />
-      <updated>1766499044104</updated>
+      <updated>1766547789592</updated>
     </task>
-    <task id="LOCAL-00211" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00268" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766499221355</created>
-      <option name="number" value="00211" />
-      <option name="presentableId" value="LOCAL-00211" />
+      <created>1766548948785</created>
+      <option name="number" value="00268" />
+      <option name="presentableId" value="LOCAL-00268" />
       <option name="project" value="LOCAL" />
-      <updated>1766499221355</updated>
+      <updated>1766548948785</updated>
     </task>
-    <task id="LOCAL-00212" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00269" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766499403659</created>
-      <option name="number" value="00212" />
-      <option name="presentableId" value="LOCAL-00212" />
+      <created>1766548952601</created>
+      <option name="number" value="00269" />
+      <option name="presentableId" value="LOCAL-00269" />
       <option name="project" value="LOCAL" />
-      <updated>1766499403659</updated>
+      <updated>1766548952601</updated>
     </task>
-    <task id="LOCAL-00213" summary="refactor: create utils for meet features">
+    <task id="LOCAL-00270" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766499895900</created>
-      <option name="number" value="00213" />
-      <option name="presentableId" value="LOCAL-00213" />
+      <created>1766548986292</created>
+      <option name="number" value="00270" />
+      <option name="presentableId" value="LOCAL-00270" />
       <option name="project" value="LOCAL" />
-      <updated>1766499895900</updated>
+      <updated>1766548986292</updated>
     </task>
-    <task id="LOCAL-00214" summary="fix: format type">
+    <task id="LOCAL-00271" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766502465166</created>
-      <option name="number" value="00214" />
-      <option name="presentableId" value="LOCAL-00214" />
+      <created>1766562432512</created>
+      <option name="number" value="00271" />
+      <option name="presentableId" value="LOCAL-00271" />
       <option name="project" value="LOCAL" />
-      <updated>1766502465166</updated>
+      <updated>1766562432512</updated>
     </task>
-    <task id="LOCAL-00215" summary="fix: format type">
+    <task id="LOCAL-00272" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766502481029</created>
-      <option name="number" value="00215" />
-      <option name="presentableId" value="LOCAL-00215" />
+      <created>1766563575409</created>
+      <option name="number" value="00272" />
+      <option name="presentableId" value="LOCAL-00272" />
       <option name="project" value="LOCAL" />
-      <updated>1766502481029</updated>
+      <updated>1766563575409</updated>
     </task>
-    <task id="LOCAL-00216" summary="fix: format type">
+    <task id="LOCAL-00273" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766503055520</created>
-      <option name="number" value="00216" />
-      <option name="presentableId" value="LOCAL-00216" />
+      <created>1766563584049</created>
+      <option name="number" value="00273" />
+      <option name="presentableId" value="LOCAL-00273" />
       <option name="project" value="LOCAL" />
-      <updated>1766503055520</updated>
+      <updated>1766563584049</updated>
     </task>
-    <task id="LOCAL-00217" summary="fix: format type">
+    <task id="LOCAL-00274" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766503130748</created>
-      <option name="number" value="00217" />
-      <option name="presentableId" value="LOCAL-00217" />
+      <created>1766563587837</created>
+      <option name="number" value="00274" />
+      <option name="presentableId" value="LOCAL-00274" />
       <option name="project" value="LOCAL" />
-      <updated>1766503130748</updated>
+      <updated>1766563587837</updated>
     </task>
-    <task id="LOCAL-00218" summary="fix: format type">
+    <task id="LOCAL-00275" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766503255547</created>
-      <option name="number" value="00218" />
-      <option name="presentableId" value="LOCAL-00218" />
+      <created>1766563591685</created>
+      <option name="number" value="00275" />
+      <option name="presentableId" value="LOCAL-00275" />
       <option name="project" value="LOCAL" />
-      <updated>1766503255547</updated>
+      <updated>1766563591685</updated>
     </task>
-    <task id="LOCAL-00219" summary="fix: format type">
+    <task id="LOCAL-00276" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766503567471</created>
-      <option name="number" value="00219" />
-      <option name="presentableId" value="LOCAL-00219" />
+      <created>1766564055034</created>
+      <option name="number" value="00276" />
+      <option name="presentableId" value="LOCAL-00276" />
       <option name="project" value="LOCAL" />
-      <updated>1766503567471</updated>
+      <updated>1766564055034</updated>
     </task>
-    <task id="LOCAL-00220" summary="fix: format type">
+    <task id="LOCAL-00277" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766503731412</created>
-      <option name="number" value="00220" />
-      <option name="presentableId" value="LOCAL-00220" />
+      <created>1766564541726</created>
+      <option name="number" value="00277" />
+      <option name="presentableId" value="LOCAL-00277" />
       <option name="project" value="LOCAL" />
-      <updated>1766503731412</updated>
+      <updated>1766564541726</updated>
     </task>
-    <task id="LOCAL-00221" summary="fix: format type">
+    <task id="LOCAL-00278" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766503879335</created>
-      <option name="number" value="00221" />
-      <option name="presentableId" value="LOCAL-00221" />
+      <created>1766564909499</created>
+      <option name="number" value="00278" />
+      <option name="presentableId" value="LOCAL-00278" />
       <option name="project" value="LOCAL" />
-      <updated>1766503879336</updated>
+      <updated>1766564909499</updated>
     </task>
-    <task id="LOCAL-00222" summary="fix: format type">
+    <task id="LOCAL-00279" summary="fix: to go">
       <option name="closed" value="true" />
-      <created>1766503974020</created>
-      <option name="number" value="00222" />
-      <option name="presentableId" value="LOCAL-00222" />
+      <created>1766564938245</created>
+      <option name="number" value="00279" />
+      <option name="presentableId" value="LOCAL-00279" />
       <option name="project" value="LOCAL" />
-      <updated>1766503974020</updated>
+      <updated>1766564938245</updated>
     </task>
-    <option name="localTasksCounter" value="223" />
+    <option name="localTasksCounter" value="280" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -544,7 +551,8 @@
     <MESSAGE value="feat(room): update breakroom logic" />
     <MESSAGE value="refactor: create utils for meet features" />
     <MESSAGE value="fix: format type" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: format type" />
+    <MESSAGE value="fix: to go" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix: to go" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -552,7 +560,6 @@
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/apps/server/libs/shared/src/guards/api-key.guard.ts</url>
           <line>38</line>
-          <properties lambdaOrdinal="-1" />
           <option name="timeStamp" value="1" />
         </line-breakpoint>
       </breakpoints>

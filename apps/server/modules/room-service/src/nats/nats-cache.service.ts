@@ -112,9 +112,16 @@ export class NatsCacheService implements OnModuleDestroy {
 
         this.logger.log(`NATS KV watcher for room started: ${roomId}, bucket: ${bucket}`);
 
-        // TODO: Start NATS KV watcher
-        // const watcher = kv.watchAll({ includeHistory: true });
-        // this.startWatcherLoop(watcher, roomId, stopSignal);
+        // Start NATS KV watcher
+        // watchers return an async iterable
+        kv.watch({
+            includeHistory: true,
+        }).then((watcher) => {
+            this.startWatcherLoop(watcher, roomId, stopSignal);
+        }).catch((err) => {
+            this.logger.error(`Failed to start watcher for room ${roomId}: ${err.message}`);
+            this.cleanRoomCache(roomId);
+        });
     }
 
     /**
@@ -122,20 +129,27 @@ export class NatsCacheService implements OnModuleDestroy {
      */
     private async startWatcherLoop(watcher: any, roomId: string, stopSignal: AbortController): Promise<void> {
         try {
-            // TODO: Implement with NATS.js
-            // for await (const entry of watcher) {
-            //   if (stopSignal.signal.aborted || this.globalAbortController.signal.aborted) {
-            //     break;
-            //   }
-            //   if (entry && entry.value) {
-            //     this.updateRoomCache(entry, roomId);
-            //   }
-            // }
+            for await (const entry of watcher) {
+                if (stopSignal.signal.aborted || this.globalAbortController.signal.aborted) {
+                    break;
+                }
+                if (entry) {
+                    this.updateRoomCache(entry, roomId);
+                }
+            }
         } catch (error) {
-            this.logger.error(`Watcher error for room ${roomId}: ${error}`);
+            // Ignore error if it's due to abort
+            if (!stopSignal.signal.aborted && !this.globalAbortController.signal.aborted) {
+                this.logger.error(`Watcher error for room ${roomId}: ${error}`);
+            }
         } finally {
             this.logger.log(`NATS KV watcher for room stopped: ${roomId}`);
-            // TODO: watcher.stop();
+            try {
+                // Ensure watcher is stopped
+                watcher.stop();
+            } catch (e) {
+                // ignore
+            }
             this.cleanRoomCache(roomId);
         }
     }
@@ -251,10 +265,13 @@ export class NatsCacheService implements OnModuleDestroy {
 
         this.logger.log(`NATS KV watcher for room user status started: ${roomId}, bucket: ${bucket}`);
 
-        // TODO: Start NATS KV watcher with includeHistory
-        // const opts = { includeHistory: true };
-        // const watcher = kv.watchAll(opts);
-        // this.startUserStatusWatcherLoop(watcher, roomId);
+        // Start NATS KV watcher with includeHistory
+        const opts = { includeHistory: true };
+        kv.watch(opts).then((watcher) => {
+            this.startUserStatusWatcherLoop(watcher, roomId);
+        }).catch((err) => {
+            this.logger.error(`Failed to start user status watcher for room ${roomId}: ${err.message}`);
+        });
     }
 
     /**
@@ -262,29 +279,47 @@ export class NatsCacheService implements OnModuleDestroy {
      */
     private async startUserStatusWatcherLoop(watcher: any, roomId: string): Promise<void> {
         try {
-            // TODO: Implement with NATS.js
-            // for await (const entry of watcher) {
-            //   if (this.globalAbortController.signal.aborted) {
-            //     break;
-            //   }
-            //   if (entry && entry.value) {
-            //     // userId is key, status is value
-            //     const userId = entry.key;
-            //     const status = new TextDecoder().decode(entry.value);
-            //     const statusStore = this.roomUsersStatusStore.get(roomId);
-            //     if (statusStore) {
-            //       statusStore.set(userId, {
-            //         status,
-            //         revision: entry.revision,
-            //       });
-            //     }
-            //   }
-            // }
+            for await (const entry of watcher) {
+                if (this.globalAbortController.signal.aborted) {
+                    break;
+                }
+                if (entry) {
+                    // userId is key, status is value
+                    const userId = entry.key;
+                    // If value is null, it means it's a delete operation (though watch usually returns entry with operations)
+                    if (entry.operation === 'DEL' || entry.operation === 'PURGE') {
+                        // Handle delete if necessary, though current Go impl implies just updating status
+                        // For now we assume we just update or set status
+                        const statusStore = this.roomUsersStatusStore.get(roomId);
+                        if (statusStore) {
+                            statusStore.delete(userId);
+                        }
+                        continue;
+                    }
+
+                    if (entry.value) {
+                        const status = new TextDecoder().decode(entry.value);
+                        const statusStore = this.roomUsersStatusStore.get(roomId);
+                        if (statusStore) {
+                            statusStore.set(userId, {
+                                status,
+                                revision: entry.revision,
+                            });
+                        }
+                    }
+                }
+            }
         } catch (error) {
-            this.logger.error(`User status watcher error for room ${roomId}: ${error}`);
+            if (!this.globalAbortController.signal.aborted) {
+                this.logger.error(`User status watcher error for room ${roomId}: ${error}`);
+            }
         } finally {
             this.logger.log(`NATS KV watcher for room user status stopped: ${roomId}`);
-            // TODO: watcher.stop();
+            try {
+                watcher.stop();
+            } catch (e) {
+                // ignore
+            }
             this.cleanRoomUserStatusCache(roomId);
         }
     }
@@ -363,10 +398,14 @@ export class NatsCacheService implements OnModuleDestroy {
 
         this.logger.log(`NATS KV watcher for user started: room=${roomId}, user=${userId}, bucket=${bucket}`);
 
-        // TODO: Start NATS KV watcher with includeHistory
-        // const opts = { includeHistory: true };
-        // const watcher = kv.watchAll(opts);
-        // this.startUserInfoWatcherLoop(watcher, roomId, userId);
+        // Start NATS KV watcher with includeHistory
+        const opts = { includeHistory: true };
+        kv.watch(opts).then((watcher) => {
+            this.startUserInfoWatcherLoop(watcher, roomId, userId);
+        }).catch((err) => {
+            this.logger.error(`Failed to start user info watcher for user ${userId}: ${err.message}`);
+            this.cleanUserInfoCache(roomId, userId);
+        });
     }
 
     /**
@@ -374,20 +413,35 @@ export class NatsCacheService implements OnModuleDestroy {
      */
     private async startUserInfoWatcherLoop(watcher: any, roomId: string, userId: string): Promise<void> {
         try {
-            // TODO: Implement with NATS.js
-            // for await (const entry of watcher) {
-            //   if (this.globalAbortController.signal.aborted) {
-            //     break;
-            //   }
-            //   if (entry && entry.value && entry.value.length > 0) {
-            //     this.updateUserInfoCache(entry, roomId, userId);
-            //   }
-            // }
+            for await (const entry of watcher) {
+                if (this.globalAbortController.signal.aborted) {
+                    break;
+                }
+                if (entry) {
+                    if (entry.operation === 'DEL' || entry.operation === 'PURGE') {
+                        // If the whole bucket/key is deleted? 
+                        // Actually in KV, watch returns all keys. We might want to filter?
+                        // But here we are assuming the bucket IS the user info bucket which contains multiple keys for one user?
+                        // Wait, Go code says: "Each user has its own bucket". 
+                        // So 'key' is field name (id, name, etc).
+                        continue;
+                    }
+                    if (entry.value && entry.value.length > 0) {
+                        this.updateUserInfoCache(entry, roomId, userId);
+                    }
+                }
+            }
         } catch (error) {
-            this.logger.error(`User info watcher error for user ${userId} in room ${roomId}: ${error}`);
+            if (!this.globalAbortController.signal.aborted) {
+                this.logger.error(`User info watcher error for user ${userId} in room ${roomId}: ${error}`);
+            }
         } finally {
             this.logger.log(`NATS KV watcher for user info stopped: room=${roomId}, user=${userId}`);
-            // TODO: watcher.stop();
+            try {
+                watcher.stop();
+            } catch (e) {
+                // ignore
+            }
             this.cleanUserInfoCache(roomId, userId);
         }
     }

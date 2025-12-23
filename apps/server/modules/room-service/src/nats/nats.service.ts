@@ -18,11 +18,12 @@ import {
     JetStreamClient,
     JetStreamManager,
     nkeyAuthenticator,
+    DeliverPolicy,
 } from 'nats';
 
 // Constants matching Go
 const NATS_PREFIX = 'pnm-';
-const DEFAULT_TTL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+const DEFAULT_TTL = 24 * 60 * 60 * 1000 * 1000000; // 24 hours in nanoseconds (for NATS)
 
 /**
  * Proto JSON options matching Go
@@ -72,16 +73,33 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
         this.cs = cacheService;
     }
 
+    /**
+     * Initialize NATS connection for JetStream/KV operations
+     * 
+     * IMPORTANT: This connection is SEPARATE from NestJS microservice transport!
+     * 
+     * Two NATS connections exist in this service:
+     * 1. NestJS Microservice Connection (from createNatsServiceConfig in main.ts)
+     *    - Used for @MessagePattern subscriptions (room.create, room.isActive, etc.)
+     *    - Managed by NestJS framework automatically
+     * 
+     * 2. JetStream Connection (this.nc, created here)
+     *    - Used for JetStream KV operations (webhook data, room info caching)
+     *    - Used for NATS pub/sub (webhook cleanup broadcasts)
+     *    - Managed by this service directly
+     * 
+     * These two connections do NOT conflict - they serve different purposes!
+     */
     async onModuleInit() {
         this.logger.log('Initializing NATS Service...');
-        await this.connectToNats();
-        this.logger.log('NATS Service initialized');
+        await this.connectToNats(); // For JetStream/KV operations
+        this.logger.log('NATS Service initialized with JetStream connection');
     }
 
     async onModuleDestroy() {
-        this.logger.log('Closing NATS connection...');
+        this.logger.log('Closing NATS JetStream connection...');
         await this.closeNatsConnection();
-        this.logger.log('NATS connection closed');
+        this.logger.log('NATS Service closed');
     }
 
     /**
@@ -269,7 +287,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
             // Create or update KV bucket
             const kv = await this.js.views.kv(NatsService.WEBHOOK_KV_KEY, {
                 history: 1,
-                ttl: DEFAULT_TTL * 1000000, // Convert to nanoseconds
+                ttl: DEFAULT_TTL, // Already in nanoseconds
                 replicas: this.configService.get<number>('NATS_NUM_REPLICAS') || 1,
             });
 
@@ -334,5 +352,197 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
             }
             throw error;
         }
+    }
+
+    // ============================================================================
+    // JetStream Consumer Management (from js_consumer.go)
+    // ============================================================================
+
+    /**
+     * CreateChatConsumer creates or updates a chat consumer for a user
+     * Equivalent to Go: NatsService.CreateChatConsumer (js_consumer.go:10-29)
+     * 
+     * @param roomId - Room ID
+     * @param userId - User ID
+     * @returns Array of permission strings for JWT
+     */
+    async createChatConsumer(roomId: string, userId: string): Promise<string[]> {
+        const chatSubject = this.configService.get<string>('NATS_CHAT_SUBJECT') || 'chat';
+
+        try {
+            // Create or update consumer
+            await this.jsm.consumers.add(roomId, {
+                durable_name: `${chatSubject}:${userId}`,
+                filter_subjects: [`${roomId}:${chatSubject}.>`],
+            });
+
+            // Return permission list for JWT
+            const permissions = [
+                `$JS.API.CONSUMER.INFO.${roomId}.${chatSubject}:${userId}`,
+                `$JS.API.CONSUMER.MSG.NEXT.${roomId}.${chatSubject}:${userId}`,
+                `${roomId}:${chatSubject}.${userId}`,
+                `$JS.ACK.${roomId}.${chatSubject}:${userId}.>`,
+            ];
+
+            return permissions;
+        } catch (error) {
+            this.logger.error(`Failed to create chat consumer: ${error.message}`);
+            throw error;
+        }
+    }
+
+    /**
+     * CreateSystemPublicConsumer creates or updates a system public consumer for a user
+     * Equivalent to Go: NatsService.CreateSystemPublicConsumer (js_consumer.go:31-50)
+     */
+    async createSystemPublicConsumer(roomId: string, userId: string): Promise<string[]> {
+        const sysPublicSubject = this.configService.get<string>('NATS_SYSTEM_PUBLIC_SUBJECT') || 'system-public';
+
+        try {
+            await this.jsm.consumers.add(roomId, {
+                durable_name: `${sysPublicSubject}:${userId}`,
+                deliver_policy: DeliverPolicy.New,
+                filter_subjects: [`${roomId}:${sysPublicSubject}.>`],
+            });
+
+            const permissions = [
+                `$JS.API.CONSUMER.INFO.${roomId}.${sysPublicSubject}:${userId}`,
+                `$JS.API.CONSUMER.MSG.NEXT.${roomId}.${sysPublicSubject}:${userId}`,
+                `$JS.ACK.${roomId}.${sysPublicSubject}:${userId}.>`,
+            ];
+
+            return permissions;
+        } catch (error) {
+            this.logger.error(`Failed to create system public consumer: ${error.message}`);
+            throw error;
+        }
+    }
+
+    /**
+     * CreateSystemPrivateConsumer creates or updates a system private consumer for a user
+     * Equivalent to Go: NatsService.CreateSystemPrivateConsumer (js_consumer.go:52-71)
+     */
+    async createSystemPrivateConsumer(roomId: string, userId: string): Promise<string[]> {
+        const sysPrivateSubject = this.configService.get<string>('NATS_SYSTEM_PRIVATE_SUBJECT') || 'system-private';
+
+        try {
+            await this.jsm.consumers.add(roomId, {
+                durable_name: `${sysPrivateSubject}:${userId}`,
+                deliver_policy: DeliverPolicy.New,
+                filter_subjects: [`${roomId}:${sysPrivateSubject}.${userId}.>`],
+            });
+
+            const permissions = [
+                `$JS.API.CONSUMER.INFO.${roomId}.${sysPrivateSubject}:${userId}`,
+                `$JS.API.CONSUMER.MSG.NEXT.${roomId}.${sysPrivateSubject}:${userId}`,
+                `$JS.ACK.${roomId}.${sysPrivateSubject}:${userId}.>`,
+            ];
+
+            return permissions;
+        } catch (error) {
+            this.logger.error(`Failed to create system private consumer: ${error.message}`);
+            throw error;
+        }
+    }
+
+    /**
+     * CreateWhiteboardConsumer creates or updates a whiteboard consumer for a user
+     * Equivalent to Go: NatsService.CreateWhiteboardConsumer (js_consumer.go:73-93)
+     */
+    async createWhiteboardConsumer(roomId: string, userId: string): Promise<string[]> {
+        const whiteboardSubject = this.configService.get<string>('NATS_WHITEBOARD_SUBJECT') || 'whiteboard';
+
+        try {
+            await this.jsm.consumers.add(roomId, {
+                durable_name: `${whiteboardSubject}:${userId}`,
+                deliver_policy: DeliverPolicy.New,
+                filter_subjects: [`${roomId}:${whiteboardSubject}.>`],
+            });
+
+            const permissions = [
+                `$JS.API.CONSUMER.INFO.${roomId}.${whiteboardSubject}:${userId}`,
+                `$JS.API.CONSUMER.MSG.NEXT.${roomId}.${whiteboardSubject}:${userId}`,
+                `${roomId}:${whiteboardSubject}.${userId}`,
+                `$JS.ACK.${roomId}.${whiteboardSubject}:${userId}.>`,
+            ];
+
+            return permissions;
+        } catch (error) {
+            this.logger.error(`Failed to create whiteboard consumer: ${error.message}`);
+            throw error;
+        }
+    }
+
+    /**
+     * CreateDataChannelConsumer creates or updates a data channel consumer for a user
+     * Equivalent to Go: NatsService.CreateDataChannelConsumer (js_consumer.go:95-115)
+     */
+    async createDataChannelConsumer(roomId: string, userId: string): Promise<string[]> {
+        const dataChannelSubject = this.configService.get<string>('NATS_DATA_CHANNEL_SUBJECT') || 'data-channel';
+
+        try {
+            await this.jsm.consumers.add(roomId, {
+                durable_name: `${dataChannelSubject}:${userId}`,
+                deliver_policy: DeliverPolicy.New,
+                filter_subjects: [`${roomId}:${dataChannelSubject}.>`],
+            });
+
+            const permissions = [
+                `$JS.API.CONSUMER.INFO.${roomId}.${dataChannelSubject}:${userId}`,
+                `$JS.API.CONSUMER.MSG.NEXT.${roomId}.${dataChannelSubject}:${userId}`,
+                `${roomId}:${dataChannelSubject}.${userId}`,
+                `$JS.ACK.${roomId}.${dataChannelSubject}:${userId}.>`,
+            ];
+
+            return permissions;
+        } catch (error) {
+            this.logger.error(`Failed to create data channel consumer: ${error.message}`);
+            throw error;
+        }
+    }
+
+    /**
+     * DeleteConsumer deletes all consumers for a user in a room
+     * Equivalent to Go: NatsService.DeleteConsumer (js_consumer.go:117-123)
+     */
+    async deleteConsumer(roomId: string, userId: string): Promise<void> {
+        const chatSubject = this.configService.get<string>('NATS_CHAT_SUBJECT') || 'chat';
+        const sysPublicSubject = this.configService.get<string>('NATS_SYSTEM_PUBLIC_SUBJECT') || 'system-public';
+        const sysPrivateSubject = this.configService.get<string>('NATS_SYSTEM_PRIVATE_SUBJECT') || 'system-private';
+        const whiteboardSubject = this.configService.get<string>('NATS_WHITEBOARD_SUBJECT') || 'whiteboard';
+        const dataChannelSubject = this.configService.get<string>('NATS_DATA_CHANNEL_SUBJECT') || 'data-channel';
+
+        // Delete all consumers (silent fail like Go)
+        try {
+            await this.jsm.consumers.delete(roomId, `${chatSubject}:${userId}`);
+        } catch (error) {
+            // Silent fail
+        }
+
+        try {
+            await this.jsm.consumers.delete(roomId, `${sysPublicSubject}:${userId}`);
+        } catch (error) {
+            // Silent fail
+        }
+
+        try {
+            await this.jsm.consumers.delete(roomId, `${sysPrivateSubject}:${userId}`);
+        } catch (error) {
+            // Silent fail
+        }
+
+        try {
+            await this.jsm.consumers.delete(roomId, `${whiteboardSubject}:${userId}`);
+        } catch (error) {
+            // Silent fail
+        }
+
+        try {
+            await this.jsm.consumers.delete(roomId, `${dataChannelSubject}:${userId}`);
+        } catch (error) {
+            // Silent fail
+        }
+
+        this.logger.log(`Deleted all consumers for user ${userId} in room ${roomId}`);
     }
 }

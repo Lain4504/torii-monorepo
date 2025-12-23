@@ -20,7 +20,7 @@ import {
 import type { Request, Response } from 'express';
 import { Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
+import { create, fromBinary } from '@bufbuild/protobuf';
 import {
   VerifyTokenReq,
   VerifyTokenReqSchema,
@@ -104,8 +104,9 @@ export class GatewayController {
     // Check if room is active
     try {
       const isRoomActiveReq = create(IsRoomActiveReqSchema, { roomId });
+      // Send plain object to NATS - NestJS handles JSON serialization
       const roomActiveResponse = await this.natsClient
-        .send('room.isActive', toBinary(IsRoomActiveReqSchema, isRoomActiveReq))
+        .send('room.isActive', isRoomActiveReq)
         .toPromise();
 
       const roomData = roomActiveResponse; // Contains: rr, roomDbInfo, rInfo, meta

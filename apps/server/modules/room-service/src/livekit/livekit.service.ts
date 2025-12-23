@@ -108,6 +108,65 @@ export class LiveKitService {
     }
 
     /**
+     * EndRoom will send API request to livekit to delete the room
+     * Equivalent to Go: s.EndRoom (room.go:11-27)
+     * 
+     * @param roomId - The room ID to delete
+     * @returns Response string or error message
+     */
+    async endRoom(roomId: string): Promise<string> {
+        try {
+            this.logger.log(`Ending room via LiveKit: ${roomId}`);
+
+            // Equivalent to Go: s.lkc.DeleteRoom(ctx, &data)
+            // Go uses 15 second timeout, SDK handles timeout internally
+            await this.client.deleteRoom(roomId);
+
+            this.logger.log(`Successfully ended room: ${roomId}`);
+
+            // Return success message (Go returns res.String())
+            return `Room ${roomId} deleted successfully`;
+        } catch (error) {
+            this.logger.error(`Failed to end room ${roomId}: ${error.message}`);
+            throw error;
+        }
+    }
+
+    /**
+     * MuteUnMuteTrack mutes/unmutes a published track
+     * Equivalent to Go: LivekitService.MuteUnMuteTrack (track.go:10-27)
+     * 
+     * @param roomId - Room ID
+     * @param userId - User/participant identity
+     * @param trackSid - Track SID to mute/unmute
+     * @param muted - True to mute, false to unmute
+     * @returns MuteRoomTrackResponse
+     */
+    async muteUnMuteTrack(
+        roomId: string,
+        userId: string,
+        trackSid: string,
+        muted: boolean
+    ): Promise<any> {
+        try {
+            this.logger.log(
+                `${muted ? 'Muting' : 'Unmuting'} track ${trackSid} for user ${userId} in room ${roomId}`
+            );
+
+            // Equivalent to Go: s.lkc.MutePublishedTrack(ctx, &data)
+            const response = await this.client.mutePublishedTrack(roomId, userId, trackSid, muted);
+
+            this.logger.log(`Successfully ${muted ? 'muted' : 'unmuted'} track ${trackSid}`);
+            return response;
+        } catch (error) {
+            this.logger.error(
+                `Failed to ${muted ? 'mute' : 'unmute'} track ${trackSid}: ${error.message}`
+            );
+            throw error;
+        }
+    }
+
+    /**
      * Get the underlying RoomServiceClient for advanced operations
      */
     getClient(): RoomServiceClient {

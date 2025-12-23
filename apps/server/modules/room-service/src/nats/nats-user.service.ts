@@ -8,13 +8,16 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { UserMetadata } from '@workspace/protocol';
-import { UserMetadataSchema } from '@workspace/protocol';
+import { UserMetadataSchema, NatsMsgServerToClientEvents } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 import { NatsService } from './nats.service';
 import { v4 as uuidv4 } from 'uuid';
+import { NatsUserInfoService } from './nats-user-info.service';
+import { NatsSystemEventsService } from './nats-system-events.service';
+import { LiveKitService } from '../livekit/livekit.service';
 
 // Constants matching Go
-const NATS_PREFIX = 'pnm:';
+const NATS_PREFIX = 'pnm-';  // Must use dash, not colon! NATS bucket names cannot contain ':'
 const ROOM_USERS_BUCKET_PREFIX = `${NATS_PREFIX}roomUsers-`;
 const ROOM_USERS_BUCKET = `${ROOM_USERS_BUCKET_PREFIX}%s`;
 
@@ -56,6 +59,9 @@ export class NatsUserService {
     constructor(
         private readonly configService: ConfigService,
         private readonly natsService: NatsService,
+        private readonly natsUserInfo: NatsUserInfoService,
+        private readonly natsSystemEvents: NatsSystemEventsService,
+        private readonly livekitService: LiveKitService,
     ) { }
 
     /**
@@ -249,8 +255,12 @@ export class NatsUserService {
                     // Silently ignore
                 }
 
-                // TODO: Delete consumer
-                // this.deleteConsumer(roomId, userId);
+                // Delete consumer for this user
+                try {
+                    await this.natsService.deleteConsumer(roomId, userId);
+                } catch (error) {
+                    // Silently ignore consumer deletion errors
+                }
             }
 
             // Step 4: Delete the room users bucket
@@ -316,5 +326,288 @@ export class NatsUserService {
         } catch (error) {
             // Silently ignore if not found
         }
+    }
+
+    /**
+     * BroadcastUserMetadata will broadcast user metadata update event to room
+     * Equivalent to Go: s.BroadcastUserMetadata (user_events.go:9-28)
+     */
+    async broadcastUserMetadata(roomId: string, userId: string, metadata?: string, toUser?: string): Promise<void> {
+        let metadataStr = metadata;
+
+        // If metadata not provided, get it from NATS
+        if (!metadataStr) {
+            const userInfo = await this.natsUserInfo.getUserInfo(roomId, userId);
+            if (!userInfo) {
+                throw new Error('User not found');
+            }
+            metadataStr = userInfo.metadata;
+        }
+
+        const data = {
+            metadata: metadataStr,
+            userId: userId,
+        };
+
+        // Broadcast to room using system events
+        await this.natsSystemEvents.broadcastSystemEventToRoom(
+            NatsMsgServerToClientEvents.USER_METADATA_UPDATE,
+            roomId,
+            data,
+            toUser,
+        );
+    }
+
+    /**
+     * UpdateAndBroadcastUserMetadata will update metadata & broadcast to everyone
+     * Equivalent to Go: s.UpdateAndBroadcastUserMetadata (user_events.go:30-41)
+     */
+    async updateAndBroadcastUserMetadata(
+        roomId: string,
+        userId: string,
+        meta: UserMetadata | null,
+        toUserId?: string | null,
+    ): Promise<void> {
+        if (!meta) {
+            throw new Error('Metadata cannot be nil');
+        }
+
+        // Update the metadata
+        const mt = await this.updateUserMetadata(roomId, userId, meta);
+
+        // Broadcast the update
+        await this.broadcastUserMetadata(roomId, userId, mt, toUserId || undefined);
+    }
+
+    /**
+     * BroadcastUserInfoToRoom broadcasts user info to all participants in room
+     * Equivalent to Go: s.BroadcastUserInfoToRoom (user_events.go:43-58)
+     */
+    async broadcastUserInfoToRoom(
+        event: NatsMsgServerToClientEvents,
+        roomId: string,
+        userId: string,
+        userInfo?: any,  // NatsKvUserInfo
+    ): Promise<void> {
+        let info = userInfo;
+
+        // If userInfo not provided, get it from NATS
+        if (!info) {
+            info = await this.natsUserInfo.getUserInfo(roomId, userId);
+            if (!info) {
+                this.logger.warn(`User info not found for ${userId} in room ${roomId}`);
+                return;
+            }
+        }
+
+        try {
+            await this.natsSystemEvents.broadcastSystemEventToRoom(
+                event,
+                roomId,
+                info,
+                undefined,
+            );
+        } catch (error) {
+            this.logger.warn(`Failed to broadcast user info: ${error.message}`);
+        }
+    }
+
+    // ============================================================================
+    // User Lifecycle Event Handlers (from nats_user.go)
+    // ============================================================================
+
+    /**
+     * OnAfterUserJoined handles user joined event
+     * Equivalent to Go: NatsModel.OnAfterUserJoined (nats_user.go:14-58)
+     */
+    async onAfterUserJoined(roomId: string, userId: string): Promise<void> {
+        const log = this.logger;
+        log.log(`Handling user joined event: room=${roomId}, user=${userId}`);
+
+        try {
+            const status = await this.natsUserInfo.getRoomUserStatus(roomId, userId);
+
+            // If user is already online, don't proceed (frequent case due to pings)
+            if (status === USER_STATUS_ONLINE) {
+                return;
+            }
+
+            // Update user status to online
+            await this.updateUserStatus(roomId, userId, USER_STATUS_ONLINE);
+
+            // Get user info
+            const userInfo = await this.natsUserInfo.getUserInfo(roomId, userId);
+            if (userInfo) {
+                // Broadcast USER_JOINED to everyone except this user
+                try {
+                    await this.natsSystemEvents.broadcastSystemEventToEveryoneExceptUserId(
+                        NatsMsgServerToClientEvents.USER_JOINED,
+                        roomId,
+                        userInfo,
+                        userId
+                    );
+                } catch (error) {
+                    log.error(`Failed to broadcast USER_JOINED event: ${error.message}`);
+                }
+
+                // Send analytics
+                const now = Date.now();
+                // TODO: Implement analytics service
+                // await this.analyticsService.handleEvent({
+                //     eventType: AnalyticsEventType.ROOM,
+                //     eventName: AnalyticsEvents.ANALYTICS_EVENT_USER_JOINED,
+                //     roomId,
+                //     userId,
+                //     userName: userInfo.name,
+                //     extraData: userInfo.metadata,
+                //     hsetValue: now.toString(),
+                // });
+
+                log.log('Successfully processed user joined event');
+            }
+        } catch (error) {
+            log.error(`Failed to process user joined event: ${error.message}`);
+        }
+    }
+
+    /**
+     * OnAfterUserDisconnected handles user disconnected event
+     * Equivalent to Go: NatsModel.OnAfterUserDisconnected (nats_user.go:60-89)
+     * 
+     * This runs in background. We wait 5s before declaring user offline
+     * but broadcast disconnected status immediately
+     */
+    async onAfterUserDisconnected(roomId: string, userId: string): Promise<void> {
+        const log = this.logger;
+        log.log(`Handling user disconnected event: room=${roomId}, user=${userId}`);
+
+        // Immediately set status to disconnected and notify clients
+        try {
+            await this.updateUserStatus(roomId, userId, USER_STATUS_DISCONNECTED);
+        } catch (error) {
+            log.warn(`Failed to update user status to disconnected: ${error.message}`);
+        }
+
+        // Try to get user info for a richer disconnect message
+        let userInfo: any = null;
+        try {
+            userInfo = await this.natsUserInfo.getUserInfo(roomId, userId);
+        } catch (error) {
+            log.warn(`Could not get user info: ${error.message}`);
+        }
+
+        // Broadcast USER_DISCONNECTED event
+        const basicUserInfo = userInfo || { userId, roomId };
+        try {
+            await this.natsSystemEvents.broadcastSystemEventToEveryoneExceptUserId(
+                NatsMsgServerToClientEvents.USER_DISCONNECTED,
+                roomId,
+                basicUserInfo,
+                userId
+            );
+        } catch (error) {
+            log.error(`Failed to broadcast USER_DISCONNECTED event: ${error.message}`);
+        }
+
+        // Start background task to handle delayed offline tasks
+        // Use setImmediate to run in background (equivalent to Go's goroutine)
+        setImmediate(() => this.handleDelayedOfflineTasks(roomId, userId, userInfo));
+    }
+
+    /**
+     * handleDelayedOfflineTasks manages grace period for user reconnection and cleanup
+     * Equivalent to Go: NatsModel.handleDelayedOfflineTasks (nats_user.go:91-139)
+     */
+    private async handleDelayedOfflineTasks(roomId: string, userId: string, userInfo: any): Promise<void> {
+        const log = this.logger;
+        log.log(`Starting delayed offline tasks: room=${roomId}, user=${userId}`);
+
+        // Stage 1: Wait for reconnection grace period (5 seconds)
+        await new Promise(resolve => setTimeout(resolve, 5000));
+
+        try {
+            const status = await this.natsUserInfo.getRoomUserStatus(roomId, userId);
+            if (status === USER_STATUS_ONLINE) {
+                // User reconnected, abort offline tasks
+                log.log('User reconnected within grace period, aborting offline tasks');
+                return;
+            }
+        } catch (error) {
+            log.warn(`Failed to check user status: ${error.message}`);
+        }
+
+        // User is still disconnected, mark as offline
+        try {
+            await this.updateUserStatus(roomId, userId, USER_STATUS_OFFLINE);
+        } catch (error) {
+            log.warn(`Failed to update user status to offline: ${error.message}`);
+        }
+
+        // Send analytics for user leaving
+        this.updateUserLeftAnalytics(roomId, userId);
+
+        // Broadcast final USER_OFFLINE status
+        const finalUserInfo = userInfo || { userId };
+        try {
+            await this.natsSystemEvents.broadcastSystemEventToEveryoneExceptUserId(
+                NatsMsgServerToClientEvents.USER_OFFLINE,
+                roomId,
+                finalUserInfo,
+                userId
+            );
+        } catch (error) {
+            // Ignore NoOnlineUserFound error
+            if (!error.message.includes('no online user found')) {
+                log.warn(`Failed to broadcast USER_OFFLINE event: ${error.message}`);
+            }
+        }
+
+        // Stage 2: Wait longer before final cleanup (30 seconds)
+        await new Promise(resolve => setTimeout(resolve, 30000));
+
+        try {
+            const status = await this.natsUserInfo.getRoomUserStatus(roomId, userId);
+            if (status === USER_STATUS_ONLINE) {
+                // User reconnected, do not delete consumer
+                log.log('User reconnected before final cleanup, consumer will not be deleted');
+                return;
+            }
+        } catch (error) {
+            log.warn(`Failed to check final user status: ${error.message}`);
+        }
+
+        // Also try to silently remove this user from LiveKit as well
+        try {
+            await this.livekitService.removeParticipant(roomId, userId);
+        } catch (error) {
+            // Silent fail - user may have already been removed
+            log.debug(`Could not remove participant from LiveKit: ${error.message}`);
+        }
+
+        // Final cleanup: Delete user's NATS consumer
+        try {
+            await this.natsService.deleteConsumer(roomId, userId);
+        } catch (error) {
+            log.error(`Failed to delete consumer: ${error.message}`);
+        }
+
+        log.log('User offline tasks completed');
+    }
+
+    /**
+     * updateUserLeftAnalytics sends analytics for user leaving
+     * Equivalent to Go: NatsModel.updateUserLeftAnalytics (nats_user.go:141-150)
+     */
+    private updateUserLeftAnalytics(roomId: string, userId: string): void {
+        const now = Date.now();
+
+        // TODO: Implement analytics service
+        // this.analyticsService.handleEvent({
+        //     eventType: AnalyticsEventType.USER,
+        //     eventName: AnalyticsEvents.ANALYTICS_EVENT_USER_LEFT,
+        //     roomId,
+        //     userId,
+        //     hsetValue: now.toString(),
+        // });
     }
 }

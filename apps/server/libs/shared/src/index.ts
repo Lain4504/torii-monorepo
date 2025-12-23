@@ -13,6 +13,7 @@ export { createNatsServiceConfig } from './nats/nats-service.config';
 export * from './utils/slug.utils';
 export * from './guards/api-key.guard';
 export * from './guards/jwt-auth.guard';
+export * from './utils/webhook_verify';
 
 
 

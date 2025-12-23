@@ -23,6 +23,7 @@ import { nkeyAuthenticator } from 'nats';
 
                     const options: any = {
                         servers: [natsUrl],
+                        queue: 'torii_queue', // IMPORTANT: Must match service config queue
                     };
 
                     // Add NKEY authentication if provided

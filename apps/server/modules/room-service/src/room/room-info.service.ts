@@ -146,7 +146,7 @@ export class RoomInfoService {
                 webhookUrl: roomDbInfo.webhookUrl,
                 isBreakoutRoom: roomDbInfo.isBreakoutRoom,
                 parentRoomId: roomDbInfo.parentRoomId,
-                creationTime: roomDbInfo.creationTime,
+                creationTime: roomDbInfo.creationTime.toString(),
                 metadata: rrr.metadata,
             }),
             participantsInfo: [],
@@ -208,7 +208,7 @@ export class RoomInfoService {
                     webhookUrl: r.webhookUrl,
                     isBreakoutRoom: r.isBreakoutRoom,
                     parentRoomId: r.parentRoomId,
-                    creationTime: r.creationTime,
+                    creationTime: r.creationTime.toString(),
                 }),
                 participantsInfo: [],
             });
@@ -315,8 +315,10 @@ export class RoomInfoService {
     /**
      * Get room info by roomId from database
      * Matching Go: m.ds.GetRoomInfoByRoomId(r.RoomId, 1)
+     * 
+     * Made public for use by RoomEndService
      */
-    private async getRoomInfoByRoomId(roomId: string, isRunning: boolean): Promise<any | null> {
+    async getRoomInfoByRoomId(roomId: string, isRunning: boolean): Promise<any | null> {
         try {
             return await this.prisma.roomInfo.findFirst({
                 where: {
@@ -333,8 +335,10 @@ export class RoomInfoService {
     /**
      * Update room status in database
      * Matching Go: m.ds.UpdateRoomStatus(&dbmodels.RoomInfo{RoomId: r.RoomId, IsRunning: 0})
+     * 
+     * Made public for use by RoomEndService
      */
-    private async updateRoomStatus(roomId: string, isRunning: boolean): Promise<void> {
+    async updateRoomStatus(roomId: string, isRunning: boolean): Promise<void> {
         try {
             const updates: any = {
                 isRunning: isRunning ? 1 : 0,  // int type: 0 or 1

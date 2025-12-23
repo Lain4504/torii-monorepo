@@ -91,12 +91,13 @@ export class RoomCreateService {
             const { roomInfo, sid } = this.prepareRoomDbInfo(req, roomDbInfo);
 
             // Step 6: Save to database
-            await this.insertOrUpdateRoomInfo(roomInfo);
-            log.log(`Room info saved to DB: ${req.roomId}, sid: ${sid}, webhook: ${roomInfo.webhookUrl}`);
+            const savedRoomInfo = await this.insertOrUpdateRoomInfo(roomInfo);
+            log.log(`Room info saved to DB: ${req.roomId}, sid: ${sid}, webhook: ${savedRoomInfo.webhookUrl}`);
 
             // Step 7: Create room in NATS bucket
-            await this.natsRoom.addRoom(roomInfo.id, req.roomId, sid, req.emptyTimeout, req.maxParticipants, req.metadata);
-            log.log(`Room added to NATS: ${req.roomId}`);
+            // Use savedRoomInfo.id to ensure we have the DB auto-increment ID
+            await this.natsRoom.addRoom(savedRoomInfo.id, req.roomId, sid, req.emptyTimeout, req.maxParticipants, req.metadata);
+            log.log(`Room added to NATS: ${req.roomId}, tableId: ${savedRoomInfo.id}`);
 
             // Step 8: Create NATS streams
             await this.natsStream.createRoomNatsStreams(req.roomId);
@@ -121,7 +122,7 @@ export class RoomCreateService {
                 sid: rInfo.roomSid,
                 roomTitle: roomInfo.roomTitle,
                 isRunning: 1,
-                creationTime: roomInfo.creationTime,
+                creationTime: roomInfo.creationTime.toString(),
                 webhookUrl: roomInfo.webhookUrl,
                 metadata: rInfo.metadata,
             });
@@ -192,7 +193,7 @@ export class RoomCreateService {
             sid: rInfo.roomSid,
             roomTitle: roomDbInfo.roomTitle,
             isRunning: 1,
-            creationTime: roomDbInfo.creationTime,
+            creationTime: roomDbInfo.creationTime.toString(),
             webhookUrl: roomDbInfo.webhookUrl,
             metadata: rInfo.metadata,
         });
@@ -305,7 +306,9 @@ export class RoomCreateService {
                 webhookUrl: '',
                 isBreakoutRoom: isBreakoutRoom,
                 parentRoomId: req.metadata?.parentRoomId || '',
-                creationTime: Date.now(),
+                // Convert milliseconds to seconds to match Go server's int(10) format
+                // Go uses autoCreateTime which creates Unix timestamp in seconds
+                creationTime: Math.floor(Date.now() / 1000),
             };
         } else {
             existing.sid = sid;

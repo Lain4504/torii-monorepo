@@ -173,10 +173,14 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
 
         // Broadcast cleanup message to all servers in cluster
         try {
-            // Publish to NATS cleanup subject
             const nc = this.natsService.getNatsConnection();
-            await nc.publish(NatsService.WEBHOOK_CLEANUP_SUBJECT, new TextEncoder().encode(roomId));
-            this.logger.log(`Published webhook cleanup for room: ${roomId}`);
+            if (nc) {
+                // Publish to NATS cleanup subject
+                await nc.publish(NatsService.WEBHOOK_CLEANUP_SUBJECT, new TextEncoder().encode(roomId));
+                this.logger.log(`Published webhook cleanup for room: ${roomId}`);
+            } else {
+                this.logger.warn('NATS connection not available, skipping cleanup broadcast');
+            }
         } catch (error) {
             this.logger.error(`Failed to publish webhook cleanup: ${error.message}`);
         }
@@ -291,8 +295,18 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
      * Equivalent to Go: w.subscribeToCleanup
      */
     private subscribeToCleanup(): void {
-        // Subscribe to NATS subject for webhook cleanup
+        // Get NATS connection - might be null if NatsService hasn't initialized yet
         const nc = this.natsService.getNatsConnection();
+
+        if (!nc) {
+            this.logger.warn('NATS connection not ready yet, will skip webhook cleanup subscription');
+            this.logger.warn('This is expected if WebhookNotifierService initializes before NatsService');
+            // In production, webhook cleanup will work via direct deleteWebhookData calls
+            // The subscription is only needed for multi-instance deployments
+            return;
+        }
+
+        // Subscribe to NATS subject for webhook cleanup
         nc.subscribe(NatsService.WEBHOOK_CLEANUP_SUBJECT, {
             callback: (err, msg) => {
                 if (err) {

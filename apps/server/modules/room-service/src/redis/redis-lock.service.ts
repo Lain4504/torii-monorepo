@@ -105,7 +105,20 @@ export class RedisLockService {
 
     constructor(private readonly configService: ConfigService) {
         // Initialize Redis client
-        const redisUrl = this.configService.get<string>('REDIS_URL') || 'redis://localhost:6379';
+        let redisUrl = this.configService.get<string>('REDIS_URL');
+
+        if (!redisUrl) {
+            const host = this.configService.get<string>('REDIS_HOST', 'localhost');
+            const port = this.configService.get<string>('REDIS_PORT', '6379');
+            const password = this.configService.get<string>('REDIS_PASSWORD');
+
+            if (password) {
+                redisUrl = `redis://:${password}@${host}:${port}`;
+            } else {
+                redisUrl = `redis://${host}:${port}`;
+            }
+        }
+
         this.redis = new Redis(redisUrl);
 
         this.redis.on('error', (error) => {
