@@ -11,7 +11,7 @@ async function bootstrap() {
     );
 
     await app.listen();
-    console.log('Notification & Blog Microservice is listening on NATS...');
+    console.log('Notification Microservice is listening on NATS...');
 }
 
 bootstrap();
