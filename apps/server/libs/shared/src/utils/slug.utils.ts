@@ -27,39 +27,6 @@ export function generateSlug(title: string): string {
   return slug.substring(0, 255);
 }
 
-/**
- * Ensure unique slug by appending counter suffix if slug already exists
- * @param baseSlug - The base slug to make unique
- * @param checkExists - Async function that checks if a slug exists (returns true if exists)
- * @param maxAttempts - Maximum number of attempts to generate unique slug (default: 100)
- * @returns Unique slug
- */
-export async function ensureUniqueSlug(
-  baseSlug: string,
-  checkExists: (slug: string) => Promise<boolean>,
-  maxAttempts: number = 100,
-): Promise<string> {
-  let slug = baseSlug;
-  let counter = 1;
-  let existing = await checkExists(slug);
-
-  // Nếu slug đã tồn tại, tự động thêm suffix
-  while (existing) {
-    slug = `${baseSlug}-${counter}`;
-    existing = await checkExists(slug);
-    counter++;
-
-    // Giới hạn tối đa để tránh vòng lặp vô hạn
-    if (counter > maxAttempts) {
-      throw new Error(
-        `Unable to generate unique slug for "${baseSlug}" after ${maxAttempts} attempts. Please use a different slug.`,
-      );
-    }
-  }
-
-  return slug;
-}
-
 
 
 

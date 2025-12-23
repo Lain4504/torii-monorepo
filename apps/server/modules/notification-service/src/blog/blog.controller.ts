@@ -5,8 +5,6 @@ import {
   CreateBlogPostDto,
   UpdateBlogPostDto,
   BlogPostQueryDto,
-  CreateTagDto,
-  TagQueryDto,
 } from '@workspace/dtos';
 
 @Controller()
@@ -42,19 +40,7 @@ export class BlogController {
     return this.blogService.deletePost(id);
   }
 
-  // =========================
-  // TAG MESSAGE PATTERNS
-  // =========================
-
-  @MessagePattern({ cmd: 'blog.tag.create' })
-  createTag(@Payload() dto: CreateTagDto) {
-    return this.blogService.createTag(dto);
-  }
-
-  @MessagePattern({ cmd: 'blog.tag.findAll' })
-  findAllTags(@Payload() query: TagQueryDto) {
-    return this.blogService.findAllTags(query);
-  }
 }
+
 
 

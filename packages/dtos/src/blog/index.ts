@@ -55,41 +55,14 @@ export class CreateBlogPostDto {
   seoDescription?: string;
 
   @IsOptional()
-  @IsInt()
-  @Min(1)
-  readingTime?: number;
-
-  @IsOptional()
-  @IsBoolean()
-  featured?: boolean;
-
-  @IsOptional()
-  @IsBoolean()
-  pinned?: boolean;
+  @IsArray()
+  @IsString({ each: true })
+  tags?: string[]; // Array of tag names (e.g., ["Grammar", "Vocabulary"])
 
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  metaKeywords?: string[];
-
-  @IsOptional()
-  @IsString()
-  ogImageUrl?: string;
-
-  @IsOptional()
-  @IsArray()
-  @IsUUID(4, { each: true })
-  relatedPostIds?: string[];
-
-  @IsOptional()
-  @IsArray()
-  @IsUUID(4, { each: true })
-  tagIds?: string[];
-
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  images?: string[]; // Array of image URLs (base64 data URLs or regular URLs) to add when creating post
+  images?: string[]; // Array of image URLs - images are stored in FileAsset via storage service
 }
 
 export class UpdateBlogPostDto {
@@ -130,36 +103,9 @@ export class UpdateBlogPostDto {
   seoDescription?: string;
 
   @IsOptional()
-  @IsInt()
-  @Min(1)
-  readingTime?: number;
-
-  @IsOptional()
-  @IsBoolean()
-  featured?: boolean;
-
-  @IsOptional()
-  @IsBoolean()
-  pinned?: boolean;
-
-  @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  metaKeywords?: string[];
-
-  @IsOptional()
-  @IsString()
-  ogImageUrl?: string;
-
-  @IsOptional()
-  @IsArray()
-  @IsUUID(4, { each: true })
-  relatedPostIds?: string[];
-
-  @IsOptional()
-  @IsArray()
-  @IsUUID(4, { each: true })
-  tagIds?: string[];
+  tags?: string[]; // Array of tag names (e.g., ["Grammar", "Vocabulary"])
 }
 
 export class BlogPostQueryDto {
@@ -189,13 +135,8 @@ export class BlogPostQueryDto {
   authorId?: string;
 
   @IsOptional()
-  @IsUUID()
-  tagId?: string;
-
-  @IsOptional()
-  @IsBoolean()
-  @Type(() => Boolean)
-  featured?: boolean;
+  @IsString()
+  tagId?: string; // Tag name to filter by (e.g., "Grammar")
 
   @IsOptional()
   @IsString()
@@ -204,76 +145,6 @@ export class BlogPostQueryDto {
   @IsOptional()
   @IsEnum(['asc', 'desc'])
   sortOrder?: 'asc' | 'desc';
-}
-
-// =========================
-// TAG DTOs
-// =========================
-
-export class CreateTagDto {
-  @IsString()
-  name!: string;
-
-  @IsOptional()
-  @IsString()
-  slug?: string; // Optional - sẽ tự động generate từ name nếu không có
-
-  @IsOptional()
-  @IsString()
-  type?: string = 'blog';
-
-  @IsOptional()
-  @IsString()
-  description?: string;
-
-  @IsOptional()
-  @IsString()
-  icon?: string;
-}
-
-export class UpdateTagDto {
-  @IsOptional()
-  @IsString()
-  name?: string;
-
-  @IsOptional()
-  @IsString()
-  slug?: string;
-
-  @IsOptional()
-  @IsString()
-  type?: string;
-
-  @IsOptional()
-  @IsString()
-  description?: string;
-
-  @IsOptional()
-  @IsString()
-  icon?: string;
-}
-
-export class TagQueryDto {
-  @IsOptional()
-  @IsInt()
-  @Min(1)
-  @Type(() => Number)
-  page?: number = 1;
-
-  @IsOptional()
-  @IsInt()
-  @Min(1)
-  @Max(100)
-  @Type(() => Number)
-  limit?: number = 10;
-
-  @IsOptional()
-  @IsString()
-  search?: string;
-
-  @IsOptional()
-  @IsString()
-  type?: string;
 }
 
 // =========================
@@ -322,33 +193,9 @@ export class BlogPostResponseDto {
   commentCount!: number;
   seoTitle?: string;
   seoDescription?: string;
-  readingTime?: number;
-  featured!: boolean;
-  pinned!: boolean;
-  metaKeywords!: string[];
-  ogImageUrl?: string;
-  relatedPostIds!: string[];
-  tags!: Array<{
-    id: string;
-    name: string;
-    slug: string;
-  }>;
-  images!: Array<{
-    id: string;
-    imageUrl: string;
-  }>;
-  createdAt!: Date;
-  updatedAt!: Date;
-}
-
-export class TagResponseDto {
-  id!: string;
-  name!: string;
-  slug!: string;
-  type!: string;
-  description?: string;
-  icon?: string;
-  usageCount!: number;
+  tags!: string[]; // Array of tag names
+  // Images are stored in FileAsset table via storage service
+  // Query FileAsset with moduleOrigin='BLOG' and ownerId=post.id to get images
   createdAt!: Date;
   updatedAt!: Date;
 }

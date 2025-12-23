@@ -18,8 +18,6 @@ import {
   CreateBlogPostDto,
   UpdateBlogPostDto,
   BlogPostQueryDto,
-  CreateTagDto,
-  TagQueryDto,
   PaginatedResponseDto,
 } from '@workspace/dtos';
 
@@ -72,28 +70,4 @@ export class AdminBlogController {
   }
 }
 
-@Controller('api/v1/admin/tags')
-export class AdminTagController {
-  constructor(
-    @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-  ) {}
-
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  async create(@Body() dto: CreateTagDto) {
-    return firstValueFrom(
-      this.natsClient.send({ cmd: 'blog.tag.create' }, dto),
-    );
-  }
-
-  @Get()
-  async findAll(@Query() query: TagQueryDto) {
-    return firstValueFrom(
-      this.natsClient.send<PaginatedResponseDto<any>>(
-        { cmd: 'blog.tag.findAll' },
-        query,
-      ),
-    );
-  }
-}
 
