@@ -1,22 +1,18 @@
-export * from './nats-service.config';
 export * from './prisma.service';
-export * from './services/auth.service';
-export * from './services/livekit.service';
-export * from './services/redis.service';
 export * from './shared.module';
 export * from './prisma.module';
 export * from './supabase/supabase.constants';
 export * from './supabase/supabase.module';
 
-
-export * from './filters/all-exceptions.filter';
-export * from './interceptors/protobuf.interceptor';
-export * from './nats/nats.service';
-export * from './nats/nats-auth.module';
+// NATS modules and configuration
 export * from './nats/nats-client.module';
+export * from './nats/nats-auth.module';
+export * from './nats/nats-auth.service';
+export { createNatsServiceConfig } from './nats/nats-service.config';
+
 export * from './utils/slug.utils';
-export * from './pipes/protobuf-parser.pipe';
-export * from './guards'; // Guards: ApiKeyGuard, JwtAuthGuard
+export * from './guards/api-key.guard';
+export * from './guards/jwt-auth.guard';
 
 
 
@@ -37,6 +33,13 @@ export {
     generateSecureRandomString,
     generateRandomString,
 } from './utils/common';
+
+// Proto parser (from controllers/analytics.go)
+export {
+    parseProtoRequest,           // Flexible parser (JSON or binary)
+    parseAndValidateRequest,     // Parser + validation (full Go equivalent)
+    validateRequest,             // Validation only
+} from './utils/proto-parser';
 
 // Access token generation (from auth/access_token.go)
 export {

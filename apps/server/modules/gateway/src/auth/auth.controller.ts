@@ -22,10 +22,5 @@ export class AuthController {
   async logout() {
     return firstValueFrom(this.natsClient.send({ cmd: 'auth.signout' }, {}));
   }
-
-  @Post('getClientFiles')
-  async getClientFiles(@Body() body: any) {
-    return firstValueFrom(this.natsClient.send({ cmd: 'file.getClientFiles' }, body));
-  }
 }
 

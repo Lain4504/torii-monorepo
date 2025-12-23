@@ -26,22 +26,5 @@ export class AuthController {
   signOut() {
     return this.authServiceService.signOut();
   }
-
-  @MessagePattern({ cmd: 'auth.token-generate' })
-  generateToken(
-    @Payload()
-    payload: {
-      roomName: string;
-      participantName: string;
-      identity: string;
-    },
-  ) {
-    return this.authServiceService.createToken(payload);
-  }
-
-  @MessagePattern({ cmd: 'file.getClientFiles' })
-  getClientFiles(@Payload() data: any) {
-    return this.authServiceService.getClientFiles(data);
-  }
 }
 

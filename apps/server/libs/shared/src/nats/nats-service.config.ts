@@ -1,10 +1,20 @@
+/**
+ * NATS Service Configuration
+ * Provides configuration for NestJS NATS microservices
+ * 
+ * Used by all microservices (room-service, ai-service, etc.) in their main.ts
+ */
+
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { nkeyAuthenticator } from 'nats';
 
 /**
- * Create NATS microservice configuration with optional NKEY authentication
- * @returns MicroserviceOptions configured for NATS transport
+ * Creates NATS microservice configuration
+ * Used in microservice main.ts files with NestFactory.createMicroservice()
+ * 
+ * @returns MicroserviceOptions for Transport.NATS
  */
-export const createNatsServiceConfig = (): MicroserviceOptions => {
+export function createNatsServiceConfig(): MicroserviceOptions {
     const natsUrl = process.env.NATS_URL || 'nats://localhost:4222';
     const nkeySeed = process.env.NATS_NKEY_SEED;
 
@@ -14,7 +24,6 @@ export const createNatsServiceConfig = (): MicroserviceOptions => {
 
     // Add NKEY authentication if provided
     if (nkeySeed) {
-        const { nkeyAuthenticator } = require('nats');
         options.authenticator = nkeyAuthenticator(
             new TextEncoder().encode(nkeySeed)
         );
@@ -24,4 +33,4 @@ export const createNatsServiceConfig = (): MicroserviceOptions => {
         transport: Transport.NATS,
         options,
     };
-};
+}

@@ -2,9 +2,6 @@ import { Module } from '@nestjs/common';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import KeyvRedis from '@keyv/redis';
-
-import { join } from 'node:path';
-
 import { CourseModule } from './course/course.module';
 import { AuthModule } from './auth/auth.module';
 import { SharedModule, NatsAuthModule, NatsClientModule } from '@server/shared';
@@ -19,11 +16,7 @@ import { NotificationModule } from './notification/notification.module';
 import { QuestionBankModule } from './question-bank/question-bank.module';
 
 import { GatewayController } from './gateway.controller';
-import { GatewayService } from './gateway.service';
 import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
-import { SystemWorkerService } from './system-worker.service';
-import { NatsConnectionListener } from './nats-connection-listener.service';
-import { UserTrackingModule } from './user-tracking.module';
 
 @Module({
   imports: [
@@ -58,16 +51,12 @@ import { UserTrackingModule } from './user-tracking.module';
     BlogModule,
     QuestionBankModule,
     NotificationModule,
-    UserTrackingModule,
   ],
   controllers: [GatewayController],
   providers: [
-    GatewayService,
     ApiKeyGuard,
-    SystemWorkerService,
-    NatsConnectionListener,
   ],
-  exports: [UserTrackingModule],
+  exports: [],
 })
 export class GatewayModule { }
 

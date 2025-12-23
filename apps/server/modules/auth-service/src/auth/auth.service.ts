@@ -1,12 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { SupabaseClient } from '@supabase/supabase-js';
-import { SUPABASE_CLIENT, LiveKitService } from '@server/shared';
+import { SUPABASE_CLIENT,  } from '@server/shared';
 
 @Injectable()
 export class AuthService {
   constructor(
     @Inject(SUPABASE_CLIENT) private readonly supabase: SupabaseClient,
-    private readonly liveKitService: LiveKitService,
   ) { }
 
   ping() {
@@ -43,37 +42,6 @@ export class AuthService {
       throw new Error(error.message);
     }
     return { message: 'Signed out' };
-  }
-
-  async createToken(payload: {
-    roomName: string;
-    participantName: string;
-    identity: string;
-  }) {
-    const { roomName, participantName, identity } = payload;
-    const token = await this.liveKitService.createAccessToken(
-      identity,
-      participantName,
-      {
-        roomJoin: true,
-        room: roomName,
-        canPublish: true,
-        canSubscribe: true,
-        canPublishData: true,
-      },
-    );
-    return { token };
-  }
-
-  async getClientFiles(data: any) {
-    return {
-      status: true,
-      msg: 'success',
-      css: [],
-      js: [],
-      css_files: [],
-      js_files: [],
-    };
   }
 }
 

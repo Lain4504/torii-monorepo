@@ -50,7 +50,7 @@ export class JwtAuthGuard implements CanActivate {
 
         // Verify token
         try {
-            const apiKey = this.configService.get<string>('MEET_API_KEY');
+            const apiKey = this.configService.get<string>('WAJLC_API_KEY');
             const secret = this.configService.get<string>('WAJLC_API_SECRET');
 
             if (!apiKey || !secret) {

@@ -45,6 +45,8 @@ import {
   sendCommonProtoJsonResponse,
   sendProtoJsonResponse,
   sendCommonProtobufResponse,
+  sendProtobufResponse,
+  parseAndValidateRequest,  // Full Go equivalent
   ApiKeyGuard,
   JwtAuthGuard,
 } from '@server/shared';
@@ -69,13 +71,13 @@ export class RoomController {
    */
   @Post('create')
   async handleRoomCreate(
-    @Body() bodyBuffer: Buffer,
+    @Body() body: any,  // Accept both JSON and binary
     @Res() res: Response,
   ): Promise<void> {
-    // Parse protobuf request
+    // Parse and validate request (like Go: parseAndValidateRequest)
     let request: CreateRoomReq;
     try {
-      request = fromBinary(CreateRoomReqSchema, bodyBuffer);
+      request = parseAndValidateRequest<CreateRoomReq>(body, CreateRoomReqSchema);
     } catch (error) {
       sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Invalid request');
       return;
@@ -93,7 +95,8 @@ export class RoomController {
         roomInfo: roomInfo,
       });
 
-      sendProtoJsonResponse(res, response, CreateRoomResSchema);
+      res.status(200);
+      sendProtoJsonResponse(res, CreateRoomResSchema, response);
     } catch (error) {
       sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error creating room');
     }
@@ -107,13 +110,13 @@ export class RoomController {
    */
   @Post('isRoomActive')
   async handleIsRoomActive(
-    @Body() bodyBuffer: Buffer,
+    @Body() body: any,
     @Res() res: Response,
   ): Promise<void> {
-    // Parse protobuf request
+    // Parse and validate request (like Go: parseAndValidateRequest)
     let request: IsRoomActiveReq;
     try {
-      request = fromBinary(IsRoomActiveReqSchema, bodyBuffer);
+      request = parseAndValidateRequest<IsRoomActiveReq>(body, IsRoomActiveReqSchema);
     } catch (error) {
       sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Invalid request');
       return;
@@ -125,7 +128,8 @@ export class RoomController {
         .send('room.isActive', toBinary(IsRoomActiveReqSchema, request))
         .toPromise();
 
-      sendProtoJsonResponse(res, response, IsRoomActiveResSchema);
+      res.status(200);
+      sendProtoJsonResponse(res, IsRoomActiveResSchema, response);
     } catch (error) {
       sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error checking room status');
     }
@@ -139,13 +143,13 @@ export class RoomController {
    */
   @Post('getActiveRoomInfo')
   async handleGetActiveRoomInfo(
-    @Body() bodyBuffer: Buffer,
+    @Body() body: any,
     @Res() res: Response,
   ): Promise<void> {
-    // Parse protobuf request
+    // Parse and validate request (like Go: parseAndValidateRequest)
     let request: GetActiveRoomInfoReq;
     try {
-      request = fromBinary(GetActiveRoomInfoReqSchema, bodyBuffer);
+      request = parseAndValidateRequest<GetActiveRoomInfoReq>(body, GetActiveRoomInfoReqSchema);
     } catch (error) {
       sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Invalid request');
       return;
@@ -163,7 +167,8 @@ export class RoomController {
         room: result.room,
       });
 
-      sendProtoJsonResponse(res, response, GetActiveRoomInfoResSchema);
+      res.status(200);
+      sendProtoJsonResponse(res, GetActiveRoomInfoResSchema, response);
     } catch (error) {
       sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error getting room info');
     }
@@ -191,7 +196,8 @@ export class RoomController {
         rooms: result.rooms,
       });
 
-      sendProtoJsonResponse(res, response, GetActiveRoomsInfoResSchema);
+      res.status(200);  // Set 200 OK
+      sendProtoJsonResponse(res, GetActiveRoomsInfoResSchema, response);
     } catch (error) {
       sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error getting rooms info');
     }
@@ -205,13 +211,13 @@ export class RoomController {
    */
   @Post('endRoom')
   async handleEndRoom(
-    @Body() bodyBuffer: Buffer,
+    @Body() body: any,
     @Res() res: Response,
   ): Promise<void> {
-    // Parse protobuf request
+    // Parse and validate request (like Go: parseAndValidateRequest)
     let request: RoomEndReq;
     try {
-      request = fromBinary(RoomEndReqSchema, bodyBuffer);
+      request = parseAndValidateRequest<RoomEndReq>(body, RoomEndReqSchema);
     } catch (error) {
       sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Invalid request');
       return;
@@ -237,13 +243,13 @@ export class RoomController {
    */
   @Post('fetchPastRooms')
   async handleFetchPastRooms(
-    @Body() bodyBuffer: Buffer,
+    @Body() body: any,
     @Res() res: Response,
   ): Promise<void> {
-    // Parse protobuf request
+    // Parse and validate request (like Go: parseAndValidateRequest)
     let request: FetchPastRoomsReq;
     try {
-      request = fromBinary(FetchPastRoomsReqSchema, bodyBuffer);
+      request = parseAndValidateRequest<FetchPastRoomsReq>(body, FetchPastRoomsReqSchema);
     } catch (error) {
       sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Invalid request');
       return;
@@ -266,7 +272,8 @@ export class RoomController {
         result: result,
       });
 
-      sendProtoJsonResponse(res, response, FetchPastRoomsResSchema);
+      res.status(200);
+      sendProtoJsonResponse(res, FetchPastRoomsResSchema, response);
     } catch (error) {
       sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error fetching past rooms');
     }

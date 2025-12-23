@@ -1,15 +1,16 @@
+/**
+ * NATS Auth Module
+ * Handles LiveKit authentication callouts via NATS
+ * 
+ * Only imported by the Gateway module
+ * Listens for auth requests from LiveKit and validates tokens
+ */
+
 import { Module } from '@nestjs/common';
 import { NatsAuthService } from './nats-auth.service';
-import { NatsService } from './nats.service';
-import { ConfigModule } from '@nestjs/config';
 
-/**
- * NatsAuthModule - Only import this in Gateway service
- * This ensures auth callout handler runs on a single instance
- */
 @Module({
-  imports: [ConfigModule],
-  providers: [NatsAuthService],
-  exports: [NatsAuthService],
+    providers: [NatsAuthService],
+    exports: [NatsAuthService],
 })
-export class NatsAuthModule {}
+export class NatsAuthModule { }
