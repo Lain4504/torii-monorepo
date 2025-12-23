@@ -13,6 +13,7 @@ import { FileModule } from './file/file.module';
 import { AdminModule } from './admin/admin.module';
 import { FlashcardModule } from './flashcard/flashcard.module';
 import { StorageModule } from './storage/storage.module';
+import { QuestionBankModule } from './question-bank/question-bank.module';
 
 import { GatewayController } from './gateway.controller';
 import { GatewayService } from './gateway.service';
@@ -50,6 +51,7 @@ import { UserTrackingModule } from './user-tracking.module';
     FileModule,
     AdminModule,
     StorageModule,
+    QuestionBankModule,
     UserTrackingModule,
   ],
   controllers: [GatewayController],
