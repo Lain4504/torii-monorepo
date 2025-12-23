@@ -41,7 +41,6 @@ async function bootstrap() {
     .setDescription('The Gateway API description')
     .setVersion('1.0')
     .addTag('courses')
-    .addTag('question-bank')
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
