@@ -193,3 +193,29 @@ model FileAsset {
   @@map("file_assets")
 }
 
+// Question Bank - Bank of questions for quizzes and assessments
+model QuestionBank {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  questionText   String    @map("question_text") @db.Text
+  questionType   String    @map("question_type") @db.VarChar(30)
+  jlptLevel      String?   @map("jlpt_level") @db.VarChar(5)
+  category       String?   @db.VarChar(50)
+  subcategory    String?   @db.VarChar(50)
+  difficulty     String?   @db.VarChar(20)
+  options        Json?     @db.JsonB // { "A": "text", "B": "text", ... }
+  correctAnswer  String?   @map("correct_answer") @db.Text
+  explanation    String?   @db.Text
+  tags           String[]  @default([]) @db.VarChar(50)
+  createdBy      String?   @map("created_by") @db.Uuid
+  status         String    @default("active") @db.VarChar(20)
+  usageCount     Int       @default(0) @map("usage_count")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  @@index([questionType])
+  @@index([jlptLevel])
+  @@index([difficulty])
+  @@index([status])
+  @@map("question_bank")
+}
+
