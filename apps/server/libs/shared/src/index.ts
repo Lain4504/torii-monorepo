@@ -15,3 +15,10 @@ export * from './nats/nats-auth.module';
 export * from './nats/nats-client.module';
 export * from './utils/slug.utils';
 
+// Guards
+export * from './guards/api-key.guard';
+export * from './guards/jwt.guard';
+export * from './guards/role.guard';
+
+// Decorators
+export * from './decorators/roles.decorator';
