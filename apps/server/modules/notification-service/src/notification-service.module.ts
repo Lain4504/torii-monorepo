@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from '@server/shared';
-
+import { BlogModule } from './blog/blog.module';
 import { NotificationModule } from './notification/notification.module';
 
 @Module({
@@ -10,6 +10,7 @@ import { NotificationModule } from './notification/notification.module';
       isGlobal: true,
     }),
     PrismaModule,
+    BlogModule,
     NotificationModule,
   ],
 })

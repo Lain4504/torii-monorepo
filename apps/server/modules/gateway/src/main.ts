@@ -23,10 +23,14 @@ async function bootstrap() {
   app.use(raw({ type: 'application/protobuf', limit: '10mb' }));
 
   // 1. Validation Pipe
+  // Skip validation for multipart/form-data (file uploads)
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true, // Remove properties not in DTO
       transform: true, // Auto transform payload to DTO instance
+      skipMissingProperties: false,
+      skipNullProperties: false,
+      skipUndefinedProperties: false,
     }),
   );
 

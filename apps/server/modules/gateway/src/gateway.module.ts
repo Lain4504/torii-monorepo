@@ -14,6 +14,7 @@ import { AdminModule } from './admin/admin.module';
 import { FlashcardModule } from './flashcard/flashcard.module';
 import { FlashcardDeckModule } from './flashcard-deck/flashcard-deck.module';
 import { StorageModule } from './storage/storage.module';
+import { BlogModule } from './blog/blog.module';
 import { NotificationModule } from './notification/notification.module';
 import { QuestionBankModule } from './question-bank/question-bank.module';
 
@@ -54,6 +55,7 @@ import { UserTrackingModule } from './user-tracking.module';
     FileModule,
     AdminModule,
     StorageModule,
+    BlogModule,
     QuestionBankModule,
     NotificationModule,
     UserTrackingModule,

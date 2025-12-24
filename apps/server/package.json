@@ -11,7 +11,7 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "dev": "concurrently -c \"cyan.bold,magenta.bold,green.bold,yellow.bold,blue.bold,red.bold,white.bold,gray.bold,cyan\" \"npm:dev:gateway\" \"npm:dev:auth\" \"npm:dev:course\" \"npm:dev:room\" \"npm:dev:assessment\" \"npm:dev:payment\" \"npm:dev:ai\" \"npm:dev:notification\" \"npm:dev:storage\"",
+    "dev": "concurrently -c \"cyan.bold,magenta.bold,green.bold,yellow.bold,blue.bold,red.bold,white.bold,gray.bold,cyan,green\" \"npm:dev:gateway\" \"npm:dev:auth\" \"npm:dev:course\" \"npm:dev:room\" \"npm:dev:assessment\" \"npm:dev:payment\" \"npm:dev:ai\" \"npm:dev:notification\" \"npm:dev:storage\"",
     "dev:gateway": "dotenv -e ../../.env -- nest start gateway --watch",
     "dev:auth": "dotenv -e ../../.env -- nest start auth-service --watch",
     "dev:course": "dotenv -e ../../.env -- nest start course-service --watch",
