@@ -5,7 +5,7 @@
  * Handles NATS KV operations for room information and modification
  */
 
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { RoomMetadata, NatsKvRoomInfo } from '@workspace/protocol';
 import { NatsKvRoomInfoSchema, RoomMetadataSchema } from '@workspace/protocol';
@@ -18,7 +18,7 @@ import { NatsUserService } from './nats-user.service';
 const NATS_PREFIX = 'pnm-';  // Must use dash, not colon! NATS bucket names cannot contain ':'
 const ROOM_INFO_BUCKET_PREFIX = `${NATS_PREFIX}roomInfo-`;
 const ROOM_INFO_BUCKET = `${ROOM_INFO_BUCKET_PREFIX}%s`;
-const DEFAULT_TTL = 7 * 24 * 60 * 60 * 1000 * 1000000; // 7 days in nanoseconds
+const DEFAULT_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 
 // Room KV keys
 const ROOM_DB_TABLE_ID_KEY = 'id';
@@ -47,7 +47,7 @@ export class NatsRoomService {
         private readonly configService: ConfigService,
         private readonly natsService: NatsService,  // Inject base NATS service
         private readonly natsStreamService: NatsStreamService,  // Inject stream service
-        private readonly natsUserService: NatsUserService,  // Inject user service
+        @Inject(forwardRef(() => NatsUserService)) private readonly natsUserService: NatsUserService,  // Inject user service
     ) { }
 
     /**

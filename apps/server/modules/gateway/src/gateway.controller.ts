@@ -15,7 +15,7 @@ import {
   UseGuards,
   Req,
   Res,
-  HttpStatus,
+  HttpStatus, HttpCode,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { Inject } from '@nestjs/common';
@@ -53,6 +53,7 @@ export class GatewayController {
    * @route POST /api/verifyToken
    */
   @Post('verifyToken')
+  @HttpCode(HttpStatus.OK)
   async handleVerifyToken(
     @Req() req: Request,
     @Body() bodyBuffer: Buffer,
@@ -89,7 +90,7 @@ export class GatewayController {
     // Check if user is in block list
     try {
       const isBlocked = await this.natsClient
-        .send('room.isUserInBlockList', { roomId, userId: requestedUserId })
+        .send({ cmd: 'user.isUserInBlockList' }, { roomId, userId: requestedUserId })
         .toPromise();
 
       if (isBlocked) {
@@ -106,27 +107,41 @@ export class GatewayController {
       const isRoomActiveReq = create(IsRoomActiveReqSchema, { roomId });
       // Send plain object to NATS - NestJS handles JSON serialization
       const roomActiveResponse = await this.natsClient
-        .send('room.isActive', isRoomActiveReq)
+        .send({ cmd: 'room.isActive' }, isRoomActiveReq)
         .toPromise();
 
-      const roomData = roomActiveResponse; // Contains: rr, roomDbInfo, rInfo, meta
+      if (!roomActiveResponse) {
+        sendCommonProtoJsonResponse(res, false, 'room status unavailable');
+        return;
+      }
 
-      if (!roomData.isActive) {
-        sendCommonProtoJsonResponse(res, false, roomData.msg);
+      // roomActiveResponse can be either IsRoomActiveRes or full payload { res, roomDbInfo, rInfo, meta }
+      const roomData = roomActiveResponse?.res ? roomActiveResponse : { res: roomActiveResponse };
+      const rr = roomData.res;
+      const rInfo = roomData.rInfo;
+      const roomDbInfo = roomData.roomDbInfo;
+      const meta = roomData.meta ?? roomData.metadata;
+
+      if (!rr?.isActive) {
+        sendCommonProtoJsonResponse(res, false, rr?.msg || 'room is not active');
         return;
       }
 
       // Check max participants
       if (
-        roomData.rInfo.maxParticipants > 0 &&
-        roomData.roomDbInfo.joinedParticipants >= roomData.rInfo.maxParticipants
+        (rInfo?.maxParticipants || 0) > 0 &&
+        (roomDbInfo?.joinedParticipants || 0) >= (rInfo?.maxParticipants || 0)
       ) {
         sendCommonProtoJsonResponse(res, false, 'notifications.max-num-participates-exceeded');
         return;
       }
 
       // Build successful response
-      const natsWsUrls = this.configService.get<string[]>('NATS_WS_URLS') || [];
+      // Accept env as comma-separated string or array to mirror Go config
+      const rawWsUrls = this.configService.get<string>('NATS_WS_URLS');
+      const natsWsUrls = rawWsUrls
+        ? rawWsUrls.split(',').map((u) => u.trim()).filter((u) => !!u)
+        : this.configService.get<string[]>('NATS_WS_URLS') || [];
       const version = '1.0.0';
 
       // Read NATS subjects from config (matching Go: ac.AppConfig.NatsInfo.Subjects)
@@ -137,7 +152,7 @@ export class GatewayController {
         systemPrivate: this.configService.get<string>('NATS_SUBJECT_SYSTEM_PRIVATE') || 'sysPrivate',
         chat: this.configService.get<string>('NATS_SUBJECT_CHAT') || 'chat',
         whiteboard: this.configService.get<string>('NATS_SUBJECT_WHITEBOARD') || 'whiteboard',
-        dataChannel: this.configService.get<string>('NATS_SUBJECT_DATA_CHANNEL') || 'datachannel',
+        dataChannel: this.configService.get<string>('NATS_SUBJECT_DATA_CHANNEL') || 'dataChannel',
       };
 
       const response = create(VerifyTokenResSchema, {
@@ -148,10 +163,14 @@ export class GatewayController {
         roomId: roomId,
         userId: requestedUserId,
         natsSubjects: create(NatsSubjectsSchema, natsSubjects),
-        enabledSelfInsertEncryptionKey: roomData.meta?.roomFeatures?.endToEndEncryptionFeatures?.enabledSelfInsertEncryptionKey || false,
+        enabledSelfInsertEncryptionKey:
+          meta?.roomFeatures?.endToEndEncryptionFeatures?.enabledSelfInsertEncryptionKey || false,
       });
 
-      sendProtobufResponse(res, response, VerifyTokenResSchema);
+      console.log(response);
+
+      // Keep parameter order consistent with sendProtobufResponse(res, schema, message)
+      sendProtobufResponse(res, VerifyTokenResSchema, response);
     } catch (error) {
       sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error verifying token');
     }

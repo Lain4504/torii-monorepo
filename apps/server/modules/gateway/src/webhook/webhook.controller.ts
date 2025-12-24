@@ -9,14 +9,13 @@
 import {
     Controller,
     Post,
+    Body,
     Headers,
     HttpCode,
     HttpStatus,
     Inject,
-    Req,
     Logger,
 } from '@nestjs/common';
-import * as express from 'express';
 import { ClientProxy } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 import { verifyWebhookRequest } from '@server/shared/utils/webhook_verify';
@@ -80,16 +79,18 @@ export class WebhookController {
     @Post()
     @HttpCode(HttpStatus.OK)
     async handleWebhook(
-        @Req() req: express.Request & { rawBody?: Buffer },
+        @Body() body: any,
         @Headers('authorization') authHeader: string,
     ): Promise<void> {
-        // Read raw request body
+        // Read request body (JSON from room-service webhook notifier)
         // Equivalent to Go: data := c.Body()
-        const data = req.rawBody;
-        if (!data) {
-            this.logger.error('No raw body found in request');
+        if (!body) {
+            this.logger.error('No body found in request');
             throw new Error('No body');
         }
+
+        // Convert JSON body to bytes for verification
+        const data = Buffer.from(JSON.stringify(body), 'utf-8');
 
         // Extract Authorization header
         // Equivalent to Go: token := c.Get("Authorization")

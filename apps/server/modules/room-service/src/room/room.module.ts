@@ -5,8 +5,12 @@ import { SharedModule } from '@server/shared';
 import { RoomController } from './room.controller';
 import { UserController } from './user.controller';
 import { WebhookController } from '../webhook/webhook.controller';
+// NOTE: NatsAuthCalloutController removed - auth callout is now handled
+// directly in NatsController via raw NATS subscription to bypass JSON parsing
+
 // Services
 import { RoomCreateService } from './room-create.service';
+import { RoomInfoService } from './room-info.service';
 import { RoomModifyService } from './room-modify.service';
 import { RoomEndService } from './room-end.service';
 import { RoomDurationService } from './room-duration.service';
@@ -21,6 +25,9 @@ import { NatsSystemEventsService } from '../nats/nats-system-events.service';
 import { NatsStreamService } from '../nats/nats-stream.service';
 import { NatsUserService } from '../nats/nats-user.service';
 import { NatsUserInfoService } from '../nats/nats-user-info.service';
+import { NatsAuthCalloutService } from '../nats/nats-auth-callout.service';
+import { NatsConsumerService } from '../nats/nats-consumer.service';
+import { NatsController } from '../nats/nats.controller';
 
 // Redis Services
 import { RedisLockService } from '../redis/redis-lock.service';
@@ -30,7 +37,6 @@ import { RedisRoomService } from '../redis/redis-room.service';
 import { WebhookService } from '../webhook/webhook.service';
 import { WebhookNotifierService } from '../webhook/webhook-notifier.service';
 import { LiveKitService } from '../livekit/livekit.service';
-import { RoomInfoService } from './room-info.service';
 
 // Auth services
 import { PlugNmeetAuthService } from '../auth/plugnmeet-auth.service';
@@ -41,6 +47,7 @@ import { PlugNmeetAuthService } from '../auth/plugnmeet-auth.service';
     RoomController,
     UserController,
     WebhookController,
+    // NatsAuthCalloutController removed - handled in NatsController now
   ],
   providers: [
     // Room services
@@ -64,6 +71,9 @@ import { PlugNmeetAuthService } from '../auth/plugnmeet-auth.service';
     NatsStreamService,
     NatsUserService,
     NatsUserInfoService,
+    NatsAuthCalloutService,
+    NatsConsumerService,
+    NatsController,
 
     // Redis services
     RedisLockService,

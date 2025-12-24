@@ -9,7 +9,6 @@ async function bootstrap() {
   const natsConfig = createNatsServiceConfig();
   console.log('📡 NATS Config created');
 
-
   // Pure NATS Microservice - No HTTP server needed!
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     RoomServiceModule,

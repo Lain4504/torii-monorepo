@@ -23,7 +23,7 @@ import {
 
 // Constants matching Go
 const NATS_PREFIX = 'pnm-';
-const DEFAULT_TTL = 24 * 60 * 60 * 1000 * 1000000; // 24 hours in nanoseconds (for NATS)
+const DEFAULT_TTL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds (standard for JS/TS)
 
 /**
  * Proto JSON options matching Go
@@ -179,10 +179,10 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
      */
     marshalRoomMetadata(metadata: RoomMetadata): string {
         // Add metadata ID (matching Go: mId := uuid.NewString(); meta.MetadataId = &mId)
-        const metadataWithId = {
+        const metadataWithId = create(RoomMetadataSchema, {
             ...metadata,
             metadataId: uuidv4(),
-        };
+        });
 
         return this.marshalToProtoJson(metadataWithId, RoomMetadataSchema);
     }
@@ -208,10 +208,10 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
      */
     marshalUserMetadata(metadata: UserMetadata): string {
         // Add metadata ID (matching Go: mId := uuid.NewString(); meta.MetadataId = &mId)
-        const metadataWithId = {
+        const metadataWithId = create(UserMetadataSchema, {
             ...metadata,
             metadataId: uuidv4(),
-        };
+        });
 
         return this.marshalToProtoJson(metadataWithId, UserMetadataSchema);
     }
@@ -367,7 +367,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
      * @returns Array of permission strings for JWT
      */
     async createChatConsumer(roomId: string, userId: string): Promise<string[]> {
-        const chatSubject = this.configService.get<string>('NATS_CHAT_SUBJECT') || 'chat';
+        const chatSubject = this.configService.get<string>('NATS_SUBJECT_CHAT') || 'chat';
 
         try {
             // Create or update consumer
@@ -396,7 +396,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
      * Equivalent to Go: NatsService.CreateSystemPublicConsumer (js_consumer.go:31-50)
      */
     async createSystemPublicConsumer(roomId: string, userId: string): Promise<string[]> {
-        const sysPublicSubject = this.configService.get<string>('NATS_SYSTEM_PUBLIC_SUBJECT') || 'system-public';
+        const sysPublicSubject = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PUBLIC') || 'sysPublic';
 
         try {
             await this.jsm.consumers.add(roomId, {
@@ -423,7 +423,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
      * Equivalent to Go: NatsService.CreateSystemPrivateConsumer (js_consumer.go:52-71)
      */
     async createSystemPrivateConsumer(roomId: string, userId: string): Promise<string[]> {
-        const sysPrivateSubject = this.configService.get<string>('NATS_SYSTEM_PRIVATE_SUBJECT') || 'system-private';
+        const sysPrivateSubject = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PRIVATE') || 'sysPrivate';
 
         try {
             await this.jsm.consumers.add(roomId, {
@@ -450,7 +450,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
      * Equivalent to Go: NatsService.CreateWhiteboardConsumer (js_consumer.go:73-93)
      */
     async createWhiteboardConsumer(roomId: string, userId: string): Promise<string[]> {
-        const whiteboardSubject = this.configService.get<string>('NATS_WHITEBOARD_SUBJECT') || 'whiteboard';
+        const whiteboardSubject = this.configService.get<string>('NATS_SUBJECT_WHITEBOARD') || 'whiteboard';
 
         try {
             await this.jsm.consumers.add(roomId, {
@@ -478,7 +478,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
      * Equivalent to Go: NatsService.CreateDataChannelConsumer (js_consumer.go:95-115)
      */
     async createDataChannelConsumer(roomId: string, userId: string): Promise<string[]> {
-        const dataChannelSubject = this.configService.get<string>('NATS_DATA_CHANNEL_SUBJECT') || 'data-channel';
+        const dataChannelSubject = this.configService.get<string>('NATS_SUBJECT_DATA_CHANNEL') || 'dataChannel';
 
         try {
             await this.jsm.consumers.add(roomId, {
@@ -506,11 +506,11 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
      * Equivalent to Go: NatsService.DeleteConsumer (js_consumer.go:117-123)
      */
     async deleteConsumer(roomId: string, userId: string): Promise<void> {
-        const chatSubject = this.configService.get<string>('NATS_CHAT_SUBJECT') || 'chat';
-        const sysPublicSubject = this.configService.get<string>('NATS_SYSTEM_PUBLIC_SUBJECT') || 'system-public';
-        const sysPrivateSubject = this.configService.get<string>('NATS_SYSTEM_PRIVATE_SUBJECT') || 'system-private';
-        const whiteboardSubject = this.configService.get<string>('NATS_WHITEBOARD_SUBJECT') || 'whiteboard';
-        const dataChannelSubject = this.configService.get<string>('NATS_DATA_CHANNEL_SUBJECT') || 'data-channel';
+        const chatSubject = this.configService.get<string>('NATS_SUBJECT_CHAT') || 'chat';
+        const sysPublicSubject = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PUBLIC') || 'sysPublic';
+        const sysPrivateSubject = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PRIVATE') || 'sysPrivate';
+        const whiteboardSubject = this.configService.get<string>('NATS_SUBJECT_WHITEBOARD') || 'whiteboard';
+        const dataChannelSubject = this.configService.get<string>('NATS_SUBJECT_DATA_CHANNEL') || 'dataChannel';
 
         // Delete all consumers (silent fail like Go)
         try {

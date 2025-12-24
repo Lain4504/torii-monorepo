@@ -45,11 +45,18 @@ export class PlugNmeetAuthService {
     private readonly livekitSecret: string;
 
     constructor(private readonly configService: ConfigService) {
-        this.apiKey = this.configService.get<string>('PLUGNMEET_API_KEY') || '';
-        this.secret = this.configService.get<string>('PLUGNMEET_SECRET') || '';
+        // Fallback to WAJLC_ keys if PLUGNMEET_ keys are not set
+        this.apiKey = this.configService.get<string>('PLUGNMEET_API_KEY') ||
+            this.configService.get<string>('WAJLC_API_KEY') || '';
+        this.secret = this.configService.get<string>('PLUGNMEET_SECRET') ||
+            this.configService.get<string>('WAJLC_API_SECRET') || '';
         this.tokenValidity = this.configService.get<number>('PLUGNMEET_TOKEN_VALIDITY') || 3600; // 1 hour default
         this.livekitApiKey = this.configService.get<string>('LIVEKIT_API_KEY') || '';
         this.livekitSecret = this.configService.get<string>('LIVEKIT_API_SECRET') || '';
+
+        if (!this.apiKey || !this.secret) {
+            this.logger.error('API Key or Secret is missing. Please check configuration (PLUGNMEET_ or WAJLC_ keys).');
+        }
     }
 
     /**
@@ -105,6 +112,14 @@ export class PlugNmeetAuthService {
             this.logger.error(`Invalid token: ${error.message}`);
             throw new Error('Invalid token claims');
         }
+    }
+
+    /**
+     * Alias for verifyPNMAccessToken
+     * Used by NATS auth callout
+     */
+    verifyToken(token: string): PlugNmeetTokenClaims {
+        return this.verifyPNMAccessToken(token, 0);
     }
 
     /**

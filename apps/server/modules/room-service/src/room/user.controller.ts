@@ -32,6 +32,16 @@ export class UserController {
     }
 
     /**
+     * Check user status (online/offline)
+     * Pattern: room.getUserStatus
+     * From: gateway.controller.ts
+     */
+    @MessagePattern('room.getUserStatus')
+    async getUserStatus(@Payload() data: { roomId: string; userId: string }) {
+        return this.roomUserService.getUserStatus(data.roomId, data.userId);
+    }
+
+    /**
      * Generate join token for a user
      * Pattern: user.generateJoinToken
      * From: auth-room.controller.ts line 122

@@ -140,9 +140,11 @@ export class RoomController {
         .send({ cmd: 'room.isActive' }, request)
         .toPromise();
 
-      console.log('🟢 [Gateway] Received NATS response:', response);
+      const payload = response?.res ? response.res : response;
+
+      console.log('🟢 [Gateway] Received NATS response:', payload);
       res.status(200);
-      sendProtoJsonResponse(res, IsRoomActiveResSchema, response);
+      sendProtoJsonResponse(res, IsRoomActiveResSchema, payload);
     } catch (error) {
       console.error('🔴 [Gateway] NATS error:', error);
       sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error checking room status');

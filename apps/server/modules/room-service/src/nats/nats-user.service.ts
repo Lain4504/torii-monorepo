@@ -5,7 +5,7 @@
  * Handles NATS KV operations for user information and modification
  */
 
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { UserMetadata } from '@workspace/protocol';
 import { UserMetadataSchema, NatsMsgServerToClientEvents } from '@workspace/protocol';
@@ -26,7 +26,7 @@ const USER_INFO_BUCKET = `${USER_INFO_BUCKET_PREFIX}r_%s-u_%s`;
 
 const ROOM_USERS_BLOCK_LIST = `${NATS_PREFIX}usersBlockList-%s`;
 
-const DEFAULT_TTL = 7 * 24 * 60 * 60 * 1000 * 1000000; // 7 days in nanoseconds
+const DEFAULT_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 const USER_ONLINE_MAX_PING_DIFF = 2 * 60 * 1000; // 2 minutes in ms
 
 // User KV keys
@@ -60,7 +60,7 @@ export class NatsUserService {
         private readonly configService: ConfigService,
         private readonly natsService: NatsService,
         private readonly natsUserInfo: NatsUserInfoService,
-        private readonly natsSystemEvents: NatsSystemEventsService,
+        @Inject(forwardRef(() => NatsSystemEventsService)) private readonly natsSystemEvents: NatsSystemEventsService,
         private readonly livekitService: LiveKitService,
     ) { }
 
@@ -99,7 +99,7 @@ export class NatsUserService {
         const userBucket = USER_INFO_BUCKET.replace('%s', roomId).replace('%s', userId);
         const userKV = await js.views.kv(userBucket, {
             history: 1,
-            ttl: DEFAULT_TTL,
+            ttl: 24 * 60 * 60 * 1000, // 24 hours in ms
             replicas: numReplicas,
         });
 

@@ -58,6 +58,10 @@ export class WebhookController {
             case 'track_unpublished':
                 await this.webhookService.trackUnpublished(event);
                 break;
+            case 'room_created':
+                // Internal event from room-service, not a LiveKit event
+                // Ignore - already processed by room creation logic
+                break;
             default:
                 this.logger.warn(`Unknown webhook event type: ${event.event}`);
         }

@@ -7,7 +7,8 @@
 
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { RoomServiceClient } from 'livekit-server-sdk';
+import { RoomServiceClient, AccessToken } from 'livekit-server-sdk';
+import { NatsKvUserInfo } from '@workspace/protocol';
 
 /**
  * LiveKitService handles participant operations with LiveKit server
@@ -164,6 +165,48 @@ export class LiveKitService {
             );
             throw error;
         }
+    }
+
+    /**
+     * CreateToken generates a LiveKit access token
+     * Equivalent to Go: natsModel.GenerateLivekitToken (nats_user_event.go:96) calling auth.GenerateLivekitToken
+     * 
+     * @param roomId - Room ID
+     * @param userInfo - NatsKvUserInfo object
+     * @returns JWT token string
+     */
+    async createToken(roomId: string, userInfo: NatsKvUserInfo): Promise<string> {
+        const apiKey = this.configService.get<string>('LIVEKIT_API_KEY');
+        const apiSecret = this.configService.get<string>('LIVEKIT_API_SECRET');
+
+        if (!apiKey || !apiSecret) {
+            throw new Error('LiveKit API key or secret not configured');
+        }
+
+        const at = new AccessToken(apiKey, apiSecret, {
+            identity: userInfo.userId,
+            name: userInfo.name,
+            metadata: JSON.stringify(userInfo), // Go embeds userInfo as metadata
+        });
+
+        // Set video grant permissions
+        at.addGrant({
+            roomJoin: true,
+            room: roomId,
+            canPublish: userInfo.isPresenter,
+            canSubscribe: true,
+            canPublishData: true,
+            hidden: false,
+            recorder: userInfo.userId === 'RECORDER_BOT' || userInfo.name === 'RECORDER_BOT', // Simple check, refine if needed
+        });
+
+        // Add admin grant if applicable
+        if (userInfo.isAdmin) {
+            // LiveKit doesn't have explicit "admin" grant in same way, 
+            // but we can set permission appropriately or rely on metadata
+        }
+
+        return at.toJwt();
     }
 
     /**

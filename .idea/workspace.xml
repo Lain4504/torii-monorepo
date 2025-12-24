@@ -4,11 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix: to go">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix to can run">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/livekit/livekit.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/livekit/livekit.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/nats/nats-consumer.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/nats/nats-consumer.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/nats/nats-system-events.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/nats/nats-system-events.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/nats/nats-user-info.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/nats/nats-user-info.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/nats/nats-user.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/nats/nats-user.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/room-user.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/room-user.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/nats/nats.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/nats/nats.controller.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/packages/protocol/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/.gitignore" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -119,158 +122,6 @@
       <workItem from="1766389953908" duration="3574000" />
       <workItem from="1766495967127" duration="4561000" />
       <workItem from="1766538393698" duration="11108000" />
-    </task>
-    <task id="LOCAL-00231" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766508310749</created>
-      <option name="number" value="00231" />
-      <option name="presentableId" value="LOCAL-00231" />
-      <option name="project" value="LOCAL" />
-      <updated>1766508310750</updated>
-    </task>
-    <task id="LOCAL-00232" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766540086999</created>
-      <option name="number" value="00232" />
-      <option name="presentableId" value="LOCAL-00232" />
-      <option name="project" value="LOCAL" />
-      <updated>1766540087000</updated>
-    </task>
-    <task id="LOCAL-00233" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766540665905</created>
-      <option name="number" value="00233" />
-      <option name="presentableId" value="LOCAL-00233" />
-      <option name="project" value="LOCAL" />
-      <updated>1766540665905</updated>
-    </task>
-    <task id="LOCAL-00234" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766540970527</created>
-      <option name="number" value="00234" />
-      <option name="presentableId" value="LOCAL-00234" />
-      <option name="project" value="LOCAL" />
-      <updated>1766540970527</updated>
-    </task>
-    <task id="LOCAL-00235" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766541501779</created>
-      <option name="number" value="00235" />
-      <option name="presentableId" value="LOCAL-00235" />
-      <option name="project" value="LOCAL" />
-      <updated>1766541501779</updated>
-    </task>
-    <task id="LOCAL-00236" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766541915386</created>
-      <option name="number" value="00236" />
-      <option name="presentableId" value="LOCAL-00236" />
-      <option name="project" value="LOCAL" />
-      <updated>1766541915386</updated>
-    </task>
-    <task id="LOCAL-00237" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766541922747</created>
-      <option name="number" value="00237" />
-      <option name="presentableId" value="LOCAL-00237" />
-      <option name="project" value="LOCAL" />
-      <updated>1766541922747</updated>
-    </task>
-    <task id="LOCAL-00238" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766541936632</created>
-      <option name="number" value="00238" />
-      <option name="presentableId" value="LOCAL-00238" />
-      <option name="project" value="LOCAL" />
-      <updated>1766541936632</updated>
-    </task>
-    <task id="LOCAL-00239" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766542199192</created>
-      <option name="number" value="00239" />
-      <option name="presentableId" value="LOCAL-00239" />
-      <option name="project" value="LOCAL" />
-      <updated>1766542199192</updated>
-    </task>
-    <task id="LOCAL-00240" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766542205013</created>
-      <option name="number" value="00240" />
-      <option name="presentableId" value="LOCAL-00240" />
-      <option name="project" value="LOCAL" />
-      <updated>1766542205013</updated>
-    </task>
-    <task id="LOCAL-00241" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766542324226</created>
-      <option name="number" value="00241" />
-      <option name="presentableId" value="LOCAL-00241" />
-      <option name="project" value="LOCAL" />
-      <updated>1766542324226</updated>
-    </task>
-    <task id="LOCAL-00242" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766542516846</created>
-      <option name="number" value="00242" />
-      <option name="presentableId" value="LOCAL-00242" />
-      <option name="project" value="LOCAL" />
-      <updated>1766542516846</updated>
-    </task>
-    <task id="LOCAL-00243" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766542556907</created>
-      <option name="number" value="00243" />
-      <option name="presentableId" value="LOCAL-00243" />
-      <option name="project" value="LOCAL" />
-      <updated>1766542556907</updated>
-    </task>
-    <task id="LOCAL-00244" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766542581955</created>
-      <option name="number" value="00244" />
-      <option name="presentableId" value="LOCAL-00244" />
-      <option name="project" value="LOCAL" />
-      <updated>1766542581955</updated>
-    </task>
-    <task id="LOCAL-00245" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766543005534</created>
-      <option name="number" value="00245" />
-      <option name="presentableId" value="LOCAL-00245" />
-      <option name="project" value="LOCAL" />
-      <updated>1766543005534</updated>
-    </task>
-    <task id="LOCAL-00246" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766543079561</created>
-      <option name="number" value="00246" />
-      <option name="presentableId" value="LOCAL-00246" />
-      <option name="project" value="LOCAL" />
-      <updated>1766543079561</updated>
-    </task>
-    <task id="LOCAL-00247" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766543882316</created>
-      <option name="number" value="00247" />
-      <option name="presentableId" value="LOCAL-00247" />
-      <option name="project" value="LOCAL" />
-      <updated>1766543882316</updated>
-    </task>
-    <task id="LOCAL-00248" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766544141375</created>
-      <option name="number" value="00248" />
-      <option name="presentableId" value="LOCAL-00248" />
-      <option name="project" value="LOCAL" />
-      <updated>1766544141375</updated>
-    </task>
-    <task id="LOCAL-00249" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766544159700</created>
-      <option name="number" value="00249" />
-      <option name="presentableId" value="LOCAL-00249" />
-      <option name="project" value="LOCAL" />
-      <updated>1766544159700</updated>
     </task>
     <task id="LOCAL-00250" summary="fix: to go">
       <option name="closed" value="true" />
@@ -512,7 +363,159 @@
       <option name="project" value="LOCAL" />
       <updated>1766564938245</updated>
     </task>
-    <option name="localTasksCounter" value="280" />
+    <task id="LOCAL-00280" summary="fix: to go">
+      <option name="closed" value="true" />
+      <created>1766566281804</created>
+      <option name="number" value="00280" />
+      <option name="presentableId" value="LOCAL-00280" />
+      <option name="project" value="LOCAL" />
+      <updated>1766566281804</updated>
+    </task>
+    <task id="LOCAL-00281" summary="fix: to go">
+      <option name="closed" value="true" />
+      <created>1766566557494</created>
+      <option name="number" value="00281" />
+      <option name="presentableId" value="LOCAL-00281" />
+      <option name="project" value="LOCAL" />
+      <updated>1766566557494</updated>
+    </task>
+    <task id="LOCAL-00282" summary="fix: to go">
+      <option name="closed" value="true" />
+      <created>1766567864045</created>
+      <option name="number" value="00282" />
+      <option name="presentableId" value="LOCAL-00282" />
+      <option name="project" value="LOCAL" />
+      <updated>1766567864045</updated>
+    </task>
+    <task id="LOCAL-00283" summary="fix to can run">
+      <option name="closed" value="true" />
+      <created>1766570544412</created>
+      <option name="number" value="00283" />
+      <option name="presentableId" value="LOCAL-00283" />
+      <option name="project" value="LOCAL" />
+      <updated>1766570544412</updated>
+    </task>
+    <task id="LOCAL-00284" summary="fix to can run">
+      <option name="closed" value="true" />
+      <created>1766571505443</created>
+      <option name="number" value="00284" />
+      <option name="presentableId" value="LOCAL-00284" />
+      <option name="project" value="LOCAL" />
+      <updated>1766571505443</updated>
+    </task>
+    <task id="LOCAL-00285" summary="fix to can run">
+      <option name="closed" value="true" />
+      <created>1766571518793</created>
+      <option name="number" value="00285" />
+      <option name="presentableId" value="LOCAL-00285" />
+      <option name="project" value="LOCAL" />
+      <updated>1766571518793</updated>
+    </task>
+    <task id="LOCAL-00286" summary="fix to can run">
+      <option name="closed" value="true" />
+      <created>1766572593456</created>
+      <option name="number" value="00286" />
+      <option name="presentableId" value="LOCAL-00286" />
+      <option name="project" value="LOCAL" />
+      <updated>1766572593456</updated>
+    </task>
+    <task id="LOCAL-00287" summary="fix to can run">
+      <option name="closed" value="true" />
+      <created>1766572599853</created>
+      <option name="number" value="00287" />
+      <option name="presentableId" value="LOCAL-00287" />
+      <option name="project" value="LOCAL" />
+      <updated>1766572599853</updated>
+    </task>
+    <task id="LOCAL-00288" summary="fix to can run">
+      <option name="closed" value="true" />
+      <created>1766576319912</created>
+      <option name="number" value="00288" />
+      <option name="presentableId" value="LOCAL-00288" />
+      <option name="project" value="LOCAL" />
+      <updated>1766576319912</updated>
+    </task>
+    <task id="LOCAL-00289" summary="fix to can run">
+      <option name="closed" value="true" />
+      <created>1766582292021</created>
+      <option name="number" value="00289" />
+      <option name="presentableId" value="LOCAL-00289" />
+      <option name="project" value="LOCAL" />
+      <updated>1766582292022</updated>
+    </task>
+    <task id="LOCAL-00290" summary="fix to can run">
+      <option name="closed" value="true" />
+      <created>1766582297749</created>
+      <option name="number" value="00290" />
+      <option name="presentableId" value="LOCAL-00290" />
+      <option name="project" value="LOCAL" />
+      <updated>1766582297749</updated>
+    </task>
+    <task id="LOCAL-00291" summary="fix to can run">
+      <option name="closed" value="true" />
+      <created>1766583203346</created>
+      <option name="number" value="00291" />
+      <option name="presentableId" value="LOCAL-00291" />
+      <option name="project" value="LOCAL" />
+      <updated>1766583203347</updated>
+    </task>
+    <task id="LOCAL-00292" summary="fix to can run">
+      <option name="closed" value="true" />
+      <created>1766583345723</created>
+      <option name="number" value="00292" />
+      <option name="presentableId" value="LOCAL-00292" />
+      <option name="project" value="LOCAL" />
+      <updated>1766583345723</updated>
+    </task>
+    <task id="LOCAL-00293" summary="fix to can run">
+      <option name="closed" value="true" />
+      <created>1766584190966</created>
+      <option name="number" value="00293" />
+      <option name="presentableId" value="LOCAL-00293" />
+      <option name="project" value="LOCAL" />
+      <updated>1766584190967</updated>
+    </task>
+    <task id="LOCAL-00294" summary="fix to can run">
+      <option name="closed" value="true" />
+      <created>1766584455777</created>
+      <option name="number" value="00294" />
+      <option name="presentableId" value="LOCAL-00294" />
+      <option name="project" value="LOCAL" />
+      <updated>1766584455777</updated>
+    </task>
+    <task id="LOCAL-00295" summary="fix to can run">
+      <option name="closed" value="true" />
+      <created>1766589063314</created>
+      <option name="number" value="00295" />
+      <option name="presentableId" value="LOCAL-00295" />
+      <option name="project" value="LOCAL" />
+      <updated>1766589063315</updated>
+    </task>
+    <task id="LOCAL-00296" summary="fix to can run">
+      <option name="closed" value="true" />
+      <created>1766592165707</created>
+      <option name="number" value="00296" />
+      <option name="presentableId" value="LOCAL-00296" />
+      <option name="project" value="LOCAL" />
+      <updated>1766592165707</updated>
+    </task>
+    <task id="LOCAL-00297" summary="fix to can run">
+      <option name="closed" value="true" />
+      <created>1766592705336</created>
+      <option name="number" value="00297" />
+      <option name="presentableId" value="LOCAL-00297" />
+      <option name="project" value="LOCAL" />
+      <updated>1766592705336</updated>
+    </task>
+    <task id="LOCAL-00298" summary="fix to can run">
+      <option name="closed" value="true" />
+      <created>1766593003115</created>
+      <option name="number" value="00298" />
+      <option name="presentableId" value="LOCAL-00298" />
+      <option name="project" value="LOCAL" />
+      <updated>1766593003117</updated>
+    </task>
+    <option name="localTasksCounter" value="299" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -552,7 +555,8 @@
     <MESSAGE value="refactor: create utils for meet features" />
     <MESSAGE value="fix: format type" />
     <MESSAGE value="fix: to go" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: to go" />
+    <MESSAGE value="fix to can run" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix to can run" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

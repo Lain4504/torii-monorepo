@@ -51,8 +51,7 @@ export class RoomController {
   async isRoomActive(@Payload() data: IsRoomActiveReq) {
     // NestJS NATS transport automatically deserializes to plain objects
     // No need for fromBinary() - data is already a deserialized object
-    const { res } = await this.roomInfoService.isRoomActive(data);
-    return res;
+    return this.roomInfoService.isRoomActive(data);
   }
 
   @MessagePattern({ cmd: 'room.getActiveInfo' })  // Changed from room.getActiveRoomInfo to match gateway

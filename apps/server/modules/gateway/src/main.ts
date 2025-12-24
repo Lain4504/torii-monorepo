@@ -2,10 +2,22 @@ import 'dotenv/config';
 import { NestFactory, HttpAdapterHost } from '@nestjs/core';
 import { GatewayModule } from './gateway.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as bodyParser from 'body-parser';
 
 async function bootstrap() {
-  // Use default NestJS body parser (matching Go server - no special content-type checks)
+  // Create app with custom body parser (matching Go server - no special content-type checks)
   const app = await NestFactory.create(GatewayModule);
+
+  // Configure body parser to accept webhook content-type
+  app.use(bodyParser.json({
+    type: ['application/json', 'application/webhook+json']
+  }));
+  // Accept binary protobuf
+  app.use(bodyParser.raw({
+    type: ['application/protobuf', 'application/octet-stream'],
+    limit: '10mb'
+  }));
+
   await app.startAllMicroservices();
   const httpAdapter = app.get(HttpAdapterHost);
 

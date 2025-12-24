@@ -20,8 +20,8 @@ export class NatsStreamService {
     // Subject names (matching Go config)
     private readonly subjects = {
         chat: 'chat',
-        systemPublic: 'systemPublic',
-        systemPrivate: 'systemPrivate',
+        systemPublic: 'sysPublic',   // Fixed: sysPublic (was systemPublic)
+        systemPrivate: 'sysPrivate', // Fixed: sysPrivate (was systemPrivate)
         whiteboard: 'whiteboard',
         dataChannel: 'dataChannel',
     };
@@ -63,19 +63,29 @@ export class NatsStreamService {
             // Try to get existing stream
             const existingStream = await jsm.streams.info(roomId).catch(() => null);
 
+            // Define 1 second in nanoseconds (Go time.Duration unit)
+            const ONE_SECOND_NS = 1_000_000_000;
+            const sevenDaysNs = 7 * 24 * 60 * 60 * ONE_SECOND_NS;
+
             if (existingStream) {
                 // Update existing stream
                 this.logger.debug(`Updating existing stream: ${roomId}`);
+
                 await jsm.streams.update(roomId, {
                     subjects,
+                    max_age: sevenDaysNs,
                 });
             } else {
                 // Create new stream (matching Go: CreateOrUpdateStream)
                 this.logger.debug(`Creating new stream: ${roomId}`);
+
+                this.logger.debug(`Creating stream ${roomId} with max_age: ${sevenDaysNs}`);
+
                 await jsm.streams.add({
                     name: roomId,
                     subjects,
                     num_replicas: numReplicas,
+                    max_age: sevenDaysNs,
                 });
             }
 
@@ -105,6 +115,48 @@ export class NatsStreamService {
                 return;
             }
             throw new Error(`Failed to delete NATS stream: ${error.message}`);
+        }
+    }
+
+    /**
+     * Create a JetStream consumer for a stream
+     * Used by NATS auth callout to set up user permissions
+     */
+    async createConsumer(streamName: string, config: any): Promise<void> {
+        try {
+            const jsm = this.natsService.getJetStreamManager();
+
+            // Check if consumer already exists
+            const existingConsumer = await jsm.consumers.info(streamName, config.durable_name).catch(() => null);
+
+            if (existingConsumer) {
+                // Update existing consumer
+                this.logger.debug(`Updating consumer ${config.durable_name} in stream ${streamName}`);
+                // Note: NATS.js doesn't have direct update, we delete and recreate
+                await jsm.consumers.delete(streamName, config.durable_name).catch(() => { });
+            }
+
+            // Create consumer
+            this.logger.debug(`Creating consumer ${config.durable_name} in stream ${streamName}`);
+            await jsm.consumers.add(streamName, config);
+        } catch (error) {
+            // Don't throw - just log warning, consumer will be created on first use
+            this.logger.warn(`Error creating consumer ${config.durable_name}: ${error.message}`);
+        }
+    }
+
+    /**
+     * Delete a JetStream consumer
+     * Used when user disconnects
+     */
+    async deleteConsumer(streamName: string, consumerName: string): Promise<void> {
+        try {
+            const jsm = this.natsService.getJetStreamManager();
+            await jsm.consumers.delete(streamName, consumerName);
+            this.logger.debug(`Deleted consumer ${consumerName} from stream ${streamName}`);
+        } catch (error) {
+            // Ignore if consumer doesn't exist
+            this.logger.debug(`Consumer ${consumerName} not found in stream ${streamName}`);
         }
     }
 }

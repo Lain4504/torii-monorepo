@@ -118,14 +118,14 @@ export class AuthRoomController {
 
         // Generate token (via NATS)
         try {
-            const token = await this.natsClient
+            const result = await this.natsClient
                 .send({ cmd: 'user.generateJoinToken' }, request)
                 .toPromise();
 
             const response = create(GenerateTokenResSchema, {
                 status: true,
                 msg: 'success',
-                token: token,
+                token: result.token,
             });
 
             res.status(200);

@@ -230,12 +230,18 @@ export class NatsUserInfoService {
      */
     async isUserExistInBlockList(roomId: string, userId: string): Promise<boolean> {
         const bucket = ROOM_USERS_BLOCK_LIST.replace('%s', roomId);
+        this.logger.debug(`Checking block list bucket: ${bucket}, userId: ${userId}`);
+
         try {
             const js = this.natsService.getJetStream();
             const kv = await js.views.kv(bucket);
             const entry = await kv.get(userId);
-            return entry !== null && entry !== undefined;
+            const isBlocked = entry !== null && entry !== undefined;
+
+            this.logger.debug(`Block list entry found: ${isBlocked}`);
+            return isBlocked;
         } catch (error) {
+            this.logger.debug(`Block list bucket not found or error: ${error.message}, returning false`);
             return false;
         }
     }
@@ -409,6 +415,21 @@ export class NatsUserInfoService {
         } catch (error) {
             return 0;
         }
+    }
+
+    /**
+     * UpdateUserKeyValue updates a specific key-value pair for a user
+     * Equivalent to Go: s.UpdateUserKeyValue
+     */
+    async updateUserKeyValue(roomId: string, userId: string, key: string, value: string): Promise<void> {
+        const js = this.natsService.getJetStream();
+
+        // Retrieve the user info bucket
+        const bucket = USER_INFO_BUCKET.replace('%s', roomId).replace('%s', userId);
+        const userKV = await js.views.kv(bucket);
+
+        // Update the key-value pair
+        await userKV.put(key, new TextEncoder().encode(value));
     }
 
     // ============================================================================

@@ -40,16 +40,26 @@ export class RoomUserService {
      * Check if user is in block list
      * Equivalent to Go: m.natsService.IsUserExistInBlockList
      */
-    async isUserInBlockList(roomId: string, userId: string): Promise<{ isBlocked: boolean }> {
+    async isUserInBlockList(roomId: string, userId: string): Promise<boolean> {
         this.logger.log(`Checking if user is in block list: ${userId} in room ${roomId}`);
 
         try {
             const isBlocked = await this.natsUserInfo.isUserExistInBlockList(roomId, userId);
-            return { isBlocked };
+            this.logger.log(`Block list check result: ${userId} blocked=${isBlocked}`);
+            return isBlocked;
         } catch (error) {
             this.logger.error(`Error checking block list: ${error.message}`);
-            return { isBlocked: false };
+            return false;
         }
+    }
+
+    /**
+     * Get user online status
+     * Mirrors Go: NatsService.GetRoomUserStatus (user_info.go)
+     */
+    async getUserStatus(roomId: string, userId: string): Promise<string> {
+        // Use NATS user info service to follow Go logic: cache → KV lookup → watcher
+        return this.natsUserInfo.getRoomUserStatus(roomId, userId);
     }
 
     /**
@@ -77,7 +87,7 @@ export class RoomUserService {
             }
 
             // Step 3: Fetch the current room information and metadata from NATS
-            const roomInfo = await this.natsUserInfo['getRoomInfoWithMetadata'](roomId);
+            const roomInfo = await this.natsRoom.getRoomInfoWithMetadata(roomId);
             if (!roomInfo || !roomInfo.metadata) {
                 throw new Error('Did not find correct room info');
             }

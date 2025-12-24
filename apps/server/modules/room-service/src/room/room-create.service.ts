@@ -415,25 +415,36 @@ export class RoomCreateService {
                 roomId: roomId,
                 isRunning: 1,  // Int type: 1 means running
             },
+            orderBy: {
+                id: 'desc',
+            },
         });
     }
 
     private async insertOrUpdateRoomInfo(roomInfo: any): Promise<any> {
-        // Upsert based on roomId (update if exists, create if not)
-        return this.prisma.roomInfo.upsert({
-            where: {
-                sid: roomInfo.sid, // Unique constraint on sid
-            },
-            update: {
-                roomTitle: roomInfo.roomTitle,
-                joinedParticipants: roomInfo.joinedParticipants,
-                isRunning: roomInfo.isRunning,
-                webhookUrl: roomInfo.webhookUrl,
-                isBreakoutRoom: roomInfo.isBreakoutRoom,
-                parentRoomId: roomInfo.parentRoomId,
-                creationTime: roomInfo.creationTime,
-            },
-            create: {
+        // If we have an existing record (indicated by having an ID), update it
+        // This handles cases where we found a stale room in DB and are reusing the record with a new SID
+        if (roomInfo.id) {
+            return this.prisma.roomInfo.update({
+                where: {
+                    id: roomInfo.id,
+                },
+                data: {
+                    roomTitle: roomInfo.roomTitle,
+                    sid: roomInfo.sid,
+                    joinedParticipants: roomInfo.joinedParticipants,
+                    isRunning: roomInfo.isRunning,
+                    webhookUrl: roomInfo.webhookUrl,
+                    isBreakoutRoom: roomInfo.isBreakoutRoom,
+                    parentRoomId: roomInfo.parentRoomId,
+                    creationTime: roomInfo.creationTime,
+                },
+            });
+        }
+
+        // Otherwise create a new record
+        return this.prisma.roomInfo.create({
+            data: {
                 roomTitle: roomInfo.roomTitle,
                 roomId: roomInfo.roomId,
                 sid: roomInfo.sid,

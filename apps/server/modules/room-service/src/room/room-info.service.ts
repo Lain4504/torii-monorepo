@@ -64,6 +64,7 @@ export class RoomInfoService {
         roomDbInfo: any | null;
         rInfo: NatsKvRoomInfo | null;
         metadata: RoomMetadata | null;
+        meta?: RoomMetadata | null; // alias to mirror Go return shape
     }> {
         const log = this.logger;
         log.log(`IsRoomActive check: ${req.roomId}`);
@@ -100,7 +101,8 @@ export class RoomInfoService {
             res.msg = 'room is active';
         }
 
-        return { res, roomDbInfo, rInfo, metadata };
+        // Return full context for callers that need both DB and KV data (matches Go signature)
+        return { res, roomDbInfo, rInfo, metadata, meta: metadata };
     }
 
     /**
@@ -324,6 +326,9 @@ export class RoomInfoService {
                 where: {
                     roomId: roomId,
                     isRunning: isRunning ? 1 : 0,  // int type: 0 or 1
+                },
+                orderBy: {
+                    id: 'desc',
                 },
             });
         } catch (error) {
