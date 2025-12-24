@@ -512,32 +512,20 @@ export class BlogService {
     // Lấy author info từ Supabase
     let authorInfo: { id: string; fullName: string; avatarUrl: string | null } | null = null;
     
-    const skipAuthCheck = process.env.SKIP_SUPABASE_AUTH_CHECK === 'true';
-    
     if (post.authorId) {
-      if (skipAuthCheck) {
-        // Test mode: Use mock author data
-        authorInfo = {
-          id: post.authorId,
-          fullName: 'Test User',
-          avatarUrl: null,
-        };
-      } else {
-        // Production mode: Fetch from Supabase
-        try {
-          const { data: user, error } = await this.supabase.auth.admin.getUserById(
-            post.authorId,
-          );
-          if (user && user.user) {
-            authorInfo = {
-              id: user.user.id,
-              fullName: user.user.user_metadata?.full_name || user.user.user_metadata?.name || user.user.email || 'Unknown',
-              avatarUrl: user.user.user_metadata?.avatar_url || null,
-            };
-          }
-        } catch (error: any) {
-          this.logger.warn(`Failed to get author info from Supabase: ${error?.message || 'Unknown error'}`);
+      try {
+        const { data: user, error } = await this.supabase.auth.admin.getUserById(
+          post.authorId,
+        );
+        if (user && user.user) {
+          authorInfo = {
+            id: user.user.id,
+            fullName: user.user.user_metadata?.full_name || user.user.user_metadata?.name || user.user.email || 'Unknown',
+            avatarUrl: user.user.user_metadata?.avatar_url || null,
+          };
         }
+      } catch (error: any) {
+        // Silent fail - continue without author info
       }
     }
 
@@ -567,7 +555,7 @@ export class BlogService {
           };
         }
       } catch (error: any) {
-        this.logger.warn(`Failed to get author info from Supabase: ${error?.message || 'Unknown error'}`);
+        // Silent fail - continue without author info
       }
     }
 
