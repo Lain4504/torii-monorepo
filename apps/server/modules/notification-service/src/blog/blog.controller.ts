@@ -5,6 +5,9 @@ import {
   CreateBlogPostDto,
   UpdateBlogPostDto,
   BlogPostQueryDto,
+  CreateBlogCommentDto,
+  UpdateBlogCommentDto,
+  BlogCommentQueryDto,
 } from '@workspace/dtos';
 
 @Controller()
@@ -38,6 +41,42 @@ export class BlogController {
   @MessagePattern({ cmd: 'blog.post.delete' })
   deletePost(@Payload() id: string) {
     return this.blogService.deletePost(id);
+  }
+
+  // =========================
+  // BLOG COMMENT MESSAGE PATTERNS
+  // =========================
+
+  @MessagePattern({ cmd: 'blog.comment.create' })
+  createComment(@Payload() dto: CreateBlogCommentDto) {
+    return this.blogService.createComment(dto);
+  }
+
+  @MessagePattern({ cmd: 'blog.comment.findAll' })
+  findAllComments(@Payload() query: BlogCommentQueryDto) {
+    return this.blogService.findAllComments(query);
+  }
+
+  @MessagePattern({ cmd: 'blog.comment.findOne' })
+  findCommentById(@Payload() id: string) {
+    return this.blogService.findCommentById(id);
+  }
+
+  @MessagePattern({ cmd: 'blog.comment.update' })
+  updateComment(
+    @Payload() data: { id: string; authorId: string; dto: UpdateBlogCommentDto },
+  ) {
+    return this.blogService.updateComment(data.id, data.authorId, data.dto);
+  }
+
+  @MessagePattern({ cmd: 'blog.comment.delete' })
+  deleteComment(@Payload() data: { id: string; authorId: string }) {
+    return this.blogService.deleteComment(data.id, data.authorId);
+  }
+
+  @MessagePattern({ cmd: 'blog.comment.getWithReplies' })
+  getCommentWithReplies(@Payload() data: { commentId: string; depth?: number }) {
+    return this.blogService.getCommentWithReplies(data.commentId, data.depth);
   }
 
 }

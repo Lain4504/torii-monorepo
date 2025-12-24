@@ -136,6 +136,7 @@ model User {
   deletedAt     DateTime?       @map("deleted_at")
 
   flashcardDecks FlashcardDeck[]
+  blogComments   BlogComment[]
 
   @@map("users")
 }
@@ -236,10 +237,36 @@ model BlogPost {
   createdAt      DateTime  @default(now()) @map("created_at")
   updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at")
 
+  comments       BlogComment[]
+
   @@index([status])
   @@index([publishedAt(sort: Desc)])
   @@index([authorId])
   @@map("blog_posts")
+}
+
+// Blog Comments - Comments on blog posts with nested replies support
+model BlogComment {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  postId          String    @map("post_id") @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  parentCommentId String?   @map("parent_comment_id") @db.Uuid // For nested replies
+  content         String    @db.Text
+  status          String    @default("approved") @db.VarChar(20) // pending, approved, spam, deleted
+  likes           Int       @default(0)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamp()
+  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamp()
+
+  post            BlogPost  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent          BlogComment?  @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
+  replies         BlogComment[] @relation("CommentReplies")
+
+  @@index([postId])
+  @@index([userId])
+  @@index([parentCommentId])
+  @@index([createdAt(sort: Desc)])
+  @@map("blog_comments")
 }
 
 // Question Bank - Bank of questions for quizzes and assessments

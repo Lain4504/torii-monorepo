@@ -200,4 +200,85 @@ export class BlogPostResponseDto {
   updatedAt!: Date;
 }
 
+// =========================
+// BLOG COMMENT DTOs
+// =========================
+
+export class CreateBlogCommentDto {
+  @IsUUID()
+  postId!: string;
+
+  @IsUUID()
+  authorId!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  content!: string;
+
+  @IsOptional()
+  @IsUUID()
+  parentId?: string; // For nested replies
+}
+
+export class UpdateBlogCommentDto {
+  @IsString()
+  @IsNotEmpty()
+  content!: string;
+}
+
+export class BlogCommentQueryDto {
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Type(() => Number)
+  page?: number = 1;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  @Type(() => Number)
+  limit?: number = 20;
+
+  @IsOptional()
+  @IsUUID()
+  postId?: string; // Filter by post ID
+
+  @IsOptional()
+  @IsUUID()
+  parentId?: string; // Filter by parent comment (for replies)
+
+  @IsOptional()
+  @IsString()
+  sortBy?: string;
+
+  @IsOptional()
+  @IsEnum(['asc', 'desc'])
+  sortOrder?: 'asc' | 'desc';
+}
+
+export class BlogCommentResponseDto {
+  id!: string;
+  postId!: string;
+  authorId!: string;
+  author?: {
+    id: string;
+    fullName: string;
+    avatarUrl?: string;
+  };
+  content!: string;
+  parentId?: string;
+  likeCount!: number;
+  isEdited!: boolean;
+  isDeleted!: boolean;
+  replyCount?: number; // Number of direct replies
+  replies?: BlogCommentResponseDto[]; // Nested replies (optional)
+  createdAt!: Date;
+  updatedAt!: Date;
+}
+
+export class DeleteBlogCommentResponseDto {
+  success!: boolean;
+  message?: string;
+}
 
