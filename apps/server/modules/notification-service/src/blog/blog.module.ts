@@ -7,6 +7,7 @@ import { BlogService } from './blog.service';
   imports: [SharedModule, SupabaseModule],
   controllers: [BlogController],
   providers: [BlogService],
+  exports: [BlogService],
 })
 export class BlogModule {}
 

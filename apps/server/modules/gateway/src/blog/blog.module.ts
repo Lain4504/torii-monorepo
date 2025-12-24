@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { NatsClientModule } from '@server/shared';
-import { AdminBlogController, BlogCommentController } from './blog.controller';
+import { AdminBlogController } from './blog.controller';
 
 @Module({
   imports: [NatsClientModule],
-  controllers: [AdminBlogController, BlogCommentController],
+  controllers: [AdminBlogController],
 })
 export class BlogModule {}
 
