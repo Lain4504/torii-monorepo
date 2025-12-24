@@ -1,6 +1,6 @@
-import { Body, Controller, Delete, Get, Inject, Param, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Param, Patch, Post, Put, Query } from '@nestjs/common';
 import { ClientProxy } from "@nestjs/microservices";
-import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { firstValueFrom } from "rxjs";
 import {
     BulkFlashcardOperationsRequestDto,
@@ -19,8 +19,10 @@ import {
 } from "@workspace/dtos";
 
 @ApiTags('flashcards')
-@Controller('flashcards')
+@Controller('api/me/flashcards')
+@ApiBearerAuth()
 export class FlashcardController {
+    private readonly MOCK_USER_ID = '5e808603-1e54-4dc9-ae93-f1e347c101ab';
 
     constructor(
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
@@ -30,9 +32,14 @@ export class FlashcardController {
     @Post()
     @ApiOperation({ summary: 'Create a new flashcard' })
     @ApiResponse({ status: 201, description: 'Flashcard created successfully' })
-    async createFlashcard(@Body() data: CreateFlashcardRequestDto) {
+    @ApiResponse({ status: 401, description: 'Unauthorized' })
+    @ApiResponse({ status: 403, description: 'Forbidden - Not owner of deck' })
+    async createFlashcard(
+        @Body() data: CreateFlashcardRequestDto,
+    ) {
+        const userId = this.MOCK_USER_ID;
         return await firstValueFrom<CreateFlashcardResponseDto>(
-            this.natsClient.send({ cmd: 'flashcard.create' }, data)
+            this.natsClient.send({ cmd: 'flashcard.create' }, { userId, input: data })
         );
     }
 
@@ -77,16 +84,19 @@ export class FlashcardController {
         );
     }
 
-    @Put(':id')
+    @Patch(':id')
     @ApiOperation({ summary: 'Update a flashcard' })
     @ApiResponse({ status: 200, description: 'Flashcard updated successfully' })
+    @ApiResponse({ status: 401, description: 'Unauthorized' })
+    @ApiResponse({ status: 403, description: 'Forbidden - Not owner of deck' })
     async updateFlashcard(
         @Param('id') id: string,
         @Body() data: Omit<UpdateFlashcardRequestDto, 'id'>
     ) {
+        const userId = this.MOCK_USER_ID;
         const payload: UpdateFlashcardRequestDto = { ...data, id };
         return await firstValueFrom<UpdateFlashcardResponseDto>(
-            this.natsClient.send({ cmd: 'flashcard.update' }, payload)
+            this.natsClient.send({ cmd: 'flashcard.update' }, { userId, input: payload })
         );
     }
 

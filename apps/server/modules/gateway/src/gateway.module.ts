@@ -12,8 +12,11 @@ import { RoomModule } from './room/room.module';
 import { FileModule } from './file/file.module';
 import { AdminModule } from './admin/admin.module';
 import { FlashcardModule } from './flashcard/flashcard.module';
+import { FlashcardDeckModule } from './flashcard-deck/flashcard-deck.module';
 import { StorageModule } from './storage/storage.module';
 import { BlogModule } from './blog/blog.module';
+import { NotificationModule } from './notification/notification.module';
+import { QuestionBankModule } from './question-bank/question-bank.module';
 
 import { GatewayController } from './gateway.controller';
 import { GatewayService } from './gateway.service';
@@ -44,6 +47,7 @@ import { UserTrackingModule } from './user-tracking.module';
     NatsClientModule, // Add NATS client for GatewayService
     AuthModule,
     FlashcardModule,
+    FlashcardDeckModule,
     CourseModule,
     SharedModule,
     NatsAuthModule, // Auth callout handler - only in Gateway
@@ -52,6 +56,8 @@ import { UserTrackingModule } from './user-tracking.module';
     AdminModule,
     StorageModule,
     BlogModule,
+    QuestionBankModule,
+    NotificationModule,
     UserTrackingModule,
   ],
   controllers: [GatewayController],

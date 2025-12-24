@@ -7,7 +7,6 @@ export * from './prisma.module';
 export * from './supabase/supabase.constants';
 export * from './supabase/supabase.module';
 
-
 export * from './filters/all-exceptions.filter';
 export * from './interceptors/protobuf.interceptor';
 export * from './nats/nats.service';
