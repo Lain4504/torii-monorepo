@@ -11,6 +11,7 @@ import AIServicePage from './pages/AIServicePage'
 import NotificationsPage from './pages/NotificationsPage'
 import PermissionsPage from './pages/PermissionsPage'
 import SettingsPage from './pages/SettingsPage'
+import LoginPage from './pages/LoginPage'
 import DashboardLayout from "./components/layout/dashboard-layout.tsx";
 
 const queryClient = new QueryClient({
@@ -27,6 +28,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
+          <Route path="/login" element={<LoginPage />} />
           <Route element={<DashboardLayout />}>
             <Route index element={<DashboardPage />} />
             <Route path="users" element={<UsersPage />} />
