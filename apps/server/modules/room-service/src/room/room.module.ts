@@ -5,6 +5,7 @@ import { SharedModule } from '@server/shared';
 import { RoomController } from './room.controller';
 import { UserController } from './user.controller';
 import { WebhookController } from '../webhook/webhook.controller';
+import { WaitingRoomController } from '../waiting-room/waiting-room.controller';
 // NOTE: NatsAuthCalloutController removed - auth callout is now handled
 // directly in NatsController via raw NATS subscription to bypass JSON parsing
 
@@ -15,6 +16,7 @@ import { RoomModifyService } from './room-modify.service';
 import { RoomEndService } from './room-end.service';
 import { RoomDurationService } from './room-duration.service';
 import { RoomUserService } from './room-user.service';
+import { WaitingRoomService } from '../waiting-room/waiting-room.service';
 
 // NATS Services
 import { NatsService } from '../nats/nats.service';
@@ -47,6 +49,7 @@ import { WajlcAuthService } from '../auth/wajlc-auth.service';
     RoomController,
     UserController,
     WebhookController,
+    WaitingRoomController,
     // NatsAuthCalloutController removed - handled in NatsController now
   ],
   providers: [
@@ -58,6 +61,7 @@ import { WajlcAuthService } from '../auth/wajlc-auth.service';
     RoomDurationService,
     RoomUserService,
     WebhookService,
+    WaitingRoomService,
 
     // Auth services
     WajlcAuthService,
