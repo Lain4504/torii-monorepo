@@ -83,7 +83,7 @@ export class WaitingRoomService {
         // Unmarshal user metadata
         const mt = this.natsService.unmarshalUserMetadata(metadata);
         if (!mt) {
-            throw new Error('failed to unmarshal user metadata');
+            throw new Error('Failed to parse user metadata');
         }
 
         // Set waitForApproval to false (user doesn't need to wait anymore)
