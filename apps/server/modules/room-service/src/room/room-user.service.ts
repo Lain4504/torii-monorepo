@@ -194,7 +194,7 @@ export class RoomUserService {
 
             return {
                 token: token,
-                livekitHost: process.env.LIVEKIT_API_URL,
+                livekitHost: process.env.LIVEKIT_WS_URL, // WebSocket URL for client browser connection
             };
         } catch (error) {
             this.logger.error(`Failed to generate join token: ${error.message}`);
@@ -708,9 +708,9 @@ export class RoomUserService {
         return null; // No presenter found
     }
 
+
     /**
      * Update presenter status - performs the complete, two-step update for a user's presenter status
-
      */
     private async updatePresenterStatus(roomId: string, userId: string, isPresenter: boolean): Promise<void> {
         // Step 1: Update the primary Key-Value store first

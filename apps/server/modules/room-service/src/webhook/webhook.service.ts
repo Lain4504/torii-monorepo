@@ -264,9 +264,11 @@ export class WebhookService {
 
         // Increment participant count in database
         try {
-            await this.roomInfoService.incrementOrDecrementNumParticipants(rInfo.roomSid, '+');
+            log.log(`[PARTICIPANT_COUNT] Incrementing participant count for room ${roomId} (sid: ${rInfo.roomSid})`);
+            const rowsAffected = await this.roomInfoService.incrementOrDecrementNumParticipants(rInfo.roomSid, '+');
+            log.log(`[PARTICIPANT_COUNT] Increment successful, rows affected: ${rowsAffected}`);
         } catch (error) {
-            log.error(`Error incrementing participant count: ${error.message}`);
+            log.error(`[PARTICIPANT_COUNT] Error incrementing participant count: ${error.message}`, error.stack);
         }
 
         // Handle internal agent users (ingress, TTS)
@@ -317,9 +319,11 @@ export class WebhookService {
 
         // Decrement participant count in database
         try {
-            await this.roomInfoService.incrementOrDecrementNumParticipants(rInfo.roomSid, '-');
+            log.log(`[PARTICIPANT_COUNT] Decrementing participant count for room ${roomId} (sid: ${rInfo.roomSid})`);
+            const rowsAffected = await this.roomInfoService.incrementOrDecrementNumParticipants(rInfo.roomSid, '-');
+            log.log(`[PARTICIPANT_COUNT] Decrement successful, rows affected: ${rowsAffected}`);
         } catch (error) {
-            log.error(`Error decrementing participant count: ${error.message}`);
+            log.error(`[PARTICIPANT_COUNT] Error decrementing participant count: ${error.message}`, error.stack);
         }
 
         // Handle internal agent users (ingress, TTS)

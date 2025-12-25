@@ -371,9 +371,10 @@ export class NatsSystemEventsService {
             return undefined;
         }
 
-        // Get Host URL
-        // Ideally this should be configured in .env
-        let lkHost = this.configService.get<string>('LIVEKIT_API_URL', 'ws://localhost:7880');
+        // Get LiveKit WebSocket URL for client browser connection
+        // LIVEKIT_WS_URL (wss://) is for client browsers to connect to LiveKit media server
+        // LIVEKIT_API_URL (https://) is for server SDK to call LiveKit REST API
+        let lkHost = this.configService.get<string>('LIVEKIT_WS_URL', 'ws://localhost:7880');
         if (lkHost.includes('host.docker.internal')) {
             lkHost = lkHost.replace('host.docker.internal', 'localhost');
         }
@@ -383,8 +384,12 @@ export class NatsSystemEventsService {
             token: token,
         });
 
+        // DEBUG: Log the actual data being sent to client
+        this.logger.log(`[MediaServerInfo] Sending to user ${userId}: url=${lkHost}, token_length=${token.length}`);
+
         if (broadcast) {
             const msg = toJsonString(MediaServerConnInfoSchema, data);
+            this.logger.debug(`[MediaServerInfo] Broadcasting to ${roomId}:${userId}: ${msg.substring(0, 200)}...`);
             await this.broadcastSystemEventToRoom(
                 NatsMsgServerToClientEvents.RES_MEDIA_SERVER_DATA,
                 roomId,

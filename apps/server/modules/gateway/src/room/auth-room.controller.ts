@@ -387,9 +387,9 @@ export class UserApiController {
             return;
         }
 
-        // Set roomId and requestedUserId from token
-        (request as any).RoomId = roomId;
-        (request as any).RequestedUserId = requestedUserId;
+        // Set roomId and requestedUserId from token (must match proto field names)
+        (request as any).roomId = roomId;
+        (request as any).requestedUserId = requestedUserId;
 
         // Call user service via NATS
         try {

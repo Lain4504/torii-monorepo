@@ -606,25 +606,29 @@ export class RoomInfoService {
      * Uses raw SQL for atomic operation with GREATEST to prevent negative values
      * 
      * @param roomSid - Room SID from LiveKit
-     * @param operator - "+" to increment, "-" to decrement
+     * * @param operator - "+" to increment, "-" to decrement
      * @returns Number of rows affected
      */
     async incrementOrDecrementNumParticipants(roomSid: string, operator: '+' | '-'): Promise<number> {
         try {
             // Use raw SQL for atomic increment/decrement
+            // PostgreSQL syntax (different from MySQL)
             // GREATEST ensures value never goes below 0
             const operation = operator === '+' ? '+ 1' : '- 1';
+
+            // PostgreSQL uses INTEGER instead of MySQL's SIGNED
+            // Table name is room_info (from Prisma schema @@map directive)
             const result = await this.prisma.$executeRawUnsafe(`
-                UPDATE room_info 
-                SET joined_participants = GREATEST(CAST(joined_participants AS SIGNED) ${operation}, 0)
-                WHERE sid = ?
+                UPDATE "room_info" 
+                SET "joined_participants" = GREATEST(CAST("joined_participants" AS INTEGER) ${operation}, 0)
+                WHERE "sid" = $1
             `, roomSid);
 
             this.logger.log(`${operator === '+' ? 'Incremented' : 'Decremented'} participant count for room ${roomSid}, rows affected: ${result}`);
-            return result;
+            return result as number;
         } catch (error) {
             this.logger.error(`Failed to ${operator === '+' ? 'increment' : 'decrement'} participant count: ${error.message}`);
-            return 0;
+            throw error;
         }
     }
 }

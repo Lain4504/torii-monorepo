@@ -18,12 +18,14 @@ export class LiveKitService {
     private readonly client: RoomServiceClient;
 
     constructor(private readonly configService: ConfigService) {
+        // LIVEKIT_API_URL is the HTTP REST API URL (https://) for server-side RoomServiceClient
+        // This is different from LIVEKIT_WS_URL (wss://) which is used by client browsers
         const livekitHost = this.configService.get<string>('LIVEKIT_API_URL');
         const apiKey = this.configService.get<string>('LIVEKIT_API_KEY');
         const apiSecret = this.configService.get<string>('LIVEKIT_API_SECRET');
 
         if (!livekitHost || !apiKey || !apiSecret) {
-            throw new Error('LiveKit configuration is missing. Please check LIVEKIT_API_URL, LIVEKIT_API_KEY, and LIVEKIT_API_SECRET');
+            throw new Error('LiveKit configuration is missing. Please check LIVEKIT_API_URL (https://...), LIVEKIT_API_KEY, and LIVEKIT_API_SECRET');
         }
 
         this.client = new RoomServiceClient(livekitHost, apiKey, apiSecret);
