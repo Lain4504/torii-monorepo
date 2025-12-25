@@ -34,7 +34,4 @@ npm-debug.log*
 .DS_Store
 *.pem
 /docs/task/
-/packages/protocol/src/generated/
-/packages/data-access/src/rest/generated.ts
 /.idea/
-/packages/protocol/src/gen/

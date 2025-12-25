@@ -2,14 +2,10 @@ import { Module } from '@nestjs/common';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import KeyvRedis from '@keyv/redis';
-
-import { join } from 'node:path';
-
 import { CourseModule } from './course/course.module';
 import { AuthModule } from './auth/auth.module';
 import { SharedModule, NatsAuthModule, NatsClientModule } from '@server/shared';
 import { RoomModule } from './room/room.module';
-import { FileModule } from './file/file.module';
 import { AdminModule } from './admin/admin.module';
 import { FlashcardModule } from './flashcard/flashcard.module';
 import { FlashcardDeckModule } from './flashcard-deck/flashcard-deck.module';
@@ -20,11 +16,7 @@ import { NotificationModule } from './notification/notification.module';
 import { QuestionBankModule } from './question-bank/question-bank.module';
 
 import { GatewayController } from './gateway.controller';
-import { GatewayService } from './gateway.service';
 import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
-import { SystemWorkerService } from './system-worker.service';
-import { NatsConnectionListener } from './nats-connection-listener.service';
-import { UserTrackingModule } from './user-tracking.module';
 
 @Module({
   imports: [
@@ -53,23 +45,18 @@ import { UserTrackingModule } from './user-tracking.module';
     SharedModule,
     NatsAuthModule, // Auth callout handler - only in Gateway
     RoomModule,
-    FileModule,
     AdminModule,
     StorageModule,
     BlogModule,
     BlogCommentModule,
     QuestionBankModule,
     NotificationModule,
-    UserTrackingModule,
   ],
   controllers: [GatewayController],
   providers: [
-    GatewayService,
     ApiKeyGuard,
-    SystemWorkerService,
-    NatsConnectionListener,
   ],
-  exports: [UserTrackingModule],
+  exports: [],
 })
 export class GatewayModule { }
 
