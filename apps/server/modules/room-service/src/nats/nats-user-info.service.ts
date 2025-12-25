@@ -8,7 +8,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import type { NatsKvUserInfo } from '@workspace/protocol';
 import { NatsKvUserInfoSchema } from '@workspace/protocol';
-import { create } from '@bufbuild/protobuf';
+import { create, toJsonString } from '@bufbuild/protobuf';
 import { NatsService } from './nats.service';
 
 // Constants matching Go
@@ -322,8 +322,15 @@ export class NatsUserInfoService {
         try {
             const jsonArray: string[] = [];
             for (const user of users) {
-                // Use NatsService's proto JSON marshaling (matching Go: protoJsonOpts.Marshal)
-                const json = this.natsService.marshalToProtoJson(user, NatsKvUserInfoSchema);
+                // Ensure user is a proper protobuf message by recreating it
+                // This handles cases where getUserInfo returns plain objects from cache
+                const userMessage = create(NatsKvUserInfoSchema, user);
+
+                // Use toJsonString with proper protobuf options (matching Go: protoJsonOpts.Marshal)
+                const json = toJsonString(NatsKvUserInfoSchema, userMessage, {
+                    alwaysEmitImplicit: true,  // equivalent to EmitUnpopulated
+                    useProtoFieldName: true,    // equivalent to UseProtoNames
+                });
                 jsonArray.push(json);
             }
 

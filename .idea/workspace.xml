@@ -4,13 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix to can run">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix to done room flow">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/livekit/livekit.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/livekit/livekit.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/nats/nats-consumer.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/nats/nats-consumer.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/nats/nats-system-events.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/nats/nats-system-events.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/nats/nats-user-info.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/nats/nats-user-info.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/nats/nats-user.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/nats/nats-user.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/nats/nats.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/nats/nats.controller.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/packages/protocol/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/.gitignore" afterDir="false" />
     </list>
@@ -37,7 +33,8 @@
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
     &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;Lain4504&quot;
+    &quot;assignee&quot;: &quot;Lain4504&quot;,
+    &quot;author&quot;: &quot;Lain4504&quot;
   }
 }</component>
   <component name="GithubPullRequestsUISettings">{
@@ -122,46 +119,7 @@
       <workItem from="1766389953908" duration="3574000" />
       <workItem from="1766495967127" duration="4561000" />
       <workItem from="1766538393698" duration="11108000" />
-    </task>
-    <task id="LOCAL-00250" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766544225131</created>
-      <option name="number" value="00250" />
-      <option name="presentableId" value="LOCAL-00250" />
-      <option name="project" value="LOCAL" />
-      <updated>1766544225131</updated>
-    </task>
-    <task id="LOCAL-00251" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766544297415</created>
-      <option name="number" value="00251" />
-      <option name="presentableId" value="LOCAL-00251" />
-      <option name="project" value="LOCAL" />
-      <updated>1766544297415</updated>
-    </task>
-    <task id="LOCAL-00252" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766544342227</created>
-      <option name="number" value="00252" />
-      <option name="presentableId" value="LOCAL-00252" />
-      <option name="project" value="LOCAL" />
-      <updated>1766544342227</updated>
-    </task>
-    <task id="LOCAL-00253" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766544732173</created>
-      <option name="number" value="00253" />
-      <option name="presentableId" value="LOCAL-00253" />
-      <option name="project" value="LOCAL" />
-      <updated>1766544732173</updated>
-    </task>
-    <task id="LOCAL-00254" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766545021885</created>
-      <option name="number" value="00254" />
-      <option name="presentableId" value="LOCAL-00254" />
-      <option name="project" value="LOCAL" />
-      <updated>1766545021885</updated>
+      <workItem from="1766623545079" duration="3581000" />
     </task>
     <task id="LOCAL-00255" summary="fix: to go">
       <option name="closed" value="true" />
@@ -515,7 +473,47 @@
       <option name="project" value="LOCAL" />
       <updated>1766593003117</updated>
     </task>
-    <option name="localTasksCounter" value="299" />
+    <task id="LOCAL-00299" summary="fix to can run">
+      <option name="closed" value="true" />
+      <created>1766594780565</created>
+      <option name="number" value="00299" />
+      <option name="presentableId" value="LOCAL-00299" />
+      <option name="project" value="LOCAL" />
+      <updated>1766594780565</updated>
+    </task>
+    <task id="LOCAL-00300" summary="fix to done room flow">
+      <option name="closed" value="true" />
+      <created>1766626874547</created>
+      <option name="number" value="00300" />
+      <option name="presentableId" value="LOCAL-00300" />
+      <option name="project" value="LOCAL" />
+      <updated>1766626874548</updated>
+    </task>
+    <task id="LOCAL-00301" summary="fix to done room flow">
+      <option name="closed" value="true" />
+      <created>1766627662089</created>
+      <option name="number" value="00301" />
+      <option name="presentableId" value="LOCAL-00301" />
+      <option name="project" value="LOCAL" />
+      <updated>1766627662089</updated>
+    </task>
+    <task id="LOCAL-00302" summary="fix to done room flow">
+      <option name="closed" value="true" />
+      <created>1766628036327</created>
+      <option name="number" value="00302" />
+      <option name="presentableId" value="LOCAL-00302" />
+      <option name="project" value="LOCAL" />
+      <updated>1766628036327</updated>
+    </task>
+    <task id="LOCAL-00303" summary="fix to done room flow">
+      <option name="closed" value="true" />
+      <created>1766628626464</created>
+      <option name="number" value="00303" />
+      <option name="presentableId" value="LOCAL-00303" />
+      <option name="project" value="LOCAL" />
+      <updated>1766628626464</updated>
+    </task>
+    <option name="localTasksCounter" value="304" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -552,11 +550,12 @@
     <MESSAGE value="refactor: split room controllers and servces for diffrent features" />
     <MESSAGE value="migration: remove metadata form room_info" />
     <MESSAGE value="feat(room): update breakroom logic" />
-    <MESSAGE value="refactor: create utils for meet features" />
     <MESSAGE value="fix: format type" />
     <MESSAGE value="fix: to go" />
+    <MESSAGE value="refactor: create utils for meet features" />
     <MESSAGE value="fix to can run" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix to can run" />
+    <MESSAGE value="fix to done room flow" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix to done room flow" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

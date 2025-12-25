@@ -107,13 +107,14 @@ export class NatsUserService {
         const mt = this.natsService.marshalUserMetadata(metadata || create(UserMetadataSchema, {}));
 
         // Step 6: Prepare user data
+        // Ensure isAdmin and isPresenter default to false if undefined (matching Go's behavior)
         const data: Record<string, string> = {
             [USER_ID_KEY]: userId,
             [USER_SID_KEY]: uuidv4(),
             [USER_NAME_KEY]: name,
             [USER_ROOM_ID_KEY]: roomId,
-            [USER_IS_ADMIN_KEY]: isAdmin.toString(),
-            [USER_IS_PRESENTER_KEY]: isPresenter.toString(),
+            [USER_IS_ADMIN_KEY]: (isAdmin || false).toString(),
+            [USER_IS_PRESENTER_KEY]: (isPresenter || false).toString(),
             [USER_METADATA_KEY]: mt,
             [USER_LAST_PING_AT]: '0',
         };

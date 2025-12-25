@@ -372,7 +372,8 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
                     break;
 
                 case NatsMsgClientToServerEvents.REQ_MEDIA_SERVER_DATA:
-                    await this.natsSystemEventsService.handleMediaServerInfo(roomId, userId);
+                    // CRITICAL: Must pass broadcast: true so client receives LiveKit connection info
+                    await this.natsSystemEventsService.handleMediaServerInfo(roomId, userId, undefined, true);
                     break;
 
                 case NatsMsgClientToServerEvents.REQ_RENEW_PNM_TOKEN:

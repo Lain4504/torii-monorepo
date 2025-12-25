@@ -174,9 +174,12 @@ export class RoomCreateService {
         }
 
         // Check if NATS room matches DB record
-        if (rInfo.dbTableId !== roomDbInfo.id) {
+        // NOTE: dbTableId from NATS is a string (uint64), roomDbInfo.id is a number
+        // We must convert for proper comparison
+        const natsDbId = parseInt(rInfo.dbTableId, 10);
+        if (natsDbId !== roomDbInfo.id) {
             this.logger.warn(
-                `NATS room info does not match DB record (nats_id: ${rInfo.dbTableId}, db_id: ${roomDbInfo.id}), proceeding to create new session`,
+                `NATS room info does not match DB record (nats_id: ${natsDbId}, db_id: ${roomDbInfo.id}), proceeding to create new session`,
             );
             return null;
         }

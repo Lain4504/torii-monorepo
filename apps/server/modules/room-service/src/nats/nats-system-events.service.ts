@@ -387,7 +387,7 @@ export class NatsSystemEventsService {
         // We should get this from ConfigService. Using a safe default or config value.
         // For local development with Docker, "host.docker.internal" might act up on some systems.
         // Ideally this should be configured in .env
-        let lkHost = this.configService.get<string>('LIVEKIT_HOST', 'ws://localhost:7880');
+        let lkHost = this.configService.get<string>('LIVEKIT_API_URL', 'ws://localhost:7880');
         if (lkHost.includes('host.docker.internal')) {
             lkHost = lkHost.replace('host.docker.internal', 'localhost');
         }
