@@ -88,7 +88,7 @@ export class WaitingRoomController {
     }
 
     /**
-     * HandleUpdateWaitingRoomMessage handles updating the waiting room message
+     * handleUpdateWaitingRoomMessage handles updating the waiting room message
      * 
      * @route POST /api/waitingRoom/updateMsg
      */
