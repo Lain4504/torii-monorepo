@@ -601,7 +601,7 @@ export class RoomInfoService {
     }
 
     /**
-     * IncrementOrDecrementNumParticipants increments or decrements participant count
+     * incrementOrDecrementNumParticipants increments or decrements participant count
      * 
      * Uses raw SQL for atomic operation with GREATEST to prevent negative values
      * 
