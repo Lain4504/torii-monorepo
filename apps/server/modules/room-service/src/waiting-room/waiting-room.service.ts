@@ -32,11 +32,11 @@ export class WaitingRoomService {
     ) { }
 
     /**
-     * ApproveWaitingUsers approves one or all users from the waiting room
+     * approveWaitingUsers approves one or all users from the waiting room
      * 
      * @param req - Approval request containing roomId and userId (or "all")
      */
-    async ApproveWaitingUsers(req: ApproveWaitingUsersReq): Promise<void> {
+    async approveWaitingUsers(req: ApproveWaitingUsersReq): Promise<void> {
         const log = this.logger;
         log.log(`Approving waiting users in room ${req.roomId}, userId: ${req.userId}`);
 
