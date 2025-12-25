@@ -62,21 +62,15 @@ export const questionBankApi = {
         // Backend returns nested structure:
         // { success, message, error, data: { success, message, data: [...], meta: {...} } }
         // response.data = outer ApiResponseDto
-        // response.data.data = inner PaginatedResponseDto (has data array and meta)
+        // response.data.data = inner PaginatedResponseDto (has success, message, data array and meta)
         const paginatedData = response.data.data;
         
-        // Return in PaginatedResponseDto format: { data: [...], meta: {...} }
-        return {
-            data: paginatedData?.data || [],
-            meta: paginatedData?.meta || {
-                page: queryParams.page,
-                limit: queryParams.limit,
-                total: 0,
-                totalPages: 0,
-                hasNext: false,
-                hasPrev: false,
-            },
-        };
+        // Return PaginatedResponseDto directly (includes success, message, data, meta)
+        if (!paginatedData) {
+            throw new Error('Invalid response format');
+        }
+        
+        return paginatedData;
     },
 
     // GET /question-bank/:id
