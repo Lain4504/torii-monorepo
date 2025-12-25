@@ -435,7 +435,7 @@ export class RoomInfoService {
     // ============================================================================
 
     /**
-     * InsertOrUpdateRoomInfo inserts or updates room info
+     * insertOrUpdateRoomInfo inserts or updates room info
      * 
      * Will insert if sid doesn't exist, otherwise update if ID is provided
      * Returns the full room object with ID (matches GORM Save() behavior)
