@@ -89,7 +89,8 @@ export class RoomCreateService {
             const { roomInfo, sid } = this.prepareRoomDbInfo(req, roomDbInfo);
 
             // Step 6: Save to database using atomic upsert
-            await this.roomInfoService.insertOrUpdateRoomInfo({
+            // Returns full object with ID - matches GORM Save() behavior
+            const savedRoomInfo = await this.roomInfoService.insertOrUpdateRoomInfo({
                 id: roomInfo.id,
                 roomTitle: roomInfo.roomTitle,
                 roomId: roomInfo.roomId,
@@ -102,12 +103,6 @@ export class RoomCreateService {
                 creationTime: BigInt(roomInfo.creationTime),
             });
 
-
-            // Re-fetch to get the auto-increment ID if it was a new insert
-            const savedRoomInfo = await this.roomInfoService.getRoomInfoByRoomId(req.roomId, true);
-            if (!savedRoomInfo) {
-                throw new Error('Failed to retrieve saved room info');
-            }
             log.log(`Room info saved to DB: ${req.roomId}, sid: ${sid}, webhook: ${savedRoomInfo.webhookUrl}`);
 
             // Step 7: Create room in NATS bucket
@@ -118,6 +113,7 @@ export class RoomCreateService {
             // Step 8: Create NATS streams
             await this.natsStream.createRoomNatsStreams(req.roomId);
             log.log(`NATS streams created: ${req.roomId}`);
+
 
             // Step 9: Get room info from NATS
             const rInfo = await this.natsRoom.getRoomInfo(req.roomId);

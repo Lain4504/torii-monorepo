@@ -4,11 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(waiting-room): add waiting room module and controller for managing user approvals and messages">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(room): refactor room creation logic and migrate database operations to RoomInfoService">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/waiting-room/waiting-room.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/waiting-room/waiting-room.controller.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/room-create.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/room-create.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/room-info.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/room/room-info.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/webhook/webhook.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/webhook/webhook.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/waiting-room/waiting-room.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/waiting-room/waiting-room.controller.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -120,15 +121,7 @@
       <workItem from="1766495967127" duration="4561000" />
       <workItem from="1766538393698" duration="11108000" />
       <workItem from="1766623545079" duration="8040000" />
-      <workItem from="1766649318307" duration="4332000" />
-    </task>
-    <task id="LOCAL-00268" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766548948785</created>
-      <option name="number" value="00268" />
-      <option name="presentableId" value="LOCAL-00268" />
-      <option name="project" value="LOCAL" />
-      <updated>1766548948785</updated>
+      <workItem from="1766649318307" duration="5427000" />
     </task>
     <task id="LOCAL-00269" summary="fix: to go">
       <option name="closed" value="true" />
@@ -514,7 +507,15 @@
       <option name="project" value="LOCAL" />
       <updated>1766652945686</updated>
     </task>
-    <option name="localTasksCounter" value="317" />
+    <task id="LOCAL-00317" summary="feat(room): refactor room creation logic and migrate database operations to RoomInfoService">
+      <option name="closed" value="true" />
+      <created>1766655089614</created>
+      <option name="number" value="00317" />
+      <option name="presentableId" value="LOCAL-00317" />
+      <option name="project" value="LOCAL" />
+      <updated>1766655089614</updated>
+    </task>
+    <option name="localTasksCounter" value="318" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -531,7 +532,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="listen-event-room" />
+                        <option value="user-room-event" />
                       </list>
                     </value>
                   </entry>
@@ -558,7 +559,8 @@
     <MESSAGE value="fix to done room flow" />
     <MESSAGE value="rename" />
     <MESSAGE value="feat(waiting-room): add waiting room module and controller for managing user approvals and messages" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(waiting-room): add waiting room module and controller for managing user approvals and messages" />
+    <MESSAGE value="feat(room): refactor room creation logic and migrate database operations to RoomInfoService" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(room): refactor room creation logic and migrate database operations to RoomInfoService" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

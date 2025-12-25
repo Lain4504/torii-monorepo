@@ -438,9 +438,10 @@ export class RoomInfoService {
      * InsertOrUpdateRoomInfo inserts or updates room info
      * 
      * Will insert if sid doesn't exist, otherwise update if ID is provided
+     * Returns the full room object with ID (matches GORM Save() behavior)
      * 
      * @param info - Room info to save
-     * @returns Number of rows affected
+     * @returns Full room object with auto-increment ID
      */
     async insertOrUpdateRoomInfo(info: {
         id?: bigint;
@@ -460,7 +461,7 @@ export class RoomInfoService {
         ended?: Date;
         recorderId?: string;
         rtmpNodeId?: string;
-    }): Promise<number> {
+    }): Promise<any> {
         try {
             // Prisma's upsert based on sid (unique field)
             const result = await this.prisma.roomInfo.upsert({
@@ -499,7 +500,8 @@ export class RoomInfoService {
             });
 
             this.logger.log(`Inserted/Updated room info: ${info.roomId}`);
-            return 1; // Prisma upsert always affects 1 row
+            // Return full object with ID - matches GORM Save() behavior
+            return result;
         } catch (error) {
             this.logger.error(`Failed to insert/update room info: ${error.message}`);
             throw error;

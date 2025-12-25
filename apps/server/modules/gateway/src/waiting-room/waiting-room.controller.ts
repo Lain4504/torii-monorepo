@@ -42,7 +42,7 @@ export class WaitingRoomController {
     ) { }
 
     /**
-     * HandleApproveUsers handles approving users from the waiting room
+     * handleApproveUsers handles approving users from the waiting room
      * 
      * @route POST /api/waitingRoom/approveUsers
      */

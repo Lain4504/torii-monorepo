@@ -30,7 +30,7 @@ export class WaitingRoomController {
         this.logger.log(`Received waitingRoom.approveUsers: ${JSON.stringify(req)}`);
 
         try {
-            await this.waitingRoomService.ApproveWaitingUsers(req);
+            await this.waitingRoomService.approveWaitingUsers(req);
             return { status: true, msg: 'success' };
         } catch (error) {
             this.logger.error(`Failed to approve users: ${error.message}`);
@@ -48,7 +48,7 @@ export class WaitingRoomController {
         this.logger.log(`Received waitingRoom.updateMsg: ${JSON.stringify(req)}`);
 
         try {
-            await this.waitingRoomService.UpdateWaitingRoomMessage(req);
+            await this.waitingRoomService.updateWaitingRoomMessage(req);
             return { status: true, msg: 'success' };
         } catch (error) {
             this.logger.error(`Failed to update waiting room message: ${error.message}`);
