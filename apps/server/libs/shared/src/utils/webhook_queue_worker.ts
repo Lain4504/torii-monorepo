@@ -1,13 +1,11 @@
 /**
  * Simple queue worker for webhook processing
- * Equivalent to Go: plugnmeet-protocol/webhook/queue_worker.go
  */
 
 import { Logger } from '@nestjs/common';
 
 /**
  * WebhookQueueWorker provides a basic job queue with a single worker
- * Equivalent to Go: webhook.SimpleQueueWorker
  */
 export class WebhookQueueWorker {
     private jobs: Array<() => void | Promise<void>> = [];
@@ -18,8 +16,7 @@ export class WebhookQueueWorker {
 
     /**
      * Creates and starts a new queue worker
-     * Equivalent to Go: webhook.NewSimpleQueueWorker
-     * 
+     *
      * @param queueSize - Maximum queue size
      * @param logger - Logger instance
      */
@@ -31,7 +28,6 @@ export class WebhookQueueWorker {
 
     /**
      * Start launches the worker
-     * Equivalent to Go: qw.start
      */
     private start(): void {
         this.processing = true;
@@ -64,8 +60,7 @@ export class WebhookQueueWorker {
     /**
      * Submit adds a job to the queue
      * It will drop the job if the queue is full
-     * Equivalent to Go: qw.Submit
-     * 
+     *
      * @param job - Function to execute
      */
     submit(job: () => void | Promise<void>): void {
@@ -85,7 +80,6 @@ export class WebhookQueueWorker {
 
     /**
      * StopGracefully waits for all queued jobs to be processed before stopping
-     * Equivalent to Go: qw.StopGracefully
      */
     async stopGracefully(): Promise<void> {
         this.stopped = true;
@@ -100,7 +94,6 @@ export class WebhookQueueWorker {
 
     /**
      * Kill stops the worker immediately, dropping any unprocessed jobs
-     * Equivalent to Go: qw.Kill
      */
     kill(): void {
         this.stopped = true;
@@ -110,7 +103,6 @@ export class WebhookQueueWorker {
 
     /**
      * isStopped checks if the worker has been stopped
-     * Equivalent to Go: qw.isStopped
      */
     private isStopped(): boolean {
         return this.stopped;

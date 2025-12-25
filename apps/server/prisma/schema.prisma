@@ -50,33 +50,31 @@ model Course {
   @@map("courses")
 }
 
-// RoomInfo table - Matches Go SQL: pnm_room_info
-// Source: plugnmeet-server/pkg/dbmodels/room.go
 model RoomInfo {
-  id                 Int       @id @default(autoincrement())
-  roomTitle          String    @default("") @map("room_title") @db.VarChar(255)
-  roomId             String    @map("room_id") @db.VarChar(64)
-  sid                String    @unique @map("sid") @db.VarChar(64)
-  joinedParticipants Int       @default(0) @map("joined_participants")
-  
-  // Int(1) fields matching Go database (not Boolean!)
-  isRunning          Int       @default(0) @map("is_running")
-  isRecording        Int       @default(0) @map("is_recording")
-  recorderId         String    @default("") @db.VarChar(36) @map("recorder_id")
-  isActiveRtmp       Int       @default(0) @map("is_active_rtmp")
-  rtmpNodeId         String    @default("") @db.VarChar(36) @map("rtmp_node_id")
-  webhookUrl         String    @default("") @map("webhook_url") @db.VarChar(255)
-  
-  isBreakoutRoom     Int       @default(0) @map("is_breakout_room")
-  parentRoomId       String    @default("") @db.VarChar(64) @map("parent_room_id")
-  creationTime       Int       @default(0) @map("creation_time")
-  created            DateTime  @default(now()) @map("created")
-  ended              DateTime? @map("ended")  // Nullable - null means not ended yet (PostgreSQL compatible)
-  modified           DateTime  @default(now()) @updatedAt @map("modified")
+  id                 Int    @id @default(autoincrement())
+  roomTitle          String @default("") @map("room_title") @db.VarChar(255)
+  roomId             String @map("room_id") @db.VarChar(64)
+  sid                String @unique @map("sid") @db.VarChar(64)
+  joinedParticipants Int    @default(0) @map("joined_participants")
+
+  // Int, 1 for true 2 for false
+  isRunning    Int    @default(0) @map("is_running")
+  isRecording  Int    @default(0) @map("is_recording")
+  recorderId   String @default("") @db.VarChar(36) @map("recorder_id")
+  isActiveRtmp Int    @default(0) @map("is_active_rtmp")
+  rtmpNodeId   String @default("") @db.VarChar(36) @map("rtmp_node_id")
+  webhookUrl   String @default("") @map("webhook_url") @db.VarChar(255)
+
+  isBreakoutRoom Int       @default(0) @map("is_breakout_room")
+  parentRoomId   String    @default("") @db.VarChar(64) @map("parent_room_id")
+  creationTime   Int       @default(0) @map("creation_time")
+  created        DateTime  @default(now()) @map("created")
+  ended          DateTime? @map("ended") // Nullable - null means not ended yet (PostgreSQL compatible)
+  modified       DateTime  @default(now()) @updatedAt @map("modified")
 
   // Relations
-  analytics          RoomAnalytics[]
-  artifacts          RoomArtifact[]
+  analytics RoomAnalytics[]
+  artifacts RoomArtifact[]
 
   @@index([roomId, isRunning], map: "idx_room_id")
   @@map("room_info")
@@ -97,28 +95,24 @@ model RoomFile {
   @@map("room_files")
 }
 
-// RoomAnalytics table - Matches Go SQL: pnm_room_analytics
-// Source: plugnmeet-server/pkg/dbmodels/artifact.go
 model RoomAnalytics {
-  id               Int      @id @default(autoincrement())
-  roomTableId      Int      @map("room_table_id")
-  roomId           String   @db.VarChar(64) @map("room_id")
-  fileId           String   @map("file_id") @db.VarChar(255)
-  fileName         String   @map("file_name") @db.VarChar(255)
-  fileSize         Float    @map("file_size")
-  roomCreationTime Int      @map("room_creation_time")
-  creationTime     Int      @map("creation_time")
+  id               Int    @id @default(autoincrement())
+  roomTableId      Int    @map("room_table_id")
+  roomId           String @db.VarChar(64) @map("room_id")
+  fileId           String @map("file_id") @db.VarChar(255)
+  fileName         String @map("file_name") @db.VarChar(255)
+  fileSize         Float  @map("file_size")
+  roomCreationTime Int    @map("room_creation_time")
+  creationTime     Int    @map("creation_time")
 
   // Relation to RoomInfo
-  roomInfo         RoomInfo @relation(fields: [roomTableId], references: [id], onUpdate: Cascade, onDelete: Restrict)
+  roomInfo RoomInfo @relation(fields: [roomTableId], references: [id], onUpdate: Cascade, onDelete: Restrict)
 
   @@index([roomId], map: "idx_analytics_room_id")
   @@index([fileId], map: "idx_analytics_file_id")
   @@map("room_analytics")
 }
 
-// RoomArtifact table - Matches Go SQL: pnm_room_artifacts
-// Source: plugnmeet-server/pkg/dbmodels/artifact.go
 model RoomArtifact {
   id          BigInt   @id @default(autoincrement())
   artifactId  String   @unique @map("artifact_id") @db.VarChar(64)
@@ -129,7 +123,7 @@ model RoomArtifact {
   created     DateTime @default(now())
 
   // Relation to RoomInfo
-  roomInfo    RoomInfo @relation(fields: [roomTableId], references: [id], onUpdate: Cascade, onDelete: Restrict)
+  roomInfo RoomInfo @relation(fields: [roomTableId], references: [id], onUpdate: Cascade, onDelete: Restrict)
 
   @@index([artifactId], map: "idx_artifact_artifact_id")
   @@index([roomId], map: "idx_artifact_room_id")
@@ -137,29 +131,27 @@ model RoomArtifact {
   @@map("room_artifacts")
 }
 
-
-
 model User {
-  id            String          @id @db.Uuid
-  email         String          @unique @db.VarChar(255)
-  fullName      String          @map("full_name") @db.VarChar(100)
-  phone         String?         @db.VarChar(20)
-  avatarUrl     String?         @map("avatar_url") @db.Text
-  role          String          @default("learner") @db.VarChar(20)
-  status        String          @default("active") @db.VarChar(20)
-  dateOfBirth   DateTime?       @map("date_of_birth") @db.Date
-  gender        String?         @db.VarChar(10)
-  address       String?         @db.Text
-  bio           String?         @db.Text
-  jlptLevel     String?         @map("jlpt_level") @db.VarChar(5)
-  currentPoints Int             @default(0) @map("current_points")
-  totalSpent    Decimal         @default(0.00) @map("total_spent") @db.Decimal(10, 2)
-  emailVerified Boolean         @default(false) @map("email_verified")
-  phoneVerified Boolean         @default(false) @map("phone_verified")
-  lastLoginAt   DateTime?       @map("last_login_at")
-  createdAt     DateTime        @default(now()) @map("created_at")
-  updatedAt     DateTime        @default(now()) @updatedAt @map("updated_at")
-  deletedAt     DateTime?       @map("deleted_at")
+  id            String    @id @db.Uuid
+  email         String    @unique @db.VarChar(255)
+  fullName      String    @map("full_name") @db.VarChar(100)
+  phone         String?   @db.VarChar(20)
+  avatarUrl     String?   @map("avatar_url") @db.Text
+  role          String    @default("learner") @db.VarChar(20)
+  status        String    @default("active") @db.VarChar(20)
+  dateOfBirth   DateTime? @map("date_of_birth") @db.Date
+  gender        String?   @db.VarChar(10)
+  address       String?   @db.Text
+  bio           String?   @db.Text
+  jlptLevel     String?   @map("jlpt_level") @db.VarChar(5)
+  currentPoints Int       @default(0) @map("current_points")
+  totalSpent    Decimal   @default(0.00) @map("total_spent") @db.Decimal(10, 2)
+  emailVerified Boolean   @default(false) @map("email_verified")
+  phoneVerified Boolean   @default(false) @map("phone_verified")
+  lastLoginAt   DateTime? @map("last_login_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at")
+  deletedAt     DateTime? @map("deleted_at")
 
   flashcardDecks FlashcardDeck[]
 
@@ -168,17 +160,17 @@ model User {
 
 // Bảng flashcard deck - Clone từ SQL schema
 model FlashcardDeck {
-  id           String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId       String      @map("user_id") @db.Uuid
-  name         String      @db.VarChar(255)
-  description  String?     @db.Text
-  jlptLevel    String?     @map("jlpt_level") @db.VarChar(5)
-  isPublic     Boolean     @default(false) @map("is_public")
-  tags         String[]    @default([]) @db.VarChar(50)
-  cardCount    Int         @default(0) @map("card_count")
-  studiedCount Int         @default(0) @map("studied_count")
-  createdAt    DateTime    @default(now()) @map("created_at")
-  updatedAt    DateTime    @default(now()) @updatedAt @map("updated_at")
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  name         String   @db.VarChar(255)
+  description  String?  @db.Text
+  jlptLevel    String?  @map("jlpt_level") @db.VarChar(5)
+  isPublic     Boolean  @default(false) @map("is_public")
+  tags         String[] @default([]) @db.VarChar(50)
+  cardCount    Int      @default(0) @map("card_count")
+  studiedCount Int      @default(0) @map("studied_count")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
 
   user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   flashcards Flashcard[]
@@ -189,23 +181,23 @@ model FlashcardDeck {
 
 // Bảng flashcard - Clone từ SQL schema
 model Flashcard {
-  id             String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  deckId         String        @map("deck_id") @db.Uuid
-  frontText      String        @map("front_text") @db.Text
-  backText       String        @map("back_text") @db.Text
-  exampleSentence String?       @map("example_sentence") @db.Text
-  pronunciation  String?       @db.Text
-  imageUrl       String?       @map("image_url") @db.Text
-  audioUrl       String?       @map("audio_url") @db.Text
-  tags           String[]      @default([]) @db.VarChar(50)
-  difficulty     String        @default("medium") @db.VarChar(20)
-  nextReviewDate DateTime?     @map("next_review_date") @db.Date
-  intervalDays   Int           @default(1) @map("interval_days")
-  easeFactor     Decimal       @default(2.50) @map("ease_factor") @db.Decimal(4, 2)
-  reviewCount    Int           @default(0) @map("review_count")
-  correctCount   Int           @default(0) @map("correct_count")
-  createdAt      DateTime      @default(now()) @map("created_at")
-  updatedAt      DateTime      @default(now()) @updatedAt @map("updated_at")
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  deckId          String    @map("deck_id") @db.Uuid
+  frontText       String    @map("front_text") @db.Text
+  backText        String    @map("back_text") @db.Text
+  exampleSentence String?   @map("example_sentence") @db.Text
+  pronunciation   String?   @db.Text
+  imageUrl        String?   @map("image_url") @db.Text
+  audioUrl        String?   @map("audio_url") @db.Text
+  tags            String[]  @default([]) @db.VarChar(50)
+  difficulty      String    @default("medium") @db.VarChar(20)
+  nextReviewDate  DateTime? @map("next_review_date") @db.Date
+  intervalDays    Int       @default(1) @map("interval_days")
+  easeFactor      Decimal   @default(2.50) @map("ease_factor") @db.Decimal(4, 2)
+  reviewCount     Int       @default(0) @map("review_count")
+  correctCount    Int       @default(0) @map("correct_count")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at")
 
   deck FlashcardDeck @relation(fields: [deckId], references: [id], onDelete: Cascade)
 
@@ -215,26 +207,26 @@ model Flashcard {
 
 // File Assets - Source of Truth for all files in the system
 model FileAsset {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
   // File Identification
-  fileUrl     String   @unique @map("file_url") @db.Text
-  
+  fileUrl String @unique @map("file_url") @db.Text
+
   // File Details
-  mimeType    String?  @map("mime_type") @db.VarChar(100)
-  fileSize    BigInt?  @map("file_size")
-  isPublic    Boolean  @default(false) @map("is_public")
-  
+  mimeType String? @map("mime_type") @db.VarChar(100)
+  fileSize BigInt? @map("file_size")
+  isPublic Boolean @default(false) @map("is_public")
+
   // Upload Status: 'pending' | 'uploaded' | 'failed'
-  status      String   @default("pending") @db.VarChar(20)
-  
+  status String @default("pending") @db.VarChar(20)
+
   // Flexible Metadata (JSONB)
-  metadata    Json?    @default("{}") @map("metadata")
+  metadata     Json?   @default("{}") @map("metadata")
   ownerId      String? @map("owner_id") @db.Uuid
   moduleOrigin String? @map("module_origin") @db.VarChar(50) // 'USER', 'COURSE', 'CHAT'
 
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@index([ownerId])
   @@index([fileUrl])
@@ -270,22 +262,22 @@ model BlogPost {
 
 // Question Bank - Bank of questions for quizzes and assessments
 model QuestionBank {
-  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  questionText   String    @map("question_text") @db.Text
-  questionType   String    @map("question_type") @db.VarChar(30)
-  jlptLevel      String?   @map("jlpt_level") @db.VarChar(5)
-  category       String?   @db.VarChar(50)
-  subcategory    String?   @db.VarChar(50)
-  difficulty     String?   @db.VarChar(20)
-  options        Json?     @db.JsonB // { "A": "text", "B": "text", ... }
-  correctAnswer  String?   @map("correct_answer") @db.Text
-  explanation    String?   @db.Text
-  tags           String[]  @default([]) @db.VarChar(50)
-  createdBy      String?   @map("created_by") @db.Uuid
-  status         String    @default("active") @db.VarChar(20)
-  usageCount     Int       @default(0) @map("usage_count")
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at")
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  questionText  String   @map("question_text") @db.Text
+  questionType  String   @map("question_type") @db.VarChar(30)
+  jlptLevel     String?  @map("jlpt_level") @db.VarChar(5)
+  category      String?  @db.VarChar(50)
+  subcategory   String?  @db.VarChar(50)
+  difficulty    String?  @db.VarChar(20)
+  options       Json?    @db.JsonB // { "A": "text", "B": "text", ... }
+  correctAnswer String?  @map("correct_answer") @db.Text
+  explanation   String?  @db.Text
+  tags          String[] @default([]) @db.VarChar(50)
+  createdBy     String?  @map("created_by") @db.Uuid
+  status        String   @default("active") @db.VarChar(20)
+  usageCount    Int      @default(0) @map("usage_count")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@index([questionType])
   @@index([jlptLevel])
@@ -296,16 +288,16 @@ model QuestionBank {
 
 // Notification model - matches database.sql schema
 model Notification {
-  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId           String   @map("user_id") @db.Uuid
-  title            String   @db.VarChar(255)
-  message          String   @db.Text
-  notificationType String?  @map("notification_type") @db.VarChar(50)
-  data             Json?    @map("data")
-  isRead           Boolean  @default(false) @map("is_read")
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId           String    @map("user_id") @db.Uuid
+  title            String    @db.VarChar(255)
+  message          String    @db.Text
+  notificationType String?   @map("notification_type") @db.VarChar(50)
+  data             Json?     @map("data")
+  isRead           Boolean   @default(false) @map("is_read")
   readAt           DateTime? @map("read_at")
-  sentVia          String[] @default([]) @map("sent_via") @db.VarChar(20)
-  createdAt        DateTime @default(now()) @map("created_at")
+  sentVia          String[]  @default([]) @map("sent_via") @db.VarChar(20)
+  createdAt        DateTime  @default(now()) @map("created_at")
 
   @@index([userId])
   @@index([isRead])

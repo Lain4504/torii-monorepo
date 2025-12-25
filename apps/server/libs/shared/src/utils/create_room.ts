@@ -1,7 +1,6 @@
 /**
  * Create Room utilities
- * Equivalent to Go: plugnmeet-protocol/utils/create_room.go
- * 
+ *
  * All types mapping based on packages/protocol/src/gen/wajlc_create_room_pb.ts
  */
 
@@ -32,8 +31,7 @@ import { generateSecureRandomString, generateRandomString } from './common';
 
 /**
  * PrepareDefaultRoomFeatures sets default values for room features
- * Equivalent to Go: utils.PrepareDefaultRoomFeatures
- * 
+ *
  * @param r - CreateRoomReq to prepare
  */
 export function prepareDefaultRoomFeatures(r: CreateRoomReq): void {
@@ -230,8 +228,7 @@ export function prepareDefaultRoomFeatures(r: CreateRoomReq): void {
 
 /**
  * SetCreateRoomDefaultValues sets default values based on server config
- * Equivalent to Go: utils.SetCreateRoomDefaultValues
- * 
+ *
  * @param r - CreateRoomReq to configure
  * @param maxSize - Max file upload size (bytes) - uint64 with JS_STRING = string
  * @param maxSizeWhiteboardFile - Max whiteboard file size (MB) - uint64 with JS_STRING = string  
@@ -290,8 +287,7 @@ export function setCreateRoomDefaultValues(
 
 /**
  * SetRoomDefaultLockSettings sets default lock settings
- * Equivalent to Go: utils.SetRoomDefaultLockSettings
- * 
+ *
  * @param r - CreateRoomReq to configure
  */
 export function setRoomDefaultLockSettings(r: CreateRoomReq): void {
@@ -310,7 +306,6 @@ export function setRoomDefaultLockSettings(r: CreateRoomReq): void {
 
 /**
  * Room default settings interface
- * Equivalent to Go: utils.RoomDefaultSettings
  */
 export interface RoomDefaultSettings {
     maxParticipants?: number; // uint32
@@ -320,8 +315,7 @@ export interface RoomDefaultSettings {
 
 /**
  * SetDefaultRoomSettings applies default room settings from config
- * Equivalent to Go: utils.SetDefaultRoomSettings
- * 
+ *
  * @param s - Room default settings from config
  * @param r - CreateRoomReq to configure
  */

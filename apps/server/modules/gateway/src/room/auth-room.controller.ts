@@ -1,7 +1,6 @@
 /**
  * Auth Room Controller (User Controller for Room Features)
- * Equivalent to Go: plugNmeet-server/pkg/controllers/user.go
- * 
+ *
  * Handles user/participant operations within rooms (not authentication/login)
  * - Generate join tokens
  * - Update user lock settings
@@ -50,7 +49,6 @@ import {
 /**
  * AuthRoomController handles user operations within rooms (ApiKeyGuard routes)
  * Routes under /auth/user
- * Equivalent to Go: UserController methods with parseAndValidateRequest
  */
 @Controller('auth/room')
 @UseGuards(ApiKeyGuard)
@@ -61,8 +59,7 @@ export class AuthRoomController {
 
     /**
      * HandleGenerateJoinToken generates a join token for a user
-     * Equivalent to Go: uc.HandleGenerateJoinToken
-     * 
+     *
      * @route POST /auth/user/getJoinToken
      */
     @Post('getJoinToken')
@@ -139,7 +136,6 @@ export class AuthRoomController {
 /**
  * UserApiController handles user operations within rooms (JwtAuthGuard routes)
  * Routes under /api
- * Equivalent to Go: UserController methods with proto.Unmarshal
  */
 @Controller('api')
 @UseGuards(JwtAuthGuard)
@@ -150,8 +146,7 @@ export class UserApiController {
 
     /**
      * HandleUpdateUserLockSetting updates user lock settings
-     * Equivalent to Go: uc.HandleUpdateUserLockSetting
-     * 
+     *
      * @route POST /api/updateUserLockSettings
      */
     @Post('updateUserLockSettings')
@@ -219,8 +214,7 @@ export class UserApiController {
 
     /**
      * HandleMuteUnMuteTrack mutes or unmutes a user's track
-     * Equivalent to Go: uc.HandleMuteUnMuteTrack
-     * 
+     *
      * @route POST /api/muteUnMuteTrack
      */
     @Post('muteUnMuteTrack')
@@ -290,8 +284,7 @@ export class UserApiController {
 
     /**
      * HandleRemoveParticipant removes a participant from a room
-     * Equivalent to Go: uc.HandleRemoveParticipant
-     * 
+     *
      * @route POST /api/removeParticipant
      */
     @Post('removeParticipant')
@@ -364,8 +357,7 @@ export class UserApiController {
 
     /**
      * HandleSwitchPresenter switches the presenter in a room
-     * Equivalent to Go: uc.HandleSwitchPresenter
-     * 
+     *
      * @route POST /api/switchPresenter
      */
     @Post('switchPresenter')

@@ -39,7 +39,7 @@ import { WebhookNotifierService } from '../webhook/webhook-notifier.service';
 import { LiveKitService } from '../livekit/livekit.service';
 
 // Auth services
-import { PlugNmeetAuthService } from '../auth/plugnmeet-auth.service';
+import { WajlcAuthService } from '../auth/wajlc-auth.service';
 
 @Module({
   imports: [SharedModule],
@@ -60,7 +60,7 @@ import { PlugNmeetAuthService } from '../auth/plugnmeet-auth.service';
     WebhookService,
 
     // Auth services
-    PlugNmeetAuthService,
+    WajlcAuthService,
 
     // NATS services
     NatsService,

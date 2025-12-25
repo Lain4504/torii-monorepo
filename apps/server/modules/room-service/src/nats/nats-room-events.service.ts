@@ -1,7 +1,6 @@
 /**
  * NATS Room Events Service
- * Equivalent to Go: plugNmeet-server/pkg/services/nats/room_events.go
- * 
+ *
  * Handles broadcasting room-related events to clients via NATS
  */
 
@@ -12,7 +11,6 @@ import { NatsMsgServerToClientEvents } from '@workspace/protocol';
 
 /**
  * NatsRoomEventsService broadcasts room-specific events to connected clients
- * Equivalent to Go: NatsService methods in room_events.go
  */
 @Injectable()
 export class NatsRoomEventsService {
@@ -25,8 +23,7 @@ export class NatsRoomEventsService {
 
     /**
      * BroadcastRoomMetadata broadcasts room metadata update to clients
-     * Equivalent to Go: s.BroadcastRoomMetadata
-     * 
+     *
      * @param roomId - Room ID
      * @param metadata - Optional metadata string (if null, fetches from NATS)
      * @param userId - Optional user ID to send to specific user only
@@ -60,8 +57,7 @@ export class NatsRoomEventsService {
 
     /**
      * UpdateAndBroadcastRoomMetadata updates metadata in NATS and broadcasts to clients
-     * Equivalent to Go: s.UpdateAndBroadcastRoomMetadata
-     * 
+     *
      * @param roomId - Room ID
      * @param meta - Metadata object or string to update
      * @returns Updated metadata string

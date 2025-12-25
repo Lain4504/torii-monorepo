@@ -1,7 +1,6 @@
-/**
+﻿/**
  * NATS System Events Service
- * Equivalent to Go: plugNmeet-server/pkg/services/nats/sys_events.go
- * 
+ *
  * Handles broadcasting system events to clients via NATS JetStream
  */
 
@@ -25,14 +24,13 @@ import { ConfigService } from '@nestjs/config';
 import { NatsUserInfoService } from './nats-user-info.service';
 import { NatsRoomService } from './nats-room.service';
 import { LiveKitService } from '../livekit/livekit.service';
-import { PlugNmeetAuthService } from '../auth/plugnmeet-auth.service';
+import { WajlcAuthService } from '../auth/wajlc-auth.service';
 import { NatsUserService } from './nats-user.service';
 
 import { NatsService } from './nats.service';
 
 /**
  * NatsSystemEventsService handles system-wide event broadcasting
- * Equivalent to Go: NatsService methods in sys_events.go
  */
 @Injectable()
 export class NatsSystemEventsService {
@@ -47,7 +45,7 @@ export class NatsSystemEventsService {
         private readonly natsUserInfo: NatsUserInfoService,
         @Inject(forwardRef(() => NatsRoomService)) private readonly natsRoomService: NatsRoomService,
         private readonly livekitService: LiveKitService,
-        private readonly authService: PlugNmeetAuthService,
+        private readonly authService: WajlcAuthService,
         @Inject(forwardRef(() => NatsUserService)) private readonly natsUserService: NatsUserService,
     ) {
         // Initialize subjects from config
@@ -67,8 +65,7 @@ export class NatsSystemEventsService {
 
     /**
      * BroadcastSystemEventToRoom broadcasts a system event to all clients in a room
-     * Equivalent to Go: s.BroadcastSystemEventToRoom
-     * 
+     *
      * @param event - Event type (from NatsMsgServerToClientEvents enum)
      * @param roomId - Room ID
      * @param data - Event data (string, number, object, or protobuf message)
@@ -140,8 +137,7 @@ export class NatsSystemEventsService {
 
     /**
      * BroadcastSystemEventToEveryoneExceptUserId broadcasts to all users except one
-     * Equivalent to Go: s.BroadcastSystemEventToEveryoneExceptUserId
-     * 
+     *
      * @param event - Event type
      * @param roomId - Room ID
      * @param data - Event data
@@ -177,8 +173,7 @@ export class NatsSystemEventsService {
 
     /**
      * BroadcastSystemNotificationToRoom sends a notification to room
-     * Equivalent to Go: s.BroadcastSystemNotificationToRoom
-     * 
+     *
      * @param roomId - Room ID
      * @param msg - Notification message
      * @param msgType - Notification type (INFO, WARNING, ERROR)
@@ -213,7 +208,6 @@ export class NatsSystemEventsService {
 
     /**
      * NotifyInfoMsg sends an info notification
-     * Equivalent to Go: s.NotifyInfoMsg
      */
     async notifyInfoMsg(
         roomId: string,
@@ -232,7 +226,6 @@ export class NatsSystemEventsService {
 
     /**
      * NotifyWarningMsg sends a warning notification
-     * Equivalent to Go: s.NotifyWarningMsg
      */
     async notifyWarningMsg(
         roomId: string,
@@ -251,7 +244,6 @@ export class NatsSystemEventsService {
 
     /**
      * NotifyErrorMsg sends an error notification
-     * Equivalent to Go: s.NotifyErrorMsg
      */
     async notifyErrorMsg(
         roomId: string,
@@ -269,7 +261,6 @@ export class NatsSystemEventsService {
 
     /**
      * HandleInitialData handles Request for Initial Data
-     * Equivalent to Go: m.HandleInitialData (nats_user_event.go:10-56)
      */
     async handleInitialData(roomId: string, userId: string): Promise<void> {
         this.logger.debug(`Handling initial data request for room ${roomId}, user ${userId}`);
@@ -326,7 +317,6 @@ export class NatsSystemEventsService {
 
     /**
      * HandleSendUsersList handles Request for users list
-     * Equivalent to Go: m.HandleSendUsersList (nats_user_event.go:58-77)
      */
     async handleSendUsersList(roomId: string, userId: string): Promise<void> {
         this.logger.debug(`Handling users list request for room ${roomId}, user ${userId}`);
@@ -348,7 +338,6 @@ export class NatsSystemEventsService {
 
     /**
      * HandleMediaServerInfo handles Request for media server info (LiveKit token)
-     * Equivalent to Go: m.HandleMediaServerInfo (nats_user_event.go:79-117)
      */
     async handleMediaServerInfo(
         roomId: string,
@@ -374,7 +363,7 @@ export class NatsSystemEventsService {
             // LiveKitService expects UserMetadata protocol message, but here we have NatsKvUserInfo
             // We need to verify if LiveKitService accepts NatsKvUserInfo or we need to convert
             // Looking at LiveKitService.generateToken signature (not visible here, but assuming common interface)
-            // For now, passing userInfo directly as Go does. If types mismatch, we'll fix.
+            // For now, passing userInfo directly. If types mismatch, we'll fix.
             token = await this.livekitService.createToken(roomId, userInfo);
         } catch (error) {
             this.logger.error(`Failed to generate livekit token: ${error.message}`);
@@ -383,9 +372,6 @@ export class NatsSystemEventsService {
         }
 
         // Get Host URL
-        // In Go: strings.Replace(m.app.LivekitInfo.Host, "host.docker.internal", "localhost", 1)
-        // We should get this from ConfigService. Using a safe default or config value.
-        // For local development with Docker, "host.docker.internal" might act up on some systems.
         // Ideally this should be configured in .env
         let lkHost = this.configService.get<string>('LIVEKIT_API_URL', 'ws://localhost:7880');
         if (lkHost.includes('host.docker.internal')) {
@@ -412,15 +398,15 @@ export class NatsSystemEventsService {
 
     /**
      * HandleClientPing handles PING from client
-     * Equivalent to Go: m.HandleClientPing (nats_user_event.go) -> user_modify.go:UpdateUserStatus
+
      */
     async handleClientPing(roomId: string, userId: string): Promise<void> {
         // Check user status via NatsUserService (circular dependency handled with forwardRef)
-        // Equivalent to Go: m.OnAfterUserJoined(roomId, userId)
+
         await this.natsUserService.onAfterUserJoined(roomId, userId);
 
         // Update last ping time
-        // Equivalent to Go: m.natsService.UpdateUserKeyValue(roomId, userId, natsservice.UserLastPingAt, ...)
+
         const now = Date.now().toString();
         try {
             await this.natsUserInfo.updateUserKeyValue(roomId, userId, 'last_ping_at', now);
@@ -430,25 +416,24 @@ export class NatsSystemEventsService {
     }
 
     /**
-     * RenewPNMToken handles token renewal request
-     * Equivalent to Go: m.RenewPNMToken (nats_system.go:12-28)
+     * RenewWajlcToken handles token renewal request
      */
-    async renewPNMToken(roomId: string, userId: string, currentToken: string): Promise<void> {
+    async renewWajlcToken(roomId: string, userId: string, currentToken: string): Promise<void> {
         try {
-            // Graceful period of 3 hours (matching Go: time.Hour * 3)
-            // But PlugNmeetAuthService.renewToken usually takes just the old token
+            // Graceful period of 3 hours 
+            // But renewToken usually takes just the old token
             // We need to check if renewToken supports graceful period or custom expiry
             // Assuming standard renewal for now
-            const newToken = await this.authService.renewPNMToken(currentToken);
+            const newToken = await this.authService.renewWajlcToken(currentToken);
 
             await this.broadcastSystemEventToRoom(
-                NatsMsgServerToClientEvents.RESP_RENEW_PNM_TOKEN,
+                NatsMsgServerToClientEvents.RESP_RENEW_WAJLC_TOKEN,
                 roomId,
                 newToken,
                 userId,
             );
         } catch (error) {
-            this.logger.error(`Error renewing pnm token for ${userId}: ${error.message}`);
+            this.logger.error(`Error renewing Wajlc token for ${userId}: ${error.message}`);
         }
     }
 }

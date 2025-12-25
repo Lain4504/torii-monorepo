@@ -1,7 +1,7 @@
 syntax = "proto3";
 package wajlc;
 
-message PlugNmeetToRecorder {
+message WajlcToRecorder {
   string from = 1;
   RecordingTasks task = 2;
   int64 room_table_id = 3;
@@ -13,7 +13,7 @@ message PlugNmeetToRecorder {
   optional string rtmp_url = 9;
 }
 
-message RecorderToPlugNmeet {
+message RecorderToWajlc {
   string from = 1;
   RecordingTasks task = 2;
   bool status = 3;

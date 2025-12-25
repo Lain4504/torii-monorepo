@@ -1,7 +1,6 @@
 /**
  * Room Controller
- * Equivalent to Go: plugNmeet-server/pkg/controllers/room.go
- * 
+ *
  * Handles all room-related API endpoints
  */
 
@@ -46,7 +45,7 @@ import {
   sendProtoJsonResponse,
   sendCommonProtobufResponse,
   sendProtobufResponse,
-  parseAndValidateRequest,  // Full Go equivalent
+  parseAndValidateRequest,
   ApiKeyGuard,
   JwtAuthGuard,
 } from '@server/shared';
@@ -54,7 +53,6 @@ import {
 /**
  * RoomController handles room-related operations
  * Routes under /auth/room (with ApiKeyGuard)
- * Equivalent to Go: controllers.RoomController
  */
 @Controller('auth/room')
 @UseGuards(ApiKeyGuard)
@@ -65,8 +63,7 @@ export class RoomController {
 
   /**
    * HandleRoomCreate handles creating a new room
-   * Equivalent to Go: rc.HandleRoomCreate
-   * 
+   *
    * @route POST /auth/room/create
    */
   @Post('create')
@@ -74,7 +71,7 @@ export class RoomController {
     @Body() body: any,  // Accept both JSON and binary
     @Res() res: Response,
   ): Promise<void> {
-    // Parse and validate request (like Go: parseAndValidateRequest)
+    // Parse and validate request
     let request: CreateRoomReq;
     try {
       request = parseAndValidateRequest<CreateRoomReq>(body, CreateRoomReqSchema);
@@ -104,8 +101,7 @@ export class RoomController {
 
   /**
    * HandleIsRoomActive checks if a room is active
-   * Equivalent to Go: rc.HandleIsRoomActive
-   * 
+   *
    * @route POST /auth/room/isRoomActive
    */
   @Post('isRoomActive')
@@ -116,7 +112,7 @@ export class RoomController {
   ): Promise<void> {
     console.log('🔵 [Gateway] handleIsRoomActive called with body:', JSON.stringify(body));
 
-    // Parse and validate request (like Go: parseAndValidateRequest)
+    // Parse and validate request
     let request: IsRoomActiveReq;
     try {
       request = parseAndValidateRequest<IsRoomActiveReq>(body, IsRoomActiveReqSchema);
@@ -153,8 +149,7 @@ export class RoomController {
 
   /**
    * HandleGetActiveRoomInfo gets information about an active room
-   * Equivalent to Go: rc.HandleGetActiveRoomInfo
-   * 
+   *
    * @route POST /auth/room/getActiveRoomInfo
    */
   @Post('getActiveRoomInfo')
@@ -163,7 +158,7 @@ export class RoomController {
     @Body() body: any,
     @Res() res: Response,
   ): Promise<void> {
-    // Parse and validate request (like Go: parseAndValidateRequest)
+    // Parse and validate request
     let request: GetActiveRoomInfoReq;
     try {
       request = parseAndValidateRequest<GetActiveRoomInfoReq>(body, GetActiveRoomInfoReqSchema);
@@ -193,8 +188,7 @@ export class RoomController {
 
   /**
    * HandleGetActiveRoomsInfo gets information about all active rooms
-   * Equivalent to Go: rc.HandleGetActiveRoomsInfo
-   * 
+   *
    * @route POST /auth/room/getActiveRoomsInfo
    */
   @Post('getActiveRoomsInfo')
@@ -223,7 +217,6 @@ export class RoomController {
 
   /**
    * HandleEndRoom handles ending a room
-   * Equivalent to Go: rc.HandleEndRoom
    * internal / trusted
    * @route POST /auth/room/endRoom
    */
@@ -233,7 +226,7 @@ export class RoomController {
     @Body() body: any,
     @Res() res: Response,
   ): Promise<void> {
-    // Parse and validate request (like Go: parseAndValidateRequest)
+    // Parse and validate request
     let request: RoomEndReq;
     try {
       request = parseAndValidateRequest<RoomEndReq>(body, RoomEndReqSchema);
@@ -256,8 +249,7 @@ export class RoomController {
 
   /**
    * HandleFetchPastRooms handles fetching past rooms
-   * Equivalent to Go: rc.HandleFetchPastRooms
-   * 
+   *
    * @route POST /auth/room/fetchPastRooms
    */
   @Post('fetchPastRooms')
@@ -266,7 +258,7 @@ export class RoomController {
     @Body() body: any,
     @Res() res: Response,
   ): Promise<void> {
-    // Parse and validate request (like Go: parseAndValidateRequest)
+    // Parse and validate request
     let request: FetchPastRoomsReq;
     try {
       request = parseAndValidateRequest<FetchPastRoomsReq>(body, FetchPastRoomsReqSchema);
@@ -303,7 +295,6 @@ export class RoomController {
 /**
  * RoomApiController handles room-related API operations with JWT auth
  * Routes under /api (with JwtAuthGuard)
- * Equivalent to Go: HandleEndRoomForAPI, HandleChangeVisibilityForAPI
  */
 @Controller('api')
 @UseGuards(JwtAuthGuard)
@@ -314,7 +305,6 @@ export class RoomApiController {
 
   /**
    * HandleEndRoomForAPI handles ending a room via API call
-   * Equivalent to Go: rc.HandleEndRoomForAPI
    * external / strict security
    * @route POST /api/endRoom
    */
@@ -364,8 +354,7 @@ export class RoomApiController {
 
   /**
    * HandleChangeVisibilityForAPI handles changing room visibility via API call
-   * Equivalent to Go: rc.HandleChangeVisibilityForAPI
-   * 
+   *
    * @route POST /api/changeVisibility
    */
   @Post('changeVisibility')

@@ -1,7 +1,6 @@
-/**
+﻿/**
  * Room Info Service
- * Equivalent to Go: plugNmeet-server/pkg/models/room_info.go
- * 
+ *
  * Handles room information and status queries
  */
 
@@ -36,7 +35,6 @@ import { waitUntilRoomCreationCompletes } from './room-lock.helper';
 
 /**
  * RoomInfoService handles room information and status queries
- * Equivalent to Go: RoomModel methods in room_info.go
  */
 @Injectable()
 export class RoomInfoService {
@@ -53,8 +51,7 @@ export class RoomInfoService {
 
     /**
      * IsRoomActive checks if a room is currently active
-     * Equivalent to Go: m.IsRoomActive
-     * 
+     *
      * @returns IsRoomActiveRes, roomDbInfo, rInfo, metadata
      */
     async isRoomActive(
@@ -64,12 +61,12 @@ export class RoomInfoService {
         roomDbInfo: any | null;
         rInfo: NatsKvRoomInfo | null;
         metadata: RoomMetadata | null;
-        meta?: RoomMetadata | null; // alias to mirror Go return shape
+        meta?: RoomMetadata | null;
     }> {
         const log = this.logger;
         log.log(`IsRoomActive check: ${req.roomId}`);
 
-        // Wait until room creation completes (matching Go)
+        // Wait until room creation completes
         await waitUntilRoomCreationCompletes(this.redisLock, req.roomId, log);
 
         const res = create(IsRoomActiveResSchema, {
@@ -86,7 +83,7 @@ export class RoomInfoService {
             return { res, roomDbInfo: null, rInfo: null, metadata: null };
         }
 
-        // Check NATS for actual room info (matching Go: m.natsService.GetRoomInfoWithMetadata)
+        // Check NATS for actual room info
         const { info: rInfo, metadata } = await this.natsRoomService.getRoomInfoWithMetadata(req.roomId);
 
         if (!rInfo || !metadata) {
@@ -95,20 +92,19 @@ export class RoomInfoService {
             return { res, roomDbInfo: null, rInfo: null, metadata: null };
         }
 
-        // Check room status (matching Go: RoomStatusCreated || RoomStatusActive)
+        // Check room status
         if (rInfo.status === 'created' || rInfo.status === 'active') {
             res.isActive = true;
             res.msg = 'room is active';
         }
 
-        // Return full context for callers that need both DB and KV data (matches Go signature)
+        // Return full context for callers that need both DB and KV data
         return { res, roomDbInfo, rInfo, metadata, meta: metadata };
     }
 
     /**
      * GetActiveRoomInfo gets detailed info about an active room
-     * Equivalent to Go: m.GetActiveRoomInfo
-     * 
+     *
      * @returns [success, message, roomWithParticipants]
      */
     async getActiveRoomInfo(
@@ -126,7 +122,7 @@ export class RoomInfoService {
             return { success: false, message: 'no room found', data: null };
         }
 
-        // Get room info from NATS (matching Go: m.natsService.GetRoomInfo)
+        // Get room info from NATS
         const rrr = await this.natsRoomService.getRoomInfo(req.roomId);
         if (!rrr || (rrr.status !== 'created' && rrr.status !== 'active')) {
             // Room is not in NATS or not active, mark as ended in DB
@@ -159,7 +155,7 @@ export class RoomInfoService {
             const participants = await this.livekitService.loadParticipants(roomDbInfo.roomId);
             if (participants && participants.length > 0) {
                 for (const participant of participants) {
-                    // Get user metadata from NATS (matching Go: m.natsService.GetUserKeyValue)
+                    // Get user metadata from NATS
                     const entry = await this.natsUserInfoService.getUserKeyValue(
                         roomDbInfo.roomId,
                         participant.identity,
@@ -180,8 +176,7 @@ export class RoomInfoService {
 
     /**
      * GetActiveRoomsInfo gets all active rooms with participants
-     * Equivalent to Go: m.GetActiveRoomsInfo
-     * 
+     *
      * @returns [success, message, rooms]
      */
     async getActiveRoomsInfo(): Promise<{
@@ -215,7 +210,7 @@ export class RoomInfoService {
                 participantsInfo: [],
             });
 
-            // Get room metadata from NATS (matching Go: m.natsService.GetRoomInfo)
+            // Get room metadata from NATS
             const rri = await this.natsRoomService.getRoomInfo(r.roomId);
             if (!rri) {
                 continue;
@@ -227,7 +222,7 @@ export class RoomInfoService {
                 const participants = await this.livekitService.loadParticipants(r.roomId);
                 if (participants && participants.length > 0) {
                     for (const participant of participants) {
-                        // Get user metadata from NATS (matching Go: m.natsService.GetUserKeyValue)
+                        // Get user metadata from NATS
                         const entry = await this.natsUserInfoService.getUserKeyValue(
                             r.roomId,
                             participant.identity,
@@ -251,10 +246,9 @@ export class RoomInfoService {
 
     /**
      * FetchPastRooms fetches historical room records with pagination
-     * Equivalent to Go: m.FetchPastRooms
      */
     async fetchPastRooms(req: FetchPastRoomsReq): Promise<FetchPastRoomsResult> {
-        // Validate and set defaults (matching Go)
+        // Validate and set defaults
         let limit = req.limit || 20;
         if (limit > 100) {
             limit = 100;
@@ -286,8 +280,7 @@ export class RoomInfoService {
 
             // Get analytics file ID if available
             // TODO: Implement when RoomArtifact model is added to Prisma schema
-            // Matching Go: m.ds.GetAnalyticByRoomTableId(rr.ID)
-            /* 
+            /*
             try {
                 const analytics = await this.getAnalyticByRoomTableId(rr.id);
                 if (analytics) {
@@ -316,8 +309,7 @@ export class RoomInfoService {
 
     /**
      * Get room info by roomId from database
-     * Matching Go: m.ds.GetRoomInfoByRoomId(r.RoomId, 1)
-     * 
+     *
      * Made public for use by RoomEndService
      */
     async getRoomInfoByRoomId(roomId: string, isRunning: boolean): Promise<any | null> {
@@ -339,7 +331,7 @@ export class RoomInfoService {
 
     /**
      * Update room status in database
-     * Matching Go: m.ds.UpdateRoomStatus(&dbmodels.RoomInfo{RoomId: r.RoomId, IsRunning: 0})
+
      * 
      * Made public for use by RoomEndService
      */
@@ -349,7 +341,7 @@ export class RoomInfoService {
                 isRunning: isRunning ? 1 : 0,  // int type: 0 or 1
             };
 
-            // If ending room, also update related fields (matching Go: room_modify.go line 26-30)
+            // If ending room, also update related fields 
             if (!isRunning) {
                 updates.isRecording = 0;
                 updates.isActiveRtmp = 0;
@@ -370,7 +362,7 @@ export class RoomInfoService {
 
     /**
      * Get all active rooms from database
-     * Matching Go: rooms, err := m.ds.GetActiveRoomsInfo()
+
      */
     private async getActiveRoomsFromDb(): Promise<any[]> {
         try {
@@ -385,7 +377,7 @@ export class RoomInfoService {
 
     /**
      * Get past rooms from database with pagination
-     * Matching Go: rooms, total, err := m.ds.GetPastRooms(r.RoomIds, uint64(r.From), uint64(r.Limit), &r.OrderBy)
+
      */
     private async getPastRoomsFromDb(
         roomIds: string[],
@@ -418,14 +410,14 @@ export class RoomInfoService {
 
     /**
      * Get analytics by room table ID
-     * Matching Go: m.ds.GetAnalyticByRoomTableId(rr.ID)
+
      * 
      * TODO: Uncomment and implement when RoomArtifact model is added to Prisma schema
      */
     /*
     private async getAnalyticByRoomTableId(roomTableId: number): Promise<{ artifactId: string } | null> {
         try {
-            // Use RoomArtifact model (matching Go: dbmodels.RoomArtifact table)
+            // Use RoomArtifact model 
             const analytics = await this.prisma.roomArtifact.findFirst({
                 where: { roomTableId: BigInt(roomTableId) },
                 select: { artifactId: true },

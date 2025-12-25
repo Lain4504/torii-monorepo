@@ -1,6 +1,5 @@
 /**
  * Webhook notifier
- * Equivalent to Go: plugnmeet-protocol/webhook/notifier.go
  */
 
 import { Logger } from '@nestjs/common';
@@ -49,7 +48,6 @@ function initSharedClient(): AxiosInstance {
 
 /**
  * WebhookNotifier handles webhook notifications with queue processing
- * Equivalent to Go: webhook.Notifier
  */
 export class WebhookNotifier {
     private worker: WebhookQueueWorker;
@@ -58,8 +56,7 @@ export class WebhookNotifier {
 
     /**
      * Creates a new webhook notifier
-     * Equivalent to Go: webhook.NewNotifier
-     * 
+     *
      * @param queueSize - Maximum queue size
      * @param logger - Logger instance
      */
@@ -72,8 +69,7 @@ export class WebhookNotifier {
 
     /**
      * AddInNotifyQueue adds webhook events to the notification queue
-     * Equivalent to Go: n.AddInNotifyQueue
-     * 
+     *
      * @param event - CommonNotifyEvent to send
      * @param apiKey - API key for signing
      * @param apiSecret - API secret for signing
@@ -118,7 +114,6 @@ export class WebhookNotifier {
 
     /**
      * StopGracefully waits for all queued items to be processed before stopping
-     * Equivalent to Go: n.StopGracefully
      */
     async stopGracefully(): Promise<void> {
         if (this.worker) {
@@ -128,7 +123,6 @@ export class WebhookNotifier {
 
     /**
      * Kill stops the worker immediately, dropping any unprocessed items
-     * Equivalent to Go: n.Kill
      */
     kill(): void {
         if (this.worker) {
@@ -138,8 +132,7 @@ export class WebhookNotifier {
 
     /**
      * sendWebhookRequest sends a single webhook event synchronously
-     * Equivalent to Go: n.sendWebhookRequest
-     * 
+     *
      * @param event - CommonNotifyEvent to send
      * @param apiKey - API key for signing
      * @param apiSecret - API secret for signing

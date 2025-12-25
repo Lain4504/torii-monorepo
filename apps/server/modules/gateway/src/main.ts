@@ -5,7 +5,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
 
 async function bootstrap() {
-  // Create app with custom body parser (matching Go server - no special content-type checks)
+  // Create app with custom body parser
   const app = await NestFactory.create(GatewayModule);
 
   // Configure body parser to accept webhook content-type

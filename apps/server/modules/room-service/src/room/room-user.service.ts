@@ -1,7 +1,6 @@
 /**
  * Room User Service
  * Handles user/participant operations within rooms
- * Equivalent to Go: plugNmeet-server/pkg/controllers/user.go business logic
  */
 
 import { Injectable, Logger } from '@nestjs/common';
@@ -15,7 +14,7 @@ import { waitUntilRoomCreationCompletes } from './room-lock.helper';
 import { SwitchPresenterTask } from '@workspace/protocol';
 import { NatsRoomService } from '../nats/nats-room.service';
 import { NatsRoomEventsService } from '../nats/nats-room-events.service';
-import { PlugNmeetAuthService } from '../auth/plugnmeet-auth.service';
+import { WajlcAuthService } from '../auth/wajlc-auth.service';
 
 /**
  * RoomUserService handles business logic for user operations within rooms
@@ -33,12 +32,11 @@ export class RoomUserService {
         private readonly redisLock: RedisLockService,
         private readonly natsRoom: NatsRoomService,
         private readonly natsRoomEvents: NatsRoomEventsService,
-        private readonly authService: PlugNmeetAuthService,
+        private readonly authService: WajlcAuthService,
     ) { }
 
     /**
      * Check if user is in block list
-     * Equivalent to Go: m.natsService.IsUserExistInBlockList
      */
     async isUserInBlockList(roomId: string, userId: string): Promise<boolean> {
         this.logger.log(`Checking if user is in block list: ${userId} in room ${roomId}`);
@@ -55,20 +53,18 @@ export class RoomUserService {
 
     /**
      * Get user online status
-     * Mirrors Go: NatsService.GetRoomUserStatus (user_info.go)
      */
     async getUserStatus(roomId: string, userId: string): Promise<string> {
-        // Use NATS user info service to follow Go logic: cache → KV lookup → watcher
+        // Use NATS user info service to follow logic: cache → KV lookup → watcher
         return this.natsUserInfo.getRoomUserStatus(roomId, userId);
     }
 
     /**
-     * Generate PNM join token for a user
-     * Equivalent to Go: UserModel.GetPNMJoinToken (user_join.go:20-162)
-     * 
+     * Generate Wajlc join token for a user
+     *
      * This is the main entry point for users joining a room
      */
-    async getPNMJoinToken(req: any): Promise<{ token: string; livekitHost?: string }> {
+    async getWajlcJoinToken(req: any): Promise<{ token: string; livekitHost?: string }> {
         const roomId = req.roomId;
         const userId = req.userInfo?.userId;
         const userName = req.userInfo?.name;
@@ -186,7 +182,7 @@ export class RoomUserService {
             );
 
             // Step 10: Generate and return the final JWT token
-            const token = this.authService.generatePNMJoinToken({
+            const token = this.authService.generateWajlcJoinToken({
                 name: req.userInfo.name,
                 userId: req.userInfo.userId,
                 roomId: roomId,
@@ -194,7 +190,7 @@ export class RoomUserService {
                 isHidden: req.userInfo.isHidden || false,
             });
 
-            this.logger.log('Successfully generated PNM join token');
+            this.logger.log('Successfully generated Wajlc join token');
 
             return {
                 token: token,
@@ -208,7 +204,7 @@ export class RoomUserService {
 
     /**
      * Wait for user to be offline
-     * Equivalent to Go: waitForUserToBeOffline (user_join.go:164-193)
+
      */
     private async waitForUserToBeOffline(roomId: string, userId: string): Promise<void> {
         const maxWaitMs = 5000; // 5 seconds
@@ -250,7 +246,7 @@ export class RoomUserService {
 
     /**
      * Assign lock settings to user (for non-admin users during join)
-     * Equivalent to Go: UserModel.AssignLockSettingsToUser (user_lock.go:13-21)
+
      */
     private assignLockSettingsToUser(meta: any, req: any): void {
         if (!req.userInfo.userMetadata.lockSettings) {
@@ -264,7 +260,7 @@ export class RoomUserService {
 
     /**
      * Apply default lock settings using property merging
-     * Equivalent to Go: UserModel.applyDefaultLockSettings (user_lock.go:24-38)
+
      */
     private applyDefaultLockSettings(defaultLocks: any, userLocks: any): void {
         // Merge default lock settings into user lock settings
@@ -278,7 +274,7 @@ export class RoomUserService {
 
     /**
      * Update user lock settings
-     * Equivalent to Go: UserModel.UpdateUserLockSettings (user_lock.go:42-63)
+
      */
     async updateUserLockSettings(data: {
         roomId: string;
@@ -308,7 +304,7 @@ export class RoomUserService {
 
     /**
      * Handle update for all users in room
-     * Equivalent to Go: UserModel.handleUpdateAllUsersLockSettings (user_lock.go:66-94)
+
      */
     private async handleUpdateAllUsersLockSettings(data: {
         roomId: string;
@@ -345,7 +341,7 @@ export class RoomUserService {
 
     /**
      * Update and broadcast user lock - the single, reusable worker function
-     * Equivalent to Go: UserModel.updateAndBroadcastUserLock (user_lock.go:98-116)
+
      */
     private async updateAndBroadcastUserLock(
         roomId: string,
@@ -373,7 +369,7 @@ export class RoomUserService {
 
     /**
      * Update default room lock settings for future users
-     * Equivalent to Go: UserModel.updateDefaultRoomLockSettings (user_lock.go:119-131)
+
      */
     private async updateDefaultRoomLockSettings(data: {
         roomId: string;
@@ -395,7 +391,7 @@ export class RoomUserService {
 
     /**
      * Lock setting map - maps service strings to lock setting fields
-     * Equivalent to Go: lockSettingMap (user_lock.go:135-145)
+
      */
     private readonly lockSettingMap: Record<string, (lockSettings: any, val: boolean) => void> = {
         mic: (l, val) => (l.lockMicrophone = val),
@@ -411,7 +407,7 @@ export class RoomUserService {
 
     /**
      * Assign new lock setting
-     * Equivalent to Go: UserModel.assignNewLockSetting (user_lock.go:148-156)
+
      */
     private assignNewLockSetting(service: string, direction: string, lockSettings: any): void {
         const setter = this.lockSettingMap[service];
@@ -423,7 +419,7 @@ export class RoomUserService {
 
     /**
      * Mute/unmute user track
-     * Equivalent to Go: UserModel.MuteUnMuteTrack (user_track.go:16-69)
+
      * 
      * If trackSid not provided, will find microphone track automatically
      */
@@ -481,7 +477,7 @@ export class RoomUserService {
 
     /**
      * Mute/unmute all microphones in room
-     * Equivalent to Go: UserModel.muteUnmuteAllMic (user_track.go:71-101)
+
      */
     private async muteUnmuteAllMic(data: {
         roomId: string;
@@ -535,7 +531,7 @@ export class RoomUserService {
 
     /**
      * Remove participant from room
-     * Equivalent to Go: UserController.HandleRemoveParticipant
+
      */
     async handleRemoveParticipant(data: {
         sid: string;
@@ -589,7 +585,7 @@ export class RoomUserService {
 
     /**
      * Switch presenter in room
-     * Equivalent to Go: UserController.HandleSwitchPresenter → UserModel.SwitchPresenter
+
      */
     async handleSwitchPresenter(data: {
         roomId: string;
@@ -611,7 +607,7 @@ export class RoomUserService {
     /**
      * Create new presenter - verify if any presenter already online or not
      * If not, promote requested admin to be presenter
-     * Equivalent to Go: UserModel.CreateNewPresenter (user_presenter.go:13-34)
+
      */
     private async createNewPresenter(req: any): Promise<void> {
         const roomId = req.roomId;
@@ -634,7 +630,7 @@ export class RoomUserService {
     /**
      * Switch presenter - promotes the new presenter BEFORE demoting the old one
      * Ensures room is never left without a presenter
-     * Equivalent to Go: UserModel.SwitchPresenter (user_presenter.go:39-87)
+
      */
     private async switchPresenter(req: {
         roomId: string;
@@ -692,7 +688,7 @@ export class RoomUserService {
 
     /**
      * Find current presenter - check all online users to find the current presenter
-     * Equivalent to Go: UserModel.findCurrentPresenter (user_presenter.go:90-107)
+
      */
     private async findCurrentPresenter(roomId: string): Promise<string | null> {
         // Get online users
@@ -714,7 +710,7 @@ export class RoomUserService {
 
     /**
      * Update presenter status - performs the complete, two-step update for a user's presenter status
-     * Equivalent to Go: UserModel.updatePresenterStatus (user_presenter.go:110-134)
+
      */
     private async updatePresenterStatus(roomId: string, userId: string, isPresenter: boolean): Promise<void> {
         // Step 1: Update the primary Key-Value store first

@@ -1,7 +1,6 @@
-/**
+﻿/**
  * Webhook Controller (Room-Service)
- * Equivalent to Go: plugNmeet-server/pkg/models/webhook.go
- * 
+ *
  * Handles webhook events forwarded from gateway via NATS
  * Dispatches events to appropriate handlers
  */
@@ -12,7 +11,6 @@ import { WebhookService } from './webhook.service';
 
 /**
  * WebhookController handles NATS messages for webhook events
- * Equivalent to Go: WebhookModel.HandleWebhookEvents
  */
 @Controller()
 export class WebhookController {
@@ -24,7 +22,7 @@ export class WebhookController {
 
     /**
      * HandleWebhookEvent receives webhook events from gateway via NATS
-     * Equivalent to Go: WebhookModel.HandleWebhookEvents (webhook.go:53-70)
+
      * 
      * @pattern webhook.handle
      */
@@ -38,8 +36,7 @@ export class WebhookController {
         this.logger.log(`Processing webhook event: ${event.event}`);
 
         // Dispatch to appropriate handler based on event type
-        // Equivalent to Go's switch statement
-        switch (event.event) {
+                switch (event.event) {
             case 'room_started':
                 await this.webhookService.roomStarted(event);
                 break;

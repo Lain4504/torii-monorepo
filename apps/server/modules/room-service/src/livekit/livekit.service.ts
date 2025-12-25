@@ -1,7 +1,6 @@
 /**
  * LiveKit Service
- * Equivalent to Go: plugNmeet-server/pkg/services/livekit/user.go
- * 
+ *
  * Handles LiveKit participant operations
  */
 
@@ -12,7 +11,6 @@ import { NatsKvUserInfo } from '@workspace/protocol';
 
 /**
  * LiveKitService handles participant operations with LiveKit server
- * Equivalent to Go: LivekitService in user.go
  */
 @Injectable()
 export class LiveKitService {
@@ -34,8 +32,7 @@ export class LiveKitService {
 
     /**
      * LoadParticipants will load all the participant info from livekit
-     * Equivalent to Go: s.LoadParticipants
-     * 
+     *
      * @param roomId - The room ID to load participants from
      * @returns Array of ParticipantInfo or null
      */
@@ -43,7 +40,6 @@ export class LiveKitService {
         try {
             this.logger.debug(`Loading participants for room: ${roomId}`);
 
-            // Equivalent to Go: s.lkc.ListParticipants(ctx, &req)
             const participants = await this.client.listParticipants(roomId);
 
             if (!participants || participants.length === 0) {
@@ -60,8 +56,7 @@ export class LiveKitService {
 
     /**
      * LoadParticipantInfo will load single participant info by identity
-     * Equivalent to Go: s.LoadParticipantInfo
-     * 
+     *
      * @param roomId - The room ID
      * @param identity - The participant identity
      * @returns ParticipantInfo or throws error
@@ -70,7 +65,6 @@ export class LiveKitService {
         try {
             this.logger.debug(`Loading participant info: ${identity} in room: ${roomId}`);
 
-            // Equivalent to Go: s.lkc.GetParticipant(ctx, &req)
             const participant = await this.client.getParticipant(roomId, identity);
 
             if (!participant) {
@@ -87,8 +81,7 @@ export class LiveKitService {
 
     /**
      * RemoveParticipant will send a request to livekit to remove user
-     * Equivalent to Go: s.RemoveParticipant
-     * 
+     *
      * @param roomId - The room ID
      * @param userId - The user/participant identity to remove
      * @returns RemoveParticipantResponse
@@ -97,7 +90,6 @@ export class LiveKitService {
         try {
             this.logger.log(`Removing participant: ${userId} from room: ${roomId}`);
 
-            // Equivalent to Go: s.lkc.RemoveParticipant(ctx, &data)
             const response = await this.client.removeParticipant(roomId, userId);
 
             this.logger.log(`Successfully removed participant: ${userId} from room: ${roomId}`);
@@ -110,8 +102,7 @@ export class LiveKitService {
 
     /**
      * EndRoom will send API request to livekit to delete the room
-     * Equivalent to Go: s.EndRoom (room.go:11-27)
-     * 
+     *
      * @param roomId - The room ID to delete
      * @returns Response string or error message
      */
@@ -119,13 +110,12 @@ export class LiveKitService {
         try {
             this.logger.log(`Ending room via LiveKit: ${roomId}`);
 
-            // Equivalent to Go: s.lkc.DeleteRoom(ctx, &data)
-            // Go uses 15 second timeout, SDK handles timeout internally
+            //  SDK handles timeout internally
             await this.client.deleteRoom(roomId);
 
             this.logger.log(`Successfully ended room: ${roomId}`);
 
-            // Return success message (Go returns res.String())
+            // Return success message
             return `Room ${roomId} deleted successfully`;
         } catch (error) {
             this.logger.error(`Failed to end room ${roomId}: ${error.message}`);
@@ -135,8 +125,7 @@ export class LiveKitService {
 
     /**
      * MuteUnMuteTrack mutes/unmutes a published track
-     * Equivalent to Go: LivekitService.MuteUnMuteTrack (track.go:10-27)
-     * 
+     *
      * @param roomId - Room ID
      * @param userId - User/participant identity
      * @param trackSid - Track SID to mute/unmute
@@ -154,7 +143,6 @@ export class LiveKitService {
                 `${muted ? 'Muting' : 'Unmuting'} track ${trackSid} for user ${userId} in room ${roomId}`
             );
 
-            // Equivalent to Go: s.lkc.MutePublishedTrack(ctx, &data)
             const response = await this.client.mutePublishedTrack(roomId, userId, trackSid, muted);
 
             this.logger.log(`Successfully ${muted ? 'muted' : 'unmuted'} track ${trackSid}`);
@@ -169,8 +157,7 @@ export class LiveKitService {
 
     /**
      * CreateToken generates a LiveKit access token
-     * Equivalent to Go: natsModel.GenerateLivekitToken (nats_user_event.go:96) calling auth.GenerateLivekitToken
-     * 
+     *
      * @param roomId - Room ID
      * @param userInfo - NatsKvUserInfo object
      * @returns JWT token string
@@ -186,7 +173,7 @@ export class LiveKitService {
         const at = new AccessToken(apiKey, apiSecret, {
             identity: userInfo.userId,
             name: userInfo.name,
-            metadata: JSON.stringify(userInfo), // Go embeds userInfo as metadata
+            metadata: JSON.stringify(userInfo),
         });
 
         // Set video grant permissions

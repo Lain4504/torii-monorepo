@@ -56,31 +56,29 @@ export class RoomController {
 
   @MessagePattern({ cmd: 'room.getActiveInfo' })  // Changed from room.getActiveRoomInfo to match gateway
   async getActiveRoomInfo(@Payload() data: GetActiveRoomInfoReq) {
-    // Use RoomInfoService - matches Go: RoomModel.GetActiveRoomInfo
+    // Use RoomInfoService
     return this.roomInfoService.getActiveRoomInfo(data);
   }
 
   @MessagePattern({ cmd: 'room.getActiveRoomsInfo' })
   async getActiveRoomsInfo() {
-    // Use RoomInfoService - matches Go: RoomModel.GetActiveRoomsInfo
+    // Use RoomInfoService
     return this.roomInfoService.getActiveRoomsInfo();
   }
 
   @MessagePattern({ cmd: 'room.fetchPast' })  // Changed from room.fetchPastRooms to match gateway
   async fetchPastRooms(@Payload() data: FetchPastRoomsReq) {
-    // Use RoomInfoService - matches Go: RoomModel.FetchPastRooms
+    // Use RoomInfoService
     return this.roomInfoService.fetchPastRooms(data);
   }
 
   @MessagePattern({ cmd: 'room.end' })
   async endRoom(@Payload() data: any) {
-    // Implemented from Go: plugNmeet-server/pkg/models/room_end.go
     return this.roomEndService.endRoom(data);
   }
 
   @MessagePattern({ cmd: 'room.changeVisibility' })
   async changeVisibility(@Payload() data: any) {
-    // Implemented from Go: plugNmeet-server/pkg/models/room_modify.go
     return this.roomModifyService.changeVisibility(data);
   }
 

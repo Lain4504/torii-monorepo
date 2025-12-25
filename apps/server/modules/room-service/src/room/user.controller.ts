@@ -46,11 +46,10 @@ export class UserController {
      * Pattern: user.generateJoinToken
      * From: auth-room.controller.ts line 122
      * 
-     * Delegates to: RoomUserService.getPNMJoinToken (matches Go: UserModel.GetPNMJoinToken)
      */
     @MessagePattern({ cmd: 'user.generateJoinToken' })
     async generateJoinToken(@Payload() data: any) {
-        return this.roomUserService.getPNMJoinToken(data);
+        return this.roomUserService.getWajlcJoinToken(data);
     }
 
     /**
@@ -58,7 +57,6 @@ export class UserController {
      * Pattern: user.updateLockSettings
      * From: auth-room.controller.ts line 211
      * 
-     * Delegates to: RoomUserService.updateUserLockSettings (matches Go: HandleUpdateUserLockSetting)
      */
     @MessagePattern({ cmd: 'user.updateLockSettings' })
     async updateLockSettings(@Payload() data: any) {
@@ -70,7 +68,6 @@ export class UserController {
      * Pattern: user.muteUnMuteTrack
      * From: auth-room.controller.ts line 282
      * 
-     * Delegates to: RoomUserService.handleMuteUnMuteTrack (matches Go: HandleMuteUnMuteTrack)
      */
     @MessagePattern({ cmd: 'user.muteUnMuteTrack' })
     async muteUnMuteTrack(@Payload() data: any) {
@@ -82,7 +79,6 @@ export class UserController {
      * Pattern: user.removeParticipant
      * From: auth-room.controller.ts line 356
      * 
-     * Delegates to: RoomUserService.handleRemoveParticipant (matches Go: HandleRemoveParticipant)
      */
     @MessagePattern({ cmd: 'user.removeParticipant' })
     async removeParticipant(@Payload() data: { sid: string; userId: string; msg?: string; blockUser?: boolean }) {
@@ -94,7 +90,6 @@ export class UserController {
      * Pattern: user.switchPresenter
      * From: auth-room.controller.ts line 405
      * 
-     * Delegates to: RoomUserService.handleSwitchPresenter (matches Go: HandleSwitchPresenter)
      */
     @MessagePattern({ cmd: 'user.switchPresenter' })
     async switchPresenter(@Payload() data: any) {

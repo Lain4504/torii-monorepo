@@ -1,7 +1,6 @@
 /**
  * Redis Lock Service
- * Equivalent to Go: plugNmeet-server/pkg/services/redis/lock.go
- * 
+ *
  * Provides distributed locking using Redis for room creation and other operations
  */
 
@@ -38,7 +37,6 @@ end
 
 /**
  * Lock class represents a single distributed lock instance
- * Equivalent to Go: Lock struct
  */
 export class Lock {
     constructor(
@@ -50,7 +48,6 @@ export class Lock {
 
     /**
      * TryLock attempts to acquire the lock
-     * Equivalent to Go: l.TryLock
      */
     async tryLock(): Promise<boolean> {
         try {
@@ -63,7 +60,6 @@ export class Lock {
 
     /**
      * Unlock releases the lock
-     * Equivalent to Go: l.Unlock
      */
     async unlock(): Promise<void> {
         try {
@@ -77,7 +73,6 @@ export class Lock {
 
     /**
      * Refresh extends the TTL of the lock
-     * Equivalent to Go: l.Refresh
      */
     async refresh(): Promise<void> {
         try {
@@ -96,7 +91,6 @@ export class Lock {
 
 /**
  * RedisLockService provides distributed locking functionality
- * Equivalent to Go: RedisService lock methods
  */
 @Injectable()
 export class RedisLockService {
@@ -132,7 +126,6 @@ export class RedisLockService {
 
     /**
      * NewLock creates a new Lock instance
-     * Equivalent to Go: s.NewLock
      */
     newLock(key: string, ttlSeconds: number): Lock {
         const value = uuidv4();
@@ -141,8 +134,7 @@ export class RedisLockService {
 
     /**
      * LockRoomCreation attempts to acquire a distributed lock for room creation
-     * Equivalent to Go: s.LockRoomCreation
-     * 
+     *
      * Returns: { acquired: boolean, lockValue: string }
      */
     async lockRoomCreation(roomId: string, ttlSeconds: number = 10): Promise<{ acquired: boolean; lockValue: string }> {
@@ -166,7 +158,6 @@ export class RedisLockService {
 
     /**
      * UnlockRoomCreation safely releases a lock using the lockValue
-     * Equivalent to Go: s.UnlockRoomCreation
      */
     async unlockRoomCreation(roomId: string, lockValue: string): Promise<void> {
         const key = ROOM_CREATION_LOCK_KEY.replace('%s', roomId);
@@ -199,7 +190,6 @@ export class RedisLockService {
 
     /**
      * IsRoomCreationLock checks if the room creation lock exists
-     * Equivalent to Go: s.IsRoomCreationLock
      */
     async isRoomCreationLock(roomId: string): Promise<boolean> {
         const key = ROOM_CREATION_LOCK_KEY.replace('%s', roomId);
@@ -214,7 +204,6 @@ export class RedisLockService {
 
     /**
      * AcquireJanitorLeaderLock attempts to acquire janitor leader election lock
-     * Equivalent to Go: s.AcquireJanitorLeaderLock
      */
     async acquireJanitorLeaderLock(ttlSeconds: number = 30): Promise<{ acquired: boolean; lockValue: string }> {
         const value = uuidv4();
@@ -235,7 +224,6 @@ export class RedisLockService {
 
     /**
      * ReleaseJanitorLeadershipLock safely releases janitor leadership lock
-     * Equivalent to Go: s.ReleaseJanitorLeadershipLock
      */
     async releaseJanitorLeadershipLock(lockValue: string): Promise<void> {
         if (!lockValue) {
@@ -251,7 +239,6 @@ export class RedisLockService {
 
     /**
      * RenewJanitorLeadershipLock extends the TTL of the janitor leadership lock
-     * Equivalent to Go: s.RenewJanitorLeadershipLock
      */
     async renewJanitorLeadershipLock(lockValue: string, ttlSeconds: number): Promise<boolean> {
         if (ttlSeconds < 1) {

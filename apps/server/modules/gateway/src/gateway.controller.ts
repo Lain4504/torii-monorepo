@@ -1,7 +1,6 @@
 /**
  * Gateway Controller
- * Equivalent to Go: plugNmeet-server/pkg/controllers/auth.go (route handlers only)
- * 
+ *
  * Note: Middleware methods moved to Guards:
  * - HandleAuthHeaderCheck → ApiKeyGuard
  * - HandleVerifyHeaderToken → JwtAuthGuard
@@ -29,7 +28,7 @@ import {
   IsRoomActiveReq,
   IsRoomActiveReqSchema,
   NatsSubjectsSchema,
-  PlugNmeetTokenClaims,
+  WajlcTokenClaims,
 } from '@workspace/protocol';
 import { ConfigService } from '@nestjs/config';
 import { sendProtobufResponse, sendCommonProtoJsonResponse, JwtAuthGuard } from '@server/shared';
@@ -48,8 +47,7 @@ export class GatewayController {
 
   /**
    * HandleVerifyToken verifies a user's token before they join a room
-   * Equivalent to Go: ac.HandleVerifyToken
-   * 
+   *
    * @route POST /api/verifyToken
    */
   @Post('verifyToken')
@@ -137,14 +135,14 @@ export class GatewayController {
       }
 
       // Build successful response
-      // Accept env as comma-separated string or array to mirror Go config
+      // Accept env as comma-separated string or array
       const rawWsUrls = this.configService.get<string>('NATS_WS_URLS');
       const natsWsUrls = rawWsUrls
         ? rawWsUrls.split(',').map((u) => u.trim()).filter((u) => !!u)
         : this.configService.get<string[]>('NATS_WS_URLS') || [];
       const version = '1.0.0';
 
-      // Read NATS subjects from config (matching Go: ac.AppConfig.NatsInfo.Subjects)
+      // Read NATS subjects from config
       const natsSubjects = {
         systemApiWorker: this.configService.get<string>('NATS_SUBJECT_SYSTEM_API_WORKER') || 'sysApiWorker',
         systemJsWorker: this.configService.get<string>('NATS_SUBJECT_SYSTEM_JS_WORKER') || 'sysJsWorker',

@@ -1,26 +1,19 @@
 /**
  * Proto Parser Utilities
- * Equivalent to Go: plugnmeet-server/pkg/controllers/analytics.go
- * 
+ *
  * Provides flexible protobuf parsing that accepts both JSON and binary formats,
- * matching Go's protojson.Unmarshal behavior
  */
 
 import { fromBinary, fromJson, JsonValue } from '@bufbuild/protobuf';
 import { BadRequestException } from '@nestjs/common';
 
-/**
- * Unmarshal options matching Go's protojson.UnmarshalOptions
- * Go: var unmarshalOpts = protojson.UnmarshalOptions{ DiscardUnknown: true }
- */
 const unmarshalOpts = {
-    ignoreUnknownFields: true,  // Equivalent to DiscardUnknown in Go
+    ignoreUnknownFields: true,
 };
 
 /**
  * parseAndValidateRequest parses and validates a protobuf request
- * Equivalent to Go: func parseAndValidateRequest(data []byte, msg proto.Message) error
- * 
+ *
  * @param data - Request data (can be Buffer, string, or object)
  * @param schema - Protobuf message schema
  * @returns Parsed and validated protobuf message
@@ -33,10 +26,8 @@ export function parseAndValidateRequest<T>(data: any, schema: any): T {
 
 /**
  * validateRequest validates a protobuf message
- * Equivalent to Go: func validateRequest(msg proto.Message) error
- * 
- * Note: Go uses buf.build/go/protovalidate for validation.
- * TypeScript equivalent would be @bufbuild/protoplugin-validate or manual validation.
+ *
+ * TypeScript would be @bufbuild/protoplugin-validate or manual validation.
  * For now, this is a placeholder that can be extended with actual validation.
  * 
  * @param msg - Protobuf message to validate
@@ -44,7 +35,6 @@ export function parseAndValidateRequest<T>(data: any, schema: any): T {
  */
 export function validateRequest(msg: any, schema?: any): void {
     // TODO: Implement protovalidate equivalent when needed
-    // Go uses: buf.build/go/protovalidate (lines 40-48 in analytics.go)
     // TypeScript could use: @bufbuild/protoplugin-validate or custom validation
 
     // Basic validation: check if message exists
@@ -58,23 +48,12 @@ export function validateRequest(msg: any, schema?: any): void {
 
 /**
  * parseProtoRequest parses request body that can be either JSON or Protobuf binary
- * Equivalent to Go: unmarshalOpts.Unmarshal(data, msg) - protojson.Unmarshal
- * 
- * This function mimics Go's flexibility where the same endpoint can accept:
+ *
+ * This function mimics flexibility where the same endpoint can accept:
  * - JSON with snake_case fields (auto-converted to camelCase)
  * - Protobuf binary format
  * 
- * Go code reference (analytics.go lines 31-36):
- * ```go
- * func parseAndValidateRequest(data []byte, msg proto.Message) error {
- *     err := unmarshalOpts.Unmarshal(data, msg)  // <- This is what we're replicating
- *     if err != nil {
- *         return err
- *     }
- *     return validateRequest(msg)
- * }
- * ```
- * 
+ *
  * @param body - Request body (can be Buffer, string, or already parsed object)
  * @param schema - Protobuf schema
  * @returns Parsed protobuf message
@@ -101,7 +80,7 @@ export function parseProtoRequest<T>(body: any, schema: any): T {
     if (Buffer.isBuffer(body) || body instanceof Uint8Array) {
         const buffer = Buffer.isBuffer(body) ? body : Buffer.from(body);
 
-        // Try binary protobuf first (proto.Unmarshal in Go)
+        // Try binary protobuf first
         try {
             return fromBinary(schema, buffer) as T;
         } catch (binaryError) {

@@ -1,7 +1,6 @@
-/**
+﻿/**
  * Room Create Service
- * Equivalent to Go: plugNmeet-server/pkg/models/room_create.go
- * 
+ *
  * Handles room creation logic with all validation and defaults
  */
 
@@ -39,7 +38,6 @@ import { acquireRoomCreationLockWithRetry } from './room-lock.helper';
 
 /**
  * RoomCreateService handles the creation of new rooms
- * Equivalent to Go: RoomModel.CreateRoom
  */
 @Injectable()
 export class RoomCreateService {
@@ -59,14 +57,13 @@ export class RoomCreateService {
 
     /**
      * CreateRoom creates a new room
-     * Equivalent to Go: m.CreateRoom
      */
     async createRoom(req: CreateRoomReq): Promise<ActiveRoomInfo> {
         const log = this.logger;
         log.log(`Create room request: ${req.roomId}, breakout: ${req.metadata?.isBreakoutRoom}`);
 
         // Step 1: Acquire room creation lock (prevent duplicate creation)
-        // Using helper with retry and exponential backoff (matching Go)
+        // Using helper with retry and exponential backoff
         const lockValue = await acquireRoomCreationLockWithRetry(this.redisLock, req.roomId, this.logger);
 
         try {
@@ -135,8 +132,7 @@ export class RoomCreateService {
             log.log(`Successfully created new room: ${req.roomId}`);
             return activeRoomInfo;
         } finally {
-            // Always release lock - matching Go's defer with timeout
-            // Go: unlockCtx, cancel := context.WithTimeout(m.ctx, 5*time.Second)
+            // Always release lock
             const timeoutPromise = new Promise<void>((_, reject) => {
                 setTimeout(() => reject(new Error('Unlock timeout after 5 seconds')), 5000);
             });
@@ -147,7 +143,7 @@ export class RoomCreateService {
                 await Promise.race([unlockPromise, timeoutPromise]);
                 log.log(`Room creation lock released: ${req.roomId}`);
             } catch (unlockErr) {
-                // Swallow unlock errors, only log (matching Go behavior)
+                // Swallow unlock errors, only log 
                 log.error(
                     `Error trying to clean up room creation lock for ${req.roomId}: ${unlockErr instanceof Error ? unlockErr.message : unlockErr}`,
                 );
@@ -157,7 +153,7 @@ export class RoomCreateService {
 
     /**
      * handleExistingRoom handles logic if room already exists
-     * Equivalent to Go: m.handleExistingRoom
+
      */
     private async handleExistingRoom(
         req: CreateRoomReq,
@@ -204,7 +200,7 @@ export class RoomCreateService {
 
     /**
      * setRoomDefaults sets default values and metadata
-     * Equivalent to Go: m.setRoomDefaults
+
      */
     private setRoomDefaults(req: CreateRoomReq): void {
         // Apply default room features
@@ -216,7 +212,7 @@ export class RoomCreateService {
         const allowedTypes = this.configService.get<string>('UPLOAD_ALLOWED_TYPES')?.split(',') || [];
         const sharedNotePadEnabled = this.configService.get<boolean>('SHARED_NOTEPAD_ENABLED') || true;
 
-        // Convert numbers to strings for uint64 compatibility (matching Go)
+        // Convert numbers to strings for uint64 compatibility 
         setCreateRoomDefaultValues(
             req,
             maxFileSize.toString(),  // uint64 with JS_STRING = string
@@ -226,7 +222,7 @@ export class RoomCreateService {
         );
         setRoomDefaultLockSettings(req);
 
-        // Get room default settings from config (matching Go: m.app.RoomDefaultSettings)
+        // Get room default settings from config 
         const roomDefaults: RoomDefaultSettings = {
             maxParticipants: this.configService.get<number>('ROOM_DEFAULT_MAX_PARTICIPANTS'),
             maxDuration: this.configService.get<string>('ROOM_DEFAULT_MAX_DURATION'),
@@ -236,7 +232,7 @@ export class RoomCreateService {
 
         // Copyright configuration
         const copyrightDisplay = this.configService.get<boolean>('COPYRIGHT_DISPLAY') !== false;
-        const copyrightText = this.configService.get<string>('COPYRIGHT_TEXT') || 'Powered by <a href="https://www.plugnmeet.org" target="_blank">plugNmeet</a>';
+        const copyrightText = this.configService.get<string>('COPYRIGHT_TEXT') || 'Developed by MiraiMagicLab';
         const copyrightAllowOverride = this.configService.get<boolean>('COPYRIGHT_ALLOW_OVERRIDE') || false;
 
         const defaultCopyright = create(CopyrightConfSchema, {
@@ -293,7 +289,7 @@ export class RoomCreateService {
 
     /**
      * prepareRoomDbInfo prepares DB model for room
-     * Equivalent to Go: m.prepareRoomDbInfo
+
      */
     private prepareRoomDbInfo(req: CreateRoomReq, existing: any | null): { roomInfo: any; sid: string } {
         const sid = uuidv4();
@@ -309,8 +305,8 @@ export class RoomCreateService {
                 webhookUrl: '',
                 isBreakoutRoom: isBreakoutRoom,
                 parentRoomId: req.metadata?.parentRoomId || '',
-                // Convert milliseconds to seconds to match Go server's int(10) format
-                // Go uses autoCreateTime which creates Unix timestamp in seconds
+                // Convert milliseconds to seconds to match server's int(10) format
+                // autoCreateTime creates Unix timestamp in seconds
                 creationTime: Math.floor(Date.now() / 1000),
             };
         } else {
@@ -326,7 +322,7 @@ export class RoomCreateService {
 
     /**
      * prepareWhiteboardPreloadFile preloads whiteboard file
-     * Equivalent to Go: m.prepareWhiteboardPreloadFile
+
      */
     private async prepareWhiteboardPreloadFile(
         metadata: RoomMetadata,
@@ -373,7 +369,7 @@ export class RoomCreateService {
 
     /**
      * sendRoomCreatedWebhook sends room created webhook
-     * Equivalent to Go: m.sendRoomCreatedWebhook
+
      */
     private async sendRoomCreatedWebhook(
         info: ActiveRoomInfo,
@@ -412,7 +408,7 @@ export class RoomCreateService {
     // ============================================================================
 
     private async getRoomInfoByRoomId(roomId: string): Promise<any | null> {
-        // Get active room (isRunning = 1, matching Go INT(1))
+        // Get active room (isRunning = 1)
         return this.prisma.roomInfo.findFirst({
             where: {
                 roomId: roomId,

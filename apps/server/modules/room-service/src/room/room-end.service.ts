@@ -1,7 +1,6 @@
 /**
  * Room End Service
- * Equivalent to Go: plugNmeet-server/pkg/models/room_end.go
- * 
+ *
  * Handles room termination and cleanup operations
  */
 
@@ -21,7 +20,6 @@ import { RoomDurationService } from './room-duration.service';
 
 /**
  * RoomEndService handles room termination and cleanup
- * Equivalent to Go: RoomModel.EndRoom and OnAfterRoomEnded
  */
 @Injectable()
 export class RoomEndService {
@@ -41,7 +39,7 @@ export class RoomEndService {
 
     /**
      * EndRoom terminates a room session
-     * Equivalent to Go: m.EndRoom (room_end.go:16-66)
+
      * 
      * Steps:
      * 1. Wait for room creation lock
@@ -59,7 +57,7 @@ export class RoomEndService {
         this.logger.log(`EndRoom called for: ${roomId}`);
 
         // Step 1: Wait until any ongoing room creation process is complete to avoid race conditions
-        // Equivalent to Go: waitUntilRoomCreationCompletes (room_lock_helper.go:87-134)
+
         try {
             await waitUntilRoomCreationCompletes(this.redisLock, roomId, this.logger);
         } catch (error) {
@@ -138,7 +136,7 @@ export class RoomEndService {
 
     /**
      * OnAfterRoomEnded performs comprehensive cleanup after room ends
-     * Equivalent to Go: m.OnAfterRoomEnded (room_end.go:68-171)
+
      * 
      * This is called asynchronously and performs extensive cleanup:
      * - Database updates

@@ -1,6 +1,5 @@
 /**
  * LTI v1 utilities
- * Equivalent to Go: plugnmeet-protocol/utils/lti_v1.go
  */
 
 import {
@@ -21,8 +20,7 @@ import { create } from '@bufbuild/protobuf';
 
 /**
  * AssignLTIV1CustomParams assigns LTI v1 custom parameters from URL params to claims
- * Equivalent to Go: utils.AssignLTIV1CustomParams
- * 
+ *
  * @param params - URLSearchParams or Map of parameters
  * @param claims - LTI claims to populate
  */
@@ -98,8 +96,7 @@ export function assignLTIV1CustomParams(
 
 /**
  * PrepareLTIV1RoomCreateReq prepares a CreateRoomReq from LTI claims
- * Equivalent to Go: utils.PrepareLTIV1RoomCreateReq
- * 
+ *
  * @param c - LTI claims
  * @returns CreateRoomReq protobuf message
  */

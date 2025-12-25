@@ -1,10 +1,9 @@
 /**
  * NATS utilities for NKey authentication
- * Equivalent to Go: plugnmeet-protocol/utils/nats.go
- * 
+ *
  * Note: This file provides NATS NKey authentication utilities.
  * However, in TypeScript/Node.js with nats.js library, the NKey authentication
- * is handled differently than in Go.
+ * is handled differently than some other languages.
  * 
  * The nats.js library provides built-in NKey support.
  * 
@@ -13,7 +12,7 @@
  * 2. JWT/NKey in connection options
  * 3. Credentials file
  * 
- * This is a REFERENCE implementation showing the equivalent concepts from Go.
+ * This is a REFERENCE implementation showing the equivalent concepts from tutorials.
  * For actual use in NestJS, use the NATS module configuration.
  * 
  * Example NestJS NATS configuration:
@@ -27,8 +26,7 @@
 
 /**
  * NkeyOptionFromSeedText creates NATS connection option from seed text
- * Equivalent to Go: utils.NkeyOptionFromSeedText
- * 
+ *
  * In nats.js, use seed directly in connection options:
  * ```typescript
  * const nc = await connect({
@@ -48,8 +46,7 @@ export function nkeyOptionFromSeedText(seedText: string): string {
 
 /**
  * sigHandler signs a nonce with the seed
- * Equivalent to Go: utils.sigHandler
- * 
+ *
  * Note: This is handled automatically by nats.js when you provide a seed
  * 
  * @param nonce - Challenge nonce from server
@@ -62,8 +59,7 @@ export function sigHandler(nonce: Uint8Array, seed: string): Uint8Array {
 
 /**
  * nKeyPairFromSeed creates a key pair from seed text
- * Equivalent to Go: utils.nKeyPairFromSeed
- * 
+ *
  * Note: This is handled automatically by nats.js
  * 
  * @param seedText - NKey seed text  
@@ -77,8 +73,7 @@ export function nKeyPairFromSeed(seedText: string): string {
 
 /**
  * Wipe slice with 'x', for clearing contents of creds or nkey seed file
- * Equivalent to Go: utils.wipeSlice
- * 
+ *
  * @param buf - Buffer to wipe
  */
 export function wipeSlice(buf: Buffer): void {

@@ -18,12 +18,12 @@ export * from './utils/webhook_verify';
 
 
 /**
- * Utils module - TypeScript clone of plugnmeet-protocol/utils and auth
+ * Utils module
  *
- * Exports all utility functions equivalent to Go implementation
+ * Exports all utility functions
  */
 
-// Common utilities (from utils/common.go)
+// Common utilities
 export {
     prepareCommonWebhookNotifyEvent,
     sendCommonProtobufResponse,
@@ -35,26 +35,26 @@ export {
     generateRandomString,
 } from './utils/common';
 
-// Proto parser (from controllers/analytics.go)
+// Proto parser
 export {
     parseProtoRequest,           // Flexible parser (JSON or binary)
-    parseAndValidateRequest,     // Parser + validation (full Go equivalent)
+    parseAndValidateRequest,     // Parser + validation
     validateRequest,             // Validation only
 } from './utils/proto-parser';
 
-// Access token generation (from auth/access_token.go)
+// Access token generation
 export {
-    generatePlugNmeetJWTAccessToken,
+    generateWajlcJWTAccessToken,
     generateLivekitAccessToken,
     generateTokenForDownloadRecording,
 } from './utils/access_token';
 
-// Token verification (from auth/verify_token.go)
+// Token verification )
 export {
-    verifyPlugNmeetAccessToken,
+    verifyWajlcAccessToken,
 } from './utils/verify_token';
 
-// NATS utilities (from utils/nats.go)
+// NATS utilities
 export {
     nkeyOptionFromSeedText,
     sigHandler,
@@ -62,13 +62,13 @@ export {
     wipeSlice,
 } from './utils/nats';
 
-// LTI v1 utilities (from utils/lti_v1.go)
+// LTI v1 utilities
 export {
     assignLTIV1CustomParams,
     prepareLTIV1RoomCreateReq,
 } from './utils/lti_v1';
 
-// Create room utilities (from utils/create_room.go)
+// Create room utilities
 export {
     prepareDefaultRoomFeatures,
     setCreateRoomDefaultValues,
@@ -77,17 +77,17 @@ export {
     type RoomDefaultSettings,
 } from './utils/create_room';
 
-// Webhook verification (from webhook/verify.go)
+// Webhook verification
 export {
     verifyWebhookRequest,
 } from './utils/webhook_verify';
 
-// Webhook queue worker (from webhook/queue_worker.go)
+// Webhook queue worker
 export {
     WebhookQueueWorker,
 } from './utils/webhook_queue_worker';
 
-// Webhook notifier (from webhook/notifier.go)
+// Webhook notifier
 export {
     WebhookNotifier,
 } from './utils/webhook_notifier';

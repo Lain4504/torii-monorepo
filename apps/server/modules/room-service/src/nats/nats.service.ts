@@ -1,7 +1,6 @@
 /**
  * NATS Service - Base Service
- * Equivalent to Go: plugNmeet-server/pkg/services/nats/nats_service.go
- * 
+ *
  * Main NATS service with metadata marshaling utilities
  */
 
@@ -21,20 +20,12 @@ import {
     DeliverPolicy,
 } from 'nats';
 
-// Constants matching Go
+// Constants
 const NATS_PREFIX = 'pnm-';
 const DEFAULT_TTL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds (standard for JS/TS)
 
 /**
- * Proto JSON options matching Go
- * Go: protoJsonOpts = protojson.MarshalOptions{
- *   EmitUnpopulated: true,
- *   UseProtoNames:   true,
- * }
- * 
- * @bufbuild/protobuf uses:
- * - alwaysEmitImplicit: true  (equivalent to EmitUnpopulated)
- * - useProtoFieldName: true   (equivalent to UseProtoNames)
+ * Proto JSON options
  */
 const PROTO_JSON_OPTIONS = {
     alwaysEmitImplicit: true,  // equivalent to EmitUnpopulated
@@ -43,9 +34,7 @@ const PROTO_JSON_OPTIONS = {
 
 /**
  * NatsService is the main NATS service
- * Equivalent to Go: NatsService struct
- * 
- * Go struct:
+ *
  * type NatsService struct {
  *   ctx    context.Context
  *   app    *config.AppConfig
@@ -59,17 +48,17 @@ const PROTO_JSON_OPTIONS = {
 export class NatsService implements OnModuleInit, OnModuleDestroy {
     private readonly logger = new Logger('NatsService');
 
-    // NATS connection variables (matching Go struct)
-    private nc: NatsConnection;       // NATS connection (matching Go: nc *nats.Conn)
-    private js: JetStreamClient;      // JetStream (matching Go: js jetstream.JetStream)
+    // NATS connection variables
+    private nc: NatsConnection;       // NATS connection
+    private js: JetStreamClient;      // JetStream
     private jsm: JetStreamManager;    // JetStream Manager (for admin operations)
-    private cs: NatsCacheService;     // Cache Service (matching Go: cs *NatsCacheService)
+    private cs: NatsCacheService;     // Cache Service
 
     constructor(
         private readonly configService: ConfigService,
         private readonly cacheService: NatsCacheService,
     ) {
-        // Initialize cs field (matching Go: cs: GetNatsCacheService(app, log.Logger))
+        // Initialize cs field
         this.cs = cacheService;
     }
 
@@ -104,7 +93,6 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
     /**
      * Connect to NATS with optional NKEY authentication
-     * Equivalent to Go: app.NatsConn initialization
      */
     private async connectToNats(): Promise<void> {
         try {
@@ -116,7 +104,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
                 name: 'nestjs-room-service',
             };
 
-            // Add NKEY authentication if provided (matching Go's auth setup)
+            // Add NKEY authentication if provided
             if (nkeySeed) {
                 options.authenticator = nkeyAuthenticator(
                     new TextEncoder().encode(nkeySeed)
@@ -124,10 +112,10 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
                 this.logger.log('NATS NKEY authentication enabled');
             }
 
-            // Connect to NATS (matching Go: app.NatsConn, err := nats.Connect(...))
+            // Connect to NATS
             this.nc = await connect(options);
 
-            // Initialize JetStream (matching Go: app.JetStream = jetstream.New(nc))
+            // Initialize JetStream
             this.js = this.nc.jetstream();
 
             // Initialize JetStream Manager for admin operations
@@ -151,13 +139,12 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     }
 
     // ============================================================================
-    // Metadata Marshaling Methods (matching Go exactly)
+    // Metadata Marshaling Methods
     // ============================================================================
 
     /**
      * MarshalToProtoJson converts protobuf message to JSON string
-     * Equivalent to Go: s.MarshalToProtoJson
-     * 
+     *
      * Uses options:
      * - EmitUnpopulated: true (include default values)
      * - UseProtoNames: true (use snake_case field names)
@@ -166,19 +153,18 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
         // Using @bufbuild/protobuf's toJsonString with options
         // Note: @bufbuild/protobuf uses different option names than protobuf-js
         return toJsonString(schema, message as any, {
-            alwaysEmitImplicit: true,  // equivalent to Go's EmitUnpopulated
-            useProtoFieldName: true,    // equivalent to Go's UseProtoNames (snake_case)
+            alwaysEmitImplicit: true,
+            useProtoFieldName: true,
         });
     }
 
     /**
      * MarshalRoomMetadata converts RoomMetadata to JSON string
-     * Equivalent to Go: s.MarshalRoomMetadata
-     * 
-     * Adds metadataId before marshaling (matching Go)
+     *
+     * Adds metadataId before marshaling
      */
     marshalRoomMetadata(metadata: RoomMetadata): string {
-        // Add metadata ID (matching Go: mId := uuid.NewString(); meta.MetadataId = &mId)
+        // Add metadata ID
         const metadataWithId = create(RoomMetadataSchema, {
             ...metadata,
             metadataId: uuidv4(),
@@ -189,7 +175,6 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
     /**
      * UnmarshalRoomMetadata converts JSON string to RoomMetadata
-     * Equivalent to Go: s.UnmarshalRoomMetadata
      */
     unmarshalRoomMetadata(metadataJson: string): RoomMetadata {
         if (!metadataJson) {
@@ -202,12 +187,11 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
     /**
      * MarshalUserMetadata converts UserMetadata to JSON string
-     * Equivalent to Go: s.MarshalUserMetadata
-     * 
-     * Adds metadataId before marshaling (matching Go)
+     *
+     * Adds metadataId before marshaling
      */
     marshalUserMetadata(metadata: UserMetadata): string {
-        // Add metadata ID (matching Go: mId := uuid.NewString(); meta.MetadataId = &mId)
+        // Add metadata ID
         const metadataWithId = create(UserMetadataSchema, {
             ...metadata,
             metadataId: uuidv4(),
@@ -218,7 +202,6 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
     /**
      * UnmarshalUserMetadata converts JSON string to UserMetadata
-     * Equivalent to Go: s.UnmarshalUserMetadata
      */
     unmarshalUserMetadata(metadataJson: string): UserMetadata {
         if (!metadataJson) {
@@ -230,7 +213,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     }
 
     // ============================================================================
-    // Getters for internal services (matching Go struct access)
+    // Getters for internal services
     // ============================================================================
 
     /**
@@ -256,31 +239,27 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
     /**
      * Get Cache Service
-     * Equivalent to Go: s.cs field access
      */
     getCacheService(): NatsCacheService {
         return this.cs;
     }
 
     // ============================================================================
-    // Webhook Methods (from webhook.go)
+    // Webhook Methods
     // ============================================================================
 
     /**
      * Webhook KV bucket name
-     * Equivalent to Go: WebhookKvKey = Prefix + "webhookData"
      */
     private static readonly WEBHOOK_KV_KEY = `${NATS_PREFIX}webhookData`;
 
     /**
      * Webhook cleanup NATS subject
-     * Equivalent to Go: WebhookCleanupSubject = Prefix + "webhookCleanup"
      */
     static readonly WEBHOOK_CLEANUP_SUBJECT = `${NATS_PREFIX}webhookCleanup`;
 
     /**
      * AddWebhookData stores webhook data for a room in NATS KV
-     * Equivalent to Go: s.AddWebhookData
      */
     async addWebhookData(roomId: string, val: string): Promise<void> {
         try {
@@ -300,9 +279,8 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
     /**
      * GetWebhookData retrieves webhook data for a room from NATS KV
-     * Equivalent to Go: s.GetWebhookData
-     * 
-     * Returns null if bucket or key not found (matching Go behavior)
+     *
+     * Returns null if bucket or key not found
      */
     async getWebhookData(roomId: string): Promise<string | null> {
         try {
@@ -318,13 +296,12 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
             return new TextDecoder().decode(entry.value);
         } catch (error) {
-            // Handle errors matching Go's switch statement
+            // Handle errors
             if (error.message && error.message.includes('bucket not found')) {
-                // Equivalent to Go: errors.Is(err, jetstream.ErrBucketNotFound)
                 return null;
             }
             if (error.message && error.message.includes('key not found')) {
-                // Equivalent to Go: errors.Is(err, jetstream.ErrKeyNotFound)
+
                 return null;
             }
             throw error;
@@ -333,9 +310,8 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
     /**
      * DeleteWebhookData deletes webhook data for a room from NATS KV
-     * Equivalent to Go: s.DeleteWebhookData
-     * 
-     * Silently succeeds if bucket not found (matching Go behavior)
+     *
+     * Silently succeeds if bucket not found
      */
     async deleteWebhookData(roomId: string): Promise<void> {
         try {
@@ -345,9 +321,8 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
             // Purge the key (delete all revisions)
             await kv.purge(roomId);
         } catch (error) {
-            // Handle errors matching Go's switch statement
+            // Handle errors matching
             if (error.message && error.message.includes('bucket not found')) {
-                // Equivalent to Go: errors.Is(err, jetstream.ErrBucketNotFound) → return nil
                 return;
             }
             throw error;
@@ -355,13 +330,12 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     }
 
     // ============================================================================
-    // JetStream Consumer Management (from js_consumer.go)
+    // JetStream Consumer Management
     // ============================================================================
 
     /**
      * CreateChatConsumer creates or updates a chat consumer for a user
-     * Equivalent to Go: NatsService.CreateChatConsumer (js_consumer.go:10-29)
-     * 
+     *
      * @param roomId - Room ID
      * @param userId - User ID
      * @returns Array of permission strings for JWT
@@ -393,7 +367,6 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
     /**
      * CreateSystemPublicConsumer creates or updates a system public consumer for a user
-     * Equivalent to Go: NatsService.CreateSystemPublicConsumer (js_consumer.go:31-50)
      */
     async createSystemPublicConsumer(roomId: string, userId: string): Promise<string[]> {
         const sysPublicSubject = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PUBLIC') || 'sysPublic';
@@ -420,7 +393,6 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
     /**
      * CreateSystemPrivateConsumer creates or updates a system private consumer for a user
-     * Equivalent to Go: NatsService.CreateSystemPrivateConsumer (js_consumer.go:52-71)
      */
     async createSystemPrivateConsumer(roomId: string, userId: string): Promise<string[]> {
         const sysPrivateSubject = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PRIVATE') || 'sysPrivate';
@@ -447,7 +419,6 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
     /**
      * CreateWhiteboardConsumer creates or updates a whiteboard consumer for a user
-     * Equivalent to Go: NatsService.CreateWhiteboardConsumer (js_consumer.go:73-93)
      */
     async createWhiteboardConsumer(roomId: string, userId: string): Promise<string[]> {
         const whiteboardSubject = this.configService.get<string>('NATS_SUBJECT_WHITEBOARD') || 'whiteboard';
@@ -475,7 +446,6 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
     /**
      * CreateDataChannelConsumer creates or updates a data channel consumer for a user
-     * Equivalent to Go: NatsService.CreateDataChannelConsumer (js_consumer.go:95-115)
      */
     async createDataChannelConsumer(roomId: string, userId: string): Promise<string[]> {
         const dataChannelSubject = this.configService.get<string>('NATS_SUBJECT_DATA_CHANNEL') || 'dataChannel';
@@ -503,7 +473,6 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
     /**
      * DeleteConsumer deletes all consumers for a user in a room
-     * Equivalent to Go: NatsService.DeleteConsumer (js_consumer.go:117-123)
      */
     async deleteConsumer(roomId: string, userId: string): Promise<void> {
         const chatSubject = this.configService.get<string>('NATS_SUBJECT_CHAT') || 'chat';
@@ -512,7 +481,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
         const whiteboardSubject = this.configService.get<string>('NATS_SUBJECT_WHITEBOARD') || 'whiteboard';
         const dataChannelSubject = this.configService.get<string>('NATS_SUBJECT_DATA_CHANNEL') || 'dataChannel';
 
-        // Delete all consumers (silent fail like Go)
+        // Delete all consumers
         try {
             await this.jsm.consumers.delete(roomId, `${chatSubject}:${userId}`);
         } catch (error) {

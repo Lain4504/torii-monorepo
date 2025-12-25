@@ -1,7 +1,6 @@
 /**
  * Webhook Service
- * Equivalent to Go: plugNmeet-server/pkg/models/webhook*.go
- * 
+ *
  * Handles all webhook event processing logic
  * - Room events (started, finished)
  * - Participant events (joined, left)
@@ -29,14 +28,13 @@ import { ROOM_STATUS_ACTIVE, ROOM_STATUS_ENDED } from '../nats/nats-room.service
 import { RoomDurationService } from '../room/room-duration.service';
 import { NatsRoomEventsService } from '../nats/nats-room-events.service';
 
-// Constants from Go config
+// Constants
 const INGRESS_USER_ID_PREFIX = 'ingress_';
 const TTS_AGENT_USER_ID_PREFIX = 'tts_';
 const WAIT_BEFORE_TRIGGER_ON_AFTER_ROOM_ENDED = 2000; // 2 seconds in ms
 
 /**
  * WebhookService handles processing of LiveKit webhook events
- * Equivalent to Go: WebhookModel
  */
 @Injectable()
 export class WebhookService {
@@ -56,12 +54,11 @@ export class WebhookService {
     ) { }
 
     // ============================================================================
-    // Room Events (from webhook_room.go)
+    // Room Events
     // ============================================================================
 
     /**
      * roomStarted handles room_started webhook event
-     * Equivalent to Go: WebhookModel.roomStarted (webhook_room.go:13-87)
      */
     async roomStarted(event: WebhookEvent): Promise<void> {
         if (!event.room) {
@@ -88,8 +85,8 @@ export class WebhookService {
         }
 
         if (!rInfo || !meta) {
-            // Room not found in plugNmeet's NATS store, forcefully end it
-            log.warn('Room not found in plugNmeet NATS store, forcing room termination');
+            // Room not found in NATS store, forcefully end it
+            log.warn('Room not found in wajlc NATS store, forcing room termination');
             try {
                 await this.livekitService.endRoom(roomId);
             } catch (error) {
@@ -156,7 +153,6 @@ export class WebhookService {
 
     /**
      * roomFinished handles room_finished webhook event
-     * Equivalent to Go: WebhookModel.roomFinished (webhook_room.go:89-150)
      */
     async roomFinished(event: WebhookEvent): Promise<void> {
         if (!event.room) {
@@ -196,7 +192,7 @@ export class WebhookService {
 
         // If room was not ended via API, trigger cleanup
         if (rInfo.status !== ROOM_STATUS_ENDED) {
-            log.warn('Room was not ended via API, triggering plugNmeet EndRoom flow');
+            log.warn('Room was not ended via API, triggering wajlc EndRoom flow');
 
             // Update status to ended
             try {
@@ -227,12 +223,11 @@ export class WebhookService {
     }
 
     // ============================================================================
-    // Participant Events (from webhook_user.go)
+    // Participant Events
     // ============================================================================
 
     /**
      * participantJoined handles participant_joined webhook event
-     * Equivalent to Go: WebhookModel.participantJoined (webhook_user.go:14-57)
      */
     async participantJoined(event: WebhookEvent): Promise<void> {
         if (!event.room || !event.participant) {
@@ -282,7 +277,6 @@ export class WebhookService {
 
     /**
      * participantLeft handles participant_left webhook event
-     * Equivalent to Go: WebhookModel.participantLeft (webhook_user.go:59-107)
      */
     async participantLeft(event: WebhookEvent): Promise<void> {
         if (!event.room || !event.participant) {
@@ -340,7 +334,6 @@ export class WebhookService {
 
     /**
      * ensureUserIsOffline acts as a safety net for marking users offline
-     * Equivalent to Go: WebhookModel.ensureUserIsOffline (webhook_user.go:112-141)
      */
     private async ensureUserIsOffline(event: WebhookEvent): Promise<void> {
         // Non-null assertions safe here as participantLeft already validated these fields
@@ -383,12 +376,11 @@ export class WebhookService {
     }
 
     // ============================================================================
-    // Track Events (from webhook_track.go)
+    // Track Events
     // ============================================================================
 
     /**
      * trackPublished handles track_published webhook event
-     * Equivalent to Go: WebhookModel.trackPublished (webhook_track.go:9-64)
      */
     async trackPublished(event: WebhookEvent): Promise<void> {
         if (!event.room || !event.track || !event.participant) {
@@ -433,7 +425,6 @@ export class WebhookService {
 
     /**
      * trackUnpublished handles track_unpublished webhook event
-     * Equivalent to Go: WebhookModel.trackUnpublished (webhook_track.go:66-122)
      */
     async trackUnpublished(event: WebhookEvent): Promise<void> {
         if (!event.room || !event.track || !event.participant) {
@@ -482,7 +473,6 @@ export class WebhookService {
 
     /**
      * sendTrackAnalytics sends analytics for track events
-     * Equivalent to Go: analytics handling in webhook_track.go
      */
     private sendTrackAnalytics(event: WebhookEvent, status: 'STARTED' | 'ENDED'): void {
         let val: string;
@@ -490,7 +480,7 @@ export class WebhookService {
 
         const trackSource = event.track?.source;
 
-        // Use LiveKit TrackSource enum values (matching Go switch statement)
+        // Use LiveKit TrackSource enum values
         switch (trackSource) {
             case TrackSource.MICROPHONE:
                 val = status === 'STARTED'
@@ -532,7 +522,6 @@ export class WebhookService {
 
     /**
      * sendToWebhookNotifier sends event to webhook notifier
-     * Equivalent to Go: WebhookModel.sendToWebhookNotifier (webhook.go:72-86)
      */
     private sendToWebhookNotifier(event: WebhookEvent): void {
         if (!event || !this.webhookNotifierService) {
@@ -556,7 +545,6 @@ export class WebhookService {
 
     /**
      * sendCustomTypeWebhook sends custom event type to webhook notifier
-     * Equivalent to Go: WebhookModel.sendCustomTypeWebhook (webhook.go:88-103)
      */
     private sendCustomTypeWebhook(event: WebhookEvent, eventName: string): void {
         if (!event || !this.webhookNotifierService) {

@@ -1,7 +1,6 @@
 /**
  * JWT Auth Guard
- * Equivalent to Go: AuthController.HandleVerifyHeaderToken middleware
- * 
+ *
  * Verifies JWT token from Authorization header and sets request locals
  */
 
@@ -12,14 +11,13 @@ import {
     HttpStatus,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
-import { verifyPlugNmeetAccessToken } from '../utils/verify_token';
+import { verifyWajlcAccessToken } from '../utils/verify_token';
 import { sendCommonProtoJsonResponse } from '../utils/common';
 import { ConfigService } from '@nestjs/config';
 
 /**
  * JwtAuthGuard verifies the Authorization header token
- * Equivalent to Go: ac.HandleVerifyHeaderToken
- * 
+ *
  * Sets request properties:
  * - req.isAdmin
  * - req.roomId
@@ -35,7 +33,7 @@ export class JwtAuthGuard implements CanActivate {
         const response = ctx.getResponse<Response>();
         const authToken = request.headers.authorization;
 
-        // Determine error status based on path (matching Go)
+        // Determine error status based on path
         const path = request.path;
         const errStatus = path.includes('file_upload')
             ? HttpStatus.BAD_REQUEST
@@ -59,14 +57,14 @@ export class JwtAuthGuard implements CanActivate {
                 return false;
             }
 
-            const claims = verifyPlugNmeetAccessToken(
+            const claims = verifyWajlcAccessToken(
                 apiKey,
                 secret,
                 authToken,
                 0, // No graceful period
             );
 
-            // Set request properties (like Go's c.Locals)
+            // Set request properties
             (request as any).isAdmin = claims.isAdmin;
             (request as any).roomId = claims.roomId;
             (request as any).requestedUserId = claims.userId;

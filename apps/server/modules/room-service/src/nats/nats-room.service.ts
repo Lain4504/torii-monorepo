@@ -1,7 +1,6 @@
-/**
+﻿/**
  * NATS Room Service
- * Equivalent to Go: plugNmeet-server/pkg/services/nats/room_info.go + room_modify.go
- * 
+ *
  * Handles NATS KV operations for room information and modification
  */
 
@@ -14,7 +13,7 @@ import { NatsService } from './nats.service';
 import { NatsStreamService } from './nats-stream.service';
 import { NatsUserService } from './nats-user.service';
 
-// Constants matching Go
+// Constants
 const NATS_PREFIX = 'pnm-';  // Must use dash, not colon! NATS bucket names cannot contain ':'
 const ROOM_INFO_BUCKET_PREFIX = `${NATS_PREFIX}roomInfo-`;
 const ROOM_INFO_BUCKET = `${ROOM_INFO_BUCKET_PREFIX}%s`;
@@ -37,7 +36,6 @@ export const ROOM_STATUS_ENDED = 'ended';
 
 /**
  * NatsRoomService handles NATS KV operations for rooms
- * Equivalent to Go: NatsService (room_info.go + room_modify.go)
  */
 @Injectable()
 export class NatsRoomService {
@@ -52,12 +50,11 @@ export class NatsRoomService {
 
     /**
      * GetRoomInfo retrieves room information from NATS KV
-     * Equivalent to Go: s.GetRoomInfo
      */
     async getRoomInfo(roomId: string): Promise<NatsKvRoomInfo | null> {
         this.logger.log(`Getting room info for: ${roomId}`);
 
-        // Step 1: Try to get cached room info first (matching Go)
+        // Step 1: Try to get cached room info first
         const cached = this.natsService.getCacheService().getCachedRoomInfo(roomId);
         if (cached) {
             this.logger.debug(`Room info retrieved from cache: ${roomId}`);
@@ -83,7 +80,7 @@ export class NatsRoomService {
                 metadata: await this.getStringValue(kv, ROOM_METADATA_KEY),
             });
 
-            // Step 3: Add watcher if room not ended (matching Go)
+            // Step 3: Add watcher if room not ended
             if (info.status !== ROOM_STATUS_ENDED) {
                 this.natsService.getCacheService().addRoomWatcher(kv, bucket, roomId);
             }
@@ -98,7 +95,6 @@ export class NatsRoomService {
 
     /**
      * GetRoomInfoWithMetadata retrieves room info along with parsed metadata
-     * Equivalent to Go: s.GetRoomInfoWithMetadata
      */
     async getRoomInfoWithMetadata(roomId: string): Promise<{ info: NatsKvRoomInfo | null; metadata: RoomMetadata | null }> {
         const info = await this.getRoomInfo(roomId);
@@ -112,7 +108,6 @@ export class NatsRoomService {
 
     /**
      * GetRoomMetadataStruct retrieves only the metadata structure
-     * Equivalent to Go: s.GetRoomMetadataStruct
      */
     async getRoomMetadataStruct(roomId: string): Promise<RoomMetadata | null> {
         const info = await this.getRoomInfo(roomId);
@@ -125,9 +120,8 @@ export class NatsRoomService {
 
     /**
      * AddRoom creates a new room entry in NATS KV
-     * Equivalent to Go: s.AddRoom
-     * 
-     * Steps (matching Go exactly):
+     *
+     * Steps:
      * 1. Create or update the key-value bucket for the room
      * 2. Set default values if not provided
      * 3. Marshal metadata to string
@@ -188,7 +182,6 @@ export class NatsRoomService {
 
     /**
      * UpdateRoomStatus changes room status
-     * Equivalent to Go: s.UpdateRoomStatus
      */
     async updateRoomStatus(roomId: string, status: string): Promise<void> {
         this.logger.log(`Updating room status: ${roomId} -> ${status}`);
@@ -209,12 +202,12 @@ export class NatsRoomService {
 
     /**
      * UpdateRoomMetadata updates room metadata
-     * Equivalent to Go: s.updateRoomMetadata
+
      */
     async updateRoomMetadata(roomId: string, metadata: RoomMetadata | string): Promise<string> {
         let mt: RoomMetadata;
 
-        // Handle different input types (matching Go's type switch)
+        // Handle different input types 
         if (typeof metadata === 'string') {
             mt = this.natsService.unmarshalRoomMetadata(metadata);
         } else {
@@ -238,7 +231,7 @@ export class NatsRoomService {
 
     /**
      * DeleteRoom removes room KV bucket
-     * Equivalent to Go: s.DeleteRoom
+
      */
     async deleteRoom(roomId: string): Promise<void> {
         this.logger.log(`Deleting room from NATS KV: ${roomId}`);
@@ -252,7 +245,7 @@ export class NatsRoomService {
 
             this.logger.log(`Room deleted from NATS KV: ${roomId}`);
         } catch (error) {
-            // Ignore if already deleted (matching Go behavior)
+            // Ignore if already deleted 
             if (error.message && error.message.includes('stream not found')) {
                 this.logger.debug(`Room KV already deleted: ${roomId}`);
                 return;
@@ -263,19 +256,19 @@ export class NatsRoomService {
 
     /**
      * OnAfterSessionEndCleanup performs cleanup after session ends
-     * Equivalent to Go: s.OnAfterSessionEndCleanup
+
      */
     async onAfterSessionEndCleanup(roomId: string): Promise<void> {
         this.logger.log(`Performing session end cleanup for room: ${roomId}`);
 
-        // Silently delete everything (matching Go: no error logging)
+        // Silently delete everything 
         try {
             await this.deleteRoom(roomId);
             await this.natsUserService.deleteAllRoomUsersWithConsumer(roomId);
             await this.natsStreamService.deleteRoomNatsStream(roomId);
             // TODO: await this.deleteAllRoomFiles(roomId);
         } catch (error) {
-            // Silently ignore errors (matching Go behavior)
+            // Silently ignore errors 
         }
 
         this.logger.log(`Session end cleanup completed for room: ${roomId}`);

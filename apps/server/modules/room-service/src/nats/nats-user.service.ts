@@ -1,7 +1,6 @@
 /**
  * NATS User Service
- * Equivalent to Go: plugNmeet-server/pkg/services/nats/user_modify.go
- * 
+ *
  * Handles NATS KV operations for user information and modification
  */
 
@@ -16,7 +15,7 @@ import { NatsUserInfoService } from './nats-user-info.service';
 import { NatsSystemEventsService } from './nats-system-events.service';
 import { LiveKitService } from '../livekit/livekit.service';
 
-// Constants matching Go
+// Constants
 const NATS_PREFIX = 'pnm-';  // Must use dash, not colon! NATS bucket names cannot contain ':'
 const ROOM_USERS_BUCKET_PREFIX = `${NATS_PREFIX}roomUsers-`;
 const ROOM_USERS_BUCKET = `${ROOM_USERS_BUCKET_PREFIX}%s`;
@@ -50,7 +49,6 @@ export const USER_STATUS_OFFLINE = 'offline';
 
 /**
  * NatsUserService handles NATS KV operations for users
- * Equivalent to Go: NatsService (user_modify.go)
  */
 @Injectable()
 export class NatsUserService {
@@ -66,7 +64,6 @@ export class NatsUserService {
 
     /**
      * AddUser adds a new user to a room and stores their metadata
-     * Equivalent to Go: s.AddUser
      */
     async addUser(
         roomId: string,
@@ -107,7 +104,7 @@ export class NatsUserService {
         const mt = this.natsService.marshalUserMetadata(metadata || create(UserMetadataSchema, {}));
 
         // Step 6: Prepare user data
-        // Ensure isAdmin and isPresenter default to false if undefined (matching Go's behavior)
+        // Ensure isAdmin and isPresenter default to false if undefined x
         const data: Record<string, string> = {
             [USER_ID_KEY]: userId,
             [USER_SID_KEY]: uuidv4(),
@@ -132,7 +129,6 @@ export class NatsUserService {
 
     /**
      * UpdateUserStatus updates the status of a user in a room
-     * Equivalent to Go: s.UpdateUserStatus
      */
     async updateUserStatus(roomId: string, userId: string, status: string): Promise<void> {
         this.logger.log(`Updating user ${userId} status in room ${roomId} to ${status}`);
@@ -177,7 +173,6 @@ export class NatsUserService {
 
     /**
      * UpdateUserMetadata updates the metadata of a user
-     * Equivalent to Go: s.UpdateUserMetadata
      */
     async updateUserMetadata(roomId: string, userId: string, metadata: UserMetadata | string): Promise<string> {
         let mt: UserMetadata;
@@ -200,7 +195,6 @@ export class NatsUserService {
 
     /**
      * DeleteUser removes a user from a room and deletes their metadata
-     * Equivalent to Go: s.DeleteUser
      */
     async deleteUser(roomId: string, userId: string): Promise<void> {
         this.logger.log(`Deleting user ${userId} from room ${roomId}`);
@@ -230,7 +224,6 @@ export class NatsUserService {
 
     /**
      * DeleteAllRoomUsersWithConsumer deletes all users from a room and their consumers
-     * Equivalent to Go: s.DeleteAllRoomUsersWithConsumer
      */
     async deleteAllRoomUsersWithConsumer(roomId: string): Promise<void> {
         this.logger.log(`Deleting all users from room ${roomId}`);
@@ -279,7 +272,6 @@ export class NatsUserService {
 
     /**
      * UpdateUserKeyValue updates a specific key-value pair for a user
-     * Equivalent to Go: s.UpdateUserKeyValue
      */
     async updateUserKeyValue(roomId: string, userId: string, key: string, value: string): Promise<void> {
         const js = this.natsService.getJetStream();
@@ -294,7 +286,6 @@ export class NatsUserService {
 
     /**
      * AddUserToBlockList adds a user to the block list for a room
-     * Equivalent to Go: s.AddUserToBlockList
      */
     async addUserToBlockList(roomId: string, userId: string): Promise<number> {
         this.logger.log(`Adding user ${userId} to block list for room ${roomId}`);
@@ -316,7 +307,6 @@ export class NatsUserService {
 
     /**
      * DeleteRoomUsersBlockList deletes the block list for a room
-     * Equivalent to Go: s.DeleteRoomUsersBlockList
      */
     async deleteRoomUsersBlockList(roomId: string): Promise<void> {
         const jsm = this.natsService.getJetStreamManager();
@@ -331,7 +321,6 @@ export class NatsUserService {
 
     /**
      * BroadcastUserMetadata will broadcast user metadata update event to room
-     * Equivalent to Go: s.BroadcastUserMetadata (user_events.go:9-28)
      */
     async broadcastUserMetadata(roomId: string, userId: string, metadata?: string, toUser?: string): Promise<void> {
         let metadataStr = metadata;
@@ -361,7 +350,6 @@ export class NatsUserService {
 
     /**
      * UpdateAndBroadcastUserMetadata will update metadata & broadcast to everyone
-     * Equivalent to Go: s.UpdateAndBroadcastUserMetadata (user_events.go:30-41)
      */
     async updateAndBroadcastUserMetadata(
         roomId: string,
@@ -382,7 +370,6 @@ export class NatsUserService {
 
     /**
      * BroadcastUserInfoToRoom broadcasts user info to all participants in room
-     * Equivalent to Go: s.BroadcastUserInfoToRoom (user_events.go:43-58)
      */
     async broadcastUserInfoToRoom(
         event: NatsMsgServerToClientEvents,
@@ -414,12 +401,11 @@ export class NatsUserService {
     }
 
     // ============================================================================
-    // User Lifecycle Event Handlers (from nats_user.go)
+    // User Lifecycle Event Handlers
     // ============================================================================
 
     /**
      * OnAfterUserJoined handles user joined event
-     * Equivalent to Go: NatsModel.OnAfterUserJoined (nats_user.go:14-58)
      */
     async onAfterUserJoined(roomId: string, userId: string): Promise<void> {
         const log = this.logger;
@@ -473,8 +459,7 @@ export class NatsUserService {
 
     /**
      * OnAfterUserDisconnected handles user disconnected event
-     * Equivalent to Go: NatsModel.OnAfterUserDisconnected (nats_user.go:60-89)
-     * 
+     *
      * This runs in background. We wait 5s before declaring user offline
      * but broadcast disconnected status immediately
      */
@@ -511,13 +496,12 @@ export class NatsUserService {
         }
 
         // Start background task to handle delayed offline tasks
-        // Use setImmediate to run in background (equivalent to Go's goroutine)
+        // Use setImmediate to run in background
         setImmediate(() => this.handleDelayedOfflineTasks(roomId, userId, userInfo));
     }
 
     /**
      * handleDelayedOfflineTasks manages grace period for user reconnection and cleanup
-     * Equivalent to Go: NatsModel.handleDelayedOfflineTasks (nats_user.go:91-139)
      */
     private async handleDelayedOfflineTasks(roomId: string, userId: string, userInfo: any): Promise<void> {
         const log = this.logger;
@@ -597,7 +581,6 @@ export class NatsUserService {
 
     /**
      * updateUserLeftAnalytics sends analytics for user leaving
-     * Equivalent to Go: NatsModel.updateUserLeftAnalytics (nats_user.go:141-150)
      */
     private updateUserLeftAnalytics(roomId: string, userId: string): void {
         const now = Date.now();

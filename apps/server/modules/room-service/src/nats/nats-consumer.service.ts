@@ -1,7 +1,6 @@
 /**
  * NATS Consumer Service
- * Equivalent to Go: plugNmeet-server/pkg/services/nats/js_consumer.go
- * 
+ *
  * Creates JetStream consumers for different subject types and returns permissions
  */
 
@@ -20,7 +19,6 @@ export class NatsConsumerService {
 
     /**
      * Create chat consumer for a user in a room
-     * Equivalent to Go: NatsService.CreateChatConsumer
      */
     async createChatConsumer(roomId: string, userId: string): Promise<string[]> {
         const chat = this.configService.get<string>('NATS_SUBJECT_CHAT') || 'chat';
@@ -53,7 +51,7 @@ export class NatsConsumerService {
 
     /**
      * Create system public consumer
-     * Equivalent to Go: NatsService.CreateSystemPublicConsumer
+
      */
     async createSystemPublicConsumer(roomId: string, userId: string): Promise<string[]> {
         const sysPublic = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PUBLIC') || 'sysPublic';
@@ -82,7 +80,7 @@ export class NatsConsumerService {
 
     /**
      * Create system private consumer
-     * Equivalent to Go: NatsService.CreateSystemPrivateConsumer
+
      */
     async createSystemPrivateConsumer(roomId: string, userId: string): Promise<string[]> {
         const sysPrivate = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PRIVATE') || 'sysPrivate';
@@ -111,7 +109,7 @@ export class NatsConsumerService {
 
     /**
      * Create whiteboard consumer
-     * Equivalent to Go: NatsService.CreateWhiteboardConsumer
+
      */
     async createWhiteboardConsumer(roomId: string, userId: string): Promise<string[]> {
         const whiteboard = this.configService.get<string>('NATS_SUBJECT_WHITEBOARD') || 'whiteboard';
@@ -142,7 +140,7 @@ export class NatsConsumerService {
 
     /**
      * Create data channel consumer
-     * Equivalent to Go: NatsService.CreateDataChannelConsumer
+
      */
     async createDataChannelConsumer(roomId: string, userId: string): Promise<string[]> {
         const dataChannel = this.configService.get<string>('NATS_SUBJECT_DATA_CHANNEL') || 'dataChannel';
@@ -173,7 +171,7 @@ export class NatsConsumerService {
 
     /**
      * Delete all consumers for a user in a room
-     * Equivalent to Go: NatsService.DeleteConsumer
+
      */
     async deleteConsumer(roomId: string, userId: string): Promise<void> {
         const subjects = [

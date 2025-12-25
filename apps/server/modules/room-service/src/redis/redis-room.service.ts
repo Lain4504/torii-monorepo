@@ -1,7 +1,6 @@
 /**
  * Redis Room Service
- * Equivalent to Go: plugNmeet-server/pkg/services/redis/room.go
- * 
+ *
  * Handles temporary room data caching in Redis
  */
 
@@ -15,7 +14,6 @@ const TEMPORARY_ROOM_DATA_KEY = `${REDIS_PREFIX}temporaryRoomData:%s`;
 
 /**
  * RedisRoomService handles room-related Redis operations
- * Equivalent to Go: RedisService methods in room.go
  */
 @Injectable()
 export class RedisRoomService {
@@ -45,8 +43,7 @@ export class RedisRoomService {
 
     /**
      * HoldTemporaryRoomData stores room data temporarily for 1 minute
-     * Equivalent to Go: s.HoldTemporaryRoomData (room.go:17-33)
-     * 
+     *
      * This serves as a fallback in case the 'room_finished' webhook from LiveKit is delayed.
      * 
      * @param info - NatsKvRoomInfo to cache
@@ -62,7 +59,6 @@ export class RedisRoomService {
             const key = TEMPORARY_ROOM_DATA_KEY.replace('%s', info.roomId);
 
             // Store with 1 minute TTL using SETNX (set if not exists)
-            // Equivalent to Go: s.rc.SetNX(s.ctx, key, marshal, time.Minute*1)
             const result = await this.redis.set(
                 key,
                 jsonData,
@@ -82,8 +78,7 @@ export class RedisRoomService {
 
     /**
      * GetTemporaryRoomData retrieves cached room data
-     * Equivalent to Go: s.GetTemporaryRoomData (room.go:35-63)
-     * 
+     *
      * Returns room info with status set to 'ended' to prevent loops.
      * 
      * @param roomId - Room ID to retrieve
@@ -108,7 +103,6 @@ export class RedisRoomService {
             const info = JSON.parse(val) as NatsKvRoomInfo;
 
             // Set status to 'ended' to prevent looping
-            // Equivalent to Go: info.Status = natsservice.RoomStatusEnded
             info.status = 'ended';
 
             this.logger.debug(`Temporary room data retrieved for: ${roomId}`);
@@ -124,13 +118,12 @@ export class RedisRoomService {
     }
 
     // ============================================================================
-    // Room Duration Methods (from room_duration.go)
+    // Room Duration Methods
     // ============================================================================
 
     /**
      * AddRoomWithDurationInfo adds room with duration info to Redis
-     * Equivalent to Go: s.AddRoomWithDurationInfo (room_duration.go:15-26)
-     * 
+     *
      * @param roomId - Room ID
      * @param info - RoomDurationInfo with duration and startedAt
      */
@@ -139,7 +132,6 @@ export class RedisRoomService {
 
         try {
             // Pipeline: HSET + EXPIRE
-            // Equivalent to Go: pipe.HSet(s.ctx, key, vals) + pipe.Expire(s.ctx, key, time.Hour*24)
             const pipeline = this.redis.pipeline();
             pipeline.hset(key, 'duration', info.duration, 'startedAt', info.startedAt);
             pipeline.expire(key, 60 * 60 * 24); // 24 hours
@@ -154,7 +146,7 @@ export class RedisRoomService {
 
     /**
      * SetRoomDuration sets a specific duration field
-     * Equivalent to Go: s.SetRoomDuration (room_duration.go:28-39)
+
      * 
      * @param roomId - Room ID
      * @param durationField - Field name (e.g., "duration")
@@ -179,7 +171,7 @@ export class RedisRoomService {
 
     /**
      * UpdateRoomDuration increments the duration field
-     * Equivalent to Go: s.UpdateRoomDuration (room_duration.go:41-43)
+
      * 
      * @param roomId - Room ID
      * @param durationField - Field name (e.g., "duration")
@@ -191,7 +183,7 @@ export class RedisRoomService {
 
         try {
             // HINCRBY: Increment hash field by amount
-            // Equivalent to Go: s.rc.HIncrBy(s.ctx, key, durationField, int64(duration))
+
             const result = await this.redis.hincrby(key, durationField, amount);
 
             this.logger.debug(`Updated room duration: ${roomId}, new value: ${result}`);
@@ -204,7 +196,7 @@ export class RedisRoomService {
 
     /**
      * GetRoomWithDurationInfo retrieves room duration info
-     * Equivalent to Go: s.GetRoomWithDurationInfo (room_duration.go:45-54)
+
      * 
      * @param roomId - Room ID
      * @returns RoomDurationInfo or null if not found
@@ -233,7 +225,7 @@ export class RedisRoomService {
 
     /**
      * DeleteRoomWithDuration removes room duration info
-     * Equivalent to Go: s.DeleteRoomWithDuration (room_duration.go:71-77)
+
      * 
      * @param roomId - Room ID
      */

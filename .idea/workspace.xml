@@ -4,12 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix to done room flow">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/nats/nats-system-events.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/nats/nats-system-events.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/room-service/src/nats/nats.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/room-service/src/nats/nats.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/protocol/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/.gitignore" afterDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="rename" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -119,103 +114,7 @@
       <workItem from="1766389953908" duration="3574000" />
       <workItem from="1766495967127" duration="4561000" />
       <workItem from="1766538393698" duration="11108000" />
-      <workItem from="1766623545079" duration="3581000" />
-    </task>
-    <task id="LOCAL-00255" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766545034005</created>
-      <option name="number" value="00255" />
-      <option name="presentableId" value="LOCAL-00255" />
-      <option name="project" value="LOCAL" />
-      <updated>1766545034005</updated>
-    </task>
-    <task id="LOCAL-00256" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766545352999</created>
-      <option name="number" value="00256" />
-      <option name="presentableId" value="LOCAL-00256" />
-      <option name="project" value="LOCAL" />
-      <updated>1766545352999</updated>
-    </task>
-    <task id="LOCAL-00257" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766545432091</created>
-      <option name="number" value="00257" />
-      <option name="presentableId" value="LOCAL-00257" />
-      <option name="project" value="LOCAL" />
-      <updated>1766545432091</updated>
-    </task>
-    <task id="LOCAL-00258" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766545512981</created>
-      <option name="number" value="00258" />
-      <option name="presentableId" value="LOCAL-00258" />
-      <option name="project" value="LOCAL" />
-      <updated>1766545512981</updated>
-    </task>
-    <task id="LOCAL-00259" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766546168289</created>
-      <option name="number" value="00259" />
-      <option name="presentableId" value="LOCAL-00259" />
-      <option name="project" value="LOCAL" />
-      <updated>1766546168289</updated>
-    </task>
-    <task id="LOCAL-00260" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766546589693</created>
-      <option name="number" value="00260" />
-      <option name="presentableId" value="LOCAL-00260" />
-      <option name="project" value="LOCAL" />
-      <updated>1766546589693</updated>
-    </task>
-    <task id="LOCAL-00261" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766546595623</created>
-      <option name="number" value="00261" />
-      <option name="presentableId" value="LOCAL-00261" />
-      <option name="project" value="LOCAL" />
-      <updated>1766546595623</updated>
-    </task>
-    <task id="LOCAL-00262" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766546666844</created>
-      <option name="number" value="00262" />
-      <option name="presentableId" value="LOCAL-00262" />
-      <option name="project" value="LOCAL" />
-      <updated>1766546666844</updated>
-    </task>
-    <task id="LOCAL-00263" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766546723100</created>
-      <option name="number" value="00263" />
-      <option name="presentableId" value="LOCAL-00263" />
-      <option name="project" value="LOCAL" />
-      <updated>1766546723100</updated>
-    </task>
-    <task id="LOCAL-00264" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766546913977</created>
-      <option name="number" value="00264" />
-      <option name="presentableId" value="LOCAL-00264" />
-      <option name="project" value="LOCAL" />
-      <updated>1766546913977</updated>
-    </task>
-    <task id="LOCAL-00265" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766547200596</created>
-      <option name="number" value="00265" />
-      <option name="presentableId" value="LOCAL-00265" />
-      <option name="project" value="LOCAL" />
-      <updated>1766547200596</updated>
-    </task>
-    <task id="LOCAL-00266" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766547609163</created>
-      <option name="number" value="00266" />
-      <option name="presentableId" value="LOCAL-00266" />
-      <option name="project" value="LOCAL" />
-      <updated>1766547609163</updated>
+      <workItem from="1766623545079" duration="8040000" />
     </task>
     <task id="LOCAL-00267" summary="fix: to go">
       <option name="closed" value="true" />
@@ -513,7 +412,103 @@
       <option name="project" value="LOCAL" />
       <updated>1766628626464</updated>
     </task>
-    <option name="localTasksCounter" value="304" />
+    <task id="LOCAL-00304" summary="fix to done room flow">
+      <option name="closed" value="true" />
+      <created>1766628913587</created>
+      <option name="number" value="00304" />
+      <option name="presentableId" value="LOCAL-00304" />
+      <option name="project" value="LOCAL" />
+      <updated>1766628913587</updated>
+    </task>
+    <task id="LOCAL-00305" summary="rename">
+      <option name="closed" value="true" />
+      <created>1766630244007</created>
+      <option name="number" value="00305" />
+      <option name="presentableId" value="LOCAL-00305" />
+      <option name="project" value="LOCAL" />
+      <updated>1766630244007</updated>
+    </task>
+    <task id="LOCAL-00306" summary="rename">
+      <option name="closed" value="true" />
+      <created>1766630467937</created>
+      <option name="number" value="00306" />
+      <option name="presentableId" value="LOCAL-00306" />
+      <option name="project" value="LOCAL" />
+      <updated>1766630467937</updated>
+    </task>
+    <task id="LOCAL-00307" summary="rename">
+      <option name="closed" value="true" />
+      <created>1766630653535</created>
+      <option name="number" value="00307" />
+      <option name="presentableId" value="LOCAL-00307" />
+      <option name="project" value="LOCAL" />
+      <updated>1766630653535</updated>
+    </task>
+    <task id="LOCAL-00308" summary="rename">
+      <option name="closed" value="true" />
+      <created>1766630790786</created>
+      <option name="number" value="00308" />
+      <option name="presentableId" value="LOCAL-00308" />
+      <option name="project" value="LOCAL" />
+      <updated>1766630790786</updated>
+    </task>
+    <task id="LOCAL-00309" summary="rename">
+      <option name="closed" value="true" />
+      <created>1766631518916</created>
+      <option name="number" value="00309" />
+      <option name="presentableId" value="LOCAL-00309" />
+      <option name="project" value="LOCAL" />
+      <updated>1766631518916</updated>
+    </task>
+    <task id="LOCAL-00310" summary="rename">
+      <option name="closed" value="true" />
+      <created>1766631592726</created>
+      <option name="number" value="00310" />
+      <option name="presentableId" value="LOCAL-00310" />
+      <option name="project" value="LOCAL" />
+      <updated>1766631592726</updated>
+    </task>
+    <task id="LOCAL-00311" summary="rename">
+      <option name="closed" value="true" />
+      <created>1766631973891</created>
+      <option name="number" value="00311" />
+      <option name="presentableId" value="LOCAL-00311" />
+      <option name="project" value="LOCAL" />
+      <updated>1766631973891</updated>
+    </task>
+    <task id="LOCAL-00312" summary="rename">
+      <option name="closed" value="true" />
+      <created>1766632642474</created>
+      <option name="number" value="00312" />
+      <option name="presentableId" value="LOCAL-00312" />
+      <option name="project" value="LOCAL" />
+      <updated>1766632642474</updated>
+    </task>
+    <task id="LOCAL-00313" summary="rename">
+      <option name="closed" value="true" />
+      <created>1766632850758</created>
+      <option name="number" value="00313" />
+      <option name="presentableId" value="LOCAL-00313" />
+      <option name="project" value="LOCAL" />
+      <updated>1766632850758</updated>
+    </task>
+    <task id="LOCAL-00314" summary="rename">
+      <option name="closed" value="true" />
+      <created>1766633107265</created>
+      <option name="number" value="00314" />
+      <option name="presentableId" value="LOCAL-00314" />
+      <option name="project" value="LOCAL" />
+      <updated>1766633107265</updated>
+    </task>
+    <task id="LOCAL-00315" summary="rename">
+      <option name="closed" value="true" />
+      <created>1766633342398</created>
+      <option name="number" value="00315" />
+      <option name="presentableId" value="LOCAL-00315" />
+      <option name="project" value="LOCAL" />
+      <updated>1766633342398</updated>
+    </task>
+    <option name="localTasksCounter" value="316" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -555,14 +550,15 @@
     <MESSAGE value="refactor: create utils for meet features" />
     <MESSAGE value="fix to can run" />
     <MESSAGE value="fix to done room flow" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix to done room flow" />
+    <MESSAGE value="rename" />
+    <option name="LAST_COMMIT_MESSAGE" value="rename" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/apps/server/libs/shared/src/guards/api-key.guard.ts</url>
-          <line>38</line>
+          <line>36</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
       </breakpoints>

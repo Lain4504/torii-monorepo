@@ -1,7 +1,6 @@
 /**
  * NATS Stream Service
- * Equivalent to Go: plugNmeet-server/pkg/services/nats/js_stream.go
- * 
+ *
  * Handles NATS JetStream stream creation and deletion
  */
 
@@ -11,13 +10,12 @@ import { NatsService } from './nats.service';
 
 /**
  * NatsStreamService handles JetStream stream operations
- * Equivalent to Go: NatsService.CreateRoomNatsStreams / DeleteRoomNatsStream
  */
 @Injectable()
 export class NatsStreamService {
     private readonly logger = new Logger(NatsStreamService.name);
 
-    // Subject names (matching Go config)
+    // Subject names
     private readonly subjects = {
         chat: 'chat',
         systemPublic: 'sysPublic',   // Fixed: sysPublic (was systemPublic)
@@ -33,8 +31,7 @@ export class NatsStreamService {
 
     /**
      * CreateRoomNatsStreams creates JetStream for a room
-     * Equivalent to Go: s.Create RoomNatsStreams
-     * 
+     *
      * Creates stream with name = roomId
      * Subjects:
      * - {roomId}:chat.*
@@ -48,7 +45,7 @@ export class NatsStreamService {
 
         const numReplicas = this.configService.get<number>('NATS_NUM_REPLICAS') || 1;
 
-        // Build subjects array (matching Go)
+        // Build subjects array
         const subjects = [
             `${roomId}:${this.subjects.chat}.*`,
             `${roomId}:${this.subjects.systemPublic}.*`,
@@ -63,7 +60,7 @@ export class NatsStreamService {
             // Try to get existing stream
             const existingStream = await jsm.streams.info(roomId).catch(() => null);
 
-            // Define 1 second in nanoseconds (Go time.Duration unit)
+            // Define 1 second in nanoseconds
             const ONE_SECOND_NS = 1_000_000_000;
             const sevenDaysNs = 7 * 24 * 60 * 60 * ONE_SECOND_NS;
 
@@ -76,7 +73,7 @@ export class NatsStreamService {
                     max_age: sevenDaysNs,
                 });
             } else {
-                // Create new stream (matching Go: CreateOrUpdateStream)
+                // Create new stream
                 this.logger.debug(`Creating new stream: ${roomId}`);
 
                 this.logger.debug(`Creating stream ${roomId} with max_age: ${sevenDaysNs}`);
@@ -98,7 +95,6 @@ export class NatsStreamService {
 
     /**
      * DeleteRoomNatsStream deletes JetStream for a room
-     * Equivalent to Go: s.DeleteRoomNatsStream
      */
     async deleteRoomNatsStream(roomId: string): Promise<void> {
         this.logger.log(`Deleting NATS stream: ${roomId}`);
@@ -109,7 +105,7 @@ export class NatsStreamService {
 
             this.logger.log(`NATS stream deleted successfully: ${roomId}`);
         } catch (error) {
-            // Ignore if stream not found (matching Go error handling)
+            // Ignore if stream not found
             if (error.message && error.message.includes('stream not found')) {
                 this.logger.debug(`Stream already deleted: ${roomId}`);
                 return;

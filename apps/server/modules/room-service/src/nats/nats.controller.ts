@@ -1,7 +1,6 @@
 /**
  * NATS Controller
- * Equivalent to Go: plugNmeet-server/pkg/controllers/nats.go
- * 
+ *
  * Main controller that bootstraps all NATS-related services:
  * - Worker pool for async job processing
  * - System worker stream & consumer
@@ -13,7 +12,7 @@
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NatsService } from './nats.service';
-import { PlugNmeetAuthService } from '../auth/plugnmeet-auth.service';
+import { WajlcAuthService } from '../auth/wajlc-auth.service';
 import { NatsUserService } from './nats-user.service';
 import { NatsAuthCalloutService } from './nats-auth-callout.service';
 import { RetentionPolicy, AckPolicy } from 'nats';
@@ -21,7 +20,7 @@ import { NatsSystemEventsService } from './nats-system-events.service';
 import { fromBinary } from '@bufbuild/protobuf';
 import { NatsMsgClientToServerSchema, NatsMsgClientToServerEvents } from '@workspace/protocol';
 
-// Constants matching Go
+// Constants
 const DEFAULT_NUM_WORKERS = 50;
 const DEFAULT_JOB_QUEUE_SIZE = 1000;
 const NATS_AUTH_SERVICE_ENDPOINT_SUBJECT = '$SYS.REQ.USER.AUTH';
@@ -45,7 +44,6 @@ interface ConnectionEvent {
 
 /**
  * NatsController manages the lifecycle of NATS services
- * Equivalent to Go: NatsController
  */
 @Injectable()
 export class NatsController implements OnModuleInit, OnModuleDestroy {
@@ -60,7 +58,7 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
     constructor(
         private readonly configService: ConfigService,
         private readonly natsService: NatsService,
-        private readonly authService: PlugNmeetAuthService,
+        private readonly authService: WajlcAuthService,
         private readonly natsUserService: NatsUserService,
         private readonly authCalloutService: NatsAuthCalloutService,
         private readonly natsSystemEventsService: NatsSystemEventsService,
@@ -68,7 +66,6 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
 
     /**
      * Bootstrap all NATS services on module initialization
-     * Equivalent to Go: BootUp
      */
     async onModuleInit() {
         this.logger.log('Bootstrapping NATS Controller...');
@@ -147,7 +144,6 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
 
     /**
      * Start worker pool for async job processing
-     * Equivalent to Go: worker pool in BootUp
      */
     private startWorkerPool() {
         this.logger.log(`Starting ${DEFAULT_NUM_WORKERS} workers...`);
@@ -160,7 +156,6 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
 
     /**
      * Worker function - processes jobs from queue
-     * Equivalent to Go: worker()
      */
     private async worker(workerId: number) {
         this.logger.debug(`Worker ${workerId} started`);
@@ -197,7 +192,6 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
 
     /**
      * Subscribe to auth callout requests
-     * Equivalent to Go: micro.AddService for auth endpoint (lines 137-150)
      */
     private async subscribeToAuthCallout() {
         this.logger.log(`Subscribing to auth callout: ${NATS_AUTH_SERVICE_ENDPOINT_SUBJECT}`);
@@ -247,7 +241,6 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
 
     /**
      * Create system worker stream
-     * Equivalent to Go: CreateOrUpdateStream for SystemJsWorker
      */
     private async createSystemWorkerStream() {
         const sysJsWorker = this.configService.get<string>('NATS_SUBJECT_SYSTEM_JS_WORKER') || 'sysJsWorker';
@@ -284,7 +277,6 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
 
     /**
      * Subscribe to system worker stream
-     * Equivalent to Go: subscribeToSystemWorker
      */
     private async subscribeToSystemWorker() {
         const sysJsWorker = this.configService.get<string>('NATS_SUBJECT_SYSTEM_JS_WORKER') || 'sysJsWorker';
@@ -331,11 +323,9 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
 
     /**
      * Handle system worker message
-     * Equivalent to Go: handling messages in subscribeToSystemWorker
      */
     /**
      * Handle system worker message
-     * Equivalent to Go: handling messages in subscribeToSystemWorker
      */
     private async handleSystemWorkerMessage(msg: any) {
         try {
@@ -376,16 +366,10 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
                     await this.natsSystemEventsService.handleMediaServerInfo(roomId, userId, undefined, true);
                     break;
 
-                case NatsMsgClientToServerEvents.REQ_RENEW_PNM_TOKEN:
+                case NatsMsgClientToServerEvents.REQ_RENEW_WAJLC_TOKEN:
                     // Message format is roomI:userId but usually token is sent
-                    // Actually, Go code doesn't extract token from message body, 
-                    // it uses the payload message if provided or just room/user.
-                    // Wait, Go renewPNMToken takes (roomId, userId, token).
-                    // In Go HandleFromClientToServerReq:
-                    // case plugnmeet.NatsMsgClientToServerEvents_REQ_RENEW_PNM_TOKEN:
-                    //   nm.natsModel.RenewPNMToken(roomId, userId, req.Msg)
 
-                    await this.natsSystemEventsService.renewPNMToken(roomId, userId, req.msg);
+                    await this.natsSystemEventsService.renewWajlcToken(roomId, userId, req.msg);
                     break;
 
                 case NatsMsgClientToServerEvents.PING:
@@ -404,7 +388,7 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
 
     /**
      * Create transcoder stream for recorder
-     * Equivalent to Go: CreateOrUpdateStream for TranscodingJobs
+
      */
     private async createTranscoderStream() {
         const transcodingJobs = this.configService.get<string>('NATS_TRANSCODING_JOBS') || 'pnm-RecorderTranscoderJobs';
@@ -448,7 +432,7 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
 
     /**
      * Subscribe to user connection events
-     * Equivalent to Go: subscribeToUsersConnEvents
+
      */
     private async subscribeToUsersConnEvents() {
         const account = this.configService.get<string>('NATS_ACCOUNT_NAME') || 'PNM';
@@ -496,7 +480,7 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
 
     /**
      * Handle user connection event (CONNECT/DISCONNECT)
-     * Equivalent to Go: handleUserConnectionEvent
+
      */
     private handleUserConnectionEvent(data: Buffer, isConnect: boolean) {
         try {

@@ -1,20 +1,18 @@
 /**
  * NATS Auth Callout Service  
- * Equivalent to Go: plugNmeet-server/pkg/controllers/nats_auth_controller.go
- * 
- * ✅ FULLY CLONED from Go server - 100% logic match
+ *
  */
 
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NatsContext } from '@nestjs/microservices';
 import * as nkeys from 'nkeys.js';
-import { PlugNmeetAuthService } from '../auth/plugnmeet-auth.service';
+import { WajlcAuthService } from '../auth/wajlc-auth.service';
 import { NatsConsumerService } from './nats-consumer.service';
 import { NatsUserInfoService } from './nats-user-info.service';
 import * as crypto from 'crypto';
 
-// Constants matching Go
+// Constants
 const RECORDER_USER_AUTH_NAME = 'RECORDER';
 const TRANSCODER_CONSUMER_DURABLE = 'transcoderWorker';
 
@@ -45,7 +43,7 @@ export class NatsAuthCalloutService {
 
     constructor(
         private readonly configService: ConfigService,
-        private readonly authService: PlugNmeetAuthService,
+        private readonly authService: WajlcAuthService,
         private readonly consumerService: NatsConsumerService,
         private readonly userInfoService: NatsUserInfoService,
     ) {
@@ -54,7 +52,6 @@ export class NatsAuthCalloutService {
 
     /**
      * Initialize NATS key pairs from environment
-     * Equivalent to Go: NewNatsAuthController (lines 26-35)
      */
     private initializeKeyPairs() {
         try {
@@ -79,7 +76,6 @@ export class NatsAuthCalloutService {
 
     /**
      * Handle auth callout from NATS server
-     * Equivalent to Go: Handle (lines 37-78)
      */
     async handleAuthCallout(
         rawData: Buffer | string | any,
@@ -156,7 +152,6 @@ export class NatsAuthCalloutService {
 
     /**
      * Handle claims from authorization request
-     * Equivalent to Go: handleClaims (lines 80-106)
      */
     private async handleClaims(req: AuthorizationRequest): Promise<any> {
         const account = this.configService.get<string>('NATS_ACCOUNT_NAME') || 'PNM';
@@ -216,7 +211,6 @@ export class NatsAuthCalloutService {
 
     /**
      * Set permissions for recorder
-     * Equivalent to Go: setPermissionForRecorder (lines 108-136)
      */
     private setPermissionForRecorder(tokenData: any, natsClaims: any): void {
         const recorderChannel = this.configService.get<string>('NATS_RECORDER_CHANNEL') || 'pnm-recorder';
@@ -251,7 +245,6 @@ export class NatsAuthCalloutService {
 
     /**
      * Set permissions for client
-     * Equivalent to Go: setPermissionForClient (lines 138-200)
      */
     private async setPermissionForClient(tokenData: any, natsClaims: any): Promise<void> {
         const roomId = tokenData.roomId || tokenData.room_id;
@@ -298,11 +291,9 @@ export class NatsAuthCalloutService {
 
     /**
      * Create authorization response
-     * Equivalent to Go: respond (lines 202-230)
      */
     /**
      * Create authorization response
-     * Equivalent to Go: respond (lines 202-230)
      */
     private respond(
         userNKey: string,
@@ -360,7 +351,6 @@ export class NatsAuthCalloutService {
 
     /**
      * Validate and sign user claims
-     * Equivalent to Go: validateAndSign (lines 232-242)
      */
     private async validateAndSign(claims: any): Promise<string> {
         try {

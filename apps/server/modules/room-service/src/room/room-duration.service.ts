@@ -1,7 +1,6 @@
 /**
  * Room Duration Service
- * Equivalent to Go: plugNmeet-server/pkg/models/duration_modify.go
- * 
+ *
  * Handles room duration management and tracking
  */
 
@@ -14,7 +13,6 @@ import { RedisRoomService } from '../redis/redis-room.service';
 
 /**
  * Room duration information structure
- * Equivalent to Go: RoomDurationInfo struct (lines 12-15)
  */
 export interface RoomDurationInfo {
     duration: number;   // Duration in minutes
@@ -23,7 +21,6 @@ export interface RoomDurationInfo {
 
 /**
  * RoomDurationService handles room duration operations
- * Equivalent to Go: RoomDurationModel in duration_modify.go
  */
 @Injectable()
 export class RoomDurationService {
@@ -38,8 +35,7 @@ export class RoomDurationService {
 
     /**
      * AddRoomWithDurationInfo adds room with duration info to tracking
-     * Equivalent to Go: m.AddRoomWithDurationInfo (lines 17-29)
-     * 
+     *
      * @param roomId - Room ID
      * @param info - Duration information
      */
@@ -54,7 +50,7 @@ export class RoomDurationService {
 
     /**
      * DeleteRoomWithDuration removes room from duration tracking
-     * Equivalent to Go: m.DeleteRoomWithDuration (lines 31-43)
+
      * 
      * @param roomId - Room ID to remove
      */
@@ -83,7 +79,7 @@ export class RoomDurationService {
 
     /**
      * IncreaseRoomDuration increases the duration limit for a room
-     * Equivalent to Go: m.IncreaseRoomDuration (lines 45-129)
+
      * 
      * Complex logic:
      * 1. Get current room duration info from Redis
@@ -165,7 +161,7 @@ export class RoomDurationService {
 
     /**
      * CompareDurationWithParentRoom validates breakout room duration against parent
-     * Equivalent to Go: m.CompareDurationWithParentRoom (lines 131-168)
+
      * 
      * Ensures breakout room duration doesn't exceed parent room's remaining time
      * 

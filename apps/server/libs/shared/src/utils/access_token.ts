@@ -1,29 +1,27 @@
 import * as jwt from 'jsonwebtoken';
 import { AccessToken, VideoGrant } from 'livekit-server-sdk';
-import { PlugNmeetTokenClaims } from '@workspace/protocol';
+import { WajlcTokenClaims } from '@workspace/protocol';
 
 /**
- * GeneratePlugNmeetJWTAccessToken generates a PlugNmeet JWT access token
- * Equivalent to Go: auth.GeneratePlugNmeetJWTAccessToken
- * 
+ *
  * @param apiKey - API key (issuer)
  * @param secret - API secret for signing
  * @param userId - User ID (subject)
  * @param tokenValidity - Token validity duration in seconds
- * @param claims - PlugNmeet token claims
+ * @param claims - token claims
  * @returns JWT token string
  */
-export function generatePlugNmeetJWTAccessToken(
+export function generateWajlcJWTAccessToken(
     apiKey: string,
     secret: string,
     userId: string,
     tokenValidity: number, // seconds
-    claims: PlugNmeetTokenClaims
+    claims: WajlcTokenClaims
 ): string {
     // Create JWT payload with custom claims
-    // PlugNmeetTokenClaims only has: name, userId, roomId, isAdmin, isHidden
+    // TokenClaims only has: name, userId, roomId, isAdmin, isHidden
     const payload = {
-        // Custom PlugNmeet claims (snake_case for Go compatibility)
+        // Custom token claims (snake_case)
         room_id: claims.roomId,
         user_id: claims.userId,
         name: claims.name,
@@ -43,21 +41,20 @@ export function generatePlugNmeetJWTAccessToken(
 
 /**
  * GenerateLivekitAccessToken generates a LiveKit access token
- * Equivalent to Go: auth.GenerateLivekitAccessToken
- * 
+ *
  * @param apiKey - LiveKit API key
  * @param secret - LiveKit API secret
  * @param tokenValidity - Token validity duration in seconds
- * @param claims - PlugNmeet token claims
+ * @param claims - token claims
  * @returns LiveKit JWT token string
  */
 export async function generateLivekitAccessToken(
     apiKey: string,
     secret: string,
     tokenValidity: number, // seconds
-    claims: PlugNmeetTokenClaims
+    claims: WajlcTokenClaims
 ): Promise<string> {
-    // Create VideoGrant equivalent to Go's auth.VideoGrant
+    // Create VideoGrant equivalent
     const grant: VideoGrant = {
         roomJoin: true,
         room: claims.roomId,
@@ -80,8 +77,7 @@ export async function generateLivekitAccessToken(
 
 /**
  * GenerateTokenForDownloadRecording generates a token for downloading recordings
- * Equivalent to Go: auth.GenerateTokenForDownloadRecording
- * 
+ *
  * Path format: sub_path/roomSid/filename
  * 
  * @param path - Recording file path

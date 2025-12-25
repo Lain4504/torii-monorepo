@@ -3,12 +3,12 @@
  * Handles LiveKit authentication callouts via NATS
  * 
  * This service verifies JWT tokens for LiveKit room access
- * Equivalent to auth verification logic in the Go server
+ * Auth verification logic
  */
 
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { verifyPlugNmeetAccessToken } from '../utils/verify_token';
+import { verifyWajlcAccessToken } from '../utils/verify_token';
 
 @Injectable()
 export class NatsAuthService {
@@ -40,7 +40,7 @@ export class NatsAuthService {
             }
 
             // Verify JWT token using shared utility
-            const claims = verifyPlugNmeetAccessToken(apiKey, secret, token);
+            const claims = verifyWajlcAccessToken(apiKey, secret, token);
 
             // Check if room ID matches
             if (claims.roomId !== roomId) {

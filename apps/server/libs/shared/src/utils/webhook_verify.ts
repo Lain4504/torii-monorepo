@@ -1,6 +1,5 @@
 /**
  * Webhook verification utilities
- * Equivalent to Go: plugnmeet-protocol/webhook/verify.go
  */
 
 import * as jwt from 'jsonwebtoken';
@@ -8,19 +7,17 @@ import * as crypto from 'crypto';
 
 /**
  * ClaimGrants interface for webhook verification
- * Equivalent to Go: auth.ClaimGrants from livekit/protocol/auth
  */
 interface ClaimGrants {
     sha256?: string;
 }
 
 /**
- * VerifyRequest verifies webhook request both for LiveKit & PlugNmeet
- * In PlugNmeet we're following the same token system as LiveKit is using
+ * VerifyRequest verifies webhook request both for LiveKit & Wajlc
+ * In Wajlc we're following the same token system as LiveKit is using
  * In this method we'll verify the provided body request
  * 
- * Equivalent to Go: webhook.VerifyRequest
- * 
+ *
  * @param body - Request body as Buffer
  * @param apiKey - API key (expected issuer)
  * @param secret - API secret for verification
@@ -66,8 +63,7 @@ export function verifyWebhookRequest(
 
 /**
  * Constant-time string comparison
- * Equivalent to Go: subtle.ConstantTimeCompare
- * 
+ *
  * @param a - First string
  * @param b - Second string
  * @returns True if strings are equal

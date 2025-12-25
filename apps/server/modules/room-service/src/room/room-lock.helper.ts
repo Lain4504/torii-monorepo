@@ -1,14 +1,13 @@
 /**
  * Room Lock Helper
- * Equivalent to Go: plugNmeet-server/pkg/models/room_lock_helper.go
- * 
+ *
  * Provides helper functions for acquiring room creation locks with retry and backoff
  */
 
 import { Logger } from '@nestjs/common';
 import { RedisLockService } from '../redis/redis-lock.service';
 
-// Constants matching Go
+// Constants
 const DEFAULT_ROOM_CREATION_MAX_WAIT_TIME = 15 * 1000; // 15 seconds in ms
 const DEFAULT_ROOM_CREATION_LOCK_TTL = 60; // 60 seconds
 const DEFAULT_WAIT_FOR_ROOM_CREATION_MAX_WAIT_TIME = 15 * 1000; // 15 seconds in ms
@@ -28,8 +27,7 @@ function sleep(ms: number): Promise<void> {
 
 /**
  * Acquire room creation lock with retry and exponential backoff
- * Equivalent to Go: acquireRoomCreationLockWithRetry
- * 
+ *
  * @param redisLock - RedisLockService instance
  * @param roomId - Room ID to lock
  * @param logger - Logger instance
@@ -92,8 +90,7 @@ export async function acquireRoomCreationLockWithRetry(
 
 /**
  * Wait until room creation lock is released
- * Equivalent to Go: waitUntilRoomCreationCompletes
- * 
+ *
  * @param redisLock - RedisLockService instance
  * @param roomId - Room ID to check
  * @param logger - Logger instance

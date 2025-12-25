@@ -1,7 +1,6 @@
 /**
  * NATS Cache Service
- * Equivalent to Go: plugNmeet-server/pkg/services/nats/nats_cache.go + nats_cache_room.go
- * 
+ *
  * In-memory cache for NATS KV data with real-time watchers
  */
 
@@ -12,7 +11,6 @@ import { create } from '@bufbuild/protobuf';
 
 /**
  * Cached room entry with watcher control
- * Equivalent to Go: CachedRoomEntry
  */
 interface CachedRoomEntry {
     roomInfo: NatsKvRoomInfo;
@@ -21,7 +19,6 @@ interface CachedRoomEntry {
 
 /**
  * Cached room user status
- * Equivalent to Go: CachedRoomUserStatusEntry
  */
 interface CachedRoomUserStatusEntry {
     status: string;
@@ -30,7 +27,6 @@ interface CachedRoomUserStatusEntry {
 
 /**
  * Cached user info
- * Equivalent to Go: CachedUserInfoEntry
  */
 interface CachedUserInfoEntry {
     userInfo: any; // NatsKvUserInfo
@@ -39,8 +35,7 @@ interface CachedUserInfoEntry {
 
 /**
  * NatsCacheService - Singleton in-memory cache for NATS data
- * Equivalent to Go: NatsCacheService
- * 
+ *
  * Features:
  * - In-memory cache for room info
  * - Real-time NATS KV watchers
@@ -54,13 +49,13 @@ export class NatsCacheService implements OnModuleDestroy {
     // Global abort controller for all watchers
     private readonly globalAbortController = new AbortController();
 
-    // Room info cache (equivalent to Go's roomsInfoStore)
+    // Room info cache
     private readonly roomsInfoStore = new Map<string, CachedRoomEntry>();
 
-    // User status cache (equivalent to Go's roomUsersStatusStore)
+    // User status cache
     private readonly roomUsersStatusStore = new Map<string, Map<string, CachedRoomUserStatusEntry>>();
 
-    // User info cache (equivalent to Go's roomUsersInfoStore)
+    // User info cache
     private readonly roomUsersInfoStore = new Map<string, Map<string, CachedUserInfoEntry>>();
 
     constructor() {
@@ -73,7 +68,6 @@ export class NatsCacheService implements OnModuleDestroy {
 
     /**
      * Shutdown gracefully stops all watchers
-     * Equivalent to Go: ncs.Shutdown()
      */
     shutdown(): void {
         this.logger.log('Shutting down NATS Cache Service...');
@@ -85,13 +79,12 @@ export class NatsCacheService implements OnModuleDestroy {
     }
 
     // ============================================================================
-    // Room Cache Methods (from nats_cache_room.go)
+    // Room Cache Methods
     // ============================================================================
 
     /**
      * AddRoomWatcher adds a watcher for the given roomId
-     * Equivalent to Go: ncs.AddRoomWatcher
-     * 
+     *
      * Each room has its own watcher for real-time updates
      */
     addRoomWatcher(kv: any, bucket: string, roomId: string): void {
@@ -125,7 +118,7 @@ export class NatsCacheService implements OnModuleDestroy {
     }
 
     /**
-     * Start watcher loop (goroutine equivalent)
+     * Start watcher loop
      */
     private async startWatcherLoop(watcher: any, roomId: string, stopSignal: AbortController): Promise<void> {
         try {
@@ -156,7 +149,6 @@ export class NatsCacheService implements OnModuleDestroy {
 
     /**
      * Update room cache from NATS KV entry
-     * Equivalent to Go: ncs.updateRoomCache
      */
     private updateRoomCache(entry: any, roomId: string): void {
         const cachedEntry = this.roomsInfoStore.get(roomId);
@@ -168,7 +160,7 @@ export class NatsCacheService implements OnModuleDestroy {
         const val = entry.value.toString();
         const roomInfo = cachedEntry.roomInfo;
 
-        // Update specific field based on key (matching Go's switch)
+        // Update specific field based on key
         switch (entry.key) {
             case 'id':
                 roomInfo.dbTableId = this.convertTextToUint64(val);
@@ -207,8 +199,7 @@ export class NatsCacheService implements OnModuleDestroy {
 
     /**
      * GetCachedRoomInfo retrieves cached room info
-     * Equivalent to Go: ncs.GetCachedRoomInfo
-     * 
+     *
      * Returns deep copy to prevent mutation
      */
     getCachedRoomInfo(roomId: string): NatsKvRoomInfo | null {
@@ -222,7 +213,7 @@ export class NatsCacheService implements OnModuleDestroy {
             return null;
         }
 
-        // Return deep copy (equivalent to Go's proto.Clone)
+        // Return deep copy
         return create(NatsKvRoomInfoSchema, {
             ...cachedEntry.roomInfo,
         });
@@ -230,7 +221,6 @@ export class NatsCacheService implements OnModuleDestroy {
 
     /**
      * Clean room cache
-     * Equivalent to Go: ncs.cleanRoomCache
      */
     private cleanRoomCache(roomId: string): void {
         const entry = this.roomsInfoStore.get(roomId);
@@ -243,13 +233,12 @@ export class NatsCacheService implements OnModuleDestroy {
     }
 
     // ============================================================================
-    // User Cache Methods (from nats_cache_user.go)
+    // User Cache Methods
     // ============================================================================
 
     /**
      * AddRoomUserStatusWatcher will start watching user status in a specific room
-     * Equivalent to Go: ncs.AddRoomUserStatusWatcher
-     * 
+     *
      * Each room has only one RoomUsersBucket bucket
      * In this bucket userId is key and status is value
      */
@@ -275,7 +264,7 @@ export class NatsCacheService implements OnModuleDestroy {
     }
 
     /**
-     * Start user status watcher loop (goroutine equivalent)
+     * Start user status watcher loop
      */
     private async startUserStatusWatcherLoop(watcher: any, roomId: string): Promise<void> {
         try {
@@ -288,7 +277,7 @@ export class NatsCacheService implements OnModuleDestroy {
                     const userId = entry.key;
                     // If value is null, it means it's a delete operation (though watch usually returns entry with operations)
                     if (entry.operation === 'DEL' || entry.operation === 'PURGE') {
-                        // Handle delete if necessary, though current Go impl implies just updating status
+                        // Handle delete if necessary, just updating status
                         // For now we assume we just update or set status
                         const statusStore = this.roomUsersStatusStore.get(roomId);
                         if (statusStore) {
@@ -326,7 +315,6 @@ export class NatsCacheService implements OnModuleDestroy {
 
     /**
      * GetCachedRoomUserStatus retrieves user status from cache
-     * Equivalent to Go: ncs.GetCachedRoomUserStatus
      */
     getCachedRoomUserStatus(roomId: string, userId: string): { status: string; revision: number } | null {
         const roomStore = this.roomUsersStatusStore.get(roomId);
@@ -341,7 +329,6 @@ export class NatsCacheService implements OnModuleDestroy {
 
     /**
      * GetUsersIdFromRoomStatusBucket retrieves all userIds from room status bucket
-     * Equivalent to Go: ncs.GetUsersIdFromRoomStatusBucket
      */
     getUsersIdFromRoomStatusBucket(roomId: string, filterStatus: string = ''): string[] {
         const usersIds: string[] = [];
@@ -363,7 +350,6 @@ export class NatsCacheService implements OnModuleDestroy {
 
     /**
      * Clean room user status cache
-     * Equivalent to Go: ncs.cleanRoomUserStatusCache
      */
     private cleanRoomUserStatusCache(roomId: string): void {
         this.roomUsersStatusStore.delete(roomId);
@@ -372,8 +358,7 @@ export class NatsCacheService implements OnModuleDestroy {
 
     /**
      * AddUserInfoWatcher will start watching user info
-     * Equivalent to Go: ncs.AddUserInfoWatcher
-     * 
+     *
      * Each user has its own bucket, so watch should be for each userId
      */
     addUserInfoWatcher(kv: any, bucket: string, roomId: string, userId: string): void {
@@ -422,7 +407,7 @@ export class NatsCacheService implements OnModuleDestroy {
                         // If the whole bucket/key is deleted? 
                         // Actually in KV, watch returns all keys. We might want to filter?
                         // But here we are assuming the bucket IS the user info bucket which contains multiple keys for one user?
-                        // Wait, Go code says: "Each user has its own bucket". 
+                        //  "Each user has its own bucket".
                         // So 'key' is field name (id, name, etc).
                         continue;
                     }
@@ -448,7 +433,6 @@ export class NatsCacheService implements OnModuleDestroy {
 
     /**
      * Update user info cache from NATS KV entry
-     * Equivalent to Go: ncs.updateUserInfoCache
      */
     private updateUserInfoCache(entry: any, roomId: string, userId: string): void {
         const roomStore = this.roomUsersInfoStore.get(roomId);
@@ -465,7 +449,7 @@ export class NatsCacheService implements OnModuleDestroy {
         const val = new TextDecoder().decode(entry.value);
         const userInfo = cachedEntry.userInfo;
 
-        // Update specific field based on key (matching Go's switch)
+        // Update specific field based on key
         switch (entry.key) {
             case 'id':
                 userInfo.userId = val;
@@ -508,8 +492,7 @@ export class NatsCacheService implements OnModuleDestroy {
 
     /**
      * GetUserInfo retrieves cached user info
-     * Equivalent to Go: ncs.GetUserInfo
-     * 
+     *
      * Returns deep copy to prevent mutation
      */
     getUserInfo(roomId: string, userId: string): any | null {
@@ -517,7 +500,7 @@ export class NatsCacheService implements OnModuleDestroy {
         if (roomStore) {
             const entry = roomStore.get(userId);
             if (entry && entry.userInfo) {
-                // Return deep copy (equivalent to Go's proto.Clone)
+                // Return deep copy
                 return { ...entry.userInfo };
             }
         }
@@ -526,7 +509,6 @@ export class NatsCacheService implements OnModuleDestroy {
 
     /**
      * GetUserLastPingAt retrieves user's last ping timestamp
-     * Equivalent to Go: ncs.GetUserLastPingAt
      */
     getUserLastPingAt(roomId: string, userId: string): number {
         const roomStore = this.roomUsersInfoStore.get(roomId);
@@ -541,7 +523,6 @@ export class NatsCacheService implements OnModuleDestroy {
 
     /**
      * Clean user info cache
-     * Equivalent to Go: ncs.cleanUserInfoCache
      */
     private cleanUserInfoCache(roomId: string, userId: string): void {
         const roomStore = this.roomUsersInfoStore.get(roomId);
@@ -557,7 +538,6 @@ export class NatsCacheService implements OnModuleDestroy {
 
     /**
      * Convert text to uint64 (as string in protobuf)
-     * Equivalent to Go: ncs.convertTextToUint64
      */
     private convertTextToUint64(text: string): string {
         const value = parseInt(text, 10);

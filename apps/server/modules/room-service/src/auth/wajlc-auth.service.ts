@@ -1,17 +1,15 @@
 /**
- * PlugNmeet Authentication Service
- * Equivalent to Go: plugnmeet-server/pkg/models/auth.go
- * 
- * Delegates to shared utils (equivalent to plugnmeet-protocol/auth)
+ * Wajlc Authentication Service
+ *
  */
 
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
-    generatePlugNmeetJWTAccessToken
+    generateWajlcJWTAccessToken
 } from '@server/shared/utils/access_token';
 import {
-    verifyPlugNmeetAccessToken
+    verifyWajlcAccessToken
 } from '@server/shared/utils/verify_token';
 import {
     verifyWebhookRequest
@@ -19,10 +17,9 @@ import {
 import * as jwt from 'jsonwebtoken';
 
 /**
- * Plain PlugNmeet token claims (not protobuf)
- * Equivalent to Go: plugnmeet.PlugNmeetTokenClaims
+ * Plain Wajlc token claims (not protobuf)
  */
-export interface PlugNmeetTokenClaims {
+export interface WajlcTokenClaims {
     name: string;
     userId: string;
     roomId: string;
@@ -32,12 +29,10 @@ export interface PlugNmeetTokenClaims {
 
 /**
  * AuthService handles JWT token generation and verification
- * Equivalent to Go: AuthModel (auth.go)
- * Calls shared utils equivalent to plugnmeet-protocol/auth package
  */
 @Injectable()
-export class PlugNmeetAuthService {
-    private readonly logger = new Logger(PlugNmeetAuthService.name);
+export class WajlcAuthService {
+    private readonly logger = new Logger(WajlcAuthService.name);
     private readonly apiKey: string;
     private readonly secret: string;
     private readonly tokenValidity: number; // in seconds
@@ -45,29 +40,24 @@ export class PlugNmeetAuthService {
     private readonly livekitSecret: string;
 
     constructor(private readonly configService: ConfigService) {
-        // Fallback to WAJLC_ keys if PLUGNMEET_ keys are not set
-        this.apiKey = this.configService.get<string>('PLUGNMEET_API_KEY') ||
-            this.configService.get<string>('WAJLC_API_KEY') || '';
-        this.secret = this.configService.get<string>('PLUGNMEET_SECRET') ||
-            this.configService.get<string>('WAJLC_API_SECRET') || '';
-        this.tokenValidity = this.configService.get<number>('PLUGNMEET_TOKEN_VALIDITY') || 3600; // 1 hour default
+        this.apiKey = this.configService.get<string>('WAJLC_API_KEY') || '';
+        this.secret = this.configService.get<string>('WAJLC_API_SECRET') || '';
+        this.tokenValidity = this.configService.get<number>('WAJLC_TOKEN_VALIDITY') || 3600; // 1 hour default
         this.livekitApiKey = this.configService.get<string>('LIVEKIT_API_KEY') || '';
         this.livekitSecret = this.configService.get<string>('LIVEKIT_API_SECRET') || '';
 
         if (!this.apiKey || !this.secret) {
-            this.logger.error('API Key or Secret is missing. Please check configuration (PLUGNMEET_ or WAJLC_ keys).');
+            this.logger.error('API Key or Secret is missing. Please check configuration WAJLC_ keys).');
         }
     }
 
     /**
-     * Generate PlugNmeet JWT access token
-     * Equivalent to Go: authModel.GeneratePNMJoinToken (auth.go:31-33)
-     * Calls: auth.GeneratePlugNmeetJWTAccessToken (plugnmeet-protocol/auth)
+     * Generate Wajlc JWT access token
      */
-    generatePNMJoinToken(claims: PlugNmeetTokenClaims): string {
+    generateWajlcJoinToken(claims: WajlcTokenClaims): string {
         try {
-            // Delegate to shared utils (equivalent to plugnmeet-protocol/auth)
-            const token = generatePlugNmeetJWTAccessToken(
+            // Delegate to shared utils
+            const token = generateWajlcJWTAccessToken(
                 this.apiKey,
                 this.secret,
                 claims.userId,
@@ -75,23 +65,21 @@ export class PlugNmeetAuthService {
                 claims as any // Cast to protocol type
             );
 
-            this.logger.log(`Generated PNM token for user: ${claims.userId}`);
+            this.logger.log(`Generated Wajlc token for user: ${claims.userId}`);
             return token;
         } catch (error) {
-            this.logger.error(`Failed to generate PNM token: ${error.message}`);
+            this.logger.error(`Failed to generate Wajlc token: ${error.message}`);
             throw error;
         }
     }
 
     /**
-     * Verify PlugNmeet access token
-     * Equivalent to Go: authModel.VerifyPlugNmeetAccessToken (auth.go:35-37)
-     * Calls: auth.VerifyPlugNmeetAccessToken (plugnmeet-protocol/auth)
+     * Verify Wajlc access token
      */
-    verifyPNMAccessToken(token: string, gracefulPeriodSeconds: number = 0): PlugNmeetTokenClaims {
+    verifyWajlcAccessToken(token: string, gracefulPeriodSeconds: number = 0): WajlcTokenClaims {
         try {
-            // Delegate to shared utils (equivalent to plugnmeet-protocol/auth)
-            const protobufClaims = verifyPlugNmeetAccessToken(
+            // Delegate to shared utils
+            const protobufClaims = verifyWajlcAccessToken(
                 this.apiKey,
                 this.secret,
                 token,
@@ -99,7 +87,7 @@ export class PlugNmeetAuthService {
             );
 
             // Convert protobuf to plain object
-            const claims: PlugNmeetTokenClaims = {
+            const claims: WajlcTokenClaims = {
                 name: protobufClaims.name,
                 userId: protobufClaims.userId,
                 roomId: protobufClaims.roomId,
@@ -115,18 +103,17 @@ export class PlugNmeetAuthService {
     }
 
     /**
-     * Alias for verifyPNMAccessToken
+     * Alias for verifyWajlcAccessToken
      * Used by NATS auth callout
      */
-    verifyToken(token: string): PlugNmeetTokenClaims {
-        return this.verifyPNMAccessToken(token, 0);
+    verifyToken(token: string): WajlcTokenClaims {
+        return this.verifyWajlcAccessToken(token, 0);
     }
 
     /**
      * Get claims without verification (unsafe)
-     * Equivalent to Go: authModel.UnsafeClaimsWithoutVerification (auth.go:39-52)
      */
-    unsafeClaimsWithoutVerification(token: string): PlugNmeetTokenClaims | null {
+    unsafeClaimsWithoutVerification(token: string): WajlcTokenClaims | null {
         try {
             // Decode without verification
             const decoded = jwt.decode(token) as any;
@@ -135,7 +122,7 @@ export class PlugNmeetAuthService {
                 return null;
             }
 
-            const claims: PlugNmeetTokenClaims = {
+            const claims: WajlcTokenClaims = {
                 name: decoded.name,
                 userId: decoded.user_id,
                 roomId: decoded.room_id,
@@ -151,29 +138,26 @@ export class PlugNmeetAuthService {
     }
 
     /**
-     * Renew PNM token
-     * Equivalent to Go: authModel.RenewPNMToken (auth.go:55-70)
+     * Renew Wajlc token
      * Note: This requires NATS service to check user status
      */
-    renewPNMToken(oldToken: string, gracefulPeriodSeconds: number = 0): string {
+    renewWajlcToken(oldToken: string, gracefulPeriodSeconds: number = 0): string {
         // Verify old token first (calls shared utils)
-        const claims = this.verifyPNMAccessToken(oldToken, gracefulPeriodSeconds);
+        const claims = this.verifyWajlcAccessToken(oldToken, gracefulPeriodSeconds);
 
         // Generate new token with same claims (calls shared utils)
-        return this.generatePNMJoinToken(claims);
+        return this.generateWajlcJoinToken(claims);
     }
 
     /**
      * Validate LiveKit webhook token
-     * Equivalent to Go: authModel.ValidateLivekitWebhookToken (auth.go:72-74)
-     * Calls: webhook.VerifyRequest (plugnmeet-protocol/webhook)
      */
     validateLivekitWebhookToken(body: string | Buffer, token: string): boolean {
         try {
             // Convert string to Buffer if needed
             const bodyBuffer = typeof body === 'string' ? Buffer.from(body) : body;
 
-            // Delegate to shared utils (equivalent to plugnmeet-protocol/webhook)
+            // Delegate to shared utils
             const isValid = verifyWebhookRequest(
                 bodyBuffer,
                 this.livekitApiKey,

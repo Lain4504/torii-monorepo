@@ -1,7 +1,6 @@
 /**
  * Webhook Notifier Service
- * Equivalent to Go: plugNmeet-server/pkg/helpers/webhook_notifier.go
- * 
+ *
  * Manages webhook notifications for room events with per-room queues
  */
 
@@ -14,7 +13,6 @@ import { NatsService } from '../nats/nats.service';
 
 /**
  * Webhook data stored in Redis/NATS
- * Equivalent to Go: webhookRedisFields
  */
 interface WebhookRedisFields {
     urls: string[];
@@ -23,8 +21,7 @@ interface WebhookRedisFields {
 
 /**
  * WebhookNotifierService manages webhook notifications for room events
- * Equivalent to Go: WebhookNotifier
- * 
+ *
  * Features:
  * - Per-room webhook queues (local to server instance)
  * - Clustered cleanup via NATS subscription
@@ -61,7 +58,6 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
 
     /**
      * Initialize module - subscribe to cleanup broadcast
-     * Equivalent to Go: subscribeToCleanup in constructor
      */
     async onModuleInit() {
         if (!this.isEnabled) {
@@ -96,7 +92,6 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
 
     /**
      * RegisterWebhook registers webhook URLs for a room
-     * Equivalent to Go: w.RegisterWebhook
      */
     async registerWebhook(roomId: string, sid: string): Promise<void> {
         const log = this.logger;
@@ -152,11 +147,9 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
 
     /**
      * DeleteWebhook deletes webhook registration for a room
-     * Equivalent to Go: w.DeleteWebhook
      */
     async deleteWebhook(roomId: string): Promise<void> {
         // Wait before cleanup to ensure all events are processed
-        // Go: time.Sleep(config.MaxDurationWaitBeforeCleanRoomWebhook)
         const maxWaitMs = this.configService.get<number>('MAX_DURATION_WAIT_BEFORE_CLEAN_ROOM_WEBHOOK') || 5000;
         await new Promise((resolve) => setTimeout(resolve, maxWaitMs));
 
@@ -196,7 +189,6 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
 
     /**
      * SendWebhookEvent sends a webhook event to the room's queue
-     * Equivalent to Go: w.SendWebhookEvent
      */
     async sendWebhookEvent(event: CommonNotifyEvent): Promise<void> {
         if (!this.isEnabled || !event.room?.roomId) {
@@ -242,8 +234,7 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
 
     /**
      * ForceToPutInQueue sends a webhook event synchronously without queue
-     * Equivalent to Go: w.ForceToPutInQueue
-     * 
+     *
      * Used for one-shot events outside normal room lifecycle
      */
     async forceToPutInQueue(event: CommonNotifyEvent): Promise<void> {
@@ -292,7 +283,6 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
 
     /**
      * Subscribe to cleanup broadcast channel
-     * Equivalent to Go: w.subscribeToCleanup
      */
     private subscribeToCleanup(): void {
         // Get NATS connection - might be null if NatsService hasn't initialized yet
@@ -324,7 +314,6 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
 
     /**
      * Get or create notifier for a room
-     * Equivalent to Go: w.getOrCreateNotifier
      */
     private getOrCreateNotifier(roomId: string): WebhookNotifier {
         if (this.notifiers.has(roomId)) {
@@ -344,7 +333,6 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
 
     /**
      * Cleanup notifier for a room
-     * Equivalent to Go: w.cleanupNotifier
      */
     private cleanupNotifier(roomId: string): void {
         const notifier = this.notifiers.get(roomId);
@@ -357,7 +345,6 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
 
     /**
      * Save webhook data to NATS/Redis
-     * Equivalent to Go: w.saveData
      */
     private async saveData(roomId: string, data: WebhookRedisFields): Promise<void> {
         const marshal = JSON.stringify(data);
@@ -368,7 +355,6 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
 
     /**
      * Get webhook data from NATS/Redis
-     * Equivalent to Go: w.getData
      */
     private async getData(roomId: string): Promise<WebhookRedisFields | null> {
         const data = await this.natsService.getWebhookData(roomId);

@@ -1,7 +1,6 @@
 /**
  * API Key Auth Guard
- * Equivalent to Go: AuthController.HandleAuthHeaderCheck middleware
- * 
+ *
  * Verifies API-KEY and HASH-SIGNATURE headers
  */
 
@@ -18,8 +17,7 @@ import { ConfigService } from '@nestjs/config';
 
 /**
  * ApiKeyGuard verifies API-KEY and HASH-SIGNATURE
- * Equivalent to Go: ac.HandleAuthHeaderCheck
- * 
+ *
  * Validates:
  * - API-KEY header matches configured key
  * - HASH-SIGNATURE matches HMAC-SHA256 of request body
@@ -45,21 +43,21 @@ export class ApiKeyGuard implements CanActivate {
       return false;
     }
 
-    // Validate API key (matching Go)
+    // Validate API key
     if (apiKey !== configApiKey) {
       response.status(HttpStatus.UNAUTHORIZED);
       sendCommonProtoJsonResponse(response, false, 'Invalid API key');
       return false;
     }
 
-    // Validate signature presence (matching Go)
+    // Validate signature presence
     if (!signature) {
       response.status(HttpStatus.UNAUTHORIZED);
       sendCommonProtoJsonResponse(response, false, 'Hash signature value required');
       return false;
     }
 
-    // Verify HMAC signature (matching Go)
+    // Verify HMAC signature
     const body = (request as any).rawBody || request.body;
     const bodyBuffer = Buffer.isBuffer(body) ? body : Buffer.from(JSON.stringify(body));
 
@@ -67,7 +65,7 @@ export class ApiKeyGuard implements CanActivate {
     mac.update(bodyBuffer);
     const expectedSignature = mac.digest('hex');
 
-    // Constant-time comparison (matching Go: subtle.ConstantTimeCompare)
+    // Constant-time comparison
     if (!crypto.timingSafeEqual(
       Buffer.from(expectedSignature),
       Buffer.from(signature)

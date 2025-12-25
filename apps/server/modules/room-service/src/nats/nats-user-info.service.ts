@@ -1,7 +1,6 @@
-/**
+﻿/**
  * NATS User Info Service
- * Equivalent to Go: plugNmeet-server/pkg/services/nats/user_info.go
- * 
+ *
  * Handles NATS KV read operations for user information
  */
 
@@ -11,13 +10,13 @@ import { NatsKvUserInfoSchema } from '@workspace/protocol';
 import { create, toJsonString } from '@bufbuild/protobuf';
 import { NatsService } from './nats.service';
 
-// Constants matching Go
+// Constants
 const NATS_PREFIX = 'pnm-';  // Must use dash, not colon! NATS bucket names cannot contain ':'
 const ROOM_USERS_BUCKET = `${NATS_PREFIX}roomUsers-%s`;
 const USER_INFO_BUCKET = `${NATS_PREFIX}userInfo-r_%s-u_%s`;
 const ROOM_USERS_BLOCK_LIST = `${NATS_PREFIX}usersBlockList-%s`;
 
-// User KV keys (matching Go constants)
+// User KV keys
 const USER_ID_KEY = 'id';
 const USER_SID_KEY = 'sid';
 const USER_NAME_KEY = 'name';
@@ -35,7 +34,6 @@ export const USER_STATUS_ONLINE = 'online';
 
 /**
  * NatsUserInfoService handles NATS KV read operations for users
- * Equivalent to Go: NatsService methods in user_info.go
  */
 @Injectable()
 export class NatsUserInfoService {
@@ -47,12 +45,11 @@ export class NatsUserInfoService {
 
     /**
      * GetRoomUserStatus retrieves the status of a user in a specific room
-     * Equivalent to Go: s.GetRoomUserStatus (lines 14-30)
-     * 
+     *
      * Returns empty string if user or room not found
      */
     async getRoomUserStatus(roomId: string, userId: string): Promise<string> {
-        // Step 1: Try cache first (matching Go)
+        // Step 1: Try cache first
         const cachedStatus = this.natsService.getCacheService().getCachedRoomUserStatus(roomId, userId);
         if (cachedStatus) {
             return cachedStatus.status;
@@ -64,7 +61,7 @@ export class NatsUserInfoService {
             const js = this.natsService.getJetStream();
             const kv = await js.views.kv(bucket);
 
-            // Step 3: Add watcher (matching Go: if not in cache, start watching)
+            // Step 3: Add watcher
             this.natsService.getCacheService().addRoomUserStatusWatcher(kv, bucket, roomId);
 
             // Step 4: Get status value
@@ -81,12 +78,11 @@ export class NatsUserInfoService {
 
     /**
      * GetUserInfo retrieves detailed information about a user in a specific room
-     * Equivalent to Go: s.GetUserInfo (lines 34-61)
-     * 
+     *
      * Returns null if user or room not found
      */
     async getUserInfo(roomId: string, userId: string): Promise<NatsKvUserInfo | null> {
-        // Step 1: Try cache first (matching Go)
+        // Step 1: Try cache first
         const cached = this.natsService.getCacheService().getUserInfo(roomId, userId);
         if (cached) {
             return cached as NatsKvUserInfo;
@@ -98,7 +94,7 @@ export class NatsUserInfoService {
             const js = this.natsService.getJetStream();
             const kv = await js.views.kv(bucket);
 
-            // Step 3: Build user info from KV (matching Go exactly)
+            // Step 3: Build user info from KV
             const info = create(NatsKvUserInfoSchema, {
                 userId: await this.getStringValue(kv, USER_ID_KEY),
                 userSid: await this.getStringValue(kv, USER_SID_KEY),
@@ -112,7 +108,7 @@ export class NatsUserInfoService {
                 disconnectedAt: await this.getUint64Value(kv, USER_DISCONNECTED_AT),
             });
 
-            // Step 4: Add watcher (matching Go: if not in cache, start watching)
+            // Step 4: Add watcher
             this.natsService.getCacheService().addUserInfoWatcher(kv, bucket, roomId, userId);
 
             return info;
@@ -124,8 +120,7 @@ export class NatsUserInfoService {
 
     /**
      * GetUserKeyValue retrieves a specific key-value entry for a user
-     * Equivalent to Go: s.GetUserKeyValue (lines 167-173)
-     * 
+     *
      * Returns null if user or room not found
      */
     async getUserKeyValue(roomId: string, userId: string, key: string): Promise<any | null> {
@@ -143,7 +138,6 @@ export class NatsUserInfoService {
 
     /**
      * GetOnlineUsersId retrieves IDs of users who are currently online
-     * Equivalent to Go: s.GetOnlineUsersId (lines 87-105)
      */
     async getOnlineUsersId(roomId: string): Promise<string[]> {
         // Step 1: Try cache first
@@ -172,7 +166,6 @@ export class NatsUserInfoService {
 
     /**
      * GetRoomAllUsersFromStatusBucket retrieves all users and their statuses
-     * Equivalent to Go: s.GetRoomAllUsersFromStatusBucket (lines 65-83)
      */
     async getRoomAllUsersFromStatusBucket(roomId: string): Promise<Record<string, any> | null> {
         const bucket = ROOM_USERS_BUCKET.replace('%s', roomId);
@@ -203,7 +196,6 @@ export class NatsUserInfoService {
 
     /**
      * IsUserPresenter checks if a user is a presenter
-     * Equivalent to Go: s.IsUserPresenter (lines 222-235)
      */
     async isUserPresenter(roomId: string, userId: string): Promise<boolean> {
         // Step 1: Check cache first
@@ -226,7 +218,6 @@ export class NatsUserInfoService {
 
     /**
      * IsUserExistInBlockList checks if a user is in the block list
-     * Equivalent to Go: s.IsUserExistInBlockList (lines 239-246)
      */
     async isUserExistInBlockList(roomId: string, userId: string): Promise<boolean> {
         const bucket = ROOM_USERS_BLOCK_LIST.replace('%s', roomId);
@@ -248,14 +239,13 @@ export class NatsUserInfoService {
 
     /**
      * GetUsersIdFromRoomStatusBucket retrieves all user IDs from room status bucket
-     * Equivalent to Go: s.GetUsersIdFromRoomStatusBucket (lines 107-123)
-     * 
+     *
      * Returns empty array if room not found
      */
     async getUsersIdFromRoomStatusBucket(roomId: string): Promise<string[]> {
         let userIds: string[] = [];
 
-        // Step 1: Try cache first (matching Go)
+        // Step 1: Try cache first
         userIds = this.natsService.getCacheService().getUsersIdFromRoomStatusBucket(roomId, '');
         if (userIds.length > 0) {
             return userIds;
@@ -277,8 +267,7 @@ export class NatsUserInfoService {
 
     /**
      * GetOnlineUsersList retrieves detailed information about all online users
-     * Equivalent to Go: s.GetOnlineUsersList (lines 127-144)
-     * 
+     *
      * Returns null if room not found or no users online
      */
     async getOnlineUsersList(roomId: string): Promise<NatsKvUserInfo[] | null> {
@@ -307,8 +296,7 @@ export class NatsUserInfoService {
 
     /**
      * GetOnlineUsersListAsJson retrieves online users as JSON string
-     * Equivalent to Go: s.GetOnlineUsersListAsJson (lines 148-163)
-     * 
+     *
      * Returns null if room not found or no users online
      */
     async getOnlineUsersListAsJson(roomId: string): Promise<string | null> {
@@ -326,10 +314,10 @@ export class NatsUserInfoService {
                 // This handles cases where getUserInfo returns plain objects from cache
                 const userMessage = create(NatsKvUserInfoSchema, user);
 
-                // Use toJsonString with proper protobuf options (matching Go: protoJsonOpts.Marshal)
+                // Use toJsonString with proper protobuf options
                 const json = toJsonString(NatsKvUserInfoSchema, userMessage, {
-                    alwaysEmitImplicit: true,  // equivalent to EmitUnpopulated
-                    useProtoFieldName: true,    // equivalent to UseProtoNames
+                    alwaysEmitImplicit: true,
+                    useProtoFieldName: true,
                 });
                 jsonArray.push(json);
             }
@@ -344,8 +332,7 @@ export class NatsUserInfoService {
 
     /**
      * GetUserMetadataStruct retrieves user metadata as structured object
-     * Equivalent to Go: s.GetUserMetadataStruct (lines 177-187)
-     * 
+     *
      * Returns null if user not found or no metadata
      */
     async getUserMetadataStruct(roomId: string, userId: string): Promise<any | null> {
@@ -360,7 +347,7 @@ export class NatsUserInfoService {
             return null;
         }
 
-        // Step 3: Unmarshal metadata (matching Go: s.UnmarshalUserMetadata)
+        // Step 3: Unmarshal metadata
         try {
             return this.natsService.unmarshalUserMetadata(info.metadata);
         } catch (error) {
@@ -371,7 +358,7 @@ export class NatsUserInfoService {
 
     /**
      * GetUserWithMetadata retrieves user info along with parsed metadata
-     * Equivalent to Go: s.GetUserWithMetadata (lines 191-201)
+
      * 
      * Returns null for both if user not found
      */
@@ -397,12 +384,12 @@ export class NatsUserInfoService {
 
     /**
      * GetUserLastPing retrieves last ping timestamp for a user
-     * Equivalent to Go: s.GetUserLastPing (lines 205-218)
+
      * 
      * Returns 0 if user not found or timestamp cannot be parsed
      */
     async getUserLastPing(roomId: string, userId: string): Promise<number> {
-        // Step 1: Try cache first (matching Go)
+        // Step 1: Try cache first 
         const cachedVal = this.natsService.getCacheService().getUserLastPingAt(roomId, userId);
         if (cachedVal > 0) {
             return cachedVal;
@@ -415,7 +402,7 @@ export class NatsUserInfoService {
                 return 0;
             }
 
-            // Step 3: Parse timestamp (matching Go: strconv.ParseInt)
+            // Step 3: Parse timestamp 
             const value = new TextDecoder().decode(entry.value);
             const ts = parseInt(value, 10);
             return isNaN(ts) ? 0 : ts;
@@ -426,7 +413,7 @@ export class NatsUserInfoService {
 
     /**
      * UpdateUserKeyValue updates a specific key-value pair for a user
-     * Equivalent to Go: s.UpdateUserKeyValue
+
      */
     async updateUserKeyValue(roomId: string, userId: string, key: string, value: string): Promise<void> {
         const js = this.natsService.getJetStream();

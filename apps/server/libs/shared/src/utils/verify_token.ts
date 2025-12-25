@@ -1,5 +1,5 @@
 import * as jwt from 'jsonwebtoken';
-import { PlugNmeetTokenClaims, PlugNmeetTokenClaimsSchema } from '@workspace/protocol';
+import { WajlcTokenClaims, WajlcTokenClaimsSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 
 /**
@@ -14,10 +14,10 @@ interface StandardClaims {
 }
 
 /**
- * Custom payload interface for PlugNmeet JWT
- * PlugNmeetTokenClaims only has: name, userId, roomId, isAdmin, isHidden
+ * Custom payload interface for JWT token
+ * TokenClaims only has: name, userId, roomId, isAdmin, isHidden
  */
-interface PlugNmeetJWTPayload extends StandardClaims {
+interface WajlcJWTPayload extends StandardClaims {
     room_id?: string;
     user_id?: string;
     name?: string;
@@ -26,29 +26,28 @@ interface PlugNmeetJWTPayload extends StandardClaims {
 }
 
 /**
- * VerifyPlugNmeetAccessToken verifies a PlugNmeet access token
- * Equivalent to Go: auth.VerifyPlugNmeetAccessToken
- * 
+ * VerifyAccessToken verifies a access token
+ *
  * @param apiKey - Expected API key (issuer)
  * @param secret - API secret for verification
  * @param token - JWT token to verify
  * @param gracefulPeriod - Allows token to be valid past expiration (in seconds). 0 = strict validation
- * @returns PlugNmeetTokenClaims if valid
+ * @returns token if valid
  * @throws Error if token is invalid
  * 
  * gracefulPeriod allows a token to be considered valid for this duration past its original expiration time.
  * A value of 0 means no graceful period (strict expiration).
  * NotBefore (nbf) validation is always strict against the current time.
  */
-export function verifyPlugNmeetAccessToken(
+export function verifyWajlcAccessToken(
     apiKey: string,
     secret: string,
     token: string,
     gracefulPeriod: number = 0 // seconds
-): PlugNmeetTokenClaims {
+): WajlcTokenClaims {
     try {
         // Decode without verification first to check expiration manually
-        const decoded = jwt.decode(token) as PlugNmeetJWTPayload;
+        const decoded = jwt.decode(token) as WajlcJWTPayload;
 
         if (!decoded) {
             throw new Error('Invalid token format');
@@ -87,7 +86,7 @@ export function verifyPlugNmeetAccessToken(
             algorithms: ['HS256'],
             issuer: apiKey,
             ignoreExpiration: ignoreExpiration,
-        }) as PlugNmeetJWTPayload;
+        }) as WajlcJWTPayload;
 
         // Validate issuer
         if (verified.iss !== apiKey) {
@@ -96,13 +95,13 @@ export function verifyPlugNmeetAccessToken(
 
         // Validate subject matches user_id if present
         if (verified.user_id && verified.sub && verified.user_id !== verified.sub) {
-            // In Go implementation, claims.UserId is set to out.Subject at the end
+            // claims.UserId is set to out.Subject at the end
             // So we'll use sub as the authoritative userId
         }
 
-        // Create PlugNmeetTokenClaims from verified payload
-        // PlugNmeetTokenClaims only has: name, userId, roomId, isAdmin, isHidden
-        const claims = create(PlugNmeetTokenClaimsSchema, {
+        // Create TokenClaims from verified payload
+        // TokenClaims only has: name, userId, roomId, isAdmin, isHidden
+        const claims = create(WajlcTokenClaimsSchema, {
             userId: verified.user_id || verified.sub || '',
             roomId: verified.room_id || '',
             name: verified.name || '',
@@ -111,7 +110,7 @@ export function verifyPlugNmeetAccessToken(
         });
 
         // Ensure userId is set from subject if not in custom claims
-        // This matches Go: claims.UserId = out.Subject
+        // claims.UserId = out.Subject
         if (!claims.userId && verified.sub) {
             claims.userId = verified.sub;
         }

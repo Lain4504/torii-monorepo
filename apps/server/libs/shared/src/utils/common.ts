@@ -21,7 +21,7 @@ import { create, toBinary, toJson } from '@bufbuild/protobuf';
 export function prepareCommonWebhookNotifyEvent(event: WebhookEvent): CommonNotifyEvent {
     const ct = event.room?.creationTime ? event.room.creationTime.toString() : '0';
 
-    // Create NotifyEventRoom using create() like Go's &plugnmeet.NotifyEventRoom{...}
+    // Create NotifyEventRoom using create()
     const room = create(NotifyEventRoomSchema, {
         sid: event.room?.sid,
         roomId: event.room?.name,
