@@ -544,7 +544,7 @@ export class RoomInfoService {
     }
 
     /**
-     * UpdateRoomRTMPStatus updates the RTMP status of a room
+     * updateRoomRTMPStatus updates the RTMP status of a room
      * 
      * @param roomTableId - Room table ID
      * @param isActiveRtmp - RTMP active status (0 or 1)
