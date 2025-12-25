@@ -19,58 +19,8 @@ import {
 export const questionBankApi = {
     // GET /question-bank
     async findAll(params: QuestionBankQueryDto): Promise<PaginatedResponseDto<QuestionBankDto>> {
-        // Ensure page and limit are numbers (not strings) for backend
-        const queryParams: any = {
-            page: Number(params.page) || 1,
-            limit: Number(params.limit) || 10,
-        };
-        
-        // Add optional params only if they have values
-        if (params.search && params.search.trim()) {
-            queryParams.search = params.search.trim();
-        }
-        if (params.questionType) {
-            queryParams.questionType = params.questionType;
-        }
-        if (params.jlptLevel) {
-            queryParams.jlptLevel = params.jlptLevel;
-        }
-        if (params.difficulty) {
-            queryParams.difficulty = params.difficulty;
-        }
-        if (params.status) {
-            queryParams.status = params.status;
-        }
-        if (params.category && params.category.trim()) {
-            queryParams.category = params.category.trim();
-        }
-        if (params.tags && params.tags.length > 0) {
-            queryParams.tags = params.tags;
-        }
-        
-        // Use axios params which will serialize correctly
-        // Note: Query params in URL are always strings, backend needs to parse them
-        const response = await apiClient.get<QuestionBankListResponseDto>('/question-bank', { 
-            params: queryParams,
-        });
-        
-        // Check if response is error
-        if (!response.data.success) {
-            throw new Error(response.data.message || 'Failed to fetch questions');
-        }
-        
-        // Backend returns nested structure:
-        // { success, message, error, data: { success, message, data: [...], meta: {...} } }
-        // response.data = outer ApiResponseDto
-        // response.data.data = inner PaginatedResponseDto (has success, message, data array and meta)
-        const paginatedData = response.data.data;
-        
-        // Return PaginatedResponseDto directly (includes success, message, data, meta)
-        if (!paginatedData) {
-            throw new Error('Invalid response format');
-        }
-        
-        return paginatedData;
+        const response = await apiClient.get<QuestionBankListResponseDto>('/question-bank', { params });
+        return response.data.data;
     },
 
     // GET /question-bank/:id
