@@ -98,11 +98,11 @@ export class WaitingRoomService {
     }
 
     /**
-     * UpdateWaitingRoomMessage updates the waiting room message for a room
+     * updateWaitingRoomMessage updates the waiting room message for a room
      * 
      * @param req - Request containing roomId and new message
      */
-    async UpdateWaitingRoomMessage(req: UpdateWaitingRoomMessageReq): Promise<void> {
+    async updateWaitingRoomMessage(req: UpdateWaitingRoomMessageReq): Promise<void> {
         const log = this.logger;
         log.log(`Updating waiting room message for room ${req.roomId}`);
 
