@@ -109,7 +109,7 @@ export class WaitingRoomService {
         // Get room metadata
         const roomMeta = await this.natsRoomService.getRoomMetadataStruct(req.roomId);
         if (!roomMeta) {
-            throw new Error('invalid nil room metadata information');
+            throw new Error('invalid or missing room metadata information');
         }
 
         // Update waiting room message
