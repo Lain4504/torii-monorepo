@@ -1,10 +1,8 @@
 import { Controller, Get, Query, Inject } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { PaginatedResponseDto } from '@workspace/dtos';
 
-@ApiTags('admin/users')
 @Controller('admin/users')
 export class UsersController {
     constructor(
@@ -12,8 +10,6 @@ export class UsersController {
     ) { }
 
     @Get()
-    @ApiOperation({ summary: 'Get all users' })
-    @ApiResponse({ status: 200, description: 'Return all users' })
     async findAll(
 
         @Query('page') page: number = 1,
