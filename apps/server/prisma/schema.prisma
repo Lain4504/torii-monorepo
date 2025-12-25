@@ -44,10 +44,32 @@ model Course {
   updatedAt        DateTime  @default(now()) @updatedAt @map("updated_at")
   deletedAt        DateTime? @map("deleted_at")
 
+  // Relations
+  modules           Module[]
+
   @@index([jlptLevel])
   @@index([status])
   @@index([createdBy])
   @@map("courses")
+}
+
+// Modules: chapters/sections that belong to a Course
+model Module {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courseId        String   @map("course_id") @db.Uuid
+  title           String   @db.VarChar(255)
+  description     String?  @db.Text
+  order           Int      @default(0)
+  durationMinutes Int?     @map("duration_minutes")
+  createdBy       String?  @map("created_by") @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at")
+  deletedAt       DateTime? @map("deleted_at")
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId])
+  @@map("modules")
 }
 
 model RoomInfo {

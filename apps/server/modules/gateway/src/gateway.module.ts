@@ -15,6 +15,7 @@ import { BlogCommentModule } from './blog-comment/blog-comment.module';
 import { NotificationModule } from './notification/notification.module';
 import { QuestionBankModule } from './question-bank/question-bank.module';
 import { WaitingRoomModule } from './waiting-room/waiting-room.module';
+import { ModuleModule } from './module/module.module';
 
 import { GatewayController } from './gateway.controller';
 import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
@@ -53,6 +54,7 @@ import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
     QuestionBankModule,
     NotificationModule,
     WaitingRoomModule,
+    ModuleModule,
   ],
   controllers: [GatewayController],
   providers: [

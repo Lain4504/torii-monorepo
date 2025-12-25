@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from '@server/shared';
 
 import { CourseModule } from './course/course.module';
+import { ModuleModule } from './module/module.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { CourseModule } from './course/course.module';
     }),
     PrismaModule, // Sử dụng PrismaModule từ shared library
     CourseModule,
+    ModuleModule,
   ],
 })
 export class CourseServiceModule {}
