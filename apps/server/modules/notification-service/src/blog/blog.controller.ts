@@ -39,7 +39,6 @@ export class BlogController {
   deletePost(@Payload() id: string) {
     return this.blogService.deletePost(id);
   }
-
 }
 
 

@@ -20,7 +20,9 @@ import {
   BlogPostQueryDto,
   PaginatedResponseDto,
 } from '@workspace/dtos';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiTags('admin/blogs')
 @Controller('api/v1/admin/blogs')
 export class AdminBlogController {
   private readonly logger = new Logger(AdminBlogController.name);

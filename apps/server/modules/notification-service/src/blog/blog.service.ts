@@ -249,12 +249,10 @@ export class BlogService {
   // HELPER METHODS
   // =========================
 
-  // Images are now managed by FileAsset (storage service)
-  // Use storage service to upload images and associate them with blog posts
-
   private async formatPostResponseWithSupabaseAuthor(post: any) {
     // Lấy author info từ Supabase
     let authorInfo: { id: string; fullName: string; avatarUrl: string | null } | null = null;
+    
     if (post.authorId) {
       try {
         const { data: user, error } = await this.supabase.auth.admin.getUserById(
@@ -268,7 +266,7 @@ export class BlogService {
           };
         }
       } catch (error: any) {
-        this.logger.warn(`Failed to get author info from Supabase: ${error?.message || 'Unknown error'}`);
+        // Silent fail - continue without author info
       }
     }
 
