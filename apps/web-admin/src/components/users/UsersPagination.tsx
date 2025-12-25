@@ -5,6 +5,7 @@ interface UsersPaginationProps {
     page: number;
     totalPages: number;
     total: number;
+    limit?: number;
     onPageChange: (page: number) => void;
 }
 
@@ -12,12 +13,16 @@ export function UsersPagination({
     page,
     totalPages,
     total,
+    limit = 10,
     onPageChange,
 }: UsersPaginationProps) {
+    const start = total === 0 ? 0 : (page - 1) * limit + 1;
+    const end = Math.min(page * limit, total);
+
     return (
         <div className="flex items-center justify-between mt-4">
             <div className="text-sm text-muted-foreground">
-                Total: {total} users | Page {page} of {totalPages}
+                Showing {start} to {end} of {total} {total === 1 ? 'user' : 'users'}
             </div>
             <div className="flex gap-2">
                 <Button
@@ -26,7 +31,6 @@ export function UsersPagination({
                     onClick={() => onPageChange(Math.max(1, page - 1))}
                     disabled={page === 1}
                 >
-                    <ChevronLeft className="h-4 w-4" />
                     Previous
                 </Button>
                 <Button
@@ -36,7 +40,6 @@ export function UsersPagination({
                     disabled={page === totalPages}
                 >
                     Next
-                    <ChevronRight className="h-4 w-4" />
                 </Button>
             </div>
         </div>

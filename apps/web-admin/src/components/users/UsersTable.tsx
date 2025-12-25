@@ -29,11 +29,11 @@ export function UsersTable({
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Role</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
+                        <TableHead>USER NAME</TableHead>
+                        <TableHead>DESCRIPTION</TableHead>
+                        <TableHead>ACTIVE USERS</TableHead>
+                        <TableHead>LAST MODIFIED</TableHead>
+                        <TableHead className="text-right">ACTIONS</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>

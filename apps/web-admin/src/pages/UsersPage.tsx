@@ -1,33 +1,45 @@
+import { useNavigate } from 'react-router-dom';
 import {
     UsersTable,
-    CreateUserDialog,
     UsersSearchBar,
     UsersPagination,
+    UsersPageHeader,
+    FilterDialog,
+    SortDialog,
     useUsersLogic,
 } from '../components/users';
 
 export function UsersPage() {
+    const navigate = useNavigate();
     const {
         page,
         search,
+        filters,
+        sortBy,
+        sortOrder,
         editingUser,
-        showCreateModal,
         users,
         meta,
         isLoading,
         error,
+        showFilterDialog,
+        showSortDialog,
         setPage,
         setSearch,
-        setShowCreateModal,
-        handleCreate,
+        setShowFilterDialog,
+        setShowSortDialog,
+        handleApplyFilters,
+        handleResetFilters,
+        handleApplySort,
         handleUpdate,
         handleSaveUpdate,
         handleCancelEdit,
         handleUpdateEditingUser,
         handleDelete,
-        isCreating,
         isUpdating,
     } = useUsersLogic();
+
+    const hasActiveFilters = !!(filters.role || filters.status);
 
     if (isLoading) {
         return (
@@ -48,18 +60,15 @@ export function UsersPage() {
     }
 
     return (
-        <div className="p-6 space-y-6">
-            <div>
-                <h1 className="text-3xl font-bold tracking-tight">Users</h1>
-                <p className="text-muted-foreground mt-1">
-                    Manage user accounts and permissions
-                </p>
-            </div>
+        <div className="p-6 space-y-6 max-w-full">
+            <UsersPageHeader onCreateClick={() => navigate('/users/new')} />
 
             <UsersSearchBar
                 search={search}
                 onSearchChange={setSearch}
-                onCreateClick={() => setShowCreateModal(true)}
+                onFilterClick={() => setShowFilterDialog(true)}
+                onSortClick={() => setShowSortDialog(true)}
+                hasActiveFilters={hasActiveFilters}
             />
 
             <UsersTable
@@ -78,15 +87,25 @@ export function UsersPage() {
                     page={page}
                     totalPages={meta.totalPages}
                     total={meta.total}
+                    limit={meta.limit}
                     onPageChange={setPage}
                 />
             )}
 
-            <CreateUserDialog
-                open={showCreateModal}
-                onOpenChange={setShowCreateModal}
-                onCreate={handleCreate}
-                isCreating={isCreating}
+            <FilterDialog
+                open={showFilterDialog}
+                onOpenChange={setShowFilterDialog}
+                filters={filters}
+                onApply={handleApplyFilters}
+                onReset={handleResetFilters}
+            />
+
+            <SortDialog
+                open={showSortDialog}
+                onOpenChange={setShowSortDialog}
+                sortBy={sortBy}
+                sortOrder={sortOrder}
+                onApply={handleApplySort}
             />
         </div>
     );
