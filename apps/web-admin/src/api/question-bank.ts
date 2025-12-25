@@ -19,9 +19,64 @@ import {
 export const questionBankApi = {
     // GET /question-bank
     async findAll(params: QuestionBankQueryDto): Promise<PaginatedResponseDto<QuestionBankDto>> {
-        const response = await apiClient.get<QuestionBankListResponseDto>('/question-bank', { params });
-        // Unwrap nested response: QuestionBankListResponseDto.data contains PaginatedResponseDto
-        return response.data.data;
+        // Ensure page and limit are numbers (not strings) for backend
+        const queryParams: any = {
+            page: Number(params.page) || 1,
+            limit: Number(params.limit) || 10,
+        };
+        
+        // Add optional params only if they have values
+        if (params.search && params.search.trim()) {
+            queryParams.search = params.search.trim();
+        }
+        if (params.questionType) {
+            queryParams.questionType = params.questionType;
+        }
+        if (params.jlptLevel) {
+            queryParams.jlptLevel = params.jlptLevel;
+        }
+        if (params.difficulty) {
+            queryParams.difficulty = params.difficulty;
+        }
+        if (params.status) {
+            queryParams.status = params.status;
+        }
+        if (params.category && params.category.trim()) {
+            queryParams.category = params.category.trim();
+        }
+        if (params.tags && params.tags.length > 0) {
+            queryParams.tags = params.tags;
+        }
+        
+        // Use axios params which will serialize correctly
+        // Note: Query params in URL are always strings, backend needs to parse them
+        const response = await apiClient.get<QuestionBankListResponseDto>('/question-bank', { 
+            params: queryParams,
+        });
+        
+        // Check if response is error
+        if (!response.data.success) {
+            throw new Error(response.data.message || 'Failed to fetch questions');
+        }
+        
+        // Backend returns nested structure:
+        // { success, message, error, data: { success, message, data: [...], meta: {...} } }
+        // response.data = outer ApiResponseDto
+        // response.data.data = inner PaginatedResponseDto (has data array and meta)
+        const paginatedData = response.data.data;
+        
+        // Return in PaginatedResponseDto format: { data: [...], meta: {...} }
+        return {
+            data: paginatedData?.data || [],
+            meta: paginatedData?.meta || {
+                page: queryParams.page,
+                limit: queryParams.limit,
+                total: 0,
+                totalPages: 0,
+                hasNext: false,
+                hasPrev: false,
+            },
+        };
     },
 
     // GET /question-bank/:id

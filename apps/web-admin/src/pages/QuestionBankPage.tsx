@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     useQuestionBanks,
     useCreateQuestionBank,
@@ -13,6 +13,7 @@ import type {
     QuestionDifficultyLevel,
     QuestionStatus,
     CreateQuestionBankDto,
+    UpdateQuestionBankDto,
 } from '@workspace/dtos';
 
 export function QuestionBankPage() {
@@ -25,7 +26,7 @@ export function QuestionBankPage() {
     const [status, setStatus] = useState<QuestionStatus | ''>('');
     const [category, setCategory] = useState('');
 
-    // Modal state
+    // Create Modal state
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [formData, setFormData] = useState<Partial<CreateQuestionBankDto>>({
         questionText: '',
@@ -34,16 +35,26 @@ export function QuestionBankPage() {
     });
     const [tagsInput, setTagsInput] = useState('');
 
-    // Build query params
+    // Edit Modal state
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editingQuestion, setEditingQuestion] = useState<QuestionBankDto | null>(null);
+    const [editFormData, setEditFormData] = useState<Partial<UpdateQuestionBankDto & { questionText: string; questionType: QuestionType }>>({
+        questionText: '',
+        questionType: 'multiple_choice' as QuestionType,
+        tags: [],
+    });
+    const [editTagsInput, setEditTagsInput] = useState('');
+
+    // Build query params - ensure page and limit are numbers
     const queryParams: QuestionBankQueryDto = {
-        page,
-        limit,
-        ...(search && { search }),
+        page: Number(page) || 1,
+        limit: Number(limit) || 10,
+        ...(search && search.trim() && { search: search.trim() }),
         ...(questionType && { questionType: questionType as QuestionType }),
         ...(jlptLevel && { jlptLevel: jlptLevel as QuestionJlptLevel }),
         ...(difficulty && { difficulty: difficulty as QuestionDifficultyLevel }),
         ...(status && { status: status as QuestionStatus }),
-        ...(category && { category }),
+        ...(category && category.trim() && { category: category.trim() }),
     };
 
     // Queries
@@ -54,8 +65,30 @@ export function QuestionBankPage() {
     const updateQuestionBank = useUpdateQuestionBank();
     const deleteQuestionBank = useDeleteQuestionBank();
 
+    // Update editFormData when editingQuestion changes
+    useEffect(() => {
+        if (editingQuestion) {
+            setEditFormData({
+                questionText: editingQuestion.questionText,
+                questionType: editingQuestion.questionType,
+                jlptLevel: editingQuestion.jlptLevel,
+                category: editingQuestion.category,
+                subcategory: editingQuestion.subcategory,
+                difficulty: editingQuestion.difficulty,
+                options: editingQuestion.options,
+                correctAnswer: editingQuestion.correctAnswer,
+                explanation: editingQuestion.explanation,
+                tags: editingQuestion.tags || [],
+                status: editingQuestion.status,
+            });
+            setEditTagsInput(editingQuestion.tags?.join(', ') || '');
+        }
+    }, [editingQuestion]);
+
     if (isLoading) return <div className="p-4">Loading questions...</div>;
-    if (error) return <div className="p-4 text-red-500">Error: {error.message}</div>;
+    if (error) {
+        return <div className="p-4 text-red-500">Error: {error.message}</div>;
+    }
 
     const questions = (data?.data || []) as QuestionBankDto[];
     const meta = data?.meta;
@@ -124,10 +157,77 @@ export function QuestionBankPage() {
     };
 
     const handleUpdate = (id: string) => {
-        updateQuestionBank.mutate({
-            id,
-            question: { questionText: 'Updated Question Text' },
+        const question = questions.find((q) => q.id === id);
+        if (question) {
+            setEditingQuestion(question);
+            setEditFormData({
+                questionText: question.questionText,
+                questionType: question.questionType,
+                jlptLevel: question.jlptLevel,
+                category: question.category,
+                subcategory: question.subcategory,
+                difficulty: question.difficulty,
+                options: question.options,
+                correctAnswer: question.correctAnswer,
+                explanation: question.explanation,
+                tags: question.tags || [],
+            });
+            setEditTagsInput(question.tags?.join(', ') || '');
+            setIsEditModalOpen(true);
+        }
+    };
+
+    const handleCloseEditModal = () => {
+        setIsEditModalOpen(false);
+        setEditingQuestion(null);
+        setEditFormData({
+            questionText: '',
+            questionType: 'multiple_choice' as QuestionType,
+            tags: [],
         });
+        setEditTagsInput('');
+    };
+
+    const handleSubmitUpdate = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!editingQuestion) return;
+
+        // Parse tags from comma-separated string
+        const tags = editTagsInput
+            .split(',')
+            .map((tag) => tag.trim())
+            .filter((tag) => tag.length > 0);
+
+        const questionData: UpdateQuestionBankDto = {
+            ...(editFormData.questionText && { questionText: editFormData.questionText }),
+            ...(editFormData.questionType && { questionType: editFormData.questionType as QuestionType }),
+            ...(editFormData.jlptLevel && { jlptLevel: editFormData.jlptLevel }),
+            ...(editFormData.category && { category: editFormData.category }),
+            ...(editFormData.subcategory && { subcategory: editFormData.subcategory }),
+            ...(editFormData.difficulty && { difficulty: editFormData.difficulty }),
+            ...(editFormData.options && { options: editFormData.options }),
+            ...(editFormData.correctAnswer && { correctAnswer: editFormData.correctAnswer }),
+            ...(editFormData.explanation && { explanation: editFormData.explanation }),
+            ...(tags.length > 0 && { tags }),
+            ...(editFormData.status && { status: editFormData.status as QuestionStatus }),
+        };
+
+        updateQuestionBank.mutate(
+            {
+                id: editingQuestion.id,
+                question: questionData,
+            },
+            {
+                onSuccess: () => {
+                    handleCloseEditModal();
+                    alert('Question updated successfully!');
+                },
+                onError: (error: any) => {
+                    alert(`Failed to update question: ${error?.response?.data?.message || error.message || 'Unknown error'}`);
+                },
+            }
+        );
     };
 
     const handleDelete = (id: string) => {
@@ -419,6 +519,271 @@ export function QuestionBankPage() {
                         >
                             Next
                         </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Question Modal */}
+            {isEditModalOpen && editingQuestion && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                        <div className="p-6">
+                            <div className="flex justify-between items-center mb-4">
+                                <h2 className="text-2xl font-bold">Edit Question</h2>
+                                <button
+                                    onClick={handleCloseEditModal}
+                                    className="text-gray-500 hover:text-gray-700 text-2xl"
+                                >
+                                    ×
+                                </button>
+                            </div>
+
+                            <form onSubmit={handleSubmitUpdate} className="space-y-4">
+                                {/* Question Text - Required */}
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">
+                                        Question Text <span className="text-red-500">*</span>
+                                    </label>
+                                    <textarea
+                                        value={editFormData.questionText || ''}
+                                        onChange={(e) =>
+                                            setEditFormData({ ...editFormData, questionText: e.target.value })
+                                        }
+                                        required
+                                        rows={3}
+                                        className="w-full px-4 py-2 border rounded"
+                                        placeholder="Enter the question text..."
+                                    />
+                                </div>
+
+                                {/* Question Type - Required */}
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">
+                                        Question Type <span className="text-red-500">*</span>
+                                    </label>
+                                    <select
+                                        value={editFormData.questionType || ''}
+                                        onChange={(e) =>
+                                            setEditFormData({
+                                                ...editFormData,
+                                                questionType: e.target.value as QuestionType,
+                                            })
+                                        }
+                                        required
+                                        className="w-full px-4 py-2 border rounded"
+                                    >
+                                        <option value="multiple_choice">Multiple Choice</option>
+                                        <option value="true_false">True/False</option>
+                                        <option value="fill_blank">Fill Blank</option>
+                                        <option value="matching">Matching</option>
+                                        <option value="essay">Essay</option>
+                                    </select>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    {/* JLPT Level */}
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1">
+                                            JLPT Level
+                                        </label>
+                                        <select
+                                            value={editFormData.jlptLevel || ''}
+                                            onChange={(e) =>
+                                                setEditFormData({
+                                                    ...editFormData,
+                                                    jlptLevel: e.target.value as QuestionJlptLevel,
+                                                })
+                                            }
+                                            className="w-full px-4 py-2 border rounded"
+                                        >
+                                            <option value="">Select Level</option>
+                                            <option value="N5">N5</option>
+                                            <option value="N4">N4</option>
+                                            <option value="N3">N3</option>
+                                            <option value="N2">N2</option>
+                                            <option value="N1">N1</option>
+                                        </select>
+                                    </div>
+
+                                    {/* Difficulty */}
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1">
+                                            Difficulty
+                                        </label>
+                                        <select
+                                            value={editFormData.difficulty || ''}
+                                            onChange={(e) =>
+                                                setEditFormData({
+                                                    ...editFormData,
+                                                    difficulty: e.target.value as QuestionDifficultyLevel,
+                                                })
+                                            }
+                                            className="w-full px-4 py-2 border rounded"
+                                        >
+                                            <option value="">Select Difficulty</option>
+                                            <option value="easy">Easy</option>
+                                            <option value="medium">Medium</option>
+                                            <option value="hard">Hard</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    {/* Category */}
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1">
+                                            Category
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={editFormData.category || ''}
+                                            onChange={(e) =>
+                                                setEditFormData({ ...editFormData, category: e.target.value })
+                                            }
+                                            className="w-full px-4 py-2 border rounded"
+                                            placeholder="Enter category..."
+                                        />
+                                    </div>
+
+                                    {/* Subcategory */}
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1">
+                                            Subcategory
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={editFormData.subcategory || ''}
+                                            onChange={(e) =>
+                                                setEditFormData({ ...editFormData, subcategory: e.target.value })
+                                            }
+                                            className="w-full px-4 py-2 border rounded"
+                                            placeholder="Enter subcategory..."
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Status */}
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Status</label>
+                                    <select
+                                        value={editingQuestion.status || 'active'}
+                                        onChange={(e) =>
+                                            setEditFormData({
+                                                ...editFormData,
+                                                status: e.target.value as QuestionStatus,
+                                            } as any)
+                                        }
+                                        className="w-full px-4 py-2 border rounded"
+                                    >
+                                        <option value="active">Active</option>
+                                        <option value="review">Review</option>
+                                        <option value="archived">Archived</option>
+                                    </select>
+                                </div>
+
+                                {/* Options (for multiple choice) */}
+                                {editFormData.questionType === 'multiple_choice' && (
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1">
+                                            Options (JSON format: {"{A: 'option1', B: 'option2'}"})
+                                        </label>
+                                        <textarea
+                                            value={
+                                                editFormData.options
+                                                    ? JSON.stringify(editFormData.options, null, 2)
+                                                    : ''
+                                            }
+                                            onChange={(e) => {
+                                                try {
+                                                    const parsed = JSON.parse(e.target.value);
+                                                    setEditFormData({ ...editFormData, options: parsed });
+                                                } catch {
+                                                    // Invalid JSON, keep as is for now
+                                                }
+                                            }}
+                                            rows={3}
+                                            className="w-full px-4 py-2 border rounded font-mono text-sm"
+                                            placeholder='{"A": "Option 1", "B": "Option 2", "C": "Option 3"}'
+                                        />
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Enter options as JSON object with keys (A, B, C, etc.)
+                                        </p>
+                                    </div>
+                                )}
+
+                                {/* Correct Answer */}
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">
+                                        Correct Answer
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={editFormData.correctAnswer || ''}
+                                        onChange={(e) =>
+                                            setEditFormData({ ...editFormData, correctAnswer: e.target.value })
+                                        }
+                                        className="w-full px-4 py-2 border rounded"
+                                        placeholder="Enter correct answer..."
+                                    />
+                                </div>
+
+                                {/* Explanation */}
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">
+                                        Explanation
+                                    </label>
+                                    <textarea
+                                        value={editFormData.explanation || ''}
+                                        onChange={(e) =>
+                                            setEditFormData({ ...editFormData, explanation: e.target.value })
+                                        }
+                                        rows={3}
+                                        className="w-full px-4 py-2 border rounded"
+                                        placeholder="Enter explanation for the answer..."
+                                    />
+                                </div>
+
+                                {/* Tags */}
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Tags</label>
+                                    <input
+                                        type="text"
+                                        value={editTagsInput}
+                                        onChange={(e) => setEditTagsInput(e.target.value)}
+                                        className="w-full px-4 py-2 border rounded"
+                                        placeholder="Enter tags separated by commas (e.g., grammar, vocabulary)"
+                                    />
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        Separate multiple tags with commas
+                                    </p>
+                                </div>
+
+                                {/* Error Display */}
+                                {updateQuestionBank.isError && (
+                                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                                        Error: {updateQuestionBank.error?.message || 'Failed to update question'}
+                                    </div>
+                                )}
+
+                                {/* Form Actions */}
+                                <div className="flex justify-end gap-3 pt-4">
+                                    <button
+                                        type="button"
+                                        onClick={handleCloseEditModal}
+                                        className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={updateQuestionBank.isPending}
+                                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+                                    >
+                                        {updateQuestionBank.isPending ? 'Updating...' : 'Update Question'}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             )}
