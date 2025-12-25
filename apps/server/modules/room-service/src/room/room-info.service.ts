@@ -509,7 +509,7 @@ export class RoomInfoService {
     }
 
     /**
-     * UpdateRoomRecordingStatus updates the recording status of a room
+     * updateRoomRecordingStatus updates the recording status of a room
      * 
      * @param roomTableId - Room table ID
      * @param isRecording - Recording status (0 or 1)
