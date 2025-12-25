@@ -26,6 +26,7 @@ import { TrackSource } from '@livekit/protocol';
 import { LiveKitService } from '../livekit/livekit.service';
 import { ROOM_STATUS_ACTIVE, ROOM_STATUS_ENDED } from '../nats/nats-room.service';
 import { RoomDurationService } from '../room/room-duration.service';
+import { RoomInfoService } from '../room/room-info.service';
 import { NatsRoomEventsService } from '../nats/nats-room-events.service';
 
 // Constants
@@ -49,6 +50,7 @@ export class WebhookService {
         private readonly redisRoomService: RedisRoomService,
         private readonly livekitService: LiveKitService,
         private readonly roomDurationService: RoomDurationService,
+        private readonly roomInfoService: RoomInfoService,
         private readonly natsRoomEventsService: NatsRoomEventsService,
         private readonly webhookNotifierService: WebhookNotifierService,
     ) { }
@@ -260,8 +262,12 @@ export class WebhookService {
         event.room.maxParticipants = Number(rInfo.maxParticipants);
         event.room.emptyTimeout = Number(rInfo.emptyTimeout);
 
-        // Note: Participant count managed by LiveKit automatically
-        // TODO: If database tracking needed, implement via RoomInfoService
+        // Increment participant count in database
+        try {
+            await this.roomInfoService.incrementOrDecrementNumParticipants(rInfo.roomSid, '+');
+        } catch (error) {
+            log.error(`Error incrementing participant count: ${error.message}`);
+        }
 
         // Handle internal agent users (ingress, TTS)
         if (participantId.startsWith(INGRESS_USER_ID_PREFIX) || participantId.startsWith(TTS_AGENT_USER_ID_PREFIX)) {
@@ -309,8 +315,12 @@ export class WebhookService {
         event.room.maxParticipants = Number(rInfo.maxParticipants);
         event.room.emptyTimeout = Number(rInfo.emptyTimeout);
 
-        // Note: Participant count managed by LiveKit automatically
-        // TODO: If database tracking needed, implement via RoomInfoService
+        // Decrement participant count in database
+        try {
+            await this.roomInfoService.incrementOrDecrementNumParticipants(rInfo.roomSid, '-');
+        } catch (error) {
+            log.error(`Error decrementing participant count: ${error.message}`);
+        }
 
         // Handle internal agent users (ingress, TTS)
         if (participantId.startsWith(INGRESS_USER_ID_PREFIX) || participantId.startsWith(TTS_AGENT_USER_ID_PREFIX)) {
@@ -322,9 +332,14 @@ export class WebhookService {
         // Send webhook notification
         this.sendToWebhookNotifier(event);
 
-        // Handle speech service usage stat
-        // TODO: Call speech service
-        // await this.speechService.speechServiceUsersUsage(...);
+        // Handle speech service usage stat for sudden disconnection
+        // TODO: Implement when SpeechToTextService is available
+        // await this.speechService.speechServiceUsersUsage(
+        //     rInfo.roomId, 
+        //     rInfo.roomSid, 
+        //     participantId, 
+        //     SpeechServiceUserStatusTasks.SPEECH_TO_TEXT_SESSION_ENDED
+        // );
 
         log.log('Successfully processed participant_left webhook');
 

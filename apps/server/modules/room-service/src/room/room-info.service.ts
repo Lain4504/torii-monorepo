@@ -429,4 +429,201 @@ export class RoomInfoService {
         }
     }
     */
+
+    // ============================================================================
+    // Database Modification Methods
+    // ============================================================================
+
+    /**
+     * InsertOrUpdateRoomInfo inserts or updates room info
+     * 
+     * Will insert if sid doesn't exist, otherwise update if ID is provided
+     * 
+     * @param info - Room info to save
+     * @returns Number of rows affected
+     */
+    async insertOrUpdateRoomInfo(info: {
+        id?: bigint;
+        roomTitle: string;
+        roomId: string;
+        sid: string;
+        joinedParticipants?: number;
+        isRunning?: number;
+        isRecording?: number;
+        isActiveRtmp?: number;
+        webhookUrl?: string;
+        isBreakoutRoom?: boolean;
+        parentRoomId?: string;
+        creationTime?: bigint;
+        created?: Date;
+        modified?: Date;
+        ended?: Date;
+        recorderId?: string;
+        rtmpNodeId?: string;
+    }): Promise<number> {
+        try {
+            // Prisma's upsert based on sid (unique field)
+            const result = await this.prisma.roomInfo.upsert({
+                where: { sid: info.sid },
+                update: {
+                    roomTitle: info.roomTitle,
+                    roomId: info.roomId,
+                    joinedParticipants: info.joinedParticipants ?? 0,
+                    isRunning: info.isRunning ?? 1,
+                    isRecording: info.isRecording ?? 0,
+                    isActiveRtmp: info.isActiveRtmp ?? 0,
+                    webhookUrl: info.webhookUrl,
+                    isBreakoutRoom: (info.isBreakoutRoom ?? false) ? 1 : 0,
+                    parentRoomId: info.parentRoomId,
+                    modified: new Date(),
+                    recorderId: info.recorderId,
+                    rtmpNodeId: info.rtmpNodeId,
+                },
+                create: {
+                    roomTitle: info.roomTitle,
+                    roomId: info.roomId,
+                    sid: info.sid,
+                    joinedParticipants: info.joinedParticipants ?? 0,
+                    isRunning: info.isRunning ?? 1,
+                    isRecording: info.isRecording ?? 0,
+                    isActiveRtmp: info.isActiveRtmp ?? 0,
+                    webhookUrl: info.webhookUrl ?? '',
+                    isBreakoutRoom: (info.isBreakoutRoom ?? false) ? 1 : 0,
+                    parentRoomId: info.parentRoomId ?? '',
+                    creationTime: Number(info.creationTime ?? BigInt(0)),
+                    created: info.created ?? new Date(),
+                    modified: new Date(),
+                    recorderId: info.recorderId ?? '',
+                    rtmpNodeId: info.rtmpNodeId ?? '',
+                },
+            });
+
+            this.logger.log(`Inserted/Updated room info: ${info.roomId}`);
+            return 1; // Prisma upsert always affects 1 row
+        } catch (error) {
+            this.logger.error(`Failed to insert/update room info: ${error.message}`);
+            throw error;
+        }
+    }
+
+    /**
+     * UpdateRoomRecordingStatus updates the recording status of a room
+     * 
+     * @param roomTableId - Room table ID
+     * @param isRecording - Recording status (0 or 1)
+     * @param recorderId - Optional recorder ID
+     * @returns Number of rows affected
+     */
+    async updateRoomRecordingStatus(
+        roomTableId: bigint,
+        isRecording: number,
+        recorderId?: string | null
+    ): Promise<number> {
+        try {
+            const updates: any = {
+                isRecording,
+            };
+
+            if (recorderId !== null && recorderId !== undefined && recorderId !== '') {
+                updates.recorderId = recorderId;
+            }
+
+            const result = await this.prisma.roomInfo.updateMany({
+                where: { id: Number(roomTableId) },
+                data: updates,
+            });
+
+            this.logger.log(`Updated recording status for room ID ${roomTableId}: ${result.count} rows`);
+            return result.count;
+        } catch (error) {
+            this.logger.error(`Failed to update recording status: ${error.message}`);
+            return 0;
+        }
+    }
+
+    /**
+     * UpdateRoomRTMPStatus updates the RTMP status of a room
+     * 
+     * @param roomTableId - Room table ID
+     * @param isActiveRtmp - RTMP active status (0 or 1)
+     * @param rtmpNodeId - Optional RTMP node ID
+     * @returns Number of rows affected
+     */
+    async updateRoomRTMPStatus(
+        roomTableId: bigint,
+        isActiveRtmp: number,
+        rtmpNodeId?: string | null
+    ): Promise<number> {
+        try {
+            const updates: any = {
+                isActiveRtmp,
+            };
+
+            if (rtmpNodeId !== null && rtmpNodeId !== undefined && rtmpNodeId !== '') {
+                updates.rtmpNodeId = rtmpNodeId;
+            }
+
+            const result = await this.prisma.roomInfo.updateMany({
+                where: { id: Number(roomTableId) },
+                data: updates,
+            });
+
+            this.logger.log(`Updated RTMP status for room ID ${roomTableId}: ${result.count} rows`);
+            return result.count;
+        } catch (error) {
+            this.logger.error(`Failed to update RTMP status: ${error.message}`);
+            return 0;
+        }
+    }
+
+    /**
+     * UpdateNumParticipants sets the participant count to a specific number
+     * 
+     * @param roomSid - Room SID from LiveKit
+     * @param num - New participant count
+     * @returns Number of rows affected
+     */
+    async updateNumParticipants(roomSid: string, num: number): Promise<number> {
+        try {
+            const result = await this.prisma.roomInfo.updateMany({
+                where: { sid: roomSid },
+                data: { joinedParticipants: num },
+            });
+
+            this.logger.log(`Updated participant count for room ${roomSid} to ${num}: ${result.count} rows`);
+            return result.count;
+        } catch (error) {
+            this.logger.error(`Failed to update participant count: ${error.message}`);
+            return 0;
+        }
+    }
+
+    /**
+     * IncrementOrDecrementNumParticipants increments or decrements participant count
+     * 
+     * Uses raw SQL for atomic operation with GREATEST to prevent negative values
+     * 
+     * @param roomSid - Room SID from LiveKit
+     * @param operator - "+" to increment, "-" to decrement
+     * @returns Number of rows affected
+     */
+    async incrementOrDecrementNumParticipants(roomSid: string, operator: '+' | '-'): Promise<number> {
+        try {
+            // Use raw SQL for atomic increment/decrement
+            // GREATEST ensures value never goes below 0
+            const operation = operator === '+' ? '+ 1' : '- 1';
+            const result = await this.prisma.$executeRawUnsafe(`
+                UPDATE room_info 
+                SET joined_participants = GREATEST(CAST(joined_participants AS SIGNED) ${operation}, 0)
+                WHERE sid = ?
+            `, roomSid);
+
+            this.logger.log(`${operator === '+' ? 'Incremented' : 'Decremented'} participant count for room ${roomSid}, rows affected: ${result}`);
+            return result;
+        } catch (error) {
+            this.logger.error(`Failed to ${operator === '+' ? 'increment' : 'decrement'} participant count: ${error.message}`);
+            return 0;
+        }
+    }
 }
+
