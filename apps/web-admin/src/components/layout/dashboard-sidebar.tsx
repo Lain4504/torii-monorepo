@@ -13,6 +13,7 @@ import {
   Bell,
   Shield,
   Sparkles,
+  FileQuestion,
 } from "lucide-react"
 
 import { cn } from "@workspace/ui/lib/utils"
@@ -60,6 +61,11 @@ const mainNavItems: NavItem[] = [
     title: "Assessments",
     url: "/assessments",
     icon: ClipboardList,
+  },
+  {
+    title: "Question Bank",
+    url: "/question-bank",
+    icon: FileQuestion,
   },
   {
     title: "Rooms",

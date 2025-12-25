@@ -12,7 +12,7 @@ import {
   QuestionBankListResponseDto,
 } from '@workspace/dtos';
 
-@Controller('question-bank')
+@Controller('api/question-bank')
 export class QuestionBankController {
   constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) {}
 
