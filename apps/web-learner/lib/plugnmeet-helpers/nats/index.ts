@@ -1,5 +1,5 @@
 import { Dispatch } from 'react';
-import { NatsSubjects } from 'plugnmeet-protocol-js';
+import { NatsSubjects } from '@workspace/protocol';
 import { once } from 'es-toolkit';
 
 import ConnectNats from './ConnectNats';

@@ -3,7 +3,7 @@ import {
   RoomUploadedFileMetadata,
   RoomUploadedFileMetadataSchema,
   RoomUploadedFileType,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 
 import UploadFile from './UploadFile';

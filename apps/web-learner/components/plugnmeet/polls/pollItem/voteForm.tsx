@@ -10,7 +10,7 @@ import { create } from '@bufbuild/protobuf';
 import {
   DataMsgBodyType,
   SubmitPollResponseReqSchema,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 
 import { store, useAppDispatch } from '../../../store';
 import {

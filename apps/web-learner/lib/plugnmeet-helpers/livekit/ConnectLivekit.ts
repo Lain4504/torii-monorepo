@@ -24,7 +24,7 @@ import {
   AnalyticsEvents,
   AnalyticsEventType,
   DataMsgBodyType,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 import { toast } from 'react-toastify';
 // @ts-expect-error not an error
 import LkWorker from 'livekit-client/e2ee-worker?worker';

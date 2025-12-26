@@ -7,7 +7,7 @@ import {
   ApproveWaitingUsersReqSchema,
   CommonResponseSchema,
   RemoveParticipantReqSchema,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
 import { store, useAppDispatch } from '../../store';

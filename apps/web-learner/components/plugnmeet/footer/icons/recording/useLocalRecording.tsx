@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LocalTrackPublication, ParticipantEvent, Track } from 'livekit-client';
-import { DataMsgBodyType } from 'plugnmeet-protocol-js';
+import { DataMsgBodyType } from '@workspace/protocol';
 
 import {
   IUseLocalRecordingReturn,

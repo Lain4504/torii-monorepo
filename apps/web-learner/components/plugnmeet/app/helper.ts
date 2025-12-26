@@ -5,7 +5,7 @@ import {
   NatsSubjects,
   VerifyTokenReqSchema,
   VerifyTokenResSchema,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 
 import sendAPIRequest from '../../helpers/api/plugNmeetAPI';
 import { IErrorPageProps } from '../extra-pages/Error';

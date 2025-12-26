@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
   CommonResponseSchema,
   MuteUnMuteTrackReqSchema,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
 import { store, useAppDispatch } from '../../../../../store';

@@ -3,7 +3,7 @@ import {
   AnalyticsEvents,
   AnalyticsEventType,
   DataMsgBodyType,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 
 import { getNatsConn } from '../nats';
 import { updateIsPNMWindowTabVisible } from '../../store/slices/roomSettingsSlice';

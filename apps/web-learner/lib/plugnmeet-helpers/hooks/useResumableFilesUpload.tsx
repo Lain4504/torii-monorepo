@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { uploadResumableFile } from '../fileUpload';
-import { RoomUploadedFileType, UploadedFileRes } from 'plugnmeet-protocol-js';
+import { RoomUploadedFileType, UploadedFileRes } from '@workspace/protocol';
 
 export interface IUseResumableFilesUpload {
   allowedFileTypes: Array<string>;

@@ -5,7 +5,7 @@ import {
   CommonResponseSchema,
   SwitchPresenterReqSchema,
   SwitchPresenterTask,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 import { debounce } from 'es-toolkit';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 import { useTranslation } from 'react-i18next';

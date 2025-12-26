@@ -6,7 +6,7 @@ import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 import {
   CommonResponseSchema,
   UpdateUserLockSettingsReqSchema,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 
 import { store, useAppSelector } from '../../../../../store';
 import { participantsSelector } from '../../../../../store/slices/participantSlice';

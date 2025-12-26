@@ -1,4 +1,4 @@
-import { ChatMessage } from 'plugnmeet-protocol-js';
+import { ChatMessage } from '@workspace/protocol';
 
 import ConnectNats from './ConnectNats';
 import { store } from '../../store';

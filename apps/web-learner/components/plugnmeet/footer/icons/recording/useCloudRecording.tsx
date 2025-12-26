@@ -5,7 +5,7 @@ import {
   CommonResponseSchema,
   RecordingReqSchema,
   RecordingTasks,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
 import { IUseCloudRecordingReturn, RecordingType } from './IRecording';

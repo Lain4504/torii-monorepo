@@ -1,4 +1,4 @@
-import { CloudRecordingVariants } from 'plugnmeet-protocol-js';
+import { CloudRecordingVariants } from '@workspace/protocol';
 
 export enum RecordingEvent {
   NONE = 'none',

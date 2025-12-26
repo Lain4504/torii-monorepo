@@ -1,4 +1,4 @@
-import { AnalyticsEvents, AnalyticsEventType } from 'plugnmeet-protocol-js';
+import { AnalyticsEvents, AnalyticsEventType } from '@workspace/protocol';
 
 import { store } from '../../store';
 import { getNatsConn } from '../../helpers/nats';

@@ -1,4 +1,4 @@
-import { DataChannelMessage, DataMsgBodyType } from 'plugnmeet-protocol-js';
+import { DataChannelMessage, DataMsgBodyType } from '@workspace/protocol';
 
 import { store } from '../../store';
 import {

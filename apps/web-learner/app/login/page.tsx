@@ -142,29 +142,29 @@ export default function LoginPage() {
                 user_id: formData.user_id,
             };
 
-            // Check if room is active
+            // Check if room is active (matches plugNmeet-client login.html lines 530-539)
             const roomActiveRes = await apiService.isRoomActive(formData.room_id);
 
+            // If API call fails, show alert but continue (matches plugNmeet-client line 536-538)
             if (!roomActiveRes.status) {
-                setError(roomActiveRes.msg);
-                setIsLoading(false);
-                return;
+                alert(roomActiveRes.msg);
             }
 
+            // Get room active status
             let isRoomActive = roomActiveRes.is_active || false;
 
-            // Create room if not active
+            // If room is not active, create it (matches plugNmeet-client lines 541-549)
             if (!isRoomActive) {
                 const roomCreateRes = await apiService.createRoom(roomInfo);
                 if (!roomCreateRes.status) {
-                    setError(roomCreateRes.msg);
+                    alert(roomCreateRes.msg);
                     setIsLoading(false);
                     return;
                 }
                 isRoomActive = roomCreateRes.status;
             }
 
-            // Get join token if room is active
+            // If room is active, get join token and redirect (matches plugNmeet-client lines 551-569)
             if (isRoomActive) {
                 const joinTokenRes = await apiService.getJoinToken({
                     room_id: formData.room_id,
@@ -172,11 +172,11 @@ export default function LoginPage() {
                 });
 
                 if (joinTokenRes.status && joinTokenRes.token) {
-                    // Redirect to meeting room (adjust URL as needed)
+                    // Redirect to meeting room (web-learner uses /room route)
                     const baseUrl = window.location.origin;
-                    window.location.href = `${baseUrl}/?access_token=${joinTokenRes.token}`;
+                    window.location.href = `${baseUrl}/room?access_token=${joinTokenRes.token}`;
                 } else {
-                    setError(joinTokenRes.msg);
+                    alert(joinTokenRes.msg);
                 }
             }
         } catch (err) {

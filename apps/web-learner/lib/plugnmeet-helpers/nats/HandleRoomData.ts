@@ -3,7 +3,7 @@ import {
   ChatMessageSchema,
   NatsKvRoomInfo,
   RoomMetadataSchema,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 import { create, fromJsonString } from '@bufbuild/protobuf';
 
 import { ICurrentRoom } from '../../store/slices/interfaces/session';

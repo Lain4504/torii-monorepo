@@ -1,5 +1,5 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ChatMessage } from 'plugnmeet-protocol-js';
+import { ChatMessage } from '@workspace/protocol';
 
 import { RootState } from '..';
 

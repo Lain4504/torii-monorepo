@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import {
   CommonResponseSchema,
   InsightsAIMeetingSummarizationConfigReqSchema,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 
 import { store, useAppSelector } from '../../../store';
 import SettingsSwitch from '../../../helpers/ui/settingsSwitch';

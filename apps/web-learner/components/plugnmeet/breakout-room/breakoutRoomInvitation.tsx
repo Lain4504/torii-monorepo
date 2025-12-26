@@ -10,7 +10,7 @@ import {
 } from '@headlessui/react';
 import { toast } from 'react-toastify';
 import copy from 'copy-text-to-clipboard';
-import { JoinBreakoutRoomReqSchema } from 'plugnmeet-protocol-js';
+import { JoinBreakoutRoomReqSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 
 import { useAppDispatch, useAppSelector } from '../../store';

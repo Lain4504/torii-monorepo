@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { RoomMetadataSchema } from 'plugnmeet-protocol-js';
+import { RoomMetadataSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 
 import {

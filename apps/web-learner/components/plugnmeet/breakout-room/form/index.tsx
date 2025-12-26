@@ -5,7 +5,7 @@ import {
   BreakoutRoomSchema,
   CreateBreakoutRoomsReq,
   CreateBreakoutRoomsReqSchema,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 
 import RoomNumberSelector from './roomNumberSelector';

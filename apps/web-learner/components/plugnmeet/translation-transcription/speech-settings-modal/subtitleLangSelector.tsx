@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { InsightsTranscriptionFeatures } from 'plugnmeet-protocol-js';
+import { InsightsTranscriptionFeatures } from '@workspace/protocol';
 
 import { getSubtitleLangs } from '../helpers/supportedLangs';
 import Dropdown, { ISelectOption } from '../../../helpers/ui/dropdown';

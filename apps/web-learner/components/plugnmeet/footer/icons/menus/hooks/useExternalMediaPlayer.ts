@@ -5,7 +5,7 @@ import {
   CommonResponseSchema,
   ExternalMediaPlayerReqSchema,
   ExternalMediaPlayerTask,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
 import { useAppDispatch, useAppSelector } from '../../../../../store';

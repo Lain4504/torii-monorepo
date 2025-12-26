@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { create } from '@bufbuild/protobuf';
-import { JoinBreakoutRoomReqSchema } from 'plugnmeet-protocol-js';
+import { JoinBreakoutRoomReqSchema } from '@workspace/protocol';
 
 import { useJoinRoomMutation } from '../../../../store/services/breakoutRoomApi';
 import { BreakoutRoomMessage } from '../..';

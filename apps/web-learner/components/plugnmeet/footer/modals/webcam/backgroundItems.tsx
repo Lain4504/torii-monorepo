@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
-import { RoomUploadedFileType } from 'plugnmeet-protocol-js';
+import { RoomUploadedFileType } from '@workspace/protocol';
 
 import {
   BackgroundConfig,

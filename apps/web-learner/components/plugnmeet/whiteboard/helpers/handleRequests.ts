@@ -9,7 +9,7 @@ import {
   AnalyticsEvents,
   AnalyticsEventType,
   DataMsgBodyType,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 
 import { store } from '../../../store';
 import { updateRequestedWhiteboardData } from '../../../store/slices/whiteboard';

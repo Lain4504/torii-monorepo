@@ -4,7 +4,7 @@ import {
   CommonResponseSchema,
   RecordingReqSchema,
   RecordingTasks,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
 import { store, useAppDispatch, useAppSelector } from '../../../store';

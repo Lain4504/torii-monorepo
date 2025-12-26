@@ -7,7 +7,7 @@ import {
   CommonResponseSchema,
   InsightsAITextChatContentSchema,
   InsightsAITextChatRole,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 
 import SendIconSVG from '../../../../assets/Icons/SendIconSVG';
 import { useAutosizeTextArea } from '../../../chat/text-box/useAutosizeTextArea';

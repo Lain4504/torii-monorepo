@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
   CommonResponseSchema,
   UpdateWaitingRoomMessageReqSchema,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
 import { useAppDispatch, useAppSelector } from '../../store';

@@ -5,7 +5,7 @@ import {
   CommonResponseSchema,
   ExternalMediaPlayerReqSchema,
   ExternalMediaPlayerTask,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 
 import { useAppDispatch, useAppSelector } from '../../../store';
 import {

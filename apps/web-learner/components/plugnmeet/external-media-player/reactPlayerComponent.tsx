@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import ReactPlayer from 'react-player';
 import { debounce } from 'es-toolkit';
-import { DataMsgBodyType } from 'plugnmeet-protocol-js';
+import { DataMsgBodyType } from '@workspace/protocol';
 
 import { useAppSelector } from '../../store';
 import { getNatsConn } from '../../helpers/nats';

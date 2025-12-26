@@ -2,7 +2,7 @@ import {
   DataChannelMessage,
   DataMsgBodyType,
   InsightsTranscriptionResultSchema,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 import { ConnectionQuality } from 'livekit-client';
 
 import ConnectNats from './ConnectNats';

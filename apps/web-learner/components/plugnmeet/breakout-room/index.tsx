@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
-import { CreateBreakoutRoomsReq } from 'plugnmeet-protocol-js';
+import { CreateBreakoutRoomsReq } from '@workspace/protocol';
 
 import FormElems from './form';
 import ManageActiveRooms from './manage-active-rooms';

@@ -9,7 +9,7 @@ import {
   PollResponseSchema,
   SubmitPollResponseReq,
   SubmitPollResponseReqSchema,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 
 import { handleProtobufResponse, renewTokenOnError } from './utils';
 import { RootState } from '../index';

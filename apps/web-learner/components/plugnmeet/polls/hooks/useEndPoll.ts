@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { create } from '@bufbuild/protobuf';
-import { ClosePollReqSchema } from 'plugnmeet-protocol-js';
+import { ClosePollReqSchema } from '@workspace/protocol';
 
 import { useClosePollMutation } from '../../../store/services/pollsApi';
 import { useAppDispatch } from '../../../store';

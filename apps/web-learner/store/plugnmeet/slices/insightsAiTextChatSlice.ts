@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { InsightsAITextChatStreamResult } from 'plugnmeet-protocol-js';
+import { InsightsAITextChatStreamResult } from '@workspace/protocol';
 
 export interface IInsightsAITextChatMessage {
   id: string;

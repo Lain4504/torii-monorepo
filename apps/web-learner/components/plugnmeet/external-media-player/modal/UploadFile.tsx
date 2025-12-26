@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { RoomUploadedFileType } from 'plugnmeet-protocol-js';
+import { RoomUploadedFileType } from '@workspace/protocol';
 
 import { uploadResumableFile } from '../../../helpers/fileUpload';
 import { FileIconSVG } from '../../../assets/Icons/FileIconSVG';

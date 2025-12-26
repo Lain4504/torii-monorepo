@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { useTranslation } from 'react-i18next';
 import { create } from '@bufbuild/protobuf';
-import { CreatePollReqSchema } from 'plugnmeet-protocol-js';
+import { CreatePollReqSchema } from '@workspace/protocol';
 
 import { useCreatePollMutation } from '../../../store/services/pollsApi';
 import { CreatePollOptions } from './index';

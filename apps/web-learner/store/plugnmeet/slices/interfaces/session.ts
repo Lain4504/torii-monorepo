@@ -1,4 +1,4 @@
-import { type RoomMetadata, UserMetadata } from 'plugnmeet-protocol-js';
+import { type RoomMetadata, UserMetadata } from '@workspace/protocol';
 
 export enum UserDeviceType {
   MOBILE = 'mobile',

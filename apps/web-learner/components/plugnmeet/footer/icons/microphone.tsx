@@ -13,7 +13,7 @@ import {
   AnalyticsEventType,
   AnalyticsStatus,
   AnalyticsStatusSchema,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 
 import { store, useAppDispatch, useAppSelector } from '../../../store';
 import {

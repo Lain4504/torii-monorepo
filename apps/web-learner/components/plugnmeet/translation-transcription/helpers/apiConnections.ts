@@ -13,7 +13,7 @@ import {
   InsightsTranslateTextReqSchema,
   InsightsTranslateTextResSchema,
   InsightsUserSessionAction,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
 import sendAPIRequest from '../../../helpers/api/plugNmeetAPI';

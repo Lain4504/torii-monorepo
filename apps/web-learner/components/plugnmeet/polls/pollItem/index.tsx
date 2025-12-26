@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PollInfo } from 'plugnmeet-protocol-js';
+import { PollInfo } from '@workspace/protocol';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Disclosure,

@@ -8,7 +8,7 @@ import {
   NatsMsgServerToClientEvents,
   NatsSystemNotificationSchema,
   NatsSystemNotificationTypes,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 
 import { store } from '../../store';
 import {

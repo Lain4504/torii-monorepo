@@ -9,7 +9,7 @@ import {
   NatsUserMetadataUpdateSchema,
   UserMetadata,
   UserMetadataSchema,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 import { create, fromJsonString } from '@bufbuild/protobuf';
 
 import ConnectNats from './ConnectNats';

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
   CloudRecordingVariants,
   RecordingFeatures,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 
 import { RecordingType, SelectedRecordingType } from './IRecording';
 import { store } from '../../../../store';

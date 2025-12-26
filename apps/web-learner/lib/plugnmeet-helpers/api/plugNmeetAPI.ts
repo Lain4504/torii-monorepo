@@ -3,7 +3,7 @@ import {
   CommonResponseSchema,
   NatsMsgClientToServerEvents,
   NatsMsgClientToServerSchema,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 import { create, toBinary } from '@bufbuild/protobuf';
 
 import { getAccessToken, getConfigValue } from '../utils';

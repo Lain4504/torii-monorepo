@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { MenuItem } from '@headlessui/react';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
-import { DataMsgBodyType } from 'plugnmeet-protocol-js';
+import { DataMsgBodyType } from '@workspace/protocol';
 
 import { store, useAppSelector } from '../../../../../store';
 import { participantsSelector } from '../../../../../store/slices/participantSlice';

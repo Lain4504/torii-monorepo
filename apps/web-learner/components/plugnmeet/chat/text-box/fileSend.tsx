@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChatFeatures, RoomUploadedFileType } from 'plugnmeet-protocol-js';
+import { ChatFeatures, RoomUploadedFileType } from '@workspace/protocol';
 
 import { useAppDispatch } from '../../../store';
 import useResumableFilesUpload from '../../../helpers/hooks/useResumableFilesUpload';

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { EndBreakoutRoomReqSchema } from 'plugnmeet-protocol-js';
+import { EndBreakoutRoomReqSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 import { toast } from 'react-toastify';
 

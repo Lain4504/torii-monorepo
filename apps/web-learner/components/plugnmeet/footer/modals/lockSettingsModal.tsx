@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import {
   CommonResponseSchema,
   UpdateUserLockSettingsReqSchema,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 
 import { store, useAppDispatch, useAppSelector } from '../../../store';
 import { updateShowLockSettingsModal } from '../../../store/slices/bottomIconsActivitySlice';

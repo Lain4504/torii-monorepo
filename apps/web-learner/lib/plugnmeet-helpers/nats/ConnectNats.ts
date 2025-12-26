@@ -20,7 +20,7 @@ import {
   NatsMsgServerToClientEvents,
   NatsMsgServerToClientSchema,
   NatsSubjects,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 import {
   create,
   fromBinary,

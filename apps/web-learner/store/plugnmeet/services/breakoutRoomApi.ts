@@ -13,7 +13,7 @@ import {
   IncreaseBreakoutRoomDurationReqSchema,
   JoinBreakoutRoomReq,
   JoinBreakoutRoomReqSchema,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 
 import { RootState } from '..';
 import { handleProtobufResponse, renewTokenOnError } from './utils';

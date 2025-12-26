@@ -2,7 +2,7 @@ import { once } from 'es-toolkit';
 import {
   InsightsServiceType,
   InsightsSupportedLangInfo,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 
 import { getSupportedLanguages } from './apiConnections';
 import { store } from '../../../store';

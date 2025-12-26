@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IncreaseBreakoutRoomDurationReqSchema } from 'plugnmeet-protocol-js';
+import { IncreaseBreakoutRoomDurationReqSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 
 import { useIncreaseDurationMutation } from '../../../../store/services/breakoutRoomApi';

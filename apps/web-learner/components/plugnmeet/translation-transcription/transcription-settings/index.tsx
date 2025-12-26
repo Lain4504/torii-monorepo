@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
-import { InsightsTranscriptionConfigReqSchema } from 'plugnmeet-protocol-js';
+import { InsightsTranscriptionConfigReqSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 
 import { updateDisplaySpeechSettingsModal } from '../../../store/slices/bottomIconsActivitySlice';

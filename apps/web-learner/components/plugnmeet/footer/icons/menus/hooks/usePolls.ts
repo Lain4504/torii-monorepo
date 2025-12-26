@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import {
   ActivatePollsReqSchema,
   CommonResponseSchema,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
 import { useAppDispatch, useAppSelector } from '../../../../../store';

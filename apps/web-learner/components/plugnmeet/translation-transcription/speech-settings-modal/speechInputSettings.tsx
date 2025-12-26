@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { Field, Label, Switch } from '@headlessui/react';
 import { useTranslation } from 'react-i18next';
-import { InsightsTranscriptionFeatures } from 'plugnmeet-protocol-js';
+import { InsightsTranscriptionFeatures } from '@workspace/protocol';
 
 import { speechLangsMap } from '../helpers/supportedLangs';
 import Dropdown from '../../../helpers/ui/dropdown';

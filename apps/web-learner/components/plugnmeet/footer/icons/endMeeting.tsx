@@ -5,7 +5,7 @@ import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 import {
   CommonResponseSchema,
   RoomEndAPIReqSchema,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 import { Button } from '@headlessui/react';
 
 import { store } from '../../../store';

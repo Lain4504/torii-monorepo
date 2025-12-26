@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
   NatsMsgClientToServerEvents,
   NatsMsgClientToServerSchema,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 import clsx from 'clsx';
 

@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
-import { InsightsChatTranslationConfigReqSchema } from 'plugnmeet-protocol-js';
+import { InsightsChatTranslationConfigReqSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 
 import TransLangsSelector from '../transcription-settings/transLangsSelector';

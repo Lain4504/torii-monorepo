@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BroadcastBreakoutRoomMsgReqSchema } from 'plugnmeet-protocol-js';
+import { BroadcastBreakoutRoomMsgReqSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 
 import { useBroadcastBreakoutRoomMsgMutation } from '../../../store/services/breakoutRoomApi';

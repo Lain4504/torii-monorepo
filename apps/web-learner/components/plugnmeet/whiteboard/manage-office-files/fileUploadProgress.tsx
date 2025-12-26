@@ -14,7 +14,7 @@ import {
   AnalyticsEvents,
   AnalyticsEventType,
   RoomUploadedFileType,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 
 import { FileIconSVG } from '../../../assets/Icons/FileIconSVG';
 import { TrashSVG } from '../../../assets/Icons/TrashSVG';

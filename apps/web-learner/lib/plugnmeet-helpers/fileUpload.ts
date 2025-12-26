@@ -7,7 +7,7 @@ import {
   UploadedFileMergeReqSchema,
   UploadedFileRes,
   UploadedFileResSchema,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 import Resumable from 'resumablejs';
 
 import i18n from './i18n';

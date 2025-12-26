@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BreakoutRoomUser, DataMsgBodyType } from 'plugnmeet-protocol-js';
+import { BreakoutRoomUser, DataMsgBodyType } from '@workspace/protocol';
 import { chunk } from 'es-toolkit';
 
 import { generateAvatarInitial } from '../../../../helpers/utils';

@@ -6,7 +6,7 @@ import {
   DisclosurePanel,
 } from '@headlessui/react';
 import { useTranslation } from 'react-i18next';
-import { BreakoutRoom } from 'plugnmeet-protocol-js';
+import { BreakoutRoom } from '@workspace/protocol';
 
 import EndBtn from './endBtn';
 import BreakoutRoomUsers from './users';

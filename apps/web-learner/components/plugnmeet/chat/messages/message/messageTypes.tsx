@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChatMessage } from 'plugnmeet-protocol-js';
+import { ChatMessage } from '@workspace/protocol';
 
 import { formatDate } from '../../utils';
 import { useAppSelector } from '../../../../store';

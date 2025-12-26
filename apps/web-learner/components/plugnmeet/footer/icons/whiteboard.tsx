@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
   ChangeVisibilityRes,
   ChangeVisibilityResSchema,
-} from 'plugnmeet-protocol-js';
+} from '@workspace/protocol';
 import { create, toBinary } from '@bufbuild/protobuf';
 import { debounce } from 'es-toolkit';
 

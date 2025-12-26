@@ -12,7 +12,7 @@ import {
   randomInteger,
   randomString,
 } from '../../../helpers/utils';
-import { RoomUploadedFileType } from 'plugnmeet-protocol-js';
+import { RoomUploadedFileType } from '@workspace/protocol';
 import { store } from '../../../store';
 import { uploadBase64EncodedFile } from '../../../helpers/fileUpload';
 import {

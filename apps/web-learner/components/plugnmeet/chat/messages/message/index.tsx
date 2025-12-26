@@ -1,5 +1,5 @@
 import React, { memo, ReactElement } from 'react';
-import { ChatMessage } from 'plugnmeet-protocol-js';
+import { ChatMessage } from '@workspace/protocol';
 
 import { ICurrentUser } from '../../../../store/slices/interfaces/session';
 import { MyMessage, OtherUserMessage, SystemMessage } from './messageTypes';
