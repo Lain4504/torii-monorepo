@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import {
     Dialog,
     DialogContent,
@@ -25,7 +26,6 @@ import type {
     UpdateQuestionBankDto,
     QuestionBankDto,
 } from '@workspace/dtos';
-import { useQuestionBankForm } from '../../../hooks/useQuestionBankForm';
 
 interface QuestionBankEditDialogProps {
     open: boolean;
@@ -42,15 +42,72 @@ export function QuestionBankEditDialog({
     onSubmit,
     isSubmitting,
 }: QuestionBankEditDialogProps) {
-    const { formData, tagsInput, setTagsInput, updateField, resetForm } =
-        useQuestionBankForm({
-            initialData: question || undefined,
-            onSubmit: () => {}, // Will be handled in custom handleSubmit
-        });
+    // Form state
+    const [formData, setFormData] = useState({
+        questionText: '',
+        questionType: 'multiple_choice' as QuestionType,
+        jlptLevel: undefined as QuestionJlptLevel | undefined,
+        category: '',
+        subcategory: '',
+        difficulty: undefined as QuestionDifficultyLevel | undefined,
+        options: undefined as Record<string, string> | undefined,
+        correctAnswer: '',
+        explanation: '',
+        tags: [] as string[],
+        status: undefined as QuestionStatus | undefined,
+    });
+    const [tagsInput, setTagsInput] = useState('');
+
+    // Update form when question prop changes
+    useEffect(() => {
+        if (question) {
+            setFormData({
+                questionText: question.questionText,
+                questionType: question.questionType,
+                jlptLevel: question.jlptLevel,
+                category: question.category || '',
+                subcategory: question.subcategory || '',
+                difficulty: question.difficulty,
+                options: question.options,
+                correctAnswer: question.correctAnswer || '',
+                explanation: question.explanation || '',
+                tags: question.tags || [],
+                status: question.status,
+            });
+            setTagsInput(question.tags?.join(', ') || '');
+        }
+    }, [question]);
+
+    // Reset form when dialog closes
+    useEffect(() => {
+        if (!open) {
+            setFormData({
+                questionText: '',
+                questionType: 'multiple_choice' as QuestionType,
+                jlptLevel: undefined,
+                category: '',
+                subcategory: '',
+                difficulty: undefined,
+                options: undefined,
+                correctAnswer: '',
+                explanation: '',
+                tags: [],
+                status: undefined,
+            });
+            setTagsInput('');
+        }
+    }, [open]);
+
+    // Update field function
+    const updateField = <K extends keyof typeof formData>(
+        key: K,
+        value: typeof formData[K]
+    ) => {
+        setFormData((prev) => ({ ...prev, [key]: value }));
+    };
 
     const handleClose = () => {
         if (!isSubmitting) {
-            resetForm();
             onOpenChange(false);
         }
     };

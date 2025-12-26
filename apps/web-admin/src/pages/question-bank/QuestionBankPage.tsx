@@ -1,14 +1,23 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
     useQuestionBanks,
     useCreateQuestionBank,
     useUpdateQuestionBank,
     useDeleteQuestionBank,
 } from '../../api';
-import type { QuestionBankDto, CreateQuestionBankDto, UpdateQuestionBankDto } from '@workspace/dtos';
-import { useQuestionBankFilters } from '../../hooks/useQuestionBankFilters';
+import type {
+    QuestionBankDto,
+    CreateQuestionBankDto,
+    UpdateQuestionBankDto,
+    QuestionBankQueryDto,
+    QuestionType,
+    QuestionJlptLevel,
+    QuestionDifficultyLevel,
+    QuestionStatus,
+} from '@workspace/dtos';
+import type { QuestionBankFilters } from '../../types/question-bank';
 import { QuestionBankHeader } from './components/QuestionBankHeader';
-import { QuestionBankFilters } from './components/QuestionBankFilters';
+import { QuestionBankFilters as FiltersComponent } from './components/QuestionBankFilters';
 import { QuestionBankTable } from './components/QuestionBankTable';
 import { QuestionBankCreateDialog } from './components/QuestionBankCreateDialog';
 import { QuestionBankEditDialog } from './components/QuestionBankEditDialog';
@@ -16,15 +25,66 @@ import { QuestionBankViewDialog } from './components/QuestionBankViewDialog';
 import { Button } from '@workspace/ui/components/button';
 
 export function QuestionBankPage() {
-    const {
-        page,
-        filters,
-        queryParams,
-        setPage,
-        updateFilter,
-        resetFilters,
-        hasActiveFilters,
-    } = useQuestionBankFilters();
+    // Filters state
+    const [page, setPage] = useState(1);
+    const [limit] = useState(10);
+    const [filters, setFilters] = useState<QuestionBankFilters>({
+        search: '',
+        questionType: '',
+        jlptLevel: '',
+        difficulty: '',
+        status: '',
+        category: '',
+    });
+
+    // Build query params
+    const queryParams: QuestionBankQueryDto = useMemo(
+        () => ({
+            page: Number(page) || 1,
+            limit: Number(limit) || 10,
+            ...(filters.search && filters.search.trim() && { search: filters.search.trim() }),
+            ...(filters.questionType && { questionType: filters.questionType as QuestionType }),
+            ...(filters.jlptLevel && { jlptLevel: filters.jlptLevel as QuestionJlptLevel }),
+            ...(filters.difficulty && { difficulty: filters.difficulty as QuestionDifficultyLevel }),
+            ...(filters.status && { status: filters.status as QuestionStatus }),
+            ...(filters.category && filters.category.trim() && { category: filters.category.trim() }),
+        }),
+        [page, limit, filters]
+    );
+
+    // Filter functions
+    const updateFilter = <K extends keyof QuestionBankFilters>(
+        key: K,
+        value: QuestionBankFilters[K]
+    ) => {
+        setFilters((prev) => ({ ...prev, [key]: value }));
+        setPage(1); // Reset to first page when filter changes
+    };
+
+    const resetFilters = () => {
+        setFilters({
+            search: '',
+            questionType: '',
+            jlptLevel: '',
+            difficulty: '',
+            status: '',
+            category: '',
+        });
+        setPage(1);
+    };
+
+    const hasActiveFilters = useMemo(
+        () =>
+            Boolean(
+                filters.search ||
+                    filters.questionType ||
+                    filters.jlptLevel ||
+                    filters.difficulty ||
+                    filters.status ||
+                    filters.category
+            ),
+        [filters]
+    );
 
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -112,7 +172,7 @@ export function QuestionBankPage() {
         <div className="p-6">
             <QuestionBankHeader onAddNew={handleCreate} />
 
-            <QuestionBankFilters
+            <FiltersComponent
                 filters={filters}
                 onFilterChange={updateFilter}
                 onReset={resetFilters}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     Dialog,
     DialogContent,
@@ -24,7 +24,6 @@ import type {
     QuestionDifficultyLevel,
     CreateQuestionBankDto,
 } from '@workspace/dtos';
-import { useQuestionBankForm } from '../../../hooks/useQuestionBankForm';
 
 interface QuestionBankCreateDialogProps {
     open: boolean;
@@ -39,16 +38,81 @@ export function QuestionBankCreateDialog({
     onSubmit,
     isSubmitting,
 }: QuestionBankCreateDialogProps) {
-    const { formData, tagsInput, setTagsInput, updateField, resetForm, handleSubmit } =
-        useQuestionBankForm({
-            onSubmit: (data) => {
-                onSubmit(data as CreateQuestionBankDto);
-            },
-        });
+    // Form state
+    const [formData, setFormData] = useState({
+        questionText: '',
+        questionType: 'multiple_choice' as QuestionType,
+        jlptLevel: undefined as QuestionJlptLevel | undefined,
+        category: '',
+        subcategory: '',
+        difficulty: undefined as QuestionDifficultyLevel | undefined,
+        options: undefined as Record<string, string> | undefined,
+        correctAnswer: '',
+        explanation: '',
+        tags: [] as string[],
+    });
+    const [tagsInput, setTagsInput] = useState('');
+
+    // Reset form when dialog closes
+    useEffect(() => {
+        if (!open) {
+            setFormData({
+                questionText: '',
+                questionType: 'multiple_choice' as QuestionType,
+                jlptLevel: undefined,
+                category: '',
+                subcategory: '',
+                difficulty: undefined,
+                options: undefined,
+                correctAnswer: '',
+                explanation: '',
+                tags: [],
+            });
+            setTagsInput('');
+        }
+    }, [open]);
+
+    // Update field function
+    const updateField = <K extends keyof typeof formData>(
+        key: K,
+        value: typeof formData[K]
+    ) => {
+        setFormData((prev) => ({ ...prev, [key]: value }));
+    };
+
+    // Handle submit
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        // Validation
+        if (!formData.questionText || !formData.questionType) {
+            return;
+        }
+
+        // Parse tags from comma-separated string
+        const tags = tagsInput
+            .split(',')
+            .map((tag) => tag.trim())
+            .filter((tag) => tag.length > 0);
+
+        const questionData: CreateQuestionBankDto = {
+            questionText: formData.questionText,
+            questionType: formData.questionType as QuestionType,
+            ...(formData.jlptLevel && { jlptLevel: formData.jlptLevel }),
+            ...(formData.category && { category: formData.category }),
+            ...(formData.subcategory && { subcategory: formData.subcategory }),
+            ...(formData.difficulty && { difficulty: formData.difficulty }),
+            ...(formData.options && { options: formData.options }),
+            ...(formData.correctAnswer && { correctAnswer: formData.correctAnswer }),
+            ...(formData.explanation && { explanation: formData.explanation }),
+            ...(tags.length > 0 && { tags }),
+        };
+
+        onSubmit(questionData);
+    };
 
     const handleClose = () => {
         if (!isSubmitting) {
-            resetForm();
             onOpenChange(false);
         }
     };
