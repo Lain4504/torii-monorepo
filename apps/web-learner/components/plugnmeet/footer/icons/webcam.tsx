@@ -4,21 +4,21 @@ import clsx from 'clsx';
 // oxlint-disable-next-line no-unused-vars
 import { LocalTrack, Track } from 'livekit-client';
 
-import { store, useAppDispatch, useAppSelector } from '../../../store';
+import { store, useAppDispatch, useAppSelector } from '@/store/plugnmeet';
 import {
   updateIsActiveWebcam,
   updateShowVideoShareModal,
   updateVirtualBackground,
-} from '../../../store/slices/bottomIconsActivitySlice';
+} from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
 import ShareWebcamModal from '../modals/webcam';
 import WebcamMenu from './webcam/menu';
-import { updateSelectedVideoDevice } from '../../../store/slices/roomSettingsSlice';
+import { updateSelectedVideoDevice } from '@/store/plugnmeet/slices/roomSettingsSlice';
 import VirtualBackground from '../../virtual-background/virtualBackground';
-import { createEmptyVideoStreamTrack } from '../../../helpers/utils';
-import { getMediaServerConnRoom } from '../../../helpers/livekit/utils';
-import { Camera } from '../../../assets/Icons/Camera';
-import { CameraOff } from '../../../assets/Icons/CameraOff';
-import { PlusIcon } from '../../../assets/Icons/PlusIcon';
+import { createEmptyVideoStreamTrack } from '@/lib/plugnmeet-helpers/utils';
+import { getMediaServerConnRoom } from '@/lib/plugnmeet-helpers/livekit/utils';
+import { Camera } from '@/assets/Icons/Camera';
+import { CameraOff } from '@/assets/Icons/CameraOff';
+import { PlusIcon } from '@/assets/Icons/PlusIcon';
 import useWebcamPublisher from './webcam/useWebcamPublisher';
 import useVirtualBackground from './webcam/useVirtualBackground';
 

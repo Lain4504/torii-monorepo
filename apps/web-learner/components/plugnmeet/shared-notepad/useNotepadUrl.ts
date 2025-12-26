@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useAppSelector } from '../../store';
+import { useAppSelector } from '@/store/plugnmeet';
 
 const getUserColor = () => {
   let userColor = sessionStorage.getItem('shared-notepad-user-color');

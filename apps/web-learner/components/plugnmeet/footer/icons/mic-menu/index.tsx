@@ -3,7 +3,7 @@ import { Menu, MenuButton, Transition } from '@headlessui/react';
 import { Room } from 'livekit-client';
 
 import MicMenuItems from './items';
-import { ArrowUp } from '../../../../assets/Icons/ArrowUp';
+import { ArrowUp } from '@/assets/Icons/ArrowUp';
 
 interface IMicMenuProps {
   currentRoom: Room;

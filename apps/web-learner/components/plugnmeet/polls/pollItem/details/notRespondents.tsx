@@ -7,8 +7,8 @@ import {
   PollDataWithOption,
   Respondents,
 } from '../../utils';
-import { useAppSelector } from '../../../../store';
-import { selectBasicParticipants } from '../../../../store/slices/participantSlice';
+import { useAppSelector } from '@/store/plugnmeet';
+import { selectBasicParticipants } from '@/store/plugnmeet/slices/participantSlice';
 
 interface NotRespondentsProps {
   pollDataWithOption: PollDataWithOption;

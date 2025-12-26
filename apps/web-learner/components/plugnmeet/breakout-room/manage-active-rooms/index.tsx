@@ -4,10 +4,10 @@ import { useTranslation } from 'react-i18next';
 import BroadcastMessageForm from './broadcastMessageForm';
 import RoomLists from './roomLists';
 
-import { useEndAllRoomsMutation } from '../../../store/services/breakoutRoomApi';
+import { useEndAllRoomsMutation } from '@/store/plugnmeet/services/breakoutRoomApi';
 import { BreakoutRoomMessage } from '..';
-import { useAppDispatch } from '../../../store';
-import { updateShowManageBreakoutRoomModal } from '../../../store/slices/bottomIconsActivitySlice';
+import { useAppDispatch } from '@/store/plugnmeet';
+import { updateShowManageBreakoutRoomModal } from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
 
 interface IManageActiveRoomsProps {
   setMessage: (message: BreakoutRoomMessage | null) => void;

@@ -6,7 +6,7 @@ import {
   SegmentationConfig,
 } from '../../helpers/segmentationHelper';
 import { SourcePlayback } from '../../helpers/sourceHelper';
-import { TFLite } from '../../helpers/utils';
+import { loadTFLite, TFLite } from '../../helpers/utils';
 
 export function buildCanvas2dPipeline(
   sourcePlayback: SourcePlayback,

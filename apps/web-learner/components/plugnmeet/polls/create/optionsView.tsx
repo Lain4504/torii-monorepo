@@ -7,8 +7,8 @@ import React, {
 } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { TrashIconSVG } from '../../../assets/Icons/TrashIconSVG';
-import { PlusCircleIconSVG } from '../../../assets/Icons/PlusCircleIconSVG';
+import { TrashIconSVG } from '@/assets/Icons/TrashIconSVG';
+import { PlusCircleIconSVG } from '@/assets/Icons/PlusCircleIconSVG';
 import { CreatePollOptions } from './index';
 
 interface OptionsProps {

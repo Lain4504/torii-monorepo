@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { useAppDispatch, useAppSelector } from '../../store';
-import { updateTheme } from '../../store/slices/roomSettingsSlice';
-import { SunIcon } from '../../assets/Icons/SunIcon';
-import { MoonIcon } from '../../assets/Icons/MoonIcon';
+import { useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import { updateTheme } from '@/store/plugnmeet/slices/roomSettingsSlice';
+import { SunIcon } from '@/assets/Icons/SunIcon';
+import { MoonIcon } from '@/assets/Icons/MoonIcon';
 
 const DarkThemeSwitcher = () => {
   const theme = useAppSelector((state) => state.roomSettings.theme);

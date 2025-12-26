@@ -10,21 +10,21 @@ import {
 } from 'livekit-client';
 
 import { IConnectLivekit } from './types';
-import { store } from '../../store';
+import { store } from '@/store/plugnmeet';
 import {
   participantsSelector,
   updateParticipant,
-} from '../../store/slices/participantSlice';
-import { updateIsMicMuted } from '../../store/slices/bottomIconsActivitySlice';
+} from '@/store/plugnmeet/slices/participantSlice';
+import { updateIsMicMuted } from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
 import {
   ICurrentUser,
   IRoomMetadata,
-} from '../../store/slices/interfaces/session';
-import { updatePinCamUserId } from '../../store/slices/roomSettingsSlice';
+} from '@/store/plugnmeet/slices/interfaces/session';
+import { updatePinCamUserId } from '@/store/plugnmeet/slices/roomSettingsSlice';
 import {
   addOrUpdateSpeaker,
   removeOneSpeaker,
-} from '../../store/slices/activeSpeakersSlice';
+} from '@/store/plugnmeet/slices/activeSpeakersSlice';
 import {
   addAudioStream,
   removeAudioStream,

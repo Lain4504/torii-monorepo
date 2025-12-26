@@ -1,8 +1,8 @@
 import React, { ReactElement, useCallback } from 'react';
 
-import { useAppDispatch } from '../../../../store';
-import { updateIsEnabledExtendedVerticalCamView } from '../../../../store/slices/bottomIconsActivitySlice';
-import { ArrowRight } from '../../../../assets/Icons/ArrowRight';
+import { useAppDispatch } from '@/store/plugnmeet';
+import { updateIsEnabledExtendedVerticalCamView } from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
+import { ArrowRight } from '@/assets/Icons/ArrowRight';
 
 interface IVerticalLayoutProps {
   participantsToRender: Array<ReactElement>;

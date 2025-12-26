@@ -8,12 +8,12 @@ import {
   updateDeviceOrientation,
   updateScreenHeight,
   updateScreenWidth,
-} from '../../store/slices/bottomIconsActivitySlice';
-import { store, useAppDispatch } from '../../store';
-import { updateUserDeviceType } from '../../store/slices/sessionSlice';
-import { UserDeviceType } from '../../store/slices/interfaces/session';
+} from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
+import { store, useAppDispatch } from '@/store/plugnmeet';
+import { updateUserDeviceType } from '@/store/plugnmeet/slices/sessionSlice';
+import { UserDeviceType } from '@/store/plugnmeet/slices/interfaces/session';
 import useStorePreviousInt from './useStorePreviousInt';
-import { triggerRefreshWhiteboard } from '../../store/slices/whiteboard';
+import { triggerRefreshWhiteboard } from '@/store/plugnmeet/slices/whiteboard';
 
 const useWatchWindowSize = (currentRoom: Room | undefined) => {
   const dispatch = useAppDispatch();

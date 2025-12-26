@@ -1,7 +1,7 @@
 import React, { Dispatch, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
-import Dropdown, { ISelectOption } from '../../../helpers/ui/dropdown';
+import Dropdown, { ISelectOption } from '@/lib/plugnmeet-helpers/ui/dropdown';
 import { supportedTranslationLangs } from '../helpers/supportedLangs';
 
 interface TransLangsSelectorProps {

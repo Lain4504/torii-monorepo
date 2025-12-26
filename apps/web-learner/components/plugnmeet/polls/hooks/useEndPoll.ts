@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { create } from '@bufbuild/protobuf';
 import { ClosePollReqSchema } from '@workspace/protocol';
 
-import { useClosePollMutation } from '../../../store/services/pollsApi';
-import { useAppDispatch } from '../../../store';
-import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
+import { useClosePollMutation } from '@/store/plugnmeet/services/pollsApi';
+import { useAppDispatch } from '@/store/plugnmeet';
+import { addUserNotification } from '@/store/plugnmeet/slices/roomSettingsSlice';
 
 export const useEndPoll = () => {
   const { t } = useTranslation();

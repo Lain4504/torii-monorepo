@@ -6,12 +6,12 @@ import {
 } from '@workspace/protocol';
 
 import { RecordingType, SelectedRecordingType } from './IRecording';
-import { store } from '../../../../store';
-import Modal from '../../../../helpers/ui/modal';
-import ActionButton from '../../../../helpers/ui/actionButton';
+import { store } from '@/store/plugnmeet';
+import Modal from '@/lib/plugnmeet-helpers/ui/modal';
+import ActionButton from '@/lib/plugnmeet-helpers/ui/actionButton';
 import RadioOptions, {
   IRadioOption,
-} from '../../../../helpers/ui/radioOptions';
+} from '@/lib/plugnmeet-helpers/ui/radioOptions';
 
 interface IRecordingModalProps {
   showModal: boolean;

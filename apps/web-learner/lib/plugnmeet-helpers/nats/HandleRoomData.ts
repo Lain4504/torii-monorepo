@@ -6,18 +6,18 @@ import {
 } from '@workspace/protocol';
 import { create, fromJsonString } from '@bufbuild/protobuf';
 
-import { ICurrentRoom } from '../../store/slices/interfaces/session';
-import { store } from '../../store';
+import { ICurrentRoom } from '@/store/plugnmeet/slices/interfaces/session';
+import { store } from '@/store/plugnmeet';
 import {
   addCurrentRoom,
   updateCurrentRoomMetadata,
-} from '../../store/slices/sessionSlice';
+} from '@/store/plugnmeet/slices/sessionSlice';
 import i18n from '../i18n';
-import { addChatMessage } from '../../store/slices/chatMessagesSlice';
-import { WhiteboardFileConversionRes } from '../../store/slices/interfaces/whiteboard';
+import { addChatMessage } from '@/store/plugnmeet/slices/chatMessagesSlice';
+import { WhiteboardFileConversionRes } from '@/store/plugnmeet/slices/interfaces/whiteboard';
 import { sleep } from '../utils';
-import { addUserNotification } from '../../store/slices/roomSettingsSlice';
-import { createAndRegisterOfficeFile } from '../../components/whiteboard/helpers/handleFiles';
+import { addUserNotification } from '@/store/plugnmeet/slices/roomSettingsSlice';
+import { createAndRegisterOfficeFile } from '@/components/plugnmeet/whiteboard/helpers/handleFiles';
 
 export default class HandleRoomData {
   private _room: ICurrentRoom;

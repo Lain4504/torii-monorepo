@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { isEmpty } from 'es-toolkit/compat';
 
-import { TextWithInfo } from '../../../store/slices/interfaces/speechServices';
-import { useAppSelector } from '../../../store';
+import { TextWithInfo } from '@/store/plugnmeet/slices/interfaces/speechServices';
+import { useAppSelector } from '@/store/plugnmeet';
 
 const MAX_SUBTITLE_CHARS = 150;
 

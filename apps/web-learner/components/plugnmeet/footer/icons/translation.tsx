@@ -2,9 +2,9 @@ import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 
-import { SpeechIconSVG } from '../../../assets/Icons/SpeechIconSVG';
-import { store, useAppDispatch, useAppSelector } from '../../../store';
-import { updateDisplaySpeechSettingOptionsModal } from '../../../store/slices/bottomIconsActivitySlice';
+import { SpeechIconSVG } from '@/assets/Icons/SpeechIconSVG';
+import { store, useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import { updateDisplaySpeechSettingOptionsModal } from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
 
 const Translation = () => {
   const dispatch = useAppDispatch();

@@ -6,9 +6,9 @@ import {
   getTFLiteModelFileName,
   SegmentationConfig,
 } from './segmentationHelper';
-import { getConfigValue } from '../../../helpers/utils';
+import { getConfigValue } from '@/lib/plugnmeet-helpers/utils';
 
-declare const IS_PRODUCTION: boolean;
+
 declare function createTFLiteModule(): Promise<TFLite>;
 declare function createTFLiteSIMDModule(): Promise<TFLite>;
 
@@ -136,7 +136,7 @@ export const loadTFLite = once(
 );
 
 function displayLog(message?: any, ...optionalParams: any[]) {
-  if (IS_PRODUCTION) {
+  if (process.env.NODE_ENV === 'production') {
     return;
   }
   console.log(message, ...optionalParams);

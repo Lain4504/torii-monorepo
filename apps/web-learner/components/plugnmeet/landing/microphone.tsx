@@ -2,12 +2,12 @@ import React, { SetStateAction } from 'react';
 import { Menu, MenuButton, MenuItem, Transition } from '@headlessui/react';
 import { useTranslation } from 'react-i18next';
 
-import { PlusIcon } from '../../assets/Icons/PlusIcon';
-import { ArrowUp } from '../../assets/Icons/ArrowUp';
-import { CheckMarkIcon } from '../../assets/Icons/CheckMarkIcon';
-import { Microphone } from '../../assets/Icons/Microphone';
-import { IMediaDevice } from '../../store/slices/interfaces/roomSettings';
-import { inputMediaDeviceKind } from '../../helpers/utils';
+import { PlusIcon } from '@/assets/Icons/PlusIcon';
+import { ArrowUp } from '@/assets/Icons/ArrowUp';
+import { CheckMarkIcon } from '@/assets/Icons/CheckMarkIcon';
+import { Microphone } from '@/assets/Icons/Microphone';
+import { IMediaDevice } from '@/store/plugnmeet/slices/interfaces/roomSettings';
+import { inputMediaDeviceKind } from '@/lib/plugnmeet-helpers/utils';
 
 interface MicrophoneIconProps {
   audioDevices: IMediaDevice[];

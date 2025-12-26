@@ -12,15 +12,15 @@ import {
   SubmitPollResponseReqSchema,
 } from '@workspace/protocol';
 
-import { store, useAppDispatch } from '../../../store';
+import { store, useAppDispatch } from '@/store/plugnmeet';
 import {
   useAddResponseMutation,
   useGetUserSelectedOptionQuery,
-} from '../../../store/services/pollsApi';
-import { getNatsConn } from '../../../helpers/nats';
+} from '@/store/plugnmeet/services/pollsApi';
+import { getNatsConn } from '@/lib/plugnmeet-helpers/nats';
 import { PollDataWithOption } from '../utils';
-import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
-import { LoadingIcon } from '../../../assets/Icons/Loading';
+import { addUserNotification } from '@/store/plugnmeet/slices/roomSettingsSlice';
+import { LoadingIcon } from '@/assets/Icons/Loading';
 
 interface PollFormProps {
   pollDataWithOption: PollDataWithOption;

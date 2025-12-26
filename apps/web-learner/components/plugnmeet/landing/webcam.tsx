@@ -2,15 +2,15 @@ import React, { SetStateAction } from 'react';
 import { Menu, MenuButton, MenuItem, Transition } from '@headlessui/react';
 import { useTranslation } from 'react-i18next';
 
-import { Camera } from '../../assets/Icons/Camera';
-import { PlusIcon } from '../../assets/Icons/PlusIcon';
-import { ArrowUp } from '../../assets/Icons/ArrowUp';
-import { CheckMarkIcon } from '../../assets/Icons/CheckMarkIcon';
-import { updateShowVideoShareModal } from '../../store/slices/bottomIconsActivitySlice';
-import { useAppDispatch, useAppSelector } from '../../store';
-import { IMediaDevice } from '../../store/slices/interfaces/roomSettings';
+import { Camera } from '@/assets/Icons/Camera';
+import { PlusIcon } from '@/assets/Icons/PlusIcon';
+import { ArrowUp } from '@/assets/Icons/ArrowUp';
+import { CheckMarkIcon } from '@/assets/Icons/CheckMarkIcon';
+import { updateShowVideoShareModal } from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
+import { useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import { IMediaDevice } from '@/store/plugnmeet/slices/interfaces/roomSettings';
 import ShareWebcamModal from '../footer/modals/webcam';
-import { inputMediaDeviceKind } from '../../helpers/utils';
+import { inputMediaDeviceKind } from '@/lib/plugnmeet-helpers/utils';
 
 interface WebcamIconProps {
   videoDevices: IMediaDevice[];

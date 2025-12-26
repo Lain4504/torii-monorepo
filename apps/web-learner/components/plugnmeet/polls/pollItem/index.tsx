@@ -8,13 +8,13 @@ import {
   DisclosurePanel,
 } from '@headlessui/react';
 
-import { store } from '../../../store';
+import { store } from '@/store/plugnmeet';
 import PollActionsMenu from './pollActionsMenu';
 import PollForm from './voteForm';
 import {
   useGetPollResponsesDetailsQuery,
   useGetPollResponsesResultQuery,
-} from '../../../store/services/pollsApi';
+} from '@/store/plugnmeet/services/pollsApi';
 import { PollDataWithOption } from '../utils';
 import DetailsModal from './details';
 

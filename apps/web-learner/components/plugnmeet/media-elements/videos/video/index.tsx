@@ -5,7 +5,7 @@ import VideoElm from './videoElm';
 import PinWebcam from './pinWebcam';
 import MicStatus from './micStatus';
 import ConnectionStatus from './connectionStatus';
-import { sleep } from '../../../../helpers/utils';
+import { sleep } from '@/lib/plugnmeet-helpers/utils';
 import Participant from './participant';
 
 export interface IVideoComponentProps {

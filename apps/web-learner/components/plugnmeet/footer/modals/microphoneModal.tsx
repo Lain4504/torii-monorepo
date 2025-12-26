@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { getInputMediaDevices } from '../../../helpers/utils';
-import { addAudioDevices } from '../../../store/slices/roomSettingsSlice';
-import { useAppDispatch } from '../../../store';
-import Modal from '../../../helpers/ui/modal';
-import Dropdown from '../../../helpers/ui/dropdown';
-import ActionButton from '../../../helpers/ui/actionButton';
+import { getInputMediaDevices } from '@/lib/plugnmeet-helpers/utils';
+import { addAudioDevices } from '@/store/plugnmeet/slices/roomSettingsSlice';
+import { useAppDispatch } from '@/store/plugnmeet';
+import Modal from '@/lib/plugnmeet-helpers/ui/modal';
+import Dropdown from '@/lib/plugnmeet-helpers/ui/dropdown';
+import ActionButton from '@/lib/plugnmeet-helpers/ui/actionButton';
 
 interface MicrophoneModalProps {
   show: boolean;

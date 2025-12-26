@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { useAppSelector } from '../../store';
+import { useAppSelector } from '@/store/plugnmeet';
 import { getConfigValue, isValidHttpUrl } from '../utils';
 
 interface CustomLogo {

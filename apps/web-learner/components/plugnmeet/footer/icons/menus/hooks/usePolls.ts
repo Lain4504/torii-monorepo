@@ -7,9 +7,9 @@ import {
 } from '@workspace/protocol';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
-import { useAppDispatch, useAppSelector } from '../../../../../store';
-import sendAPIRequest from '../../../../../helpers/api/plugNmeetAPI';
-import { setActiveSidePanel } from '../../../../../store/slices/bottomIconsActivitySlice';
+import { useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import sendAPIRequest from '@/lib/plugnmeet-helpers/api/plugNmeetAPI';
+import { setActiveSidePanel } from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
 
 const usePolls = () => {
   const dispatch = useAppDispatch();

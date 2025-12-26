@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next';
 import useVirtual from 'react-cool-virtual';
 import { marked } from 'marked';
 
-import { setActiveSidePanel } from '../../../../store/slices/bottomIconsActivitySlice';
-import { CloseIconSVG } from '../../../../assets/Icons/CloseIconSVG';
-import { useAppDispatch, useAppSelector } from '../../../../store';
+import { setActiveSidePanel } from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
+import { CloseIconSVG } from '@/assets/Icons/CloseIconSVG';
+import { useAppDispatch, useAppSelector } from '@/store/plugnmeet';
 import {
   AIMessage,
   MyMessage,

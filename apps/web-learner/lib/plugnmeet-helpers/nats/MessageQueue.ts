@@ -2,8 +2,8 @@ import { JetStreamClient, JetStreamError } from '@nats-io/jetstream';
 import { errors } from '@nats-io/nats-core';
 
 import { formatNatsError } from '../utils';
-import { store } from '../../store';
-import { addUserNotification } from '../../store/slices/roomSettingsSlice';
+import { store } from '@/store/plugnmeet';
+import { addUserNotification } from '@/store/plugnmeet/slices/roomSettingsSlice';
 import i18n from '../i18n';
 
 const WAITING = 'WAITING',

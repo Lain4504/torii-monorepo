@@ -1,14 +1,14 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-import languages from '../../../helpers/languages';
-import { useAppDispatch, useAppSelector } from '../../../store';
+import languages from '@/lib/plugnmeet-helpers/languages';
+import { useAppDispatch, useAppSelector } from '@/store/plugnmeet';
 import {
   updateFocusActiveSpeakerWebcam,
   updateTheme,
-} from '../../../store/slices/roomSettingsSlice';
-import SettingsSwitch from '../../../helpers/ui/settingsSwitch';
-import Dropdown from '../../../helpers/ui/dropdown';
+} from '@/store/plugnmeet/slices/roomSettingsSlice';
+import SettingsSwitch from '@/lib/plugnmeet-helpers/ui/settingsSwitch';
+import Dropdown from '@/lib/plugnmeet-helpers/ui/dropdown';
 
 const ApplicationSettings = () => {
   const { t, i18n } = useTranslation();

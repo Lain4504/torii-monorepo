@@ -7,10 +7,10 @@ import {
 } from '@workspace/protocol';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
-import { useAppSelector } from '../../../store';
-import sendAPIRequest from '../../../helpers/api/plugNmeetAPI';
-import { LoadingIcon } from '../../../assets/Icons/Loading';
-import { FileIconSVG } from '../../../assets/Icons/FileIconSVG';
+import { useAppSelector } from '@/store/plugnmeet';
+import sendAPIRequest from '@/lib/plugnmeet-helpers/api/plugNmeetAPI';
+import { LoadingIcon } from '@/assets/Icons/Loading';
+import { FileIconSVG } from '@/assets/Icons/FileIconSVG';
 
 interface IUploadedFileListProps {
   newlyUploadedFile?: RoomUploadedFileMetadata;

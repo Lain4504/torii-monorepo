@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { useAppSelector } from '../../../store';
+import { useAppSelector } from '@/store/plugnmeet';
 import TranslationTranscription from '../../translation-transcription';
 
 export const useTranslationTranscription = () => {

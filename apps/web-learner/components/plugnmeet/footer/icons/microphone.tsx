@@ -15,25 +15,25 @@ import {
   AnalyticsStatusSchema,
 } from '@workspace/protocol';
 
-import { store, useAppDispatch, useAppSelector } from '../../../store';
+import { store, useAppDispatch, useAppSelector } from '@/store/plugnmeet';
 import {
   updateIsActiveMicrophone,
   updateIsMicMuted,
   updateShowMicrophoneModal,
-} from '../../../store/slices/bottomIconsActivitySlice';
+} from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
 import MicMenu from './mic-menu';
 import MicrophoneModal from '../modals/microphoneModal';
-import { updateMuteOnStart } from '../../../store/slices/sessionSlice';
+import { updateMuteOnStart } from '@/store/plugnmeet/slices/sessionSlice';
 import {
   addAudioDevices,
   updateSelectedAudioDevice,
-} from '../../../store/slices/roomSettingsSlice';
-import { getAudioPreset, getInputMediaDevices } from '../../../helpers/utils';
-import { getMediaServerConnRoom } from '../../../helpers/livekit/utils';
-import { getNatsConn } from '../../../helpers/nats';
-import { Microphone } from '../../../assets/Icons/Microphone';
-import { MicrophoneOff } from '../../../assets/Icons/MicrophoneOff';
-import { PlusIcon } from '../../../assets/Icons/PlusIcon';
+} from '@/store/plugnmeet/slices/roomSettingsSlice';
+import { getAudioPreset, getInputMediaDevices } from '@/lib/plugnmeet-helpers/utils';
+import { getMediaServerConnRoom } from '@/lib/plugnmeet-helpers/livekit/utils';
+import { getNatsConn } from '@/lib/plugnmeet-helpers/nats';
+import { Microphone } from '@/assets/Icons/Microphone';
+import { MicrophoneOff } from '@/assets/Icons/MicrophoneOff';
+import { PlusIcon } from '@/assets/Icons/PlusIcon';
 
 const MicrophoneIcon = () => {
   const dispatch = useAppDispatch();

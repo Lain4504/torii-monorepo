@@ -38,24 +38,24 @@ import {
 import { jetstream, JetStreamClient, JsMsg } from '@nats-io/jetstream';
 import { isE2EESupported } from 'livekit-client';
 
-import { IErrorPageProps } from '../../components/extra-pages/Error';
+import { IErrorPageProps } from '@/components/plugnmeet/extra-pages/Error';
 import { IConnectLivekit } from '../livekit/types';
 import HandleRoomData from './HandleRoomData';
 import HandleParticipants from './HandleParticipants';
 import HandleDataMessage from './HandleDataMessage';
 import HandleWhiteboard from './HandleWhiteboard';
 import HandleChat from './HandleChat';
-import { store } from '../../store';
+import { store } from '@/store/plugnmeet';
 import HandleSystemData from './HandleSystemData';
 import i18n from '../i18n';
-import { addToken } from '../../store/slices/sessionSlice';
+import { addToken } from '@/store/plugnmeet/slices/sessionSlice';
 import MessageQueue from './MessageQueue';
 import {
   decryptDataFromUint8Array,
   encryptDataToUint8Array,
   importSecretKeyFromPlainText,
 } from '../libs/cryptoMessages';
-import { ICurrentRoom } from '../../store/slices/interfaces/session';
+import { ICurrentRoom } from '@/store/plugnmeet/slices/interfaces/session';
 import {
   formatNatsError,
   getWhiteboardDonors,
@@ -68,8 +68,8 @@ import {
   addUserNotification,
   setAllUserNotifications,
   updateIsNatsServerConnected,
-} from '../../store/slices/roomSettingsSlice';
-import { roomConnectionStatus } from '../../components/app/helper';
+} from '@/store/plugnmeet/slices/roomSettingsSlice';
+import { roomConnectionStatus } from '@/components/plugnmeet/app/helper';
 import { destroyAudioManager } from '../libs/AudioActivityManager';
 import {
   DB_STORE_NAMES,
@@ -78,15 +78,15 @@ import {
   idbGetAll,
   initIDB,
 } from '../libs/idb';
-import { addAllChatMessages } from '../../store/slices/chatMessagesSlice';
-import { UserNotification } from '../../store/slices/interfaces/roomSettings';
+import { addAllChatMessages } from '@/store/plugnmeet/slices/chatMessagesSlice';
+import { UserNotification } from '@/store/plugnmeet/slices/interfaces/roomSettings';
 import {
   SELECTED_SUBTITLE_LANG_KEY,
   TextWithInfo,
-} from '../../store/slices/interfaces/speechServices';
-import { setSpeechToTextLastFinalTexts } from '../../store/slices/speechServicesSlice';
+} from '@/store/plugnmeet/slices/interfaces/speechServices';
+import { setSpeechToTextLastFinalTexts } from '@/store/plugnmeet/slices/speechServicesSlice';
 import { createLivekitConnection } from '../livekit/utils';
-import { executeChatTranslation } from '../../components/translation-transcription/helpers/apiConnections';
+import { executeChatTranslation } from '@/components/plugnmeet/translation-transcription/helpers/apiConnections';
 
 const RENEW_TOKEN_FREQUENT = 3 * 60 * 1000;
 const PING_INTERVAL = 60 * 1000;

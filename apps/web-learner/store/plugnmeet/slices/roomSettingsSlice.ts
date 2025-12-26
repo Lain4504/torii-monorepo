@@ -12,8 +12,8 @@ import {
   UserNotification,
   VideoObjectFit,
 } from './interfaces/roomSettings';
-import { AzureTokenInfo } from '../../components/translation-transcription/helpers/apiConnections';
-import { DB_STORE_NAMES, idbStore } from '../../helpers/libs/idb';
+import { AzureTokenInfo } from '@/components/plugnmeet/translation-transcription/helpers/apiConnections';
+import { DB_STORE_NAMES, idbStore } from '@/lib/plugnmeet-helpers/libs/idb';
 
 const initialState: IRoomSettings = {
   isShowRoomSettingsModal: false,

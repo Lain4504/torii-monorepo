@@ -7,16 +7,16 @@ import {
 } from '@workspace/protocol';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
-import { store, useAppDispatch, useAppSelector } from '../../../store';
-import { updateShowRtmpModal } from '../../../store/slices/bottomIconsActivitySlice';
-import sendAPIRequest from '../../../helpers/api/plugNmeetAPI';
-import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
-import Dropdown from '../../../helpers/ui/dropdown';
-import FormattedInputField from '../../../helpers/ui/formattedInputField';
-import ConfirmationModal from '../../../helpers/ui/confirmationModal';
-import ActionButton from '../../../helpers/ui/actionButton';
-import Modal from '../../../helpers/ui/modal';
-import { getConfigValue } from '../../../helpers/utils';
+import { store, useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import { updateShowRtmpModal } from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
+import sendAPIRequest from '@/lib/plugnmeet-helpers/api/plugNmeetAPI';
+import { addUserNotification } from '@/store/plugnmeet/slices/roomSettingsSlice';
+import Dropdown from '@/lib/plugnmeet-helpers/ui/dropdown';
+import FormattedInputField from '@/lib/plugnmeet-helpers/ui/formattedInputField';
+import ConfirmationModal from '@/lib/plugnmeet-helpers/ui/confirmationModal';
+import ActionButton from '@/lib/plugnmeet-helpers/ui/actionButton';
+import Modal from '@/lib/plugnmeet-helpers/ui/modal';
+import { getConfigValue } from '@/lib/plugnmeet-helpers/utils';
 
 const RtmpModal = () => {
   const dispatch = useAppDispatch();

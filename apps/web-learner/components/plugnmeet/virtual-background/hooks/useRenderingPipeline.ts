@@ -8,8 +8,8 @@ import { SourcePlayback } from '../helpers/sourceHelper';
 import { createTimerWorker } from '../helpers/timerHelper';
 import { buildWebGL2Pipeline } from '../pipelines/webgl2/webgl2Pipeline';
 import { buildCanvas2dPipeline } from '../pipelines/canvas2d/canvas2dPipeline';
-import { TFLite } from '../helpers/utils';
-declare const IS_PRODUCTION: boolean;
+import { loadTFLite, TFLite } from '../helpers/utils';
+
 
 function useRenderingPipeline(
   sourcePlayback: SourcePlayback,
@@ -40,24 +40,24 @@ function useRenderingPipeline(
     const newPipeline =
       segmentationConfig.pipeline === 'webgl2'
         ? buildWebGL2Pipeline(
-            sourcePlayback,
-            backgroundImageRef.current,
-            backgroundConfig,
-            segmentationConfig,
-            canvasRef.current,
-            tflite,
-            timerWorker,
-            addFrameEvent,
-          )
+          sourcePlayback,
+          backgroundImageRef.current,
+          backgroundConfig,
+          segmentationConfig,
+          canvasRef.current,
+          tflite,
+          timerWorker,
+          addFrameEvent,
+        )
         : buildCanvas2dPipeline(
-            sourcePlayback,
-            backgroundConfig,
-            segmentationConfig,
-            canvasRef.current,
-            bodyPix,
-            tflite,
-            addFrameEvent,
-          );
+          sourcePlayback,
+          backgroundConfig,
+          segmentationConfig,
+          canvasRef.current,
+          bodyPix,
+          tflite,
+          addFrameEvent,
+        );
 
     async function render() {
       const startTime = performance.now();
@@ -97,7 +97,7 @@ function useRenderingPipeline(
     }
 
     render();
-    if (!IS_PRODUCTION) {
+    if (process.env.NODE_ENV !== 'production') {
       console.log(
         'Animation started:',
         sourcePlayback,
@@ -112,7 +112,7 @@ function useRenderingPipeline(
       timerWorker.clearTimeout(renderTimeoutId);
       timerWorker.terminate();
       newPipeline.cleanUp();
-      if (!IS_PRODUCTION) {
+      if (process.env.NODE_ENV !== 'production') {
         console.log(
           'Animation stopped:',
           sourcePlayback,

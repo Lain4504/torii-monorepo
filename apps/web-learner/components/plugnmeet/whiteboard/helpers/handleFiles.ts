@@ -11,17 +11,17 @@ import {
   getConfigValue,
   randomInteger,
   randomString,
-} from '../../../helpers/utils';
+} from '@/lib/plugnmeet-helpers/utils';
 import { RoomUploadedFileType } from '@workspace/protocol';
-import { store } from '../../../store';
-import { uploadBase64EncodedFile } from '../../../helpers/fileUpload';
+import { store } from '@/store/plugnmeet';
+import { uploadBase64EncodedFile } from '@/lib/plugnmeet-helpers/fileUpload';
 import {
   IWhiteboardFile,
   IWhiteboardOfficeFile,
   WhiteboardFileConversionRes,
-} from '../../../store/slices/interfaces/whiteboard';
-import { DB_STORE_NAMES, idbGet, idbStore } from '../../../helpers/libs/idb';
-import { addWhiteboardUploadedOfficeFile } from '../../../store/slices/whiteboard';
+} from '@/store/plugnmeet/slices/interfaces/whiteboard';
+import { DB_STORE_NAMES, idbGet, idbStore } from '@/lib/plugnmeet-helpers/libs/idb';
+import { addWhiteboardUploadedOfficeFile } from '@/store/plugnmeet/slices/whiteboard';
 
 export interface FileReaderResult {
   image: BinaryFileData;

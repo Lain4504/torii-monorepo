@@ -7,18 +7,18 @@ import {
   ExternalMediaPlayerTask,
 } from '@workspace/protocol';
 
-import { useAppDispatch, useAppSelector } from '../../../store';
+import { useAppDispatch, useAppSelector } from '@/store/plugnmeet';
 import {
   updateIsActiveWhiteboard,
   updateShowExternalMediaPlayerModal,
-} from '../../../store/slices/bottomIconsActivitySlice';
+} from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
 
 import DirectLink from './directLink';
 import Upload from './upload';
-import Modal from '../../../helpers/ui/modal';
-import Tabs from '../../../helpers/ui/tabs';
-import ActionButton from '../../../helpers/ui/actionButton';
-import sendAPIRequest from '../../../helpers/api/plugNmeetAPI';
+import Modal from '@/lib/plugnmeet-helpers/ui/modal';
+import Tabs from '@/lib/plugnmeet-helpers/ui/tabs';
+import ActionButton from '@/lib/plugnmeet-helpers/ui/actionButton';
+import sendAPIRequest from '@/lib/plugnmeet-helpers/api/plugNmeetAPI';
 
 const ExternalMediaPlayerModal = () => {
   const dispatch = useAppDispatch();

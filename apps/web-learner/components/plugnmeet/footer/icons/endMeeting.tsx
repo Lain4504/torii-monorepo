@@ -8,11 +8,11 @@ import {
 } from '@workspace/protocol';
 import { Button } from '@headlessui/react';
 
-import { store } from '../../../store';
-import sendAPIRequest from '../../../helpers/api/plugNmeetAPI';
-import { getNatsConn } from '../../../helpers/nats';
-import ConfirmationModal from '../../../helpers/ui/confirmationModal';
-import { EndMeetingIconSVG } from '../../../assets/Icons/EndMeetingIconSVG';
+import { store } from '@/store/plugnmeet';
+import sendAPIRequest from '@/lib/plugnmeet-helpers/api/plugNmeetAPI';
+import { getNatsConn } from '@/lib/plugnmeet-helpers/nats';
+import ConfirmationModal from '@/lib/plugnmeet-helpers/ui/confirmationModal';
+import { EndMeetingIconSVG } from '@/assets/Icons/EndMeetingIconSVG';
 
 const EndMeetingButton = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);

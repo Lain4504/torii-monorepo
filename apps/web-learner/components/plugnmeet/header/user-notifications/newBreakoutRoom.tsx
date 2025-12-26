@@ -4,12 +4,12 @@ import { create } from '@bufbuild/protobuf';
 import copy from 'copy-text-to-clipboard';
 import { JoinBreakoutRoomReqSchema } from '@workspace/protocol';
 
-import { store, useAppDispatch } from '../../../store';
-import { useJoinRoomMutation } from '../../../store/services/breakoutRoomApi';
-import { updateReceivedInvitationFor } from '../../../store/slices/breakoutRoomSlice';
-import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
-import ActionButton from '../../../helpers/ui/actionButton';
-import { BreakoutRoomIconSVG } from '../../../assets/Icons/BreakoutRoomIconSVG';
+import { store, useAppDispatch } from '@/store/plugnmeet';
+import { useJoinRoomMutation } from '@/store/plugnmeet/services/breakoutRoomApi';
+import { updateReceivedInvitationFor } from '@/store/plugnmeet/slices/breakoutRoomSlice';
+import { addUserNotification } from '@/store/plugnmeet/slices/roomSettingsSlice';
+import ActionButton from '@/lib/plugnmeet-helpers/ui/actionButton';
+import { BreakoutRoomIconSVG } from '@/assets/Icons/BreakoutRoomIconSVG';
 
 interface NewBreakoutRoomProps {
   receivedInvitationFor: string | undefined;

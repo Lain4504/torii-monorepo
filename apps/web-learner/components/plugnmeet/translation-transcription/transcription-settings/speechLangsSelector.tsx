@@ -1,6 +1,6 @@
 import React, { Dispatch, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import Dropdown, { ISelectOption } from '../../../helpers/ui/dropdown';
+import Dropdown, { ISelectOption } from '@/lib/plugnmeet-helpers/ui/dropdown';
 import { supportedTranscriptionLangs } from '../helpers/supportedLangs';
 
 interface SpeechLangsSelectorProps {

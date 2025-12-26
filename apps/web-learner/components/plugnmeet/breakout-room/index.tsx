@@ -5,11 +5,11 @@ import { CreateBreakoutRoomsReq } from '@workspace/protocol';
 
 import FormElems from './form';
 import ManageActiveRooms from './manage-active-rooms';
-import Modal from '../../helpers/ui/modal';
+import Modal from '@/lib/plugnmeet-helpers/ui/modal';
 
-import { useAppDispatch, useAppSelector } from '../../store';
-import { updateShowManageBreakoutRoomModal } from '../../store/slices/bottomIconsActivitySlice';
-import { useCreateBreakoutRoomsMutation } from '../../store/services/breakoutRoomApi';
+import { useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import { updateShowManageBreakoutRoomModal } from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
+import { useCreateBreakoutRoomsMutation } from '@/store/plugnmeet/services/breakoutRoomApi';
 
 export interface BreakoutRoomMessage {
   text: string;

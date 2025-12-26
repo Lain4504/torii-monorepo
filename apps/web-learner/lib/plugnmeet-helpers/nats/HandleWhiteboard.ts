@@ -1,6 +1,6 @@
 import { DataChannelMessage, DataMsgBodyType } from '@workspace/protocol';
 
-import { store } from '../../store';
+import { store } from '@/store/plugnmeet';
 import {
   setWhiteboardCurrentPage,
   triggerWhiteboardReset,
@@ -9,7 +9,7 @@ import {
   updateExcalidrawElements,
   updateMouseAppStateChanges,
   updateMousePointerLocation,
-} from '../../store/slices/whiteboard';
+} from '@/store/plugnmeet/slices/whiteboard';
 
 export default class HandleWhiteboard {
   public handleWhiteboardMsg = async (payload: DataChannelMessage) => {

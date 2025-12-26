@@ -2,10 +2,10 @@ import React from 'react';
 import { createSelector } from '@reduxjs/toolkit';
 import { useTranslation } from 'react-i18next';
 
-import { useAppDispatch, useAppSelector } from '../../store';
-import { updateShowManageWaitingRoomModal } from '../../store/slices/bottomIconsActivitySlice';
-import { participantsSelector } from '../../store/slices/participantSlice';
-import Modal from '../../helpers/ui/modal';
+import { useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import { updateShowManageWaitingRoomModal } from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
+import { participantsSelector } from '@/store/plugnmeet/slices/participantSlice';
+import Modal from '@/lib/plugnmeet-helpers/ui/modal';
 import UpdateRoomMessage from './updateRoomMessage';
 import BulkAction from './bulkAction';
 import ParticipantsList from './participantsList';

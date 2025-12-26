@@ -1,8 +1,8 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { IParticipant } from '../../store/slices/interfaces/participant';
-import sendAPIRequest from '../../helpers/api/plugNmeetAPI';
+import { IParticipant } from '@/store/plugnmeet/slices/interfaces/participant';
+import sendAPIRequest from '@/lib/plugnmeet-helpers/api/plugNmeetAPI';
 import {
   ApproveWaitingUsersReqSchema,
   CommonResponseSchema,
@@ -10,8 +10,8 @@ import {
 } from '@workspace/protocol';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
-import { store, useAppDispatch } from '../../store';
-import { addUserNotification } from '../../store/slices/roomSettingsSlice';
+import { store, useAppDispatch } from '@/store/plugnmeet';
+import { addUserNotification } from '@/store/plugnmeet/slices/roomSettingsSlice';
 
 interface IBulkActionProps {
   waitingParticipants: IParticipant[];

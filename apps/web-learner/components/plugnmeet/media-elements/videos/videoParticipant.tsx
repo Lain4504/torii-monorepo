@@ -2,10 +2,10 @@ import React, { useMemo, useState } from 'react';
 import { LocalParticipant, RemoteParticipant, Track } from 'livekit-client';
 
 import VideoComponent from './video';
-import { useAppSelector } from '../../../store';
-import { selectIsSpeakingByUserId } from '../../../store/slices/activeSpeakersSlice';
+import { useAppSelector } from '@/store/plugnmeet';
+import { selectIsSpeakingByUserId } from '@/store/plugnmeet/slices/activeSpeakersSlice';
 import { VideoParticipantType } from './';
-import { RepeatIconSVG } from '../../../assets/Icons/RepeatIconSVG';
+import { RepeatIconSVG } from '@/assets/Icons/RepeatIconSVG';
 
 export interface VideoParticipantProps {
   participantType: VideoParticipantType;

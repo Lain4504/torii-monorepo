@@ -2,9 +2,9 @@ import React, { Dispatch, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { isEmpty } from 'es-toolkit/compat';
 
-import { getInputMediaDevices } from '../../../helpers/utils';
-import { IMediaDevice } from '../../../store/slices/interfaces/roomSettings';
-import Dropdown from '../../../helpers/ui/dropdown';
+import { getInputMediaDevices } from '@/lib/plugnmeet-helpers/utils';
+import { IMediaDevice } from '@/store/plugnmeet/slices/interfaces/roomSettings';
+import Dropdown from '@/lib/plugnmeet-helpers/ui/dropdown';
 
 interface IMicSelectorProps {
   disabled: boolean;

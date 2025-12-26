@@ -2,14 +2,14 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { VideoQuality } from 'livekit-client';
 
-import { useAppDispatch, useAppSelector } from '../../../store';
+import { useAppDispatch, useAppSelector } from '@/store/plugnmeet';
 import {
   updateActivateWebcamsView,
   updateActiveScreenSharingView,
   updateRoomVideoQuality,
-} from '../../../store/slices/roomSettingsSlice';
-import SettingsSwitch from '../../../helpers/ui/settingsSwitch';
-import Dropdown from '../../../helpers/ui/dropdown';
+} from '@/store/plugnmeet/slices/roomSettingsSlice';
+import SettingsSwitch from '@/lib/plugnmeet-helpers/ui/settingsSwitch';
+import Dropdown from '@/lib/plugnmeet-helpers/ui/dropdown';
 
 const DataSavings = () => {
   const dispatch = useAppDispatch();

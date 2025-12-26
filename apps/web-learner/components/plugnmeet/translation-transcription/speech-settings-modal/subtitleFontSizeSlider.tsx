@@ -2,9 +2,9 @@ import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { throttle } from 'es-toolkit/compat';
 
-import { useAppDispatch, useAppSelector } from '../../../store';
-import { updateSubtitleFontSize } from '../../../store/slices/speechServicesSlice';
-import RangeSlider from '../../../helpers/ui/rangeSlider';
+import { useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import { updateSubtitleFontSize } from '@/store/plugnmeet/slices/speechServicesSlice';
+import RangeSlider from '@/lib/plugnmeet-helpers/ui/rangeSlider';
 
 const SubtitleFontSizeSlider = () => {
   const { t } = useTranslation();

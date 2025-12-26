@@ -2,15 +2,15 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Menu, MenuButton, MenuItems, Transition } from '@headlessui/react';
 import { debounce } from 'es-toolkit';
 
-import { useAppDispatch, useAppSelector } from '../../../../store';
+import { useAppDispatch, useAppSelector } from '@/store/plugnmeet';
 import {
   participantsSelector,
   updateParticipant,
-} from '../../../../store/slices/participantSlice';
-import { Microphone } from '../../../../assets/Icons/Microphone';
-import { MicrophoneOff } from '../../../../assets/Icons/MicrophoneOff';
+} from '@/store/plugnmeet/slices/participantSlice';
+import { Microphone } from '@/assets/Icons/Microphone';
+import { MicrophoneOff } from '@/assets/Icons/MicrophoneOff';
 import IconWrapper from './iconWrapper';
-import RangeSlider from '../../../../helpers/ui/rangeSlider';
+import RangeSlider from '@/lib/plugnmeet-helpers/ui/rangeSlider';
 
 interface MicIconProps {
   userId: string;

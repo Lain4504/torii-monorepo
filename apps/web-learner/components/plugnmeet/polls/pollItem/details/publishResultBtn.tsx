@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { PollDataWithOption, publishPollResultByChat } from '../../utils';
-import ActionButton from '../../../../helpers/ui/actionButton';
+import ActionButton from '@/lib/plugnmeet-helpers/ui/actionButton';
 
 interface PublishResultBtnProps {
   pollDataWithOption: PollDataWithOption;

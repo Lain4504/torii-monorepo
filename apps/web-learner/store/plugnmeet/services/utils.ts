@@ -1,5 +1,5 @@
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
-import { requestToRenewPnmToken } from '../../helpers/api/plugNmeetAPI';
+import { requestToRenewPnmToken } from '@/lib/plugnmeet-helpers/api/plugNmeetAPI';
 import { fromBinary, toJson } from '@bufbuild/protobuf';
 
 export function renewTokenOnError(response: FetchBaseQueryError) {

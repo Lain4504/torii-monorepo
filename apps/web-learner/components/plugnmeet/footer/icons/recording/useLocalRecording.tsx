@@ -8,10 +8,10 @@ import {
   RecordingEvent,
   RecordingType,
 } from './IRecording';
-import { store, useAppDispatch } from '../../../../store';
-import { getMediaServerConnRoom } from '../../../../helpers/livekit/utils';
-import { getNatsConn } from '../../../../helpers/nats';
-import { addUserNotification } from '../../../../store/slices/roomSettingsSlice';
+import { store, useAppDispatch } from '@/store/plugnmeet';
+import { getMediaServerConnRoom } from '@/lib/plugnmeet-helpers/livekit/utils';
+import { getNatsConn } from '@/lib/plugnmeet-helpers/nats';
+import { addUserNotification } from '@/store/plugnmeet/slices/roomSettingsSlice';
 
 const useLocalRecording = (): IUseLocalRecordingReturn => {
   const currentRoom = getMediaServerConnRoom();

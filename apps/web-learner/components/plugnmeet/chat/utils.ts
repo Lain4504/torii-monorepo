@@ -1,8 +1,8 @@
 import { AnalyticsEvents, AnalyticsEventType } from '@workspace/protocol';
 
-import { store } from '../../store';
-import { getNatsConn } from '../../helpers/nats';
-import { getConfigValue } from '../../helpers/utils';
+import { store } from '@/store/plugnmeet';
+import { getNatsConn } from '@/lib/plugnmeet-helpers/nats';
+import { getConfigValue } from '@/lib/plugnmeet-helpers/utils';
 
 export const publishFileAttachmentToChat = async (
   filePath: string,

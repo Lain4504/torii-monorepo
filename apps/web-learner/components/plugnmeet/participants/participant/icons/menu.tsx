@@ -10,8 +10,8 @@ import RemoveUserMenuItem from './menu-items/removeUser';
 import PrivateChatMenuItem from './menu-items/privateChat';
 import IconWrapper from './iconWrapper';
 
-import { useAppSelector } from '../../../../store';
-import { ParticipantsMenuIconSVG } from '../../../../assets/Icons/ParticipantsMenuIconSVG';
+import { useAppSelector } from '@/store/plugnmeet';
+import { ParticipantsMenuIconSVG } from '@/assets/Icons/ParticipantsMenuIconSVG';
 
 interface IMenuIconProps {
   userId: string;

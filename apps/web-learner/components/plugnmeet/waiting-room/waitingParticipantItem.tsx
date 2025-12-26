@@ -7,12 +7,12 @@ import {
 } from '@workspace/protocol';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
-import { IParticipant } from '../../store/slices/interfaces/participant';
-import sendAPIRequest from '../../helpers/api/plugNmeetAPI';
-import { store, useAppDispatch } from '../../store';
-import { addUserNotification } from '../../store/slices/roomSettingsSlice';
-import { generateAvatarInitial } from '../../helpers/utils';
-import { LoadingIcon } from '../../assets/Icons/Loading';
+import { IParticipant } from '@/store/plugnmeet/slices/interfaces/participant';
+import sendAPIRequest from '@/lib/plugnmeet-helpers/api/plugNmeetAPI';
+import { store, useAppDispatch } from '@/store/plugnmeet';
+import { addUserNotification } from '@/store/plugnmeet/slices/roomSettingsSlice';
+import { generateAvatarInitial } from '@/lib/plugnmeet-helpers/utils';
+import { LoadingIcon } from '@/assets/Icons/Loading';
 
 interface IWaitingParticipantItemProps {
   participant: IParticipant;

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { InsightsTranscriptionFeatures } from '@workspace/protocol';
 
 import { speechLangsMap } from '../helpers/supportedLangs';
-import Dropdown from '../../../helpers/ui/dropdown';
+import Dropdown from '@/lib/plugnmeet-helpers/ui/dropdown';
 
 interface ISpeechInputSettingsProps {
   transcriptionFeatures: InsightsTranscriptionFeatures;

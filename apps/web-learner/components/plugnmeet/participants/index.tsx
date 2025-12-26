@@ -6,12 +6,12 @@ import ParticipantComponent from './participant';
 import RemoveParticipantAlertModal, {
   IRemoveParticipantAlertModalData,
 } from './removeParticipantAlertModal';
-import { SearchIconSVG } from '../../assets/Icons/SearchIconSVG';
-import { CloseIconSVG } from '../../assets/Icons/CloseIconSVG';
+import { SearchIconSVG } from '@/assets/Icons/SearchIconSVG';
+import { CloseIconSVG } from '@/assets/Icons/CloseIconSVG';
 
-import { store, useAppDispatch, useAppSelector } from '../../store';
-import { selectVisibleParticipants } from '../../store/slices/participantSlice';
-import { setActiveSidePanel } from '../../store/slices/bottomIconsActivitySlice';
+import { store, useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import { selectVisibleParticipants } from '@/store/plugnmeet/slices/participantSlice';
+import { setActiveSidePanel } from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
 
 const ParticipantsComponent = () => {
   const { t } = useTranslation();

@@ -1,9 +1,9 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useAppDispatch, useAppSelector } from '../../store';
-import { updateShowKeyboardShortcutsModal } from '../../store/slices/roomSettingsSlice';
-import Modal from '../../helpers/ui/modal';
+import { useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import { updateShowKeyboardShortcutsModal } from '@/store/plugnmeet/slices/roomSettingsSlice';
+import Modal from '@/lib/plugnmeet-helpers/ui/modal';
 
 const KeyboardShortcuts = () => {
   const dispatch = useAppDispatch();

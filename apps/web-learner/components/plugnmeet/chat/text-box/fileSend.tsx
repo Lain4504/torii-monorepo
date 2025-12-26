@@ -2,11 +2,11 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChatFeatures, RoomUploadedFileType } from '@workspace/protocol';
 
-import { useAppDispatch } from '../../../store';
-import useResumableFilesUpload from '../../../helpers/hooks/useResumableFilesUpload';
+import { useAppDispatch } from '@/store/plugnmeet';
+import useResumableFilesUpload from '@/lib/plugnmeet-helpers/hooks/useResumableFilesUpload';
 import { publishFileAttachmentToChat } from '../utils';
-import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
-import { LoadingIcon } from '../../../assets/Icons/Loading';
+import { addUserNotification } from '@/store/plugnmeet/slices/roomSettingsSlice';
+import { LoadingIcon } from '@/assets/Icons/Loading';
 
 interface IFileSendProps {
   lockSendFile: boolean;

@@ -5,11 +5,11 @@ import {
 } from '@excalidraw/excalidraw/types';
 import { ExcalidrawElement } from '@excalidraw/excalidraw/element/types';
 
-import { useAppSelector } from '../../../../store';
-import { IWhiteboardFile } from '../../../../store/slices/interfaces/whiteboard';
+import { useAppSelector } from '@/store/plugnmeet';
+import { IWhiteboardFile } from '@/store/plugnmeet/slices/interfaces/whiteboard';
 import { fetchFileWithElm, preloadOfficeFilePages } from '../handleFiles';
 import { broadcastCurrentOfficeFilePages } from '../handleRequests';
-import { getConfigValue } from '../../../../helpers/utils';
+import { getConfigValue } from '@/lib/plugnmeet-helpers/utils';
 
 interface IUseOfficePageSyncer {
   excalidrawAPI: ExcalidrawImperativeAPI | null;

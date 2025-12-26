@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAppSelector } from '../../../store';
-import Dropdown, { ISelectOption } from '../../../helpers/ui/dropdown';
+import { useAppSelector } from '@/store/plugnmeet';
+import Dropdown, { ISelectOption } from '@/lib/plugnmeet-helpers/ui/dropdown';
 
 interface RoomNumberSelectorProps {
   totalRooms: number;

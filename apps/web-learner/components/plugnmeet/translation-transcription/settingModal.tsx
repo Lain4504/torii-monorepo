@@ -1,17 +1,17 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { store, useAppDispatch, useAppSelector } from '../../store';
+import { store, useAppDispatch, useAppSelector } from '@/store/plugnmeet';
 import { useTranslation } from 'react-i18next';
 
-import Tabs, { ITabItem } from '../../helpers/ui/tabs';
-import Modal from '../../helpers/ui/modal';
-import { updateDisplaySpeechSettingsModal } from '../../store/slices/bottomIconsActivitySlice';
+import Tabs, { ITabItem } from '@/lib/plugnmeet-helpers/ui/tabs';
+import Modal from '@/lib/plugnmeet-helpers/ui/modal';
+import { updateDisplaySpeechSettingsModal } from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
 import TranscriptionSettings from './transcription-settings';
 import ChatTranslationSettings from './chat-translation-settings';
 import {
   supportedTranscriptionLangs,
   supportedTranslationLangs,
 } from './helpers/supportedLangs';
-import { LoadingIcon } from '../../assets/Icons/Loading';
+import { LoadingIcon } from '@/assets/Icons/Loading';
 
 const TranslationTranscriptionSettingModal = () => {
   const dispatch = useAppDispatch();

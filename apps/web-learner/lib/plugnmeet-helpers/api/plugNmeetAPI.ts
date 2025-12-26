@@ -7,7 +7,7 @@ import {
 import { create, toBinary } from '@bufbuild/protobuf';
 
 import { getAccessToken, getConfigValue } from '../utils';
-import { store } from '../../store';
+import { store } from '@/store/plugnmeet';
 import { getNatsConn } from '../nats';
 
 const API = axios.create({

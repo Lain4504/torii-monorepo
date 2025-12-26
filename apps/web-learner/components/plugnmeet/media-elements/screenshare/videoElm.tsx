@@ -10,8 +10,8 @@ import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 
 import './style.css';
-import { useAppSelector } from '../../../store';
-import { LoadingIcon } from '../../../assets/Icons/Loading';
+import { useAppSelector } from '@/store/plugnmeet';
+import { LoadingIcon } from '@/assets/Icons/Loading';
 
 interface IVideoElmProps {
   track: RemoteTrackPublication | LocalTrackPublication;

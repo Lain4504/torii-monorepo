@@ -7,11 +7,11 @@ import {
 import { create, toBinary } from '@bufbuild/protobuf';
 import { debounce } from 'es-toolkit';
 
-import { store, useAppDispatch, useAppSelector } from '../../../store';
-import { updateIsActiveWhiteboard } from '../../../store/slices/bottomIconsActivitySlice';
-import sendAPIRequest from '../../../helpers/api/plugNmeetAPI';
-import { WhiteBoardIconSVG } from '../../../assets/Icons/WhiteBoardIconSVG';
-import { participantsSelector } from '../../../store/slices/participantSlice';
+import { store, useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import { updateIsActiveWhiteboard } from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
+import sendAPIRequest from '@/lib/plugnmeet-helpers/api/plugNmeetAPI';
+import { WhiteBoardIconSVG } from '@/assets/Icons/WhiteBoardIconSVG';
+import { participantsSelector } from '@/store/plugnmeet/slices/participantSlice';
 
 const WhiteboardIcon = () => {
   const { t } = useTranslation();

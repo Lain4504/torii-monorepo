@@ -10,7 +10,7 @@ import {
   inputResolutions,
   SegmentationConfig,
 } from '../../helpers/segmentationHelper';
-import { TFLite } from '../../helpers/utils';
+import { loadTFLite, TFLite } from '../../helpers/utils';
 
 export function buildResizingStage(
   timerWorker: TimerWorker,

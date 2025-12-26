@@ -7,10 +7,10 @@ import {
 } from '@excalidraw/excalidraw/element/types';
 
 import { broadcastSceneOnChange } from './handleRequests';
-import { store } from '../../../store';
-import { getConfigValue, sleep } from '../../../helpers/utils';
+import { store } from '@/store/plugnmeet';
+import { getConfigValue, sleep } from '@/lib/plugnmeet-helpers/utils';
 import { ensureImageDataIsLoaded, ImageCustomData } from './handleFiles';
-import { DB_STORE_NAMES, idbGet, idbStore } from '../../../helpers/libs/idb';
+import { DB_STORE_NAMES, idbGet, idbStore } from '@/lib/plugnmeet-helpers/libs/idb';
 
 // A simple in-memory cache for preloaded library items.
 const libraryCache = new Map<string, Blob>();

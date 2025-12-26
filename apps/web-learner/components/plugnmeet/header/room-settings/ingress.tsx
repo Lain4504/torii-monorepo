@@ -8,11 +8,11 @@ import {
 } from '@workspace/protocol';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
-import { store, useAppSelector } from '../../../store';
-import sendAPIRequest from '../../../helpers/api/plugNmeetAPI';
-import { LoadingIcon } from '../../../assets/Icons/Loading';
-import Dropdown, { ISelectOption } from '../../../helpers/ui/dropdown';
-import FormattedInputField from '../../../helpers/ui/formattedInputField';
+import { store, useAppSelector } from '@/store/plugnmeet';
+import sendAPIRequest from '@/lib/plugnmeet-helpers/api/plugNmeetAPI';
+import { LoadingIcon } from '@/assets/Icons/Loading';
+import Dropdown, { ISelectOption } from '@/lib/plugnmeet-helpers/ui/dropdown';
+import FormattedInputField from '@/lib/plugnmeet-helpers/ui/formattedInputField';
 
 const Ingress = () => {
   const { t } = useTranslation();

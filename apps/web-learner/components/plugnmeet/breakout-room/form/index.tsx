@@ -10,12 +10,12 @@ import { create } from '@bufbuild/protobuf';
 
 import RoomNumberSelector from './roomNumberSelector';
 import RoomBox from './roomBox';
-import { store, useAppDispatch, useAppSelector } from '../../../store';
+import { store, useAppDispatch, useAppSelector } from '@/store/plugnmeet';
 import { RoomType, UserType } from './types';
 import { BreakoutRoomMessage } from '..';
-import { selectBasicParticipants } from '../../../store/slices/participantSlice';
-import useStorePreviousInt from '../../../helpers/hooks/useStorePreviousInt';
-import { updateBreakoutRoomDroppedUser } from '../../../store/slices/breakoutRoomSlice';
+import { selectBasicParticipants } from '@/store/plugnmeet/slices/participantSlice';
+import useStorePreviousInt from '@/lib/plugnmeet-helpers/hooks/useStorePreviousInt';
+import { updateBreakoutRoomDroppedUser } from '@/store/plugnmeet/slices/breakoutRoomSlice';
 
 interface IFromElemsProps {
   createBreakoutRooms: (req: CreateBreakoutRoomsReq) => void;

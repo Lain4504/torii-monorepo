@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { store, useAppDispatch, useAppSelector } from '../../../store';
-import { updateIsActiveSharedNotePad } from '../../../store/slices/bottomIconsActivitySlice';
-import { SharedNotepadIconSVG } from '../../../assets/Icons/SharedNotepadIconSVG';
+import { store, useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import { updateIsActiveSharedNotePad } from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
+import { SharedNotepadIconSVG } from '@/assets/Icons/SharedNotepadIconSVG';
 const SharedNotePadIcon = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();

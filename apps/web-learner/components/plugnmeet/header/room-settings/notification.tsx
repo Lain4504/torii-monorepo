@@ -1,9 +1,9 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useAppDispatch, useAppSelector } from '../../../store';
-import { updateAllowPlayAudioNotification } from '../../../store/slices/roomSettingsSlice';
-import SettingsSwitch from '../../../helpers/ui/settingsSwitch';
+import { useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import { updateAllowPlayAudioNotification } from '@/store/plugnmeet/slices/roomSettingsSlice';
+import SettingsSwitch from '@/lib/plugnmeet-helpers/ui/settingsSwitch';
 
 const Notification = () => {
   const dispatch = useAppDispatch();

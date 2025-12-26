@@ -11,13 +11,13 @@ import {
   DataMsgBodyType,
 } from '@workspace/protocol';
 
-import { store } from '../../../store';
-import { updateRequestedWhiteboardData } from '../../../store/slices/whiteboard';
-import { getNatsConn } from '../../../helpers/nats';
-import ConnectNats from '../../../helpers/nats/ConnectNats';
-import { getWhiteboardDonors } from '../../../helpers/utils';
+import { store } from '@/store/plugnmeet';
+import { updateRequestedWhiteboardData } from '@/store/plugnmeet/slices/whiteboard';
+import { getNatsConn } from '@/lib/plugnmeet-helpers/nats';
+import ConnectNats from '@/lib/plugnmeet-helpers/nats/ConnectNats';
+import { getWhiteboardDonors } from '@/lib/plugnmeet-helpers/utils';
 import { uploadCanvasBinaryFile } from './handleFiles';
-import { WhiteboardDataAsDonorData } from '../../../store/slices/interfaces/whiteboard';
+import { WhiteboardDataAsDonorData } from '@/store/plugnmeet/slices/interfaces/whiteboard';
 
 const broadcastedElementVersions: Map<string, number> = new Map(),
   DELETED_ELEMENT_TIMEOUT = 3 * 60 * 60 * 1000; // 3 hours

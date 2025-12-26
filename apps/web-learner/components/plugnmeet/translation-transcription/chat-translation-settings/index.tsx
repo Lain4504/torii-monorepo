@@ -5,13 +5,13 @@ import { InsightsChatTranslationConfigReqSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 
 import TransLangsSelector from '../transcription-settings/transLangsSelector';
-import { useAppDispatch, useAppSelector } from '../../../store';
+import { useAppDispatch, useAppSelector } from '@/store/plugnmeet';
 import DefaultSubtitleLangSelector from '../transcription-settings/defaultSubtitleLangSelector';
 import {
   enableOrUpdateChatTranslation,
   endChatTranslation,
 } from '../helpers/apiConnections';
-import { updateDisplaySpeechSettingsModal } from '../../../store/slices/bottomIconsActivitySlice';
+import { updateDisplaySpeechSettingsModal } from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
 
 interface ChatTranslationSettingsProps {
   setErrorMsg: React.Dispatch<React.SetStateAction<string | undefined>>;

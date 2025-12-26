@@ -3,9 +3,9 @@ import { NatsSubjects } from '@workspace/protocol';
 import { once } from 'es-toolkit';
 
 import ConnectNats from './ConnectNats';
-import { IErrorPageProps } from '../../components/extra-pages/Error';
+import { IErrorPageProps } from '@/components/plugnmeet/extra-pages/Error';
 import { IConnectLivekit } from '../livekit/types';
-import { roomConnectionStatus } from '../../components/app/helper';
+import { roomConnectionStatus } from '@/components/plugnmeet/app/helper';
 
 let conn: ConnectNats | undefined = undefined;
 

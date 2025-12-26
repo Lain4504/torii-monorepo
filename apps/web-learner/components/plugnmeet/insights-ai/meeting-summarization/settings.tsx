@@ -7,9 +7,9 @@ import {
   InsightsAIMeetingSummarizationConfigReqSchema,
 } from '@workspace/protocol';
 
-import { store, useAppSelector } from '../../../store';
-import SettingsSwitch from '../../../helpers/ui/settingsSwitch';
-import sendAPIRequest from '../../../helpers/api/plugNmeetAPI';
+import { store, useAppSelector } from '@/store/plugnmeet';
+import SettingsSwitch from '@/lib/plugnmeet-helpers/ui/settingsSwitch';
+import sendAPIRequest from '@/lib/plugnmeet-helpers/api/plugNmeetAPI';
 
 interface MeetingSummarizationProps {
   setErrorMsg: React.Dispatch<React.SetStateAction<string | undefined>>;

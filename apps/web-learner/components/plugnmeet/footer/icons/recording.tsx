@@ -2,8 +2,8 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 
-import { store, useAppDispatch, useAppSelector } from '../../../store';
-import { IRoomMetadata } from '../../../store/slices/interfaces/session';
+import { store, useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import { IRoomMetadata } from '@/store/plugnmeet/slices/interfaces/session';
 import RecordingModal from './recording/recordingModal';
 import {
   RecordingEvent,
@@ -12,7 +12,7 @@ import {
 } from './recording/IRecording';
 import useLocalRecording from './recording/useLocalRecording';
 import useCloudRecording from './recording/useCloudRecording';
-import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
+import { addUserNotification } from '@/store/plugnmeet/slices/roomSettingsSlice';
 
 const RecordingIcon = () => {
   const dispatch = useAppDispatch();

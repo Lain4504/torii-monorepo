@@ -2,7 +2,7 @@ import { VideoQuality } from 'livekit-client';
 import { Theme } from '@excalidraw/excalidraw/element/types';
 import type { TypeOptions } from 'react-toastify';
 
-import { AzureTokenInfo } from '../../../components/translation-transcription/helpers/apiConnections';
+import { AzureTokenInfo } from '@/components/plugnmeet/translation-transcription/helpers/apiConnections';
 
 export enum VideoObjectFit {
   COVER = 'cover',

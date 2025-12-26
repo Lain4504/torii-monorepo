@@ -7,14 +7,14 @@ import {
   VerifyTokenResSchema,
 } from '@workspace/protocol';
 
-import sendAPIRequest from '../../helpers/api/plugNmeetAPI';
+import sendAPIRequest from '@/lib/plugnmeet-helpers/api/plugNmeetAPI';
 import { IErrorPageProps } from '../extra-pages/Error';
-import i18n from '../../helpers/i18n';
-import { getAccessToken } from '../../helpers/utils';
-import { store } from '../../store';
-import { updateIsCloud } from '../../store/slices/sessionSlice';
+import i18n from '@/lib/plugnmeet-helpers/i18n';
+import { getAccessToken } from '@/lib/plugnmeet-helpers/utils';
+import { store } from '@/store/plugnmeet';
+import { updateIsCloud } from '@/store/plugnmeet/slices/sessionSlice';
 
-declare const IS_PRODUCTION: boolean;
+
 
 export type roomConnectionStatus =
   | 'loading'
@@ -72,7 +72,7 @@ export const verifyToken = once(
       toBinary(
         VerifyTokenReqSchema,
         create(VerifyTokenReqSchema, {
-          isProduction: IS_PRODUCTION,
+          isProduction: process.env.NODE_ENV === 'production',
         }),
       ),
       false,

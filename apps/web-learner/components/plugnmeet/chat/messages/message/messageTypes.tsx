@@ -3,10 +3,10 @@ import { useTranslation } from 'react-i18next';
 import { ChatMessage } from '@workspace/protocol';
 
 import { formatDate } from '../../utils';
-import { useAppSelector } from '../../../../store';
-import { participantsSelector } from '../../../../store/slices/participantSlice';
+import { useAppSelector } from '@/store/plugnmeet';
+import { participantsSelector } from '@/store/plugnmeet/slices/participantSlice';
 import Avatar from './avatar';
-import { AiIconSVG } from '../../../../assets/Icons/AiIconSVG';
+import { AiIconSVG } from '@/assets/Icons/AiIconSVG';
 
 export const SystemMessage = memo(({ message }: { message: string }) => {
   return (

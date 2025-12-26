@@ -9,7 +9,7 @@ import {
 } from '@headlessui/react';
 import clsx from 'clsx';
 
-import { PopupCloseSVGIcon } from '../../assets/Icons/PopupCloseSVGIcon';
+import { PopupCloseSVGIcon } from '@/assets/Icons/PopupCloseSVGIcon';
 
 interface IModalProps {
   show: boolean;

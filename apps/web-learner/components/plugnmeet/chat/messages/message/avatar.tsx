@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { participantsSelector } from '../../../../store/slices/participantSlice';
-import { generateAvatarInitial } from '../../../../helpers/utils';
-import { store } from '../../../../store';
+import { participantsSelector } from '@/store/plugnmeet/slices/participantSlice';
+import { generateAvatarInitial } from '@/lib/plugnmeet-helpers/utils';
+import { store } from '@/store/plugnmeet';
 
 interface IAvatarProps {
   userId: string;

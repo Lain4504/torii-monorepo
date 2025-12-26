@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { useAppDispatch, useAppSelector } from '../../../../store';
-import { updatePinCamUserId } from '../../../../store/slices/roomSettingsSlice';
+import { useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import { updatePinCamUserId } from '@/store/plugnmeet/slices/roomSettingsSlice';
 
 interface IPinWebcamProps {
   userId: string;

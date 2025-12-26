@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 
-import { useAppDispatch, useAppSelector } from '../../store';
-import { updatePlayAudioNotification } from '../../store/slices/roomSettingsSlice';
-import { getConfigValue } from '../../helpers/utils';
+import { useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import { updatePlayAudioNotification } from '@/store/plugnmeet/slices/roomSettingsSlice';
+import { getConfigValue } from '@/lib/plugnmeet-helpers/utils';
 
 const AudioNotification = () => {
   const dispatch = useAppDispatch();

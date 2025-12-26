@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Popover } from '@headlessui/react';
 import { useTranslation } from 'react-i18next';
 
-import { store } from '../../../../store';
-import { ChatHistoryIconSVG } from '../../../../assets/Icons/ChatHistoryIconSVG';
+import { store } from '@/store/plugnmeet';
+import { ChatHistoryIconSVG } from '@/assets/Icons/ChatHistoryIconSVG';
 
 import SubtitleHistoryPanel from './subtitleHistoryPanel';
 

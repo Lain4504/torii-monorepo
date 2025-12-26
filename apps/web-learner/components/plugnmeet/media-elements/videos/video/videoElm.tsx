@@ -9,8 +9,8 @@ import React, {
 } from 'react';
 import { LocalTrackPublication, RemoteTrackPublication } from 'livekit-client';
 
-import { useAppSelector } from '../../../../store';
-import { LoadingIcon } from '../../../../assets/Icons/Loading';
+import { useAppSelector } from '@/store/plugnmeet';
+import { LoadingIcon } from '@/assets/Icons/Loading';
 import './style.css';
 
 interface IVideoElmProps {

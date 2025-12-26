@@ -4,9 +4,9 @@ import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import { DataMsgBodyType } from '@workspace/protocol';
 
-import { store, useAppSelector } from '../../../../../store';
-import { participantsSelector } from '../../../../../store/slices/participantSlice';
-import { getNatsConn } from '../../../../../helpers/nats';
+import { store, useAppSelector } from '@/store/plugnmeet';
+import { participantsSelector } from '@/store/plugnmeet/slices/participantSlice';
+import { getNatsConn } from '@/lib/plugnmeet-helpers/nats';
 
 interface IWebcamMenuItemProps {
   userId: string;

@@ -11,8 +11,8 @@ import VisibilityIcon from './icons/visibility';
 import PresenterIcon from './icons/presenterIcon';
 import WaitingApproval from './waitingApproval';
 
-import { ICurrentUser } from '../../../store/slices/interfaces/session';
-import { IVisibleParticipantInfo } from '../../../store/slices/interfaces/participant';
+import { ICurrentUser } from '@/store/plugnmeet/slices/interfaces/session';
+import { IVisibleParticipantInfo } from '@/store/plugnmeet/slices/interfaces/participant';
 
 interface IParticipantComponentProps {
   participant: IVisibleParticipantInfo;

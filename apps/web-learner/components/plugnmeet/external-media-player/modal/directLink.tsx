@@ -3,11 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { isArray } from 'es-toolkit/compat';
 import ReactPlayer from 'react-player';
 
-import FormattedInputField from '../../../helpers/ui/formattedInputField';
-import { PlusCircleIconSVG } from '../../../assets/Icons/PlusCircleIconSVG';
-import { FileIconSVG } from '../../../assets/Icons/FileIconSVG';
-import { TrashIconSVG } from '../../../assets/Icons/TrashIconSVG';
-import { DB_STORE_NAMES, idbGet, idbStore } from '../../../helpers/libs/idb';
+import FormattedInputField from '@/lib/plugnmeet-helpers/ui/formattedInputField';
+import { PlusCircleIconSVG } from '@/assets/Icons/PlusCircleIconSVG';
+import { FileIconSVG } from '@/assets/Icons/FileIconSVG';
+import { TrashIconSVG } from '@/assets/Icons/TrashIconSVG';
+import { DB_STORE_NAMES, idbGet, idbStore } from '@/lib/plugnmeet-helpers/libs/idb';
 
 interface DirectLinkProps {
   selectedUrl: string;

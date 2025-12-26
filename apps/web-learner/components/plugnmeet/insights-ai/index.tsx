@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { store, useAppDispatch, useAppSelector } from '../../store';
-import Modal from '../../helpers/ui/modal';
-import Tabs, { ITabItem } from '../../helpers/ui/tabs';
-import { updateDisplayInsightsAISettingsModal } from '../../store/slices/bottomIconsActivitySlice';
+import { store, useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import Modal from '@/lib/plugnmeet-helpers/ui/modal';
+import Tabs, { ITabItem } from '@/lib/plugnmeet-helpers/ui/tabs';
+import { updateDisplayInsightsAISettingsModal } from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
 import AiTextChatSettings from './ai-text-chat/settings';
 import MeetingSummarization from './meeting-summarization/settings';
 

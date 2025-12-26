@@ -10,20 +10,20 @@ import Landing from '../landing';
 import InsertE2EEKey from '../extra-pages/InsertE2EEKey';
 import DummyAudio from './dummyAudio';
 
-import { store, useAppDispatch } from '../../store';
-import { addServerVersion, addToken } from '../../store/slices/sessionSlice';
+import { store, useAppDispatch } from '@/store/plugnmeet';
+import { addServerVersion, addToken } from '@/store/plugnmeet/slices/sessionSlice';
 import AudioNotification from './audioNotification';
-import useKeyboardShortcuts from '../../helpers/hooks/useKeyboardShortcuts';
-import useClientCustomization from '../../helpers/hooks/useClientCustomization';
-import useWatchWindowSize from '../../helpers/hooks/useWatchWindowSize';
-import useWatchVisibilityChange from '../../helpers/hooks/useWatchVisibilityChange';
-import useThemeSettings from '../../helpers/hooks/useThemeSettings';
-import { IConnectLivekit } from '../../helpers/livekit/types';
-import { isUserRecorder } from '../../helpers/utils';
-import { startNatsConn } from '../../helpers/nats';
+import useKeyboardShortcuts from '@/lib/plugnmeet-helpers/hooks/useKeyboardShortcuts';
+import useClientCustomization from '@/lib/plugnmeet-helpers/hooks/useClientCustomization';
+import useWatchWindowSize from '@/lib/plugnmeet-helpers/hooks/useWatchWindowSize';
+import useWatchVisibilityChange from '@/lib/plugnmeet-helpers/hooks/useWatchVisibilityChange';
+import useThemeSettings from '@/lib/plugnmeet-helpers/hooks/useThemeSettings';
+import { IConnectLivekit } from '@/lib/plugnmeet-helpers/livekit/types';
+import { isUserRecorder } from '@/lib/plugnmeet-helpers/utils';
+import { startNatsConn } from '@/lib/plugnmeet-helpers/nats';
 import { InfoToOpenConn, roomConnectionStatus, verifyToken } from './helper';
 import { loadBodyPix } from '../virtual-background/helpers/utils';
-import { setActiveSidePanel } from '../../store/slices/bottomIconsActivitySlice';
+import { setActiveSidePanel } from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
 
 const App = () => {
   const dispatch = useAppDispatch();

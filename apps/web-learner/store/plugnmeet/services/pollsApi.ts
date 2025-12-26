@@ -13,7 +13,7 @@ import {
 
 import { handleProtobufResponse, renewTokenOnError } from './utils';
 import { RootState } from '../index';
-import { getConfigValue } from '../../helpers/utils';
+import { getConfigValue } from '@/lib/plugnmeet-helpers/utils';
 
 export const pollsApi = createApi({
   reducerPath: 'pollsApi',

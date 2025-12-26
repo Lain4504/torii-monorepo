@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { RemoteAudioTrack } from 'livekit-client';
-import { useAppSelector } from '../../../store';
+import { useAppSelector } from '@/store/plugnmeet';
 
 interface IAudioElmProps {
   audioTrack: RemoteAudioTrack;

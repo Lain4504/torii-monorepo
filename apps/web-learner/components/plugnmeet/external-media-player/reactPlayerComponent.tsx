@@ -3,12 +3,12 @@ import ReactPlayer from 'react-player';
 import { debounce } from 'es-toolkit';
 import { DataMsgBodyType } from '@workspace/protocol';
 
-import { useAppSelector } from '../../store';
-import { getNatsConn } from '../../helpers/nats';
+import { useAppSelector } from '@/store/plugnmeet';
+import { getNatsConn } from '@/lib/plugnmeet-helpers/nats';
 import {
   IExternalMediaPlayerEvent,
   playerActionEvent,
-} from '../../store/slices/externalMediaPlayer';
+} from '@/store/plugnmeet/slices/externalMediaPlayer';
 
 interface IReactPlayerComponentProps {
   src: string;

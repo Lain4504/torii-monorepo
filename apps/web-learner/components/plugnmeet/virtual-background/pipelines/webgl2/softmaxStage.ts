@@ -8,7 +8,7 @@ import {
   createTexture,
   glsl,
 } from '../helpers/webglHelper';
-import { TFLite } from '../../helpers/utils';
+import { loadTFLite, TFLite } from '../../helpers/utils';
 
 export function buildSoftmaxStage(
   gl: WebGL2RenderingContext,

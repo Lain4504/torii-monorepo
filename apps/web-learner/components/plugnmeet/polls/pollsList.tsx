@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 
-import { useGetPollListsQuery } from '../../store/services/pollsApi';
+import { useGetPollListsQuery } from '@/store/plugnmeet/services/pollsApi';
 import PollItem from './pollItem';
-import { LoadingIcon } from '../../assets/Icons/Loading';
+import { LoadingIcon } from '@/assets/Icons/Loading';
 
 const PollsList = () => {
   const { currentData: data, isFetching } = useGetPollListsQuery();

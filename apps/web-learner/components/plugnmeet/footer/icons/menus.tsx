@@ -1,12 +1,12 @@
 import React, { Fragment } from 'react';
 import { Menu, MenuButton, MenuItems, Transition } from '@headlessui/react';
 
-import { useAppSelector } from '../../../store';
+import { useAppSelector } from '@/store/plugnmeet';
 import LockSettingsModal from '../modals/lockSettingsModal';
 import RtmpModal from '../modals/rtmpModal';
 import ManageWaitingRoom from '../../waiting-room';
 import BreakoutRoom from '../../breakout-room';
-import { FooterMenuIconSVG } from '../../../assets/Icons/FooterMenuIconSVG';
+import { FooterMenuIconSVG } from '@/assets/Icons/FooterMenuIconSVG';
 import ExternalMediaPlayerModal from '../../external-media-player/modal';
 import DisplayExternalLinkModal from '../../display-external-link/modal';
 import AdminMenus from './menus/adminMenus';

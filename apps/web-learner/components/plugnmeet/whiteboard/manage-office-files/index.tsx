@@ -4,15 +4,15 @@ import { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types';
 import { debounce } from 'es-toolkit';
 import { useTranslation } from 'react-i18next';
 
-import { PopupCloseSVGIcon } from '../../../assets/Icons/PopupCloseSVGIcon';
-import { updateCurrentWhiteboardOfficeFileId } from '../../../store/slices/whiteboard';
-import { store, useAppDispatch } from '../../../store';
+import { PopupCloseSVGIcon } from '@/assets/Icons/PopupCloseSVGIcon';
+import { updateCurrentWhiteboardOfficeFileId } from '@/store/plugnmeet/slices/whiteboard';
+import { store, useAppDispatch } from '@/store/plugnmeet';
 import FileUploadProgress from './fileUploadProgress';
 import UploadedFilesList from './uploadedFilesList';
-import { IWhiteboardOfficeFile } from '../../../store/slices/interfaces/whiteboard';
+import { IWhiteboardOfficeFile } from '@/store/plugnmeet/slices/interfaces/whiteboard';
 import { savePageData } from '../helpers/utils';
 import { broadcastCurrentFileId } from '../helpers/handleRequests';
-import { sleep } from '../../../helpers/utils';
+import { sleep } from '@/lib/plugnmeet-helpers/utils';
 
 interface ManageOfficeFilesModalProps {
   roomId: string;

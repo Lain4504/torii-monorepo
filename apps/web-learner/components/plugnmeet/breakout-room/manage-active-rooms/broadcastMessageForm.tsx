@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { BroadcastBreakoutRoomMsgReqSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 
-import { useBroadcastBreakoutRoomMsgMutation } from '../../../store/services/breakoutRoomApi';
+import { useBroadcastBreakoutRoomMsgMutation } from '@/store/plugnmeet/services/breakoutRoomApi';
 import { BreakoutRoomMessage } from '..';
 
 interface IBroadcastMessageFormProps {

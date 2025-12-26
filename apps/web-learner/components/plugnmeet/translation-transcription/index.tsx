@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { isEmpty } from 'es-toolkit/compat';
 
-import { store, useAppDispatch, useAppSelector } from '../../store';
+import { store, useAppDispatch, useAppSelector } from '@/store/plugnmeet';
 import SpeechSettingsModal from './speech-settings-modal';
-import { updateSelectedSubtitleLang } from '../../store/slices/speechServicesSlice';
+import { updateSelectedSubtitleLang } from '@/store/plugnmeet/slices/speechServicesSlice';
 
 import SubtitleTextsHistory from './displays/history';
 import LiveSubtitle from './displays/liveSubtitle';

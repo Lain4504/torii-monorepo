@@ -4,8 +4,8 @@ import { toast } from 'react-toastify';
 import { InsightsTranscriptionConfigReqSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 
-import { updateDisplaySpeechSettingsModal } from '../../../store/slices/bottomIconsActivitySlice';
-import { store, useAppDispatch, useAppSelector } from '../../../store';
+import { updateDisplaySpeechSettingsModal } from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
+import { store, useAppDispatch, useAppSelector } from '@/store/plugnmeet';
 import {
   enableOrUpdateTranscription,
   endTranscription,
@@ -15,7 +15,7 @@ import SpeechLangsSelector from './speechLangsSelector';
 import SpeechUsersSelector from './speechUsersSelector';
 import TransLangsSelector from './transLangsSelector';
 import DefaultSubtitleLangSelector from './defaultSubtitleLangSelector';
-import SettingsSwitch from '../../../helpers/ui/settingsSwitch';
+import SettingsSwitch from '@/lib/plugnmeet-helpers/ui/settingsSwitch';
 import { speechLangsMap } from '../helpers/supportedLangs';
 
 interface TranscriptionSettingsProps {

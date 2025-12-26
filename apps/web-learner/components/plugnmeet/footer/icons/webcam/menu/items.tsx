@@ -3,14 +3,14 @@ import { MenuItem, MenuItems } from '@headlessui/react';
 import { Room, Track } from 'livekit-client';
 import { useTranslation } from 'react-i18next';
 
-import { useAppDispatch, useAppSelector } from '../../../../../store';
-import { updateSelectedVideoDevice } from '../../../../../store/slices/roomSettingsSlice';
+import { useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import { updateSelectedVideoDevice } from '@/store/plugnmeet/slices/roomSettingsSlice';
 import {
   updateIsActiveWebcam,
   updateVirtualBackground,
-} from '../../../../../store/slices/bottomIconsActivitySlice';
-import { CheckMarkIcon } from '../../../../../assets/Icons/CheckMarkIcon';
-import { CameraOff } from '../../../../../assets/Icons/CameraOff';
+} from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
+import { CheckMarkIcon } from '@/assets/Icons/CheckMarkIcon';
+import { CameraOff } from '@/assets/Icons/CameraOff';
 
 interface IWebcamMenuItemsProps {
   currentRoom: Room;

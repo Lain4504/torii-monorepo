@@ -2,9 +2,9 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { isArray } from 'es-toolkit/compat';
 
-import FormattedInputField from '../../../helpers/ui/formattedInputField';
-import { DB_STORE_NAMES, idbGet, idbStore } from '../../../helpers/libs/idb';
-import { PlusCircleIconSVG } from '../../../assets/Icons/PlusCircleIconSVG';
+import FormattedInputField from '@/lib/plugnmeet-helpers/ui/formattedInputField';
+import { DB_STORE_NAMES, idbGet, idbStore } from '@/lib/plugnmeet-helpers/libs/idb';
+import { PlusCircleIconSVG } from '@/assets/Icons/PlusCircleIconSVG';
 import SavedLinkItem from './savedLinkItem';
 
 const EXTERNAL_DISPLAY_LINK_URLS = 'externalDisplayLinkUrls';

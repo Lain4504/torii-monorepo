@@ -2,12 +2,12 @@ import React from 'react';
 import { MenuItem } from '@headlessui/react';
 import { useTranslation } from 'react-i18next';
 
-import { useAppDispatch } from '../../../../../store';
+import { useAppDispatch } from '@/store/plugnmeet';
 import {
   updateInitiatePrivateChat,
   updateSelectedChatOption,
-} from '../../../../../store/slices/roomSettingsSlice';
-import { setActiveSidePanel } from '../../../../../store/slices/bottomIconsActivitySlice';
+} from '@/store/plugnmeet/slices/roomSettingsSlice';
+import { setActiveSidePanel } from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
 
 interface IChatMenuItemProps {
   userId: string;

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import './style.css';
-import { LoadingIcon } from '../../assets/Icons/Loading';
+import { LoadingIcon } from '@/assets/Icons/Loading';
 
 interface ILoadingProps {
   text: string;

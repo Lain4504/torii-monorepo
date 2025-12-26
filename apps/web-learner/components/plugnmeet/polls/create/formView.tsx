@@ -9,12 +9,12 @@ import { useTranslation } from 'react-i18next';
 import { create } from '@bufbuild/protobuf';
 import { CreatePollReqSchema } from '@workspace/protocol';
 
-import { useCreatePollMutation } from '../../../store/services/pollsApi';
+import { useCreatePollMutation } from '@/store/plugnmeet/services/pollsApi';
 import { CreatePollOptions } from './index';
 import OptionsView from './optionsView';
-import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
-import { useAppDispatch } from '../../../store';
-import { LoadingIcon } from '../../../assets/Icons/Loading';
+import { addUserNotification } from '@/store/plugnmeet/slices/roomSettingsSlice';
+import { useAppDispatch } from '@/store/plugnmeet';
+import { LoadingIcon } from '@/assets/Icons/Loading';
 
 interface FormViewProps {
   setIsOpen: Dispatch<SetStateAction<boolean>>;

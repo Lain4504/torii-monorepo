@@ -6,8 +6,8 @@ import {
 } from '@workspace/protocol';
 
 import { getNatsConn } from '../nats';
-import { updateIsPNMWindowTabVisible } from '../../store/slices/roomSettingsSlice';
-import { useAppDispatch } from '../../store';
+import { updateIsPNMWindowTabVisible } from '@/store/plugnmeet/slices/roomSettingsSlice';
+import { useAppDispatch } from '@/store/plugnmeet';
 
 const useWatchVisibilityChange = () => {
   const [hidden, setHidden] = useState<boolean>(false);

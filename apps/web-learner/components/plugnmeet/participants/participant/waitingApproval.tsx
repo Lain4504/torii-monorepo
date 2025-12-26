@@ -6,12 +6,12 @@ import {
 } from '@workspace/protocol';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
-import { useAppDispatch, useAppSelector } from '../../../store';
-import { participantsSelector } from '../../../store/slices/participantSlice';
-import sendAPIRequest from '../../../helpers/api/plugNmeetAPI';
-import { CloseIconSVG } from '../../../assets/Icons/CloseIconSVG';
-import { CheckMarkIcon } from '../../../assets/Icons/CheckMarkIcon';
-import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
+import { useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import { participantsSelector } from '@/store/plugnmeet/slices/participantSlice';
+import sendAPIRequest from '@/lib/plugnmeet-helpers/api/plugNmeetAPI';
+import { CloseIconSVG } from '@/assets/Icons/CloseIconSVG';
+import { CheckMarkIcon } from '@/assets/Icons/CheckMarkIcon';
+import { addUserNotification } from '@/store/plugnmeet/slices/roomSettingsSlice';
 
 interface IWaitingApprovalProps {
   userId: string;

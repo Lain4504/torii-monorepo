@@ -1,18 +1,18 @@
 import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { store, useAppDispatch, useAppSelector } from '../../../../store';
+import { store, useAppDispatch, useAppSelector } from '@/store/plugnmeet';
 import FooterMenuItem from './menuItem';
 import {
   setActiveSidePanel,
   updateDisplaySpeechSettingOptionsModal,
   updateIsActiveSharedNotePad,
   updateIsActiveWhiteboard,
-} from '../../../../store/slices/bottomIconsActivitySlice';
-import { WhiteBoardIconSVG } from '../../../../assets/Icons/WhiteBoardIconSVG';
-import { SharedNotepadIconSVG } from '../../../../assets/Icons/SharedNotepadIconSVG';
-import { PollsIconSVG } from '../../../../assets/Icons/PollsIconSVG';
-import { SpeechIconSVG } from '../../../../assets/Icons/SpeechIconSVG';
+} from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
+import { WhiteBoardIconSVG } from '@/assets/Icons/WhiteBoardIconSVG';
+import { SharedNotepadIconSVG } from '@/assets/Icons/SharedNotepadIconSVG';
+import { PollsIconSVG } from '@/assets/Icons/PollsIconSVG';
+import { SpeechIconSVG } from '@/assets/Icons/SpeechIconSVG';
 
 const IconsInMenu = () => {
   const { t } = useTranslation();

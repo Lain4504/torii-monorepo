@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { IParticipant } from '../../store/slices/interfaces/participant';
+import { IParticipant } from '@/store/plugnmeet/slices/interfaces/participant';
 import WaitingParticipantItem from './waitingParticipantItem';
 
 interface IParticipantsListProps {

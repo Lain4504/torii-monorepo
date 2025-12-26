@@ -1,9 +1,9 @@
 import React, { Dispatch, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useAppSelector } from '../../../store';
-import { selectBasicParticipants } from '../../../store/slices/participantSlice';
-import Dropdown, { ISelectOption } from '../../../helpers/ui/dropdown';
+import { useAppSelector } from '@/store/plugnmeet';
+import { selectBasicParticipants } from '@/store/plugnmeet/slices/participantSlice';
+import Dropdown, { ISelectOption } from '@/lib/plugnmeet-helpers/ui/dropdown';
 
 interface UsersSelectorProps {
   selectedUsers: Array<string>;

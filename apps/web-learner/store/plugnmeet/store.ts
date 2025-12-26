@@ -15,7 +15,7 @@ import { breakoutRoomApi } from './services/breakoutRoomApi';
 import speechServicesSlice from './slices/speechServicesSlice';
 import insightsAiTextChatSlice from './slices/insightsAiTextChatSlice';
 
-declare const IS_PRODUCTION: boolean;
+
 
 export const store = configureStore({
   reducer: {
@@ -38,7 +38,7 @@ export const store = configureStore({
       pollsApi.middleware,
       breakoutRoomApi.middleware,
     ),
-  devTools: !IS_PRODUCTION,
+  devTools: process.env.NODE_ENV !== 'production',
 });
 
 setupListeners(store.dispatch);

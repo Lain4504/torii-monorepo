@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { InsightsTranscriptionFeatures } from '@workspace/protocol';
 
 import { getSubtitleLangs } from '../helpers/supportedLangs';
-import Dropdown, { ISelectOption } from '../../../helpers/ui/dropdown';
+import Dropdown, { ISelectOption } from '@/lib/plugnmeet-helpers/ui/dropdown';
 
 interface ISubtitleLangSelectorProps {
   transcriptionFeatures: InsightsTranscriptionFeatures;

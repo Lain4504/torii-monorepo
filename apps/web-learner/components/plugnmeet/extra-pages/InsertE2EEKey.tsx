@@ -2,8 +2,8 @@ import React, { Dispatch, FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 
-import { addSelfInsertedE2EESecretKey } from '../../store/slices/roomSettingsSlice';
-import { useAppDispatch } from '../../store';
+import { addSelfInsertedE2EESecretKey } from '@/store/plugnmeet/slices/roomSettingsSlice';
+import { useAppDispatch } from '@/store/plugnmeet';
 
 export interface IInsertE2EEKeyProps {
   setOpenConn: Dispatch<boolean>;

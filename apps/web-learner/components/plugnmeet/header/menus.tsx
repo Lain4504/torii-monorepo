@@ -2,11 +2,11 @@ import React from 'react';
 import { MenuItem, MenuItems } from '@headlessui/react';
 import { useTranslation } from 'react-i18next';
 
-import { useAppDispatch } from '../../store';
+import { useAppDispatch } from '@/store/plugnmeet';
 import {
   updateShowKeyboardShortcutsModal,
   updateShowRoomSettingsModal,
-} from '../../store/slices/roomSettingsSlice';
+} from '@/store/plugnmeet/slices/roomSettingsSlice';
 // import DarkThemeSwitcher from './darkThemeSwitcher';
 
 interface IHeaderMenusProps {

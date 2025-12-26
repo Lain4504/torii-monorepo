@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { generateAvatarInitial } from '../../../helpers/utils';
-import { IVisibleParticipantInfo } from '../../../store/slices/interfaces/participant';
+import { generateAvatarInitial } from '@/lib/plugnmeet-helpers/utils';
+import { IVisibleParticipantInfo } from '@/store/plugnmeet/slices/interfaces/participant';
 
 interface IAvatarProps {
   participant: IVisibleParticipantInfo;

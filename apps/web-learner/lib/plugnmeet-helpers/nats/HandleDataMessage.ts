@@ -6,24 +6,24 @@ import {
 import { ConnectionQuality } from 'livekit-client';
 
 import ConnectNats from './ConnectNats';
-import { store } from '../../store';
+import { store } from '@/store/plugnmeet';
 import {
   addWhiteboardDataSentFromDonor,
   updateRequestedWhiteboardData,
-} from '../../store/slices/whiteboard';
-import { pollsApi } from '../../store/services/pollsApi';
+} from '@/store/plugnmeet/slices/whiteboard';
+import { pollsApi } from '@/store/plugnmeet/services/pollsApi';
 import {
   participantsSelector,
   updateParticipant,
-} from '../../store/slices/participantSlice';
-import { addExternalMediaPlayerEvent } from '../../store/slices/externalMediaPlayer';
-import { addUserNotification } from '../../store/slices/roomSettingsSlice';
+} from '@/store/plugnmeet/slices/participantSlice';
+import { addExternalMediaPlayerEvent } from '@/store/plugnmeet/slices/externalMediaPlayer';
+import { addUserNotification } from '@/store/plugnmeet/slices/roomSettingsSlice';
 import i18n from '../i18n';
-import { updateReceivedInvitationFor } from '../../store/slices/breakoutRoomSlice';
-import { WhiteboardDataAsDonorData } from '../../store/slices/interfaces/whiteboard';
+import { updateReceivedInvitationFor } from '@/store/plugnmeet/slices/breakoutRoomSlice';
+import { WhiteboardDataAsDonorData } from '@/store/plugnmeet/slices/interfaces/whiteboard';
 import { fromJsonString } from '@bufbuild/protobuf';
-import { TextWithInfo } from '../../store/slices/interfaces/speechServices';
-import { addSpeechSubtitleText } from '../../store/slices/speechServicesSlice';
+import { TextWithInfo } from '@/store/plugnmeet/slices/interfaces/speechServices';
+import { addSpeechSubtitleText } from '@/store/plugnmeet/slices/speechServicesSlice';
 
 export default class HandleDataMessage {
   private connectNats: ConnectNats;

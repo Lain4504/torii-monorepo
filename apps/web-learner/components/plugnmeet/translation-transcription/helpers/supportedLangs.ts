@@ -5,8 +5,8 @@ import {
 } from '@workspace/protocol';
 
 import { getSupportedLanguages } from './apiConnections';
-import { store } from '../../../store';
-import i18n from '../../../helpers/i18n';
+import { store } from '@/store/plugnmeet';
+import i18n from '@/lib/plugnmeet-helpers/i18n';
 
 export type SupportedLangs = {
   name: string;

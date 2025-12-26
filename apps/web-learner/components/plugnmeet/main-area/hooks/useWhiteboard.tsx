@@ -2,10 +2,10 @@ import { useEffect, useMemo, useState } from 'react';
 import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types';
 import { debounce } from 'es-toolkit';
 
-import { store, useAppDispatch, useAppSelector } from '../../../store';
+import { store, useAppDispatch, useAppSelector } from '@/store/plugnmeet';
 import { savePageData } from '../../whiteboard/helpers/utils';
 import Whiteboard from '../../whiteboard';
-import { triggerRefreshWhiteboard } from '../../../store/slices/whiteboard';
+import { triggerRefreshWhiteboard } from '@/store/plugnmeet/slices/whiteboard';
 
 export const useWhiteboard = (
   isActiveWhiteboard: boolean,

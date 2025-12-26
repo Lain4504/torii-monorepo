@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import { ConnectionQuality } from 'livekit-client';
 
-import { useAppSelector } from '../../../../store';
-import { participantsSelector } from '../../../../store/slices/participantSlice';
+import { useAppSelector } from '@/store/plugnmeet';
+import { participantsSelector } from '@/store/plugnmeet/slices/participantSlice';
 
 interface IConnectionStatusProps {
   userId: string;

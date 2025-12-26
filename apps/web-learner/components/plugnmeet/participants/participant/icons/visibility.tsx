@@ -1,7 +1,7 @@
 import React from 'react';
-import { useAppSelector } from '../../../../store';
+import { useAppSelector } from '@/store/plugnmeet';
 import IconWrapper from './iconWrapper';
-import { participantsSelector } from '../../../../store/slices/participantSlice';
+import { participantsSelector } from '@/store/plugnmeet/slices/participantSlice';
 
 interface VisibilityIconProps {
   userId: string;

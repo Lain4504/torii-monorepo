@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { IncreaseBreakoutRoomDurationReqSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 
-import { useIncreaseDurationMutation } from '../../../../store/services/breakoutRoomApi';
+import { useIncreaseDurationMutation } from '@/store/plugnmeet/services/breakoutRoomApi';
 import { BreakoutRoomMessage } from '../..';
 
 interface IExtendTimeProps {

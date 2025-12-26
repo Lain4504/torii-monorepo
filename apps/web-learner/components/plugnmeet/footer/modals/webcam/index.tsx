@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useAppDispatch, useAppSelector } from '../../../../store';
+import { useAppDispatch, useAppSelector } from '@/store/plugnmeet';
 import {
   updateIsActiveWebcam,
   updateShowVideoShareModal,
-} from '../../../../store/slices/bottomIconsActivitySlice';
-import { getInputMediaDevices } from '../../../../helpers/utils';
+} from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
+import { getInputMediaDevices } from '@/lib/plugnmeet-helpers/utils';
 import PreviewWebcam from './previewWebcam';
-import { addVideoDevices } from '../../../../store/slices/roomSettingsSlice';
-import Modal from '../../../../helpers/ui/modal';
-import Dropdown from '../../../../helpers/ui/dropdown';
-import ActionButton from '../../../../helpers/ui/actionButton';
-import { IMediaDevice } from '../../../../store/slices/interfaces/roomSettings';
+import { addVideoDevices } from '@/store/plugnmeet/slices/roomSettingsSlice';
+import Modal from '@/lib/plugnmeet-helpers/ui/modal';
+import Dropdown from '@/lib/plugnmeet-helpers/ui/dropdown';
+import ActionButton from '@/lib/plugnmeet-helpers/ui/actionButton';
+import { IMediaDevice } from '@/store/plugnmeet/slices/interfaces/roomSettings';
 
 interface IShareWebcamModal {
   onSelectedDevice: (deviceId: string) => void;

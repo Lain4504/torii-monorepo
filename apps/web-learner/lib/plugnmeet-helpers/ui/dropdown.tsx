@@ -9,8 +9,8 @@ import {
   Transition,
 } from '@headlessui/react';
 
-import { DropdownIconSVG } from '../../assets/Icons/DropdownIconSVG';
-import { CheckMarkIcon } from '../../assets/Icons/CheckMarkIcon';
+import { DropdownIconSVG } from '@/assets/Icons/DropdownIconSVG';
+import { CheckMarkIcon } from '@/assets/Icons/CheckMarkIcon';
 
 export interface ISelectOption {
   value: string | number;

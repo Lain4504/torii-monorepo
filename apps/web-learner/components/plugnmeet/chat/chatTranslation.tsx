@@ -6,14 +6,14 @@ import {
   ListboxOptions,
 } from '@headlessui/react';
 
-import { CheckMarkIcon } from '../../assets/Icons/CheckMarkIcon';
-import { useAppDispatch, useAppSelector } from '../../store';
+import { CheckMarkIcon } from '@/assets/Icons/CheckMarkIcon';
+import { useAppDispatch, useAppSelector } from '@/store/plugnmeet';
 import {
   supportedTranscriptionLangs,
   supportedTranslationLangs,
   translationLangsMap,
 } from '../translation-transcription/helpers/supportedLangs';
-import { updateSelectedChatTransLang } from '../../store/slices/roomSettingsSlice';
+import { updateSelectedChatTransLang } from '@/store/plugnmeet/slices/roomSettingsSlice';
 
 interface LanguageInfo {
   title: string;

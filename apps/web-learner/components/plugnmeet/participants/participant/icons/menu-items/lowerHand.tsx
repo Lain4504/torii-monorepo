@@ -7,9 +7,9 @@ import {
 } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 
-import { useAppSelector } from '../../../../../store';
-import { participantsSelector } from '../../../../../store/slices/participantSlice';
-import { getNatsConn } from '../../../../../helpers/nats';
+import { useAppSelector } from '@/store/plugnmeet';
+import { participantsSelector } from '@/store/plugnmeet/slices/participantSlice';
+import { getNatsConn } from '@/lib/plugnmeet-helpers/nats';
 
 interface ILowerHandMenuItemProps {
   userId: string;

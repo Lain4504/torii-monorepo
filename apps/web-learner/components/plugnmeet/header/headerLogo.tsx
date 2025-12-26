@@ -1,5 +1,5 @@
 import React from 'react';
-import useLogo from '../../helpers/hooks/useLogo';
+import useLogo from '@/lib/plugnmeet-helpers/hooks/useLogo';
 
 const HeaderLogo = () => {
   const logo = useLogo();

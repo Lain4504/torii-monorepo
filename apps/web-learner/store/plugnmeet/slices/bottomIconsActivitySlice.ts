@@ -8,7 +8,7 @@ import {
 import {
   BackgroundConfig,
   defaultBackgroundConfig,
-} from '../../components/virtual-background/helpers/backgroundHelper';
+} from '@/components/plugnmeet/virtual-background/helpers/backgroundHelper';
 
 const initialState: IBottomIconsSlice = {
   isActiveMicrophone: false,

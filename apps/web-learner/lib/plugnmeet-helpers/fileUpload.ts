@@ -11,10 +11,10 @@ import {
 import Resumable from 'resumablejs';
 
 import i18n from './i18n';
-import { store } from '../store';
+import { store } from '@/store/plugnmeet';
 import sendAPIRequest from './api/plugNmeetAPI';
-import { addUserNotification } from '../store/slices/roomSettingsSlice';
-import { ISession } from '../store/slices/interfaces/session';
+import { addUserNotification } from '@/store/plugnmeet/slices/roomSettingsSlice';
+import { ISession } from '@/store/plugnmeet/slices/interfaces/session';
 import { getConfigValue, sleep } from './utils';
 import ResumableFile = Resumable.ResumableFile;
 

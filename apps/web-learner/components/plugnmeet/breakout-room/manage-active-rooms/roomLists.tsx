@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 
-import { useGetBreakoutRoomsQuery } from '../../../store/services/breakoutRoomApi';
-import { LoadingIcon } from '../../../assets/Icons/Loading';
+import { useGetBreakoutRoomsQuery } from '@/store/plugnmeet/services/breakoutRoomApi';
+import { LoadingIcon } from '@/assets/Icons/Loading';
 import { BreakoutRoomMessage } from '..';
 import RoomItem from './room';
 

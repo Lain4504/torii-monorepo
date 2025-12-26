@@ -2,9 +2,9 @@ import { Dispatch } from 'react';
 import { once } from 'es-toolkit';
 
 import { IConnectLivekit } from './types';
-import { IErrorPageProps } from '../../components/extra-pages/Error';
+import { IErrorPageProps } from '@/components/plugnmeet/extra-pages/Error';
 import ConnectLivekit from './ConnectLivekit';
-import { roomConnectionStatus } from '../../components/app/helper';
+import { roomConnectionStatus } from '@/components/plugnmeet/app/helper';
 
 let currentConnect: IConnectLivekit;
 

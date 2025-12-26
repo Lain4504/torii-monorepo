@@ -1,8 +1,8 @@
 import React from 'react';
-import { useAppSelector } from '../../../../store';
-import { participantsSelector } from '../../../../store/slices/participantSlice';
-import { Microphone } from '../../../../assets/Icons/Microphone';
-import { MicrophoneOff } from '../../../../assets/Icons/MicrophoneOff';
+import { useAppSelector } from '@/store/plugnmeet';
+import { participantsSelector } from '@/store/plugnmeet/slices/participantSlice';
+import { Microphone } from '@/assets/Icons/Microphone';
+import { MicrophoneOff } from '@/assets/Icons/MicrophoneOff';
 
 interface IMicStatusProps {
   userId: string;

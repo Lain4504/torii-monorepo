@@ -7,7 +7,7 @@ import {
 } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 
-import { store, useAppDispatch } from '../../store';
+import { store, useAppDispatch } from '@/store/plugnmeet';
 import {
   setActiveSidePanel,
   updateIsActiveMicrophone,
@@ -18,12 +18,12 @@ import {
   updateShowMicrophoneModal,
   updateShowVideoShareModal,
   updateVirtualBackground,
-} from '../../store/slices/bottomIconsActivitySlice';
+} from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
 import {
   updateSelectedAudioDevice,
   updateSelectedVideoDevice,
   updateShowRoomSettingsModal,
-} from '../../store/slices/roomSettingsSlice';
+} from '@/store/plugnmeet/slices/roomSettingsSlice';
 import { getNatsConn } from '../nats';
 
 const useKeyboardShortcuts = (currentRoom?: Room) => {

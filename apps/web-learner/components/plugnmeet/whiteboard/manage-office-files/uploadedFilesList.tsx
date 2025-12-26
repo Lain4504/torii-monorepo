@@ -8,14 +8,14 @@ import {
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 import { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types';
 
-import { useAppSelector } from '../../../store';
-import { FileIconSVG } from '../../../assets/Icons/FileIconSVG';
+import { useAppSelector } from '@/store/plugnmeet';
+import { FileIconSVG } from '@/assets/Icons/FileIconSVG';
 import {
   IWhiteboardOfficeFile,
   WhiteboardFileConversionRes,
-} from '../../../store/slices/interfaces/whiteboard';
-import { SelectedIcon } from '../../../assets/Icons/SelectedIcon';
-import sendAPIRequest from '../../../helpers/api/plugNmeetAPI';
+} from '@/store/plugnmeet/slices/interfaces/whiteboard';
+import { SelectedIcon } from '@/assets/Icons/SelectedIcon';
+import sendAPIRequest from '@/lib/plugnmeet-helpers/api/plugNmeetAPI';
 import { createAndRegisterOfficeFile } from '../helpers/handleFiles';
 
 interface UploadedFilesListProps {

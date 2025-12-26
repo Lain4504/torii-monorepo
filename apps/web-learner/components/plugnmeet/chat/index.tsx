@@ -5,10 +5,10 @@ import { RoomUploadedFileType } from '@workspace/protocol';
 import TextBoxArea from './text-box';
 import ChatTabs from './chatTabs';
 
-import { store, useAppDispatch, useAppSelector } from '../../store';
+import { store, useAppDispatch, useAppSelector } from '@/store/plugnmeet';
 import { publishFileAttachmentToChat } from './utils';
-import { addUserNotification } from '../../store/slices/roomSettingsSlice';
-import { uploadResumableFile } from '../../helpers/fileUpload';
+import { addUserNotification } from '@/store/plugnmeet/slices/roomSettingsSlice';
+import { uploadResumableFile } from '@/lib/plugnmeet-helpers/fileUpload';
 
 const ChatComponent = () => {
   const { t } = useTranslation();

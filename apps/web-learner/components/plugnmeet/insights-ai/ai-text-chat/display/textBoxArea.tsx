@@ -9,14 +9,14 @@ import {
   InsightsAITextChatRole,
 } from '@workspace/protocol';
 
-import SendIconSVG from '../../../../assets/Icons/SendIconSVG';
+import SendIconSVG from '@/assets/Icons/SendIconSVG';
 import { useAutosizeTextArea } from '../../../chat/text-box/useAutosizeTextArea';
-import { useAppDispatch, useAppSelector } from '../../../../store';
+import { useAppDispatch, useAppSelector } from '@/store/plugnmeet';
 import {
   addAiTextChatUserMessage,
   clearIsAwaitingResponse,
-} from '../../../../store/slices/insightsAiTextChatSlice';
-import sendAPIRequest from '../../../../helpers/api/plugNmeetAPI';
+} from '@/store/plugnmeet/slices/insightsAiTextChatSlice';
+import sendAPIRequest from '@/lib/plugnmeet-helpers/api/plugNmeetAPI';
 
 const TextBoxArea = () => {
   const { t } = useTranslation();

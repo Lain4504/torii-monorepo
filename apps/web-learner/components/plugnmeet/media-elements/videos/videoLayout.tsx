@@ -6,8 +6,8 @@ import React, {
   useState,
 } from 'react';
 
-import { store, useAppDispatch, useAppSelector } from '../../../store';
-import { setWebcamPaginating } from '../../../store/slices/sessionSlice';
+import { store, useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import { setWebcamPaginating } from '@/store/plugnmeet/slices/sessionSlice';
 import { VideoParticipantProps } from './videoParticipant';
 import PinnedLayout from './layouts/pinnedLayout';
 import VerticalLayout from './layouts/verticalLayout';
@@ -20,7 +20,7 @@ import {
   getElmsForTablet,
 } from './helpers/utils';
 import { useDeviceInfo } from './helpers/useDeviceInfo';
-import { AngleDown } from '../../../assets/Icons/AngleDown';
+import { AngleDown } from '@/assets/Icons/AngleDown';
 
 interface IVideoLayoutProps {
   allParticipants: ReactElement<VideoParticipantProps>[];

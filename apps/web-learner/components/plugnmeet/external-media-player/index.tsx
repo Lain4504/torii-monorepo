@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 
-import { useAppDispatch, useAppSelector } from '../../store';
-import { resetExternalMediaPlayer } from '../../store/slices/externalMediaPlayer';
+import { useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import { resetExternalMediaPlayer } from '@/store/plugnmeet/slices/externalMediaPlayer';
 import ReactPlayerComponent from './reactPlayerComponent';
 
 const ExternalMediaPlayer = () => {

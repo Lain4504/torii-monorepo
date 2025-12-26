@@ -1,5 +1,5 @@
 import React from 'react';
-import { LoadingIcon } from '../../assets/Icons/Loading';
+import { LoadingIcon } from '@/assets/Icons/Loading';
 import clsx from 'clsx';
 
 interface IActionButtonProps {

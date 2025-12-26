@@ -4,13 +4,13 @@ import { once } from 'es-toolkit';
 import {
   ColumnCameraPosition,
   ColumnCameraWidth,
-} from '../../store/slices/interfaces/roomSettings';
+} from '@/store/plugnmeet/slices/interfaces/roomSettings';
 import {
   updateColumnCameraPosition,
   updateColumnCameraWidth,
   updateFocusActiveSpeakerWebcam,
-} from '../../store/slices/roomSettingsSlice';
-import { useAppDispatch } from '../../store';
+} from '@/store/plugnmeet/slices/roomSettingsSlice';
+import { useAppDispatch } from '@/store/plugnmeet';
 import { getConfigValue } from '../utils';
 
 export interface ICustomDesignParams {

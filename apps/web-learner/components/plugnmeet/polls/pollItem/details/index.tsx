@@ -12,7 +12,7 @@ import PublishResultBtn from './publishResultBtn';
 import NotRespondents from './notRespondents';
 import Respondents from './respondents';
 import { PollDataWithOption } from '../../utils';
-import { CloseIconSVG } from '../../../../assets/Icons/CloseIconSVG';
+import { CloseIconSVG } from '@/assets/Icons/CloseIconSVG';
 
 interface ViewDetailsProps {
   pollDataWithOption: PollDataWithOption;

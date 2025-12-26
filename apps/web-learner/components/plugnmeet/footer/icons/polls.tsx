@@ -2,9 +2,9 @@ import React, { useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 
-import { store, useAppDispatch, useAppSelector } from '../../../store';
-import { setActiveSidePanel } from '../../../store/slices/bottomIconsActivitySlice';
-import { PollsIconSVG } from '../../../assets/Icons/PollsIconSVG';
+import { store, useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import { setActiveSidePanel } from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
+import { PollsIconSVG } from '@/assets/Icons/PollsIconSVG';
 
 const PollsIcon = () => {
   const dispatch = useAppDispatch();

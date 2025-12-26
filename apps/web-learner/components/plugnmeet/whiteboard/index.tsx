@@ -34,7 +34,7 @@ import './style.css';
 import ManageOfficeFilesModal from './manage-office-files';
 import FooterUI from './footerUI';
 
-import { store, useAppDispatch, useAppSelector } from '../../store';
+import { store, useAppDispatch, useAppSelector } from '@/store/plugnmeet';
 import {
   broadcastAppStateChanges,
   broadcastCurrentFileId,
@@ -51,13 +51,13 @@ import {
   addAllExcalidrawElements,
   updateExcalidrawElements,
   updateMousePointerLocation,
-} from '../../store/slices/whiteboard';
+} from '@/store/plugnmeet/slices/whiteboard';
 import {
   displaySavedPageData,
   ensureAllImagesDataIsLoaded,
   savePageData,
 } from './helpers/utils';
-import { sleep } from '../../helpers/utils';
+import { sleep } from '@/lib/plugnmeet-helpers/utils';
 import { cleanProcessedImageElementsMap } from './helpers/handleFiles';
 
 interface WhiteboardProps {

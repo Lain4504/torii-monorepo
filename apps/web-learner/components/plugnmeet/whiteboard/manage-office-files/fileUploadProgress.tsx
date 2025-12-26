@@ -16,18 +16,18 @@ import {
   RoomUploadedFileType,
 } from '@workspace/protocol';
 
-import { FileIconSVG } from '../../../assets/Icons/FileIconSVG';
-import { TrashSVG } from '../../../assets/Icons/TrashSVG';
-import { sleep } from '../../../helpers/utils';
-import { store } from '../../../store';
-import { getNatsConn } from '../../../helpers/nats';
-import sendAPIRequest from '../../../helpers/api/plugNmeetAPI';
+import { FileIconSVG } from '@/assets/Icons/FileIconSVG';
+import { TrashSVG } from '@/assets/Icons/TrashSVG';
+import { sleep } from '@/lib/plugnmeet-helpers/utils';
+import { store } from '@/store/plugnmeet';
+import { getNatsConn } from '@/lib/plugnmeet-helpers/nats';
+import sendAPIRequest from '@/lib/plugnmeet-helpers/api/plugNmeetAPI';
 import {
   WhiteboardFileConversionReq,
   WhiteboardFileConversionRes,
-} from '../../../store/slices/interfaces/whiteboard';
+} from '@/store/plugnmeet/slices/interfaces/whiteboard';
 import { createAndRegisterOfficeFile } from '../helpers/handleFiles';
-import { uploadResumableFile } from '../../../helpers/fileUpload';
+import { uploadResumableFile } from '@/lib/plugnmeet-helpers/fileUpload';
 
 interface FileUploadProgressProps {
   excalidrawAPI: ExcalidrawImperativeAPI;

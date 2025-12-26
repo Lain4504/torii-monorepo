@@ -4,7 +4,7 @@ import { EndBreakoutRoomReqSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 import { toast } from 'react-toastify';
 
-import { useEndSingleRoomMutation } from '../../../../store/services/breakoutRoomApi';
+import { useEndSingleRoomMutation } from '@/store/plugnmeet/services/breakoutRoomApi';
 import { BreakoutRoomMessage } from '../..';
 
 interface IEndBtnProps {

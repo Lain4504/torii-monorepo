@@ -4,8 +4,8 @@ import clsx from 'clsx';
 
 import UserBox from './userBox';
 import { ItemTypes, UserType } from './types';
-import { useAppDispatch } from '../../../store';
-import { updateBreakoutRoomDroppedUser } from '../../../store/slices/breakoutRoomSlice';
+import { useAppDispatch } from '@/store/plugnmeet';
+import { updateBreakoutRoomDroppedUser } from '@/store/plugnmeet/slices/breakoutRoomSlice';
 
 interface IRoomBoxProps {
   roomId: number;

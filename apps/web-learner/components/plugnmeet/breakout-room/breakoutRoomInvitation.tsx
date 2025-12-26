@@ -13,17 +13,17 @@ import copy from 'copy-text-to-clipboard';
 import { JoinBreakoutRoomReqSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 
-import { useAppDispatch, useAppSelector } from '../../store';
-import { updateReceivedInvitationFor } from '../../store/slices/breakoutRoomSlice';
-import { useJoinRoomMutation } from '../../store/services/breakoutRoomApi';
+import { useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import { updateReceivedInvitationFor } from '@/store/plugnmeet/slices/breakoutRoomSlice';
+import { useJoinRoomMutation } from '@/store/plugnmeet/services/breakoutRoomApi';
 import {
   updateIsActiveWebcam,
   updateIsMicMuted,
   updateVirtualBackground,
-} from '../../store/slices/bottomIconsActivitySlice';
-import { updateSelectedVideoDevice } from '../../store/slices/roomSettingsSlice';
-import { getMediaServerConnRoom } from '../../helpers/livekit/utils';
-import { PopupCloseSVGIcon } from '../../assets/Icons/PopupCloseSVGIcon';
+} from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
+import { updateSelectedVideoDevice } from '@/store/plugnmeet/slices/roomSettingsSlice';
+import { getMediaServerConnRoom } from '@/lib/plugnmeet-helpers/livekit/utils';
+import { PopupCloseSVGIcon } from '@/assets/Icons/PopupCloseSVGIcon';
 
 const BreakoutRoomInvitation = () => {
   const { t } = useTranslation();

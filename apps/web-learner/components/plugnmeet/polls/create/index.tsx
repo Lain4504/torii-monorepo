@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import FormView from './formView';
-import Modal from '../../../helpers/ui/modal';
+import Modal from '@/lib/plugnmeet-helpers/ui/modal';
 
 export interface CreatePollOptions {
   id: number;

@@ -5,7 +5,7 @@ import {
 } from '@excalidraw/excalidraw/types';
 import { Theme } from '@excalidraw/excalidraw/element/types';
 
-import { useAppSelector } from '../../../../store';
+import { useAppSelector } from '@/store/plugnmeet';
 
 interface IUseWhiteboardAppStateSync {
   excalidrawAPI: ExcalidrawImperativeAPI | null;

@@ -1,6 +1,6 @@
 import React from 'react';
-import { FileIconSVG } from '../../../assets/Icons/FileIconSVG';
-import { TrashIconSVG } from '../../../assets/Icons/TrashIconSVG';
+import { FileIconSVG } from '@/assets/Icons/FileIconSVG';
+import { TrashIconSVG } from '@/assets/Icons/TrashIconSVG';
 
 interface ISavedLinkItemProps {
   url: string;

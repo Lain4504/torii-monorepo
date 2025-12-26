@@ -6,7 +6,7 @@ import {
   SELECTED_SUBTITLE_LANG_KEY,
   TextWithInfo,
 } from './interfaces/speechServices';
-import { DB_STORE_NAMES, idbStore } from '../../helpers/libs/idb';
+import { DB_STORE_NAMES, idbStore } from '@/lib/plugnmeet-helpers/libs/idb';
 
 const initialState: ISpeechServices = {
   selectedSubtitleLang: '',

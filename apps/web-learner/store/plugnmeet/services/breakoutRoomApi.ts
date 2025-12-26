@@ -17,7 +17,7 @@ import {
 
 import { RootState } from '..';
 import { handleProtobufResponse, renewTokenOnError } from './utils';
-import { getConfigValue } from '../../helpers/utils';
+import { getConfigValue } from '@/lib/plugnmeet-helpers/utils';
 
 export const breakoutRoomApi = createApi({
   reducerPath: 'breakoutRoomApi',

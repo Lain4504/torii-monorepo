@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Menu, MenuButton, Transition } from '@headlessui/react';
 import { useTranslation } from 'react-i18next';
 
-import { store, useAppSelector } from '../../store';
+import { store, useAppSelector } from '@/store/plugnmeet';
 import HeaderMenus from './menus';
 import RoomSettings from './room-settings';
 import KeyboardShortcuts from './keyboardShortcuts';
@@ -10,10 +10,10 @@ import VolumeControl from './volumeControl';
 import DurationView from './durationView';
 import DarkThemeSwitcher from './darkThemeSwitcher';
 import HeaderLogo from './headerLogo';
-import { getNatsConn } from '../../helpers/nats';
-import { HeaderMenuIcon } from '../../assets/Icons/HeaderMenuIcon';
+import { getNatsConn } from '@/lib/plugnmeet-helpers/nats';
+import { HeaderMenuIcon } from '@/assets/Icons/HeaderMenuIcon';
 import UserNotifications from './user-notifications';
-import ConfirmationModal from '../../helpers/ui/confirmationModal';
+import ConfirmationModal from '@/lib/plugnmeet-helpers/ui/confirmationModal';
 
 const Header = () => {
   const roomTitle = useAppSelector(

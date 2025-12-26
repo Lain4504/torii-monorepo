@@ -2,9 +2,9 @@ import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 
-import { store, useAppDispatch, useAppSelector } from '../../../store';
-import { ChatIconSVG } from '../../../assets/Icons/ChatIconSVG';
-import { setActiveSidePanel } from '../../../store/slices/bottomIconsActivitySlice';
+import { store, useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import { ChatIconSVG } from '@/assets/Icons/ChatIconSVG';
+import { setActiveSidePanel } from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
 
 const ChatIcon = () => {
   const dispatch = useAppDispatch();

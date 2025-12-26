@@ -8,7 +8,7 @@ import {
 } from '@headlessui/react';
 import { useTranslation } from 'react-i18next';
 
-import { FooterMenuIconSVG } from '../../../assets/Icons/FooterMenuIconSVG';
+import { FooterMenuIconSVG } from '@/assets/Icons/FooterMenuIconSVG';
 import { PollDataWithOption, publishPollResultByChat } from '../utils';
 import { useEndPoll } from '../hooks/useEndPoll';
 

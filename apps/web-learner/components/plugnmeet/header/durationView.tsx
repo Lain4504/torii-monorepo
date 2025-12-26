@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { store, useAppDispatch, useAppSelector } from '../../store';
-import { addUserNotification } from '../../store/slices/roomSettingsSlice';
-import { useRoomDurationCountdown } from '../../helpers/hooks/useRoomDurationCountdown';
+import { store, useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import { addUserNotification } from '@/store/plugnmeet/slices/roomSettingsSlice';
+import { useRoomDurationCountdown } from '@/lib/plugnmeet-helpers/hooks/useRoomDurationCountdown';
 
 const DurationView = () => {
   const { t } = useTranslation();

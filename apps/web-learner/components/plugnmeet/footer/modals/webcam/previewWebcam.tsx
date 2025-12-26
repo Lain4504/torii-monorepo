@@ -3,10 +3,10 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { SourcePlayback } from '../../../virtual-background/helpers/sourceHelper';
 import { BackgroundConfig } from '../../../virtual-background/helpers/backgroundHelper';
 import VideoBox from './videoBox';
-import { store, useAppDispatch, useAppSelector } from '../../../../store';
+import { store, useAppDispatch, useAppSelector } from '@/store/plugnmeet';
 import VirtualBackground from '../../../virtual-background/virtualBackground';
 import BackgroundItems from './backgroundItems';
-import { updateVirtualBackground } from '../../../../store/slices/bottomIconsActivitySlice';
+import { updateVirtualBackground } from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
 
 interface IPreviewWebcamProps {
   deviceId: string;

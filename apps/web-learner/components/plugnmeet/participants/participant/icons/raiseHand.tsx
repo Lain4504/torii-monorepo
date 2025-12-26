@@ -1,7 +1,7 @@
 import React from 'react';
-import { useAppSelector } from '../../../../store';
-import { participantsSelector } from '../../../../store/slices/participantSlice';
-import { HandsIconSVG } from '../../../../assets/Icons/HandsIconSVG';
+import { useAppSelector } from '@/store/plugnmeet';
+import { participantsSelector } from '@/store/plugnmeet/slices/participantSlice';
+import { HandsIconSVG } from '@/assets/Icons/HandsIconSVG';
 import IconWrapper from './iconWrapper';
 
 interface IRaiseHandIconProps {

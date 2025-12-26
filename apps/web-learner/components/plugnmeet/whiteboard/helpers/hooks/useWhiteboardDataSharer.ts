@@ -1,6 +1,6 @@
 import { useEffect, useEffectEvent, useState } from 'react';
 import { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types';
-import { useAppSelector } from '../../../../store';
+import { useAppSelector } from '@/store/plugnmeet';
 import {
   sendRequestedForWhiteboardData,
   sendWhiteboardDataAsDonor,

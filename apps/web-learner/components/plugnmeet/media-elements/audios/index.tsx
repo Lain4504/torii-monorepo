@@ -6,8 +6,8 @@ import {
 } from 'livekit-client';
 
 import AudioElm from './audio';
-import { CurrentConnectionEvents } from '../../../helpers/livekit/types';
-import { getMediaServerConn } from '../../../helpers/livekit/utils';
+import { CurrentConnectionEvents } from '@/lib/plugnmeet-helpers/livekit/types';
+import { getMediaServerConn } from '@/lib/plugnmeet-helpers/livekit/utils';
 
 const AudioElements = () => {
   const [audioSubscribers, setAudioSubscribers] =

@@ -6,10 +6,10 @@ import {
 } from '@workspace/protocol';
 import { toast } from 'react-toastify';
 
-import { store, useAppDispatch, useAppSelector } from '../../../store';
-import { updateDisplaySpeechSettingOptionsModal } from '../../../store/slices/bottomIconsActivitySlice';
+import { store, useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import { updateDisplaySpeechSettingOptionsModal } from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
 
-import Modal from '../../../helpers/ui/modal';
+import Modal from '@/lib/plugnmeet-helpers/ui/modal';
 import SpeechInputSettings from './speechInputSettings';
 import SubtitleFontSizeSlider from './subtitleFontSizeSlider';
 import SubtitleLangSelector from './subtitleLangSelector';
@@ -17,9 +17,9 @@ import {
   getUserTaskStatus,
   startOrStopUserSession,
 } from '../helpers/apiConnections';
-import { getMediaServerConnRoom } from '../../../helpers/livekit/utils';
-import { updateSelectedSubtitleLang } from '../../../store/slices/speechServicesSlice';
-import SettingsSwitch from '../../../helpers/ui/settingsSwitch';
+import { getMediaServerConnRoom } from '@/lib/plugnmeet-helpers/livekit/utils';
+import { updateSelectedSubtitleLang } from '@/store/plugnmeet/slices/speechServicesSlice';
+import SettingsSwitch from '@/lib/plugnmeet-helpers/ui/settingsSwitch';
 
 interface SpeechSettingsModalProps {
   transcriptionFeatures: InsightsTranscriptionFeatures;

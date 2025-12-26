@@ -8,15 +8,15 @@ import {
 } from '@workspace/protocol';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
-import { store, useAppDispatch, useAppSelector } from '../../../store';
+import { store, useAppDispatch, useAppSelector } from '@/store/plugnmeet';
 import {
   updateDisplayExternalLinkRoomModal,
   updateIsActiveWhiteboard,
-} from '../../../store/slices/bottomIconsActivitySlice';
-import sendAPIRequest from '../../../helpers/api/plugNmeetAPI';
-import Modal from '../../../helpers/ui/modal';
-import ActionButton from '../../../helpers/ui/actionButton';
-import Checkbox from '../../../helpers/ui/checkbox';
+} from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
+import sendAPIRequest from '@/lib/plugnmeet-helpers/api/plugNmeetAPI';
+import Modal from '@/lib/plugnmeet-helpers/ui/modal';
+import ActionButton from '@/lib/plugnmeet-helpers/ui/actionButton';
+import Checkbox from '@/lib/plugnmeet-helpers/ui/checkbox';
 import SavedLinks from './savedLinks';
 
 const DisplayExternalLinkModal = () => {

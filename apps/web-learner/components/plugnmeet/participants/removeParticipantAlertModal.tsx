@@ -7,10 +7,10 @@ import {
 } from '@workspace/protocol';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
-import { store } from '../../store';
-import sendAPIRequest from '../../helpers/api/plugNmeetAPI';
-import Modal from '../../helpers/ui/modal';
-import RadioOptions from '../../helpers/ui/radioOptions';
+import { store } from '@/store/plugnmeet';
+import sendAPIRequest from '@/lib/plugnmeet-helpers/api/plugNmeetAPI';
+import Modal from '@/lib/plugnmeet-helpers/ui/modal';
+import RadioOptions from '@/lib/plugnmeet-helpers/ui/radioOptions';
 
 export interface IRemoveParticipantAlertModalData {
   name: string;

@@ -19,7 +19,7 @@ import {
 } from '../../helpers/segmentationHelper';
 import { TimerWorker } from '../../helpers/timerHelper';
 import { PostProcessingConfig } from '../../helpers/postProcessingHelper';
-import { TFLite } from '../../helpers/utils';
+import { loadTFLite, TFLite } from '../../helpers/utils';
 
 export function buildWebGL2Pipeline(
   sourcePlayback: SourcePlayback,
@@ -108,23 +108,23 @@ export function buildWebGL2Pipeline(
   const loadSegmentationStage =
     segmentationConfig.model === 'meet'
       ? buildSoftmaxStage(
-          gl,
-          vertexShader,
-          positionBuffer,
-          texCoordBuffer,
-          segmentationConfig,
-          tflite,
-          segmentationTexture,
-        )
+        gl,
+        vertexShader,
+        positionBuffer,
+        texCoordBuffer,
+        segmentationConfig,
+        tflite,
+        segmentationTexture,
+      )
       : buildLoadSegmentationStage(
-          gl,
-          vertexShader,
-          positionBuffer,
-          texCoordBuffer,
-          segmentationConfig,
-          tflite,
-          segmentationTexture,
-        );
+        gl,
+        vertexShader,
+        positionBuffer,
+        texCoordBuffer,
+        segmentationConfig,
+        tflite,
+        segmentationTexture,
+      );
   const jointBilateralFilterStage = buildJointBilateralFilterStage(
     gl,
     vertexShader,
@@ -138,21 +138,21 @@ export function buildWebGL2Pipeline(
   const backgroundStage =
     backgroundConfig.type === 'blur-sm'
       ? buildBackgroundBlurStage(
-          gl,
-          vertexShader,
-          positionBuffer,
-          texCoordBuffer,
-          personMaskTexture,
-          canvas,
-        )
+        gl,
+        vertexShader,
+        positionBuffer,
+        texCoordBuffer,
+        personMaskTexture,
+        canvas,
+      )
       : buildBackgroundImageStage(
-          gl,
-          positionBuffer,
-          texCoordBuffer,
-          personMaskTexture,
-          backgroundImage,
-          canvas,
-        );
+        gl,
+        positionBuffer,
+        texCoordBuffer,
+        personMaskTexture,
+        backgroundImage,
+        canvas,
+      );
 
   async function render() {
     gl.activeTexture(gl.TEXTURE0);

@@ -8,10 +8,10 @@ import {
 } from '@workspace/protocol';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
-import { useAppDispatch, useAppSelector } from '../../../../../store';
-import sendAPIRequest from '../../../../../helpers/api/plugNmeetAPI';
-import { updateDisplayExternalLinkRoomModal } from '../../../../../store/slices/bottomIconsActivitySlice';
-import { addUserNotification } from '../../../../../store/slices/roomSettingsSlice';
+import { useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import sendAPIRequest from '@/lib/plugnmeet-helpers/api/plugNmeetAPI';
+import { updateDisplayExternalLinkRoomModal } from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
+import { addUserNotification } from '@/store/plugnmeet/slices/roomSettingsSlice';
 
 const useDisplayExternalLink = () => {
   const dispatch = useAppDispatch();

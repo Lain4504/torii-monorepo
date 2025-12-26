@@ -10,12 +10,12 @@ import { debounce } from 'es-toolkit';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 import { useTranslation } from 'react-i18next';
 
-import { store, useAppDispatch, useAppSelector } from '../../store';
-import { setWhiteboardCurrentPage } from '../../store/slices/whiteboard';
+import { store, useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import { setWhiteboardCurrentPage } from '@/store/plugnmeet/slices/whiteboard';
 import { broadcastCurrentPageNumber } from './helpers/handleRequests';
-import sendAPIRequest from '../../helpers/api/plugNmeetAPI';
+import sendAPIRequest from '@/lib/plugnmeet-helpers/api/plugNmeetAPI';
 import { savePageData } from './helpers/utils';
-import { sleep } from '../../helpers/utils';
+import { sleep } from '@/lib/plugnmeet-helpers/utils';
 
 interface IFooterUIProps {
   excalidrawAPI: ExcalidrawImperativeAPI | null;

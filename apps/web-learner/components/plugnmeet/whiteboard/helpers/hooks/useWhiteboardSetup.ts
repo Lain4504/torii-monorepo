@@ -5,9 +5,9 @@ import {
   SocketId,
 } from '@excalidraw/excalidraw/types';
 
-import { useAppSelector } from '../../../../store';
+import { useAppSelector } from '@/store/plugnmeet';
 import { addPreloadedLibraryItems } from '../utils';
-import { selectWhiteboardParticipants } from '../../../../store/slices/participantSlice';
+import { selectWhiteboardParticipants } from '@/store/plugnmeet/slices/participantSlice';
 
 interface IUseWhiteboardSetup {
   excalidrawAPI: ExcalidrawImperativeAPI | null;

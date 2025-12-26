@@ -7,21 +7,21 @@ import React, {
 } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { store, useAppDispatch, useAppSelector } from '../../store';
-import { toggleStartup } from '../../store/slices/sessionSlice';
+import { store, useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import { toggleStartup } from '@/store/plugnmeet/slices/sessionSlice';
 import {
   addAudioDevices,
   addVideoDevices,
   updateSelectedAudioDevice,
   updateSelectedVideoDevice,
-} from '../../store/slices/roomSettingsSlice';
-import { Volume } from '../../assets/Icons/Volume';
+} from '@/store/plugnmeet/slices/roomSettingsSlice';
+import { Volume } from '@/assets/Icons/Volume';
 import { roomConnectionStatus } from '../app/helper';
-import { getNatsConn } from '../../helpers/nats';
+import { getNatsConn } from '@/lib/plugnmeet-helpers/nats';
 import { useMediaDevices } from './hooks/useMediaDevices';
-import { MicrophoneOff } from '../../assets/Icons/MicrophoneOff';
-import { CameraOff } from '../../assets/Icons/CameraOff';
-import { LoadingIcon } from '../../assets/Icons/Loading';
+import { MicrophoneOff } from '@/assets/Icons/MicrophoneOff';
+import { CameraOff } from '@/assets/Icons/CameraOff';
+import { LoadingIcon } from '@/assets/Icons/Loading';
 
 import MicrophoneIcon from './microphone';
 import WebcamIcon from './webcam';

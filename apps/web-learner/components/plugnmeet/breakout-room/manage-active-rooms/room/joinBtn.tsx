@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { create } from '@bufbuild/protobuf';
 import { JoinBreakoutRoomReqSchema } from '@workspace/protocol';
 
-import { useJoinRoomMutation } from '../../../../store/services/breakoutRoomApi';
+import { useJoinRoomMutation } from '@/store/plugnmeet/services/breakoutRoomApi';
 import { BreakoutRoomMessage } from '../..';
-import { store } from '../../../../store';
+import { store } from '@/store/plugnmeet';
 
 interface IJoinBtnProps {
   breakoutRoomId: string;

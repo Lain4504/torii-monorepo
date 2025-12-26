@@ -6,12 +6,12 @@ import { debounce } from 'es-toolkit';
 import {
   updateRoomAudioVolume,
   updateRoomScreenShareAudioVolume,
-} from '../../store/slices/roomSettingsSlice';
-import { useAppDispatch, useAppSelector } from '../../store';
-import { updateParticipant } from '../../store/slices/participantSlice';
-import { VolumeHeader } from '../../assets/Icons/VolumeHeader';
-import { VolumeMutedSVG } from '../../assets/Icons/VolumeMutedSVG';
-import RangeSlider from '../../helpers/ui/rangeSlider';
+} from '@/store/plugnmeet/slices/roomSettingsSlice';
+import { useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import { updateParticipant } from '@/store/plugnmeet/slices/participantSlice';
+import { VolumeHeader } from '@/assets/Icons/VolumeHeader';
+import { VolumeMutedSVG } from '@/assets/Icons/VolumeMutedSVG';
+import RangeSlider from '@/lib/plugnmeet-helpers/ui/rangeSlider';
 
 const VolumeControl = () => {
   const dispatch = useAppDispatch();

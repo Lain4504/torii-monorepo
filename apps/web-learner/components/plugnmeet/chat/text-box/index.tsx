@@ -11,14 +11,14 @@ import { useTranslation } from 'react-i18next';
 import { isEmpty } from 'es-toolkit/compat';
 import { RoomUploadedFileType } from '@workspace/protocol';
 
-import { store, useAppDispatch, useAppSelector } from '../../../store';
+import { store, useAppDispatch, useAppSelector } from '@/store/plugnmeet';
 import FileSend from './fileSend';
-import { getNatsConn } from '../../../helpers/nats';
+import { getNatsConn } from '@/lib/plugnmeet-helpers/nats';
 import { useAutosizeTextArea } from './useAutosizeTextArea';
 import { publishFileAttachmentToChat } from '../utils';
-import { uploadResumableFile } from '../../../helpers/fileUpload';
-import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
-import SendIconSVG from '../../../assets/Icons/SendIconSVG';
+import { uploadResumableFile } from '@/lib/plugnmeet-helpers/fileUpload';
+import { addUserNotification } from '@/store/plugnmeet/slices/roomSettingsSlice';
+import SendIconSVG from '@/assets/Icons/SendIconSVG';
 
 const urlRegex =
   /(\b(https?):\/\/[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%?=~_|])/gi;

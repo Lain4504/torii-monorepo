@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { useAppSelector } from '../../../store';
+import { useAppSelector } from '@/store/plugnmeet';
 import SharedNotepadElement from '../../shared-notepad';
 
 export const useSharedNotepad = () => {

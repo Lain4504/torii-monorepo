@@ -1,6 +1,6 @@
 import React, { ReactNode, useMemo } from 'react';
 
-import { useAppSelector } from '../../store';
+import { useAppSelector } from '@/store/plugnmeet';
 
 interface ILayoutWrapperProps {
   isActiveScreenShare: boolean;

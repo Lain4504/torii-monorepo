@@ -6,9 +6,9 @@ import {
 } from '@workspace/protocol';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
-import { store, useAppDispatch } from '../../../../../store';
-import sendAPIRequest from '../../../../../helpers/api/plugNmeetAPI';
-import { addUserNotification } from '../../../../../store/slices/roomSettingsSlice';
+import { store, useAppDispatch } from '@/store/plugnmeet';
+import sendAPIRequest from '@/lib/plugnmeet-helpers/api/plugNmeetAPI';
+import { addUserNotification } from '@/store/plugnmeet/slices/roomSettingsSlice';
 
 const useMuteAll = () => {
   const dispatch = useAppDispatch();

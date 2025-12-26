@@ -9,18 +9,18 @@ import {
 } from '@headlessui/react';
 import { createSelector } from '@reduxjs/toolkit';
 
-import { RootState, useAppDispatch, useAppSelector } from '../../store';
-import { selectChatKeys } from '../../store/slices/chatMessagesSlice';
+import { RootState, useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import { selectChatKeys } from '@/store/plugnmeet/slices/chatMessagesSlice';
 import Messages from './messages';
-import { participantsSelector } from '../../store/slices/participantSlice';
+import { participantsSelector } from '@/store/plugnmeet/slices/participantSlice';
 import {
   updateSelectedChatOption,
   updateUnreadMsgFrom,
-} from '../../store/slices/roomSettingsSlice';
-import { CloseIconSVG } from '../../assets/Icons/CloseIconSVG';
-import { setActiveSidePanel } from '../../store/slices/bottomIconsActivitySlice';
-import { CheckMarkIcon } from '../../assets/Icons/CheckMarkIcon';
-import i18n from '../../helpers/i18n';
+} from '@/store/plugnmeet/slices/roomSettingsSlice';
+import { CloseIconSVG } from '@/assets/Icons/CloseIconSVG';
+import { setActiveSidePanel } from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
+import { CheckMarkIcon } from '@/assets/Icons/CheckMarkIcon';
+import i18n from '@/lib/plugnmeet-helpers/i18n';
 import ChatTranslation from './chatTranslation';
 
 interface IChatOption {

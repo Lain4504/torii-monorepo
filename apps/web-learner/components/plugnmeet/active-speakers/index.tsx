@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo } from 'react';
 import { throttle } from 'es-toolkit';
 
-import { useAppSelector } from '../../store';
-import { selectSpeakingParticipants } from '../../store/slices/activeSpeakersSlice';
-import { participantsSelector } from '../../store/slices/participantSlice';
+import { useAppSelector } from '@/store/plugnmeet';
+import { selectSpeakingParticipants } from '@/store/plugnmeet/slices/activeSpeakersSlice';
+import { participantsSelector } from '@/store/plugnmeet/slices/participantSlice';
 import SpeakerComponent from './speaker';
-import { getMediaServerConn } from '../../helpers/livekit/utils';
-import { IActiveSpeaker } from '../../store/slices/interfaces/activeSpeakers';
+import { getMediaServerConn } from '@/lib/plugnmeet-helpers/livekit/utils';
+import { IActiveSpeaker } from '@/store/plugnmeet/slices/interfaces/activeSpeakers';
 
 const ACTIVE_SPEAKER_VIDEO_REARRANGE_DURATION = 4000;
 

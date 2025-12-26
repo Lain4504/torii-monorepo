@@ -10,19 +10,19 @@ import {
   NatsSystemNotificationTypes,
 } from '@workspace/protocol';
 
-import { store } from '../../store';
+import { store } from '@/store/plugnmeet';
 import {
   addUserNotification,
   updateAzureTokenInfo,
   updatePlayAudioNotification,
-} from '../../store/slices/roomSettingsSlice';
+} from '@/store/plugnmeet/slices/roomSettingsSlice';
 import i18n from '../i18n';
-import { pollsApi } from '../../store/services/pollsApi';
-import { updateReceivedInvitationFor } from '../../store/slices/breakoutRoomSlice';
-import { breakoutRoomApi } from '../../store/services/breakoutRoomApi';
-import { addChatMessage } from '../../store/slices/chatMessagesSlice';
+import { pollsApi } from '@/store/plugnmeet/services/pollsApi';
+import { updateReceivedInvitationFor } from '@/store/plugnmeet/slices/breakoutRoomSlice';
+import { breakoutRoomApi } from '@/store/plugnmeet/services/breakoutRoomApi';
+import { addChatMessage } from '@/store/plugnmeet/slices/chatMessagesSlice';
 import { randomString } from '../utils';
-import { updateAiTextChat } from '../../store/slices/insightsAiTextChatSlice';
+import { updateAiTextChat } from '@/store/plugnmeet/slices/insightsAiTextChatSlice';
 
 export default class HandleSystemData {
   private readonly userId: string;

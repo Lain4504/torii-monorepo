@@ -16,29 +16,29 @@ import ConnectNats from './ConnectNats';
 import {
   ICurrentUser,
   ICurrentUserMetadata,
-} from '../../store/slices/interfaces/session';
-import { store } from '../../store';
+} from '@/store/plugnmeet/slices/interfaces/session';
+import { store } from '@/store/plugnmeet';
 import {
   addCurrentUser,
   updateCurrentUserMetadata,
-} from '../../store/slices/sessionSlice';
+} from '@/store/plugnmeet/slices/sessionSlice';
 import {
   addParticipant,
   participantsSelector,
   removeParticipant,
   updateParticipant,
-} from '../../store/slices/participantSlice';
+} from '@/store/plugnmeet/slices/participantSlice';
 import { languagesMap } from '../languages';
 import i18n from '../i18n';
 import {
   setActiveSidePanel,
   updateIsActiveRaisehand,
-} from '../../store/slices/bottomIconsActivitySlice';
+} from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
 import {
   addUserNotification,
   updatePlayAudioNotification,
-} from '../../store/slices/roomSettingsSlice';
-import { removeOneSpeaker } from '../../store/slices/activeSpeakersSlice';
+} from '@/store/plugnmeet/slices/roomSettingsSlice';
+import { removeOneSpeaker } from '@/store/plugnmeet/slices/activeSpeakersSlice';
 import { getMediaServerConn } from '../livekit/utils';
 import { isUserRecorder } from '../utils';
 

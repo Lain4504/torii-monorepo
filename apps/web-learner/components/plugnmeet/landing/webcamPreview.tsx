@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 import VirtualBackground from '../virtual-background/virtualBackground';
-import { useAppSelector } from '../../store';
+import { useAppSelector } from '@/store/plugnmeet';
 import { SourcePlayback } from '../virtual-background/helpers/sourceHelper';
 
 interface WebcamPreviewProps {

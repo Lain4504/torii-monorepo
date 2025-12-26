@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { debounce } from 'es-toolkit';
 
-import { store, useAppSelector } from '../../../store';
-import { selectMessagesByKeyValue } from '../../../store/slices/chatMessagesSlice';
+import { store, useAppSelector } from '@/store/plugnmeet';
+import { selectMessagesByKeyValue } from '@/store/plugnmeet/slices/chatMessagesSlice';
 import Message from './message';
 
 interface IMessagesProps {

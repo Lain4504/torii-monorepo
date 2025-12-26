@@ -3,15 +3,15 @@ import { MenuItem, MenuItems } from '@headlessui/react';
 import { Room, Track } from 'livekit-client';
 import { useTranslation } from 'react-i18next';
 
-import { useAppDispatch, useAppSelector } from '../../../../store';
-import { updateSelectedAudioDevice } from '../../../../store/slices/roomSettingsSlice';
+import { useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import { updateSelectedAudioDevice } from '@/store/plugnmeet/slices/roomSettingsSlice';
 import {
   updateIsActiveMicrophone,
   updateIsMicMuted,
-} from '../../../../store/slices/bottomIconsActivitySlice';
-import { CheckMarkIcon } from '../../../../assets/Icons/CheckMarkIcon';
-import { Microphone } from '../../../../assets/Icons/Microphone';
-import { MicrophoneOff } from '../../../../assets/Icons/MicrophoneOff';
+} from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
+import { CheckMarkIcon } from '@/assets/Icons/CheckMarkIcon';
+import { Microphone } from '@/assets/Icons/Microphone';
+import { MicrophoneOff } from '@/assets/Icons/MicrophoneOff';
 
 interface IMicMenuItemsProps {
   currentRoom: Room;

@@ -1,15 +1,15 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { debounce } from 'es-toolkit';
 
-import { store, useAppDispatch } from '../../store';
+import { store, useAppDispatch } from '@/store/plugnmeet';
 import {
   setActiveSidePanel,
   updateIsEnabledExtendedVerticalCamView,
-} from '../../store/slices/bottomIconsActivitySlice';
+} from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
 
 import { useMainAreaState } from './hooks/useMainAreaState';
 import { useMainAreaCustomCSS } from './hooks/useMainAreaCustomCSS';
-import { triggerRefreshWhiteboard } from '../../store/slices/whiteboard';
+import { triggerRefreshWhiteboard } from '@/store/plugnmeet/slices/whiteboard';
 
 import ActiveSpeakers from '../active-speakers';
 import MainView from './mainView';
@@ -17,7 +17,7 @@ import PollsComponent from '../polls';
 import ChatComponent from '../chat';
 import ParticipantsComponent from '../participants';
 import SidePanel from './sidePanel';
-import { updateIsSidePanelOpened } from '../../store/slices/roomSettingsSlice';
+import { updateIsSidePanelOpened } from '@/store/plugnmeet/slices/roomSettingsSlice';
 import InsightsAiTextChat from '../insights-ai/ai-text-chat/display';
 
 const MainArea = () => {

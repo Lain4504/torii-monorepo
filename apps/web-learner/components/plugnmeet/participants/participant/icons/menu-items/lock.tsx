@@ -8,10 +8,10 @@ import {
   UpdateUserLockSettingsReqSchema,
 } from '@workspace/protocol';
 
-import { store, useAppSelector } from '../../../../../store';
-import { participantsSelector } from '../../../../../store/slices/participantSlice';
-import { ICurrentUserMetadata } from '../../../../../store/slices/interfaces/session';
-import sendAPIRequest from '../../../../../helpers/api/plugNmeetAPI';
+import { store, useAppSelector } from '@/store/plugnmeet';
+import { participantsSelector } from '@/store/plugnmeet/slices/participantSlice';
+import { ICurrentUserMetadata } from '@/store/plugnmeet/slices/interfaces/session';
+import sendAPIRequest from '@/lib/plugnmeet-helpers/api/plugNmeetAPI';
 
 interface ILockSettingMenuItemProps {
   userId: string;

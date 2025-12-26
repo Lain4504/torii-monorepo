@@ -9,10 +9,10 @@ import {
 } from '@workspace/protocol';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
-import { store, useAppSelector } from '../../../../../store';
-import { participantsSelector } from '../../../../../store/slices/participantSlice';
-import sendAPIRequest from '../../../../../helpers/api/plugNmeetAPI';
-import { getNatsConn } from '../../../../../helpers/nats';
+import { store, useAppSelector } from '@/store/plugnmeet';
+import { participantsSelector } from '@/store/plugnmeet/slices/participantSlice';
+import sendAPIRequest from '@/lib/plugnmeet-helpers/api/plugNmeetAPI';
+import { getNatsConn } from '@/lib/plugnmeet-helpers/nats';
 
 interface IMicMenuItemProps {
   userId: string;

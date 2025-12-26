@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useAppSelector } from '../../store';
-import { LoadingIcon } from '../../assets/Icons/Loading';
+import { useAppSelector } from '@/store/plugnmeet';
+import { LoadingIcon } from '@/assets/Icons/Loading';
 
 const DisplayExternalLink = () => {
   const { t } = useTranslation();

@@ -1,4 +1,4 @@
-import { getConfigValue } from '../../../helpers/utils';
+import { getConfigValue } from '@/lib/plugnmeet-helpers/utils';
 
 export type BackgroundConfig = {
   type: 'none' | 'blur-sm' | 'image';

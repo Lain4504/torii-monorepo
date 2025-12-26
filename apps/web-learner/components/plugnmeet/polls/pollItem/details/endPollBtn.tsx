@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useEndPoll } from '../../hooks/useEndPoll';
-import ActionButton from '../../../../helpers/ui/actionButton';
+import ActionButton from '@/lib/plugnmeet-helpers/ui/actionButton';
 
 interface EndPollBtnProps {
   pollId: string;

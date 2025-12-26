@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 
-import { store } from '../../store';
+import { store } from '@/store/plugnmeet';
 import WebcamIcon from './icons/webcam';
 import MicrophoneIcon from './icons/microphone';
 import ChatIcon from './icons/chat';

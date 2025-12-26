@@ -2,11 +2,11 @@ import React, { useRef, useState } from 'react';
 import Draggable from 'react-draggable';
 import { useTranslation } from 'react-i18next';
 
-import { useAppDispatch, useAppSelector } from '../../store';
-import { updateIsActiveSharedNotePad } from '../../store/slices/bottomIconsActivitySlice';
+import { useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import { updateIsActiveSharedNotePad } from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
 import { useNotepadUrl } from './useNotepadUrl';
-import { LoadingIcon } from '../../assets/Icons/Loading';
-import { PopupCloseSVGIcon } from '../../assets/Icons/PopupCloseSVGIcon';
+import { LoadingIcon } from '@/assets/Icons/Loading';
+import { PopupCloseSVGIcon } from '@/assets/Icons/PopupCloseSVGIcon';
 
 const SharedNotepad = () => {
   const { t } = useTranslation();

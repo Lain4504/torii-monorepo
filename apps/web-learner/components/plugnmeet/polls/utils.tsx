@@ -2,9 +2,9 @@ import React, { ReactElement } from 'react';
 import { chunk } from 'es-toolkit';
 import ReactDOMServer from 'react-dom/server';
 
-import { getNatsConn } from '../../helpers/nats';
-import i18n from '../../helpers/i18n';
-import { generateAvatarInitial } from '../../helpers/utils';
+import { getNatsConn } from '@/lib/plugnmeet-helpers/nats';
+import i18n from '@/lib/plugnmeet-helpers/i18n';
+import { generateAvatarInitial } from '@/lib/plugnmeet-helpers/utils';
 
 export interface PollDataWithOption {
   pollId: string;

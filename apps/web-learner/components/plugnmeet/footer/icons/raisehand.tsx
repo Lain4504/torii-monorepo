@@ -7,9 +7,9 @@ import {
 import { create } from '@bufbuild/protobuf';
 import clsx from 'clsx';
 
-import { store, useAppSelector } from '../../../store';
-import { getNatsConn } from '../../../helpers/nats';
-import { HandsIconSVG } from '../../../assets/Icons/HandsIconSVG';
+import { store, useAppSelector } from '@/store/plugnmeet';
+import { getNatsConn } from '@/lib/plugnmeet-helpers/nats';
+import { HandsIconSVG } from '@/assets/Icons/HandsIconSVG';
 
 const RaiseHandIcon = () => {
   const { t } = useTranslation();

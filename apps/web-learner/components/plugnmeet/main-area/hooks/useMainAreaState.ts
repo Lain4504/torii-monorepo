@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 
-import { useAppSelector } from '../../../store';
-import { getMediaServerConn } from '../../../helpers/livekit/utils';
-import { CurrentConnectionEvents } from '../../../helpers/livekit/types';
+import { useAppSelector } from '@/store/plugnmeet';
+import { getMediaServerConn } from '@/lib/plugnmeet-helpers/livekit/utils';
+import { CurrentConnectionEvents } from '@/lib/plugnmeet-helpers/livekit/types';
 
 export const useMainAreaState = () => {
   const currentConnection = getMediaServerConn();

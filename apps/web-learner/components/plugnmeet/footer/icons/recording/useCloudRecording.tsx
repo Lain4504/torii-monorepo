@@ -9,10 +9,10 @@ import {
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
 import { IUseCloudRecordingReturn, RecordingType } from './IRecording';
-import sendAPIRequest from '../../../../helpers/api/plugNmeetAPI';
-import { store, useAppDispatch } from '../../../../store';
-import { addUserNotification } from '../../../../store/slices/roomSettingsSlice';
-import { getConfigValue } from '../../../../helpers/utils';
+import sendAPIRequest from '@/lib/plugnmeet-helpers/api/plugNmeetAPI';
+import { store, useAppDispatch } from '@/store/plugnmeet';
+import { addUserNotification } from '@/store/plugnmeet/slices/roomSettingsSlice';
+import { getConfigValue } from '@/lib/plugnmeet-helpers/utils';
 
 const useCloudRecording = (): IUseCloudRecordingReturn => {
   const TYPE_OF_RECORDING = RecordingType.RECORDING_TYPE_CLOUD;

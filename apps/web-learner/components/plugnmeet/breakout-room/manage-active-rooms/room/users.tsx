@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { BreakoutRoomUser, DataMsgBodyType } from '@workspace/protocol';
 import { chunk } from 'es-toolkit';
 
-import { generateAvatarInitial } from '../../../../helpers/utils';
-import { getNatsConn } from '../../../../helpers/nats';
+import { generateAvatarInitial } from '@/lib/plugnmeet-helpers/utils';
+import { getNatsConn } from '@/lib/plugnmeet-helpers/nats';
 import { BreakoutRoomMessage } from '../../index';
 
 interface IBreakoutRoomUsersProps {

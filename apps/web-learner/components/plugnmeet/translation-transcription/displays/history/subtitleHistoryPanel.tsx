@@ -8,11 +8,11 @@ import React, {
 import { PopoverPanel } from '@headlessui/react';
 import { useTranslation } from 'react-i18next';
 
-import { store, useAppSelector } from '../../../../store';
-import { DownloadIconSVG } from '../../../../assets/Icons/DownloadIconSVG';
-import { CloseIconSVG } from '../../../../assets/Icons/CloseIconSVG';
+import { store, useAppSelector } from '@/store/plugnmeet';
+import { DownloadIconSVG } from '@/assets/Icons/DownloadIconSVG';
+import { CloseIconSVG } from '@/assets/Icons/CloseIconSVG';
 import InterimTextDisplay from './interimTextDisplay';
-import { ScrollToBottomIconSVG } from '../../../../assets/Icons/ScrollToBottom';
+import { ScrollToBottomIconSVG } from '@/assets/Icons/ScrollToBottom';
 
 interface SubtitleHistoryPanelProps {
   showPopover: boolean;

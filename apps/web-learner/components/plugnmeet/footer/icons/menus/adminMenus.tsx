@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import FooterMenuItem from './menuItem';
-import { store, useAppDispatch, useAppSelector } from '../../../../store';
+import { store, useAppDispatch, useAppSelector } from '@/store/plugnmeet';
 import useSharedNotepad from './hooks/useSharedNotepad';
 import usePolls from './hooks/usePolls';
 import useMuteAll from './hooks/useMuteAll';
@@ -15,16 +15,16 @@ import {
   updateShowManageBreakoutRoomModal,
   updateShowManageWaitingRoomModal,
   updateShowRtmpModal,
-} from '../../../../store/slices/bottomIconsActivitySlice';
-import { RTMPIconSVG } from '../../../../assets/Icons/RTMPIconSVG';
-import { PlayerIconSVG } from '../../../../assets/Icons/PlayerIconSVG';
-import { ExternalPlayerIconSVG } from '../../../../assets/Icons/ExternalPlayerIconSVG';
-import { SharedNotepadIconSVG } from '../../../../assets/Icons/SharedNotepadIconSVG';
-import { SpeechIconSVG } from '../../../../assets/Icons/SpeechIconSVG';
-import { PollsIconSVG } from '../../../../assets/Icons/PollsIconSVG';
-import { BreakoutRoomIconSVG } from '../../../../assets/Icons/BreakoutRoomIconSVG';
-import { RoomLockIconSVG } from '../../../../assets/Icons/RoomLockIconSVG';
-import { AiIconSVG } from '../../../../assets/Icons/AiIconSVG';
+} from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
+import { RTMPIconSVG } from '@/assets/Icons/RTMPIconSVG';
+import { PlayerIconSVG } from '@/assets/Icons/PlayerIconSVG';
+import { ExternalPlayerIconSVG } from '@/assets/Icons/ExternalPlayerIconSVG';
+import { SharedNotepadIconSVG } from '@/assets/Icons/SharedNotepadIconSVG';
+import { SpeechIconSVG } from '@/assets/Icons/SpeechIconSVG';
+import { PollsIconSVG } from '@/assets/Icons/PollsIconSVG';
+import { BreakoutRoomIconSVG } from '@/assets/Icons/BreakoutRoomIconSVG';
+import { RoomLockIconSVG } from '@/assets/Icons/RoomLockIconSVG';
+import { AiIconSVG } from '@/assets/Icons/AiIconSVG';
 
 const AdminMenus = () => {
   const dispatch = useAppDispatch();

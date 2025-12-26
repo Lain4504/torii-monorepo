@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import { useAppSelector } from '../../../store';
+import { useAppSelector } from '@/store/plugnmeet';
 import speechQueue from './SpeechSynthesisQueue'; // Import the singleton
 
 export const useSubtitleSpeechSynthesis = () => {

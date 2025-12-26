@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
-import { useAppDispatch, useAppSelector } from '../../store';
-import { updateTheme } from '../../store/slices/roomSettingsSlice';
+import { useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import { updateTheme } from '@/store/plugnmeet/slices/roomSettingsSlice';
 
 const useThemeSettings = () => {
   const theme = useAppSelector((state) => state.roomSettings.theme);

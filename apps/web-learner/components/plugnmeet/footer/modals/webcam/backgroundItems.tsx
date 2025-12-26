@@ -5,9 +5,9 @@ import {
   BackgroundConfig,
   backgroundImageUrls,
 } from '../../../virtual-background/helpers/backgroundHelper';
-import useResumableFilesUpload from '../../../../helpers/hooks/useResumableFilesUpload';
-import { useAppSelector } from '../../../../store';
-import { getConfigValue } from '../../../../helpers/utils';
+import useResumableFilesUpload from '@/lib/plugnmeet-helpers/hooks/useResumableFilesUpload';
+import { useAppSelector } from '@/store/plugnmeet';
+import { getConfigValue } from '@/lib/plugnmeet-helpers/utils';
 
 interface IBackgroundItemsProps {
   onSelect: (bg: BackgroundConfig) => void;

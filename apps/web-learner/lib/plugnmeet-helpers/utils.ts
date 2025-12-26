@@ -2,10 +2,10 @@ import { AudioPresets, ScreenSharePresets, VideoPresets } from 'livekit-client';
 import { errors } from '@nats-io/nats-core';
 
 import i18n from './i18n';
-import { store } from '../store';
-import { participantsSelector } from '../store/slices/participantSlice';
-import { IParticipant } from '../store/slices/interfaces/participant';
-import { IMediaDevice } from '../store/slices/interfaces/roomSettings';
+import { store } from '@/store/plugnmeet';
+import { participantsSelector } from '@/store/plugnmeet/slices/participantSlice';
+import { IParticipant } from '@/store/plugnmeet/slices/interfaces/participant';
+import { IMediaDevice } from '@/store/plugnmeet/slices/interfaces/roomSettings';
 
 export type inputMediaDeviceKind = 'audio' | 'video' | 'both';
 
@@ -23,6 +23,9 @@ export function getConfigValue<T>(
   defaultValue?: T,
   legacyKey?: string,
 ): T {
+  if (typeof window === 'undefined') {
+    return defaultValue as T;
+  }
   const config = (window as any).plugNmeetConfig;
 
   // 1. Prioritize the new config object
@@ -93,13 +96,17 @@ const dec2hex = (dec) => {
 
 export const randomString = (len = 20) => {
   const arr = new Uint8Array(len / 2);
-  window.crypto.getRandomValues(arr);
+  if (typeof window !== 'undefined' && window.crypto) {
+    window.crypto.getRandomValues(arr);
+  }
   return Array.from(arr, dec2hex).join('');
 };
 
 export const randomInteger = (len = 10) => {
   const arr = new Uint8Array(len / 2);
-  window.crypto.getRandomValues(arr);
+  if (typeof window !== 'undefined' && window.crypto) {
+    window.crypto.getRandomValues(arr);
+  }
   return Number(arr.join(''));
 };
 
@@ -210,6 +217,9 @@ export const getAudioPreset = () => {
 };
 
 const getCookie = (name: string): string | null => {
+  if (typeof document === 'undefined') {
+    return null;
+  }
   const nameEQ = name + '=';
   const ca = document.cookie.split(';');
   for (let i = 0; i < ca.length; i++) {
@@ -230,6 +240,9 @@ const getCookie = (name: string): string | null => {
  * from cookie name `pnm_access_token`
  * */
 export const getAccessToken = () => {
+  if (typeof window === 'undefined') {
+    return undefined;
+  }
   const urlSearchParams = new URLSearchParams(window.location.search);
   const accessToken = urlSearchParams.get('access_token');
   if (accessToken) {

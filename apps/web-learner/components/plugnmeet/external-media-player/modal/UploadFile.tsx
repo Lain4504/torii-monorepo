@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RoomUploadedFileType } from '@workspace/protocol';
 
-import { uploadResumableFile } from '../../../helpers/fileUpload';
-import { FileIconSVG } from '../../../assets/Icons/FileIconSVG';
-import { TrashSVG } from '../../../assets/Icons/TrashSVG';
+import { uploadResumableFile } from '@/lib/plugnmeet-helpers/fileUpload';
+import { FileIconSVG } from '@/assets/Icons/FileIconSVG';
+import { TrashSVG } from '@/assets/Icons/TrashSVG';
 
 interface IUploadFileProps {
   isPlayBtnLoading: boolean;

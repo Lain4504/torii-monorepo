@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { useAppSelector } from '../../../../store';
-import { participantsSelector } from '../../../../store/slices/participantSlice';
+import { useAppSelector } from '@/store/plugnmeet';
+import { participantsSelector } from '@/store/plugnmeet/slices/participantSlice';
 import IconWrapper from './iconWrapper';
-import { Camera } from '../../../../assets/Icons/Camera';
+import { Camera } from '@/assets/Icons/Camera';
 
 interface WebcamIconProps {
   userId: string;

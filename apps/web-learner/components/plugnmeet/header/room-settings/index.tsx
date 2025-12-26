@@ -2,10 +2,10 @@ import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import sanitizeHtml from 'sanitize-html';
 
-import { store, useAppDispatch, useAppSelector } from '../../../store';
-import { updateShowRoomSettingsModal } from '../../../store/slices/roomSettingsSlice';
-import Modal from '../../../helpers/ui/modal';
-import Tabs from '../../../helpers/ui/tabs';
+import { store, useAppDispatch, useAppSelector } from '@/store/plugnmeet';
+import { updateShowRoomSettingsModal } from '@/store/plugnmeet/slices/roomSettingsSlice';
+import Modal from '@/lib/plugnmeet-helpers/ui/modal';
+import Tabs from '@/lib/plugnmeet-helpers/ui/tabs';
 import ApplicationSettings from './application';
 import DataSavings from './dataSavings';
 import Ingress from './ingress';

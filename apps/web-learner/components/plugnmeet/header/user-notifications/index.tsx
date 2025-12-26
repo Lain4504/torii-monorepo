@@ -18,10 +18,10 @@ import NewPoll from './newPoll';
 import NewBreakoutRoom from './newBreakoutRoom';
 import GenericNotification from './genericNotification';
 
-import { store, useAppSelector } from '../../../store';
-import { UserNotification } from '../../../store/slices/interfaces/roomSettings';
-import { PopupCloseSVGIcon } from '../../../assets/Icons/PopupCloseSVGIcon';
-import { NotifyIconSVG } from '../../../assets/Icons/NotifyIconSVG';
+import { store, useAppSelector } from '@/store/plugnmeet';
+import { UserNotification } from '@/store/plugnmeet/slices/interfaces/roomSettings';
+import { PopupCloseSVGIcon } from '@/assets/Icons/PopupCloseSVGIcon';
+import { NotifyIconSVG } from '@/assets/Icons/NotifyIconSVG';
 
 const UserNotifications = () => {
   const toastId = useRef<number | string>('toastId');

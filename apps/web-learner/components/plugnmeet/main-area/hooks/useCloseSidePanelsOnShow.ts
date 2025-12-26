@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
-import { useAppDispatch } from '../../../store';
-import { setActiveSidePanel } from '../../../store/slices/bottomIconsActivitySlice';
+import { useAppDispatch } from '@/store/plugnmeet';
+import { setActiveSidePanel } from '@/store/plugnmeet/slices/bottomIconsActivitySlice';
 
 export const useCloseSidePanelsOnShow = (
   shouldShow: boolean,

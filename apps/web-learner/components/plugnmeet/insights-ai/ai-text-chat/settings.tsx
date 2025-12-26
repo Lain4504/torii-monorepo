@@ -7,10 +7,10 @@ import {
   InsightsAITextChatConfigReqSchema,
 } from '@workspace/protocol';
 
-import { useAppSelector } from '../../../store';
-import SettingsSwitch from '../../../helpers/ui/settingsSwitch';
+import { useAppSelector } from '@/store/plugnmeet';
+import SettingsSwitch from '@/lib/plugnmeet-helpers/ui/settingsSwitch';
 import UsersSelector from './usersSelector';
-import sendAPIRequest from '../../../helpers/api/plugNmeetAPI';
+import sendAPIRequest from '@/lib/plugnmeet-helpers/api/plugNmeetAPI';
 
 interface AiTextChatSettingsProps {
   setErrorMsg: React.Dispatch<React.SetStateAction<string | undefined>>;
