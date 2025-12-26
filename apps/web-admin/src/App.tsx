@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import DashboardPage from './pages/DashboardPage'
 import { UsersPage } from './pages/UsersPage.tsx'
+import { AddUserPage } from './pages/AddUserPage.tsx'
 import CoursesPage from './pages/CoursesPage'
 import AssessmentsPage from './pages/AssessmentsPage'
 import RoomsPage from './pages/RoomsPage'
@@ -11,6 +12,7 @@ import AIServicePage from './pages/AIServicePage'
 import NotificationsPage from './pages/NotificationsPage'
 import PermissionsPage from './pages/PermissionsPage'
 import SettingsPage from './pages/SettingsPage'
+import LoginPage from './pages/LoginPage'
 import DashboardLayout from "./components/layout/dashboard-layout.tsx";
 
 const queryClient = new QueryClient({
@@ -27,9 +29,11 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
+          <Route path="/login" element={<LoginPage />} />
           <Route element={<DashboardLayout />}>
             <Route index element={<DashboardPage />} />
             <Route path="users" element={<UsersPage />} />
+            <Route path="users/new" element={<AddUserPage />} />
             <Route path="courses" element={<CoursesPage />} />
             <Route path="assessments" element={<AssessmentsPage />} />
             <Route path="rooms" element={<RoomsPage />} />
