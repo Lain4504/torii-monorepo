@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "postinstall": "node scripts/copy-assets.js"
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.10.2",

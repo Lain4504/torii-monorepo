@@ -205,7 +205,9 @@ export default class HandleMediaTracks {
             changes: { screenShareTrack: 1 },
           }),
         );
-        this.connectLivekit.addScreenShareTrack(participant.identity, track);
+        if (this.connectLivekit.room) {
+          this.connectLivekit.addScreenShareTrack(participant.identity, track);
+        }
         break;
       }
       case Track.Source.Microphone: {
@@ -222,7 +224,9 @@ export default class HandleMediaTracks {
             },
           }),
         );
-        this.connectLivekit.addAudioSubscriber(participant);
+        if (this.connectLivekit.room) {
+          this.connectLivekit.addAudioSubscriber(participant);
+        }
         break;
       }
       case Track.Source.Camera: {
@@ -239,7 +243,9 @@ export default class HandleMediaTracks {
             changes: { videoTracks: count },
           }),
         );
-        this.connectLivekit.addVideoSubscriber(participant);
+        if (this.connectLivekit.room) {
+          this.connectLivekit.addVideoSubscriber(participant);
+        }
         break;
       }
     }
@@ -258,11 +264,15 @@ export default class HandleMediaTracks {
             changes: { screenShareTrack: 0 },
           }),
         );
-        this.connectLivekit.removeScreenShareTrack(participant.identity);
+        if (this.connectLivekit.room) {
+          this.connectLivekit.removeScreenShareTrack(participant.identity);
+        }
         break;
       }
       case Track.Source.Microphone: {
-        this.connectLivekit.removeAudioSubscriber(participant.identity);
+        if (this.connectLivekit.room) {
+          this.connectLivekit.removeAudioSubscriber(participant.identity);
+        }
         store.dispatch(
           updateParticipant({
             id: participant.identity,
@@ -279,7 +289,9 @@ export default class HandleMediaTracks {
         break;
       }
       case Track.Source.Camera: {
-        this.connectLivekit.removeVideoSubscriber(participant.identity);
+        if (this.connectLivekit.room) {
+          this.connectLivekit.removeVideoSubscriber(participant.identity);
+        }
         store.dispatch(
           updateParticipant({
             id: participant.identity,

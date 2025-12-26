@@ -11,7 +11,12 @@ import '@/styles/plugnmeet-styles.css';
 import '@/lib/plugnmeet-helpers/i18n';
 
 import { store } from '@/store/plugnmeet';
-import App from '@/components/plugnmeet/app';
+import dynamic from 'next/dynamic';
+
+const App = dynamic(() => import('@/components/plugnmeet/app'), {
+    ssr: false,
+    loading: () => <Loading text="Loading app..." />,
+});
 import Loading from '@/components/plugnmeet/extra-pages/Loading';
 
 /**

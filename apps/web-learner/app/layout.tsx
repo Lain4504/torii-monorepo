@@ -1,4 +1,5 @@
 import { Geist, Geist_Mono } from "next/font/google"
+import Script from "next/script"
 
 import "@workspace/ui/globals.css"
 import { Providers } from "@/components/providers"
@@ -24,6 +25,8 @@ export default function RootLayout({
         className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased `}
       >
         <Providers>{children}</Providers>
+        <Script src="/assets/tflite/tflite.js" strategy="beforeInteractive" />
+        <Script src="/assets/tflite/tflite-simd.js" strategy="beforeInteractive" />
       </body>
     </html>
   )

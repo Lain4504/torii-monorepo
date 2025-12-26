@@ -4,154 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: update import paths to use absolute paths for better readability">
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/active-speakers/speaker.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/active-speakers/speaker.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/breakout-room/form/roomBox.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/breakout-room/form/roomBox.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/breakout-room/form/roomNumberSelector.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/breakout-room/form/roomNumberSelector.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/breakout-room/manage-active-rooms/room/joinBtn.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/breakout-room/manage-active-rooms/room/joinBtn.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/breakout-room/manage-active-rooms/room/users.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/breakout-room/manage-active-rooms/room/users.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/breakout-room/manage-active-rooms/roomLists.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/breakout-room/manage-active-rooms/roomLists.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/chat/messages/message/messageTypes.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/chat/messages/message/messageTypes.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/display-external-link/modal/savedLinkItem.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/display-external-link/modal/savedLinkItem.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/display-external-link/modal/savedLinks.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/display-external-link/modal/savedLinks.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/external-media-player/modal/UploadFile.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/external-media-player/modal/UploadFile.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/external-media-player/modal/UploadedFileList.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/external-media-player/modal/UploadedFileList.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/external-media-player/modal/upload.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/external-media-player/modal/upload.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/external-media-player/reactPlayerComponent.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/external-media-player/reactPlayerComponent.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/extra-pages/InsertE2EEKey.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/extra-pages/InsertE2EEKey.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/extra-pages/Loading.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/extra-pages/Loading.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/insightAiTextChat.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/insightAiTextChat.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/menus.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/menus.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/menus/hooks/useDisplayExternalLink.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/menus/hooks/useDisplayExternalLink.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/menus/hooks/useExternalMediaPlayer.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/menus/hooks/useExternalMediaPlayer.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/menus/hooks/useMuteAll.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/menus/hooks/useMuteAll.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/menus/hooks/usePolls.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/menus/hooks/usePolls.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/menus/hooks/useSharedNotepad.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/menus/hooks/useSharedNotepad.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/mic-menu/items.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/mic-menu/items.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/microphone.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/microphone.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/participant.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/participant.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/polls.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/polls.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/raisehand.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/raisehand.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/recording.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/recording.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/recording/recordingModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/recording/recordingModal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/recording/useCloudRecording.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/recording/useCloudRecording.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/recording/useLocalRecording.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/recording/useLocalRecording.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/screenshare.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/screenshare.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/sharedNotePad.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/sharedNotePad.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/translation.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/translation.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/webcam/menu/items.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/webcam/menu/items.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/webcam/useVirtualBackground.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/webcam/useVirtualBackground.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/whiteboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/icons/whiteboard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/modals/lockSettingsModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/modals/lockSettingsModal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/modals/microphoneModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/modals/microphoneModal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/modals/rtmpModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/modals/rtmpModal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/modals/webcam/previewWebcam.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/footer/modals/webcam/previewWebcam.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/header/keyboardShortcuts.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/header/keyboardShortcuts.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/header/menus.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/header/menus.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/header/room-settings/ingress.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/header/room-settings/ingress.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/header/room-settings/notification.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/header/room-settings/notification.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/header/user-notifications/newBreakoutRoom.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/header/user-notifications/newBreakoutRoom.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/header/user-notifications/newPoll.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/header/user-notifications/newPoll.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/header/volumeControl.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/header/volumeControl.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/insights-ai/ai-text-chat/display/textBoxArea.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/insights-ai/ai-text-chat/display/textBoxArea.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/insights-ai/ai-text-chat/settings.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/insights-ai/ai-text-chat/settings.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/insights-ai/ai-text-chat/usersSelector.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/insights-ai/ai-text-chat/usersSelector.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/insights-ai/meeting-summarization/settings.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/insights-ai/meeting-summarization/settings.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/landing/hooks/useMediaDevices.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/landing/hooks/useMediaDevices.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/landing/microphone.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/landing/microphone.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/main-area/hooks/useCloseSidePanelsOnShow.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/main-area/hooks/useCloseSidePanelsOnShow.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/main-area/hooks/useMainAreaState.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/main-area/hooks/useMainAreaState.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/main-area/hooks/useSharedNotepad.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/main-area/hooks/useSharedNotepad.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/main-area/hooks/useTranslationTranscription.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/main-area/hooks/useTranslationTranscription.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/main-area/hooks/useVideoLayout.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/main-area/hooks/useVideoLayout.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/main-area/layoutWrapper.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/main-area/layoutWrapper.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/media-elements/audios/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/media-elements/audios/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/media-elements/screenshare/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/media-elements/screenshare/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/media-elements/screenshare/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/media-elements/screenshare/style.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/media-elements/videos/helpers/useDeviceInfo.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/media-elements/videos/helpers/useDeviceInfo.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/media-elements/videos/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/media-elements/videos/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/media-elements/videos/video/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/media-elements/videos/video/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/media-elements/videos/video/micStatus.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/media-elements/videos/video/micStatus.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/media-elements/videos/video/pinWebcam.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/media-elements/videos/video/pinWebcam.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/media-elements/videos/video/raisedHand.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/media-elements/videos/video/raisedHand.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/media-elements/videos/video/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/media-elements/videos/video/style.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/participants/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/participants/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/participants/participant/icons/menu-items/lock.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/participants/participant/icons/menu-items/lock.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/participants/participant/icons/menu-items/lowerHand.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/participants/participant/icons/menu-items/lowerHand.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/participants/participant/icons/menu-items/mic.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/participants/participant/icons/menu-items/mic.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/participants/participant/icons/menu-items/privateChat.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/participants/participant/icons/menu-items/privateChat.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/participants/participant/icons/menu-items/switchPresenter.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/participants/participant/icons/menu-items/switchPresenter.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/participants/participant/icons/menu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/participants/participant/icons/menu.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/participants/participant/icons/mic.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/participants/participant/icons/mic.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/participants/participant/icons/presenterIcon.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/participants/participant/icons/presenterIcon.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/participants/participant/icons/raiseHand.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/participants/participant/icons/raiseHand.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/participants/participant/icons/screenShare.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/participants/participant/icons/screenShare.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/participants/participant/icons/visibility.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/participants/participant/icons/visibility.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/participants/participant/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/participants/participant/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/participants/participant/waitingApproval.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/participants/participant/waitingApproval.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/participants/removeParticipantAlertModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/participants/removeParticipantAlertModal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/polls/create/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/polls/create/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/polls/create/optionsView.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/polls/create/optionsView.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/polls/hooks/useEndPoll.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/polls/hooks/useEndPoll.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/polls/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/polls/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/polls/pollItem/details/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/polls/pollItem/details/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/polls/pollItem/details/notRespondents.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/polls/pollItem/details/notRespondents.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/polls/pollItem/details/publishResultBtn.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/polls/pollItem/details/publishResultBtn.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/polls/pollItem/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/polls/pollItem/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/polls/pollItem/pollActionsMenu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/polls/pollItem/pollActionsMenu.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/polls/pollItem/voteForm.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/polls/pollItem/voteForm.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/polls/pollsList.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/polls/pollsList.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/shared-notepad/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/shared-notepad/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/shared-notepad/useNotepadUrl.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/shared-notepad/useNotepadUrl.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/chat-translation-settings/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/chat-translation-settings/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/displays/history/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/displays/history/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/displays/history/interimTextDisplay.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/displays/history/interimTextDisplay.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/displays/history/subtitleHistoryPanel.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/displays/history/subtitleHistoryPanel.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/displays/liveSubtitle.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/displays/liveSubtitle.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/helpers/supportedLangs.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/helpers/supportedLangs.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/helpers/useSubtitleSpeechSynthesis.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/helpers/useSubtitleSpeechSynthesis.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/settingModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/settingModal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/speech-settings-modal/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/speech-settings-modal/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/speech-settings-modal/micSelector.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/speech-settings-modal/micSelector.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/speech-settings-modal/speechInputSettings.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/speech-settings-modal/speechInputSettings.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/speech-settings-modal/subtitleFontSizeSlider.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/speech-settings-modal/subtitleFontSizeSlider.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/speech-settings-modal/subtitleLangSelector.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/speech-settings-modal/subtitleLangSelector.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/transcription-settings/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/transcription-settings/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/transcription-settings/speechLangsSelector.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/transcription-settings/speechLangsSelector.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/transcription-settings/speechUsersSelector.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/transcription-settings/speechUsersSelector.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/transcription-settings/transLangsSelector.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/translation-transcription/transcription-settings/transLangsSelector.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/virtual-background/hooks/useRenderingPipeline.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/virtual-background/hooks/useRenderingPipeline.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/virtual-background/pipelines/webgl2/loadSegmentationStage.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/virtual-background/pipelines/webgl2/loadSegmentationStage.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/virtual-background/pipelines/webgl2/resizingStage.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/virtual-background/pipelines/webgl2/resizingStage.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/virtual-background/pipelines/webgl2/softmaxStage.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/virtual-background/pipelines/webgl2/softmaxStage.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/virtual-background/pipelines/webgl2/webgl2Pipeline.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/virtual-background/pipelines/webgl2/webgl2Pipeline.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/waiting-room/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/waiting-room/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/waiting-room/participantsList.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/waiting-room/participantsList.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/waiting-room/updateRoomMessage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/waiting-room/updateRoomMessage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/waiting-room/waitingParticipantItem.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/waiting-room/waitingParticipantItem.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/whiteboard/helpers/hooks/useOfficePageSyncer.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/whiteboard/helpers/hooks/useOfficePageSyncer.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/whiteboard/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/whiteboard/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/whiteboard/manage-office-files/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/whiteboard/manage-office-files/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/whiteboard/manage-office-files/uploadedFilesList.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/whiteboard/manage-office-files/uploadedFilesList.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/whiteboard/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/plugnmeet/whiteboard/style.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/plugnmeet-helpers/api/plugNmeetAPI.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/plugnmeet-helpers/api/plugNmeetAPI.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/plugnmeet-helpers/hooks/useClientCustomization.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/plugnmeet-helpers/hooks/useClientCustomization.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/plugnmeet-helpers/hooks/useKeyboardShortcuts.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/plugnmeet-helpers/hooks/useKeyboardShortcuts.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/plugnmeet-helpers/hooks/useLogo.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/plugnmeet-helpers/hooks/useLogo.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/plugnmeet-helpers/hooks/useThemeSettings.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/plugnmeet-helpers/hooks/useThemeSettings.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/plugnmeet-helpers/hooks/useWatchVisibilityChange.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/plugnmeet-helpers/hooks/useWatchVisibilityChange.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/plugnmeet-helpers/livekit/ConnectLivekit.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/plugnmeet-helpers/livekit/ConnectLivekit.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/plugnmeet-helpers/nats/MessageQueue.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/plugnmeet-helpers/nats/MessageQueue.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/plugnmeet-helpers/ui/modal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/plugnmeet-helpers/ui/modal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/store/plugnmeet/services/pollsApi.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/store/plugnmeet/services/pollsApi.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/store/plugnmeet/slices/interfaces/roomSettings.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/store/plugnmeet/slices/interfaces/roomSettings.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/store/plugnmeet/slices/roomSettingsSlice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/store/plugnmeet/slices/roomSettingsSlice.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/store/plugnmeet/slices/speechServicesSlice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/store/plugnmeet/slices/speechServicesSlice.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/store/plugnmeet/store.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/store/plugnmeet/store.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: enhance configuration options and improve import paths for better maintainability" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -198,41 +51,42 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Docker.docker-compose.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.localhost:5173.executor&quot;: &quot;Debug&quot;,
-    &quot;Jest.AuthServiceController (1).executor&quot;: &quot;Run&quot;,
-    &quot;Jest.AuthServiceController.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.GatewayController.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.GatewayController.pingAuth.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.server &gt; auth-service.controller.spec.ts.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.server &gt; gateway.controller.spec.ts.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;bazel.project.detector.is.bazel.project&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;meet-ui-screen&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;E:/demo/team-source/torii-monorepo/apps/server&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.standard&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.standard&quot;: &quot;&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs.jest.jest_package&quot;: &quot;E:/Ky9/apps/server/node_modules/jest&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;E:\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
+    "JavaScript Debug.localhost:5173.executor": "Debug",
+    "Jest.AuthServiceController (1).executor": "Run",
+    "Jest.AuthServiceController.executor": "Run",
+    "Jest.GatewayController.executor": "Run",
+    "Jest.GatewayController.pingAuth.executor": "Run",
+    "Jest.server > auth-service.controller.spec.ts.executor": "Run",
+    "Jest.server > gateway.controller.spec.ts.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "bazel.project.detector.is.bazel.project": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "meet-ui-screen",
+    "ignore.virus.scanning.warn.message": "true",
+    "junie.onboarding.icon.badge.shown": "true",
+    "last_opened_file_path": "E:/demo/team-source/torii-monorepo/apps/web-learner",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.standard": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.standard": "",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs.jest.jest_package": "E:/Ky9/apps/server/node_modules/jest",
+    "nodejs_package_manager_path": "pnpm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "ts.external.directory.path": "E:\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\demo\team-source\torii-monorepo\apps\web-learner" />
       <recent name="E:\demo\team-source\torii-monorepo\apps\server" />
       <recent name="E:\demo\team-source\torii-monorepo" />
       <recent name="E:\Ky9\apps\server" />
@@ -342,70 +196,6 @@
       <workItem from="1765820660014" duration="666000" />
       <workItem from="1765849677488" duration="719000" />
       <workItem from="1765855909748" duration="4405000" />
-    </task>
-    <task id="LOCAL-00079" summary="refactor: migration to use nats protocol and protobuf response">
-      <option name="closed" value="true" />
-      <created>1765862174724</created>
-      <option name="number" value="00079" />
-      <option name="presentableId" value="LOCAL-00079" />
-      <option name="project" value="LOCAL" />
-      <updated>1765862174724</updated>
-    </task>
-    <task id="LOCAL-00080" summary="refactor: migration to use nats protocol and protobuf response">
-      <option name="closed" value="true" />
-      <created>1765863857740</created>
-      <option name="number" value="00080" />
-      <option name="presentableId" value="LOCAL-00080" />
-      <option name="project" value="LOCAL" />
-      <updated>1765863857740</updated>
-    </task>
-    <task id="LOCAL-00081" summary="refactor: migration to use nats protocol and protobuf response">
-      <option name="closed" value="true" />
-      <created>1765864809338</created>
-      <option name="number" value="00081" />
-      <option name="presentableId" value="LOCAL-00081" />
-      <option name="project" value="LOCAL" />
-      <updated>1765864809338</updated>
-    </task>
-    <task id="LOCAL-00082" summary="refactor: migration to use nats protocol and protobuf response">
-      <option name="closed" value="true" />
-      <created>1765866257821</created>
-      <option name="number" value="00082" />
-      <option name="presentableId" value="LOCAL-00082" />
-      <option name="project" value="LOCAL" />
-      <updated>1765866257821</updated>
-    </task>
-    <task id="LOCAL-00083" summary="refactor: migration to use nats protocol and protobuf response">
-      <option name="closed" value="true" />
-      <created>1765866290820</created>
-      <option name="number" value="00083" />
-      <option name="presentableId" value="LOCAL-00083" />
-      <option name="project" value="LOCAL" />
-      <updated>1765866290820</updated>
-    </task>
-    <task id="LOCAL-00084" summary="refactor: migration to use nats protocol and protobuf response">
-      <option name="closed" value="true" />
-      <created>1765866609844</created>
-      <option name="number" value="00084" />
-      <option name="presentableId" value="LOCAL-00084" />
-      <option name="project" value="LOCAL" />
-      <updated>1765866609844</updated>
-    </task>
-    <task id="LOCAL-00085" summary="refactor: migration to use nats protocol and protobuf response">
-      <option name="closed" value="true" />
-      <created>1765866664446</created>
-      <option name="number" value="00085" />
-      <option name="presentableId" value="LOCAL-00085" />
-      <option name="project" value="LOCAL" />
-      <updated>1765866664446</updated>
-    </task>
-    <task id="LOCAL-00086" summary="refactor: migration to use nats protocol and protobuf response">
-      <option name="closed" value="true" />
-      <created>1765866979415</created>
-      <option name="number" value="00086" />
-      <option name="presentableId" value="LOCAL-00086" />
-      <option name="project" value="LOCAL" />
-      <updated>1765866979415</updated>
     </task>
     <task id="LOCAL-00087" summary="refactor: migration to use nats protocol and protobuf response">
       <option name="closed" value="true" />
@@ -735,7 +525,71 @@
       <option name="project" value="LOCAL" />
       <updated>1766754181630</updated>
     </task>
-    <option name="localTasksCounter" value="128" />
+    <task id="LOCAL-00128" summary="refactor: update import paths to use absolute paths for better readability">
+      <option name="closed" value="true" />
+      <created>1766754222737</created>
+      <option name="number" value="00128" />
+      <option name="presentableId" value="LOCAL-00128" />
+      <option name="project" value="LOCAL" />
+      <updated>1766754222737</updated>
+    </task>
+    <task id="LOCAL-00129" summary="refactor: update import paths to use absolute paths for better readability">
+      <option name="closed" value="true" />
+      <created>1766754353362</created>
+      <option name="number" value="00129" />
+      <option name="presentableId" value="LOCAL-00129" />
+      <option name="project" value="LOCAL" />
+      <updated>1766754353362</updated>
+    </task>
+    <task id="LOCAL-00130" summary="refactor: update import paths to use absolute paths for better readability">
+      <option name="closed" value="true" />
+      <created>1766754392222</created>
+      <option name="number" value="00130" />
+      <option name="presentableId" value="LOCAL-00130" />
+      <option name="project" value="LOCAL" />
+      <updated>1766754392222</updated>
+    </task>
+    <task id="LOCAL-00131" summary="refactor: update import paths to use absolute paths for better readability">
+      <option name="closed" value="true" />
+      <created>1766754545396</created>
+      <option name="number" value="00131" />
+      <option name="presentableId" value="LOCAL-00131" />
+      <option name="project" value="LOCAL" />
+      <updated>1766754545396</updated>
+    </task>
+    <task id="LOCAL-00132" summary="feat: add new SVG icon components for UI enhancements">
+      <option name="closed" value="true" />
+      <created>1766755255923</created>
+      <option name="number" value="00132" />
+      <option name="presentableId" value="LOCAL-00132" />
+      <option name="project" value="LOCAL" />
+      <updated>1766755255923</updated>
+    </task>
+    <task id="LOCAL-00133" summary="feat: enhance configuration options and improve import paths for better maintainability">
+      <option name="closed" value="true" />
+      <created>1766755771739</created>
+      <option name="number" value="00133" />
+      <option name="presentableId" value="LOCAL-00133" />
+      <option name="project" value="LOCAL" />
+      <updated>1766755771739</updated>
+    </task>
+    <task id="LOCAL-00134" summary="feat: enhance configuration options and improve import paths for better maintainability">
+      <option name="closed" value="true" />
+      <created>1766756659251</created>
+      <option name="number" value="00134" />
+      <option name="presentableId" value="LOCAL-00134" />
+      <option name="project" value="LOCAL" />
+      <updated>1766756659251</updated>
+    </task>
+    <task id="LOCAL-00135" summary="feat: enhance configuration options and improve import paths for better maintainability">
+      <option name="closed" value="true" />
+      <created>1766759886677</created>
+      <option name="number" value="00135" />
+      <option name="presentableId" value="LOCAL-00135" />
+      <option name="project" value="LOCAL" />
+      <updated>1766759886677</updated>
+    </task>
+    <option name="localTasksCounter" value="136" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -776,8 +630,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat(auth): auth logic with supabase&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml&#10;#&#9;apps/server/libs/shared/src/supabase/supabase.module.ts&#10;#&#9;apps/server/libs/shared/src/tcp-client.util.ts&#10;#&#9;apps/server/modules/auth-service/src/auth-service.module.ts&#10;#&#9;apps/server/modules/auth-service/src/auth-service.service.ts&#10;#&#9;apps/server/modules/gateway/src/auth/auth.controller.ts&#10;#&#9;apps/server/modules/gateway/src/auth/auth.module.ts&#10;#&#9;apps/server/modules/gateway/src/course/course.resolver.ts&#10;#&#9;apps/server/modules/gateway/src/course/course.schema.ts" />
-    <MESSAGE value="chore: remove unsused import&#10;&#10;Co-authored-by: Copilot &lt;175728472+Copilot@users.noreply.github.com&gt;" />
     <MESSAGE value="feat: add standard response + error response" />
     <MESSAGE value="refactor: update auth structure" />
     <MESSAGE value="chore: install dependencies" />
@@ -801,7 +653,9 @@
     <MESSAGE value="feat(flashcard): implement flashcard management with CRUD operations and protobuf definitions" />
     <MESSAGE value="feat: add microservices for assessment, payment, AI, and notification services" />
     <MESSAGE value="refactor: update import paths to use absolute paths for better readability" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: update import paths to use absolute paths for better readability" />
+    <MESSAGE value="feat: add new SVG icon components for UI enhancements" />
+    <MESSAGE value="feat: enhance configuration options and improve import paths for better maintainability" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: enhance configuration options and improve import paths for better maintainability" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

@@ -122,7 +122,9 @@ const ScrenshareIcon = () => {
       const localTracks = await createLocalScreenTracks(option);
       for (let i = 0; i < localTracks.length; i++) {
         const track = localTracks[i];
-        await currentRoom.localParticipant.publishTrack(track);
+        if (track) {
+          await currentRoom.localParticipant.publishTrack(track);
+        }
       }
 
       dispatch(updateIsActiveScreenshare(true));

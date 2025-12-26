@@ -24,7 +24,7 @@ export interface LivekitInfo {
 }
 
 export interface IConnectLivekit extends EventEmitter {
-  get room(): Room;
+  get room(): Room | undefined;
   get videoSubscribersMap(): Map<
     string,
     Participant | LocalParticipant | RemoteParticipant

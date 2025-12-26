@@ -41,6 +41,9 @@ const BreakoutRoomInvitation = () => {
   );
 
   const closeLocalTracks = useCallback(() => {
+    if (!currentRoom) {
+      return;
+    }
     currentRoom.localParticipant
       .getTrackPublications()
       .forEach(async (publication) => {
@@ -104,6 +107,9 @@ const BreakoutRoomInvitation = () => {
   };
 
   const join = () => {
+    if (!currentRoom) {
+      return;
+    }
     joinRoom(
       create(JoinBreakoutRoomReqSchema, {
         breakoutRoomId: receivedInvitationFor,

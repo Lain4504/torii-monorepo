@@ -358,6 +358,9 @@ export default class HandleParticipants {
     );
 
     const mediaConn = getMediaServerConn();
+    if (!mediaConn.room) {
+      return;
+    }
     const participant = mediaConn.room.getParticipantByIdentity(userId);
     if (participant) {
       participant.trackPublications.forEach((track) => {

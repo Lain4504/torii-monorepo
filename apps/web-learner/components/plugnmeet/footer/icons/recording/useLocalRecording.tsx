@@ -59,6 +59,10 @@ const useLocalRecording = (): IUseLocalRecordingReturn => {
       }
     };
 
+    if (!currentRoom) {
+      return;
+    }
+
     currentRoom.localParticipant.on(
       ParticipantEvent.LocalTrackPublished,
       onTrackPublished,
@@ -149,14 +153,16 @@ const useLocalRecording = (): IUseLocalRecordingReturn => {
         .connect(audioDest.current);
     }
 
-    const localTrack = currentRoom.localParticipant.getTrackPublication(
-      Track.Source.Microphone,
-    );
-    if (localTrack?.audioTrack?.mediaStream) {
-      micSource.current = audioCtx.current.createMediaStreamSource(
-        localTrack.audioTrack.mediaStream,
+    if (currentRoom) {
+      const localTrack = currentRoom.localParticipant.getTrackPublication(
+        Track.Source.Microphone,
       );
-      micSource.current.connect(audioDest.current);
+      if (localTrack?.audioTrack?.mediaStream) {
+        micSource.current = audioCtx.current.createMediaStreamSource(
+          localTrack.audioTrack.mediaStream,
+        );
+        micSource.current.connect(audioDest.current);
+      }
     }
 
     let mimeType = 'video/webm';
@@ -165,10 +171,13 @@ const useLocalRecording = (): IUseLocalRecordingReturn => {
     }
 
     const videoTrack = captureStream.getVideoTracks()[0];
-    const streams = [videoTrack];
+    const streams: MediaStreamTrack[] = [];
+    if (videoTrack) {
+      streams.push(videoTrack);
+    }
 
-    if (audioDest.current.stream.getTracks().length) {
-      const mixedTracks = audioDest.current.stream.getTracks()[0];
+    const mixedTracks = audioDest.current.stream.getTracks()[0];
+    if (mixedTracks) {
       streams.push(mixedTracks);
     }
 

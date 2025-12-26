@@ -27,34 +27,33 @@ import {
 } from '@workspace/protocol';
 import { toast } from 'react-toastify';
 // @ts-expect-error not an error
-import LkWorker from 'livekit-client/e2ee-worker?worker';
+// import LkWorker from '../../../node_modules/livekit-client/dist/livekit-client.e2ee.worker.js?worker';
 
-import { store } from '../../store';
+import { store } from '@/store/plugnmeet';
 import {
   participantsSelector,
   updateParticipant,
-} from '../../store/slices/participantSlice';
+} from '@/store/plugnmeet/slices/participantSlice';
 import {
   updateScreenSharing,
   updateTotalAudioSubscribers,
   updateTotalVideoSubscribers,
-} from '../../store/slices/sessionSlice';
+} from '@/store/plugnmeet/slices/sessionSlice';
 
 import HandleMediaTracks from './HandleMediaTracks';
-import { IErrorPageProps } from '../../components/extra-pages/Error';
+import { IErrorPageProps } from '@/components/plugnmeet/extra-pages/Error';
 import { CurrentConnectionEvents, IConnectLivekit } from './types';
 import i18n from '../i18n';
-import { IScreenSharing } from '../../store/slices/interfaces/session';
+import { IScreenSharing } from '@/store/plugnmeet/slices/interfaces/session';
 import { getNatsConn } from '../nats';
-import { roomConnectionStatus } from '../../components/app/helper';
-import { addUserNotification } from '../../store/slices/roomSettingsSlice';
-import { activeSpeakersSelector } from '../../store/slices/activeSpeakersSlice';
+import { roomConnectionStatus } from '@/components/plugnmeet/app/helper';
+import { addUserNotification } from '@/store/plugnmeet/slices/roomSettingsSlice';
+import { activeSpeakersSelector } from '@/store/plugnmeet/slices/activeSpeakersSlice';
 import { getConfigValue } from '../utils';
 
 export default class ConnectLivekit
   extends EventEmitter
-  implements IConnectLivekit
-{
+  implements IConnectLivekit {
   private _audioSubscribersMap = new Map<string, RemoteParticipant>();
   private _videoSubscribersMap = new Map<
     string,
@@ -72,7 +71,7 @@ export default class ConnectLivekit
   private readonly encryptionKey: string | undefined = '';
 
   private readonly handleMediaTracks: HandleMediaTracks;
-  private readonly _room: Room;
+  private _room?: Room;
   private readonly _e2eeKeyProvider: ExternalE2EEKeyProvider;
   private toastIdConnecting: number | string | undefined = undefined;
   private wasNormalDisconnected: boolean = false;
@@ -97,7 +96,7 @@ export default class ConnectLivekit
     this.handleMediaTracks = new HandleMediaTracks(this);
 
     // configure room
-    this._room = this.configureRoom();
+    // this._room = this.configureRoom();
   }
 
   public get videoSubscribersMap() {
@@ -117,6 +116,9 @@ export default class ConnectLivekit
   }
 
   public initializeConnection = async (url: string, token: string) => {
+    if (!this._room) {
+      this._room = await this.configureRoom();
+    }
     this._roomConnectionStatusState('media-server-conn-start');
 
     try {
@@ -139,7 +141,7 @@ export default class ConnectLivekit
     }
   };
 
-  private configureRoom() {
+  private async configureRoom() {
     let videoCodec = getConfigValue<VideoCodec>(
       'videoCodec',
       'vp8',
@@ -183,10 +185,11 @@ export default class ConnectLivekit
       },
     };
 
-    if (this.enabledE2EE && isE2EESupported()) {
+    if (this.enabledE2EE && isE2EESupported() && typeof window !== 'undefined') {
+      // @ts-ignore
       roomOptions.e2ee = {
         keyProvider: this._e2eeKeyProvider,
-        worker: new LkWorker(),
+        worker: new Worker('/assets/livekit-client.e2ee.worker.js'),
       };
     }
 
@@ -251,6 +254,9 @@ export default class ConnectLivekit
   }
 
   private async initiateParticipants() {
+    if (!this._room) {
+      return;
+    }
     // all other connected Participants
     this._room.remoteParticipants.forEach((participant) => {
       participant.getTrackPublications().forEach((track) => {
@@ -280,7 +286,7 @@ export default class ConnectLivekit
   }
 
   public async disconnectRoom(normalDisconnect: boolean) {
-    if (this._room.state === ConnectionState.Connected) {
+    if (this._room && this._room.state === ConnectionState.Connected) {
       this.wasNormalDisconnected = normalDisconnect;
       await this._room.disconnect(true);
     }
@@ -451,7 +457,10 @@ export default class ConnectLivekit
       return;
     }
     // we don't want to add local audio here.
-    if (participant.identity === this._room.localParticipant.identity) {
+    if (
+      this._room &&
+      participant.identity === this._room.localParticipant.identity
+    ) {
       return;
     }
 

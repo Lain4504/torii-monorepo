@@ -74,42 +74,69 @@ export interface PlugNmeetConfig {
     dbMaxAgeMs?: number;
 }
 
-// Default configuration
+// Helpers to parse env vars
+const parseBool = (val: string | undefined, defaultVal: boolean): boolean => {
+    if (val === 'true') return true;
+    if (val === 'false') return false;
+    return defaultVal;
+};
+
+const parseArray = (val: string | undefined): string[] | undefined => {
+    if (!val) return undefined;
+    return val.split(',').map(s => s.trim()).filter(s => s.length > 0);
+};
+
+const getCustomLogo = (): CustomLogo | undefined => {
+    const light = process.env.NEXT_PUBLIC_CUSTOM_LOGO_LIGHT;
+    const dark = process.env.NEXT_PUBLIC_CUSTOM_LOGO_DARK;
+    if (!light && !dark) return undefined;
+    return {
+        main_logo_light: light,
+        main_logo_dark: dark
+    };
+};
+
+const getDesignCustomization = (): DesignCustomization | undefined => {
+    const opts: DesignCustomization = {};
+    let hasVal = false;
+    if (process.env.NEXT_PUBLIC_DESIGN_PRIMARY_COLOR) { opts.primary_color = process.env.NEXT_PUBLIC_DESIGN_PRIMARY_COLOR; hasVal = true; }
+    if (process.env.NEXT_PUBLIC_DESIGN_SECONDARY_COLOR) { opts.secondary_color = process.env.NEXT_PUBLIC_DESIGN_SECONDARY_COLOR; hasVal = true; }
+    if (process.env.NEXT_PUBLIC_DESIGN_BACKGROUND_COLOR) { opts.background_color = process.env.NEXT_PUBLIC_DESIGN_BACKGROUND_COLOR; hasVal = true; }
+    if (process.env.NEXT_PUBLIC_DESIGN_HEADER_BG_COLOR) { opts.header_bg_color = process.env.NEXT_PUBLIC_DESIGN_HEADER_BG_COLOR; hasVal = true; }
+    if (process.env.NEXT_PUBLIC_DESIGN_FOOTER_BG_COLOR) { opts.footer_bg_color = process.env.NEXT_PUBLIC_DESIGN_FOOTER_BG_COLOR; hasVal = true; }
+    if (process.env.NEXT_PUBLIC_DESIGN_LEFT_SIDE_BG_COLOR) { opts.left_side_bg_color = process.env.NEXT_PUBLIC_DESIGN_LEFT_SIDE_BG_COLOR; hasVal = true; }
+    if (process.env.NEXT_PUBLIC_DESIGN_RIGHT_SIDE_BG_COLOR) { opts.right_side_bg_color = process.env.NEXT_PUBLIC_DESIGN_RIGHT_SIDE_BG_COLOR; hasVal = true; }
+    if (process.env.NEXT_PUBLIC_DESIGN_CUSTOM_CSS_URL) { opts.custom_css_url = process.env.NEXT_PUBLIC_DESIGN_CUSTOM_CSS_URL; hasVal = true; }
+    if (process.env.NEXT_PUBLIC_DESIGN_CUSTOM_LOGO) { opts.custom_logo = process.env.NEXT_PUBLIC_DESIGN_CUSTOM_LOGO; hasVal = true; }
+
+    return hasVal ? opts : undefined;
+};
+
+
+// Default configuration constructed from Env Vars
 export const plugNmeetConfig: PlugNmeetConfig = {
     serverUrl: process.env.NEXT_PUBLIC_PLUGNMEET_SERVER_URL || 'http://localhost:8080',
+    staticAssetsPath: process.env.NEXT_PUBLIC_STATIC_ASSETS_PATH,
+    customLogo: getCustomLogo(),
 
     // Video/Audio settings
-    enableDynacast: true,
-    enableSimulcast: true,
-    videoCodec: 'vp8',
-    defaultWebcamResolution: 'h720',
-    defaultScreenShareResolution: 'h1080fps15',
-    defaultAudioPreset: 'music',
-    stopMicTrackOnMute: true,
-    focusActiveSpeakerWebcam: true,
+    enableDynacast: parseBool(process.env.NEXT_PUBLIC_ENABLE_DYNACAST, true),
+    enableSimulcast: parseBool(process.env.NEXT_PUBLIC_ENABLE_SIMULCAST, true),
+    videoCodec: (process.env.NEXT_PUBLIC_VIDEO_CODEC as VideoCodec) || 'vp8',
+    defaultWebcamResolution: (process.env.NEXT_PUBLIC_DEFAULT_WEBCAM_RESOLUTION as WebcamResolution) || 'h720',
+    defaultScreenShareResolution: (process.env.NEXT_PUBLIC_DEFAULT_SCREEN_SHARE_RESOLUTION as ScreenShareResolution) || 'h1080fps15',
+    defaultAudioPreset: (process.env.NEXT_PUBLIC_DEFAULT_AUDIO_PRESET as AudioPreset) || 'music',
+
+    stopMicTrackOnMute: parseBool(process.env.NEXT_PUBLIC_STOP_MIC_TRACK_ON_MUTE, true),
+    focusActiveSpeakerWebcam: parseBool(process.env.NEXT_PUBLIC_FOCUS_ACTIVE_SPEAKER_WEBCAM, true),
+
+    designCustomization: getDesignCustomization(),
+
+    whiteboardPreloadedLibraryItems: parseArray(process.env.NEXT_PUBLIC_WHITEBOARD_LIBRARY_ITEMS),
+    virtualBackgroundImages: parseArray(process.env.NEXT_PUBLIC_VIRTUAL_BACKGROUND_IMAGES),
 
     // Database
-    dbMaxAgeMs: 6 * 60 * 60 * 1000, // 6 hours
-
-    // Optional: Uncomment and customize as needed
-    // staticAssetsPath: '',
-    // customLogo: {
-    //   main_logo_light: 'https://mydomain.com/logo_light.png',
-    //   main_logo_dark: 'https://mydomain.com/logo_dark.png',
-    // },
-    // designCustomization: {
-    //   primary_color: '#004D90',
-    //   secondary_color: '#24AEF7',
-    //   background_color: '#0b7db4',
-    //   header_bg_color: '#45b3ec',
-    //   footer_bg_color: '#45b3ec',
-    // },
-    // whiteboardPreloadedLibraryItems: [
-    //   'https://libraries.excalidraw.com/libraries/BjoernKW/UML-ER-library.excalidrawlib',
-    // ],
-    // virtualBackgroundImages: [
-    //   'https://www.example.com/vb_bg/image1.png',
-    // ],
+    dbMaxAgeMs: Number(process.env.NEXT_PUBLIC_DB_MAX_AGE_MS) || 6 * 60 * 60 * 1000, // 6 hours
 };
 
 // Export for window object (compatibility with plugNmeet components)
