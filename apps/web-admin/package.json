@@ -14,11 +14,14 @@
     "@workspace/dtos": "workspace:^",
     "@workspace/protocol": "workspace:*",
     "@workspace/ui": "workspace:*",
+    "axios": "^1.13.2",
+    "clsx": "^2.1.1",
     "lucide-react": "^0.475.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.2.0",
-    "reflect-metadata": "^0.2.2"
+    "reflect-metadata": "^0.2.2",
+    "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
