@@ -69,8 +69,6 @@ export function EditUserRow({
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="active">Active</SelectItem>
-                        <SelectItem value="inactive">Inactive</SelectItem>
-                        <SelectItem value="suspended">Suspended</SelectItem>
                     </SelectContent>
                 </Select>
             </TableCell>
