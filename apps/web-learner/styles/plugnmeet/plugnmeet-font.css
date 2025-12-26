@@ -1,7 +1,7 @@
 @font-face {
   font-family: 'plugnmeet';
-  src: url('/plugnmeet/fonts/plugnmeet.ttf') format('truetype');
-  src: url('/plugnmeet/fonts/plugnmeet.woff') format('woff');
+  src: url('/assets/fonts/plugnmeet.ttf') format('truetype');
+  src: url('/assets/fonts/plugnmeet.woff') format('woff');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -10,13 +10,13 @@
 @font-face {
   font-family: 'Inter';
   font-style: normal;
-  src: url('/plugnmeet/fonts/InterVariable.woff2') format('woff2');
+  src: url('/assets/fonts/InterVariable.woff2') format('woff2');
 }
 
 @font-face {
   font-family: 'Inter';
   font-style: italic;
-  src: url('/plugnmeet/fonts/InterVariable-Italic.woff2') format('woff2');
+  src: url('/assets/fonts/InterVariable-Italic.woff2') format('woff2');
 }
 
 i {
