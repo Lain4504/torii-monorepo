@@ -7,7 +7,9 @@ import { ModuleQueryDto, CreateModuleDto, UpdateModuleRequestDto } from '@worksp
 export class ModuleController {
   private readonly logger = new Logger(ModuleController.name);
 
-  constructor(private readonly moduleService: ModuleService) {}
+  constructor(private readonly moduleService: ModuleService) {
+    this.logger.log('ModuleController initialized and listening for events');
+  }
 
   @MessagePattern({ cmd: 'module.findAll' })
   async findAll(@Payload() query: ModuleQueryDto) {

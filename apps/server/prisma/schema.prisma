@@ -45,7 +45,7 @@ model Course {
   deletedAt        DateTime? @map("deleted_at")
 
   // Relations
-  modules           Module[]
+  modules Module[]
 
   @@index([jlptLevel])
   @@index([status])
@@ -55,21 +55,45 @@ model Course {
 
 // Modules: chapters/sections that belong to a Course
 model Module {
-  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  courseId        String   @map("course_id") @db.Uuid
-  title           String   @db.VarChar(255)
-  description     String?  @db.Text
-  order           Int      @default(0)
-  durationMinutes Int?     @map("duration_minutes")
-  createdBy       String?  @map("created_by") @db.Uuid
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at")
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courseId        String    @map("course_id") @db.Uuid
+  title           String    @db.VarChar(255)
+  description     String?   @db.Text
+  order           Int       @default(0)
+  durationMinutes Int?      @map("duration_minutes")
+  createdBy       String?   @map("created_by") @db.Uuid
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at")
   deletedAt       DateTime? @map("deleted_at")
 
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course  Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons Lesson[]
 
   @@index([courseId])
   @@map("modules")
+}
+
+// Lessons: individual content items that belong to Modules
+model Lesson {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  moduleId       String    @map("module_id") @db.Uuid
+  title          String    @db.VarChar(255)
+  contentType    String    @map("content_type") @db.VarChar(20)
+  videoUrl       String?   @map("video_url") @db.Text
+  videoDuration  Int?      @map("video_duration")
+  articleContent String?   @map("article_content") @db.Text
+  order          Int       @default(0) @map("order_index")
+  isPreview      Boolean   @default(false) @map("is_preview")
+  isUnlocked     Boolean   @default(true) @map("is_unlocked")
+  createdBy      String?   @map("created_by") @db.Uuid
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at")
+  deletedAt      DateTime? @map("deleted_at")
+
+  module Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@index([moduleId])
+  @@map("lessons")
 }
 
 model RoomInfo {
@@ -82,13 +106,13 @@ model RoomInfo {
   // Int, 1 for true 2 for false
   isRunning    Int    @default(0) @map("is_running")
   isRecording  Int    @default(0) @map("is_recording")
-  recorderId   String @default("") @db.VarChar(36) @map("recorder_id")
+  recorderId   String @default("") @map("recorder_id") @db.VarChar(36)
   isActiveRtmp Int    @default(0) @map("is_active_rtmp")
-  rtmpNodeId   String @default("") @db.VarChar(36) @map("rtmp_node_id")
+  rtmpNodeId   String @default("") @map("rtmp_node_id") @db.VarChar(36)
   webhookUrl   String @default("") @map("webhook_url") @db.VarChar(255)
 
   isBreakoutRoom Int       @default(0) @map("is_breakout_room")
-  parentRoomId   String    @default("") @db.VarChar(64) @map("parent_room_id")
+  parentRoomId   String    @default("") @map("parent_room_id") @db.VarChar(64)
   creationTime   Int       @default(0) @map("creation_time")
   created        DateTime  @default(now()) @map("created")
   ended          DateTime? @map("ended") // Nullable - null means not ended yet (PostgreSQL compatible)
@@ -120,7 +144,7 @@ model RoomFile {
 model RoomAnalytics {
   id               Int    @id @default(autoincrement())
   roomTableId      Int    @map("room_table_id")
-  roomId           String @db.VarChar(64) @map("room_id")
+  roomId           String @map("room_id") @db.VarChar(64)
   fileId           String @map("file_id") @db.VarChar(255)
   fileName         String @map("file_name") @db.VarChar(255)
   fileSize         Float  @map("file_size")
@@ -277,7 +301,7 @@ model BlogPost {
   createdAt      DateTime  @default(now()) @map("created_at")
   updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at")
 
-  comments       BlogComment[]
+  comments BlogComment[]
 
   @@index([status])
   @@index([publishedAt(sort: Desc)])
@@ -287,20 +311,20 @@ model BlogPost {
 
 // Blog Comments - Comments on blog posts with nested replies support
 model BlogComment {
-  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  postId          String    @map("post_id") @db.Uuid
-  userId          String    @map("user_id") @db.Uuid
-  parentCommentId String?   @map("parent_comment_id") @db.Uuid // For nested replies
-  content         String    @db.Text
-  status          String    @default("approved") @db.VarChar(20) // pending, approved, spam, deleted
-  likes           Int       @default(0)
-  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamp()
-  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamp()
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  postId          String   @map("post_id") @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  parentCommentId String?  @map("parent_comment_id") @db.Uuid // For nested replies
+  content         String   @db.Text
+  status          String   @default("approved") @db.VarChar(20) // pending, approved, spam, deleted
+  likes           Int      @default(0)
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamp()
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp()
 
-  post            BlogPost  @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  parent          BlogComment?  @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
-  replies         BlogComment[] @relation("CommentReplies")
+  post    BlogPost      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent  BlogComment?  @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
+  replies BlogComment[] @relation("CommentReplies")
 
   @@index([postId])
   @@index([userId])
