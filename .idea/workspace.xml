@@ -4,16 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(room): refactor room creation logic and migrate database operations to RoomInfoService">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/admin/users.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/admin/users.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/blog/blog.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/blog/blog.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/flashcard/flashcard.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/flashcard/flashcard.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/main.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix: update LiveKit token generation and implement hand raise/lower functionality" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -62,22 +53,22 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "main",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "pnpm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "ts.external.directory.path": "E:\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;#27 on fix-participation-sync&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;E:\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="E:\demo\team-source\torii-monorepo\apps\server\libs\shared\src\utils" />
@@ -125,70 +116,8 @@
       <workItem from="1766538393698" duration="11108000" />
       <workItem from="1766623545079" duration="8040000" />
       <workItem from="1766649318307" duration="5427000" />
-    </task>
-    <task id="LOCAL-00269" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766548952601</created>
-      <option name="number" value="00269" />
-      <option name="presentableId" value="LOCAL-00269" />
-      <option name="project" value="LOCAL" />
-      <updated>1766548952601</updated>
-    </task>
-    <task id="LOCAL-00270" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766548986292</created>
-      <option name="number" value="00270" />
-      <option name="presentableId" value="LOCAL-00270" />
-      <option name="project" value="LOCAL" />
-      <updated>1766548986292</updated>
-    </task>
-    <task id="LOCAL-00271" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766562432512</created>
-      <option name="number" value="00271" />
-      <option name="presentableId" value="LOCAL-00271" />
-      <option name="project" value="LOCAL" />
-      <updated>1766562432512</updated>
-    </task>
-    <task id="LOCAL-00272" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766563575409</created>
-      <option name="number" value="00272" />
-      <option name="presentableId" value="LOCAL-00272" />
-      <option name="project" value="LOCAL" />
-      <updated>1766563575409</updated>
-    </task>
-    <task id="LOCAL-00273" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766563584049</created>
-      <option name="number" value="00273" />
-      <option name="presentableId" value="LOCAL-00273" />
-      <option name="project" value="LOCAL" />
-      <updated>1766563584049</updated>
-    </task>
-    <task id="LOCAL-00274" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766563587837</created>
-      <option name="number" value="00274" />
-      <option name="presentableId" value="LOCAL-00274" />
-      <option name="project" value="LOCAL" />
-      <updated>1766563587837</updated>
-    </task>
-    <task id="LOCAL-00275" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766563591685</created>
-      <option name="number" value="00275" />
-      <option name="presentableId" value="LOCAL-00275" />
-      <option name="project" value="LOCAL" />
-      <updated>1766563591685</updated>
-    </task>
-    <task id="LOCAL-00276" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766564055034</created>
-      <option name="number" value="00276" />
-      <option name="presentableId" value="LOCAL-00276" />
-      <option name="project" value="LOCAL" />
-      <updated>1766564055034</updated>
+      <workItem from="1766712184356" duration="8777000" />
+      <workItem from="1766734238257" duration="5995000" />
     </task>
     <task id="LOCAL-00277" summary="fix: to go">
       <option name="closed" value="true" />
@@ -518,7 +447,71 @@
       <option name="project" value="LOCAL" />
       <updated>1766655089614</updated>
     </task>
-    <option name="localTasksCounter" value="318" />
+    <task id="LOCAL-00318" summary="fix: update LiveKit configuration and improve participant count handling">
+      <option name="closed" value="true" />
+      <created>1766676426770</created>
+      <option name="number" value="00318" />
+      <option name="presentableId" value="LOCAL-00318" />
+      <option name="project" value="LOCAL" />
+      <updated>1766676426770</updated>
+    </task>
+    <task id="LOCAL-00319" summary="fix: enhance participant removal logic and align with Go server implementation">
+      <option name="closed" value="true" />
+      <created>1766717654215</created>
+      <option name="number" value="00319" />
+      <option name="presentableId" value="LOCAL-00319" />
+      <option name="project" value="LOCAL" />
+      <updated>1766717654216</updated>
+    </task>
+    <task id="LOCAL-00320" summary="fix: enhance participant removal logic and align with Go server implementation">
+      <option name="closed" value="true" />
+      <created>1766718878343</created>
+      <option name="number" value="00320" />
+      <option name="presentableId" value="LOCAL-00320" />
+      <option name="project" value="LOCAL" />
+      <updated>1766718878343</updated>
+    </task>
+    <task id="LOCAL-00321" summary="fix: enhance participant removal logic and align with Go server implementation">
+      <option name="closed" value="true" />
+      <created>1766720446114</created>
+      <option name="number" value="00321" />
+      <option name="presentableId" value="LOCAL-00321" />
+      <option name="project" value="LOCAL" />
+      <updated>1766720446114</updated>
+    </task>
+    <task id="LOCAL-00322" summary="fix: enhance participant removal logic and align with Go server implementation">
+      <option name="closed" value="true" />
+      <created>1766721326393</created>
+      <option name="number" value="00322" />
+      <option name="presentableId" value="LOCAL-00322" />
+      <option name="project" value="LOCAL" />
+      <updated>1766721326393</updated>
+    </task>
+    <task id="LOCAL-00323" summary="fix: enhance participant removal logic and align with Go server implementation">
+      <option name="closed" value="true" />
+      <created>1766722179230</created>
+      <option name="number" value="00323" />
+      <option name="presentableId" value="LOCAL-00323" />
+      <option name="project" value="LOCAL" />
+      <updated>1766722179231</updated>
+    </task>
+    <task id="LOCAL-00324" summary="fix: enhance participant removal logic and align with Go server implementation">
+      <option name="closed" value="true" />
+      <created>1766722419879</created>
+      <option name="number" value="00324" />
+      <option name="presentableId" value="LOCAL-00324" />
+      <option name="project" value="LOCAL" />
+      <updated>1766722419880</updated>
+    </task>
+    <task id="LOCAL-00325" summary="fix: update LiveKit token generation and implement hand raise/lower functionality">
+      <option name="closed" value="true" />
+      <created>1766741984939</created>
+      <option name="number" value="00325" />
+      <option name="presentableId" value="LOCAL-00325" />
+      <option name="project" value="LOCAL" />
+      <updated>1766741984940</updated>
+    </task>
+    <option name="localTasksCounter" value="326" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -535,7 +528,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="user-room-event" />
+                        <option value="fix-participation-sync" />
                       </list>
                     </value>
                   </entry>
@@ -563,7 +556,11 @@
     <MESSAGE value="rename" />
     <MESSAGE value="feat(waiting-room): add waiting room module and controller for managing user approvals and messages" />
     <MESSAGE value="feat(room): refactor room creation logic and migrate database operations to RoomInfoService" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(room): refactor room creation logic and migrate database operations to RoomInfoService" />
+    <MESSAGE value="fix: update LiveKit configuration and improve participant count handling" />
+    <MESSAGE value="fix: enhance participant removal logic" />
+    <MESSAGE value="fix: enhance participant removal logic and align with Go server implementation" />
+    <MESSAGE value="fix: update LiveKit token generation and implement hand raise/lower functionality" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix: update LiveKit token generation and implement hand raise/lower functionality" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

@@ -7,7 +7,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RoomServiceClient, AccessToken } from 'livekit-server-sdk';
-import { NatsKvUserInfo } from '@workspace/protocol';
+import { NatsKvUserInfo, WajlcTokenClaims, WajlcTokenClaimsSchema } from '@workspace/protocol';
+import { generateLivekitAccessToken } from '@server/shared';
+import { create } from '@bufbuild/protobuf';
 
 /**
  * LiveKitService handles participant operations with LiveKit server
@@ -18,12 +20,14 @@ export class LiveKitService {
     private readonly client: RoomServiceClient;
 
     constructor(private readonly configService: ConfigService) {
+        // LIVEKIT_API_URL is the HTTP REST API URL (https://) for server-side RoomServiceClient
+        // This is different from LIVEKIT_WS_URL (wss://) which is used by client browsers
         const livekitHost = this.configService.get<string>('LIVEKIT_API_URL');
         const apiKey = this.configService.get<string>('LIVEKIT_API_KEY');
         const apiSecret = this.configService.get<string>('LIVEKIT_API_SECRET');
 
         if (!livekitHost || !apiKey || !apiSecret) {
-            throw new Error('LiveKit configuration is missing. Please check LIVEKIT_API_URL, LIVEKIT_API_KEY, and LIVEKIT_API_SECRET');
+            throw new Error('LiveKit configuration is missing. Please check LIVEKIT_API_URL (https://...), LIVEKIT_API_KEY, and LIVEKIT_API_SECRET');
         }
 
         this.client = new RoomServiceClient(livekitHost, apiKey, apiSecret);
@@ -156,44 +160,27 @@ export class LiveKitService {
     }
 
     /**
-     * CreateToken generates a LiveKit access token
+     * GenerateLivekitToken generates a LiveKit access token
      *
      * @param roomId - Room ID
      * @param userInfo - NatsKvUserInfo object
      * @returns JWT token string
      */
-    async createToken(roomId: string, userInfo: NatsKvUserInfo): Promise<string> {
-        const apiKey = this.configService.get<string>('LIVEKIT_API_KEY');
-        const apiSecret = this.configService.get<string>('LIVEKIT_API_SECRET');
+    async generateLivekitToken(roomId: string, userInfo: NatsKvUserInfo): Promise<string> {
+        // Get config values
+        const apiKey = this.configService.get<string>('LIVEKIT_API_KEY')!;
+        const apiSecret = this.configService.get<string>('LIVEKIT_API_SECRET')!;
+        const tokenValidity = this.configService.get<number>('TOKEN_VALIDITY', 7200);
 
-        if (!apiKey || !apiSecret) {
-            throw new Error('LiveKit API key or secret not configured');
-        }
-
-        const at = new AccessToken(apiKey, apiSecret, {
-            identity: userInfo.userId,
+        // Create claims
+        const c = create(WajlcTokenClaimsSchema, {
+            roomId: roomId,
             name: userInfo.name,
-            metadata: JSON.stringify(userInfo),
+            userId: userInfo.userId,
+            isAdmin: userInfo.isAdmin,
         });
 
-        // Set video grant permissions
-        at.addGrant({
-            roomJoin: true,
-            room: roomId,
-            canPublish: userInfo.isPresenter,
-            canSubscribe: true,
-            canPublishData: true,
-            hidden: false,
-            recorder: userInfo.userId === 'RECORDER_BOT' || userInfo.name === 'RECORDER_BOT', // Simple check, refine if needed
-        });
-
-        // Add admin grant if applicable
-        if (userInfo.isAdmin) {
-            // LiveKit doesn't have explicit "admin" grant in same way, 
-            // but we can set permission appropriately or rely on metadata
-        }
-
-        return at.toJwt();
+        return await generateLivekitAccessToken(apiKey, apiSecret, tokenValidity, c);
     }
 
     /**

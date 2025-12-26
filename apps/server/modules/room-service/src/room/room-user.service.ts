@@ -11,7 +11,7 @@ import { NatsUserService } from '../nats/nats-user.service';
 import { NatsSystemEventsService } from '../nats/nats-system-events.service';
 import { RedisLockService } from '../redis/redis-lock.service';
 import { waitUntilRoomCreationCompletes } from './room-lock.helper';
-import { SwitchPresenterTask } from '@workspace/protocol';
+import { SwitchPresenterTask, NatsMsgServerToClientEvents, TrackSource, ParticipantInfo_State } from '@workspace/protocol';
 import { NatsRoomService } from '../nats/nats-room.service';
 import { NatsRoomEventsService } from '../nats/nats-room-events.service';
 import { WajlcAuthService } from '../auth/wajlc-auth.service';
@@ -125,7 +125,8 @@ export class RoomUserService {
 
                     // Remove the existing participant
                     await this.handleRemoveParticipant({
-                        sid: roomId, // Using roomId as sid for now
+                        sid: roomId,
+                        roomId: roomId,
                         userId: req.userInfo.userId,
                         msg: 'notifications.room-disconnected-duplicate-entry',
                     });
@@ -194,7 +195,7 @@ export class RoomUserService {
 
             return {
                 token: token,
-                livekitHost: process.env.LIVEKIT_API_URL,
+                livekitHost: process.env.LIVEKIT_WS_URL, // WebSocket URL for client browser connection
             };
         } catch (error) {
             this.logger.error(`Failed to generate join token: ${error.message}`);
@@ -419,7 +420,6 @@ export class RoomUserService {
 
     /**
      * Mute/unmute user track
-
      * 
      * If trackSid not provided, will find microphone track automatically
      */
@@ -442,17 +442,19 @@ export class RoomUserService {
             // Step 1: Load participant info from LiveKit
             const participant = await this.livekitService.loadParticipantInfo(data.roomId, data.userId);
 
-            if (!participant) {
-                return { status: false, msg: 'Participant not found or not active' };
+            // Step 2: Verify participant exists and is ACTIVE
+            if (!participant || participant.state !== ParticipantInfo_State.ACTIVE) {  // ✅ Using LiveKit enum
+                this.logger.warn('Participant not found or not active');
+                return { status: false, msg: 'User not active' };
             }
 
-            // Step 2: Find track SID if not provided (auto-find microphone)
+            // Step 3: Find track SID if not provided (auto-find microphone)
             let trackSid = data.trackSid;
 
             if (!trackSid) {
                 this.logger.log('No trackSid provided, searching for microphone track');
                 for (const track of participant.tracks || []) {
-                    if (track.source === 'MICROPHONE') {  // TrackSource_MICROPHONE
+                    if (track.source === TrackSource.MICROPHONE) {  // ✅ Using LiveKit enum
                         trackSid = track.sid;
                         this.logger.log(`Found microphone track: ${trackSid}`);
                         break;
@@ -464,7 +466,7 @@ export class RoomUserService {
                 return { status: false, msg: 'No suitable track found to mute/unmute' };
             }
 
-            // Step 3: Mute/unmute the track via LiveKit
+            // Step 4: Mute/unmute the track via LiveKit
             await this.livekitService.muteUnMuteTrack(data.roomId, data.userId, trackSid, data.muted);
 
             this.logger.log('Successfully muted/unmuted track');
@@ -501,13 +503,13 @@ export class RoomUserService {
             }
 
             // Only process active participants
-            if (participant.state !== 'ACTIVE') {
+            if (participant.state !== ParticipantInfo_State.ACTIVE) {  // ✅ Using LiveKit enum
                 continue;
             }
 
             // Find and mute/unmute microphone track
             for (const track of participant.tracks || []) {
-                if (track.source === 'MICROPHONE') {
+                if (track.source === TrackSource.MICROPHONE) {  // ✅ Using LiveKit enum
                     try {
                         await this.livekitService.muteUnMuteTrack(
                             data.roomId,
@@ -531,51 +533,65 @@ export class RoomUserService {
 
     /**
      * Remove participant from room
-
+     * 
+     * Removes a participant from the room, with option to block them from rejoining.
      */
     async handleRemoveParticipant(data: {
         sid: string;
+        roomId: string;
         userId: string;
         msg?: string;
         blockUser?: boolean;
     }): Promise<{ status: boolean; msg: string }> {
-        this.logger.log(`Removing participant: ${data.userId} from room sid: ${data.sid}`);
+        this.logger.log(`Removing participant: ${data.userId} from room ${data.roomId}`);
 
         try {
-            // Step 1: Get room info by SID (using sid as roomId for now)
-            const roomDbInfo = await this.roomInfoService.getRoomInfoByRoomId(data.sid, true);
-            if (!roomDbInfo) {
-                return { status: false, msg: 'Room not found or not active' };
+            // Step 1: Check if user is online
+            const status = await this.natsUserInfo.getRoomUserStatus(data.roomId, data.userId);
+            if (status !== 'online') {
+                this.logger.warn('User not online');
+                return { status: false, msg: 'User not active' };
             }
-            const roomId = roomDbInfo.roomId;
 
-            // Step 2: If blockUser = true, add to NATS block list
-            if (data.blockUser) {
+            // Step 2: Notify user with error message
+            if (data.msg) {
                 try {
-                    await this.natsUser.addUserToBlockList(roomId, data.userId);
-                    this.logger.log(`Added user ${data.userId} to block list for room ${roomId}`);
+                    await this.natsSystemEvents.notifyErrorMsg(data.roomId, data.msg, data.userId);
                 } catch (error) {
-                    this.logger.error(`Failed to add user to block list: ${error.message}`);
+                    this.logger.error(`Error notifying user with custom message: ${error.message}`);
                 }
             }
 
-            // Step 3: Remove participant from LiveKit
+            // Step 3: Broadcast SESSION_ENDED event
             try {
-                await this.livekitService.removeParticipant(roomId, data.userId);
-                this.logger.log(`Removed participant ${data.userId} from LiveKit room ${roomId}`);
+                await this.natsSystemEvents.broadcastSystemEventToRoom(
+                    NatsMsgServerToClientEvents.SESSION_ENDED,
+                    data.roomId,
+                    'notifications.room-disconnected-participant-removed',
+                    data.userId
+                );
             } catch (error) {
-                this.logger.error(`Failed to remove participant from LiveKit: ${error.message}`);
-                return { status: false, msg: `Failed to remove participant: ${error.message}` };
+                this.logger.error(`Error broadcasting SESSION_ENDED event: ${error.message}`);
             }
 
-            // Step 4: Broadcast removal event
-            // Note: LiveKit automatically sends participant_left webhook
-            // which triggers onAfterUserDisconnected and broadcasts USER_DISCONNECTED event
+            // Step 4: Remove participant from LiveKit
+            try {
+                await this.livekitService.removeParticipant(data.roomId, data.userId);
+            } catch (error) {
+                this.logger.error(`Error removing user from livekit, keep continuing: ${error.message}`);
+            }
 
-            // Step 5: Cleanup user data from NATS
-            // Note: Handled automatically by participant_left webhook →
-            // onAfterUserDisconnected → handleDelayedOfflineTasks → deleteConsumer
+            // Step 5: Block user if requested
+            if (data.blockUser) {
+                this.logger.log('Blocking user');
+                try {
+                    await this.natsUser.addUserToBlockList(data.roomId, data.userId);
+                } catch (error) {
+                    this.logger.error(`Error adding user to block list: ${error.message}`);
+                }
+            }
 
+            this.logger.log('Participant removed successfully');
             return { status: true, msg: 'Participant removed successfully' };
         } catch (error) {
             this.logger.error(`Error removing participant: ${error.message}`);
@@ -708,9 +724,9 @@ export class RoomUserService {
         return null; // No presenter found
     }
 
+
     /**
      * Update presenter status - performs the complete, two-step update for a user's presenter status
-
      */
     private async updatePresenterStatus(roomId: string, userId: string, isPresenter: boolean): Promise<void> {
         // Step 1: Update the primary Key-Value store first
@@ -742,6 +758,69 @@ export class RoomUserService {
             throw new Error(`Failed to update and broadcast metadata for ${userId}: ${error.message}`);
         }
 
+
         this.logger.log(`Successfully set is_presenter=${isPresenter} for user ${userId} and broadcasted change`);
+    }
+
+    /**
+     * RaisedHand - User raises hand
+     */
+    async raisedHand(roomId: string, userId: string, msg: string): Promise<void> {
+        this.logger.log(`User raised hand: ${userId} in room ${roomId}`);
+
+        try {
+            // Get user metadata
+            const metadata = await this.natsUserInfo.getUserMetadataStruct(roomId, userId);
+            if (!metadata) {
+                this.logger.warn(`User metadata not found for ${userId}`);
+                return;
+            }
+
+            // Update raised hand status
+            metadata.raisedHand = true;
+
+            // Update and broadcast
+            await this.natsUser.updateAndBroadcastUserMetadata(roomId, userId, metadata, null);
+
+            // Notify all admins (except the user who raised hand)
+            const participants = await this.natsUserInfo.getOnlineUsersList(roomId);
+            if (participants) {
+                for (const participant of participants) {
+                    if (participant.isAdmin && participant.userId !== userId) {
+                        await this.natsSystemEvents.notifyInfoMsg(roomId, msg, true, participant.userId);
+                    }
+                }
+            }
+
+            this.logger.log(`Hand raised successfully for ${userId}`);
+        } catch (error) {
+            this.logger.error(`Error raising hand for ${userId}: ${error.message}`);
+        }
+    }
+
+    /**
+     * LowerHand - Lower raised hand
+     */
+    async lowerHand(roomId: string, userId: string): Promise<void> {
+        this.logger.log(`Lowering hand for user: ${userId} in room ${roomId}`);
+
+        try {
+            // Get user metadata
+            const metadata = await this.natsUserInfo.getUserMetadataStruct(roomId, userId);
+            if (!metadata) {
+                this.logger.warn(`User metadata not found for ${userId}`);
+                return;
+            }
+
+            // Update raised hand status
+            metadata.raisedHand = false;
+
+            // Update and broadcast
+            await this.natsUser.updateAndBroadcastUserMetadata(roomId, userId, metadata, null);
+
+            this.logger.log(`Hand lowered successfully for ${userId}`);
+        } catch (error) {
+            this.logger.error(`Error lowering hand for ${userId}: ${error.message}`);
+        }
     }
 }
