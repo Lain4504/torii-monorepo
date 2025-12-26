@@ -1,5 +1,5 @@
 // API Client
-export { apiClient } from './client';
+export { apiClient } from '@workspace/ui/api/client';
 
 // Users API
 export * from './users';

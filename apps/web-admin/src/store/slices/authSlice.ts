@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import { authApi } from '../../api/auth';
-import type { LoginRequest, RegisterRequest } from '../../api/auth';
+import { authApi } from '@workspace/ui/api/auth';
+import { getCookie } from '@workspace/ui/utils/cookies';
+import type { LoginRequest, RegisterRequest } from '@workspace/ui/api/auth';
 
 interface AuthState {
   user: {
@@ -17,9 +18,9 @@ interface AuthState {
 
 const initialState: AuthState = {
   user: null,
-  token: localStorage.getItem('access_token'),
+  token: getCookie('access_token'),
   isLoading: false,
-  isAuthenticated: !!localStorage.getItem('access_token'),
+  isAuthenticated: !!getCookie('access_token'),
   error: null,
 };
 

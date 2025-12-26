@@ -1,4 +1,5 @@
 import { apiClient } from './client';
+import { setCookie, removeCookie } from '../utils/cookies';
 
 export interface LoginRequest {
   email: string;
@@ -31,7 +32,11 @@ export const authApi = {
     const data = response.data;
     
     if (data.session?.access_token) {
-      localStorage.setItem('access_token', data.session.access_token);
+      // Set cookie with 7 days expiration (or use expires_in from server if available)
+      const expiresInDays = data.session.expires_in 
+        ? Math.floor(data.session.expires_in / (24 * 60 * 60))
+        : 7;
+      setCookie('access_token', data.session.access_token, expiresInDays);
     }
     
     return data;
@@ -43,7 +48,11 @@ export const authApi = {
       const result = response.data;
       
       if (result.session?.access_token) {
-        localStorage.setItem('access_token', result.session.access_token);
+        // Set cookie with 7 days expiration (or use expires_in from server if available)
+        const expiresInDays = result.session.expires_in 
+          ? Math.floor(result.session.expires_in / (24 * 60 * 60))
+          : 7;
+        setCookie('access_token', result.session.access_token, expiresInDays);
       }
       
       return result;
@@ -75,13 +84,8 @@ export const authApi = {
     try {
       await apiClient.post('/auth/logout');
     } finally {
-      localStorage.removeItem('access_token');
+      removeCookie('access_token');
     }
   },
 };
-
-
-
-
-
 
