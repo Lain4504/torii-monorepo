@@ -17,36 +17,36 @@ import {
 // ============================================================================
 
 export const questionBankApi = {
-    // GET /question-bank
+    // GET /api/question-bank
     async findAll(params: QuestionBankQueryDto): Promise<PaginatedResponseDto<QuestionBankDto>> {
-        const response = await apiClient.get<QuestionBankListResponseDto>('/question-bank', { params });
+        const response = await apiClient.get<QuestionBankListResponseDto>('/api/question-bank', { params });
         return response.data.data;
     },
 
-    // GET /question-bank/:id
+    // GET /api/question-bank/:id
     async findOne(id: string): Promise<QuestionBankDto> {
-        const response = await apiClient.get<GetQuestionBankByIdResponseDto>(`/question-bank/${id}`);
+        const response = await apiClient.get<GetQuestionBankByIdResponseDto>(`/api/question-bank/${id}`);
         // Unwrap nested response
         return response.data.data;
     },
 
-    // POST /question-bank
+    // POST /api/question-bank
     async create(question: CreateQuestionBankDto): Promise<QuestionBankDto> {
-        const response = await apiClient.post<CreateQuestionBankResponseDto>('/question-bank', question);
+        const response = await apiClient.post<CreateQuestionBankResponseDto>('/api/question-bank', question);
         // Unwrap nested response
         return response.data.data;
     },
 
-    // PUT /question-bank/:id
+    // PUT /api/question-bank/:id
     async update(id: string, question: UpdateQuestionBankDto): Promise<QuestionBankDto> {
-        const response = await apiClient.put<UpdateQuestionBankResponseDto>(`/question-bank/${id}`, question);
+        const response = await apiClient.put<UpdateQuestionBankResponseDto>(`/api/question-bank/${id}`, question);
         // Unwrap nested response
         return response.data.data;
     },
 
-    // DELETE /question-bank/:id
+    // DELETE /api/question-bank/:id
     async delete(id: string): Promise<void> {
-        await apiClient.delete(`/question-bank/${id}`);
+        await apiClient.delete(`/api/question-bank/${id}`);
     },
 };
 

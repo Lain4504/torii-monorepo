@@ -10,7 +10,10 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-  optimizeDeps: {
-    include: ['@radix-ui/react-select', '@radix-ui/react-dialog'],
+  server: {
+    fs: {
+      // Allow serving files from the workspace root
+      allow: ['..'],
+    },
   },
 })
