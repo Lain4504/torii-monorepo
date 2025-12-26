@@ -1,5 +1,5 @@
 import { apiClient } from './client';
-import { setCookie, removeCookie } from '../utils/cookies';
+import { setCookie, removeCookie } from '@workspace/ui/utils/cookies';
 
 export interface LoginRequest {
   email: string;

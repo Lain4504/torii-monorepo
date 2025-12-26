@@ -1,5 +1,5 @@
 import axios, { type AxiosInstance, type InternalAxiosRequestConfig, type AxiosError, type AxiosResponse } from 'axios';
-import { getCookie, removeCookie } from '../utils/cookies';
+import { getCookie, removeCookie } from '@workspace/ui/utils/cookies';
 
 export interface ApiClientConfig {
   baseURL?: string;

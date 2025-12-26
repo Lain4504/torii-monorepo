@@ -46,8 +46,6 @@
     "./lib/*": "./src/lib/*.ts",
     "./components/*": "./src/components/*.tsx",
     "./hooks/*": "./src/hooks/*.ts",
-    "./api/client": "./src/api/client.ts",
-    "./api/auth": "./src/api/auth.ts",
     "./utils/cookies": "./src/utils/cookies.ts"
   }
 }

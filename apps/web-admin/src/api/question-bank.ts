@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiClient } from '@workspace/ui/api/client';
+import { apiClient } from './client';
 import {
     PaginatedResponseDto,
     QuestionBankDto,

@@ -1,8 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import { authApi } from '@workspace/ui/api/auth';
+import { authApi } from '../../api/auth';
 import { getCookie } from '@workspace/ui/utils/cookies';
-import type { LoginRequest, RegisterRequest } from '@workspace/ui/api/auth';
+import type { LoginRequest, RegisterRequest } from '../../api/auth';
 
 interface AuthState {
   user: {
