@@ -25,6 +25,6 @@ export * from './gen/wajlc_speech_services_pb.js';
 // LiveKit models (needed by wajlc types)
 // Note: livekit_models exports some types that conflict with wajlc_nats_msg
 // Only export specific types we need
-export { ParticipantInfo, TrackInfo, TrackType, TrackSource, Codec } from './gen/livekit_models_pb.js';
+export { ParticipantInfo, ParticipantInfo_State, TrackInfo, TrackType, TrackSource, Codec } from './gen/livekit_models_pb.js';
 export * from './gen/livekit_metrics_pb.js';
 export { WebhookEvent } from './gen/livekit_webhook_pb.js';

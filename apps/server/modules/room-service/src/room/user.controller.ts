@@ -8,6 +8,11 @@
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { RoomUserService } from './room-user.service';
+import type {
+    UpdateUserLockSettingsReq,
+    MuteUnMuteTrackReq,
+    SwitchPresenterReq,
+} from '@workspace/protocol';
 
 /**
  * UserController receives NATS messages for user operations within rooms
@@ -59,8 +64,16 @@ export class UserController {
      * 
      */
     @MessagePattern({ cmd: 'user.updateLockSettings' })
-    async updateLockSettings(@Payload() data: any) {
-        return this.roomUserService.updateUserLockSettings(data);
+    async updateLockSettings(@Payload() data: UpdateUserLockSettingsReq) {
+        // Map to service interface (proto now uses snake_case, generates camelCase)
+        const mappedData = {
+            roomId: data.roomId,
+            userId: data.userId,
+            service: data.service,
+            direction: data.direction as 'lock' | 'unlock',
+            requestedUserId: data.requestedUserId,  // ✅ Now matches generated type
+        };
+        return this.roomUserService.updateUserLockSettings(mappedData);
     }
 
     /**
@@ -70,8 +83,16 @@ export class UserController {
      * 
      */
     @MessagePattern({ cmd: 'user.muteUnMuteTrack' })
-    async muteUnMuteTrack(@Payload() data: any) {
-        return this.roomUserService.handleMuteUnMuteTrack(data);
+    async muteUnMuteTrack(@Payload() data: MuteUnMuteTrackReq) {
+        // Map to service interface (proto now uses snake_case, generates camelCase)
+        const mappedData = {
+            roomId: data.roomId,
+            userId: data.userId,
+            trackSid: data.trackSid,
+            muted: data.muted,
+            requestedUserId: data.requestedUserId,  // ✅ Now matches generated type
+        };
+        return this.roomUserService.handleMuteUnMuteTrack(mappedData);
     }
 
     /**
@@ -81,7 +102,7 @@ export class UserController {
      * 
      */
     @MessagePattern({ cmd: 'user.removeParticipant' })
-    async removeParticipant(@Payload() data: { sid: string; userId: string; msg?: string; blockUser?: boolean }) {
+    async removeParticipant(@Payload() data: { sid: string; roomId: string; userId: string; msg?: string; blockUser?: boolean }) {
         return this.roomUserService.handleRemoveParticipant(data);
     }
 
@@ -92,7 +113,14 @@ export class UserController {
      * 
      */
     @MessagePattern({ cmd: 'user.switchPresenter' })
-    async switchPresenter(@Payload() data: any) {
-        return this.roomUserService.handleSwitchPresenter(data);
+    async switchPresenter(@Payload() data: SwitchPresenterReq) {
+        // Map to service interface (proto now uses snake_case, generates camelCase)
+        const mappedData = {
+            roomId: data.roomId,
+            userId: data.userId,
+            task: data.task,
+            requestedUserId: data.requestedUserId,  // ✅ Now matches generated type
+        };
+        return this.roomUserService.handleSwitchPresenter(mappedData);
     }
 }

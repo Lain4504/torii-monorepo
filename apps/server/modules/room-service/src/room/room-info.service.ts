@@ -330,6 +330,50 @@ export class RoomInfoService {
     }
 
     /**
+     * Get room info by sid (LiveKit session ID) from database
+     *
+     * Made public for use by controllers
+     */
+    async getRoomInfoBySid(sid: string, isRunning?: number): Promise<any | null> {
+        try {
+            const where: any = { sid: sid };
+
+            // Only filter by isRunning if provided
+            if (isRunning !== undefined && isRunning !== null) {
+                where.isRunning = isRunning;
+            }
+
+            return await this.prisma.roomInfo.findFirst({
+                where,
+                orderBy: {
+                    id: 'desc',
+                },
+            });
+        } catch (error) {
+            this.logger.error(`Failed to get room info by sid: ${error.message}`);
+            return null;
+        }
+    }
+
+    /**
+     * Get room info by table ID from database
+     *
+     * Used by analytics and recorder features
+     */
+    async getRoomInfoByTableId(tableId: bigint): Promise<any | null> {
+        try {
+            return await this.prisma.roomInfo.findFirst({
+                where: {
+                    id: Number(tableId),
+                },
+            });
+        } catch (error) {
+            this.logger.error(`Failed to get room info by table ID: ${error.message}`);
+            return null;
+        }
+    }
+
+    /**
      * Update room status in database
 
      * 
