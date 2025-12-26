@@ -6,7 +6,6 @@
 
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '@server/shared';
 import { v4 as uuidv4 } from 'uuid';
 import { create } from '@bufbuild/protobuf';
 import type {
@@ -34,6 +33,7 @@ import { RedisLockService } from '../redis/redis-lock.service';
 import { NatsStreamService } from '../nats/nats-stream.service';
 import { NatsRoomService } from '../nats/nats-room.service';
 import { WebhookNotifierService } from '../webhook/webhook-notifier.service';
+import { RoomInfoService } from './room-info.service';
 import { acquireRoomCreationLockWithRetry } from './room-lock.helper';
 
 /**
@@ -45,12 +45,12 @@ export class RoomCreateService {
 
 
     constructor(
-        private readonly prisma: PrismaService,
         private readonly configService: ConfigService,
         private readonly redisLock: RedisLockService,
         private readonly natsStream: NatsStreamService,
         private readonly natsRoom: NatsRoomService,
         private readonly webhookNotifier: WebhookNotifierService,
+        private readonly roomInfoService: RoomInfoService,
         // TODO: Inject file service when implemented
         // private readonly fileService: FileService,
     ) { }
@@ -68,7 +68,8 @@ export class RoomCreateService {
 
         try {
             // Step 2: Check if room already exists in DB
-            let roomDbInfo = await this.getRoomInfoByRoomId(req.roomId);
+            // Using RoomInfoService which matches source DatabaseService
+            let roomDbInfo = await this.roomInfoService.getRoomInfoByRoomId(req.roomId, true);
 
             // Step 3: Handle existing room logic
             if (roomDbInfo && roomDbInfo.sid) {
@@ -87,8 +88,21 @@ export class RoomCreateService {
             // Step 5: Prepare DB model
             const { roomInfo, sid } = this.prepareRoomDbInfo(req, roomDbInfo);
 
-            // Step 6: Save to database
-            const savedRoomInfo = await this.insertOrUpdateRoomInfo(roomInfo);
+            // Step 6: Save to database using atomic upsert
+            // Returns full object with ID - matches GORM Save() behavior
+            const savedRoomInfo = await this.roomInfoService.insertOrUpdateRoomInfo({
+                id: roomInfo.id,
+                roomTitle: roomInfo.roomTitle,
+                roomId: roomInfo.roomId,
+                sid: roomInfo.sid,
+                joinedParticipants: roomInfo.joinedParticipants,
+                isRunning: roomInfo.isRunning,
+                webhookUrl: roomInfo.webhookUrl,
+                isBreakoutRoom: roomInfo.isBreakoutRoom ? true : false,
+                parentRoomId: roomInfo.parentRoomId,
+                creationTime: BigInt(roomInfo.creationTime),
+            });
+
             log.log(`Room info saved to DB: ${req.roomId}, sid: ${sid}, webhook: ${savedRoomInfo.webhookUrl}`);
 
             // Step 7: Create room in NATS bucket
@@ -99,6 +113,7 @@ export class RoomCreateService {
             // Step 8: Create NATS streams
             await this.natsStream.createRoomNatsStreams(req.roomId);
             log.log(`NATS streams created: ${req.roomId}`);
+
 
             // Step 9: Get room info from NATS
             const rInfo = await this.natsRoom.getRoomInfo(req.roomId);
@@ -404,56 +419,8 @@ export class RoomCreateService {
     }
 
     // ============================================================================
-    // Helper methods (Prisma DB operations)
+    // Database methods have been moved to RoomInfoService
+    // - getRoomInfoByRoomId: Use roomInfoService.getRoomInfoByRoomId()
+    // - insertOrUpdateRoomInfo: Use roomInfoService.insertOrUpdateRoomInfo()
     // ============================================================================
-
-    private async getRoomInfoByRoomId(roomId: string): Promise<any | null> {
-        // Get active room (isRunning = 1)
-        return this.prisma.roomInfo.findFirst({
-            where: {
-                roomId: roomId,
-                isRunning: 1,  // Int type: 1 means running
-            },
-            orderBy: {
-                id: 'desc',
-            },
-        });
-    }
-
-    private async insertOrUpdateRoomInfo(roomInfo: any): Promise<any> {
-        // If we have an existing record (indicated by having an ID), update it
-        // This handles cases where we found a stale room in DB and are reusing the record with a new SID
-        if (roomInfo.id) {
-            return this.prisma.roomInfo.update({
-                where: {
-                    id: roomInfo.id,
-                },
-                data: {
-                    roomTitle: roomInfo.roomTitle,
-                    sid: roomInfo.sid,
-                    joinedParticipants: roomInfo.joinedParticipants,
-                    isRunning: roomInfo.isRunning,
-                    webhookUrl: roomInfo.webhookUrl,
-                    isBreakoutRoom: roomInfo.isBreakoutRoom,
-                    parentRoomId: roomInfo.parentRoomId,
-                    creationTime: roomInfo.creationTime,
-                },
-            });
-        }
-
-        // Otherwise create a new record
-        return this.prisma.roomInfo.create({
-            data: {
-                roomTitle: roomInfo.roomTitle,
-                roomId: roomInfo.roomId,
-                sid: roomInfo.sid,
-                joinedParticipants: roomInfo.joinedParticipants,
-                isRunning: roomInfo.isRunning,
-                webhookUrl: roomInfo.webhookUrl,
-                isBreakoutRoom: roomInfo.isBreakoutRoom,
-                parentRoomId: roomInfo.parentRoomId,
-                creationTime: roomInfo.creationTime,
-            },
-        });
-    }
 }
