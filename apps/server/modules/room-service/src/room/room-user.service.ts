@@ -758,6 +758,69 @@ export class RoomUserService {
             throw new Error(`Failed to update and broadcast metadata for ${userId}: ${error.message}`);
         }
 
+
         this.logger.log(`Successfully set is_presenter=${isPresenter} for user ${userId} and broadcasted change`);
+    }
+
+    /**
+     * RaisedHand - User raises hand
+     */
+    async raisedHand(roomId: string, userId: string, msg: string): Promise<void> {
+        this.logger.log(`User raised hand: ${userId} in room ${roomId}`);
+
+        try {
+            // Get user metadata
+            const metadata = await this.natsUserInfo.getUserMetadataStruct(roomId, userId);
+            if (!metadata) {
+                this.logger.warn(`User metadata not found for ${userId}`);
+                return;
+            }
+
+            // Update raised hand status
+            metadata.raisedHand = true;
+
+            // Update and broadcast
+            await this.natsUser.updateAndBroadcastUserMetadata(roomId, userId, metadata, null);
+
+            // Notify all admins (except the user who raised hand)
+            const participants = await this.natsUserInfo.getOnlineUsersList(roomId);
+            if (participants) {
+                for (const participant of participants) {
+                    if (participant.isAdmin && participant.userId !== userId) {
+                        await this.natsSystemEvents.notifyInfoMsg(roomId, msg, true, participant.userId);
+                    }
+                }
+            }
+
+            this.logger.log(`Hand raised successfully for ${userId}`);
+        } catch (error) {
+            this.logger.error(`Error raising hand for ${userId}: ${error.message}`);
+        }
+    }
+
+    /**
+     * LowerHand - Lower raised hand
+     */
+    async lowerHand(roomId: string, userId: string): Promise<void> {
+        this.logger.log(`Lowering hand for user: ${userId} in room ${roomId}`);
+
+        try {
+            // Get user metadata
+            const metadata = await this.natsUserInfo.getUserMetadataStruct(roomId, userId);
+            if (!metadata) {
+                this.logger.warn(`User metadata not found for ${userId}`);
+                return;
+            }
+
+            // Update raised hand status
+            metadata.raisedHand = false;
+
+            // Update and broadcast
+            await this.natsUser.updateAndBroadcastUserMetadata(roomId, userId, metadata, null);
+
+            this.logger.log(`Hand lowered successfully for ${userId}`);
+        } catch (error) {
+            this.logger.error(`Error lowering hand for ${userId}: ${error.message}`);
+        }
     }
 }

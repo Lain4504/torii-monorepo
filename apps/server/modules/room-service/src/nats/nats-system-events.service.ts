@@ -359,12 +359,7 @@ export class NatsSystemEventsService {
         // Generate LiveKit Token
         let token: string;
         try {
-            // Map NatsKvUserInfo to UserMetadata structure expected by LiveKitService
-            // LiveKitService expects UserMetadata protocol message, but here we have NatsKvUserInfo
-            // We need to verify if LiveKitService accepts NatsKvUserInfo or we need to convert
-            // Looking at LiveKitService.generateToken signature (not visible here, but assuming common interface)
-            // For now, passing userInfo directly. If types mismatch, we'll fix.
-            token = await this.livekitService.createToken(roomId, userInfo);
+            token = await this.livekitService.generateLivekitToken(roomId, userInfo);
         } catch (error) {
             this.logger.error(`Failed to generate livekit token: ${error.message}`);
             await this.notifyErrorMsg(roomId, error.message, userId);
@@ -388,8 +383,8 @@ export class NatsSystemEventsService {
         this.logger.log(`[MediaServerInfo] Sending to user ${userId}: url=${lkHost}, token_length=${token.length}`);
 
         if (broadcast) {
+            // Convert to JSON string for broadcasting
             const msg = toJsonString(MediaServerConnInfoSchema, data);
-            this.logger.debug(`[MediaServerInfo] Broadcasting to ${roomId}:${userId}: ${msg.substring(0, 200)}...`);
             await this.broadcastSystemEventToRoom(
                 NatsMsgServerToClientEvents.RES_MEDIA_SERVER_DATA,
                 roomId,
