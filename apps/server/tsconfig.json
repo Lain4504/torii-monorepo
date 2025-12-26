@@ -35,10 +35,5 @@
         "./generated/prisma/*"
       ]
     }
-  },
-  "include": [
-    "libs/**/*",
-    "modules/**/*",
-    "generated/**/*"
-  ]
+  }
 }
