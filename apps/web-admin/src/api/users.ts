@@ -32,8 +32,11 @@ export const usersApi = {
     },
 
     // DELETE /admin/users/:id
-    async delete(id: string): Promise<void> {
-        await apiClient.delete(`/admin/users/${id}`);
+    async delete(params: { id: string; hardDelete?: boolean }): Promise<void> {
+        const { id, hardDelete } = params;
+        await apiClient.delete(`/admin/users/${id}`, {
+            params: hardDelete !== undefined ? { hardDelete } : undefined,
+        });
     },
 };
 
@@ -100,7 +103,7 @@ export function useDeleteUser() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (id: string) => usersApi.delete(id),
+        mutationFn: (params: { id: string; hardDelete?: boolean }) => usersApi.delete(params),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['users'] });
         },
