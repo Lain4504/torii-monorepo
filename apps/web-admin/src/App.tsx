@@ -1,20 +1,32 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import DashboardPage from './pages/DashboardPage'
-import { UsersPage } from './pages/UsersPage.tsx'
-import { AddUserPage } from './pages/AddUserPage.tsx'
-import CoursesPage from './pages/CoursesPage'
-import AssessmentsPage from './pages/AssessmentsPage'
-import { QuestionBankPage } from './pages/question-bank/QuestionBankPage'
-import RoomsPage from './pages/RoomsPage'
-import PaymentsPage from './pages/PaymentsPage'
-import AnalyticsPage from './pages/AnalyticsPage'
-import AIServicePage from './pages/AIServicePage'
-import NotificationsPage from './pages/NotificationsPage'
-import PermissionsPage from './pages/PermissionsPage'
-import SettingsPage from './pages/SettingsPage'
-import LoginPage from './pages/LoginPage'
+
+// Component imports
 import DashboardLayout from "./components/layout/dashboard-layout.tsx";
+
+// Feature imports
+import DashboardPage from './features/dashboard/routes/DashboardPage'
+import AnalyticsPage from './features/dashboard/routes/AnalyticsPage'
+
+import { UsersPage } from './features/users/routes/UsersPage'
+import { AddUserPage } from './features/users/routes/AddUserPage'
+
+import CoursesPage from './features/courses/routes/CoursesPage'
+import AssessmentsPage from './features/courses/routes/AssessmentsPage'
+
+import { QuestionBankPage } from './features/question-bank/routes/QuestionBankPage'
+
+import RoomsPage from './features/rooms/routes/RoomsPage'
+
+import PaymentsPage from './features/finance/routes/PaymentsPage'
+
+import AIServicePage from './features/ai/routes/AIServicePage'
+
+import NotificationsPage from './features/settings/routes/NotificationsPage'
+import PermissionsPage from './features/settings/routes/PermissionsPage'
+import SettingsPage from './features/settings/routes/SettingsPage'
+
+import LoginPage from './features/auth/routes/LoginPage'
 
 const queryClient = new QueryClient({
   defaultOptions: {

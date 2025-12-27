@@ -4,7 +4,7 @@ import {
     useCreateQuestionBank,
     useUpdateQuestionBank,
     useDeleteQuestionBank,
-} from '../../api';
+} from '../api/question-bank';
 import type {
     QuestionBankDto,
     CreateQuestionBankDto,
@@ -15,7 +15,7 @@ import type {
     QuestionDifficultyLevel,
     QuestionStatus,
 } from '@workspace/dtos';
-import type { QuestionBankFilters } from '../../types/question-bank';
+import type { QuestionBankFilters } from '../types/question-bank';
 import { QuestionBankHeader } from './components/QuestionBankHeader';
 import { QuestionBankFilters as FiltersComponent } from './components/QuestionBankFilters';
 import { QuestionBankTable } from './components/QuestionBankTable';
@@ -57,7 +57,7 @@ export function QuestionBankPage() {
         key: K,
         value: QuestionBankFilters[K]
     ) => {
-        setFilters((prev) => ({ ...prev, [key]: value }));
+        setFilters((prev: QuestionBankFilters) => ({ ...prev, [key]: value }));
         setPage(1); // Reset to first page when filter changes
     };
 
@@ -77,11 +77,11 @@ export function QuestionBankPage() {
         () =>
             Boolean(
                 filters.search ||
-                    filters.questionType ||
-                    filters.jlptLevel ||
-                    filters.difficulty ||
-                    filters.status ||
-                    filters.category
+                filters.questionType ||
+                filters.jlptLevel ||
+                filters.difficulty ||
+                filters.status ||
+                filters.category
             ),
         [filters]
     );

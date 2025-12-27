@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiClient } from './client';
-import { PaginatedResponseDto, UserResponseDto, FindAllUsersParamsDto } from '@workspace/dtos';
+import { apiClient } from '@/lib/api-client';
+import { PaginatedResponseDto, UserResponseDto, FindAllUsersParamsDto, CreateUserDto, UpdateUserDto } from '@workspace/dtos';
 
 // ============================================================================
 // API Functions
@@ -20,13 +20,13 @@ export const usersApi = {
     },
 
     // POST /admin/users
-    async create(user: Partial<UserResponseDto>): Promise<UserResponseDto> {
+    async create(user: CreateUserDto): Promise<UserResponseDto> {
         const response = await apiClient.post<UserResponseDto>('/admin/users', user);
         return response.data;
     },
 
     // PATCH /admin/users/:id
-    async update(id: string, user: Partial<UserResponseDto>): Promise<UserResponseDto> {
+    async update(id: string, user: UpdateUserDto): Promise<UserResponseDto> {
         const response = await apiClient.patch<UserResponseDto>(`/admin/users/${id}`, user);
         return response.data;
     },
@@ -73,7 +73,7 @@ export function useCreateUser() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (user: Partial<UserResponseDto>) => usersApi.create(user),
+        mutationFn: (user: CreateUserDto) => usersApi.create(user),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['users'] });
         },
@@ -87,7 +87,7 @@ export function useUpdateUser() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({ id, user }: { id: string; user: Partial<UserResponseDto> }) =>
+        mutationFn: ({ id, user }: { id: string; user: UpdateUserDto }) =>
             usersApi.update(id, user),
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['users', variables.id] });

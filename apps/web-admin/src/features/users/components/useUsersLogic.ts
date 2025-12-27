@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useUsers, useUpdateUser, useDeleteUser } from '../../api';
+import { useUsers, useUpdateUser, useDeleteUser } from '../api/users';
 import type { UserResponseDto } from '@workspace/dtos';
 
 export function useUsersLogic() {

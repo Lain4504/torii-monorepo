@@ -4,7 +4,7 @@ import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Switch } from '@workspace/ui/components/switch';
 import { Breadcrumb } from '@workspace/ui/components/breadcrumb';
-import { RoleCard } from '../components/users/RoleCard';
+import { RoleCard } from '../components';
 import { useCreateUser } from '../api/users';
 import {
     GraduationCap,
@@ -136,63 +136,63 @@ export function AddUserPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Profile Photo Section */}
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Profile Photo</label>
-                        <div className="flex items-center gap-4">
-                            <div className="relative">
-                                <div className="w-20 h-20 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50 overflow-hidden">
-                                    {profilePhotoPreview ? (
-                                        <img
-                                            src={profilePhotoPreview}
-                                            alt="Profile preview"
-                                            className="w-full h-full object-cover rounded-full"
-                                        />
-                                    ) : hasProfilePhoto ? (
-                                        <div className="w-full h-full rounded-full bg-green-100 flex items-center justify-center">
-                                            <Check className="h-8 w-8 text-green-600" />
-                                        </div>
-                                    ) : (
-                                        <Upload className="h-8 w-8 text-gray-400" />
-                                    )}
-                                </div>
-                                {hasProfilePhoto && (
-                                    <button
-                                        type="button"
-                                        className="absolute bottom-0 right-0 bg-green-500 rounded-full p-1.5 border-2 border-white hover:bg-green-600 transition-colors"
-                                        onClick={() => {
-                                            setHasProfilePhoto(false);
-                                            setProfilePhotoPreview(null);
-                                            if (fileInputRef.current) {
-                                                fileInputRef.current.value = '';
-                                            }
-                                        }}
-                                    >
-                                        <Pencil className="h-3 w-3 text-white" />
-                                    </button>
+                {/* Profile Photo Section */}
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">Profile Photo</label>
+                    <div className="flex items-center gap-4">
+                        <div className="relative">
+                            <div className="w-20 h-20 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50 overflow-hidden">
+                                {profilePhotoPreview ? (
+                                    <img
+                                        src={profilePhotoPreview}
+                                        alt="Profile preview"
+                                        className="w-full h-full object-cover rounded-full"
+                                    />
+                                ) : hasProfilePhoto ? (
+                                    <div className="w-full h-full rounded-full bg-green-100 flex items-center justify-center">
+                                        <Check className="h-8 w-8 text-green-600" />
+                                    </div>
+                                ) : (
+                                    <Upload className="h-8 w-8 text-gray-400" />
                                 )}
                             </div>
-                            <div className="flex-1">
-                                <p className="text-sm text-muted-foreground">
-                                    Supports JPG, PNG or GIF. Max 5MB.
-                                </p>
+                            {hasProfilePhoto && (
                                 <button
                                     type="button"
-                                    className="text-sm text-primary hover:underline mt-1"
-                                    onClick={handleUploadClick}
+                                    className="absolute bottom-0 right-0 bg-green-500 rounded-full p-1.5 border-2 border-white hover:bg-green-600 transition-colors"
+                                    onClick={() => {
+                                        setHasProfilePhoto(false);
+                                        setProfilePhotoPreview(null);
+                                        if (fileInputRef.current) {
+                                            fileInputRef.current.value = '';
+                                        }
+                                    }}
                                 >
-                                    Upload Image
+                                    <Pencil className="h-3 w-3 text-white" />
                                 </button>
-                                <input
-                                    ref={fileInputRef}
-                                    type="file"
-                                    accept="image/jpeg,image/png,image/gif"
-                                    className="hidden"
-                                    onChange={handleFileChange}
-                                />
-                            </div>
+                            )}
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-sm text-muted-foreground">
+                                Supports JPG, PNG or GIF. Max 5MB.
+                            </p>
+                            <button
+                                type="button"
+                                className="text-sm text-primary hover:underline mt-1"
+                                onClick={handleUploadClick}
+                            >
+                                Upload Image
+                            </button>
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/jpeg,image/png,image/gif"
+                                className="hidden"
+                                onChange={handleFileChange}
+                            />
                         </div>
                     </div>
+                </div>
 
                 {/* Personal Details Section */}
                 <div className="space-y-4">

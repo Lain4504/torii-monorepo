@@ -69,8 +69,8 @@ docker-compose down -v
 3. **Database Migration & Generation:**
    ```bash
    cd apps/server
-   npx prisma generate
-   npx prisma db push
+   pnpx prisma generate
+   pnpx prisma db push
    ```
    *Lệnh `db push` sẽ đồng bộ schema Prisma vào database `wajlc` đang chạy trên Docker.*
 

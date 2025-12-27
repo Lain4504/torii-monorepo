@@ -1,5 +1,5 @@
 import { Button } from '@workspace/ui/components/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+
 
 interface UsersPaginationProps {
     page: number;

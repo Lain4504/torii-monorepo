@@ -12,10 +12,8 @@ import { Search, X } from 'lucide-react';
 import type {
     QuestionType,
     QuestionJlptLevel,
-    QuestionDifficultyLevel,
-    QuestionStatus,
 } from '@workspace/dtos';
-import type { QuestionBankFilters as Filters } from '../../../types/question-bank';
+import type { QuestionBankFilters as Filters } from '../../types/question-bank';
 
 interface QuestionBankFiltersProps {
     filters: Filters;
