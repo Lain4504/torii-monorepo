@@ -4,6 +4,7 @@ import DashboardPage from './pages/DashboardPage'
 import { UsersPage } from './pages/UsersPage.tsx'
 import { AddUserPage } from './pages/AddUserPage.tsx'
 import CoursesPage from './pages/CoursesPage'
+import ModulesPage from './pages/ModulesPage'
 import AssessmentsPage from './pages/AssessmentsPage'
 import RoomsPage from './pages/RoomsPage'
 import PaymentsPage from './pages/PaymentsPage'
@@ -35,6 +36,7 @@ function App() {
             <Route path="users" element={<UsersPage />} />
             <Route path="users/new" element={<AddUserPage />} />
             <Route path="courses" element={<CoursesPage />} />
+            <Route path="modules" element={<ModulesPage />} />
             <Route path="assessments" element={<AssessmentsPage />} />
             <Route path="rooms" element={<RoomsPage />} />
             <Route path="payments" element={<PaymentsPage />} />

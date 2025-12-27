@@ -57,6 +57,11 @@ const mainNavItems: NavItem[] = [
     icon: BookOpen,
   },
   {
+    title: "Modules",
+    url: "/modules",
+    icon: BookOpen,
+  },
+  {
     title: "Assessments",
     url: "/assessments",
     icon: ClipboardList,
