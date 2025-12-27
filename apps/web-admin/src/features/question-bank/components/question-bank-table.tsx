@@ -14,23 +14,22 @@ import {
     TableRow,
 } from '@workspace/ui/components/table';
 import { useState } from 'react';
-import type { UserResponseDto } from '@workspace/dtos';
-import { getUsersColumns } from './users-columns';
+import type { QuestionBankDto } from '@workspace/dtos';
+import { getQuestionBankColumns } from './question-bank-columns';
 
-interface UsersTableProps {
-    data: UserResponseDto[];
-    onView: (user: UserResponseDto) => void;
-    onEdit: (user: UserResponseDto) => void;
-    onDelete: (user: UserResponseDto) => void;
+interface QuestionBankTableProps {
+    data: QuestionBankDto[];
+    onEdit: (question: QuestionBankDto) => void;
+    onView: (question: QuestionBankDto) => void;
+    onDelete: (question: QuestionBankDto) => void;
     page: number;
     limit: number;
 }
 
-export function UsersTable({ data, onView, onEdit, onDelete, page, limit }: UsersTableProps) {
+export function QuestionBankTable({ data, onEdit, onView, onDelete, page, limit }: QuestionBankTableProps) {
     const [sorting, setSorting] = useState<SortingState>([]);
 
-    // Memorize columns to prevent re-renders
-    const columns = getUsersColumns({ onView, onEdit, onDelete, page, limit });
+    const columns = getQuestionBankColumns({ onEdit, onView, onDelete, page, limit });
 
     const table = useReactTable({
         data,

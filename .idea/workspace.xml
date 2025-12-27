@@ -4,15 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: standardize import paths for feature components">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/courses.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/modules.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/storage.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/forms/create-course-form.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/forms/edit-course-form.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/courses/components/courses-columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/features/courses/components/courses-columns.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/courses/components/courses-table.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/features/courses/components/courses-table.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/courses/components/create-course-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/features/courses/components/create-course-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/courses/components/delete-course-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/features/courses/components/delete-course-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/courses/components/edit-course-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/features/courses/components/edit-course-dialog.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/courses/routes/courses-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/features/courses/routes/courses-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/question-bank/components/question-bank-columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/features/question-bank/components/question-bank-columns.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/users/components/create-user-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/features/users/components/create-user-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/users/components/users-primary-toolbar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/features/users/components/users-primary-toolbar.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,27 +36,27 @@
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "history": [
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;history&quot;: [
     {
-      "state": "OPEN"
+      &quot;state&quot;: &quot;OPEN&quot;
     }
   ],
-  "lastFilter": {
-    "state": "OPEN"
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;
   }
-}]]></component>
-  <component name="GitHubPullRequestState"><![CDATA[{
-  "prStates": [
+}</component>
+  <component name="GitHubPullRequestState">{
+  &quot;prStates&quot;: [
     {
-      "id": {
-        "id": "PR_kwDOQmD9iM66sc24",
-        "number": 35
+      &quot;id&quot;: {
+        &quot;id&quot;: &quot;PR_kwDOQmD9iM66sc24&quot;,
+        &quot;number&quot;: 35
       },
-      "lastSeen": 1766837511440
+      &quot;lastSeen&quot;: 1766837511440
     }
   ]
-}]]></component>
+}</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/Lain4504/torii-monorepo.git&quot;,
@@ -83,7 +85,7 @@
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
     "RunOnceActivity.git.unshallow": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "#34 on refactoring-structure-web-admin",
+    "git-widget-placeholder": "update-logic-admin-panel",
     "junie.onboarding.icon.badge.shown": "true",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -97,6 +99,7 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\demo\team-source\torii-monorepo\apps\web-admin\src\features\question-bank" />
       <recent name="E:\demo\team-source\torii-monorepo\apps\web-admin\src\features\courses" />
       <recent name="E:\demo\team-source\torii-monorepo\apps\server\libs\shared\src\utils" />
       <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\room-service\src\utils" />
@@ -167,110 +170,6 @@
       <workItem from="1766734238257" duration="5995000" />
       <workItem from="1766812088279" duration="123000" />
       <workItem from="1766826149900" duration="3567000" />
-    </task>
-    <task id="LOCAL-00281" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766566557494</created>
-      <option name="number" value="00281" />
-      <option name="presentableId" value="LOCAL-00281" />
-      <option name="project" value="LOCAL" />
-      <updated>1766566557494</updated>
-    </task>
-    <task id="LOCAL-00282" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766567864045</created>
-      <option name="number" value="00282" />
-      <option name="presentableId" value="LOCAL-00282" />
-      <option name="project" value="LOCAL" />
-      <updated>1766567864045</updated>
-    </task>
-    <task id="LOCAL-00283" summary="fix to can run">
-      <option name="closed" value="true" />
-      <created>1766570544412</created>
-      <option name="number" value="00283" />
-      <option name="presentableId" value="LOCAL-00283" />
-      <option name="project" value="LOCAL" />
-      <updated>1766570544412</updated>
-    </task>
-    <task id="LOCAL-00284" summary="fix to can run">
-      <option name="closed" value="true" />
-      <created>1766571505443</created>
-      <option name="number" value="00284" />
-      <option name="presentableId" value="LOCAL-00284" />
-      <option name="project" value="LOCAL" />
-      <updated>1766571505443</updated>
-    </task>
-    <task id="LOCAL-00285" summary="fix to can run">
-      <option name="closed" value="true" />
-      <created>1766571518793</created>
-      <option name="number" value="00285" />
-      <option name="presentableId" value="LOCAL-00285" />
-      <option name="project" value="LOCAL" />
-      <updated>1766571518793</updated>
-    </task>
-    <task id="LOCAL-00286" summary="fix to can run">
-      <option name="closed" value="true" />
-      <created>1766572593456</created>
-      <option name="number" value="00286" />
-      <option name="presentableId" value="LOCAL-00286" />
-      <option name="project" value="LOCAL" />
-      <updated>1766572593456</updated>
-    </task>
-    <task id="LOCAL-00287" summary="fix to can run">
-      <option name="closed" value="true" />
-      <created>1766572599853</created>
-      <option name="number" value="00287" />
-      <option name="presentableId" value="LOCAL-00287" />
-      <option name="project" value="LOCAL" />
-      <updated>1766572599853</updated>
-    </task>
-    <task id="LOCAL-00288" summary="fix to can run">
-      <option name="closed" value="true" />
-      <created>1766576319912</created>
-      <option name="number" value="00288" />
-      <option name="presentableId" value="LOCAL-00288" />
-      <option name="project" value="LOCAL" />
-      <updated>1766576319912</updated>
-    </task>
-    <task id="LOCAL-00289" summary="fix to can run">
-      <option name="closed" value="true" />
-      <created>1766582292021</created>
-      <option name="number" value="00289" />
-      <option name="presentableId" value="LOCAL-00289" />
-      <option name="project" value="LOCAL" />
-      <updated>1766582292022</updated>
-    </task>
-    <task id="LOCAL-00290" summary="fix to can run">
-      <option name="closed" value="true" />
-      <created>1766582297749</created>
-      <option name="number" value="00290" />
-      <option name="presentableId" value="LOCAL-00290" />
-      <option name="project" value="LOCAL" />
-      <updated>1766582297749</updated>
-    </task>
-    <task id="LOCAL-00291" summary="fix to can run">
-      <option name="closed" value="true" />
-      <created>1766583203346</created>
-      <option name="number" value="00291" />
-      <option name="presentableId" value="LOCAL-00291" />
-      <option name="project" value="LOCAL" />
-      <updated>1766583203347</updated>
-    </task>
-    <task id="LOCAL-00292" summary="fix to can run">
-      <option name="closed" value="true" />
-      <created>1766583345723</created>
-      <option name="number" value="00292" />
-      <option name="presentableId" value="LOCAL-00292" />
-      <option name="project" value="LOCAL" />
-      <updated>1766583345723</updated>
-    </task>
-    <task id="LOCAL-00293" summary="fix to can run">
-      <option name="closed" value="true" />
-      <created>1766584190966</created>
-      <option name="number" value="00293" />
-      <option name="presentableId" value="LOCAL-00293" />
-      <option name="project" value="LOCAL" />
-      <updated>1766584190967</updated>
     </task>
     <task id="LOCAL-00294" summary="fix to can run">
       <option name="closed" value="true" />
@@ -560,7 +459,111 @@
       <option name="project" value="LOCAL" />
       <updated>1766833421571</updated>
     </task>
-    <option name="localTasksCounter" value="330" />
+    <task id="LOCAL-00330" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
+      <option name="closed" value="true" />
+      <created>1766841193559</created>
+      <option name="number" value="00330" />
+      <option name="presentableId" value="LOCAL-00330" />
+      <option name="project" value="LOCAL" />
+      <updated>1766841193559</updated>
+    </task>
+    <task id="LOCAL-00331" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
+      <option name="closed" value="true" />
+      <created>1766841318034</created>
+      <option name="number" value="00331" />
+      <option name="presentableId" value="LOCAL-00331" />
+      <option name="project" value="LOCAL" />
+      <updated>1766841318034</updated>
+    </task>
+    <task id="LOCAL-00332" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
+      <option name="closed" value="true" />
+      <created>1766841917231</created>
+      <option name="number" value="00332" />
+      <option name="presentableId" value="LOCAL-00332" />
+      <option name="project" value="LOCAL" />
+      <updated>1766841917231</updated>
+    </task>
+    <task id="LOCAL-00333" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
+      <option name="closed" value="true" />
+      <created>1766842547515</created>
+      <option name="number" value="00333" />
+      <option name="presentableId" value="LOCAL-00333" />
+      <option name="project" value="LOCAL" />
+      <updated>1766842547516</updated>
+    </task>
+    <task id="LOCAL-00334" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
+      <option name="closed" value="true" />
+      <created>1766842819096</created>
+      <option name="number" value="00334" />
+      <option name="presentableId" value="LOCAL-00334" />
+      <option name="project" value="LOCAL" />
+      <updated>1766842819096</updated>
+    </task>
+    <task id="LOCAL-00335" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
+      <option name="closed" value="true" />
+      <created>1766842964163</created>
+      <option name="number" value="00335" />
+      <option name="presentableId" value="LOCAL-00335" />
+      <option name="project" value="LOCAL" />
+      <updated>1766842964163</updated>
+    </task>
+    <task id="LOCAL-00336" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
+      <option name="closed" value="true" />
+      <created>1766843159615</created>
+      <option name="number" value="00336" />
+      <option name="presentableId" value="LOCAL-00336" />
+      <option name="project" value="LOCAL" />
+      <updated>1766843159615</updated>
+    </task>
+    <task id="LOCAL-00337" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
+      <option name="closed" value="true" />
+      <created>1766843257565</created>
+      <option name="number" value="00337" />
+      <option name="presentableId" value="LOCAL-00337" />
+      <option name="project" value="LOCAL" />
+      <updated>1766843257566</updated>
+    </task>
+    <task id="LOCAL-00338" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
+      <option name="closed" value="true" />
+      <created>1766843303972</created>
+      <option name="number" value="00338" />
+      <option name="presentableId" value="LOCAL-00338" />
+      <option name="project" value="LOCAL" />
+      <updated>1766843303972</updated>
+    </task>
+    <task id="LOCAL-00339" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
+      <option name="closed" value="true" />
+      <created>1766843641163</created>
+      <option name="number" value="00339" />
+      <option name="presentableId" value="LOCAL-00339" />
+      <option name="project" value="LOCAL" />
+      <updated>1766843641164</updated>
+    </task>
+    <task id="LOCAL-00340" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
+      <option name="closed" value="true" />
+      <created>1766843907926</created>
+      <option name="number" value="00340" />
+      <option name="presentableId" value="LOCAL-00340" />
+      <option name="project" value="LOCAL" />
+      <updated>1766843907926</updated>
+    </task>
+    <task id="LOCAL-00341" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
+      <option name="closed" value="true" />
+      <created>1766844061902</created>
+      <option name="number" value="00341" />
+      <option name="presentableId" value="LOCAL-00341" />
+      <option name="project" value="LOCAL" />
+      <updated>1766844061902</updated>
+    </task>
+    <task id="LOCAL-00342" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
+      <option name="closed" value="true" />
+      <created>1766844724815</created>
+      <option name="number" value="00342" />
+      <option name="presentableId" value="LOCAL-00342" />
+      <option name="project" value="LOCAL" />
+      <updated>1766844724815</updated>
+    </task>
+    <option name="localTasksCounter" value="343" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -612,7 +615,8 @@
     <MESSAGE value="feat(docker): enhance Docker setup with LiveKit configuration and streamline service definitions" />
     <MESSAGE value="chore(docker): enhance Docker setup with LiveKit configuration and streamline service definitions" />
     <MESSAGE value="refactor: standardize import paths for feature components" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: standardize import paths for feature components" />
+    <MESSAGE value="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components" />
   </component>
   <component name="com.apollographql.ijplugin.settings.ProjectSettingsState">
     <option name="lspPassPathToSuperGraphYaml" value="false" />

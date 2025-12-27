@@ -9,17 +9,17 @@ import { Badge } from '@workspace/ui/components/badge';
 import { Label } from '@workspace/ui/components/label';
 import type { QuestionBankDto } from '@workspace/dtos';
 
-interface QuestionBankViewDialogProps {
+interface ViewQuestionBankDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     question: QuestionBankDto | null;
 }
 
-export function QuestionBankViewDialog({
+export function ViewQuestionBankDialog({
     open,
     onOpenChange,
     question,
-}: QuestionBankViewDialogProps) {
+}: ViewQuestionBankDialogProps) {
     if (!question) return null;
 
     return (
