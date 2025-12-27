@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   # ========================================
   # Infrastructure Services
@@ -8,10 +6,11 @@ services:
   postgres:
     image: postgres:16-alpine
     container_name: torii-postgres
+    restart: always
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=torii
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456789
+      POSTGRES_DB: wajlc
     ports:
       - '5432:5432'
     volumes:
@@ -25,6 +24,7 @@ services:
   redis:
     image: redis:7-alpine
     container_name: torii-redis
+    restart: always
     ports:
       - '6379:6379'
     volumes:
@@ -36,198 +36,38 @@ services:
       retries: 5
 
   nats:
-    image: nats:latest
+    image: nats:2.12-alpine
     container_name: torii-nats
-    command: ['-js', '-sd', '/data', '--websocket_port', '9222']  # Enable JetStream & WebSocket
+    restart: always
+    command:
+      - "-DVV"
+      - "-config"
+      - "/nats-server.conf"
     ports:
-      - '4222:4222'  # Client connections
-      - '8222:8222'  # HTTP monitoring
-      - '9222:9222'  # WebSocket for Web Clients
+      - "4222:4222/tcp" # clients
+      - "8222:8222/tcp" # websockets
     volumes:
-      - natsdata:/data
-    healthcheck:
-      test: ['CMD', 'wget', '-qO-', 'http://localhost:8222/healthz']
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - ./nats_server.conf:/nats-server.conf
+      - natsdata:/data/jetstream
 
-  # ========================================
-  # LiveKit (Commented - using LiveKit Cloud)
-  # ========================================
-  # livekit:
-  #   image: livekit/livekit-server:latest
-  #   container_name: torii-livekit
-  #   command: --dev --bind 0.0.0.0
-  #   ports:
-  #     - '7880:7880'  # HTTP
-  #     - '7881:7881'  # WebRTC over TCP
-  #     - '7882:7882/udp'  # WebRTC over UDP
-  #   volumes:
-  #     - livekitdata:/data
-  #   environment:
-  #     - LIVEKIT_API_KEY=devkey
-  #     - LIVEKIT_API_SECRET=secret
-  #   healthcheck:
-  #     test: ['CMD-SHELL', 'wget -qO- http://localhost:7880 || exit 1']
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
-
-  # ========================================
-  # Application Services
-  # ========================================
-
-  room-service:
-    build:
-      context: .
-      dockerfile: apps/server/modules/room-service/Dockerfile
-    container_name: torii-room-service
-    environment:
-      - ROOM_HOST=0.0.0.0
-      - ROOM_PORT=8083
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/torii?schema=public
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - NATS_URL=nats://nats:4222
-      # LiveKit Cloud credentials from environment
-      - LIVEKIT_API_KEY=${LIVEKIT_API_KEY}
-      - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET}
-      - LIVEKIT_API_URL=${LIVEKIT_API_URL}
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      nats:
-        condition: service_healthy
+  livekit:
+    image: livekit/livekit-server:latest
+    container_name: torii-livekit
+    restart: always
+    command: --config /livekit.yaml
     ports:
-      - '8083:8083'
-    healthcheck:
-      test: ['CMD-SHELL', 'nc -z localhost 8083']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  auth-service:
-    build:
-      context: .
-      dockerfile: apps/server/modules/auth-service/Dockerfile
-    container_name: torii-auth-service
-    environment:
-      - AUTH_HOST=0.0.0.0
-      - AUTH_PORT=8081
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/torii?schema=public
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - NATS_URL=nats://nats:4222
+      - '7880:7880'  # HTTP
+      - '7881:7881'  # WebRTC over TCP
+      - '7882:7882/udp'  # WebRTC over UDP
+    volumes:
+      - ./livekit.yaml:/livekit.yaml
+      - livekitdata:/data
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      nats:
-        condition: service_healthy
-    ports:
-      - '8081:8081'
-    healthcheck:
-      test: ['CMD-SHELL', 'nc -z localhost 8081']
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - redis
 
-  course-service:
-    build:
-      context: .
-      dockerfile: apps/server/modules/course-service/Dockerfile
-    container_name: torii-course-service
-    environment:
-      - COURSE_HOST=0.0.0.0
-      - COURSE_PORT=8082
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/torii?schema=public
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - NATS_URL=nats://nats:4222
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      nats:
-        condition: service_healthy
-    ports:
-      - '8082:8082'
-    healthcheck:
-      test: ['CMD-SHELL', 'nc -z localhost 8082']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  gateway:
-    build:
-      context: .
-      dockerfile: apps/server/modules/gateway/Dockerfile
-    container_name: torii-gateway
-    environment:
-      - AUTH_HOST=auth-service
-      - AUTH_PORT=8081
-      - COURSE_HOST=course-service
-      - COURSE_PORT=8082
-      - PORT=8080
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/torii?schema=public
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - NATS_URL=nats://nats:4222
-      - LIVEKIT_API_KEY=devkey
-      - LIVEKIT_API_SECRET=secret
-      - LIVEKIT_API_URL=http://livekit:7880
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      nats:
-        condition: service_healthy
-      auth-service:
-        condition: service_healthy
-      course-service:
-        condition: service_healthy
-      room-service:
-        condition: service_healthy
-    ports:
-      - '8080:8080'
-    healthcheck:
-      test: ['CMD-SHELL', 'wget -qO- http://localhost:8080/health || exit 1']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # ========================================
-  # Frontend Services
-  # ========================================
-
-  web-admin:
-    build:
-      context: .
-      dockerfile: apps/web-admin/Dockerfile
-    container_name: torii-web-admin
-    ports:
-      - '4173:4173'
-    depends_on:
-      - gateway
-
-  web-learner:
-    build:
-      context: .
-      dockerfile: apps/web-learner/Dockerfile
-    container_name: torii-web-learner
-    environment:
-      - PORT=3002
-    ports:
-      - '3002:3002'
-    depends_on:
-      - gateway
 
 volumes:
   pgdata:
   redisdata:
   natsdata:
+  livekitdata:
