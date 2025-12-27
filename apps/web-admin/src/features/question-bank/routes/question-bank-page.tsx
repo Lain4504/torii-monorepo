@@ -4,7 +4,7 @@ import {
     useCreateQuestionBank,
     useUpdateQuestionBank,
     useDeleteQuestionBank,
-} from '../api/question-bank';
+} from '@/features/question-bank/api/question-bank';
 import type {
     QuestionBankDto,
     CreateQuestionBankDto,
@@ -15,13 +15,13 @@ import type {
     QuestionDifficultyLevel,
     QuestionStatus,
 } from '@workspace/dtos';
-import type { QuestionBankFilters } from '../types/question-bank';
-import { QuestionBankHeader } from './components/QuestionBankHeader';
-import { QuestionBankFilters as FiltersComponent } from './components/QuestionBankFilters';
-import { QuestionBankTable } from './components/QuestionBankTable';
-import { QuestionBankCreateDialog } from './components/QuestionBankCreateDialog';
-import { QuestionBankEditDialog } from './components/QuestionBankEditDialog';
-import { QuestionBankViewDialog } from './components/QuestionBankViewDialog';
+import type { QuestionBankFilters } from '@/features/question-bank/types/question-bank';
+import { QuestionBankHeader } from './components/question-bank-header';
+import { QuestionBankFilters as FiltersComponent } from './components/question-bank-filters';
+import { QuestionBankTable } from './components/question-bank-table';
+import { QuestionBankCreateDialog } from './components/question-bank-create-dialog';
+import { QuestionBankEditDialog } from './components/question-bank-edit-dialog';
+import { QuestionBankViewDialog } from './components/question-bank-view-dialog';
 import { Button } from '@workspace/ui/components/button';
 
 export function QuestionBankPage() {

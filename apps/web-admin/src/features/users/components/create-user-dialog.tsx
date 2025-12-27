@@ -9,7 +9,7 @@ import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Switch } from '@workspace/ui/components/switch';
 import { Breadcrumb } from '@workspace/ui/components/breadcrumb';
-import { RoleCard } from './RoleCard';
+import { RoleCard } from './role-card';
 import {
     GraduationCap,
     Wifi,

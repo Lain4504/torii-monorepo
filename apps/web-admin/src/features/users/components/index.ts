@@ -1,12 +1,12 @@
-export { UsersTable } from './UsersTable';
-export { CreateUserDialog } from './CreateUserDialog';
-export { UsersSearchBar } from './UsersSearchBar';
-export { UsersPagination } from './UsersPagination';
-export { EditUserRow } from './EditUserRow';
-export { UserTableRow } from './UserTableRow';
-export { UsersPageHeader } from './UsersPageHeader';
-export { RoleCard } from './RoleCard';
-export { FilterDialog } from './FilterDialog';
-export { SortDialog } from './SortDialog';
-export { useUsersLogic } from './useUsersLogic';
+export { UsersTable } from './users-table';
+export { CreateUserDialog } from './create-user-dialog';
+export { UsersSearchBar } from './users-search-bar';
+export { UsersPagination } from './users-pagination';
+export { EditUserRow } from './edit-user-row';
+export { UserTableRow } from './user-table-row';
+export { UsersPageHeader } from './users-page-header';
+export { RoleCard } from './role-card';
+export { FilterDialog } from './filter-dialog';
+export { SortDialog } from './sort-dialog';
+export { useUsersLogic } from './use-users-logic';
 

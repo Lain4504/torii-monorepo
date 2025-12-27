@@ -5,28 +5,28 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import DashboardLayout from "./components/layout/dashboard-layout.tsx";
 
 // Feature imports
-import DashboardPage from './features/dashboard/routes/DashboardPage'
-import AnalyticsPage from './features/dashboard/routes/AnalyticsPage'
+import DashboardPage from './features/dashboard/routes/dashboard-page'
+import AnalyticsPage from './features/dashboard/routes/analytics-page'
 
-import { UsersPage } from './features/users/routes/UsersPage'
-import { AddUserPage } from './features/users/routes/AddUserPage'
+import { UsersPage } from './features/users/routes/users-page'
+import { AddUserPage } from './features/users/routes/add-user-page'
 
-import CoursesPage from './features/courses/routes/CoursesPage'
-import AssessmentsPage from './features/courses/routes/AssessmentsPage'
+import CoursesPage from './features/courses/routes/courses-page'
+import AssessmentsPage from './features/courses/routes/assessments-page'
 
-import { QuestionBankPage } from './features/question-bank/routes/QuestionBankPage'
+import { QuestionBankPage } from './features/question-bank/routes/question-bank-page'
 
-import RoomsPage from './features/rooms/routes/RoomsPage'
+import RoomsPage from './features/rooms/routes/rooms-page'
 
-import PaymentsPage from './features/finance/routes/PaymentsPage'
+import PaymentsPage from './features/finance/routes/payments-page'
 
-import AIServicePage from './features/ai/routes/AIServicePage'
+import AIServicePage from './features/ai/routes/ai-service-page'
 
-import NotificationsPage from './features/settings/routes/NotificationsPage'
-import PermissionsPage from './features/settings/routes/PermissionsPage'
-import SettingsPage from './features/settings/routes/SettingsPage'
+import NotificationsPage from './features/settings/routes/notifications-page'
+import PermissionsPage from './features/settings/routes/permissions-page'
+import SettingsPage from './features/settings/routes/settings-page'
 
-import LoginPage from './features/auth/routes/LoginPage'
+import LoginPage from './features/auth/routes/login-page'
 
 const queryClient = new QueryClient({
   defaultOptions: {

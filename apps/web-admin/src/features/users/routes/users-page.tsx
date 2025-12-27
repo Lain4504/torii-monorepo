@@ -7,7 +7,7 @@ import {
     FilterDialog,
     SortDialog,
     useUsersLogic,
-} from '../components';
+} from '@/features/users/components';
 
 export function UsersPage() {
     const navigate = useNavigate();

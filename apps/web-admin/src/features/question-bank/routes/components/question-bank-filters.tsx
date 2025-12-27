@@ -13,7 +13,7 @@ import type {
     QuestionType,
     QuestionJlptLevel,
 } from '@workspace/dtos';
-import type { QuestionBankFilters as Filters } from '../../types/question-bank';
+import type { QuestionBankFilters as Filters } from '@/features/question-bank/types/question-bank';
 
 interface QuestionBankFiltersProps {
     filters: Filters;

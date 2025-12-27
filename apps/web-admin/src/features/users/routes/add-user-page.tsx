@@ -4,8 +4,8 @@ import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Switch } from '@workspace/ui/components/switch';
 import { Breadcrumb } from '@workspace/ui/components/breadcrumb';
-import { RoleCard } from '../components';
-import { useCreateUser } from '../api/users';
+import { RoleCard } from '@/features/users/components/role-card';
+import { useCreateUser } from '@/features/users/api/users';
 import {
     GraduationCap,
     Wifi,

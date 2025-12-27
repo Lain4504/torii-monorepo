@@ -1,7 +1,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@workspace/ui/components/table';
 import type { UserResponseDto } from '@workspace/dtos';
-import { EditUserRow } from './EditUserRow';
-import { UserTableRow } from './UserTableRow';
+import { EditUserRow } from './edit-user-row';
+import { UserTableRow } from './user-table-row';
 
 interface UsersTableProps {
     users: UserResponseDto[];

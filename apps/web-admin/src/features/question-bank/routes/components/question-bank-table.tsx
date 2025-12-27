@@ -7,7 +7,7 @@ import {
     TableRow,
 } from '@workspace/ui/components/table';
 import type { QuestionBankDto } from '@workspace/dtos';
-import { QuestionBankTableRow } from './QuestionBankTableRow';
+import { QuestionBankTableRow } from './question-bank-table-row';
 
 interface QuestionBankTableProps {
     questions: QuestionBankDto[];
