@@ -59,7 +59,16 @@ export class QuestionBankService {
         status,
         tags,
       } = query;
-      const skip = (page - 1) * limit;
+      
+      // Parse page and limit to numbers (in case they come as strings from query params)
+      const pageNum = typeof page === 'string' ? parseInt(page, 10) : Number(page) || 1;
+      const limitNum = typeof limit === 'string' ? parseInt(limit, 10) : Number(limit) || 10;
+      
+      // Ensure page and limit are valid positive numbers
+      const validPage = pageNum > 0 ? pageNum : 1;
+      const validLimit = limitNum > 0 ? limitNum : 10;
+      
+      const skip = (validPage - 1) * validLimit;
 
       const whereClause: Record<string, any> = {};
 
@@ -97,14 +106,14 @@ export class QuestionBankService {
       const [total, questions] = await Promise.all([
         this.prisma.questionBank.count({ where: whereClause }),
         this.prisma.questionBank.findMany({
-          take: limit,
+          take: validLimit,
           skip: skip,
           where: whereClause,
           orderBy: { createdAt: 'desc' },
         }),
       ]);
 
-      const totalPages = Math.ceil(total / limit);
+      const totalPages = Math.ceil(total / validLimit);
 
       return {
         success: true,
@@ -115,12 +124,12 @@ export class QuestionBankService {
           message: '',
           data: questions.map((q) => this.toQuestionBankDto(q)),
           meta: {
-            page,
-            limit,
+            page: validPage,
+            limit: validLimit,
             total,
             totalPages,
-            hasNext: page < totalPages,
-            hasPrev: page > 1,
+            hasNext: validPage < totalPages,
+            hasPrev: validPage > 1,
           },
         },
       };

@@ -91,11 +91,9 @@ export class RoomController {
 
   @MessagePattern({ cmd: 'room.getRoomInfoBySid' })
   async getRoomInfoBySid(@Payload() data: { sid: string; isRunning: number }) {
-    // Called from Gateway: auth-room.controller.ts lines 193, 264, 341
-    // Get room info by SID (LiveKit room SID)
-    // For now, treating sid as roomId - may need adjustment
-    const isRunning = data.isRunning === 1;
-    return this.roomInfoService.getRoomInfoByRoomId(data.sid, isRunning);
+    // Called from Gateway: auth-room.controller.ts lines 188, 258, 334
+    // Get room info by SID (LiveKit session ID)
+    return this.roomInfoService.getRoomInfoBySid(data.sid, data.isRunning);
   }
 
 }

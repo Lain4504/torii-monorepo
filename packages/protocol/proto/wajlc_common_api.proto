@@ -31,7 +31,7 @@ message MuteUnMuteTrackReq {
   string user_id = 3;
   string track_sid = 4;
   bool muted = 5;
-  string Requested_user_id = 6;
+  string requested_user_id = 6;
 }
 
 message RemoveParticipantReq {
@@ -49,7 +49,7 @@ message DataMessageReq {
   string user_sid = 4;
   DataMsgBodyType msg_body_type = 5;
   string msg = 6;
-  string Requested_user_id = 7;
+  string requested_user_id = 7;
   repeated string send_to = 8;
   bool is_admin = 9;
 }
@@ -73,7 +73,7 @@ message SwitchPresenterReq {
   SwitchPresenterTask task = 1;
   string user_id = 2;
   string room_id = 3;
-  string Requested_user_id = 4;
+  string requested_user_id = 4;
 }
 
 enum ExternalMediaPlayerTask {
@@ -135,7 +135,7 @@ message UpdateUserLockSettingsReq {
   string user_id = 3;
   string service = 4;
   string direction = 5;
-  string Requested_user_id = 6;
+  string requested_user_id = 6;
 }
 
 enum RoomUploadedFileType {

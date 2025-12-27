@@ -147,9 +147,9 @@ export class UserApiController {
     /**
      * HandleUpdateUserLockSetting updates user lock settings
      *
-     * @route POST /api/updateUserLockSettings
+     * @route POST /api/updateLockSettings
      */
-    @Post('updateUserLockSettings')
+    @Post('updateLockSettings')
     @HttpCode(HttpStatus.OK)
     async handleUpdateUserLockSetting(
         @Req() req: Request,
@@ -198,7 +198,7 @@ export class UserApiController {
         }
 
         // Add requestedUserId to request
-        (request as any).RequestedUserId = requestedUserId;
+        request.requestedUserId = requestedUserId;
 
         // Call user service via NATS
         try {
@@ -268,7 +268,7 @@ export class UserApiController {
         }
 
         // Add requestedUserId to request
-        (request as any).RequestedUserId = requestedUserId;
+        request.requestedUserId = requestedUserId;
 
         // Call user service via NATS
         try {
@@ -387,9 +387,9 @@ export class UserApiController {
             return;
         }
 
-        // Set roomId and requestedUserId from token
-        (request as any).RoomId = roomId;
-        (request as any).RequestedUserId = requestedUserId;
+        // Set roomId and requestedUserId from token (matches proto field names)
+        request.roomId = roomId;
+        request.requestedUserId = requestedUserId;
 
         // Call user service via NATS
         try {

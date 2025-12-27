@@ -19,6 +19,7 @@ import { RetentionPolicy, AckPolicy } from 'nats';
 import { NatsSystemEventsService } from './nats-system-events.service';
 import { fromBinary } from '@bufbuild/protobuf';
 import { NatsMsgClientToServerSchema, NatsMsgClientToServerEvents } from '@workspace/protocol';
+import { RoomUserService } from '../room/room-user.service';
 
 // Constants
 const DEFAULT_NUM_WORKERS = 50;
@@ -62,6 +63,7 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
         private readonly natsUserService: NatsUserService,
         private readonly authCalloutService: NatsAuthCalloutService,
         private readonly natsSystemEventsService: NatsSystemEventsService,
+        private readonly roomUserService: RoomUserService,
     ) { }
 
     /**
@@ -374,6 +376,28 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
 
                 case NatsMsgClientToServerEvents.PING:
                     await this.natsSystemEventsService.handleClientPing(roomId, userId);
+                    break;
+
+                case NatsMsgClientToServerEvents.REQ_RAISE_HAND:
+                    // User raises hand - notify admins
+                    await this.roomUserService.raisedHand(roomId, userId, req.msg);
+                    break;
+
+                case NatsMsgClientToServerEvents.REQ_LOWER_HAND:
+                    // User lowers their own hand
+                    await this.roomUserService.lowerHand(roomId, userId);
+                    break;
+
+                case NatsMsgClientToServerEvents.REQ_LOWER_OTHER_USER_HAND:
+                    // Admin lowers another user's hand
+                    // req.msg contains the target userId
+                    await this.roomUserService.lowerHand(roomId, req.msg);
+                    break;
+
+                case NatsMsgClientToServerEvents.PUSH_ANALYTICS_DATA:
+                    // Analytics data from client - currently not implemented
+                    // TODO: Implement analytics service
+                    this.logger.debug(`Analytics data received from ${userId}, not yet implemented`);
                     break;
 
                 default:

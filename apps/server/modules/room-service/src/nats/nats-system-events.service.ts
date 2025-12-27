@@ -359,21 +359,17 @@ export class NatsSystemEventsService {
         // Generate LiveKit Token
         let token: string;
         try {
-            // Map NatsKvUserInfo to UserMetadata structure expected by LiveKitService
-            // LiveKitService expects UserMetadata protocol message, but here we have NatsKvUserInfo
-            // We need to verify if LiveKitService accepts NatsKvUserInfo or we need to convert
-            // Looking at LiveKitService.generateToken signature (not visible here, but assuming common interface)
-            // For now, passing userInfo directly. If types mismatch, we'll fix.
-            token = await this.livekitService.createToken(roomId, userInfo);
+            token = await this.livekitService.generateLivekitToken(roomId, userInfo);
         } catch (error) {
             this.logger.error(`Failed to generate livekit token: ${error.message}`);
             await this.notifyErrorMsg(roomId, error.message, userId);
             return undefined;
         }
 
-        // Get Host URL
-        // Ideally this should be configured in .env
-        let lkHost = this.configService.get<string>('LIVEKIT_API_URL', 'ws://localhost:7880');
+        // Get LiveKit WebSocket URL for client browser connection
+        // LIVEKIT_WS_URL (wss://) is for client browsers to connect to LiveKit media server
+        // LIVEKIT_API_URL (https://) is for server SDK to call LiveKit REST API
+        let lkHost = this.configService.get<string>('LIVEKIT_WS_URL', 'ws://localhost:7880');
         if (lkHost.includes('host.docker.internal')) {
             lkHost = lkHost.replace('host.docker.internal', 'localhost');
         }
@@ -383,7 +379,11 @@ export class NatsSystemEventsService {
             token: token,
         });
 
+        // DEBUG: Log the actual data being sent to client
+        this.logger.log(`[MediaServerInfo] Sending to user ${userId}: url=${lkHost}, token_length=${token.length}`);
+
         if (broadcast) {
+            // Convert to JSON string for broadcasting
             const msg = toJsonString(MediaServerConnInfoSchema, data);
             await this.broadcastSystemEventToRoom(
                 NatsMsgServerToClientEvents.RES_MEDIA_SERVER_DATA,

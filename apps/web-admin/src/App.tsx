@@ -6,6 +6,7 @@ import { AddUserPage } from './pages/AddUserPage.tsx'
 import CoursesPage from './pages/CoursesPage'
 import ModulesPage from './pages/ModulesPage'
 import AssessmentsPage from './pages/AssessmentsPage'
+import { QuestionBankPage } from './pages/question-bank/QuestionBankPage'
 import RoomsPage from './pages/RoomsPage'
 import PaymentsPage from './pages/PaymentsPage'
 import AnalyticsPage from './pages/AnalyticsPage'
@@ -38,6 +39,7 @@ function App() {
             <Route path="courses" element={<CoursesPage />} />
             <Route path="modules" element={<ModulesPage />} />
             <Route path="assessments" element={<AssessmentsPage />} />
+            <Route path="question-bank" element={<QuestionBankPage />} />
             <Route path="rooms" element={<RoomsPage />} />
             <Route path="payments" element={<PaymentsPage />} />
             <Route path="analytics" element={<AnalyticsPage />} />
