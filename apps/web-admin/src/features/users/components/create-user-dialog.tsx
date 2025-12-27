@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import { useForm, type SubmitHandler } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import {
     Dialog,
     DialogContent,
@@ -8,8 +11,8 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Switch } from '@workspace/ui/components/switch';
-import { Breadcrumb } from '@workspace/ui/components/breadcrumb';
-import { RoleCard } from './role-card';
+
+
 import {
     GraduationCap,
     Wifi,
@@ -19,21 +22,11 @@ import {
     Upload,
     Check,
     Pencil,
+    Loader2
 } from 'lucide-react';
-
-interface CreateUserDialogProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-    onCreate: (user: {
-        email: string;
-        fullName: string;
-        password: string;
-        phone?: string;
-        role?: string;
-        status?: string;
-    }) => Promise<void>;
-    isCreating: boolean;
-}
+import type { CreateUserDto } from '@workspace/dtos';
+import { useCreateUser } from '@/features/users/api/users';
+import { toast } from '@workspace/ui/components/sonner';
 
 const roles = [
     {
@@ -62,65 +55,40 @@ const roles = [
     },
 ];
 
+const createUserSchema = z.object({
+    firstName: z.string().min(1, 'First name is required'),
+    lastName: z.string().min(1, 'Last name is required'),
+    email: z.string().email('Invalid email address'),
+    phone: z.string().optional(),
+    password: z.string().min(6, 'Password must be at least 6 characters'),
+    role: z.string(),
+    aiFeedback: z.boolean(),
+    webRtcAccess: z.boolean(),
+});
+
+type CreateUserFormData = z.infer<typeof createUserSchema>;
+
+interface CreateUserDialogProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+}
+
 export function CreateUserDialog({
     open,
     onOpenChange,
-    onCreate,
-    isCreating,
 }: CreateUserDialogProps) {
-    const [formData, setFormData] = useState({
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        password: '',
-        role: 'learner',
-        aiFeedback: true,
-        webRtcAccess: true,
-    });
-
     const [hasProfilePhoto, setHasProfilePhoto] = useState(false);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!formData.email || !formData.firstName || !formData.lastName || !formData.password) {
-            alert('First Name, Last Name, Email and Password are required');
-            return;
-        }
-
-        if (formData.password.length < 6) {
-            alert('Password must be at least 6 characters');
-            return;
-        }
-
-        try {
-            await onCreate({
-                email: formData.email,
-                fullName: `${formData.firstName} ${formData.lastName}`,
-                password: formData.password,
-                phone: formData.phone || undefined,
-                role: formData.role,
-                status: 'active',
-            });
-            setFormData({
-                firstName: '',
-                lastName: '',
-                email: '',
-                phone: '',
-                password: '',
-                role: 'learner',
-                aiFeedback: true,
-                webRtcAccess: true,
-            });
-            setHasProfilePhoto(false);
-            onOpenChange(false);
-        } catch (error) {
-            // Error handled by parent
-        }
-    };
-
-    const handleCancel = () => {
-        setFormData({
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+        setValue,
+        watch,
+        reset,
+    } = useForm<CreateUserFormData>({
+        resolver: zodResolver(createUserSchema),
+        defaultValues: {
             firstName: '',
             lastName: '',
             email: '',
@@ -129,30 +97,58 @@ export function CreateUserDialog({
             role: 'learner',
             aiFeedback: true,
             webRtcAccess: true,
-        });
-        setHasProfilePhoto(false);
-        onOpenChange(false);
+        },
+    });
+
+    const currentRole = watch('role');
+    const aiFeedback = watch('aiFeedback');
+    const webRtcAccess = watch('webRtcAccess');
+
+    const createUser = useCreateUser();
+
+    const handleFormSubmit: SubmitHandler<CreateUserFormData> = async (data) => {
+        const dto: CreateUserDto = {
+            email: data.email,
+            fullName: `${data.firstName} ${data.lastName}`,
+            password: data.password,
+            phone: data.phone || undefined,
+            role: data.role,
+            status: 'active',
+        };
+        try {
+            await createUser.mutateAsync(dto);
+            toast.success('User created successfully!', {
+                description: `${dto.fullName} has been added to the system.`,
+            });
+            reset();
+            setHasProfilePhoto(false);
+            onOpenChange(false);
+        } catch (error: any) {
+            toast.error('Failed to create user', {
+                description: error.response?.data?.error || error.message,
+            });
+        }
+    };
+
+    const handleOpenChange = (newOpen: boolean) => {
+        if (!newOpen) {
+            reset();
+            setHasProfilePhoto(false);
+        }
+        onOpenChange(newOpen);
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <Breadcrumb
-                        items={[
-                            { label: 'Home', href: '/' },
-                            { label: 'Users', href: '/users' },
-                            { label: 'Add New User' },
-                        ]}
-                        className="mb-4"
-                    />
                     <DialogTitle className="text-2xl">Add New User</DialogTitle>
                     <p className="text-sm text-muted-foreground mt-1">
                         Create a new account and assign roles for the Torii Nihongo platform.
                     </p>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
                     {/* Profile Photo Section */}
                     <div className="space-y-2">
                         <label className="text-sm font-medium">Profile Photo</label>
@@ -202,12 +198,12 @@ export function CreateUserDialog({
                                 </label>
                                 <Input
                                     id="firstName"
-                                    type="text"
                                     placeholder="e.g. Kenji"
-                                    value={formData.firstName}
-                                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                                    required
+                                    {...register('firstName')}
                                 />
+                                {errors.firstName && (
+                                    <p className="text-sm text-destructive">{errors.firstName.message}</p>
+                                )}
                             </div>
                             <div className="space-y-2">
                                 <label htmlFor="lastName" className="text-sm font-medium">
@@ -215,12 +211,12 @@ export function CreateUserDialog({
                                 </label>
                                 <Input
                                     id="lastName"
-                                    type="text"
                                     placeholder="e.g. Sato"
-                                    value={formData.lastName}
-                                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                                    required
+                                    {...register('lastName')}
                                 />
+                                {errors.lastName && (
+                                    <p className="text-sm text-destructive">{errors.lastName.message}</p>
+                                )}
                             </div>
                         </div>
                         <div className="space-y-2">
@@ -233,12 +229,13 @@ export function CreateUserDialog({
                                     id="email"
                                     type="email"
                                     placeholder="kenji@torii.com"
-                                    value={formData.email}
-                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                     className="pl-9"
-                                    required
+                                    {...register('email')}
                                 />
                             </div>
+                            {errors.email && (
+                                <p className="text-sm text-destructive">{errors.email.message}</p>
+                            )}
                         </div>
                         <div className="space-y-2">
                             <label htmlFor="phone" className="text-sm font-medium">
@@ -246,10 +243,8 @@ export function CreateUserDialog({
                             </label>
                             <Input
                                 id="phone"
-                                type="text"
                                 placeholder="+81"
-                                value={formData.phone}
-                                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                {...register('phone')}
                             />
                         </div>
                         <div className="space-y-2">
@@ -260,11 +255,11 @@ export function CreateUserDialog({
                                 id="password"
                                 type="password"
                                 placeholder="••••••••"
-                                value={formData.password}
-                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                required
-                                minLength={6}
+                                {...register('password')}
                             />
+                            {errors.password && (
+                                <p className="text-sm text-destructive">{errors.password.message}</p>
+                            )}
                         </div>
                     </div>
 
@@ -273,12 +268,23 @@ export function CreateUserDialog({
                         <h3 className="text-lg font-semibold">Role Assignment</h3>
                         <div className="grid grid-cols-2 gap-4">
                             {roles.map((role) => (
-                                <RoleCard
+                                <div
                                     key={role.id}
-                                    role={role}
-                                    isSelected={formData.role === role.id}
-                                    onSelect={() => setFormData({ ...formData, role: role.id })}
-                                />
+                                    onClick={() => setValue('role', role.id)}
+                                    className={`cursor-pointer rounded-lg border p-4 hover:bg-muted transition-colors ${currentRole === role.id ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'bg-card'
+                                        }`}
+                                >
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <div className={`p-2 rounded-md ${currentRole === role.id ? 'bg-primary text-primary-foreground' : 'bg-muted'
+                                            }`}>
+                                            {role.icon}
+                                        </div>
+                                        <div className="font-semibold">{role.label}</div>
+                                    </div>
+                                    <div className="text-xs text-muted-foreground">
+                                        {role.description}
+                                    </div>
+                                </div>
                             ))}
                         </div>
                     </div>
@@ -297,10 +303,8 @@ export function CreateUserDialog({
                                     </div>
                                 </div>
                                 <Switch
-                                    checked={formData.aiFeedback}
-                                    onCheckedChange={(checked) =>
-                                        setFormData({ ...formData, aiFeedback: checked })
-                                    }
+                                    checked={aiFeedback}
+                                    onCheckedChange={(checked) => setValue('aiFeedback', checked)}
                                 />
                             </div>
                             <div className="flex items-center justify-between p-4 border rounded-lg">
@@ -313,10 +317,8 @@ export function CreateUserDialog({
                                     </div>
                                 </div>
                                 <Switch
-                                    checked={formData.webRtcAccess}
-                                    onCheckedChange={(checked) =>
-                                        setFormData({ ...formData, webRtcAccess: checked })
-                                    }
+                                    checked={webRtcAccess}
+                                    onCheckedChange={(checked) => setValue('webRtcAccess', checked)}
                                 />
                             </div>
                         </div>
@@ -327,13 +329,14 @@ export function CreateUserDialog({
                         <Button
                             type="button"
                             variant="outline"
-                            onClick={handleCancel}
-                            disabled={isCreating}
+                            onClick={() => handleOpenChange(false)}
+                            disabled={createUser.isPending}
                         >
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={isCreating}>
-                            {isCreating ? 'Creating...' : 'Create User'}
+                        <Button type="submit" disabled={createUser.isPending}>
+                            {createUser.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            {createUser.isPending ? 'Creating...' : 'Create User'}
                         </Button>
                     </div>
                 </form>

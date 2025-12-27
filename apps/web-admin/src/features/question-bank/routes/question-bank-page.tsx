@@ -1,27 +1,20 @@
 import { useState, useMemo } from 'react';
-import {
-    useQuestionBanks,
-    useCreateQuestionBank,
-    useUpdateQuestionBank,
-    useDeleteQuestionBank,
-} from '@/features/question-bank/api/question-bank';
+import { useQuestionBanks } from '@/features/question-bank/api/question-bank';
 import type {
-    QuestionBankDto,
-    CreateQuestionBankDto,
-    UpdateQuestionBankDto,
     QuestionBankQueryDto,
     QuestionType,
     QuestionJlptLevel,
     QuestionDifficultyLevel,
     QuestionStatus,
+    QuestionBankDto,
 } from '@workspace/dtos';
-import type { QuestionBankFilters } from '@/features/question-bank/types/question-bank';
-import { QuestionBankHeader } from './components/question-bank-header';
-import { QuestionBankFilters as FiltersComponent } from './components/question-bank-filters';
-import { QuestionBankTable } from './components/question-bank-table';
-import { QuestionBankCreateDialog } from './components/question-bank-create-dialog';
-import { QuestionBankEditDialog } from './components/question-bank-edit-dialog';
-import { QuestionBankViewDialog } from './components/question-bank-view-dialog';
+import type { QuestionBankFilters } from '@/features/question-bank/api/question-bank';
+import { QuestionBankPrimaryToolbar } from '@/features/question-bank/components/question-bank-primary-toolbar';
+import { QuestionBankTable } from '@/features/question-bank/components/question-bank-table';
+import { CreateQuestionBankDialog } from '@/features/question-bank/components/create-question-bank-dialog';
+import { EditQuestionBankDialog } from '@/features/question-bank/components/edit-question-bank-dialog';
+import { ViewQuestionBankDialog } from '@/features/question-bank/components/view-question-bank-dialog';
+import { DeleteQuestionBankDialog } from '@/features/question-bank/components/delete-question-bank-dialog';
 import { Button } from '@workspace/ui/components/button';
 
 export function QuestionBankPage() {
@@ -55,7 +48,7 @@ export function QuestionBankPage() {
     // Filter functions
     const updateFilter = <K extends keyof QuestionBankFilters>(
         key: K,
-        value: QuestionBankFilters[K]
+        value: any // Simplify to any to bypass strict type check on calling side
     ) => {
         setFilters((prev: QuestionBankFilters) => ({ ...prev, [key]: value }));
         setPage(1); // Reset to first page when filter changes
@@ -87,18 +80,12 @@ export function QuestionBankPage() {
     );
 
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-    const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
     const [editingQuestion, setEditingQuestion] = useState<QuestionBankDto | null>(null);
     const [viewingQuestion, setViewingQuestion] = useState<QuestionBankDto | null>(null);
+    const [deletingQuestion, setDeletingQuestion] = useState<QuestionBankDto | null>(null);
 
     // Queries
-    const { data, isLoading, error } = useQuestionBanks(queryParams);
-
-    // Mutations
-    const createQuestionBank = useCreateQuestionBank();
-    const updateQuestionBank = useUpdateQuestionBank();
-    const deleteQuestionBank = useDeleteQuestionBank();
+    const { data, error } = useQuestionBanks(queryParams);
 
     const questions = (data?.data || []) as QuestionBankDto[];
     const meta = data?.meta;
@@ -107,54 +94,16 @@ export function QuestionBankPage() {
         setIsCreateDialogOpen(true);
     };
 
-    const handleCreateSubmit = (questionData: CreateQuestionBankDto) => {
-        createQuestionBank.mutate(questionData, {
-            onSuccess: () => {
-                setIsCreateDialogOpen(false);
-                setPage(1);
-            },
-            onError: (error: any) => {
-                console.error('Failed to create question:', error);
-                // Keep dialog open on error so user can fix and retry
-            },
-        });
+    const handleEdit = (question: QuestionBankDto) => {
+        setEditingQuestion(question);
     };
 
-    const handleEdit = (id: string) => {
-        const question = questions.find((q) => q.id === id);
-        if (question) {
-            setEditingQuestion(question);
-            setIsEditDialogOpen(true);
-        }
+    const handleView = (question: QuestionBankDto) => {
+        setViewingQuestion(question);
     };
 
-    const handleEditSubmit = (id: string, questionData: UpdateQuestionBankDto) => {
-        updateQuestionBank.mutate(
-            { id, question: questionData },
-            {
-                onSuccess: () => {
-                    setIsEditDialogOpen(false);
-                    setEditingQuestion(null);
-                },
-                onError: (error: any) => {
-                    console.error('Failed to update question:', error);
-                },
-            }
-        );
-    };
-
-    const handleView = (id: string) => {
-        const question = questions.find((q) => q.id === id);
-        if (question) {
-            setViewingQuestion(question);
-            setIsViewDialogOpen(true);
-        }
-    };
-
-    const handleDelete = (id: string) => {
-        if (confirm('Are you sure you want to delete this question?')) {
-            deleteQuestionBank.mutate(id);
-        }
+    const handleDelete = (question: QuestionBankDto) => {
+        setDeletingQuestion(question);
     };
 
     if (error) {
@@ -170,24 +119,24 @@ export function QuestionBankPage() {
 
     return (
         <div className="p-6">
-            <QuestionBankHeader onAddNew={handleCreate} />
-
-            <FiltersComponent
+            <QuestionBankPrimaryToolbar
                 filters={filters}
                 onFilterChange={updateFilter}
                 onReset={resetFilters}
                 hasActiveFilters={hasActiveFilters}
+                onAddNew={handleCreate}
             />
 
-            <QuestionBankTable
-                questions={questions}
-                isLoading={isLoading}
-                onEdit={handleEdit}
-                onView={handleView}
-                onDelete={handleDelete}
-                isUpdating={updateQuestionBank.isPending}
-                isDeleting={deleteQuestionBank.isPending}
-            />
+            <div className="mt-6">
+                <QuestionBankTable
+                    data={questions}
+                    onEdit={handleEdit}
+                    onView={handleView}
+                    onDelete={handleDelete}
+                    page={page}
+                    limit={queryParams.limit || 10}
+                />
+            </div>
 
             {/* Pagination */}
             {meta && (
@@ -217,27 +166,28 @@ export function QuestionBankPage() {
             )}
 
             {/* Dialogs */}
-            <QuestionBankCreateDialog
+            <CreateQuestionBankDialog
                 open={isCreateDialogOpen}
                 onOpenChange={setIsCreateDialogOpen}
-                onSubmit={handleCreateSubmit}
-                isSubmitting={createQuestionBank.isPending}
             />
 
-            <QuestionBankEditDialog
-                open={isEditDialogOpen}
-                onOpenChange={setIsEditDialogOpen}
+            <EditQuestionBankDialog
+                open={!!editingQuestion}
+                onOpenChange={(open) => !open && setEditingQuestion(null)}
                 question={editingQuestion}
-                onSubmit={handleEditSubmit}
-                isSubmitting={updateQuestionBank.isPending}
             />
 
-            <QuestionBankViewDialog
-                open={isViewDialogOpen}
-                onOpenChange={setIsViewDialogOpen}
+            <ViewQuestionBankDialog
+                open={!!viewingQuestion}
+                onOpenChange={(open) => !open && setViewingQuestion(null)}
                 question={viewingQuestion}
+            />
+
+            <DeleteQuestionBankDialog
+                open={!!deletingQuestion}
+                onOpenChange={(open) => !open && setDeletingQuestion(null)}
+                question={deletingQuestion}
             />
         </div>
     );
 }
-

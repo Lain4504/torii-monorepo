@@ -92,6 +92,17 @@ pnpm --filter web-learner dev
 
 ---
 
+## 🎨 UI Library (shadcn/ui)
+
+Dự án sử dụng **shadcn/ui** tập trung tại `@workspace/ui`. Để cài đặt thêm component mới:
+
+```bash
+cd packages/ui
+pnpm dlx shadcn@latest add [component-name]
+```
+
+---
+
 ## 🛰 Microservices Architecture (NATS-based)
 
 Toàn bộ hệ thống backend giao tiếp qua **NATS Message Broker**.

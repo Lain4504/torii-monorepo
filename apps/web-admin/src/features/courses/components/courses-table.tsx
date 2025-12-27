@@ -14,23 +14,23 @@ import {
     TableRow,
 } from '@workspace/ui/components/table';
 import { useState } from 'react';
-import type { UserResponseDto } from '@workspace/dtos';
-import { getUsersColumns } from './users-columns';
+import type { CourseResponseDto } from '@workspace/dtos';
+import { getCoursesColumns } from './courses-columns';
 
-interface UsersTableProps {
-    data: UserResponseDto[];
-    onView: (user: UserResponseDto) => void;
-    onEdit: (user: UserResponseDto) => void;
-    onDelete: (user: UserResponseDto) => void;
+interface CoursesTableProps {
+    data: CourseResponseDto[];
+    onView: (course: CourseResponseDto) => void;
+    onEdit: (course: CourseResponseDto) => void;
+    onDelete: (course: CourseResponseDto) => void;
     page: number;
     limit: number;
 }
 
-export function UsersTable({ data, onView, onEdit, onDelete, page, limit }: UsersTableProps) {
+export function CoursesTable({ data, onView, onEdit, onDelete, page, limit }: CoursesTableProps) {
     const [sorting, setSorting] = useState<SortingState>([]);
 
-    // Memorize columns to prevent re-renders
-    const columns = getUsersColumns({ onView, onEdit, onDelete, page, limit });
+    // Memorize columns to prevent re-renders, though lightweight here.
+    const columns = getCoursesColumns({ onView, onEdit, onDelete, page, limit });
 
     const table = useReactTable({
         data,

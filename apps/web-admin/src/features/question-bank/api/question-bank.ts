@@ -12,6 +12,15 @@ import {
     UpdateQuestionBankResponseDto,
 } from '@workspace/dtos';
 
+export interface QuestionBankFilters {
+    search: string;
+    questionType: string;
+    jlptLevel: string;
+    difficulty: string;
+    status: string;
+    category: string;
+}
+
 // ============================================================================
 // API Functions
 // ============================================================================

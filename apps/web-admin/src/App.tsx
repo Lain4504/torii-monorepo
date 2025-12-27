@@ -1,27 +1,17 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-
+import { Toaster } from '@workspace/ui/components/sonner'
 // Component imports
 import DashboardLayout from "./components/layout/dashboard-layout.tsx";
-
 // Feature imports
 import DashboardPage from './features/dashboard/routes/dashboard-page'
 import AnalyticsPage from './features/dashboard/routes/analytics-page'
-
 import { UsersPage } from './features/users/routes/users-page'
-import { AddUserPage } from './features/users/routes/add-user-page'
-
 import CoursesPage from './features/courses/routes/courses-page'
-import AssessmentsPage from './features/courses/routes/assessments-page'
-
 import { QuestionBankPage } from './features/question-bank/routes/question-bank-page'
-
 import RoomsPage from './features/rooms/routes/rooms-page'
-
 import PaymentsPage from './features/finance/routes/payments-page'
-
 import AIServicePage from './features/ai/routes/ai-service-page'
-
 import NotificationsPage from './features/settings/routes/notifications-page'
 import PermissionsPage from './features/settings/routes/permissions-page'
 import SettingsPage from './features/settings/routes/settings-page'
@@ -46,9 +36,7 @@ function App() {
           <Route element={<DashboardLayout />}>
             <Route index element={<DashboardPage />} />
             <Route path="users" element={<UsersPage />} />
-            <Route path="users/new" element={<AddUserPage />} />
             <Route path="courses" element={<CoursesPage />} />
-            <Route path="assessments" element={<AssessmentsPage />} />
             <Route path="question-bank" element={<QuestionBankPage />} />
             <Route path="rooms" element={<RoomsPage />} />
             <Route path="payments" element={<PaymentsPage />} />
@@ -60,6 +48,7 @@ function App() {
           </Route>
         </Routes>
       </BrowserRouter>
+      <Toaster richColors position="top-right" />
     </QueryClientProvider>
   )
 }
