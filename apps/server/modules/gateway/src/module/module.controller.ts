@@ -34,21 +34,41 @@ export class ModuleController {
 
   @Post()
   async create(@Body() input: CreateModuleDto): Promise<ModuleResponseDto> {
-    return await lastValueFrom(this.natsClient.send({ cmd: 'module.create' }, input));
+    try {
+      return await lastValueFrom(this.natsClient.send({ cmd: 'module.create' }, input));
+    } catch (error: any) {
+      console.error('Gateway: Error in module.create:', error);
+      throw error;
+    }
   }
 
   @Patch(':id')
   async update(@Param('id') id: string, @Body() input: UpdateModuleDto): Promise<ModuleResponseDto> {
-    return await lastValueFrom(this.natsClient.send({ cmd: 'module.update' }, { id, input } as UpdateModuleRequestDto));
+    try {
+      return await lastValueFrom(this.natsClient.send({ cmd: 'module.update' }, { id, input } as UpdateModuleRequestDto));
+    } catch (error: any) {
+      console.error('Gateway: Error in module.update:', error);
+      throw error;
+    }
   }
 
   @Delete(':id')
   delete(@Param('id') id: string): Promise<boolean> {
-    return lastValueFrom(this.natsClient.send({ cmd: 'module.delete' }, id));
+    try {
+      return lastValueFrom(this.natsClient.send({ cmd: 'module.delete' }, id));
+    } catch (error: any) {
+      console.error('Gateway: Error in module.delete:', error);
+      throw error;
+    }
   }
 
   @Patch(':id/restore')
   async restore(@Param('id') id: string): Promise<ModuleResponseDto> {
-    return await lastValueFrom(this.natsClient.send({ cmd: 'module.restore' }, id));
+    try {
+      return await lastValueFrom(this.natsClient.send({ cmd: 'module.restore' }, id));
+    } catch (error: any) {
+      console.error('Gateway: Error in module.restore:', error);
+      throw error;
+    }
   }
 }

@@ -4,6 +4,7 @@ export * from './flashcard';
 export * from './flashcard-deck';
 export * from './course';
 export * from './module';
+export * from './lesson';
 export * from './storage';
 export * from './blog';
 export * from './question-bank';
