@@ -3,7 +3,9 @@ import { useModules, useCreateModule, useUpdateModule, useDeleteModule } from '.
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@workspace/ui/components/dialog';
-import { ModulesTable } from '../components/ModulesTable';
+import { ModulesTable } from '../components/modules/ModulesTable';
+import { CreateModuleForm } from '../components/forms/CreateModuleForm';
+import { EditModuleForm } from '../components/forms/EditModuleForm';
 import type { CreateModuleDto, UpdateModuleDto, ModuleQueryDto } from '@workspace/dtos';
 
 export default function ModulesPage() {
@@ -129,133 +131,5 @@ export default function ModulesPage() {
         </Dialog>
       )}
     </div>
-  );
-}
-
-// Create Module Form Component
-function CreateModuleForm({ onSubmit }: { onSubmit: (data: CreateModuleDto) => void }) {
-  const [formData, setFormData] = useState<CreateModuleDto>({
-    courseId: '',
-    title: '',
-    order: 0,
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(formData);
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium mb-1">Course ID</label>
-        <Input
-          value={formData.courseId}
-          onChange={(e) => setFormData({ ...formData, courseId: e.target.value })}
-          required
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium mb-1">Title</label>
-        <Input
-          value={formData.title}
-          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-          required
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium mb-1">Description</label>
-        <Input
-          value={formData.description || ''}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium mb-1">Order</label>
-        <Input
-          type="number"
-          value={formData.order || 0}
-          onChange={(e) => setFormData({ ...formData, order: Number(e.target.value) })}
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium mb-1">Duration (minutes)</label>
-        <Input
-          type="number"
-          value={formData.durationMinutes || 0}
-          onChange={(e) => setFormData({ ...formData, durationMinutes: Number(e.target.value) })}
-        />
-      </div>
-      <div className="flex justify-end gap-2">
-        <Button type="button" variant="outline" onClick={() => setFormData({ courseId: '', title: '', order: 0 })}>
-          Reset
-        </Button>
-        <Button type="submit">Create Module</Button>
-      </div>
-    </form>
-  );
-}
-
-// Edit Module Form Component
-function EditModuleForm({
-  module,
-  onSubmit,
-  onCancel
-}: {
-  module: any;
-  onSubmit: (data: UpdateModuleDto) => void;
-  onCancel: () => void;
-}) {
-  const [formData, setFormData] = useState<UpdateModuleDto>({
-    title: module.title,
-    description: module.description,
-    order: module.order,
-    durationMinutes: module.durationMinutes,
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(formData);
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium mb-1">Title</label>
-        <Input
-          value={formData.title || ''}
-          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium mb-1">Description</label>
-        <Input
-          value={formData.description || ''}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium mb-1">Order</label>
-        <Input
-          type="number"
-          value={formData.order || 0}
-          onChange={(e) => setFormData({ ...formData, order: Number(e.target.value) })}
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium mb-1">Duration (minutes)</label>
-        <Input
-          type="number"
-          value={formData.durationMinutes || 0}
-          onChange={(e) => setFormData({ ...formData, durationMinutes: Number(e.target.value) })}
-        />
-      </div>
-      <div className="flex justify-end gap-2">
-        <Button type="button" variant="outline" onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button type="submit">Update Module</Button>
-      </div>
-    </form>
   );
 }
