@@ -1,4 +1,11 @@
 ﻿import { Input } from '@workspace/ui/components/input';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@workspace/ui/components/select';
 
 interface ModulesPrimaryToolbarProps {
     search: string;
@@ -6,6 +13,8 @@ interface ModulesPrimaryToolbarProps {
     courseIdFilter: string;
     onCourseIdFilterChange: (value: string) => void;
     courseTitleMap?: Map<string, string>;
+    statusFilter: string;
+    onStatusFilterChange: (value: string) => void;
 }
 
 export function ModulesPrimaryToolbar({
@@ -14,6 +23,8 @@ export function ModulesPrimaryToolbar({
     courseIdFilter,
     onCourseIdFilterChange,
     courseTitleMap,
+    statusFilter,
+    onStatusFilterChange,
 }: ModulesPrimaryToolbarProps) {
     // Display title if courseId exists in map, otherwise display courseId or empty
     const displayValue = courseIdFilter 
@@ -48,11 +59,26 @@ export function ModulesPrimaryToolbar({
                 className="max-w-sm"
             />
             <Input
-                placeholder="Filter by course..."
+                placeholder="Course Title"
                 value={displayValue}
                 onChange={(e) => handleInputChange(e.target.value)}
-                className="max-w-sm"
+                className="w-40"
             />
+            <Select
+                value={statusFilter || 'all'}
+                onValueChange={(value) =>
+                    onStatusFilterChange(value === 'all' ? '' : value)
+                }
+            >
+                <SelectTrigger className="w-40">
+                    <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="deleted">Deleted</SelectItem>
+                </SelectContent>
+            </Select>
         </div>
     );
 }

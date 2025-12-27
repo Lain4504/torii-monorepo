@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useLessons } from '@/features/lessons/api/lesson';
 import { Button } from '@workspace/ui/components/button';
 import { LessonsTable } from '@/features/lessons/components/lessons-table';
@@ -13,6 +14,9 @@ export default function LessonsPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [contentTypeFilter, setContentTypeFilter] = useState<string>('');
+  const location = useLocation();
+  const [moduleIdFilter, setModuleIdFilter] = useState(() => new URLSearchParams(location.search).get('moduleId') || '');
+  const [statusFilter, setStatusFilter] = useState('');
 
   // Dialog States
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -25,6 +29,8 @@ export default function LessonsPage() {
     limit: 10,
     ...(search && { search }),
     ...(contentTypeFilter && { contentType: contentTypeFilter as any }),
+    ...(moduleIdFilter && { moduleId: moduleIdFilter }),
+    ...(statusFilter && { status: statusFilter }),
   };
 
   const { data: lessonsData, isLoading, error } = useLessons(queryParams);
@@ -63,6 +69,8 @@ export default function LessonsPage() {
         onSearchChange={setSearch}
         contentTypeFilter={contentTypeFilter}
         onContentTypeFilterChange={setContentTypeFilter}
+        statusFilter={statusFilter}
+        onStatusFilterChange={setStatusFilter}
       />
 
       <LessonsTable
@@ -103,7 +111,7 @@ export default function LessonsPage() {
       )}
 
       {/* Dialogs */}
-      <CreateLessonDialog open={showCreateDialog} onOpenChange={setShowCreateDialog} />
+      <CreateLessonDialog open={showCreateDialog} onOpenChange={setShowCreateDialog} moduleId={moduleIdFilter} />
 
       <EditLessonDialog
         open={!!editingLesson}

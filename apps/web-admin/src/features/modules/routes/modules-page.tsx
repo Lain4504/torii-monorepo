@@ -17,6 +17,7 @@ export default function ModulesPage() {
   const [search, setSearch] = useState('');
   const location = useLocation();
   const [courseIdFilter, setCourseIdFilter] = useState(() => new URLSearchParams(location.search).get('courseId') || '');
+  const [statusFilter, setStatusFilter] = useState('');
 
   // Dialog States
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -29,6 +30,7 @@ export default function ModulesPage() {
     limit: 10,
     ...(search && { search }),
     ...(courseIdFilter && { courseId: courseIdFilter }),
+    ...(statusFilter && { status: statusFilter }),
   };
 
   const { data: modulesData, isLoading, error } = useModules(queryParams);
@@ -107,6 +109,8 @@ export default function ModulesPage() {
         courseIdFilter={courseIdFilter}
         onCourseIdFilterChange={setCourseIdFilter}
         courseTitleMap={courseTitleMap}
+        statusFilter={statusFilter}
+        onStatusFilterChange={setStatusFilter}
       />
 
       <ModulesTable

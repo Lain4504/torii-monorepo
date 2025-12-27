@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -33,9 +33,10 @@ type CreateLessonFormData = z.infer<typeof createLessonSchema>;
 interface CreateLessonDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    moduleId: string;
 }
 
-export function CreateLessonDialog({ open, onOpenChange }: CreateLessonDialogProps) {
+export function CreateLessonDialog({ open, onOpenChange, moduleId }: CreateLessonDialogProps) {
     const createLesson = useCreateLesson();
     const [videoFile, setVideoFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
@@ -50,7 +51,7 @@ export function CreateLessonDialog({ open, onOpenChange }: CreateLessonDialogPro
     } = useForm<CreateLessonFormData>({
         resolver: zodResolver(createLessonSchema),
         defaultValues: {
-            moduleId: '',
+            moduleId: moduleId || '',
             title: '',
             contentType: LessonContentType.VIDEO,
             order: 0,
@@ -122,14 +123,6 @@ export function CreateLessonDialog({ open, onOpenChange }: CreateLessonDialogPro
                     <DialogTitle>Create New Lesson</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Module ID</label>
-                        <Input {...register('moduleId')} placeholder="Module ID" />
-                        {errors.moduleId && (
-                            <p className="text-sm text-red-500 mt-1">{errors.moduleId.message}</p>
-                        )}
-                    </div>
-
                     <div>
                         <label className="block text-sm font-medium mb-1">Title</label>
                         <Input {...register('title')} placeholder="Enter lesson title" />

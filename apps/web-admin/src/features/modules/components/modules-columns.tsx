@@ -1,7 +1,8 @@
 ﻿import { createColumnHelper } from '@tanstack/react-table';
 import type { ModuleResponseDto } from '@workspace/dtos';
 import { Button } from '@workspace/ui/components/button';
-import { ArrowUpDown, MoreHorizontal, Pencil, Trash, Eye } from 'lucide-react';
+import { ArrowUpDown, MoreHorizontal, Pencil, Trash, Eye, BookOpen } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -86,6 +87,7 @@ export const getModulesColumns = ({ onView, onEdit, onDelete, page, limit, cours
         id: 'actions',
         cell: ({ row }) => {
             const module = row.original;
+            const navigate = useNavigate();
 
             return (
                 <DropdownMenu>
@@ -103,6 +105,9 @@ export const getModulesColumns = ({ onView, onEdit, onDelete, page, limit, cours
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => onView(module)}>
                             <Eye className="mr-2 h-4 w-4" /> View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => navigate(`/lessons?moduleId=${module.id}`)}>
+                            <BookOpen className="mr-2 h-4 w-4" /> Lessons
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => onEdit(module)}>
                             <Pencil className="mr-2 h-4 w-4" /> Edit

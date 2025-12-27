@@ -84,7 +84,7 @@ export const getLessonsColumns = ({ onView, onEdit, onDelete, page, limit }: Les
                 </Button>
             );
         },
-        cell: (info) => new Date(info.getValue().toISOString()).toLocaleString(),
+        cell: (info) => new Date(info.getValue()).toLocaleString(),
     }),
     columnHelper.display({
         id: 'actions',

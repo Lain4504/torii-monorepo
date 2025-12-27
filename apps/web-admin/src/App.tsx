@@ -8,7 +8,8 @@ import DashboardPage from './features/dashboard/routes/dashboard-page'
 import AnalyticsPage from './features/dashboard/routes/analytics-page'
 import { UsersPage } from './features/users/routes/users-page'
 import CoursesPage from './features/courses/routes/courses-page'
-import ModulesPage from './features/modules/route/modules-page'
+import ModulesPage from './features/modules/routes/modules-page'
+import LessonsPage from './features/lessons/routes/lessons-page'
 import { QuestionBankPage } from './features/question-bank/routes/question-bank-page'
 import RoomsPage from './features/rooms/routes/rooms-page'
 import PaymentsPage from './features/finance/routes/payments-page'
@@ -39,6 +40,7 @@ function App() {
             <Route path="users" element={<UsersPage />} />
             <Route path="courses" element={<CoursesPage />} />
             <Route path="modules" element={<ModulesPage />} />
+            <Route path="lessons" element={<LessonsPage />} />
             <Route path="question-bank" element={<QuestionBankPage />} />
             <Route path="rooms" element={<RoomsPage />} />
             <Route path="payments" element={<PaymentsPage />} />
