@@ -13,7 +13,6 @@ import {
   Bell,
   Shield,
   Sparkles,
-  Layers,
   FileQuestion,
 } from "lucide-react"
 
@@ -57,11 +56,6 @@ const mainNavItems: NavItem[] = [
     title: "Courses",
     url: "/courses",
     icon: BookOpen,
-  },
-  {
-    title: "Modules",
-    url: "/modules",
-    icon: Layers,
   },
   {
     title: "Assessments",
@@ -129,7 +123,7 @@ export function DashboardSidebar() {
       setSidebarModeState('expanded')
     } else {
       const stored = localStorage.getItem('sidebarMode') as 'expanded' | 'collapsed' | 'hover' | null
-      if (stored === 'expanded' || stored === 'collapsed' || stored === 'hover') {
+      if (stored && (stored === 'expanded' || stored === 'collapsed' || stored === 'hover')) {
         setSidebarModeState(stored)
       }
     }
@@ -141,10 +135,8 @@ export function DashboardSidebar() {
         setSidebarModeState('expanded')
         return
       }
-      if (mode === 'expanded' || mode === 'collapsed' || mode === 'hover') {
-        setSidebarModeState(mode)
-        localStorage.setItem('sidebarMode', mode)
-      }
+      setSidebarModeState(mode)
+      localStorage.setItem('sidebarMode', mode)
     }
 
     const mq = window.matchMedia('(max-width: 1023px)')

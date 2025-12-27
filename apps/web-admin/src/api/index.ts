@@ -7,9 +7,6 @@ export * from './users';
 // Courses API
 export * from './courses';
 
-// Modules API
-export * from './modules';
-
 // Storage API
 export * from './storage';
 // Question Bank API

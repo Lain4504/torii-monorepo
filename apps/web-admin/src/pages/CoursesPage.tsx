@@ -5,9 +5,9 @@ import { Input } from '@workspace/ui/components/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@workspace/ui/components/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@workspace/ui/components/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
-import { CreateCourseForm } from '../components/forms/CreateCourseForm';
-import { EditCourseForm } from '../components/forms/EditCourseForm';
-import type { CreateCourseDto, UpdateCourseDto, CourseQueryDto } from '@workspace/dtos';
+import { CreateCourseForm } from '../components/forms/create-course-form';
+import { EditCourseForm } from '../components/forms/edit-course-form';
+import type { CreateCourseDto, UpdateCourseDto, CourseQueryDto, CourseResponseDto } from '@workspace/dtos';
 
 export default function CoursesPage() {
   const [page, setPage] = useState(1);
@@ -15,7 +15,7 @@ export default function CoursesPage() {
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [jlptLevelFilter, setJlptLevelFilter] = useState<string>('');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [editingCourse, setEditingCourse] = useState<any>(null);
+  const [editingCourse, setEditingCourse] = useState<CourseResponseDto | null>(null);
 
   const queryParams: CourseQueryDto = {
     page,
