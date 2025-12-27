@@ -8,7 +8,6 @@ import { Roles } from '@server/shared';
 
 @Controller('admin/users')
 @UseGuards(JwtGuard, RoleGuard)
-@ApiBearerAuth('access-token')
 export class UsersController {
     constructor(
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
@@ -17,9 +16,6 @@ export class UsersController {
     @Get()
     @Roles('admin')
     @ApiOperation({ summary: 'Get all users' })
-    @ApiResponse({ status: 200, description: 'Return all users' })
-    @ApiResponse({ status: 401, description: 'Unauthorized' })
-    @ApiResponse({ status: 403, description: 'Forbidden - Admin only' })
     async findAll(
         @Query('page') page: number = 1,
         @Query('limit') limit: number = 10,
@@ -36,10 +32,6 @@ export class UsersController {
     @Get(':id')
     @Roles('admin')
     @ApiOperation({ summary: 'Get user by ID' })
-    @ApiResponse({ status: 200, description: 'User found' })
-    @ApiResponse({ status: 404, description: 'User not found' })
-    @ApiResponse({ status: 401, description: 'Unauthorized' })
-    @ApiResponse({ status: 403, description: 'Forbidden - Admin only' })
     async findOne(@Param('id') id: string) {
         const pattern = { cmd: 'users.findOne' };
         const payload = { id };
@@ -55,11 +47,6 @@ export class UsersController {
     @Post()
     @Roles('admin')
     @ApiOperation({ summary: 'Create new user' })
-    @ApiResponse({ status: 201, description: 'User created successfully' })
-    @ApiResponse({ status: 400, description: 'Bad request - validation failed' })
-    @ApiResponse({ status: 409, description: 'Conflict - Email already exists' })
-    @ApiResponse({ status: 401, description: 'Unauthorized' })
-    @ApiResponse({ status: 403, description: 'Forbidden - Admin only' })
     async create(@Body() createUserDto: CreateUserDto) {
         const pattern = { cmd: 'users.create' };
         const payload = createUserDto;
@@ -72,12 +59,6 @@ export class UsersController {
     @Patch(':id')
     @Roles('admin')
     @ApiOperation({ summary: 'Update user' })
-    @ApiResponse({ status: 200, description: 'User updated successfully' })
-    @ApiResponse({ status: 400, description: 'Bad request - validation failed' })
-    @ApiResponse({ status: 404, description: 'User not found' })
-    @ApiResponse({ status: 409, description: 'Conflict - Email already exists' })
-    @ApiResponse({ status: 401, description: 'Unauthorized' })
-    @ApiResponse({ status: 403, description: 'Forbidden - Admin only' })
     async update(
         @Param('id') id: string,
         @Body() updateUserDto: UpdateUserDto,
@@ -92,11 +73,6 @@ export class UsersController {
 
     @Delete(':id')
     @Roles('admin')
-    @ApiOperation({ summary: 'Delete user (soft delete by default)' })
-    @ApiResponse({ status: 200, description: 'User deleted successfully' })
-    @ApiResponse({ status: 404, description: 'User not found' })
-    @ApiResponse({ status: 401, description: 'Unauthorized' })
-    @ApiResponse({ status: 403, description: 'Forbidden - Admin only' })
     async delete(
         @Param('id') id: string,
         @Query('hardDelete') hardDelete?: string,
