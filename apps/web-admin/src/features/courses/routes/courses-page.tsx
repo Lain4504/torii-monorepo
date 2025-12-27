@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { useCourses, useCreateCourse, useUpdateCourse, useDeleteCourse } from '../api/courses';
+import { useCourses, useCreateCourse, useUpdateCourse, useDeleteCourse } from '@/features/courses/api/courses';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@workspace/ui/components/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@workspace/ui/components/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
-import { CreateCourseForm } from '../components/forms/create-course-form';
-import { EditCourseForm } from '../components/forms/edit-course-form';
+import { CreateCourseForm } from '@/features/courses/components/create-course-form';
+import { EditCourseForm } from '@/features/courses/components/edit-course-form';
 import type { CreateCourseDto, UpdateCourseDto, CourseQueryDto, CourseResponseDto } from '@workspace/dtos';
 
 export default function CoursesPage() {
@@ -157,11 +157,10 @@ export default function CoursesPage() {
                 <TableCell>{course.jlptLevel}</TableCell>
                 <TableCell>${course.price}</TableCell>
                 <TableCell>
-                  <span className={`px-2 py-1 rounded text-xs ${
-                    course.status === 'published' ? 'bg-green-100 text-green-800' :
-                    course.status === 'draft' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-gray-100 text-gray-800'
-                  }`}>
+                  <span className={`px-2 py-1 rounded text-xs ${course.status === 'published' ? 'bg-green-100 text-green-800' :
+                      course.status === 'draft' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-gray-100 text-gray-800'
+                    }`}>
                     {course.status}
                   </span>
                 </TableCell>

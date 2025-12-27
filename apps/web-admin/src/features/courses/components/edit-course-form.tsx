@@ -5,27 +5,28 @@ import { z } from 'zod';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
-import { storageApi } from '../../api/storage';
-import type { CreateCourseDto } from '@workspace/dtos';
-import { JlptLevel, CourseStatus } from '@workspace/dtos';
+import { storageApi } from '@/lib/storage-api';
+import type { UpdateCourseDto, CourseResponseDto } from '@workspace/dtos';
+import { CourseStatus } from '@workspace/dtos';
 
-const createCourseSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
+const updateCourseSchema = z.object({
+  title: z.string().min(1, 'Title is required').optional(),
   description: z.string().optional(),
-  jlptLevel: z.nativeEnum(JlptLevel),
-  price: z.number().min(0, 'Price must be positive'),
+  price: z.number().min(0, 'Price must be positive').optional(),
   status: z.nativeEnum(CourseStatus).optional(),
   thumbnailUrl: z.string().optional(),
   previewVideoUrl: z.string().optional(),
 });
 
-type CreateCourseFormData = z.infer<typeof createCourseSchema>;
+type UpdateCourseFormData = z.infer<typeof updateCourseSchema>;
 
-interface CreateCourseFormProps {
-  onSubmit: (data: CreateCourseDto) => void;
+interface EditCourseFormProps {
+  course: CourseResponseDto;
+  onSubmit: (data: UpdateCourseDto) => void;
+  onCancel: () => void;
 }
 
-export function CreateCourseForm({ onSubmit }: CreateCourseFormProps) {
+export function EditCourseForm({ course, onSubmit, onCancel }: EditCourseFormProps) {
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -36,13 +37,13 @@ export function CreateCourseForm({ onSubmit }: CreateCourseFormProps) {
     formState: { errors },
     setValue,
     watch,
-  } = useForm<CreateCourseFormData>({
-    resolver: zodResolver(createCourseSchema),
+  } = useForm<UpdateCourseFormData>({
+    resolver: zodResolver(updateCourseSchema),
     defaultValues: {
-      title: '',
-      jlptLevel: JlptLevel.N5,
-      price: 0,
-      status: CourseStatus.DRAFT,
+      title: course.title,
+      description: course.description,
+      price: course.price,
+      status: course.status as CourseStatus,
     },
   });
 
@@ -73,11 +74,11 @@ export function CreateCourseForm({ onSubmit }: CreateCourseFormProps) {
     }
   };
 
-  const onSubmitForm = async (data: CreateCourseFormData) => {
+  const onSubmitForm = async (data: UpdateCourseFormData) => {
     setUploading(true);
     try {
-      let thumbnailUrl = data.thumbnailUrl;
-      let previewVideoUrl = data.previewVideoUrl;
+      let thumbnailUrl = course.thumbnailUrl;
+      let previewVideoUrl = course.previewVideoUrl;
 
       if (thumbnailFile) {
         thumbnailUrl = await handleFileUpload(thumbnailFile, 'course-thumbnails');
@@ -112,24 +113,13 @@ export function CreateCourseForm({ onSubmit }: CreateCourseFormProps) {
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-1">JLPT Level</label>
-        <Select
-          value={watch('jlptLevel')}
-          onValueChange={(value) => setValue('jlptLevel', value as JlptLevel)}
-        >
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={JlptLevel.N5}>N5</SelectItem>
-            <SelectItem value={JlptLevel.N4}>N4</SelectItem>
-            <SelectItem value={JlptLevel.N3}>N3</SelectItem>
-            <SelectItem value={JlptLevel.N2}>N2</SelectItem>
-            <SelectItem value={JlptLevel.N1}>N1</SelectItem>
-          </SelectContent>
-        </Select>
-        {errors.jlptLevel && (
-          <p className="text-sm text-red-500 mt-1">{errors.jlptLevel.message}</p>
+        <label className="block text-sm font-medium mb-1">Description</label>
+        <Input
+          {...register('description')}
+          placeholder="Enter course description"
+        />
+        {errors.description && (
+          <p className="text-sm text-red-500 mt-1">{errors.description.message}</p>
         )}
       </div>
 
@@ -142,17 +132,6 @@ export function CreateCourseForm({ onSubmit }: CreateCourseFormProps) {
         />
         {errors.price && (
           <p className="text-sm text-red-500 mt-1">{errors.price.message}</p>
-        )}
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium mb-1">Description</label>
-        <Input
-          {...register('description')}
-          placeholder="Enter course description"
-        />
-        {errors.description && (
-          <p className="text-sm text-red-500 mt-1">{errors.description.message}</p>
         )}
       </div>
 
@@ -183,6 +162,7 @@ export function CreateCourseForm({ onSubmit }: CreateCourseFormProps) {
           accept="image/*"
           onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)}
         />
+        {course.thumbnailUrl && <p className="text-sm text-muted-foreground">Current: {course.thumbnailUrl}</p>}
       </div>
 
       <div>
@@ -192,11 +172,15 @@ export function CreateCourseForm({ onSubmit }: CreateCourseFormProps) {
           accept="video/*"
           onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
         />
+        {course.previewVideoUrl && <p className="text-sm text-muted-foreground">Current: {course.previewVideoUrl}</p>}
       </div>
 
       <div className="flex justify-end gap-2">
+        <Button type="button" variant="outline" onClick={onCancel}>
+          Cancel
+        </Button>
         <Button type="submit" disabled={uploading}>
-          {uploading ? 'Uploading...' : 'Create Course'}
+          {uploading ? 'Uploading...' : 'Update Course'}
         </Button>
       </div>
     </form>

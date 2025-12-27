@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiClient } from './client';
+import { apiClient } from '@/lib/api-client';
 import { PaginatedResponseDto, CourseResponseDto, CreateCourseDto, UpdateCourseDto, CourseQueryDto } from '@workspace/dtos';
 
 // ============================================================================
