@@ -1,20 +1,32 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import DashboardPage from './pages/DashboardPage'
-import { UsersPage } from './pages/UsersPage.tsx'
-import { AddUserPage } from './pages/AddUserPage.tsx'
-import CoursesPage from './pages/CoursesPage'
-import AssessmentsPage from './pages/AssessmentsPage'
-import { QuestionBankPage } from './pages/question-bank/QuestionBankPage'
-import RoomsPage from './pages/RoomsPage'
-import PaymentsPage from './pages/PaymentsPage'
-import AnalyticsPage from './pages/AnalyticsPage'
-import AIServicePage from './pages/AIServicePage'
-import NotificationsPage from './pages/NotificationsPage'
-import PermissionsPage from './pages/PermissionsPage'
-import SettingsPage from './pages/SettingsPage'
-import LoginPage from './pages/LoginPage'
+
+// Component imports
 import DashboardLayout from "./components/layout/dashboard-layout.tsx";
+
+// Feature imports
+import DashboardPage from './features/dashboard/routes/dashboard-page'
+import AnalyticsPage from './features/dashboard/routes/analytics-page'
+
+import { UsersPage } from './features/users/routes/users-page'
+import { AddUserPage } from './features/users/routes/add-user-page'
+
+import CoursesPage from './features/courses/routes/courses-page'
+import AssessmentsPage from './features/courses/routes/assessments-page'
+
+import { QuestionBankPage } from './features/question-bank/routes/question-bank-page'
+
+import RoomsPage from './features/rooms/routes/rooms-page'
+
+import PaymentsPage from './features/finance/routes/payments-page'
+
+import AIServicePage from './features/ai/routes/ai-service-page'
+
+import NotificationsPage from './features/settings/routes/notifications-page'
+import PermissionsPage from './features/settings/routes/permissions-page'
+import SettingsPage from './features/settings/routes/settings-page'
+
+import LoginPage from './features/auth/routes/login-page'
 
 const queryClient = new QueryClient({
   defaultOptions: {
