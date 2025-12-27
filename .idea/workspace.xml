@@ -4,44 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="chore(docker): enhance Docker setup with LiveKit configuration and streamline service definitions">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/ai/routes/AIServicePage.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/auth/routes/LoginPage.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/courses/routes/AssessmentsPage.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/courses/routes/CoursesPage.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/dashboard/routes/AnalyticsPage.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/dashboard/routes/DashboardPage.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/finance/routes/PaymentsPage.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/question-bank/routes/QuestionBankPage.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/question-bank/routes/components/QuestionBankActions.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/question-bank/routes/components/QuestionBankCreateDialog.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/question-bank/routes/components/QuestionBankEditDialog.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/question-bank/routes/components/QuestionBankFilters.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/question-bank/routes/components/QuestionBankHeader.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/question-bank/routes/components/QuestionBankTable.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/question-bank/routes/components/QuestionBankTableRow.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/question-bank/routes/components/QuestionBankViewDialog.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/rooms/routes/RoomsPage.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/settings/routes/NotificationsPage.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/settings/routes/PermissionsPage.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/settings/routes/SettingsPage.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/users/components/CreateUserDialog.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/users/components/EditUserRow.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/users/components/FilterDialog.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/users/components/RoleCard.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/users/components/SortDialog.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/users/components/UserTableRow.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/users/components/UsersPageHeader.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/users/components/UsersPagination.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/users/components/UsersSearchBar.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/users/components/UsersTable.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/users/components/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/features/users/components/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/users/components/useUsersLogic.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/users/routes/AddUserPage.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/users/routes/UsersPage.tsx" beforeDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: standardize import paths for feature components" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -180,22 +143,6 @@
       <workItem from="1766734238257" duration="5995000" />
       <workItem from="1766812088279" duration="123000" />
       <workItem from="1766826149900" duration="3567000" />
-    </task>
-    <task id="LOCAL-00279" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766564938245</created>
-      <option name="number" value="00279" />
-      <option name="presentableId" value="LOCAL-00279" />
-      <option name="project" value="LOCAL" />
-      <updated>1766564938245</updated>
-    </task>
-    <task id="LOCAL-00280" summary="fix: to go">
-      <option name="closed" value="true" />
-      <created>1766566281804</created>
-      <option name="number" value="00280" />
-      <option name="presentableId" value="LOCAL-00280" />
-      <option name="project" value="LOCAL" />
-      <updated>1766566281804</updated>
     </task>
     <task id="LOCAL-00281" summary="fix: to go">
       <option name="closed" value="true" />
@@ -573,7 +520,23 @@
       <option name="project" value="LOCAL" />
       <updated>1766813104282</updated>
     </task>
-    <option name="localTasksCounter" value="328" />
+    <task id="LOCAL-00328" summary="refactor: standardize import paths for feature components">
+      <option name="closed" value="true" />
+      <created>1766833055383</created>
+      <option name="number" value="00328" />
+      <option name="presentableId" value="LOCAL-00328" />
+      <option name="project" value="LOCAL" />
+      <updated>1766833055383</updated>
+    </task>
+    <task id="LOCAL-00329" summary="refactor: standardize import paths for feature components">
+      <option name="closed" value="true" />
+      <created>1766833421571</created>
+      <option name="number" value="00329" />
+      <option name="presentableId" value="LOCAL-00329" />
+      <option name="project" value="LOCAL" />
+      <updated>1766833421571</updated>
+    </task>
+    <option name="localTasksCounter" value="330" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -624,7 +587,8 @@
     <MESSAGE value="fix: update LiveKit token generation and implement hand raise/lower functionality" />
     <MESSAGE value="feat(docker): enhance Docker setup with LiveKit configuration and streamline service definitions" />
     <MESSAGE value="chore(docker): enhance Docker setup with LiveKit configuration and streamline service definitions" />
-    <option name="LAST_COMMIT_MESSAGE" value="chore(docker): enhance Docker setup with LiveKit configuration and streamline service definitions" />
+    <MESSAGE value="refactor: standardize import paths for feature components" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor: standardize import paths for feature components" />
   </component>
   <component name="com.apollographql.ijplugin.settings.ProjectSettingsState">
     <option name="lspPassPathToSuperGraphYaml" value="false" />
