@@ -18,105 +18,110 @@ torii-monorepo/
 │   ├── ui/                   # Shared UI components
 │   └── *-config/             # Cấu hình ESLint, TypeScript dùng chung
 ├── nats_server.conf          # Cấu hình NATS Server (JetStream, Auth Callout)
+├── livekit.yaml              # Cấu hình LiveKit Server (Local Dev)
 ├── turbo.json                # TurboRepo config
 └── pnpm-workspace.yaml       # PNPM Workspaces config
 ```
 
 ---
 
+## 🛠 Local Development Setup
+
+Để chạy dự án trên môi trường local, chúng ta sử dụng **Docker** cho các Infrastructure Services (DB, Redis, NATS, LiveKit) và chạy **Node.js** trực tiếp cho mã nguồn ứng dụng (Service/Frontend) để tận dụng trải nghiệm dev tốt nhất (Hot Reload, Debugging).
+
+### 1. Prerequisites
+- Docker & Docker Compose
+- Node.js (v20+)
+- PNPM (Package Manager)
+
+### 2. Infrastructure Setup (Docker)
+Khởi chạy toàn bộ hạ tầng cần thiết chỉ với một lệnh:
+
+```bash
+docker-compose up -d
+```
+
+Các services sẽ chạy tại:
+- **PostgreSQL**: `localhost:5432` (User: `postgres`, Pass: `123456789`, DB: `wajlc`)
+- **Redis**: `localhost:6379`
+- **NATS**: `localhost:4222` (Monitor: `localhost:8222`)
+- **LiveKit**: `localhost:7880` (API Key: `APIiYAA5w37Cfo2`, Secret: `6aNur7qqupeZhFYNOJVUyeXxXhVw8f4lm13pEDUx8SgB`)
+
+Để dừng và xóa dữ liệu (nếu cần reset):
+```bash
+docker-compose down -v
+```
+
+### 3. Application Setup
+
+1. **Cài đặt dependencies:**
+   ```bash
+   pnpm install
+   ```
+
+2. **Cấu hình biến môi trường:**
+   Copy file mẫu và tạo file `.env` tại thư mục root:
+   ```bash
+   cp .env.example .env
+   ```
+   *Lưu ý: `.env.example` đã được cấu hình sẵn để kết nối với Infrastructure Docker mặc định.*
+
+3. **Database Migration & Generation:**
+   ```bash
+   cd apps/server
+   npx prisma generate
+   npx prisma db push
+   ```
+   *Lệnh `db push` sẽ đồng bộ schema Prisma vào database `wajlc` đang chạy trên Docker.*
+
+### 4. Running the App
+
+Chạy toàn bộ Backend Microservices ở chế độ Watch Mode:
+```bash
+# Tại root project
+pnpm dev
+# Hoặc chạy cụ thể backend:
+pnpm --filter server dev
+```
+
+Chạy Frontend (nếu cần):
+```bash
+pnpm --filter web-admin dev
+pnpm --filter web-learner dev
+```
+
+---
+
 ## 🛰 Microservices Architecture (NATS-based)
 
-Toàn bộ hệ thống backend đã được chuyển dịch từ HTTP/TCP sang kiến trúc hướng sự kiện (Event-driven) sử dụng **NATS**. Các service giao tiếp với nhau qua các Subjects được định nghĩa chặt chẽ.
+Toàn bộ hệ thống backend giao tiếp qua **NATS Message Broker**.
 
-| # | Service | Nhiệm vụ chính | Database Tables Mapping |
+| # | Service | Port (Local) | Nhiệm vụ chính |
 |:---:|:---|:---|:---|
-| 1 | **Gateway** | API Gateway (HTTP), Auth Interceptor, NATS Proxy | - |
-| 2 | **Auth** | Quản lý User, RBAC, Authentication Service | `users`, `roles`, `permissions`, `learners` |
-| 3 | **Course** | Quản lý khóa học, bài học, lộ trình JLPT | `courses`, `modules`, `lessons`, `enrollments` |
-| 4 | **Room** | Quản lý phòng học trực tuyến (LiveKit integration) | `live_classes`, `class_materials` |
-| 5 | **Assessment** | Ngân hàng câu hỏi, bài tập & thi thử | `quizzes`, `questions`, `submissions` |
-| 6 | **Payment** | Xử lý giao dịch, hóa đơn & gói học phí | `payments`, `invoices`, `subscriptions` |
-| 7 | **AI (FastMCP)**| AI Agents, Flashcards, Personalized Learning | `flashcards`, `ai_interactions` |
-| 8 | **Social/Noti** | Thông báo (Push/Email), Blog & Achievements | `notifications`, `blog_posts`, `achievements` |
-
+| 1 | **Gateway** | `8080` (HTTP) | API Gateway, Auth Interceptor, NATS Proxy |
+| 2 | **Auth** | `8081` | Quản lý User, RBAC, Authentication Service |
+| 3 | **Course** | `8082` | Quản lý khóa học, bài học, lộ trình JLPT |
+| 4 | **Room** | `8083` | Quản lý phòng học trực tuyến (LiveKit integration) |
+| - | ... | ... | Các service khác (Assessment, Payment, AI...) |
 
 ---
 
-## 🛠 Infrastructure Setup
-
-Dự án yêu cầu các thành phần hạ tầng sau chạy bằng Docker hoặc cài đặt cục bộ:
-
-### 1. NATS Server (Bắt buộc)
-Sử dụng file cấu hình `nats_server.conf` để kích hoạt JetStream.
-```bash
-docker run --name torii-nats \
-  -p 4222:4222 -p 8222:8222 \
-  -v %cd%/nats_server.conf:/etc/nats/nats.conf \
-  -v nats_data:/data \
-  -d nats:latest -c /etc/nats/nats.conf
-```
-
-### 2. PostgreSQL & Redis
-```bash
-# PostgreSQL
-docker run --name torii-postgres -e POSTGRES_PASSWORD=postgres -p 5432:5432 -v torii_db_data:/var/lib/postgresql/data -d postgres
-
-# Redis
-docker run --name torii-redis -p 6379:6379 -d redis
-```
-
----
-
-## 🚀 Development Workflows
-
-### 1. Khởi tạo
-```bash
-pnpm install
-cp .env.example .env # Cập nhật DATABASE_URL, NATS_URL...
-```
-
-### 2. Protobuf & Types Safety
-Dự án sử dụng **@bufbuild/protobuf** (Type-safe Protobuf ES) làm "Source of Truth" cho dữ liệu giữa các service và frontend.
+## 📦 Protocol Workflow
 
 **Cập nhật Protocol:**
-1. Chỉnh sửa file [.proto](cci:7://file:///e:/demo/team-source/torii-monorepo/packages/protocol/proto/flash_card.proto:0:0-0:0) trong `packages/protocol/proto/`.
-2. Thực hiện quy trình tái tạo code:
+1. Chỉnh sửa file `.proto` trong `packages/protocol/proto/`.
+2. Generate code:
    ```bash
    cd packages/protocol
-   pnpm run clean      # Xóa code cũ đã generate
-   pnpm run generate   # Tạo code TypeScript mới từ .proto
-   pnpm run build      # Biên dịch sang JS và tạo Type Definitions (.d.ts)
+   pnpm run clean
+   pnpm run generate
+   pnpm run build
    ```
-### 3. Database (Prisma)
-```bash
-cd apps/server
-npx prisma generate
-npx prisma db push
-```
 
-### 4. Shared DTOs
+### 5. Shared DTOs
 Sử dụng `@workspace/dtos` cho các data structure không cần Protobuf (thường là API response/request đơn giản).
 ```bash
 pnpm --filter @workspace/dtos run build # Sau khi thay đổi nội dung DTO
 ```
 
----
-
-## 🏁 How to Run
-
-### Chạy chế độ Development (Watch mode cho tất cả services)
-```bash
-pnpm dev
-```
-
-### Chạy riêng lẻ Microservices (Backend)
-```bash
-cd apps/server
-pnpm dev:gateway
-pnpm dev:auth
-pnpm dev:course
-# ... tương tự cho các service khác (xem package.json)
-```
-
----
 **Happy Coding! 🚀**
