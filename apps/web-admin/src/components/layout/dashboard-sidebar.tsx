@@ -13,6 +13,7 @@ import {
   Bell,
   Shield,
   Sparkles,
+  Layers,
 } from "lucide-react"
 
 import { cn } from "@workspace/ui/lib/utils"
@@ -59,7 +60,7 @@ const mainNavItems: NavItem[] = [
   {
     title: "Modules",
     url: "/modules",
-    icon: BookOpen,
+    icon: Layers,
   },
   {
     title: "Assessments",
