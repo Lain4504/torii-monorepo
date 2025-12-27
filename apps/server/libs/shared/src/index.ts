@@ -9,6 +9,13 @@ export * from './nats/nats-client.module';
 export * from './nats/nats-auth.module';
 export * from './nats/nats-auth.service';
 export { createNatsServiceConfig } from './nats/nats-service.config';
+// Guards
+export * from './guards/api-key.guard';
+export * from './guards/jwt.guard';
+export * from './guards/role.guard';
+
+// Decorators
+export * from './decorators/roles.decorator';
 
 export * from './utils/slug.utils';
 export * from './guards/api-key.guard';
