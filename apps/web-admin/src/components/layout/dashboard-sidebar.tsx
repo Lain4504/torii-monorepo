@@ -123,7 +123,7 @@ export function DashboardSidebar() {
       setSidebarModeState('expanded')
     } else {
       const stored = localStorage.getItem('sidebarMode') as 'expanded' | 'collapsed' | 'hover' | null
-      if (stored === 'expanded' || stored === 'collapsed' || stored === 'hover') {
+      if (stored && (stored === 'expanded' || stored === 'collapsed' || stored === 'hover')) {
         setSidebarModeState(stored)
       }
     }
@@ -135,10 +135,8 @@ export function DashboardSidebar() {
         setSidebarModeState('expanded')
         return
       }
-      if (mode === 'expanded' || mode === 'collapsed' || mode === 'hover') {
-        setSidebarModeState(mode)
-        localStorage.setItem('sidebarMode', mode)
-      }
+      setSidebarModeState(mode)
+      localStorage.setItem('sidebarMode', mode)
     }
 
     const mq = window.matchMedia('(max-width: 1023px)')
