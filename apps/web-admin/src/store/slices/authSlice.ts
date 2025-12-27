@@ -1,26 +1,27 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { authApi } from '../../api/auth';
-import { getCookie } from '@workspace/ui/utils/cookies';
-import type { LoginRequest, RegisterRequest } from '../../api/auth';
+import type { LoginRequest, RegisterRequest, UserRole } from '../../api/auth';
 
 interface AuthState {
   user: {
     id: string;
     email: string;
     fullName?: string;
+    role?: UserRole;
   } | null;
-  token: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   error: string | null;
 }
 
+// Note: We don't store token in state for security
+// Server uses HttpOnly cookies for authentication
+// isAuthenticated is determined by API calls, not cookie reading
 const initialState: AuthState = {
   user: null,
-  token: getCookie('access_token'),
   isLoading: false,
-  isAuthenticated: !!getCookie('access_token'),
+  isAuthenticated: false, // Will be set based on API response
   error: null,
 };
 
@@ -89,10 +90,10 @@ const authSlice = createSlice({
     clearError: (state: AuthState) => {
       state.error = null;
     },
-    setCredentials: (state: AuthState, action: PayloadAction<{ user: AuthState['user']; token: string }>) => {
+    setCredentials: (state: AuthState, action: PayloadAction<{ user: AuthState['user'] }>) => {
       state.user = action.payload.user;
-      state.token = action.payload.token;
       state.isAuthenticated = true;
+      // Token is stored in HttpOnly cookie by server, not in state
     },
   },
   extraReducers: (builder) => {
@@ -106,7 +107,7 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.isAuthenticated = true;
         state.user = action.payload.user || null;
-        state.token = action.payload.session?.access_token || null;
+        // Token is stored in HttpOnly cookie by server, not in state
         state.error = null;
       })
       .addCase(loginUser.rejected, (state: AuthState, action) => {
@@ -123,7 +124,7 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.isAuthenticated = true;
         state.user = action.payload.user || null;
-        state.token = action.payload.session?.access_token || null;
+        // Token is stored in HttpOnly cookie by server, not in state
         state.error = null;
       })
       .addCase(registerUser.rejected, (state: AuthState, action) => {
@@ -134,8 +135,8 @@ const authSlice = createSlice({
       // Logout
       .addCase(logoutUser.fulfilled, (state: AuthState) => {
         state.user = null;
-        state.token = null;
         state.isAuthenticated = false;
+        // Server clears HttpOnly cookies, no need to clear token here
         state.error = null;
       });
   },
@@ -143,4 +144,8 @@ const authSlice = createSlice({
 
 export const { clearError, setCredentials } = authSlice.actions;
 export default authSlice.reducer;
+
+// Export types for use in other files
+export type { UserRole } from '../../api/auth';
+export type { AuthState };
 

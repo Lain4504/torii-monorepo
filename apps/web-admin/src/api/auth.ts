@@ -1,5 +1,4 @@
 import { apiClient } from './client';
-import { setCookie, removeCookie } from '@workspace/ui/utils/cookies';
 
 export interface LoginRequest {
   email: string;
@@ -12,53 +11,48 @@ export interface RegisterRequest {
   fullName: string;
 }
 
+export type UserRole = 'learner' | 'lecturer' | 'staff' | 'admin';
+
 export interface AuthResponse {
   user?: {
     id: string;
     email: string;
     fullName?: string;
+    role?: UserRole;
   };
   session?: {
-    access_token: string;
+    access_token?: string; // Server sets HttpOnly cookie, this is just for reference
     refresh_token?: string;
     expires_in?: number;
   };
   error?: string;
 }
 
+/**
+ * Authentication API
+ * Note: Server sets HttpOnly cookies for security (access_token, refresh_token)
+ * Frontend does NOT handle tokens directly to prevent XSS attacks
+ */
 export const authApi = {
+  /**
+   * Login - Server will set HttpOnly cookies with tokens
+   */
   login: async (credentials: LoginRequest): Promise<AuthResponse> => {
     const response = await apiClient.post<AuthResponse>('/auth/login', credentials);
-    const data = response.data;
-    
-    if (data.session?.access_token) {
-      // Set cookie with 7 days expiration (or use expires_in from server if available)
-      const expiresInDays = data.session.expires_in 
-        ? Math.floor(data.session.expires_in / (24 * 60 * 60))
-        : 7;
-      setCookie('access_token', data.session.access_token, expiresInDays);
-    }
-    
-    return data;
+    // Server sets HttpOnly cookies automatically, browser will send them in subsequent requests
+    return response.data;
   },
 
+  /**
+   * Register - Server will set HttpOnly cookies with tokens
+   */
   register: async (data: RegisterRequest): Promise<AuthResponse> => {
     try {
       const response = await apiClient.post<AuthResponse>('/auth/register', data);
-      const result = response.data;
-      
-      if (result.session?.access_token) {
-        // Set cookie with 7 days expiration (or use expires_in from server if available)
-        const expiresInDays = result.session.expires_in 
-          ? Math.floor(result.session.expires_in / (24 * 60 * 60))
-          : 7;
-        setCookie('access_token', result.session.access_token, expiresInDays);
-      }
-      
-      return result;
+      // Server sets HttpOnly cookies automatically
+      return response.data;
     } catch (error: any) {
       // Extract error message from various error response formats
-      // Handle different error structures from server
       let errorMessage = 'Đăng ký thất bại';
       
       if (error?.response?.data) {
@@ -68,24 +62,22 @@ export const authApi = {
           error.response.data.error || 
           errorMessage;
       } else if (error?.message) {
-        // Direct error message
         errorMessage = error.message;
       }
       
-      // Create a new error with the extracted message
       const customError = new Error(errorMessage);
-      // Attach response data for Redux to access
       (customError as any).response = error?.response;
       throw customError;
     }
   },
 
+  /**
+   * Logout - Server will clear HttpOnly cookies
+   */
   logout: async (): Promise<void> => {
-    try {
-      await apiClient.post('/auth/logout');
-    } finally {
-      removeCookie('access_token');
-    }
+    await apiClient.post('/auth/logout');
+    // Server clears cookies automatically
   },
 };
+
 

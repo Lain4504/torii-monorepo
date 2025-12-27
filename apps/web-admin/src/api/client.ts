@@ -1,14 +1,11 @@
-import axios, { type AxiosInstance, type InternalAxiosRequestConfig, type AxiosError, type AxiosResponse } from 'axios';
-import { getCookie, removeCookie } from '@workspace/ui/utils/cookies';
+import axios, { type AxiosInstance, type AxiosError, type AxiosResponse } from 'axios';
 
 export interface ApiClientConfig {
   baseURL?: string;
   onUnauthorized?: () => void;
 }
 
-/**
- * Create an API client with authentication interceptors
- */
+
 export function createApiClient(config?: ApiClientConfig): AxiosInstance {
   const apiClient = axios.create({
     baseURL: config?.baseURL || (typeof window !== 'undefined' 
@@ -17,33 +14,19 @@ export function createApiClient(config?: ApiClientConfig): AxiosInstance {
     headers: {
       'Content-Type': 'application/json',
     },
-    withCredentials: true, // For cookies/sessions
+    // withCredentials: true - Browser automatically sends HttpOnly cookies with requests
+    // Server validates authentication from cookies, not Authorization header
+    withCredentials: true,
   });
-
-  // Request interceptor - Add auth token
-  apiClient.interceptors.request.use(
-    (config: InternalAxiosRequestConfig) => {
-      if (typeof window !== 'undefined') {
-        const token = getCookie('access_token');
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
-      }
-      return config;
-    },
-    (error: AxiosError) => {
-      return Promise.reject(error);
-    }
-  );
 
   // Response interceptor - Handle errors globally
   apiClient.interceptors.response.use(
     (response: AxiosResponse) => response,
     (error: AxiosError) => {
       if (error.response?.status === 401) {
-        // Remove token and redirect to login
+        // Unauthorized - redirect to login
+        // Server has already cleared cookies
         if (typeof window !== 'undefined') {
-          removeCookie('access_token');
           if (config?.onUnauthorized) {
             config.onUnauthorized();
           } else {
@@ -60,4 +43,5 @@ export function createApiClient(config?: ApiClientConfig): AxiosInstance {
 
 // Default API client instance
 export const apiClient = createApiClient();
+
 
