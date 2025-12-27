@@ -14,24 +14,40 @@ import { Input } from '@workspace/ui/components/input';
 import type { ModuleResponseDto } from '@workspace/dtos';
 import { toast } from '@workspace/ui/components/sonner';
 
-const updateModuleSchema = z.object({
-    courseId: z.string().optional(),
-    title: z.string().min(1, 'Title is required').optional(),
-    description: z.string().optional(),
-    order: z.number().min(0).optional(),
-    durationMinutes: z.number().min(0).optional(),
-});
+const getUpdateModuleSchema = (existingTitles: string[] = []) =>
+    z.object({
+        courseId: z.string().optional(),
+        title: z
+            .string()
+            .min(1, 'Title is required')
+            .refine((title) => !existingTitles.includes(title.trim()), {
+                message: 'A module with this title already exists in this course.',
+            })
+            .optional(),
+        description: z.string().optional(),
+        order: z.number().min(0).optional(),
+        durationMinutes: z.number().min(0).optional(),
+    });
 
-type UpdateModuleFormData = z.infer<typeof updateModuleSchema>;
+type UpdateModuleFormData = z.infer<ReturnType<typeof getUpdateModuleSchema>>;
 
 interface EditModuleDialogProps {
     module: ModuleResponseDto | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    existingModules?: ModuleResponseDto[];
+    courseTitle?: string;
 }
 
-export function EditModuleDialog({ module, open, onOpenChange }: EditModuleDialogProps) {
+export function EditModuleDialog({ module, open, onOpenChange, existingModules = [], courseTitle }: EditModuleDialogProps) {
     const updateModule = useUpdateModule();
+
+    // Exclude the current module's title from the list for validation
+    const otherModuleTitles = existingModules
+        .filter((m) => m.id !== module?.id)
+        .map((m) => m.title.trim());
+
+    const updateModuleSchema = getUpdateModuleSchema(otherModuleTitles);
 
     const {
         register,
@@ -84,11 +100,9 @@ export function EditModuleDialog({ module, open, onOpenChange }: EditModuleDialo
                 </DialogHeader>
                 <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium mb-1">Course ID</label>
-                        <Input {...register('courseId')} placeholder="Enter course id" />
-                        {errors.courseId && (
-                            <p className="text-sm text-red-500 mt-1">{errors.courseId.message}</p>
-                        )}
+                        <label className="block text-sm font-medium mb-1">Course Title</label>
+                        <Input value={courseTitle} readOnly />
+                        <input type="hidden" {...register('courseId')} />
                     </div>
 
                     <div>

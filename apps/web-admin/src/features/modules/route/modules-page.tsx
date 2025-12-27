@@ -151,12 +151,17 @@ export default function ModulesPage() {
       <CreateModuleDialog
         open={showCreateDialog}
         onOpenChange={setShowCreateDialog}
+        courseId={courseIdFilter}
+        courseTitle={courseTitleMap.get(courseIdFilter)}
+        existingModules={modules}
       />
 
       <EditModuleDialog
         open={!!editingModule}
         onOpenChange={(open) => !open && setEditingModule(null)}
         module={editingModule}
+        existingModules={modules}
+        courseTitle={editingModule ? courseTitleMap.get(editingModule.courseId) : ''}
       />
 
       <DeleteModuleDialog

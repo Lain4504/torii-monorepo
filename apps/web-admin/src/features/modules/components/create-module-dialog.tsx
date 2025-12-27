@@ -2,6 +2,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useCreateModule } from '@/features/modules/api/modules';
+import type { ModuleResponseDto } from '@workspace/dtos';
 import {
     Dialog,
     DialogContent,
@@ -12,23 +13,36 @@ import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { toast } from '@workspace/ui/components/sonner';
 
-const createModuleSchema = z.object({
-    courseId: z.string().min(1, 'Course ID is required'),
-    title: z.string().min(1, 'Title is required'),
-    description: z.string().optional(),
-    order: z.number().min(0).optional(),
-    durationMinutes: z.number().min(0).optional(),
-});
+const getCreateModuleSchema = (existingTitles: string[] = []) =>
+    z.object({
+        courseId: z.string().min(1, 'Course ID is required'),
+        title: z
+            .string()
+            .min(1, 'Title is required')
+            .refine(
+                (title) => !existingTitles.includes(title.trim()),
+                { message: 'A module with this title already exists in this course.' },
+            ),
+        description: z.string().optional(),
+        order: z.number().min(0).optional(),
+        durationMinutes: z.number().min(0).optional(),
+    });
 
-type CreateModuleFormData = z.infer<typeof createModuleSchema>;
+type CreateModuleFormData = z.infer<ReturnType<typeof getCreateModuleSchema>>;
 
 interface CreateModuleDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    courseId?: string;
+    courseTitle?: string;
+    existingModules?: ModuleResponseDto[];
 }
 
-export function CreateModuleDialog({ open, onOpenChange }: CreateModuleDialogProps) {
+export function CreateModuleDialog({ open, onOpenChange, courseId, courseTitle, existingModules = [] }: CreateModuleDialogProps) {
     const createModule = useCreateModule();
+
+    const existingTitles = existingModules.map((m) => m.title.trim());
+    const createModuleSchema = getCreateModuleSchema(existingTitles);
 
     const {
         register,
@@ -38,7 +52,7 @@ export function CreateModuleDialog({ open, onOpenChange }: CreateModuleDialogPro
     } = useForm<CreateModuleFormData>({
         resolver: zodResolver(createModuleSchema),
         defaultValues: {
-            courseId: '',
+            courseId: courseId || '',
             title: '',
         },
     });
@@ -71,11 +85,9 @@ export function CreateModuleDialog({ open, onOpenChange }: CreateModuleDialogPro
                 </DialogHeader>
                 <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium mb-1">Course ID</label>
-                        <Input {...register('courseId')} placeholder="Enter course id" />
-                        {errors.courseId && (
-                            <p className="text-sm text-red-500 mt-1">{errors.courseId.message}</p>
-                        )}
+                        <label className="block text-sm font-medium mb-1">Course Title</label>
+                        <Input value={courseTitle} readOnly />
+                        <input type="hidden" {...register('courseId')} />
                     </div>
 
                     <div>
