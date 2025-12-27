@@ -1,7 +1,7 @@
 import { createColumnHelper } from '@tanstack/react-table';
 import type { CourseResponseDto } from '@workspace/dtos';
 import { Button } from '@workspace/ui/components/button';
-import { ArrowUpDown, MoreHorizontal, Pencil, Trash, Eye } from 'lucide-react';
+import { ArrowUpDown, MoreHorizontal, Pencil, Trash, Eye, Layers } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -17,11 +17,12 @@ export type CoursesColumnsProps = {
     onView: (course: CourseResponseDto) => void;
     onEdit: (course: CourseResponseDto) => void;
     onDelete: (course: CourseResponseDto) => void;
+    onModules: (course: CourseResponseDto) => void;
     page: number;
     limit: number;
 };
 
-export const getCoursesColumns = ({ onView, onEdit, onDelete, page, limit }: CoursesColumnsProps) => [
+export const getCoursesColumns = ({ onView, onEdit, onDelete, onModules, page, limit }: CoursesColumnsProps) => [
     // STT Column
     columnHelper.display({
         id: 'stt',
@@ -131,6 +132,9 @@ export const getCoursesColumns = ({ onView, onEdit, onDelete, page, limit }: Cou
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => onEdit(course)}>
                             <Pencil className="mr-2 h-4 w-4" /> Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onModules(course)}>
+                            <Layers className="mr-2 h-4 w-4" /> Modules
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => onDelete(course)} className="text-red-600">
                             <Trash className="mr-2 h-4 w-4" /> Delete

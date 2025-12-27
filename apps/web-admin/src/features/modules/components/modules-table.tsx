@@ -1,4 +1,4 @@
-import {
+﻿import {
     flexRender,
     getCoreRowModel,
     useReactTable,
@@ -14,24 +14,22 @@ import {
     TableRow,
 } from '@workspace/ui/components/table';
 import { useState } from 'react';
-import type { CourseResponseDto } from '@workspace/dtos';
-import { getCoursesColumns } from './courses-columns';
+import type { ModuleResponseDto } from '@workspace/dtos';
+import { getModulesColumns } from './modules-columns';
 
-interface CoursesTableProps {
-    data: CourseResponseDto[];
-    onView: (course: CourseResponseDto) => void;
-    onEdit: (course: CourseResponseDto) => void;
-    onDelete: (course: CourseResponseDto) => void;
-    onModules: (course: CourseResponseDto) => void;
+interface ModulesTableProps {
+    data: ModuleResponseDto[];
+    onView: (module: ModuleResponseDto) => void;
+    onEdit: (module: ModuleResponseDto) => void;
+    onDelete: (module: ModuleResponseDto) => void;
     page: number;
     limit: number;
 }
 
-export function CoursesTable({ data, onView, onEdit, onDelete, onModules, page, limit }: CoursesTableProps) {
+export function ModulesTable({ data, onView, onEdit, onDelete, page, limit }: ModulesTableProps) {
     const [sorting, setSorting] = useState<SortingState>([]);
 
-    // Memorize columns to prevent re-renders, though lightweight here.
-    const columns = getCoursesColumns({ onView, onEdit, onDelete, onModules, page, limit });
+    const columns = getModulesColumns({ onView, onEdit, onDelete, page, limit });
 
     const table = useReactTable({
         data,

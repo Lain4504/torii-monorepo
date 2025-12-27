@@ -47,6 +47,18 @@
             "description": "Approve and publish courses"
         },
         {
+            "code": "module.create",
+            "description": "Create new modules (course chapters)"
+        },
+        {
+            "code": "module.update",
+            "description": "Update existing modules"
+        },
+        {
+            "code": "module.delete",
+            "description": "Delete modules (soft-delete)"
+        },
+        {
             "code": "live_class.schedule",
             "description": "Schedule new live sessions"
         },
@@ -116,6 +128,7 @@
         "lecturer": [
             "live_class.manage",
             "course.update",
+            "module.update",
             "submission.grade",
             "material.upload"
         ],
@@ -132,6 +145,9 @@
             "course.create",
             "course.update",
             "course.publish",
+            "module.create",
+            "module.update",
+            "module.delete",
             "exam.manage",
             "live_class.schedule",
             "submission.grade",
