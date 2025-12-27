@@ -1,8 +1,7 @@
 /**
  * JWT Auth Guard
  *
- * Verifies JWT token from HttpOnly cookie (preferred) or Authorization header (fallback)
- * and sets request locals
+ * Verifies JWT token from Authorization header and sets request locals
  */
 
 import {
@@ -17,9 +16,7 @@ import { sendCommonProtoJsonResponse } from '../utils/common';
 import { ConfigService } from '@nestjs/config';
 
 /**
- * JwtAuthGuard verifies the token from:
- * 1. HttpOnly cookie (access_token) - preferred for web-admin frontend
- * 2. Authorization header - fallback for backward compatibility
+ * JwtAuthGuard verifies the Authorization header token
  *
  * Sets request properties:
  * - req.isAdmin
@@ -34,18 +31,7 @@ export class JwtAuthGuard implements CanActivate {
         const ctx = context.switchToHttp();
         const request = ctx.getRequest<Request>();
         const response = ctx.getResponse<Response>();
-        
-        // Try to get token from HttpOnly cookie first (preferred for web-admin)
-        let authToken: string | undefined = (request.cookies as any)?.access_token;
-        
-        // Fallback to Authorization header for backward compatibility
-        if (!authToken) {
-            const authHeader = request.headers.authorization;
-            // Remove 'Bearer ' prefix if present
-            authToken = authHeader?.startsWith('Bearer ') 
-                ? authHeader.substring(7) 
-                : authHeader;
-        }
+        const authToken = request.headers.authorization;
 
         // Determine error status based on path
         const path = request.path;
@@ -53,10 +39,10 @@ export class JwtAuthGuard implements CanActivate {
             ? HttpStatus.BAD_REQUEST
             : HttpStatus.UNAUTHORIZED;
 
-        // Check if token exists
+        // Check if Authorization header exists
         if (!authToken) {
             response.status(errStatus);
-            sendCommonProtoJsonResponse(response, false, 'Token is missing. Please login again.');
+            sendCommonProtoJsonResponse(response, false, 'Authorization header is missing');
             return false;
         }
 

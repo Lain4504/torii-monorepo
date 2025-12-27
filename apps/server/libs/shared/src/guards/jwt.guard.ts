@@ -5,10 +5,18 @@ import {
   UnauthorizedException,
   Inject,
 } from '@nestjs/common';
+import type { Request } from 'express';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { SUPABASE_CLIENT } from '../supabase/supabase.constants';
 import { PrismaService } from '../prisma.service';
 
+/**
+ * JwtGuard verifies Supabase JWT token from:
+ * 1. HttpOnly cookie (access_token) - preferred for web-admin frontend
+ * 2. Authorization header - fallback for backward compatibility
+ * 
+ * Sets request.user with authenticated user information
+ */
 @Injectable()
 export class JwtGuard implements CanActivate {
   constructor(
@@ -17,16 +25,22 @@ export class JwtGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
-    const authHeader = request.headers['authorization'];
-
-    if (!authHeader) {
-      throw new UnauthorizedException('Missing authorization header');
+    const request = context.switchToHttp().getRequest<Request>();
+    
+    // Try to get token from HttpOnly cookie first (preferred for web-admin)
+    let token: string | undefined = (request.cookies as any)?.access_token;
+    
+    // Fallback to Authorization header for backward compatibility
+    if (!token) {
+      const authHeader = request.headers['authorization'];
+      token = authHeader?.startsWith('Bearer ')
+        ? authHeader.slice(7)
+        : authHeader;
     }
 
-    const token = authHeader.startsWith('Bearer ')
-      ? authHeader.slice(7)
-      : authHeader;
+    if (!token) {
+      throw new UnauthorizedException('Token is missing. Please login again.');
+    }
 
     try {
       // Verify token with Supabase
@@ -43,7 +57,7 @@ export class JwtGuard implements CanActivate {
       });
 
       // Attach user to request
-      request.user = {
+      (request as any).user = {
         id: data.user.id,
         email: data.user.email,
         role: dbUser?.role || 'learner', // Get role from database
