@@ -19,9 +19,10 @@ export type ModulesColumnsProps = {
     onDelete: (module: ModuleResponseDto) => void;
     page: number;
     limit: number;
+    courseTitleMap?: Map<string, string>;
 };
 
-export const getModulesColumns = ({ onView, onEdit, onDelete, page, limit }: ModulesColumnsProps) => [
+export const getModulesColumns = ({ onView, onEdit, onDelete, page, limit, courseTitleMap }: ModulesColumnsProps) => [
     columnHelper.display({
         id: 'stt',
         header: () => <div className="text-center font-semibold">STT</div>,
@@ -47,7 +48,11 @@ export const getModulesColumns = ({ onView, onEdit, onDelete, page, limit }: Mod
     }),
     columnHelper.accessor('courseId', {
         header: 'Course',
-        cell: (info) => info.getValue(),
+        cell: (info) => {
+            const courseId = info.getValue();
+            const courseTitle = courseTitleMap?.get(courseId);
+            return <div className="ml-4">{courseTitle || courseId}</div>;
+        },
     }),
     columnHelper.accessor('order', {
         header: 'Order',
@@ -56,6 +61,26 @@ export const getModulesColumns = ({ onView, onEdit, onDelete, page, limit }: Mod
     columnHelper.accessor('durationMinutes', {
         header: 'Duration',
         cell: (info) => <div className="ml-4">{info.getValue() ?? ''}</div>,
+    }),
+    columnHelper.accessor('deletedAt', {
+        header: 'Status',
+        cell: (info) => {
+            const deletedAt = info.getValue();
+            const isDeleted = deletedAt != null;
+            return (
+                <div className="ml-4">
+                    <span
+                        className={`px-2 py-1 rounded text-xs ${
+                            isDeleted
+                                ? 'bg-red-100 text-red-800'
+                                : 'bg-green-100 text-green-800'
+                        }`}
+                    >
+                        {isDeleted ? 'Deleted' : 'Active'}
+                    </span>
+                </div>
+            );
+        },
     }),
     columnHelper.display({
         id: 'actions',

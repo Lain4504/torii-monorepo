@@ -1,6 +1,8 @@
-﻿import { useState } from 'react';
+﻿import { useState, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useQueries } from '@tanstack/react-query';
 import { useModules } from '@/features/modules/api/modules';
+import { coursesApi } from '@/features/courses/api/courses';
 import { Button } from '@workspace/ui/components/button';
 import { ModulesTable } from '@/features/modules/components/modules-table';
 import { ModulesPrimaryToolbar } from '@/features/modules/components/modules-primary-toolbar';
@@ -33,6 +35,43 @@ export default function ModulesPage() {
 
   const modules = modulesData?.data || [];
   const meta = modulesData?.meta;
+
+  // Get unique courseIds from modules and courseIdFilter
+  const uniqueCourseIds = useMemo(() => {
+    const ids = new Set<string>();
+    modules.forEach((module) => {
+      if (module.courseId) {
+        ids.add(module.courseId);
+      }
+    });
+    // Also include courseIdFilter if it exists
+    if (courseIdFilter) {
+      ids.add(courseIdFilter);
+    }
+    return Array.from(ids);
+  }, [modules, courseIdFilter]);
+
+  // Fetch courses for all unique courseIds
+  const courseQueries = useQueries({
+    queries: uniqueCourseIds.map((courseId) => ({
+      queryKey: ['courses', courseId],
+      queryFn: () => coursesApi.findOne(courseId),
+      enabled: !!courseId,
+      staleTime: 30000,
+    })),
+  });
+
+  // Create a map of courseId -> courseTitle
+  const courseTitleMap = useMemo(() => {
+    const map = new Map<string, string>();
+    uniqueCourseIds.forEach((courseId, index) => {
+      const courseQuery = courseQueries[index];
+      if (courseQuery?.data?.title) {
+        map.set(courseId, courseQuery.data.title);
+      }
+    });
+    return map;
+  }, [uniqueCourseIds, courseQueries]);
 
   if (isLoading) {
     return (
@@ -67,6 +106,7 @@ export default function ModulesPage() {
         onSearchChange={setSearch}
         courseIdFilter={courseIdFilter}
         onCourseIdFilterChange={setCourseIdFilter}
+        courseTitleMap={courseTitleMap}
       />
 
       <ModulesTable
@@ -76,6 +116,7 @@ export default function ModulesPage() {
         onView={setViewingModule}
         page={page}
         limit={queryParams.limit || 10}
+        courseTitleMap={courseTitleMap}
       />
 
       {/* Pagination */}

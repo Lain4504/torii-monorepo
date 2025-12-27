@@ -24,12 +24,13 @@ interface ModulesTableProps {
     onDelete: (module: ModuleResponseDto) => void;
     page: number;
     limit: number;
+    courseTitleMap?: Map<string, string>;
 }
 
-export function ModulesTable({ data, onView, onEdit, onDelete, page, limit }: ModulesTableProps) {
+export function ModulesTable({ data, onView, onEdit, onDelete, page, limit, courseTitleMap }: ModulesTableProps) {
     const [sorting, setSorting] = useState<SortingState>([]);
 
-    const columns = getModulesColumns({ onView, onEdit, onDelete, page, limit });
+    const columns = getModulesColumns({ onView, onEdit, onDelete, page, limit, courseTitleMap });
 
     const table = useReactTable({
         data,
