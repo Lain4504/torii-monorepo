@@ -17,6 +17,7 @@ import { QuestionBankModule } from './question-bank/question-bank.module';
 import { WaitingRoomModule } from './waiting-room/waiting-room.module';
 import { ModuleModule } from './module/module.module';
 import { LessonModule } from './lesson/lesson.module';
+import { PollsModule } from './polls/polls.module';
 
 import { GatewayController } from './gateway.controller';
 import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
@@ -57,6 +58,7 @@ import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
     WaitingRoomModule,
     ModuleModule,
     LessonModule,
+    PollsModule,
   ],
   controllers: [GatewayController],
   providers: [

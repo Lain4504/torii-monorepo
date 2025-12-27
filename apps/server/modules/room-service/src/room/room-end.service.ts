@@ -17,6 +17,7 @@ import { NatsMsgServerToClientEvents } from '@workspace/protocol';
 import { waitUntilRoomCreationCompletes } from './room-lock.helper';
 import { RoomInfoService } from './room-info.service';
 import { RoomDurationService } from './room-duration.service';
+import { PollsService } from '../polls/polls.service';
 
 /**
  * RoomEndService handles room termination and cleanup
@@ -35,6 +36,7 @@ export class RoomEndService {
         private readonly livekit: LiveKitService,
         private readonly roomInfoService: RoomInfoService,
         private readonly roomDuration: RoomDurationService,
+        private readonly pollsService: PollsService,
     ) { }
 
     /**
@@ -254,8 +256,11 @@ export class RoomEndService {
         // await this.etherpadModel.cleanAfterRoomEnd(roomId, metadata);
 
         // Step 10: Clean up any polls created during the session
-        // TODO: Implement poll model
-        // await this.pollModel.cleanUpPolls(roomId);
+        try {
+            await this.pollsService.cleanUpPolls(roomId);
+        } catch (error) {
+            this.logger.error(`Error cleaning up polls: ${error.message}`);
+        }
 
         // Step 11: Perform post-end tasks for breakout rooms, if any
         // TODO: Implement breakout room model
