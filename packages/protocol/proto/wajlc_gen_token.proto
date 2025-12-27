@@ -41,7 +41,7 @@ message UserMetadata {
   // Next ID: 12
 }
 
-message PlugNmeetTokenClaims {
+message WajlcTokenClaims {
   string name = 1;
   string user_id = 2;
   string room_id = 3;

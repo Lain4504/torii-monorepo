@@ -12,11 +12,6 @@ export class AuthController {
     return this.authServiceService.ping();
   }
 
-  @MessagePattern({ cmd: 'auth.validate-token' })
-  validateToken(@Payload() payload: { token?: string }) {
-    return this.authServiceService.validateToken(payload.token);
-  }
-
   @MessagePattern({ cmd: 'auth.signup' })
   signUp(@Payload() payload: any) {
     return this.authServiceService.signUp(payload);
@@ -30,23 +25,6 @@ export class AuthController {
   @MessagePattern({ cmd: 'auth.signout' })
   signOut() {
     return this.authServiceService.signOut();
-  }
-
-  @MessagePattern({ cmd: 'auth.token-generate' })
-  generateToken(
-    @Payload()
-    payload: {
-      roomName: string;
-      participantName: string;
-      identity: string;
-    },
-  ) {
-    return this.authServiceService.createToken(payload);
-  }
-
-  @MessagePattern({ cmd: 'file.getClientFiles' })
-  getClientFiles(@Payload() data: any) {
-    return this.authServiceService.getClientFiles(data);
   }
 }
 

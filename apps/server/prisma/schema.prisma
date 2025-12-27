@@ -44,58 +44,62 @@ model Course {
   updatedAt        DateTime  @default(now()) @updatedAt @map("updated_at")
   deletedAt        DateTime? @map("deleted_at")
 
+  // Relations
+  modules           Module[]
+
   @@index([jlptLevel])
   @@index([status])
   @@index([createdBy])
   @@map("courses")
 }
 
-model RoomInfo {
-  id                 Int         @id @default(autoincrement())
-  roomTitle          String      @default("") @map("room_title")
-  roomId             String      @db.VarChar(64) @map("room_id")
-  sid                String      @unique @db.VarChar(64) @map("sid")
-  joinedParticipants Int         @default(0) @map("joined_participants")
-  isRunning          Boolean     @default(false) @map("is_running")
-  isRecording        Boolean     @default(false) @map("is_recording")
-  recorderId         String      @default("") @db.VarChar(36) @map("recorder_id")
-  isActiveRtmp       Boolean     @default(false) @map("is_active_rtmp")
-  rtmpNodeId         String      @default("") @db.VarChar(36) @map("rtmp_node_id")
-  webhookUrl         String      @default("") @map("webhook_url")
-  metadata           Json?       @map("metadata")
+// Modules: chapters/sections that belong to a Course
+model Module {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courseId        String   @map("course_id") @db.Uuid
+  title           String   @db.VarChar(255)
+  description     String?  @db.Text
+  order           Int      @default(0)
+  durationMinutes Int?     @map("duration_minutes")
+  createdBy       String?  @map("created_by") @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at")
+  deletedAt       DateTime? @map("deleted_at")
 
-  isBreakoutRoom     Boolean     @default(false) @map("is_breakout_room")
-  parentRoomId       String      @default("") @db.VarChar(64) @map("parent_room_id")
-  creationTime       Int         @default(0) @map("creation_time")
-  createdAt          DateTime    @default(now()) @map("created")
-  endedAt            DateTime?   @map("ended")
-  modified           DateTime    @default(now()) @updatedAt @map("modified")
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
-  recordings         Recording[]
-
-  @@index([roomId, isRunning])
-  @@map("room_info")
+  @@index([courseId])
+  @@map("modules")
 }
 
-model Recording {
-  id               Int      @id @default(autoincrement())
-  recordId         String   @unique @db.VarChar(64) @map("record_id")
-  roomId           String   @db.VarChar(64) @map("room_id")
-  roomSid          String   @db.VarChar(64) @map("room_sid")
-  recorderId       String   @db.VarChar(36) @map("recorder_id")
-  filePath         String   @map("file_path")
-  size             Float    @map("size")
-  published        Boolean  @default(true) @map("published")
-  metadata         Json?    @map("metadata")
-  creationTime     Int      @default(0) @map("creation_time")
-  roomCreationTime Int      @default(0) @map("room_creation_time")
-  createdAt        DateTime @default(now()) @map("created")
-  updatedAt        DateTime @updatedAt @map("modified")
-  
-  room             RoomInfo @relation(fields: [roomSid], references: [sid])
+model RoomInfo {
+  id                 Int    @id @default(autoincrement())
+  roomTitle          String @default("") @map("room_title") @db.VarChar(255)
+  roomId             String @map("room_id") @db.VarChar(64)
+  sid                String @unique @map("sid") @db.VarChar(64)
+  joinedParticipants Int    @default(0) @map("joined_participants")
 
-  @@index([roomId])
-  @@map("recordings")
+  // Int, 1 for true 2 for false
+  isRunning    Int    @default(0) @map("is_running")
+  isRecording  Int    @default(0) @map("is_recording")
+  recorderId   String @default("") @db.VarChar(36) @map("recorder_id")
+  isActiveRtmp Int    @default(0) @map("is_active_rtmp")
+  rtmpNodeId   String @default("") @db.VarChar(36) @map("rtmp_node_id")
+  webhookUrl   String @default("") @map("webhook_url") @db.VarChar(255)
+
+  isBreakoutRoom Int       @default(0) @map("is_breakout_room")
+  parentRoomId   String    @default("") @db.VarChar(64) @map("parent_room_id")
+  creationTime   Int       @default(0) @map("creation_time")
+  created        DateTime  @default(now()) @map("created")
+  ended          DateTime? @map("ended") // Nullable - null means not ended yet (PostgreSQL compatible)
+  modified       DateTime  @default(now()) @updatedAt @map("modified")
+
+  // Relations
+  analytics RoomAnalytics[]
+  artifacts RoomArtifact[]
+
+  @@index([roomId, isRunning], map: "idx_room_id")
+  @@map("room_info")
 }
 
 model RoomFile {
@@ -111,6 +115,42 @@ model RoomFile {
 
   @@index([roomId])
   @@map("room_files")
+}
+
+model RoomAnalytics {
+  id               Int    @id @default(autoincrement())
+  roomTableId      Int    @map("room_table_id")
+  roomId           String @db.VarChar(64) @map("room_id")
+  fileId           String @map("file_id") @db.VarChar(255)
+  fileName         String @map("file_name") @db.VarChar(255)
+  fileSize         Float  @map("file_size")
+  roomCreationTime Int    @map("room_creation_time")
+  creationTime     Int    @map("creation_time")
+
+  // Relation to RoomInfo
+  roomInfo RoomInfo @relation(fields: [roomTableId], references: [id], onUpdate: Cascade, onDelete: Restrict)
+
+  @@index([roomId], map: "idx_analytics_room_id")
+  @@index([fileId], map: "idx_analytics_file_id")
+  @@map("room_analytics")
+}
+
+model RoomArtifact {
+  id          BigInt   @id @default(autoincrement())
+  artifactId  String   @unique @map("artifact_id") @db.VarChar(64)
+  roomTableId Int      @map("room_table_id")
+  roomId      String   @map("room_id") @db.VarChar(255)
+  type        String   @db.VarChar(100)
+  metadata    Json?
+  created     DateTime @default(now())
+
+  // Relation to RoomInfo
+  roomInfo RoomInfo @relation(fields: [roomTableId], references: [id], onUpdate: Cascade, onDelete: Restrict)
+
+  @@index([artifactId], map: "idx_artifact_artifact_id")
+  @@index([roomId], map: "idx_artifact_room_id")
+  @@index([type], map: "idx_artifact_type")
+  @@map("room_artifacts")
 }
 
 model User {
@@ -135,57 +175,81 @@ model User {
   updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at")
   deletedAt     DateTime? @map("deleted_at")
 
+  flashcardDecks FlashcardDeck[]
+  blogComments   BlogComment[]
+
   @@map("users")
+}
+
+// Bảng flashcard deck - Clone từ SQL schema
+model FlashcardDeck {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  name         String   @db.VarChar(255)
+  description  String?  @db.Text
+  jlptLevel    String?  @map("jlpt_level") @db.VarChar(5)
+  isPublic     Boolean  @default(false) @map("is_public")
+  tags         String[] @default([]) @db.VarChar(50)
+  cardCount    Int      @default(0) @map("card_count")
+  studiedCount Int      @default(0) @map("studied_count")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  flashcards Flashcard[]
+
+  @@index([userId])
+  @@map("flashcard_decks")
 }
 
 // Bảng flashcard - Clone từ SQL schema
 model Flashcard {
-  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  deckId         String    @map("deck_id") @db.Uuid
-  frontText      String    @map("front_text") @db.Text
-  backText       String    @map("back_text") @db.Text
-  exampleSentence String?  @map("example_sentence") @db.Text
-  pronunciation  String?   @db.Text
-  imageUrl       String?   @map("image_url") @db.Text
-  audioUrl       String?   @map("audio_url") @db.Text
-  tags           String[]  @default([]) @db.VarChar(50)
-  difficulty     String    @default("medium") @db.VarChar(20)
-  nextReviewDate DateTime? @map("next_review_date") @db.Date
-  intervalDays   Int       @default(1) @map("interval_days")
-  easeFactor     Decimal   @default(2.50) @map("ease_factor") @db.Decimal(4, 2)
-  reviewCount    Int       @default(0) @map("review_count")
-  correctCount   Int       @default(0) @map("correct_count")
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at")
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  deckId          String    @map("deck_id") @db.Uuid
+  frontText       String    @map("front_text") @db.Text
+  backText        String    @map("back_text") @db.Text
+  exampleSentence String?   @map("example_sentence") @db.Text
+  pronunciation   String?   @db.Text
+  imageUrl        String?   @map("image_url") @db.Text
+  audioUrl        String?   @map("audio_url") @db.Text
+  tags            String[]  @default([]) @db.VarChar(50)
+  difficulty      String    @default("medium") @db.VarChar(20)
+  nextReviewDate  DateTime? @map("next_review_date") @db.Date
+  intervalDays    Int       @default(1) @map("interval_days")
+  easeFactor      Decimal   @default(2.50) @map("ease_factor") @db.Decimal(4, 2)
+  reviewCount     Int       @default(0) @map("review_count")
+  correctCount    Int       @default(0) @map("correct_count")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at")
 
+  deck FlashcardDeck @relation(fields: [deckId], references: [id], onDelete: Cascade)
+
+  @@index([deckId])
   @@map("flashcards")
 }
 
 // File Assets - Source of Truth for all files in the system
 model FileAsset {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
   // File Identification
-  fileUrl     String   @unique @map("file_url") @db.Text
-  
+  fileUrl String @unique @map("file_url") @db.Text
+
   // File Details
-  mimeType    String?  @map("mime_type") @db.VarChar(100)
-  fileSize    BigInt?  @map("file_size")
-  isPublic    Boolean  @default(false) @map("is_public")
-  
+  mimeType String? @map("mime_type") @db.VarChar(100)
+  fileSize BigInt? @map("file_size")
+  isPublic Boolean @default(false) @map("is_public")
+
   // Upload Status: 'pending' | 'uploaded' | 'failed'
-  status      String   @default("pending") @db.VarChar(20)
-  
+  status String @default("pending") @db.VarChar(20)
+
   // Flexible Metadata (JSONB)
-  metadata    Json?    @default("{}") @map("metadata")
-  
-  // Ownership
-  ownerId     String?  @map("owner_id") @db.Uuid
+  metadata     Json?   @default("{}") @map("metadata")
+  ownerId      String? @map("owner_id") @db.Uuid
   moduleOrigin String? @map("module_origin") @db.VarChar(50) // 'USER', 'COURSE', 'CHAT'
-  
-  // Timestamps
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@index([ownerId])
   @@index([fileUrl])
@@ -193,3 +257,99 @@ model FileAsset {
   @@map("file_assets")
 }
 
+// Blog Posts
+model BlogPost {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title          String    @db.VarChar(255)
+  slug           String    @unique @db.VarChar(255)
+  excerpt        String?   @db.VarChar(500)
+  content        String    @db.Text
+  coverImageUrl  String?   @map("cover_image_url") @db.Text
+  authorId       String    @map("author_id") @db.Uuid
+  status         String    @default("draft") @db.VarChar(20) // draft, published, archived
+  publishedAt    DateTime? @map("published_at")
+  viewCount      Int       @default(0) @map("view_count")
+  likeCount      Int       @default(0) @map("like_count")
+  commentCount   Int       @default(0) @map("comment_count")
+  tags           String[]  @default([]) @db.VarChar(50)
+  seoTitle       String?   @map("seo_title") @db.VarChar(255)
+  seoDescription String?   @map("seo_description") @db.Text
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  comments       BlogComment[]
+
+  @@index([status])
+  @@index([publishedAt(sort: Desc)])
+  @@index([authorId])
+  @@map("blog_posts")
+}
+
+// Blog Comments - Comments on blog posts with nested replies support
+model BlogComment {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  postId          String    @map("post_id") @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  parentCommentId String?   @map("parent_comment_id") @db.Uuid // For nested replies
+  content         String    @db.Text
+  status          String    @default("approved") @db.VarChar(20) // pending, approved, spam, deleted
+  likes           Int       @default(0)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamp()
+  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamp()
+
+  post            BlogPost  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent          BlogComment?  @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
+  replies         BlogComment[] @relation("CommentReplies")
+
+  @@index([postId])
+  @@index([userId])
+  @@index([parentCommentId])
+  @@index([createdAt(sort: Desc)])
+  @@map("blog_comments")
+}
+
+// Question Bank - Bank of questions for quizzes and assessments
+model QuestionBank {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  questionText  String   @map("question_text") @db.Text
+  questionType  String   @map("question_type") @db.VarChar(30)
+  jlptLevel     String?  @map("jlpt_level") @db.VarChar(5)
+  category      String?  @db.VarChar(50)
+  subcategory   String?  @db.VarChar(50)
+  difficulty    String?  @db.VarChar(20)
+  options       Json?    @db.JsonB // { "A": "text", "B": "text", ... }
+  correctAnswer String?  @map("correct_answer") @db.Text
+  explanation   String?  @db.Text
+  tags          String[] @default([]) @db.VarChar(50)
+  createdBy     String?  @map("created_by") @db.Uuid
+  status        String   @default("active") @db.VarChar(20)
+  usageCount    Int      @default(0) @map("usage_count")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@index([questionType])
+  @@index([jlptLevel])
+  @@index([difficulty])
+  @@index([status])
+  @@map("question_bank")
+}
+
+// Notification model - matches database.sql schema
+model Notification {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId           String    @map("user_id") @db.Uuid
+  title            String    @db.VarChar(255)
+  message          String    @db.Text
+  notificationType String?   @map("notification_type") @db.VarChar(50)
+  data             Json?     @map("data")
+  isRead           Boolean   @default(false) @map("is_read")
+  readAt           DateTime? @map("read_at")
+  sentVia          String[]  @default([]) @map("sent_via") @db.VarChar(20)
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}

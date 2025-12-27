@@ -22,9 +22,9 @@ export class FlashcardController implements OnModuleInit {
     }
 
     @MessagePattern({ cmd: 'flashcard.create' })
-    createFlashcard(@Payload() data: CreateFlashcardRequestDto) {
-        this.logger.log('Received flashcard.create request');
-        return this.flashcardService.createFlashcard(data);
+    createFlashcard(@Payload() data: { userId: string; input: CreateFlashcardRequestDto }) {
+        this.logger.log(`Received flashcard.create request for user ${data.userId}`);
+        return this.flashcardService.createFlashcard(data.userId, data.input);
     }
 
     @MessagePattern({ cmd: 'flashcard.getAll' })
@@ -33,8 +33,9 @@ export class FlashcardController implements OnModuleInit {
     }
 
     @MessagePattern({ cmd: 'flashcard.update' })
-    updateFlashcard(@Payload() data: UpdateFlashcardRequestDto) {
-        return this.flashcardService.updateFlashcard(data);
+    updateFlashcard(@Payload() data: { userId: string; input: UpdateFlashcardRequestDto }) {
+        this.logger.log(`Received flashcard.update request for user ${data.userId}`);
+        return this.flashcardService.updateFlashcard(data.userId, data.input);
     }
 
     @MessagePattern({ cmd: 'flashcard.delete' })

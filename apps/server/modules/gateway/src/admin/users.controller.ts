@@ -6,7 +6,6 @@ import { PaginatedResponseDto, UserResponseDto, UpdateUserDto, CreateUserDto } f
 import { JwtGuard, RoleGuard } from '@server/shared';
 import { Roles } from '@server/shared';
 
-@ApiTags('admin/users')
 @Controller('admin/users')
 @UseGuards(JwtGuard, RoleGuard)
 @ApiBearerAuth('access-token')

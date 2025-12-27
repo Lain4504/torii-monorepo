@@ -1,5 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
+import { ClientProxy } from '@nestjs/microservices';
 import { PrismaService, generateSlug } from '@server/shared';
 import { Course } from '@prisma/generated';
 import { PaginatedResponseDto, CourseResponseDto } from '@workspace/dtos';
@@ -16,7 +17,10 @@ import {
 export class CourseService {
   private readonly logger = new Logger(CourseService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
+  ) {}
 
   /**
    * Map Course entity to CourseResponseDto
@@ -304,11 +308,13 @@ export class CourseService {
       }
       
       // Status: only update if provided and different from existing
+      let isPublishingCourse = false;
       if (input.status !== undefined && input.status !== existing.status) {
         updateData.status = input.status;
         
         // If status is being changed to published, set approvedBy and approvedAt
         if (input.status === CourseStatus.PUBLISHED) {
+          isPublishingCourse = true;
           // Only set approvedBy if it's a valid UUID format
           const validApprovedBy = input.approvedBy && 
             typeof input.approvedBy === 'string' && 
@@ -375,6 +381,31 @@ export class CourseService {
         where: { id },
         data: updateData,
       });
+
+      // Emit event if course is being published
+      if (isPublishingCourse) {
+        try {
+          this.logger.log(`Course ${course.id} published, emitting course.published event`);
+          
+          // For testing: Use MOCK_USER_ID to send notification
+          // In production, this should be replaced with actual interested users (from wishlist, etc.)
+          const MOCK_USER_ID = '5e808603-1e54-4dc9-ae93-f1e347c101ab';
+          
+          this.natsClient.emit(
+            { cmd: 'course.published' },
+            {
+              courseId: course.id,
+              courseTitle: course.title,
+              courseJlptLevel: course.jlptLevel,
+              userIds: [MOCK_USER_ID], // Send notification to MOCK_USER_ID for testing
+            },
+          );
+          this.logger.log(`Successfully emitted course.published event for course: ${course.id} with userIds: [${MOCK_USER_ID}]`);
+        } catch (error: any) {
+          // Log error but don't fail the update
+          this.logger.error(`Failed to emit course.published event: ${error?.message}`, error);
+        }
+      }
 
       return this.toCourseResponseDto(course);
     } catch (error: any) {

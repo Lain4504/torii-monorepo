@@ -62,7 +62,7 @@ message RoomArtifactCharacterCountUsage {
 }
 
 // RoomArtifactMetadata is the universal structure for the 'metadata' JSON field
-// in the pnm_room_artifacts table. All fields are optional.
+// in the wajlc_room_artifacts table. All fields are optional.
 message RoomArtifactMetadata {
   // Optional: Information about the user who initiated or is associated with the artifact.
   RoomArtifactUserInfo user_info = 1;
