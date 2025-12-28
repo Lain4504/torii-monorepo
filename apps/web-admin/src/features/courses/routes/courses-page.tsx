@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useCourses } from '@/features/courses/api/courses';
 import { Button } from '@workspace/ui/components/button';
 import { CoursesTable } from '@/features/courses/components/courses-table';
@@ -30,6 +31,8 @@ export default function CoursesPage() {
   };
 
   const { data: coursesData, isLoading, error } = useCourses(queryParams);
+
+  const navigate = useNavigate();
 
   const courses = coursesData?.data || [];
   const meta = coursesData?.meta;
@@ -76,6 +79,7 @@ export default function CoursesPage() {
         onEdit={setEditingCourse}
         onDelete={setDeletingCourse}
         onView={setViewingCourse}
+        onModules={(course) => navigate(`/modules?courseId=${course.id}`)}
         page={page}
         limit={queryParams.limit || 10}
       />
