@@ -15,7 +15,8 @@ export default function LessonsPage() {
   const [search, setSearch] = useState('');
   const [contentTypeFilter, setContentTypeFilter] = useState<string>('');
   const location = useLocation();
-  const [moduleIdFilter, setModuleIdFilter] = useState(() => new URLSearchParams(location.search).get('moduleId') || '');
+  // @ts-ignore
+    const [moduleIdFilter, setModuleIdFilter] = useState(() => new URLSearchParams(location.search).get('moduleId') || '');
   const [statusFilter, setStatusFilter] = useState('');
 
   // Dialog States

@@ -4,17 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add initial React + TypeScript + Vite template with ESLint configuration for meet">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/courses/components/courses-columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/features/courses/components/courses-columns.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/courses/components/courses-table.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/features/courses/components/courses-table.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/courses/components/create-course-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/features/courses/components/create-course-dialog.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/courses/components/delete-course-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/features/courses/components/delete-course-dialog.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/courses/components/edit-course-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/features/courses/components/edit-course-dialog.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/courses/routes/courses-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/features/courses/routes/courses-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/question-bank/components/question-bank-columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/features/question-bank/components/question-bank-columns.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/users/components/create-user-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/features/users/components/create-user-dialog.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/users/components/users-primary-toolbar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/features/users/components/users-primary-toolbar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,7 +23,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="main" />
+        <entry key="$PROJECT_DIR$" value="poll-feature-meet" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -46,17 +38,24 @@
     &quot;state&quot;: &quot;OPEN&quot;
   }
 }</component>
-  <component name="GitHubPullRequestState">{
-  &quot;prStates&quot;: [
+  <component name="GitHubPullRequestState"><![CDATA[{
+  "prStates": [
     {
-      &quot;id&quot;: {
-        &quot;id&quot;: &quot;PR_kwDOQmD9iM66sc24&quot;,
-        &quot;number&quot;: 35
+      "id": {
+        "id": "PR_kwDOQmD9iM66sc24",
+        "number": 35
       },
-      &quot;lastSeen&quot;: 1766837511440
+      "lastSeen": 1766837511440
+    },
+    {
+      "id": {
+        "id": "PR_kwDOQmD9iM66twAD",
+        "number": 38
+      },
+      "lastSeen": 1766885614934
     }
   ]
-}</component>
+}]]></component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/Lain4504/torii-monorepo.git&quot;,
@@ -85,7 +84,7 @@
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
     "RunOnceActivity.git.unshallow": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "update-logic-admin-panel",
+    "git-widget-placeholder": "main",
     "junie.onboarding.icon.badge.shown": "true",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -122,6 +121,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
       </list>
     </recent_temporary>
@@ -170,38 +170,6 @@
       <workItem from="1766734238257" duration="5995000" />
       <workItem from="1766812088279" duration="123000" />
       <workItem from="1766826149900" duration="3567000" />
-    </task>
-    <task id="LOCAL-00294" summary="fix to can run">
-      <option name="closed" value="true" />
-      <created>1766584455777</created>
-      <option name="number" value="00294" />
-      <option name="presentableId" value="LOCAL-00294" />
-      <option name="project" value="LOCAL" />
-      <updated>1766584455777</updated>
-    </task>
-    <task id="LOCAL-00295" summary="fix to can run">
-      <option name="closed" value="true" />
-      <created>1766589063314</created>
-      <option name="number" value="00295" />
-      <option name="presentableId" value="LOCAL-00295" />
-      <option name="project" value="LOCAL" />
-      <updated>1766589063315</updated>
-    </task>
-    <task id="LOCAL-00296" summary="fix to can run">
-      <option name="closed" value="true" />
-      <created>1766592165707</created>
-      <option name="number" value="00296" />
-      <option name="presentableId" value="LOCAL-00296" />
-      <option name="project" value="LOCAL" />
-      <updated>1766592165707</updated>
-    </task>
-    <task id="LOCAL-00297" summary="fix to can run">
-      <option name="closed" value="true" />
-      <created>1766592705336</created>
-      <option name="number" value="00297" />
-      <option name="presentableId" value="LOCAL-00297" />
-      <option name="project" value="LOCAL" />
-      <updated>1766592705336</updated>
     </task>
     <task id="LOCAL-00298" summary="fix to can run">
       <option name="closed" value="true" />
@@ -563,7 +531,39 @@
       <option name="project" value="LOCAL" />
       <updated>1766844724815</updated>
     </task>
-    <option name="localTasksCounter" value="343" />
+    <task id="LOCAL-00343" summary="feat: add initial React + TypeScript + Vite template with ESLint configuration for meet">
+      <option name="closed" value="true" />
+      <created>1766886077094</created>
+      <option name="number" value="00343" />
+      <option name="presentableId" value="LOCAL-00343" />
+      <option name="project" value="LOCAL" />
+      <updated>1766886077095</updated>
+    </task>
+    <task id="LOCAL-00344" summary="feat: add initial React + TypeScript + Vite template with ESLint configuration for meet">
+      <option name="closed" value="true" />
+      <created>1766886779344</created>
+      <option name="number" value="00344" />
+      <option name="presentableId" value="LOCAL-00344" />
+      <option name="project" value="LOCAL" />
+      <updated>1766886779344</updated>
+    </task>
+    <task id="LOCAL-00345" summary="feat: add initial React + TypeScript + Vite template with ESLint configuration for meet">
+      <option name="closed" value="true" />
+      <created>1766886923345</created>
+      <option name="number" value="00345" />
+      <option name="presentableId" value="LOCAL-00345" />
+      <option name="project" value="LOCAL" />
+      <updated>1766886923345</updated>
+    </task>
+    <task id="LOCAL-00346" summary="feat: add initial React + TypeScript + Vite template with ESLint configuration for meet">
+      <option name="closed" value="true" />
+      <created>1766888637054</created>
+      <option name="number" value="00346" />
+      <option name="presentableId" value="LOCAL-00346" />
+      <option name="project" value="LOCAL" />
+      <updated>1766888637054</updated>
+    </task>
+    <option name="localTasksCounter" value="347" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -616,7 +616,8 @@
     <MESSAGE value="chore(docker): enhance Docker setup with LiveKit configuration and streamline service definitions" />
     <MESSAGE value="refactor: standardize import paths for feature components" />
     <MESSAGE value="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components" />
+    <MESSAGE value="feat: add initial React + TypeScript + Vite template with ESLint configuration for meet" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: add initial React + TypeScript + Vite template with ESLint configuration for meet" />
   </component>
   <component name="com.apollographql.ijplugin.settings.ProjectSettingsState">
     <option name="lspPassPathToSuperGraphYaml" value="false" />
