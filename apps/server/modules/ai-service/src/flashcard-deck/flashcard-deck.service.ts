@@ -12,12 +12,13 @@ import {
   UpdateFlashcardDeckDto,
   UpdateFlashcardDeckResponseDto,
 } from '@workspace/dtos';
+import { UserRole, UserStatus } from '@workspace/schemas';
 
 @Injectable()
 export class FlashcardDeckService {
   private readonly logger = new Logger(FlashcardDeckService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   /**
    * Map FlashcardDeck entity to FlashcardDeckDto
@@ -71,6 +72,7 @@ export class FlashcardDeckService {
     data: CreateFlashcardDeckDto,
   ): Promise<CreateFlashcardDeckResponseDto> {
     try {
+
       // Auto-create user if not exists (user management not fully implemented yet)
       // This ensures foreign key constraint is satisfied
       await this.prisma.user.upsert({
@@ -79,6 +81,10 @@ export class FlashcardDeckService {
           id: userId,
           email: `user-${userId}@temp.com`, // Temporary email, will be updated when user management is complete
           fullName: 'User', // Temporary name, will be updated when user management is complete
+          password: '', // Placeholder
+          salt: '', // Placeholder
+          role: UserRole.LEARNER,
+          status: UserStatus.ACTIVE,
         },
         update: {}, // Don't update if user already exists
       });

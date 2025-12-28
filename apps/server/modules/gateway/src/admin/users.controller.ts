@@ -3,18 +3,18 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { PaginatedResponseDto, UserResponseDto, UpdateUserDto, CreateUserDto } from '@workspace/dtos';
-import { JwtGuard, RoleGuard } from '@server/shared';
-import { Roles } from '@server/shared';
+import { UserRole } from '@workspace/schemas';
+import { RemoteAuthGuard, RolesGuard, Roles } from '@server/shared';
 
 @Controller('admin/users')
-@UseGuards(JwtGuard, RoleGuard)
+@UseGuards(RemoteAuthGuard, RolesGuard)
 export class UsersController {
     constructor(
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     ) { }
 
     @Get()
-    @Roles('admin')
+    @Roles(UserRole.ADMIN)
     @ApiOperation({ summary: 'Get all users' })
     async findAll(
         @Query('page') page: number = 1,
@@ -30,7 +30,7 @@ export class UsersController {
     }
 
     @Get(':id')
-    @Roles('admin')
+    @Roles(UserRole.ADMIN)
     @ApiOperation({ summary: 'Get user by ID' })
     async findOne(@Param('id') id: string) {
         const pattern = { cmd: 'users.findOne' };
@@ -45,7 +45,7 @@ export class UsersController {
      * Create new user
      */
     @Post()
-    @Roles('admin')
+    @Roles(UserRole.ADMIN)
     @ApiOperation({ summary: 'Create new user' })
     async create(@Body() createUserDto: CreateUserDto) {
         const pattern = { cmd: 'users.create' };
@@ -57,7 +57,7 @@ export class UsersController {
     }
 
     @Patch(':id')
-    @Roles('admin')
+    @Roles(UserRole.ADMIN)
     @ApiOperation({ summary: 'Update user' })
     async update(
         @Param('id') id: string,
@@ -72,7 +72,7 @@ export class UsersController {
     }
 
     @Delete(':id')
-    @Roles('admin')
+    @Roles(UserRole.ADMIN)
     async delete(
         @Param('id') id: string,
         @Query('hardDelete') hardDelete?: string,

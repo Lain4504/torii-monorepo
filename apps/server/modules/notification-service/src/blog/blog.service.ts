@@ -1,6 +1,5 @@
-import { Injectable, NotFoundException, BadRequestException, Logger, Inject } from '@nestjs/common';
-import { PrismaService, SUPABASE_CLIENT, generateSlug } from '@server/shared';
-import { SupabaseClient } from '@supabase/supabase-js';
+import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
+import { PrismaService, generateSlug } from '@server/shared';
 import {
   CreateBlogPostDto,
   UpdateBlogPostDto,
@@ -14,8 +13,7 @@ export class BlogService {
 
   constructor(
     private readonly prisma: PrismaService,
-    @Inject(SUPABASE_CLIENT) private readonly supabase: SupabaseClient,
-  ) {}
+  ) { }
 
   /**
    * Ensure unique slug by appending date and timestamp if needed
@@ -44,7 +42,7 @@ export class BlogService {
   async createPost(dto: CreateBlogPostDto) {
     // Auto-generate slug from title if not provided
     const baseSlug = dto.slug || generateSlug(dto.title);
-    
+
     // Auto-generate unique slug if slug already exists (using date format)
     const slug = await this.ensureUniqueSlug(
       baseSlug,
@@ -64,13 +62,13 @@ export class BlogService {
       throw new BadRequestException('Author ID is required');
     }
 
-    // Check if author exists in Supabase Auth
-    const { data: user, error } = await this.supabase.auth.admin.getUserById(
-      dto.authorId,
-    );
+    // Check if author exists in User table
+    const user = await this.prisma.user.findUnique({
+      where: { id: dto.authorId },
+    });
 
-    if (error || !user) {
-      throw new NotFoundException(`Author with id "${dto.authorId}" not found in Supabase Auth`);
+    if (!user) {
+      throw new NotFoundException(`Author with id "${dto.authorId}" not found`);
     }
 
     // Create post (matching SQL schema)
@@ -93,8 +91,8 @@ export class BlogService {
     // Images are stored in FileAsset table via storage service
     // No need to handle images here - they are managed by storage service
 
-    // Lấy author info từ Supabase và format response
-    return this.formatPostResponseWithSupabaseAuthor(post);
+    // Format response with author info
+    return this.formatPostResponseWithAuthor(post);
   }
 
   async findAllPosts(query: BlogPostQueryDto) {
@@ -146,7 +144,7 @@ export class BlogService {
     ]);
 
     return {
-      data: await Promise.all(posts.map((post) => this.formatPostResponseWithSupabaseAuthor(post))),
+      data: await Promise.all(posts.map((post) => this.formatPostResponseWithAuthor(post))),
       meta: {
         page,
         limit,
@@ -167,7 +165,7 @@ export class BlogService {
       throw new NotFoundException(`Post with id "${id}" not found`);
     }
 
-    return this.formatPostResponseWithSupabaseAuthor(post);
+    return this.formatPostResponseWithAuthor(post);
   }
 
   async updatePost(id: string, dto: UpdateBlogPostDto) {
@@ -206,12 +204,12 @@ export class BlogService {
     }
 
     const updateData: any = { ...dto };
-    
+
     // Update slug if it was regenerated
     if (slug !== existing.slug) {
       updateData.slug = slug;
     }
-    
+
     if (dto.publishedAt) {
       updateData.publishedAt = new Date(dto.publishedAt);
     }
@@ -226,7 +224,7 @@ export class BlogService {
       data: updateData,
     });
 
-    return this.formatPostResponseWithSupabaseAuthor(post);
+    return this.formatPostResponseWithAuthor(post);
   }
 
   async deletePost(id: string) {
@@ -249,20 +247,26 @@ export class BlogService {
   // HELPER METHODS
   // =========================
 
-  private async formatPostResponseWithSupabaseAuthor(post: any) {
-    // Lấy author info từ Supabase
-    let authorInfo: { id: string; fullName: string; avatarUrl: string | null } | null = null;
-    
+  private async formatPostResponseWithAuthor(post: any) {
+    // Get author info from User table
+    let authorInfo: { id: string; fullName: string; email: string } | null = null;
+
     if (post.authorId) {
       try {
-        const { data: user, error } = await this.supabase.auth.admin.getUserById(
-          post.authorId,
-        );
-        if (user && user.user) {
+        const user = await this.prisma.user.findUnique({
+          where: { id: post.authorId },
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+          },
+        });
+
+        if (user) {
           authorInfo = {
-            id: user.user.id,
-            fullName: user.user.user_metadata?.full_name || user.user.user_metadata?.name || user.user.email || 'Unknown',
-            avatarUrl: user.user.user_metadata?.avatar_url || null,
+            id: user.id,
+            fullName: user.fullName || user.email || 'Unknown',
+            email: user.email,
           };
         }
       } catch (error: any) {
