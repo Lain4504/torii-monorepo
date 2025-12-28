@@ -8,7 +8,7 @@ import { CreateCourseDialog } from '@/features/courses/components/create-course-
 import { EditCourseDialog } from '@/features/courses/components/edit-course-dialog';
 import { DeleteCourseDialog } from '@/features/courses/components/delete-course-dialog';
 import { ViewCourseDialog } from '@/features/courses/components/view-course-dialog';
-import type { CourseQueryDto, CourseResponseDto } from '@workspace/dtos';
+import type { CourseQueryDTO, CourseResponseDTO } from '@workspace/schemas';
 
 export default function CoursesPage() {
   const [page, setPage] = useState(1);
@@ -18,11 +18,11 @@ export default function CoursesPage() {
 
   // Dialog States
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [editingCourse, setEditingCourse] = useState<CourseResponseDto | null>(null);
-  const [deletingCourse, setDeletingCourse] = useState<CourseResponseDto | null>(null);
-  const [viewingCourse, setViewingCourse] = useState<CourseResponseDto | null>(null);
+  const [editingCourse, setEditingCourse] = useState<CourseResponseDTO | null>(null);
+  const [deletingCourse, setDeletingCourse] = useState<CourseResponseDTO | null>(null);
+  const [viewingCourse, setViewingCourse] = useState<CourseResponseDTO | null>(null);
 
-  const queryParams: CourseQueryDto = {
+  const queryParams: CourseQueryDTO = {
     page,
     limit: 10,
     ...(search && { search }),
@@ -35,7 +35,12 @@ export default function CoursesPage() {
   const navigate = useNavigate();
 
   const courses = coursesData?.data || [];
-  const meta = coursesData?.meta;
+  const meta = coursesData ? {
+    total: coursesData.total,
+    totalPages: coursesData.totalPages,
+    page: coursesData.page,
+    limit: coursesData.limit
+  } : null;
 
   if (isLoading) {
     return (

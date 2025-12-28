@@ -1,7 +1,11 @@
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { ModuleService } from './module.service';
-import { ModuleQueryDto, CreateModuleDto, UpdateModuleRequestDto } from '@workspace/dtos';
+import {
+  type ModuleCreateDTO,
+  type ModuleUpdateDTO,
+  type ModuleQueryDTO,
+} from '@workspace/schemas';
 
 @Controller()
 export class ModuleController {
@@ -12,7 +16,7 @@ export class ModuleController {
   }
 
   @MessagePattern({ cmd: 'module.findAll' })
-  async findAll(@Payload() query: ModuleQueryDto) {
+  async findAll(@Payload() query: ModuleQueryDTO) {
     return await this.moduleService.findAll(query);
   }
 
@@ -22,13 +26,13 @@ export class ModuleController {
   }
 
   @MessagePattern({ cmd: 'module.create' })
-  async create(@Payload() input: CreateModuleDto) {
+  async create(@Payload() input: ModuleCreateDTO) {
     this.logger.log('Received module.create request');
     return await this.moduleService.create(input);
   }
 
   @MessagePattern({ cmd: 'module.update' })
-  async update(@Payload() data: UpdateModuleRequestDto) {
+  async update(@Payload() data: { id: string; input: ModuleUpdateDTO }) {
     return await this.moduleService.update(data.id, data.input);
   }
 

@@ -2,16 +2,21 @@ import { Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { PrismaService } from '@server/shared';
 import { Lesson } from '@prisma/generated';
-import { PaginatedResponseDto, LessonResponseDto } from '@workspace/dtos';
-import { LessonQueryDto, CreateLessonDto, UpdateLessonDto } from '@workspace/dtos';
+import {
+  type PaginatedResponse,
+  type LessonResponseDTO,
+  type LessonCreateDTO,
+  type LessonQueryDTO,
+  type LessonUpdateDTO,
+} from '@workspace/schemas';
 
 @Injectable()
 export class LessonService {
   private readonly logger = new Logger(LessonService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
-  private toLessonResponseDto(lesson: Lesson): LessonResponseDto {
+  private toLessonResponseDto(lesson: Lesson): LessonResponseDTO {
     return {
       id: lesson.id,
       moduleId: lesson.moduleId,
@@ -30,10 +35,10 @@ export class LessonService {
     };
   }
 
-  async findAll(query: LessonQueryDto): Promise<PaginatedResponseDto<LessonResponseDto>> {
+  async findAll(query: LessonQueryDTO): Promise<PaginatedResponse<LessonResponseDTO>> {
     try {
       const { page = 1, limit = 10, moduleId, contentType, search } = query;
-      const skip = (page - 1) * limit;
+      const skip = (Number(page) - 1) * Number(limit);
 
       const whereClause: Record<string, any> = { deletedAt: null };
 
@@ -50,54 +55,40 @@ export class LessonService {
       const [total, lessons] = await Promise.all([
         this.prisma.lesson.count({ where: whereClause }),
         this.prisma.lesson.findMany({
-          take: limit,
+          take: Number(limit),
           skip,
           where: whereClause,
           orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
         }),
       ]);
 
-      const totalPages = Math.ceil(total / limit);
+      const totalPages = Math.ceil(total / Number(limit));
 
       return {
-        success: true,
-        message: `${lessons.length} lesson(s) retrieved successfully`,
-        error: '',
         data: lessons.map(l => this.toLessonResponseDto(l)),
-        meta: {
-          page,
-          limit,
-          total,
-          totalPages,
-          hasNext: page < totalPages,
-          hasPrev: page > 1,
-        },
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        totalPages,
       };
     } catch (error: any) {
       this.logger.error('Failed to retrieve lessons', error);
       return {
-        success: false,
-        message: 'Failed to retrieve lessons',
-        error: error?.message || 'Unknown error',
         data: [],
-        meta: {
-          page: query.page || 1,
-          limit: query.limit || 10,
-          total: 0,
-          totalPages: 0,
-          hasNext: false,
-          hasPrev: false,
-        },
+        total: 0,
+        page: query.page ? Number(query.page) : 1,
+        limit: query.limit ? Number(query.limit) : 10,
+        totalPages: 0,
       };
     }
   }
 
-  async findOne(id: string): Promise<LessonResponseDto | null> {
+  async findOne(id: string): Promise<LessonResponseDTO | null> {
     const lesson = await this.prisma.lesson.findFirst({ where: { id, deletedAt: null } });
     return lesson ? this.toLessonResponseDto(lesson) : null;
   }
 
-  async create(input: CreateLessonDto): Promise<LessonResponseDto> {
+  async create(input: LessonCreateDTO): Promise<LessonResponseDTO> {
     try {
       // Validate module exists
       const module = await this.prisma.module.findFirst({ where: { id: input.moduleId, deletedAt: null } });
@@ -133,7 +124,7 @@ export class LessonService {
     }
   }
 
-  async update(id: string, input: UpdateLessonDto): Promise<LessonResponseDto> {
+  async update(id: string, input: LessonUpdateDTO): Promise<LessonResponseDTO> {
     const existing = await this.prisma.lesson.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       throw new RpcException({ status: 404, message: `Lesson ${id} not found` });
@@ -171,7 +162,7 @@ export class LessonService {
     return true;
   }
 
-  async restore(id: string): Promise<LessonResponseDto> {
+  async restore(id: string): Promise<LessonResponseDTO> {
     const existing = await this.prisma.lesson.findFirst({ where: { id } });
     if (!existing) {
       throw new RpcException({ status: 404, message: `Lesson ${id} not found` });

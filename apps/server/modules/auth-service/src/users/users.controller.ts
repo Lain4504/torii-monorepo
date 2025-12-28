@@ -1,36 +1,55 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
+import type { UserUpdateDTO, Requester } from '@workspace/schemas';
 import { UsersService } from './users.service';
-import { FindAllUsersParamsDto, UpdateUserDto, CreateUserDto } from '@workspace/dtos';
 
 @Controller()
 export class UsersController {
     constructor(private readonly usersService: UsersService) { }
 
     @MessagePattern({ cmd: 'users.findAll' })
-    findAll(@Payload() data: FindAllUsersParamsDto) {
-        return this.usersService.findAll(data);
+    async findAll(@Payload() payload: { page: number; limit: number; search?: string }) {
+        const result = await this.usersService.findAll(payload);
+        return { success: true, data: result };
     }
 
     @MessagePattern({ cmd: 'users.findOne' })
-    findOne(@Payload() data: { id: string }) {
-        return this.usersService.findOne(data.id);
+    async findOne(@Payload() payload: { id: string }) {
+        const user = await this.usersService.findOne(payload.id);
+        return { success: true, data: user };
     }
 
     @MessagePattern({ cmd: 'users.create' })
-    create(@Payload() data: CreateUserDto) {
-        return this.usersService.create(data);
+    async create(@Payload() payload: { email: string; fullName: string; password: string; role?: string; status?: string }) {
+        const user = await this.usersService.create(payload as any);
+        return { success: true, data: user };
+    }
+
+    @MessagePattern({ cmd: 'user.profile' })
+    async profile(@Payload() userId: string) {
+        const user = await this.usersService.profile(userId);
+        return { success: true, data: user };
     }
 
     @MessagePattern({ cmd: 'users.update' })
-    update(@Payload() data: any) {
-        const { id, ...updateUserDto } = data;
-        return this.usersService.update(id, updateUserDto);
+    async update(@Payload() payload: { id: string; requester?: Requester } & UserUpdateDTO) {
+        const { id, requester, ...dto } = payload;
+        // For now, if no requester is provided, assume it's an admin operation
+        const req = requester || { sub: id, role: 'admin' as any };
+        const user = await this.usersService.update(req, id, dto);
+        return { success: true, data: user };
     }
+
+
 
     @MessagePattern({ cmd: 'users.delete' })
-    delete(@Payload() data: { id: string; hardDelete?: boolean }) {
-        return this.usersService.delete(data.id, data.hardDelete || false);
+    async delete(@Payload() payload: { id: string; requester?: Requester; hardDelete?: boolean }) {
+        const { id, requester, hardDelete = false } = payload;
+        // For now, if no requester is provided, assume it's an admin operation
+        const req = requester || { sub: id, role: 'admin' as any };
+        const result = await this.usersService.delete(req, id, hardDelete);
+        return { success: true, ...result };
     }
-}
 
+
+}

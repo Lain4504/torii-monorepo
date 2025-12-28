@@ -1,5 +1,5 @@
 import { createColumnHelper } from '@tanstack/react-table';
-import type { CourseResponseDto } from '@workspace/dtos';
+import type { CourseResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
 import { ArrowUpDown, MoreHorizontal, Pencil, Trash, Eye, Layers } from 'lucide-react';
 import {
@@ -11,13 +11,13 @@ import {
     DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu';
 
-const columnHelper = createColumnHelper<CourseResponseDto>();
+const columnHelper = createColumnHelper<CourseResponseDTO>();
 
 export type CoursesColumnsProps = {
-    onView: (course: CourseResponseDto) => void;
-    onEdit: (course: CourseResponseDto) => void;
-    onDelete: (course: CourseResponseDto) => void;
-    onModules: (course: CourseResponseDto) => void;
+    onView: (course: CourseResponseDTO) => void;
+    onEdit: (course: CourseResponseDTO) => void;
+    onDelete: (course: CourseResponseDTO) => void;
+    onModules: (course: CourseResponseDTO) => void;
     page: number;
     limit: number;
 };

@@ -7,12 +7,12 @@ import {
 } from '@workspace/ui/components/dialog';
 import { Badge } from '@workspace/ui/components/badge';
 import { Label } from '@workspace/ui/components/label';
-import type { LessonResponseDto } from '@workspace/dtos';
+import type { LessonResponseDTO } from '@workspace/schemas';
 
 interface ViewLessonDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    lesson: LessonResponseDto | null;
+    lesson: LessonResponseDTO | null;
 }
 
 export function ViewLessonDialog({ open, onOpenChange, lesson }: ViewLessonDialogProps) {

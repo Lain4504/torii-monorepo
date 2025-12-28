@@ -7,12 +7,12 @@ import {
 } from '@workspace/ui/components/dialog';
 import { Badge } from '@workspace/ui/components/badge';
 import { Label } from '@workspace/ui/components/label';
-import type { QuestionBankDto } from '@workspace/dtos';
+import type { QuestionBankResponseDTO } from '@workspace/schemas';
 
 interface ViewQuestionBankDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    question: QuestionBankDto | null;
+    question: QuestionBankResponseDTO | null;
 }
 
 export function ViewQuestionBankDialog({

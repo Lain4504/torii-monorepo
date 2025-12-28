@@ -6,7 +6,7 @@ import { EditUserDialog } from '@/features/users/components/edit-user-dialog';
 import { DeleteUserDialog } from '@/features/users/components/delete-user-dialog';
 import { ViewUserDialog } from '@/features/users/components/view-user-dialog';
 import { useUsers } from '@/features/users/api/users';
-import type { UserResponseDto } from '@workspace/dtos';
+import type { UserResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
 
 export function UsersPage() {
@@ -18,9 +18,9 @@ export function UsersPage() {
 
     // Dialog States
     const [showCreateDialog, setShowCreateDialog] = useState(false);
-    const [editingUser, setEditingUser] = useState<UserResponseDto | null>(null);
-    const [deletingUser, setDeletingUser] = useState<UserResponseDto | null>(null);
-    const [viewingUser, setViewingUser] = useState<UserResponseDto | null>(null);
+    const [editingUser, setEditingUser] = useState<UserResponseDTO | null>(null);
+    const [deletingUser, setDeletingUser] = useState<UserResponseDTO | null>(null);
+    const [viewingUser, setViewingUser] = useState<UserResponseDTO | null>(null);
 
     // API Hooks
     // Fetch all for client-side filtering support as per legacy logic
@@ -29,7 +29,7 @@ export function UsersPage() {
 
     // Derived Data (Client-side filtering/sorting)
     const processedUsers = useMemo(() => {
-        let result = (data?.data || []) as UserResponseDto[];
+        let result = (data?.data || []) as UserResponseDTO[];
 
         // Filter by role
         if (filters.role) {
@@ -42,8 +42,8 @@ export function UsersPage() {
 
         // Sort
         return result.sort((a, b) => {
-            let aValue: any = a[sortBy as keyof UserResponseDto];
-            let bValue: any = b[sortBy as keyof UserResponseDto];
+            let aValue: any = a[sortBy as keyof UserResponseDTO];
+            let bValue: any = b[sortBy as keyof UserResponseDTO];
 
             if (sortBy === 'createdAt' || sortBy === 'updatedAt') {
                 aValue = new Date(aValue).getTime();

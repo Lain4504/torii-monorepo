@@ -1,16 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
-import {
-    PaginatedResponseDto,
-    QuestionBankDto,
-    CreateQuestionBankDto,
-    UpdateQuestionBankDto,
-    QuestionBankQueryDto,
-    QuestionBankListResponseDto,
-    GetQuestionBankByIdResponseDto,
-    CreateQuestionBankResponseDto,
-    UpdateQuestionBankResponseDto,
-} from '@workspace/dtos';
+import type {
+    PaginatedResponse,
+    QuestionBankResponseDTO,
+    QuestionBankCreateDTO,
+    QuestionBankUpdateDTO,
+    QuestionBankQueryDTO,
+} from '@workspace/schemas';
 
 export interface QuestionBankFilters {
     search: string;
@@ -21,36 +17,37 @@ export interface QuestionBankFilters {
     category: string;
 }
 
+
 // ============================================================================
 // API Functions
 // ============================================================================
 
 export const questionBankApi = {
     // GET /api/question-bank
-    async findAll(params: QuestionBankQueryDto): Promise<PaginatedResponseDto<QuestionBankDto>> {
-        const response = await apiClient.get<QuestionBankListResponseDto>('/api/question-bank', { params });
-        return response.data.data;
+    async findAll(params: QuestionBankQueryDTO): Promise<PaginatedResponse<QuestionBankResponseDTO>> {
+        const response = await apiClient.get<PaginatedResponse<QuestionBankResponseDTO>>('/api/question-bank', { params });
+        return response.data;
     },
 
     // GET /api/question-bank/:id
-    async findOne(id: string): Promise<QuestionBankDto> {
-        const response = await apiClient.get<GetQuestionBankByIdResponseDto>(`/api/question-bank/${id}`);
+    async findOne(id: string): Promise<QuestionBankResponseDTO> {
+        const response = await apiClient.get<QuestionBankResponseDTO>(`/api/question-bank/${id}`);
         // Unwrap nested response
-        return response.data.data;
+        return response.data;
     },
 
     // POST /api/question-bank
-    async create(question: CreateQuestionBankDto): Promise<QuestionBankDto> {
-        const response = await apiClient.post<CreateQuestionBankResponseDto>('/api/question-bank', question);
+    async create(question: QuestionBankCreateDTO): Promise<QuestionBankResponseDTO> {
+        const response = await apiClient.post<QuestionBankResponseDTO>('/api/question-bank', question);
         // Unwrap nested response
-        return response.data.data;
+        return response.data;
     },
 
     // PUT /api/question-bank/:id
-    async update(id: string, question: UpdateQuestionBankDto): Promise<QuestionBankDto> {
-        const response = await apiClient.put<UpdateQuestionBankResponseDto>(`/api/question-bank/${id}`, question);
+    async update(id: string, question: QuestionBankUpdateDTO): Promise<QuestionBankResponseDTO> {
+        const response = await apiClient.put<QuestionBankResponseDTO>(`/api/question-bank/${id}`, question);
         // Unwrap nested response
-        return response.data.data;
+        return response.data;
     },
 
     // DELETE /api/question-bank/:id
@@ -66,7 +63,10 @@ export const questionBankApi = {
 /**
  * Hook: Get question banks list with pagination and filters
  */
-export function useQuestionBanks(params: QuestionBankQueryDto) {
+/**
+ * Hook: Get question banks list with pagination and filters
+ */
+export function useQuestionBanks(params: QuestionBankQueryDTO) {
     return useQuery({
         queryKey: ['question-banks', params],
         queryFn: () => questionBankApi.findAll(params),
@@ -92,7 +92,7 @@ export function useCreateQuestionBank() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (question: CreateQuestionBankDto) => questionBankApi.create(question),
+        mutationFn: (question: QuestionBankCreateDTO) => questionBankApi.create(question),
         onSuccess: () => {
             // Invalidate all question-banks queries to refetch
             queryClient.invalidateQueries({ queryKey: ['question-banks'] });
@@ -107,7 +107,7 @@ export function useUpdateQuestionBank() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({ id, question }: { id: string; question: UpdateQuestionBankDto }) =>
+        mutationFn: ({ id, question }: { id: string; question: QuestionBankUpdateDTO }) =>
             questionBankApi.update(id, question),
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['question-banks', variables.id] });

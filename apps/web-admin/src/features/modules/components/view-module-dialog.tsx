@@ -1,8 +1,8 @@
 ﻿import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@workspace/ui/components/dialog';
-import type { ModuleResponseDto } from '@workspace/dtos';
+import type { ModuleResponseDTO } from '@workspace/schemas';
 
 interface ViewModuleDialogProps {
-    module: ModuleResponseDto | null;
+    module: ModuleResponseDTO | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }

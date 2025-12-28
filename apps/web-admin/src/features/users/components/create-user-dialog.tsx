@@ -24,44 +24,46 @@ import {
     Pencil,
     Loader2
 } from 'lucide-react';
-import type { CreateUserDto } from '@workspace/dtos';
+import { userCreateDTOSchema, type UserCreateDTO, UserRole, UserStatus } from '@workspace/schemas';
 import { useCreateUser } from '@/features/users/api/users';
 import { toast } from '@workspace/ui/components/sonner';
 
 const roles = [
     {
-        id: 'learner',
+        id: UserRole.LEARNER,
         label: 'Learner',
         icon: <GraduationCap className="h-5 w-5" />,
         description: 'Access to courses and WebRTC classes.',
     },
     {
-        id: 'lecturer',
+        id: UserRole.LECTURER,
         label: 'Lecturer',
         icon: <Wifi className="h-5 w-5" />,
         description: 'Manage classes and view student progress.',
     },
     {
-        id: 'staff',
+        id: UserRole.STAFF,
         label: 'Staff',
         icon: <Headphones className="h-5 w-5" />,
         description: 'Support tickets and general administration.',
     },
     {
-        id: 'admin',
+        id: UserRole.ADMIN,
         label: 'Admin',
         icon: <Shield className="h-5 w-5" />,
         description: 'Full access to all system settings.',
     },
 ];
 
-const createUserSchema = z.object({
+const createUserSchema = userCreateDTOSchema.omit({
+    fullName: true,
+    status: true,
+    role: true
+}).extend({
     firstName: z.string().min(1, 'First name is required'),
     lastName: z.string().min(1, 'Last name is required'),
-    email: z.string().email('Invalid email address'),
-    phone: z.string().optional(),
     password: z.string().min(6, 'Password must be at least 6 characters'),
-    role: z.string(),
+    role: z.nativeEnum(UserRole),
     aiFeedback: z.boolean(),
     webRtcAccess: z.boolean(),
 });
@@ -94,7 +96,7 @@ export function CreateUserDialog({
             email: '',
             phone: '',
             password: '',
-            role: 'learner',
+            role: UserRole.LEARNER,
             aiFeedback: true,
             webRtcAccess: true,
         },
@@ -107,13 +109,13 @@ export function CreateUserDialog({
     const createUser = useCreateUser();
 
     const handleFormSubmit: SubmitHandler<CreateUserFormData> = async (data) => {
-        const dto: CreateUserDto = {
+        const dto: UserCreateDTO = {
             email: data.email,
             fullName: `${data.firstName} ${data.lastName}`,
             password: data.password,
             phone: data.phone || undefined,
             role: data.role,
-            status: 'active',
+            status: UserStatus.ACTIVE,
         };
         try {
             await createUser.mutateAsync(dto);

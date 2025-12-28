@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+
 import { useUpdateCourse } from '@/features/courses/api/courses';
 import {
     Dialog,
@@ -13,23 +13,13 @@ import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
 import { storageApi } from '@/lib/storage-api';
-import { CourseStatus } from '@workspace/dtos';
-import type { CourseResponseDto } from '@workspace/dtos';
+import { CourseStatus, type CourseResponseDTO, courseUpdateDTOSchema, type CourseUpdateDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
 
-const updateCourseSchema = z.object({
-    title: z.string().min(1, 'Title is required').optional(),
-    description: z.string().optional(),
-    price: z.number().min(0, 'Price must be positive').optional(),
-    status: z.nativeEnum(CourseStatus).optional(),
-    thumbnailUrl: z.string().optional(),
-    previewVideoUrl: z.string().optional(),
-});
-
-type UpdateCourseFormData = z.infer<typeof updateCourseSchema>;
+type UpdateCourseFormData = CourseUpdateDTO;
 
 interface EditCourseDialogProps {
-    course: CourseResponseDto | null;
+    course: CourseResponseDTO | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }
@@ -48,7 +38,7 @@ export function EditCourseDialog({ course, open, onOpenChange }: EditCourseDialo
         watch,
         reset,
     } = useForm<UpdateCourseFormData>({
-        resolver: zodResolver(updateCourseSchema),
+        resolver: zodResolver(courseUpdateDTOSchema),
         defaultValues: {
             title: '',
             description: '',

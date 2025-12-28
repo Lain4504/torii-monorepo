@@ -2,6 +2,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { moduleUpdateDTOSchema, type ModuleResponseDTO } from '@workspace/schemas';
 import { useUpdateModule } from '@/features/modules/api/modules';
 import {
     Dialog,
@@ -11,31 +12,23 @@ import {
 } from '@workspace/ui/components/dialog';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
-import type { ModuleResponseDto } from '@workspace/dtos';
+
 import { toast } from '@workspace/ui/components/sonner';
 
 const getUpdateModuleSchema = (existingTitles: string[] = []) =>
-    z.object({
-        courseId: z.string().optional(),
-        title: z
-            .string()
-            .min(1, 'Title is required')
-            .refine((title) => !existingTitles.includes(title.trim()), {
-                message: 'A module with this title already exists in this course.',
-            })
-            .optional(),
-        description: z.string().optional(),
-        order: z.number().min(0).optional(),
-        durationMinutes: z.number().min(0).optional(),
+    moduleUpdateDTOSchema.extend({
+        title: moduleUpdateDTOSchema.shape.title!.refine((title) => !title || !existingTitles.includes(title.trim()), {
+            message: 'A module with this title already exists in this course.',
+        }),
     });
 
 type UpdateModuleFormData = z.infer<ReturnType<typeof getUpdateModuleSchema>>;
 
 interface EditModuleDialogProps {
-    module: ModuleResponseDto | null;
+    module: ModuleResponseDTO | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    existingModules?: ModuleResponseDto[];
+    existingModules?: ModuleResponseDTO[];
     courseTitle?: string;
 }
 

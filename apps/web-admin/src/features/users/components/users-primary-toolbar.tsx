@@ -71,8 +71,8 @@ export function UsersPrimaryToolbar({
                     <SelectContent>
                         <SelectItem value="all">All Roles</SelectItem>
                         <SelectItem value="admin">Admin</SelectItem>
-                        <SelectItem value="student">Student</SelectItem>
-                        <SelectItem value="teacher">Teacher</SelectItem>
+                        <SelectItem value="learner">Learner</SelectItem>
+                        <SelectItem value="lecturer">Lecturer</SelectItem>
                     </SelectContent>
                 </Select>
 

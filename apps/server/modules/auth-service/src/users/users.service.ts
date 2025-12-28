@@ -1,7 +1,40 @@
-import { Injectable, BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '@server/shared';
-import { PaginatedResponseDto, FindAllUsersParamsDto, UserResponseDto, UpdateUserDto, CreateUserDto } from '@workspace/dtos';
+import { Injectable, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
+import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
+import type {
+    UserUpdateDTO,
+    Requester,
+} from '@workspace/schemas';
+import {
+    userUpdateDTOSchema,
+    UserResponseDTO,
+    UserRole,
+    UserStatus,
+    ErrEmailExisted,
+} from '@workspace/schemas';
+import { PrismaService } from '@server/shared';
+
+export interface CreateUserDTO {
+    email: string;
+    fullName: string;
+    password: string;
+    role?: UserRole;
+    status?: UserStatus;
+}
+
+export interface PaginationOptions {
+    page: number;
+    limit: number;
+    search?: string;
+}
+
+export interface PaginatedResponse<T> {
+    data: T[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+}
 
 @Injectable()
 export class UsersService {
@@ -9,202 +42,153 @@ export class UsersService {
         private readonly prisma: PrismaService,
     ) { }
 
-  
-    private mapUserToResponseDto(user: any): UserResponseDto {
+    /**
+     * Find all users with pagination and search
+     */
+    async findAll(options: PaginationOptions): Promise<PaginatedResponse<UserResponseDTO>> {
+        const { page = 1, limit = 10, search = '' } = options;
+        const skip = (page - 1) * limit;
+
+        const where = search
+            ? {
+                OR: [
+                    { email: { contains: search, mode: 'insensitive' as any } },
+                    { fullName: { contains: search, mode: 'insensitive' as any } },
+                ],
+            }
+            : {};
+
+        const [users, total] = await Promise.all([
+            this.prisma.user.findMany({
+                where,
+                skip,
+                take: limit,
+                orderBy: { createdAt: 'desc' },
+            }),
+            this.prisma.user.count({ where }),
+        ]);
+
+        const data = users.map(({ password, salt, ...rest }) => rest as any);
+
         return {
-            id: user.id,
-            email: user.email,
-            fullName: user.fullName,
-            avatarUrl: user.avatarUrl || '',
-            phone: user.phone || '',
-            role: user.role || 'learner',
-            status: user.status || 'active',
-            createdAt: user.createdAt.toISOString(),
-            updatedAt: user.updatedAt.toISOString(),
+            data,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
         };
     }
 
-    async findAll(params: FindAllUsersParamsDto): Promise<PaginatedResponseDto<UserResponseDto>> {
-        try {
-            const { page = 1, limit = 10, search } = params;
-            const skip = (page - 1) * limit;
-
-            const whereClause: any = {
-                deletedAt: null, 
-            };
-            if (search) {
-                whereClause.OR = [
-                    { email: { contains: search, mode: 'insensitive' } },
-                    { fullName: { contains: search, mode: 'insensitive' } },
-                ];
-            }
-
-            const [total, users] = await Promise.all([
-                this.prisma.user.count({ where: whereClause }),
-                this.prisma.user.findMany({
-                    take: limit,
-                    skip: skip,
-                    where: whereClause,
-                    orderBy: { createdAt: 'desc' },
-                }),
-            ]);
-
-            const totalPages = Math.ceil(total / limit);
-
-            const userDtos: UserResponseDto[] = users.map(user => this.mapUserToResponseDto(user));
-
-            return {
-                success: true,
-                message: `${userDtos.length} user(s) retrieved successfully`,
-                error: '',
-                data: userDtos,
-                meta: {
-                    page,
-                    limit,
-                    total,
-                    totalPages,
-                    hasNext: page < totalPages,
-                    hasPrev: page > 1
-                }
-            };
-        } catch (error) {
-            return {
-                success: false,
-                message: 'Failed to retrieve users',
-                error: error?.message || 'An unexpected error occurred',
-                data: [],
-                meta: {
-                    page: 0,
-                    limit: 0,
-                    total: 0,
-                    totalPages: 0,
-                    hasNext: false,
-                    hasPrev: false
-                }
-            } as PaginatedResponseDto<UserResponseDto>;
-        }
-    }
-
-  
-    async findOne(id: string): Promise<UserResponseDto> {
-        const user = await this.prisma.user.findFirst({
-            where: {
-                id,
-                deletedAt: null,
-            },
-        });
+    /**
+     * Find one user by ID
+     */
+    async findOne(userId: string): Promise<UserResponseDTO> {
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
 
         if (!user) {
-            throw new NotFoundException(`User with ID ${id} not found`);
+            throw new NotFoundException('User not found');
         }
 
-        return this.mapUserToResponseDto(user);
+        const { password, salt, ...rest } = user;
+        return rest as any;
     }
 
     /**
-     * Create new user
+     * Create new user (admin only)
      */
-    async create(createUserDto: CreateUserDto): Promise<UserResponseDto> {
-        // Validate input
-        if (!createUserDto.email || !createUserDto.fullName) {
-            throw new BadRequestException('Email and fullName are required');
-        }
-
-        // Check if email already exists
-        const existingUser = await this.prisma.user.findUnique({
-            where: { email: createUserDto.email },
-        });
-
+    async create(dto: CreateUserDTO): Promise<UserResponseDTO> {
+        // Check email exists
+        const existingUser = await this.prisma.user.findFirst({ where: { email: dto.email } });
         if (existingUser) {
-            throw new ConflictException(`Email ${createUserDto.email} is already in use`);
+            throw new BadRequestException(ErrEmailExisted.message);
         }
 
-        // Create user - Password is handled by Supabase Auth
+        // Hash password
+        const salt = bcrypt.genSaltSync(10);
+        const hashedPassword = await bcrypt.hash(`${dto.password}.${salt}`, 10);
+
+        // Create user
+        const newId = uuidv4();
         const user = await this.prisma.user.create({
             data: {
-                id: uuidv4(),
-                email: createUserDto.email,
-                fullName: createUserDto.fullName,
-                phone: createUserDto.phone || null,
-                role: createUserDto.role || 'learner',
-                status: createUserDto.status || 'active',
-                dateOfBirth: createUserDto.dateOfBirth ? new Date(createUserDto.dateOfBirth) : null,
-                gender: createUserDto.gender || null,
-                avatarUrl: createUserDto.avatarUrl || null,
-                bio: createUserDto.bio || null,
-            },
+                id: newId,
+                email: dto.email,
+                fullName: dto.fullName,
+                password: hashedPassword,
+                salt,
+                role: dto.role || UserRole.LEARNER,
+                status: dto.status || UserStatus.ACTIVE,
+            } as any,
         });
 
-        return this.mapUserToResponseDto(user);
+        const { password, salt: _, ...rest } = user;
+        return rest as any;
     }
 
-    async update(id: string, updateUserDto: UpdateUserDto): Promise<UserResponseDto> {
-        const existingUser = await this.prisma.user.findFirst({
-            where: {
-                id,
-                deletedAt: null,
-            },
-        });
+    /**
+     * Get user profile
+     */
+    async profile(userId: string): Promise<UserResponseDTO> {
+        return this.findOne(userId);
+    }
 
-        if (!existingUser) {
-            throw new NotFoundException(`User with ID ${id} not found`);
+    /**
+     * Update user
+     */
+    async update(requester: Requester, userId: string, dto: UserUpdateDTO): Promise<UserResponseDTO> {
+        if (requester.role !== UserRole.ADMIN && requester.sub !== userId) {
+            throw new ForbiddenException('Forbidden');
         }
 
-        if (updateUserDto.email && updateUserDto.email !== existingUser.email) {
-            const emailExists = await this.prisma.user.findUnique({
-                where: { email: updateUserDto.email },
-            });
+        const data = userUpdateDTOSchema.parse(dto);
 
-            if (emailExists) {
-                throw new ConflictException(`Email ${updateUserDto.email} is already in use`);
-            }
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        // If updating password, hash it
+        const updateData: any = { ...data };
+        if (data.password) {
+            const salt = bcrypt.genSaltSync(10);
+            const hashedPassword = await bcrypt.hash(`${data.password}.${salt}`, 10);
+            updateData.password = hashedPassword;
+            updateData.salt = salt;
         }
 
         const updatedUser = await this.prisma.user.update({
-            where: { id },
-            data: {
-                ...(updateUserDto.email !== undefined && { email: updateUserDto.email }),
-                ...(updateUserDto.fullName !== undefined && { fullName: updateUserDto.fullName }),
-                ...(updateUserDto.phone !== undefined && { phone: updateUserDto.phone }),
-                ...(updateUserDto.role !== undefined && { role: updateUserDto.role }),
-                ...(updateUserDto.status !== undefined && { status: updateUserDto.status }),
-                ...(updateUserDto.dateOfBirth !== undefined && { dateOfBirth: updateUserDto.dateOfBirth ? new Date(updateUserDto.dateOfBirth) : null }),
-                ...(updateUserDto.gender !== undefined && { gender: updateUserDto.gender }),
-                ...(updateUserDto.avatarUrl !== undefined && { avatarUrl: updateUserDto.avatarUrl }),
-                ...(updateUserDto.bio !== undefined && { bio: updateUserDto.bio }),
-                ...(updateUserDto.jlptLevel !== undefined && { jlptLevel: updateUserDto.jlptLevel }),
-            },
+            where: { id: userId },
+            data: { ...updateData, updatedAt: new Date() },
         });
 
-        return this.mapUserToResponseDto(updatedUser);
+        const { password, salt, ...rest } = updatedUser;
+        return rest as any;
     }
 
-    async delete(id: string, hardDelete: boolean = false): Promise<{ message: string }> {
-        const existingUser = await this.prisma.user.findFirst({
-            where: {
-                id,
-                deletedAt: null,
-            },
-        });
+    /**
+     * Delete user (soft or hard delete)
+     */
+    async delete(requester: Requester, userId: string, hardDelete: boolean = false): Promise<{ message: string }> {
+        if (requester.role !== UserRole.ADMIN && requester.sub !== userId) {
+            throw new ForbiddenException('Forbidden');
+        }
 
-        if (!existingUser) {
-            throw new NotFoundException(`User with ID ${id} not found`);
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        if (!user) {
+            throw new NotFoundException('User not found');
         }
 
         if (hardDelete) {
-            await this.prisma.user.delete({
-                where: { id },
-            });
-            return { message: `User ${id} permanently deleted` };
+            // Hard delete - permanently remove from database
+            await this.prisma.user.delete({ where: { id: userId } });
+            return { message: 'User permanently deleted' };
         } else {
+            // Soft delete - mark as deleted
             await this.prisma.user.update({
-                where: { id },
-                data: {
-                    deletedAt: new Date(),
-                    status: 'inactive', 
-                },
+                where: { id: userId },
+                data: { status: UserStatus.DELETED, deletedAt: new Date(), updatedAt: new Date() } as any,
             });
-            return { message: `User ${id} deactivated (soft deleted)` };
+            return { message: 'User soft deleted' };
         }
     }
 }

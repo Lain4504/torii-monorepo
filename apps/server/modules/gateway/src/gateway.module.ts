@@ -18,6 +18,7 @@ import { WaitingRoomModule } from './waiting-room/waiting-room.module';
 import { ModuleModule } from './module/module.module';
 import { LessonModule } from './lesson/lesson.module';
 
+
 import { GatewayController } from './gateway.controller';
 import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
 
@@ -42,6 +43,7 @@ import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
 
     NatsClientModule, // Add NATS client for GatewayService
     AuthModule,
+
     FlashcardModule,
     FlashcardDeckModule,
     CourseModule,

@@ -7,13 +7,13 @@ import {
 } from '@workspace/ui/components/dialog';
 import { Badge } from '@workspace/ui/components/badge';
 import { Label } from '@workspace/ui/components/label';
-import type { UserResponseDto } from '@workspace/dtos';
+import type { UserResponseDTO } from '@workspace/schemas';
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar';
 
 interface ViewUserDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    user: UserResponseDto | null;
+    user: UserResponseDTO | null;
 }
 
 export function ViewUserDialog({

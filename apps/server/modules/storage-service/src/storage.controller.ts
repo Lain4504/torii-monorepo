@@ -2,18 +2,18 @@ import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, Payload, Ctx, RpcException } from '@nestjs/microservices';
 import { NatsContext } from '@nestjs/microservices';
 import { StorageService } from './storage.service';
-import {
-  PresignedUploadUrlRequest,
-  PresignedUploadUrlResponse,
-  ConfirmUploadRequest,
-  ConfirmUploadResponse,
-  DeleteFileRequest,
-  DeleteFileResponse,
-  DirectUploadRequest,
-  DirectUploadResponse,
-  GetSignedUrlRequest,
-  GetSignedUrlResponse,
-} from '@workspace/dtos';
+import type {
+  StoragePresignedUrlRequestDTO,
+  StoragePresignedUrlResponseDTO,
+  StorageConfirmUploadRequestDTO,
+  StorageConfirmUploadResponseDTO,
+  StorageDeleteFileRequestDTO,
+  StorageDeleteFileResponseDTO,
+  StorageDirectUploadRequestDTO,
+  StorageDirectUploadResponseDTO,
+  StorageGetSignedUrlRequestDTO,
+  StorageGetSignedUrlResponseDTO,
+} from '@workspace/schemas';
 
 @Controller()
 export class StorageController {
@@ -23,9 +23,9 @@ export class StorageController {
 
   @MessagePattern({ cmd: 'storage.generate-upload-url' })
   async generatePresignedUploadUrl(
-    @Payload() data: PresignedUploadUrlRequest,
+    @Payload() data: StoragePresignedUrlRequestDTO,
     @Ctx() context: NatsContext,
-  ): Promise<PresignedUploadUrlResponse> {
+  ): Promise<StoragePresignedUrlResponseDTO> {
     this.logger.log(`Received request: storage.generate-upload-url`);
     this.logger.debug(`Request data: ${JSON.stringify(data)}`);
     try {
@@ -41,9 +41,9 @@ export class StorageController {
 
   @MessagePattern({ cmd: 'storage.confirm-upload' })
   async confirmUpload(
-    @Payload() data: ConfirmUploadRequest,
+    @Payload() data: StorageConfirmUploadRequestDTO,
     @Ctx() context: NatsContext,
-  ): Promise<ConfirmUploadResponse> {
+  ): Promise<StorageConfirmUploadResponseDTO> {
     this.logger.log(`Received request: storage.confirm-upload`);
     try {
       return await this.storageService.confirmUpload(data);
@@ -58,9 +58,9 @@ export class StorageController {
 
   @MessagePattern({ cmd: 'storage.delete-file' })
   async deleteFile(
-    @Payload() data: DeleteFileRequest,
+    @Payload() data: StorageDeleteFileRequestDTO,
     @Ctx() context: NatsContext,
-  ): Promise<DeleteFileResponse> {
+  ): Promise<StorageDeleteFileResponseDTO> {
     this.logger.log(`Received request: storage.delete-file`);
     try {
       return await this.storageService.deleteFile(data);
@@ -75,9 +75,9 @@ export class StorageController {
 
   @MessagePattern({ cmd: 'storage.direct-upload' })
   async directUpload(
-    @Payload() data: DirectUploadRequest,
+    @Payload() data: StorageDirectUploadRequestDTO,
     @Ctx() context: NatsContext,
-  ): Promise<DirectUploadResponse> {
+  ): Promise<StorageDirectUploadResponseDTO> {
     this.logger.log(`Received request: storage.direct-upload`);
     try {
       return await this.storageService.directUpload(data);
@@ -92,9 +92,9 @@ export class StorageController {
 
   @MessagePattern({ cmd: 'storage.get-signed-url' })
   async getSignedUrl(
-    @Payload() data: GetSignedUrlRequest,
+    @Payload() data: StorageGetSignedUrlRequestDTO,
     @Ctx() context: NatsContext,
-  ): Promise<GetSignedUrlResponse> {
+  ): Promise<StorageGetSignedUrlResponseDTO> {
     this.logger.log(`Received request: storage.get-signed-url`);
     try {
       return await this.storageService.getSignedUrl(data);

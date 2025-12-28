@@ -14,14 +14,14 @@ import {
     TableRow,
 } from '@workspace/ui/components/table';
 import { useState } from 'react';
-import type { LessonResponseDto } from '@workspace/dtos';
+import type { LessonResponseDTO } from '@workspace/schemas';
 import { getLessonsColumns } from './lessons-columns';
 
 interface LessonsTableProps {
-    data: LessonResponseDto[];
-    onView: (lesson: LessonResponseDto) => void;
-    onEdit: (lesson: LessonResponseDto) => void;
-    onDelete: (lesson: LessonResponseDto) => void;
+    data: LessonResponseDTO[];
+    onView: (lesson: LessonResponseDTO) => void;
+    onEdit: (lesson: LessonResponseDTO) => void;
+    onDelete: (lesson: LessonResponseDTO) => void;
     page: number;
     limit: number;
 }

@@ -11,21 +11,24 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
+import { UsePipes } from '@nestjs/common';
+import { ZodValidationPipe } from '@server/shared/pipes/zod-validation.pipe';
 import {
-  CreateCourseDto,
-  UpdateCourseDto,
-  CourseQueryDto,
-  CourseResponseDto,
-  UpdateCourseRequestDto,
-  PaginatedResponseDto,
-} from '@workspace/dtos';
+  type CourseCreateDTO,
+  type CourseUpdateDTO,
+  type CourseQueryDTO,
+  type CourseResponseDTO,
+  type PaginatedResponse,
+  courseCreateDTOSchema,
+  courseUpdateDTOSchema,
+} from '@workspace/schemas';
 
 @Controller('api/admin/courses')
 export class CourseController {
   constructor(
     @Inject('NATS_SERVICE')
     private readonly natsClient: ClientProxy,
-  ) {}
+  ) { }
 
   @Get()
   async findAll(
@@ -35,19 +38,19 @@ export class CourseController {
     @Query('status') status?: string,
     @Query('search') search?: string,
     @Query('featured') featured?: string,
-  ): Promise<PaginatedResponseDto<CourseResponseDto>> {
-    const payload: CourseQueryDto = {
+  ): Promise<PaginatedResponse<CourseResponseDTO>> {
+    const payload: CourseQueryDTO = {
       page: page ? Number(page) : 1,
       limit: limit ? Number(limit) : 10,
       ...(jlptLevel && { jlptLevel: jlptLevel as any }),
       ...(status && { status: status as any }),
       ...(search && { search }),
-      ...(featured !== undefined && { 
-        featured: featured === 'true' 
+      ...(featured !== undefined && {
+        featured: featured === 'true'
       }),
     };
 
-    const response = await lastValueFrom<PaginatedResponseDto<CourseResponseDto>>(
+    const response = await lastValueFrom<PaginatedResponse<CourseResponseDTO>>(
       this.natsClient.send({ cmd: 'course.findAll' }, payload),
     );
 
@@ -55,18 +58,19 @@ export class CourseController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<CourseResponseDto | null> {
-    const course = await lastValueFrom<CourseResponseDto | null>(
-      this.natsClient.send<CourseResponseDto | null>({ cmd: 'course.findOne' }, id),
+  async findOne(@Param('id') id: string): Promise<CourseResponseDTO | null> {
+    const course = await lastValueFrom<CourseResponseDTO | null>(
+      this.natsClient.send<CourseResponseDTO | null>({ cmd: 'course.findOne' }, id),
     );
     return course;
   }
 
   @Post()
-  async create(@Body() input: CreateCourseDto): Promise<CourseResponseDto> {
+  @UsePipes(new ZodValidationPipe(courseCreateDTOSchema))
+  async create(@Body() input: CourseCreateDTO): Promise<CourseResponseDTO> {
     try {
-      const course = await lastValueFrom<CourseResponseDto>(
-        this.natsClient.send<CourseResponseDto>({ cmd: 'course.create' }, input),
+      const course = await lastValueFrom<CourseResponseDTO>(
+        this.natsClient.send<CourseResponseDTO>({ cmd: 'course.create' }, input),
       );
       return course;
     } catch (error: any) {
@@ -76,15 +80,16 @@ export class CourseController {
   }
 
   @Patch(':id')
+  @UsePipes(new ZodValidationPipe(courseUpdateDTOSchema))
   async update(
     @Param('id') id: string,
-    @Body() input: UpdateCourseDto,
-  ): Promise<CourseResponseDto> {
+    @Body() input: CourseUpdateDTO,
+  ): Promise<CourseResponseDTO> {
     try {
-      const course = await lastValueFrom<CourseResponseDto>(
-        this.natsClient.send<CourseResponseDto>(
+      const course = await lastValueFrom<CourseResponseDTO>(
+        this.natsClient.send<CourseResponseDTO>(
           { cmd: 'course.update' },
-          { id, input } as UpdateCourseRequestDto,
+          { id, input },
         ),
       );
       return course;
@@ -102,10 +107,10 @@ export class CourseController {
   }
 
   @Patch(':id/restore')
-  async restore(@Param('id') id: string): Promise<CourseResponseDto> {
+  async restore(@Param('id') id: string): Promise<CourseResponseDTO> {
     try {
-      const course = await lastValueFrom<CourseResponseDto>(
-        this.natsClient.send<CourseResponseDto>({ cmd: 'course.restore' }, id),
+      const course = await lastValueFrom<CourseResponseDTO>(
+        this.natsClient.send<CourseResponseDTO>({ cmd: 'course.restore' }, id),
       );
       return course;
     } catch (error: any) {

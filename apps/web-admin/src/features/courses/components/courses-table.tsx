@@ -14,15 +14,15 @@ import {
     TableRow,
 } from '@workspace/ui/components/table';
 import { useState } from 'react';
-import type { CourseResponseDto } from '@workspace/dtos';
+import type { CourseResponseDTO } from '@workspace/schemas';
 import { getCoursesColumns } from './courses-columns';
 
 interface CoursesTableProps {
-    data: CourseResponseDto[];
-    onView: (course: CourseResponseDto) => void;
-    onEdit: (course: CourseResponseDto) => void;
-    onDelete: (course: CourseResponseDto) => void;
-    onModules: (course: CourseResponseDto) => void;
+    data: CourseResponseDTO[];
+    onView: (course: CourseResponseDTO) => void;
+    onEdit: (course: CourseResponseDTO) => void;
+    onDelete: (course: CourseResponseDTO) => void;
+    onModules: (course: CourseResponseDTO) => void;
     page: number;
     limit: number;
 }

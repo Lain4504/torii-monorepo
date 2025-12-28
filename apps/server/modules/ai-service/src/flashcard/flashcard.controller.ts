@@ -1,14 +1,15 @@
 import { Controller, Logger, OnModuleInit } from "@nestjs/common";
 import { MessagePattern, Payload } from "@nestjs/microservices";
 import { FlashcardService } from "./flashcard.service";
-import {
-    BulkFlashcardOperationsRequestDto,
-    CreateFlashcardRequestDto,
-    DeleteFlashcardRequestDto,
-    FindAllFlashcardsRequestDto,
-    GetFlashcardByIdRequestDto,
-    UpdateFlashcardRequestDto
-} from "@workspace/dtos";
+import type {
+    FlashcardCreateDTO,
+    FlashcardUpdateDTO,
+    FlashcardQueryDTO,
+    FlashcardResponseDTO,
+    FlashcardPaginatedResponse,
+    BulkFlashcardOperationsDTO,
+    BulkFlashcardOperationsResponseDTO,
+} from "@workspace/schemas";
 
 @Controller()
 export class FlashcardController implements OnModuleInit {
@@ -22,34 +23,34 @@ export class FlashcardController implements OnModuleInit {
     }
 
     @MessagePattern({ cmd: 'flashcard.create' })
-    createFlashcard(@Payload() data: { userId: string; input: CreateFlashcardRequestDto }) {
+    async createFlashcard(@Payload() data: { userId: string; input: FlashcardCreateDTO }): Promise<FlashcardResponseDTO> {
         this.logger.log(`Received flashcard.create request for user ${data.userId}`);
         return this.flashcardService.createFlashcard(data.userId, data.input);
     }
 
     @MessagePattern({ cmd: 'flashcard.getAll' })
-    getFlashcards(@Payload() data: FindAllFlashcardsRequestDto) {
+    async getFlashcards(@Payload() data: FlashcardQueryDTO): Promise<FlashcardPaginatedResponse> {
         return this.flashcardService.getFlashcards(data);
     }
 
     @MessagePattern({ cmd: 'flashcard.update' })
-    updateFlashcard(@Payload() data: { userId: string; input: UpdateFlashcardRequestDto }) {
+    async updateFlashcard(@Payload() data: { userId: string; input: FlashcardUpdateDTO }): Promise<FlashcardResponseDTO> {
         this.logger.log(`Received flashcard.update request for user ${data.userId}`);
         return this.flashcardService.updateFlashcard(data.userId, data.input);
     }
 
     @MessagePattern({ cmd: 'flashcard.delete' })
-    deleteFlashcard(@Payload() data: DeleteFlashcardRequestDto) {
+    async deleteFlashcard(@Payload() data: { id: string }): Promise<{ success: boolean }> {
         return this.flashcardService.deleteFlashcard(data);
     }
 
     @MessagePattern({ cmd: 'flashcard.getById' })
-    getFlashcardById(@Payload() data: GetFlashcardByIdRequestDto) {
+    async getFlashcardById(@Payload() data: { id: string }): Promise<FlashcardResponseDTO> {
         return this.flashcardService.getFlashcardById(data);
     }
 
     @MessagePattern({ cmd: 'flashcard.bulkOperations' })
-    bulkOperations(@Payload() data: BulkFlashcardOperationsRequestDto) {
+    async bulkOperations(@Payload() data: BulkFlashcardOperationsDTO): Promise<BulkFlashcardOperationsResponseDTO> {
         return this.flashcardService.bulkOperations(data);
     }
 }

@@ -1,21 +1,21 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { SupabaseModule, SharedModule } from '@server/shared';
+import { SharedModule } from '@server/shared';
+import { UsersModule } from './users/users.module';
 import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
-import { UsersController } from './users/users.controller';
-import { UsersService } from './users/users.service';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    SupabaseModule,
-    SharedModule,
+    SharedModule, // Provides JwtTokenProvider
+    UsersModule,  // Exports PrismaClient
   ],
-  controllers: [AuthController, UsersController],
-  providers: [AuthService, UsersService],
+  controllers: [AuthController],
+  providers: [AuthService],
+  exports: [AuthService],
 })
 export class AuthServiceModule { }
 

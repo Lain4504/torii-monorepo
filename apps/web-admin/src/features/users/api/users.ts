@@ -1,6 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
-import { PaginatedResponseDto, UserResponseDto, FindAllUsersParamsDto, CreateUserDto, UpdateUserDto } from '@workspace/dtos';
+import type { PaginatedResponse, UserResponseDTO, UserCreateDTO, UserAdminUpdateDTO } from '@workspace/schemas';
+
+export interface FindAllUsersParams {
+    page?: number;
+    limit?: number;
+    search?: string;
+}
 
 // ============================================================================
 // API Functions
@@ -8,26 +14,26 @@ import { PaginatedResponseDto, UserResponseDto, FindAllUsersParamsDto, CreateUse
 
 export const usersApi = {
     // GET /admin/users
-    async findAll(params: FindAllUsersParamsDto): Promise<PaginatedResponseDto<UserResponseDto>> {
-        const response = await apiClient.get<PaginatedResponseDto<UserResponseDto>>('/admin/users', { params });
+    async findAll(params: FindAllUsersParams): Promise<PaginatedResponse<UserResponseDTO>> {
+        const response = await apiClient.get<PaginatedResponse<UserResponseDTO>>('/admin/users', { params });
         return response.data;
     },
 
     // GET /admin/users/:id
-    async findOne(id: string): Promise<UserResponseDto> {
-        const response = await apiClient.get<UserResponseDto>(`/admin/users/${id}`);
+    async findOne(id: string): Promise<UserResponseDTO> {
+        const response = await apiClient.get<UserResponseDTO>(`/admin/users/${id}`);
         return response.data;
     },
 
     // POST /admin/users
-    async create(user: CreateUserDto): Promise<UserResponseDto> {
-        const response = await apiClient.post<UserResponseDto>('/admin/users', user);
+    async create(user: UserCreateDTO): Promise<UserResponseDTO> {
+        const response = await apiClient.post<UserResponseDTO>('/admin/users', user);
         return response.data;
     },
 
     // PATCH /admin/users/:id
-    async update(id: string, user: UpdateUserDto): Promise<UserResponseDto> {
-        const response = await apiClient.patch<UserResponseDto>(`/admin/users/${id}`, user);
+    async update(id: string, user: UserAdminUpdateDTO): Promise<UserResponseDTO> {
+        const response = await apiClient.patch<UserResponseDTO>(`/admin/users/${id}`, user);
         return response.data;
     },
 
@@ -47,7 +53,7 @@ export const usersApi = {
 /**
  * Hook: Get users list with pagination
  */
-export function useUsers(params: FindAllUsersParamsDto) {
+export function useUsers(params: FindAllUsersParams) {
     return useQuery({
         queryKey: ['users', params],
         queryFn: () => usersApi.findAll(params),
@@ -73,7 +79,7 @@ export function useCreateUser() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (user: CreateUserDto) => usersApi.create(user),
+        mutationFn: (user: UserCreateDTO) => usersApi.create(user),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['users'] });
         },
@@ -87,7 +93,7 @@ export function useUpdateUser() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({ id, user }: { id: string; user: UpdateUserDto }) =>
+        mutationFn: ({ id, user }: { id: string; user: UserAdminUpdateDTO }) =>
             usersApi.update(id, user),
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['users', variables.id] });

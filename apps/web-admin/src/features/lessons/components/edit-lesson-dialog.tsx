@@ -14,25 +14,15 @@ import { Input } from '@workspace/ui/components/input';
 import { Textarea } from '@workspace/ui/components/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
 import { storageApi } from '@/lib/storage-api';
-import { LessonContentType } from '@workspace/dtos';
-import type { LessonResponseDto } from '@workspace/dtos';
+import { LessonContentType, lessonUpdateDTOSchema, type LessonResponseDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
 
-const updateLessonSchema = z.object({
-    moduleId: z.string().uuid().optional(),
-    title: z.string().min(1, 'Title is required').optional(),
-    contentType: z.nativeEnum(LessonContentType).optional(),
-    videoUrl: z.string().optional(),
-    articleContent: z.string().optional(),
-    order: z.number().min(0).optional(),
-    isPreview: z.boolean().optional(),
-    isUnlocked: z.boolean().optional(),
-});
+const updateLessonSchema = lessonUpdateDTOSchema;
 
 type UpdateLessonFormData = z.infer<typeof updateLessonSchema>;
 
 interface EditLessonDialogProps {
-    lesson: LessonResponseDto | null;
+    lesson: LessonResponseDTO | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }

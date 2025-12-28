@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+
 import {
     Dialog,
     DialogContent,
@@ -11,19 +11,12 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
-import type { UserResponseDto } from '@workspace/dtos';
+import type { UserResponseDTO } from '@workspace/schemas';
 import { Loader2 } from 'lucide-react';
 
-const updateUserSchema = z.object({
-    fullName: z.string().min(1, 'Full name is required'),
-    email: z.string().email('Invalid email address'),
-    phone: z.string().optional(),
-    role: z.string(),
-    status: z.string(),
-    // Password is optional for updates
-});
+import { userAdminUpdateDTOSchema, type UserAdminUpdateDTO } from '@workspace/schemas';
 
-type UpdateUserFormData = z.infer<typeof updateUserSchema>;
+type UpdateUserFormData = UserAdminUpdateDTO;
 
 import { useUpdateUser } from '@/features/users/api/users';
 import { toast } from '@workspace/ui/components/sonner';
@@ -31,7 +24,7 @@ import { toast } from '@workspace/ui/components/sonner';
 interface EditUserDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    user: UserResponseDto | null;
+    user: UserResponseDTO | null;
 }
 
 export function EditUserDialog({
@@ -47,13 +40,13 @@ export function EditUserDialog({
         setValue,
         watch,
     } = useForm<UpdateUserFormData>({
-        resolver: zodResolver(updateUserSchema),
+        resolver: zodResolver(userAdminUpdateDTOSchema),
         values: user ? {
             fullName: user.fullName,
             email: user.email,
-            phone: user.phone,
-            role: user.role,
-            status: user.status,
+            phone: user.phone || undefined,
+            role: user.role as any,
+            status: user.status as any,
         } : undefined,
     });
 
@@ -124,7 +117,7 @@ export function EditUserDialog({
                         <label className="text-sm font-medium">Role</label>
                         <Select
                             value={watch('role')}
-                            onValueChange={(value) => setValue('role', value)}
+                            onValueChange={(value) => setValue('role', value as any)}
                         >
                             <SelectTrigger>
                                 <SelectValue />
@@ -145,7 +138,7 @@ export function EditUserDialog({
                         <label className="text-sm font-medium">Status</label>
                         <Select
                             value={watch('status')}
-                            onValueChange={(value) => setValue('status', value)}
+                            onValueChange={(value) => setValue('status', value as any)}
                         >
                             <SelectTrigger>
                                 <SelectValue />

@@ -14,14 +14,14 @@ import {
     TableRow,
 } from '@workspace/ui/components/table';
 import { useState } from 'react';
-import type { UserResponseDto } from '@workspace/dtos';
+import type { UserResponseDTO } from '@workspace/schemas';
 import { getUsersColumns } from './users-columns';
 
 interface UsersTableProps {
-    data: UserResponseDto[];
-    onView: (user: UserResponseDto) => void;
-    onEdit: (user: UserResponseDto) => void;
-    onDelete: (user: UserResponseDto) => void;
+    data: UserResponseDTO[];
+    onView: (user: UserResponseDTO) => void;
+    onEdit: (user: UserResponseDTO) => void;
+    onDelete: (user: UserResponseDTO) => void;
     page: number;
     limit: number;
 }

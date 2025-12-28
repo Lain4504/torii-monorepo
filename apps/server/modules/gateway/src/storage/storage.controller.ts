@@ -12,12 +12,21 @@ import {
 import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 import {
-  PresignedUploadUrlRequest,
-  PresignedUploadUrlResponse,
-  ConfirmUploadRequest,
-  ConfirmUploadResponse,
-  DeleteFileResponse,
-} from '@workspace/dtos';
+  storagePresignedUrlRequestDTOSchema,
+  storageConfirmUploadRequestDTOSchema,
+  storageGetSignedUrlRequestDTOSchema,
+} from '@workspace/schemas';
+import type {
+  StoragePresignedUrlRequestDTO,
+  StoragePresignedUrlResponseDTO,
+  StorageConfirmUploadRequestDTO,
+  StorageConfirmUploadResponseDTO,
+  StorageDeleteFileResponseDTO,
+  StorageGetSignedUrlRequestDTO,
+  StorageGetSignedUrlResponseDTO,
+} from '@workspace/schemas';
+import { UsePipes } from '@nestjs/common';
+import { ZodValidationPipe } from '@server/shared/pipes/zod-validation.pipe';
 
 @Controller('api/storage')
 export class StorageController {
@@ -29,42 +38,45 @@ export class StorageController {
 
   @Post('upload-url')
   @HttpCode(HttpStatus.OK)
+  @UsePipes(new ZodValidationPipe(storagePresignedUrlRequestDTOSchema))
   async generateUploadUrl(
-    @Body() body: PresignedUploadUrlRequest,
-  ): Promise<PresignedUploadUrlResponse> {
+    @Body() body: StoragePresignedUrlRequestDTO,
+  ): Promise<StoragePresignedUrlResponseDTO> {
     this.logger.log(`Received request for upload-url`);
     this.logger.debug(`Body received: ${JSON.stringify(body)}`);
     return lastValueFrom(
-      this.natsClient.send({ cmd: 'storage.generate-upload-url' }, body),
+      this.natsClient.send<StoragePresignedUrlResponseDTO>({ cmd: 'storage.generate-upload-url' }, body),
     );
   }
 
   @Post('confirm')
   @HttpCode(HttpStatus.OK)
+  @UsePipes(new ZodValidationPipe(storageConfirmUploadRequestDTOSchema))
   async confirmUpload(
-    @Body() body: ConfirmUploadRequest,
-  ): Promise<ConfirmUploadResponse> {
+    @Body() body: StorageConfirmUploadRequestDTO,
+  ): Promise<StorageConfirmUploadResponseDTO> {
     this.logger.log(`Received request for confirm-upload`);
     return lastValueFrom(
-      this.natsClient.send({ cmd: 'storage.confirm-upload' }, body),
+      this.natsClient.send<StorageConfirmUploadResponseDTO>({ cmd: 'storage.confirm-upload' }, body),
     );
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
-  async deleteFile(@Param('id') fileId: string): Promise<DeleteFileResponse> {
+  async deleteFile(@Param('id') fileId: string): Promise<StorageDeleteFileResponseDTO> {
     this.logger.log(`Received request to delete file: ${fileId}`);
     return lastValueFrom(
-      this.natsClient.send({ cmd: 'storage.delete-file' }, { fileId }),
+      this.natsClient.send<StorageDeleteFileResponseDTO>({ cmd: 'storage.delete-file' }, { fileId }),
     );
   }
 
   @Post('signed-url')
   @HttpCode(HttpStatus.OK)
-  async getSignedUrl(@Body() body: any) {
+  @UsePipes(new ZodValidationPipe(storageGetSignedUrlRequestDTOSchema))
+  async getSignedUrl(@Body() body: StorageGetSignedUrlRequestDTO): Promise<StorageGetSignedUrlResponseDTO> {
     this.logger.log(`Received request for signed-url`);
     return lastValueFrom(
-      this.natsClient.send({ cmd: 'storage.get-signed-url' }, body),
+      this.natsClient.send<StorageGetSignedUrlResponseDTO>({ cmd: 'storage.get-signed-url' }, body),
     );
   }
 }

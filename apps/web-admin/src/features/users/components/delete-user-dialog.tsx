@@ -9,11 +9,11 @@ import {
     AlertDialogTitle,
 } from '@workspace/ui/components/alert-dialog';
 import { useDeleteUser } from '@/features/users/api/users';
-import type { UserResponseDto } from '@workspace/dtos';
+import type { UserResponseDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
 
 interface DeleteUserDialogProps {
-    user: UserResponseDto | null;
+    user: UserResponseDTO | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }

@@ -1,11 +1,13 @@
-import { Injectable, NotFoundException, BadRequestException, Logger, Inject } from '@nestjs/common';
-import { PrismaService, SUPABASE_CLIENT } from '@server/shared';
-import { SupabaseClient } from '@supabase/supabase-js';
-import {
-  CreateBlogCommentDto,
-  UpdateBlogCommentDto,
-  BlogCommentQueryDto,
-} from '@workspace/dtos';
+import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
+import { PrismaService } from '@server/shared';
+import type {
+  BlogCommentCreateDTO,
+  BlogCommentUpdateDTO,
+  BlogCommentQueryDTO,
+  BlogCommentResponseDTO,
+  BlogCommentPaginatedResponse,
+  PaginatedResponse,
+} from '@workspace/schemas';
 
 @Injectable()
 export class BlogCommentService {
@@ -13,10 +15,9 @@ export class BlogCommentService {
 
   constructor(
     private readonly prisma: PrismaService,
-    @Inject(SUPABASE_CLIENT) private readonly supabase: SupabaseClient,
-  ) {}
+  ) { }
 
-  async createComment(dto: CreateBlogCommentDto) {
+  async createComment(dto: BlogCommentCreateDTO): Promise<BlogCommentResponseDTO> {
     // Verify post exists
     const post = await this.prisma.blogPost.findUnique({
       where: { id: dto.postId },
@@ -26,13 +27,13 @@ export class BlogCommentService {
       throw new NotFoundException(`Post with id "${dto.postId}" not found`);
     }
 
-    // Check if author exists in Supabase Auth
-    const { data: user, error } = await this.supabase.auth.admin.getUserById(
-      dto.authorId,
-    );
+    // Check if author exists in User table
+    const user = await this.prisma.user.findUnique({
+      where: { id: dto.authorId },
+    });
 
-    if (error || !user) {
-      throw new NotFoundException(`User with id "${dto.authorId}" not found in Supabase Auth`);
+    if (!user) {
+      throw new NotFoundException(`User with id "${dto.authorId}" not found`);
     }
 
     // If parentId is provided, verify parent comment exists
@@ -75,7 +76,7 @@ export class BlogCommentService {
     return this.formatCommentResponse(comment);
   }
 
-  async findAllComments(query: BlogCommentQueryDto) {
+  async findAllComments(query: BlogCommentQueryDTO): Promise<BlogCommentPaginatedResponse> {
     const page = query.page || 1;
     const limit = query.limit || 20;
     const skip = (page - 1) * limit;
@@ -126,18 +127,14 @@ export class BlogCommentService {
 
     return {
       data: formattedComments,
-      meta: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-        hasNext: page * limit < total,
-        hasPrev: page > 1,
-      },
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
     };
   }
 
-  async findCommentById(id: string) {
+  async findCommentById(id: string): Promise<BlogCommentResponseDTO> {
     const comment = await this.prisma.blogComment.findUnique({
       where: { id },
       include: {
@@ -158,7 +155,7 @@ export class BlogCommentService {
     };
   }
 
-  async updateComment(id: string, authorId: string, dto: UpdateBlogCommentDto) {
+  async updateComment(id: string, authorId: string, dto: BlogCommentUpdateDTO): Promise<BlogCommentResponseDTO> {
     const comment = await this.prisma.blogComment.findUnique({
       where: { id },
     });
@@ -222,7 +219,7 @@ export class BlogCommentService {
     return { success: true, message: 'Comment deleted successfully' };
   }
 
-  async getCommentWithReplies(commentId: string, depth: number = 2) {
+  async getCommentWithReplies(commentId: string, depth: number = 2): Promise<BlogCommentResponseDTO | null> {
     if (depth <= 0) {
       return null;
     }
@@ -245,7 +242,7 @@ export class BlogCommentService {
     }
 
     const formatted = await this.formatCommentResponse(comment);
-    
+
     // Recursively load replies
     const repliesWithNested = await Promise.all(
       comment.replies.map(async (reply) => {
@@ -263,20 +260,26 @@ export class BlogCommentService {
     };
   }
 
-  private async formatCommentResponse(comment: any) {
-    // Get author info from Supabase
-    let authorInfo: { id: string; fullName: string; avatarUrl: string | null } | null = null;
-    
+  private async formatCommentResponse(comment: any): Promise<BlogCommentResponseDTO> {
+    // Get author info from User table
+    let authorInfo: { id: string; fullName: string; email: string } | null = null;
+
     if (comment.userId) {
       try {
-        const { data: user, error } = await this.supabase.auth.admin.getUserById(
-          comment.userId,
-        );
-        if (user && user.user) {
+        const user = await this.prisma.user.findUnique({
+          where: { id: comment.userId },
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+          },
+        });
+
+        if (user) {
           authorInfo = {
-            id: user.user.id,
-            fullName: user.user.user_metadata?.full_name || user.user.user_metadata?.name || user.user.email || 'Unknown',
-            avatarUrl: user.user.user_metadata?.avatar_url || null,
+            id: user.id,
+            fullName: user.fullName || user.email || 'Unknown',
+            email: user.email,
           };
         }
       } catch (error: any) {

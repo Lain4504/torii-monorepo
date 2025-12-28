@@ -25,22 +25,19 @@ import {
     QuestionType,
     QuestionJlptLevel,
     QuestionDifficultyLevel,
-} from '@workspace/dtos';
-import type { CreateQuestionBankDto } from '@workspace/dtos';
+    questionBankCreateDTOSchema,
+    type QuestionBankCreateDTO,
+} from '@workspace/schemas';
 import { useCreateQuestionBank } from '@/features/question-bank/api/question-bank';
 import { toast } from '@workspace/ui/components/sonner';
 
-const createQuestionSchema = z.object({
-    questionText: z.string().min(1, 'Question text is required'),
-    questionType: z.nativeEnum(QuestionType),
-    jlptLevel: z.nativeEnum(QuestionJlptLevel).optional(),
-    category: z.string().optional(),
-    subcategory: z.string().optional(),
-    difficulty: z.nativeEnum(QuestionDifficultyLevel).optional(),
-    options: z.string().optional(), // We'll parse this string to JSON
-    correctAnswer: z.string().optional(),
-    explanation: z.string().optional(),
-    tags: z.string().optional(), // We'll parse comma-separated string
+const createQuestionSchema = questionBankCreateDTOSchema.omit({
+    tags: true,
+    options: true,
+    createdBy: true
+}).extend({
+    tags: z.string().optional(),
+    options: z.string().optional(),
 });
 
 type CreateQuestionFormData = z.infer<typeof createQuestionSchema>;
@@ -110,17 +107,17 @@ export function CreateQuestionBankDialog({
                 }
             }
 
-            const dto: CreateQuestionBankDto = {
+            const dto: QuestionBankCreateDTO = {
                 questionText: data.questionText,
                 questionType: data.questionType,
                 jlptLevel: data.jlptLevel,
                 category: data.category || undefined,
                 subcategory: data.subcategory || undefined,
                 difficulty: data.difficulty,
-                options: options,
+                options: options || undefined,
                 correctAnswer: data.correctAnswer || undefined,
                 explanation: data.explanation || undefined,
-                tags: tags,
+                tags: tags || undefined,
             };
 
             await createQuestionBank.mutateAsync(dto);

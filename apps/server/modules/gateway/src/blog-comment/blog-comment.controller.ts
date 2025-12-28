@@ -11,15 +11,23 @@ import {
   HttpCode,
   HttpStatus,
   Logger,
+  UsePipes,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import { ZodValidationPipe } from '@server/shared/pipes/zod-validation.pipe';
 import {
-  CreateBlogCommentDto,
-  UpdateBlogCommentDto,
-  BlogCommentQueryDto,
-  PaginatedResponseDto,
-} from '@workspace/dtos';
+  blogCommentCreateDTOSchema,
+  blogCommentUpdateDTOSchema,
+  blogCommentQueryDTOSchema,
+} from '@workspace/schemas';
+import type {
+  BlogCommentCreateDTO,
+  BlogCommentUpdateDTO,
+  BlogCommentQueryDTO,
+  BlogCommentResponseDTO,
+  PaginatedResponse,
+} from '@workspace/schemas';
 
 @Controller('api/v1/blogs/:postId/comments')
 export class BlogCommentController {
@@ -27,32 +35,34 @@ export class BlogCommentController {
 
   constructor(
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-  ) {}
+  ) { }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @UsePipes(new ZodValidationPipe(blogCommentCreateDTOSchema))
   async create(
     @Param('postId') postId: string,
-    @Body() dto: Omit<CreateBlogCommentDto, 'postId'>,
-  ) {
-    const createDto: CreateBlogCommentDto = {
+    @Body() dto: Omit<BlogCommentCreateDTO, 'postId'>,
+  ): Promise<BlogCommentResponseDTO> {
+    const createDto: BlogCommentCreateDTO = {
       ...dto,
       postId,
-    } as CreateBlogCommentDto;
-    
-    return firstValueFrom(
+    } as BlogCommentCreateDTO;
+
+    return firstValueFrom<BlogCommentResponseDTO>(
       this.natsClient.send({ cmd: 'blog.comment.create' }, createDto),
     );
   }
 
   @Get()
+  @UsePipes(new ZodValidationPipe(blogCommentQueryDTOSchema))
   async findAll(
     @Param('postId') postId: string,
-    @Query() query: BlogCommentQueryDto,
-  ) {
+    @Query() query: BlogCommentQueryDTO,
+  ): Promise<PaginatedResponse<BlogCommentResponseDTO>> {
     const queryWithPostId = { ...query, postId };
-    return firstValueFrom(
-      this.natsClient.send<PaginatedResponseDto<any>>(
+    return firstValueFrom<PaginatedResponse<BlogCommentResponseDTO>>(
+      this.natsClient.send(
         { cmd: 'blog.comment.findAll' },
         queryWithPostId,
       ),
@@ -60,8 +70,8 @@ export class BlogCommentController {
   }
 
   @Get(':commentId')
-  async findOne(@Param('commentId') commentId: string) {
-    return firstValueFrom(
+  async findOne(@Param('commentId') commentId: string): Promise<BlogCommentResponseDTO> {
+    return firstValueFrom<BlogCommentResponseDTO>(
       this.natsClient.send({ cmd: 'blog.comment.findOne' }, commentId),
     );
   }
@@ -70,8 +80,8 @@ export class BlogCommentController {
   async getWithReplies(
     @Param('commentId') commentId: string,
     @Query('depth') depth?: number,
-  ) {
-    return firstValueFrom(
+  ): Promise<BlogCommentResponseDTO> {
+    return firstValueFrom<BlogCommentResponseDTO>(
       this.natsClient.send(
         { cmd: 'blog.comment.getWithReplies' },
         { commentId, depth: depth || 2 },
@@ -80,12 +90,13 @@ export class BlogCommentController {
   }
 
   @Patch(':commentId')
+  @UsePipes(new ZodValidationPipe(blogCommentUpdateDTOSchema))
   async update(
     @Param('commentId') commentId: string,
-    @Body() dto: UpdateBlogCommentDto,
+    @Body() dto: BlogCommentUpdateDTO,
     @Query('authorId') authorId: string,
-  ) {
-    return firstValueFrom(
+  ): Promise<BlogCommentResponseDTO> {
+    return firstValueFrom<BlogCommentResponseDTO>(
       this.natsClient.send(
         { cmd: 'blog.comment.update' },
         { id: commentId, authorId, dto },

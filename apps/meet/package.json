@@ -10,13 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@workspace/dtos": "workspace:^",
+    "@workspace/schemas": "workspace:*",
     "@workspace/protocol": "workspace:*",
     "@workspace/ui": "workspace:*",
     "axios": "^1.13.2",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "reflect-metadata": "^0.2.2"
+    "react-dom": "^19.2.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

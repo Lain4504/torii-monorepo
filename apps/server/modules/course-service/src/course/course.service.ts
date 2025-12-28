@@ -3,15 +3,16 @@ import { RpcException } from '@nestjs/microservices';
 import { ClientProxy } from '@nestjs/microservices';
 import { PrismaService, generateSlug } from '@server/shared';
 import { Course } from '@prisma/generated';
-import { PaginatedResponseDto, CourseResponseDto } from '@workspace/dtos';
 import { validate as uuidValidate } from 'uuid';
 
 import {
-  CreateCourseDto,
-  UpdateCourseDto,
-  CourseQueryDto,
+  type CourseCreateDTO,
+  type CourseUpdateDTO,
+  type CourseQueryDTO,
+  type CourseResponseDTO,
+  type PaginatedResponse,
   CourseStatus,
-} from '@workspace/dtos';
+} from '@workspace/schemas';
 
 @Injectable()
 export class CourseService {
@@ -20,12 +21,12 @@ export class CourseService {
   constructor(
     private readonly prisma: PrismaService,
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-  ) {}
+  ) { }
 
   /**
    * Map Course entity to CourseResponseDto
    */
-  private toCourseResponseDto(course: Course): CourseResponseDto {
+  private toCourseResponseDto(course: Course): CourseResponseDTO {
     return {
       id: course.id,
       title: course.title,
@@ -80,8 +81,8 @@ export class CourseService {
   }
 
   async findAll(
-    query: CourseQueryDto,
-  ): Promise<PaginatedResponseDto<CourseResponseDto>> {
+    query: CourseQueryDTO,
+  ): Promise<PaginatedResponse<CourseResponseDTO>> {
     try {
       const { page = 1, limit = 10, jlptLevel, status, search, featured } =
         query;
@@ -124,39 +125,25 @@ export class CourseService {
       const totalPages = Math.ceil(total / limit);
 
       return {
-        success: true,
-        message: `${courses.length} course(s) retrieved successfully`,
-        error: '',
         data: courses.map(course => this.toCourseResponseDto(course)),
-        meta: {
-          page,
-          limit,
-          total,
-          totalPages,
-          hasNext: page < totalPages,
-          hasPrev: page > 1,
-        },
+        total,
+        page,
+        limit,
+        totalPages,
       };
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error('Failed to retrieve courses', error);
       return {
-        success: false,
-        message: 'Failed to retrieve courses',
-        error: error.message,
         data: [],
-        meta: {
-          page: query.page || 1,
-          limit: query.limit || 10,
-          total: 0,
-          totalPages: 0,
-          hasNext: false,
-          hasPrev: false,
-        },
+        total: 0,
+        page: query.page || 1,
+        limit: query.limit || 10,
+        totalPages: 0,
       };
     }
   }
 
-  async findOne(id: string): Promise<CourseResponseDto | null> {
+  async findOne(id: string): Promise<CourseResponseDTO | null> {
     const course = await this.prisma.course.findFirst({
       where: {
         id,
@@ -167,7 +154,7 @@ export class CourseService {
     return course ? this.toCourseResponseDto(course) : null;
   }
 
-  async create(input: CreateCourseDto): Promise<CourseResponseDto> {
+  async create(input: CourseCreateDTO): Promise<CourseResponseDTO> {
     try {
       // Generate slug from title
       const baseSlug = generateSlug(input.title);
@@ -206,7 +193,7 @@ export class CourseService {
     }
   }
 
-  async update(id: string, input: UpdateCourseDto): Promise<CourseResponseDto> {
+  async update(id: string, input: CourseUpdateDTO): Promise<CourseResponseDTO> {
     // Check if course exists and not deleted
     const existing = await this.prisma.course.findFirst({
       where: {
@@ -232,13 +219,13 @@ export class CourseService {
 
       // Prepare update data - only update fields that are provided AND different from existing values
       const updateData: Record<string, any> = {};
-      
+
       // Title: only update if provided and different from existing
       if (input.title !== undefined && input.title !== existing.title) {
         updateData.title = input.title;
         updateData.slug = slug;
       }
-      
+
       // Description: only update if provided and different from existing
       if (input.description !== undefined) {
         const existingDesc = existing.description || null;
@@ -247,7 +234,7 @@ export class CourseService {
           updateData.description = input.description;
         }
       }
-      
+
       // ShortDescription: only update if provided and different from existing
       if (input.shortDescription !== undefined) {
         const existingShortDesc = existing.shortDescription || null;
@@ -256,12 +243,12 @@ export class CourseService {
           updateData.shortDescription = input.shortDescription;
         }
       }
-      
+
       // JlptLevel: only update if provided and different from existing
       if (input.jlptLevel !== undefined && input.jlptLevel !== existing.jlptLevel) {
         updateData.jlptLevel = input.jlptLevel;
       }
-      
+
       // ThumbnailUrl: only update if provided and different from existing
       if (input.thumbnailUrl !== undefined) {
         const existingThumb = existing.thumbnailUrl || null;
@@ -270,7 +257,7 @@ export class CourseService {
           updateData.thumbnailUrl = input.thumbnailUrl;
         }
       }
-      
+
       // PreviewVideoUrl: only update if provided and different from existing
       if (input.previewVideoUrl !== undefined) {
         const existingPreview = existing.previewVideoUrl || null;
@@ -279,7 +266,7 @@ export class CourseService {
           updateData.previewVideoUrl = input.previewVideoUrl;
         }
       }
-      
+
       // Price: only update if provided and different from existing
       if (input.price !== undefined) {
         const existingPrice = Number(existing.price);
@@ -288,7 +275,7 @@ export class CourseService {
           updateData.price = input.price;
         }
       }
-      
+
       // DiscountPrice: only update if provided and different from existing
       if (input.discountPrice !== undefined) {
         const existingDiscount = existing.discountPrice ? Number(existing.discountPrice) : null;
@@ -297,7 +284,7 @@ export class CourseService {
           updateData.discountPrice = input.discountPrice;
         }
       }
-      
+
       // DurationWeeks: only update if provided and different from existing
       if (input.durationWeeks !== undefined) {
         const existingDuration = existing.durationWeeks || null;
@@ -306,42 +293,42 @@ export class CourseService {
           updateData.durationWeeks = input.durationWeeks;
         }
       }
-      
+
       // Status: only update if provided and different from existing
       let isPublishingCourse = false;
       if (input.status !== undefined && input.status !== existing.status) {
         updateData.status = input.status;
-        
+
         // If status is being changed to published, set approvedBy and approvedAt
         if (input.status === CourseStatus.PUBLISHED) {
           isPublishingCourse = true;
           // Only set approvedBy if it's a valid UUID format
-          const validApprovedBy = input.approvedBy && 
-            typeof input.approvedBy === 'string' && 
+          const validApprovedBy = input.approvedBy &&
+            typeof input.approvedBy === 'string' &&
             uuidValidate(input.approvedBy.trim())
-            ? input.approvedBy.trim() 
+            ? input.approvedBy.trim()
             : null;
           updateData.approvedBy = validApprovedBy;
           updateData.approvedAt = validApprovedBy ? new Date() : null;
         }
-        
+
         // If status is being changed from published to something else, clear approval
         if (existing.status === CourseStatus.PUBLISHED && input.status !== CourseStatus.PUBLISHED) {
           updateData.approvedBy = null;
           updateData.approvedAt = null;
         }
       }
-      
+
       // Featured: only update if provided and different from existing
       if (input.featured !== undefined && input.featured !== existing.featured) {
         updateData.featured = input.featured;
       }
-      
+
       // IsFree: only update if provided and different from existing
       if (input.isFree !== undefined && input.isFree !== existing.isFree) {
         updateData.isFree = input.isFree;
       }
-      
+
       // Tags: only update if provided and different from existing
       if (input.tags !== undefined) {
         const existingTags = existing.tags || [];
@@ -352,7 +339,7 @@ export class CourseService {
           updateData.tags = input.tags;
         }
       }
-      
+
       // LearningOutcomes: only update if provided and different from existing
       if (input.learningOutcomes !== undefined) {
         const existingOutcomes = JSON.stringify(existing.learningOutcomes || {});
@@ -361,7 +348,7 @@ export class CourseService {
           updateData.learningOutcomes = input.learningOutcomes;
         }
       }
-      
+
       // Requirements: only update if provided and different from existing
       if (input.requirements !== undefined) {
         const existingReqs = JSON.stringify(existing.requirements || {});
@@ -386,11 +373,11 @@ export class CourseService {
       if (isPublishingCourse) {
         try {
           this.logger.log(`Course ${course.id} published, emitting course.published event`);
-          
+
           // For testing: Use MOCK_USER_ID to send notification
           // In production, this should be replaced with actual interested users (from wishlist, etc.)
           const MOCK_USER_ID = '5e808603-1e54-4dc9-ae93-f1e347c101ab';
-          
+
           this.natsClient.emit(
             { cmd: 'course.published' },
             {
@@ -447,7 +434,7 @@ export class CourseService {
     }
   }
 
-  async restore(id: string): Promise<CourseResponseDto> {
+  async restore(id: string): Promise<CourseResponseDTO> {
     // Check if course exists (including soft-deleted ones)
     const existing = await this.prisma.course.findUnique({
       where: { id },

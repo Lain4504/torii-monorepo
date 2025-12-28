@@ -1,11 +1,21 @@
 import { Body, Controller, Delete, Get, Inject, Param, Patch, Post, Query } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
-import { CreateLessonDto, UpdateLessonDto, LessonQueryDto, LessonResponseDto, UpdateLessonRequestDto, PaginatedResponseDto } from '@workspace/dtos';
+import {
+  type LessonCreateDTO,
+  type LessonUpdateDTO,
+  type LessonQueryDTO,
+  type LessonResponseDTO,
+  type PaginatedResponse,
+  lessonCreateDTOSchema,
+  lessonUpdateDTOSchema,
+} from '@workspace/schemas';
+import { UsePipes } from '@nestjs/common';
+import { ZodValidationPipe } from '@server/shared/pipes/zod-validation.pipe';
 
 @Controller('api/admin/lessons')
 export class LessonController {
-  constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) {}
+  constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
   @Get()
   async findAll(
@@ -14,8 +24,8 @@ export class LessonController {
     @Query('moduleId') moduleId?: string,
     @Query('contentType') contentType?: string,
     @Query('search') search?: string,
-  ): Promise<PaginatedResponseDto<LessonResponseDto>> {
-    const payload: LessonQueryDto = {
+  ): Promise<PaginatedResponse<LessonResponseDTO>> {
+    const payload: LessonQueryDTO = {
       page: page ? Number(page) : 1,
       limit: limit ? Number(limit) : 10,
       ...(moduleId && { moduleId }),
@@ -23,19 +33,19 @@ export class LessonController {
       ...(search && { search }),
     };
 
-    const response = await lastValueFrom(this.natsClient.send({ cmd: 'lesson.findAll' }, payload));
-    return response;
+    return await lastValueFrom(this.natsClient.send<PaginatedResponse<LessonResponseDTO>>({ cmd: 'lesson.findAll' }, payload));
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<LessonResponseDto | null> {
-    return await lastValueFrom(this.natsClient.send({ cmd: 'lesson.findOne' }, id));
+  async findOne(@Param('id') id: string): Promise<LessonResponseDTO | null> {
+    return await lastValueFrom(this.natsClient.send<LessonResponseDTO | null>({ cmd: 'lesson.findOne' }, id));
   }
 
   @Post()
-  async create(@Body() input: CreateLessonDto): Promise<LessonResponseDto> {
+  @UsePipes(new ZodValidationPipe(lessonCreateDTOSchema))
+  async create(@Body() input: LessonCreateDTO): Promise<LessonResponseDTO> {
     try {
-      return await lastValueFrom(this.natsClient.send({ cmd: 'lesson.create' }, input));
+      return await lastValueFrom(this.natsClient.send<LessonResponseDTO>({ cmd: 'lesson.create' }, input));
     } catch (error: any) {
       console.error('Gateway: Error in lesson.create:', error);
       throw error;
@@ -43,9 +53,10 @@ export class LessonController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() input: UpdateLessonDto): Promise<LessonResponseDto> {
+  @UsePipes(new ZodValidationPipe(lessonUpdateDTOSchema))
+  async update(@Param('id') id: string, @Body() input: LessonUpdateDTO): Promise<LessonResponseDTO> {
     try {
-      return await lastValueFrom(this.natsClient.send({ cmd: 'lesson.update' }, { id, input } as UpdateLessonRequestDto));
+      return await lastValueFrom(this.natsClient.send<LessonResponseDTO>({ cmd: 'lesson.update' }, { id, input }));
     } catch (error: any) {
       console.error('Gateway: Error in lesson.update:', error);
       throw error;
@@ -55,7 +66,7 @@ export class LessonController {
   @Delete(':id')
   delete(@Param('id') id: string): Promise<boolean> {
     try {
-      return lastValueFrom(this.natsClient.send({ cmd: 'lesson.delete' }, id));
+      return lastValueFrom(this.natsClient.send<boolean>({ cmd: 'lesson.delete' }, id));
     } catch (error: any) {
       console.error('Gateway: Error in lesson.delete:', error);
       throw error;
@@ -63,9 +74,9 @@ export class LessonController {
   }
 
   @Patch(':id/restore')
-  async restore(@Param('id') id: string): Promise<LessonResponseDto> {
+  async restore(@Param('id') id: string): Promise<LessonResponseDTO> {
     try {
-      return await lastValueFrom(this.natsClient.send({ cmd: 'lesson.restore' }, id));
+      return await lastValueFrom(this.natsClient.send<LessonResponseDTO>({ cmd: 'lesson.restore' }, id));
     } catch (error: any) {
       console.error('Gateway: Error in lesson.restore:', error);
       throw error;

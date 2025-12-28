@@ -1,5 +1,5 @@
 import { createColumnHelper } from '@tanstack/react-table';
-import type { UserResponseDto } from '@workspace/dtos';
+import type { UserResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
 import { ArrowUpDown, MoreHorizontal, Pencil, Trash, Eye } from 'lucide-react';
 import {
@@ -11,12 +11,12 @@ import {
     DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu';
 
-const columnHelper = createColumnHelper<UserResponseDto>();
+const columnHelper = createColumnHelper<UserResponseDTO>();
 
 export type UsersColumnsProps = {
-    onView: (user: UserResponseDto) => void;
-    onEdit: (user: UserResponseDto) => void;
-    onDelete: (user: UserResponseDto) => void;
+    onView: (user: UserResponseDTO) => void;
+    onEdit: (user: UserResponseDTO) => void;
+    onDelete: (user: UserResponseDTO) => void;
     page: number;
     limit: number;
 };

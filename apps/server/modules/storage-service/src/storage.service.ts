@@ -6,19 +6,18 @@ import { PrismaService } from '@server/shared';
 import { v4 as uuidv4, validate as validateUuid } from 'uuid';
 import { extname } from 'path';
 import {
-  PresignedUploadUrlRequest,
-  PresignedUploadUrlResponse,
-  ConfirmUploadRequest,
-  ConfirmUploadResponse,
-  DeleteFileRequest,
-  DeleteFileResponse,
-  DirectUploadRequest,
-  DirectUploadResponse,
-  GetSignedUrlRequest,
-  GetSignedUrlResponse,
+  StoragePresignedUrlRequestDTO,
+  StoragePresignedUrlResponseDTO,
+  StorageConfirmUploadRequestDTO,
+  StorageConfirmUploadResponseDTO,
+  StorageDeleteFileRequestDTO,
+  StorageDeleteFileResponseDTO,
+  StorageDirectUploadRequestDTO,
+  StorageDirectUploadResponseDTO,
+  StorageGetSignedUrlRequestDTO,
+  StorageGetSignedUrlResponseDTO,
   FileStatus,
-  VideoMetadata,
-} from '@workspace/dtos';
+} from '@workspace/schemas';
 import { R2_CLIENT } from './r2/r2.provider';
 
 @Injectable()
@@ -43,8 +42,8 @@ export class StorageService {
    * Generate presigned upload URL for R2 Storage
    */
   async generatePresignedUploadUrl(
-    request: PresignedUploadUrlRequest,
-  ): Promise<PresignedUploadUrlResponse> {
+    request: StoragePresignedUrlRequestDTO,
+  ): Promise<StoragePresignedUrlResponseDTO> {
     // Extract fields (DTOs already validated by class-validator)
     const { filename, contentType, module, metadata = {} } = request;
     let { ownerId } = request;
@@ -120,7 +119,7 @@ export class StorageService {
   /**
    * Confirm file upload and verify file exists in R2
    */
-  async confirmUpload(request: ConfirmUploadRequest): Promise<ConfirmUploadResponse> {
+  async confirmUpload(request: StorageConfirmUploadRequestDTO): Promise<StorageConfirmUploadResponseDTO> {
     const { fileId } = request;
 
     // Find file record
@@ -167,7 +166,7 @@ export class StorageService {
    * Direct upload - Server handles the upload to R2
    * Use this for small files (<5MB) or when server-side processing is needed
    */
-  async directUpload(request: DirectUploadRequest): Promise<DirectUploadResponse> {
+  async directUpload(request: StorageDirectUploadRequestDTO): Promise<StorageDirectUploadResponseDTO> {
     const { filename, contentType, module, metadata = {}, fileData } = request;
     let { ownerId } = request;
 
@@ -238,7 +237,7 @@ export class StorageService {
    * Get signed URL for temporary file access
    * Useful for private files or when public access is not enabled
    */
-  async getSignedUrl(request: GetSignedUrlRequest): Promise<GetSignedUrlResponse> {
+  async getSignedUrl(request: StorageGetSignedUrlRequestDTO): Promise<StorageGetSignedUrlResponseDTO> {
     const { fileId, expiresIn = 3600 } = request;
 
     // Find file record
@@ -273,7 +272,7 @@ export class StorageService {
   /**
    * Delete file from R2 and database
    */
-  async deleteFile(request: DeleteFileRequest): Promise<DeleteFileResponse> {
+  async deleteFile(request: StorageDeleteFileRequestDTO): Promise<StorageDeleteFileResponseDTO> {
     const { fileId } = request;
 
     // Find file record

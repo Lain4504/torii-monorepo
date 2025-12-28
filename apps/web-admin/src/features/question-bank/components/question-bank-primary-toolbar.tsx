@@ -8,7 +8,7 @@ import {
     SelectValue,
 } from '@workspace/ui/components/select';
 import { Plus, Search, X } from 'lucide-react';
-import type { QuestionType, QuestionJlptLevel } from '@workspace/dtos';
+import type { QuestionType, QuestionJlptLevel } from '@workspace/schemas';
 import type { QuestionBankFilters } from '@/features/question-bank/api/question-bank';
 
 interface QuestionBankPrimaryToolbarProps {

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
-import { PaginatedResponseDto, CourseResponseDto, CreateCourseDto, UpdateCourseDto, CourseQueryDto } from '@workspace/dtos';
+import type { PaginatedResponse, CourseResponseDTO, CourseCreateDTO, CourseUpdateDTO, CourseQueryDTO } from '@workspace/schemas';
 
 // ============================================================================
 // API Functions
@@ -8,26 +8,26 @@ import { PaginatedResponseDto, CourseResponseDto, CreateCourseDto, UpdateCourseD
 
 export const coursesApi = {
     // GET /api/admin/courses
-    async findAll(params: CourseQueryDto): Promise<PaginatedResponseDto<CourseResponseDto>> {
-        const response = await apiClient.get<PaginatedResponseDto<CourseResponseDto>>('/api/admin/courses', { params });
+    async findAll(params: CourseQueryDTO): Promise<PaginatedResponse<CourseResponseDTO>> {
+        const response = await apiClient.get<PaginatedResponse<CourseResponseDTO>>('/api/admin/courses', { params });
         return response.data;
     },
 
     // GET /api/admin/courses/:id
-    async findOne(id: string): Promise<CourseResponseDto> {
-        const response = await apiClient.get<CourseResponseDto>(`/api/admin/courses/${id}`);
+    async findOne(id: string): Promise<CourseResponseDTO> {
+        const response = await apiClient.get<CourseResponseDTO>(`/api/admin/courses/${id}`);
         return response.data;
     },
 
     // POST /api/admin/courses
-    async create(course: CreateCourseDto): Promise<CourseResponseDto> {
-        const response = await apiClient.post<CourseResponseDto>('/api/admin/courses', course);
+    async create(course: CourseCreateDTO): Promise<CourseResponseDTO> {
+        const response = await apiClient.post<CourseResponseDTO>('/api/admin/courses', course);
         return response.data;
     },
 
     // PATCH /api/admin/courses/:id
-    async update(id: string, course: UpdateCourseDto): Promise<CourseResponseDto> {
-        const response = await apiClient.patch<CourseResponseDto>(`/api/admin/courses/${id}`, course);
+    async update(id: string, course: CourseUpdateDTO): Promise<CourseResponseDTO> {
+        const response = await apiClient.patch<CourseResponseDTO>(`/api/admin/courses/${id}`, course);
         return response.data;
     },
 
@@ -38,8 +38,8 @@ export const coursesApi = {
     },
 
     // PATCH /api/admin/courses/:id/restore
-    async restore(id: string): Promise<CourseResponseDto> {
-        const response = await apiClient.patch<CourseResponseDto>(`/api/admin/courses/${id}/restore`);
+    async restore(id: string): Promise<CourseResponseDTO> {
+        const response = await apiClient.patch<CourseResponseDTO>(`/api/admin/courses/${id}/restore`);
         return response.data;
     },
 };
@@ -51,7 +51,7 @@ export const coursesApi = {
 /**
  * Hook: Get courses list with pagination and filters
  */
-export function useCourses(params: CourseQueryDto) {
+export function useCourses(params: CourseQueryDTO) {
     return useQuery({
         queryKey: ['courses', params],
         queryFn: () => coursesApi.findAll(params),
@@ -77,7 +77,7 @@ export function useCreateCourse() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (course: CreateCourseDto) => coursesApi.create(course),
+        mutationFn: (course: CourseCreateDTO) => coursesApi.create(course),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['courses'] });
         },
@@ -91,7 +91,7 @@ export function useUpdateCourse() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({ id, course }: { id: string; course: UpdateCourseDto }) =>
+        mutationFn: ({ id, course }: { id: string; course: CourseUpdateDTO }) =>
             coursesApi.update(id, course),
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['courses', variables.id] });

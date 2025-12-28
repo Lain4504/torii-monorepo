@@ -1,13 +1,13 @@
 import { useState, useMemo } from 'react';
 import { useQuestionBanks } from '@/features/question-bank/api/question-bank';
-import type {
-    QuestionBankQueryDto,
+import {
+    type QuestionBankQueryDTO,
     QuestionType,
     QuestionJlptLevel,
     QuestionDifficultyLevel,
     QuestionStatus,
-    QuestionBankDto,
-} from '@workspace/dtos';
+    type QuestionBankResponseDTO,
+} from '@workspace/schemas';
 import type { QuestionBankFilters } from '@/features/question-bank/api/question-bank';
 import { QuestionBankPrimaryToolbar } from '@/features/question-bank/components/question-bank-primary-toolbar';
 import { QuestionBankTable } from '@/features/question-bank/components/question-bank-table';
@@ -31,7 +31,7 @@ export function QuestionBankPage() {
     });
 
     // Build query params
-    const queryParams: QuestionBankQueryDto = useMemo(
+    const queryParams: QuestionBankQueryDTO = useMemo(
         () => ({
             page: Number(page) || 1,
             limit: Number(limit) || 10,
@@ -80,29 +80,33 @@ export function QuestionBankPage() {
     );
 
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-    const [editingQuestion, setEditingQuestion] = useState<QuestionBankDto | null>(null);
-    const [viewingQuestion, setViewingQuestion] = useState<QuestionBankDto | null>(null);
-    const [deletingQuestion, setDeletingQuestion] = useState<QuestionBankDto | null>(null);
+    const [editingQuestion, setEditingQuestion] = useState<QuestionBankResponseDTO | null>(null);
+    const [viewingQuestion, setViewingQuestion] = useState<QuestionBankResponseDTO | null>(null);
+    const [deletingQuestion, setDeletingQuestion] = useState<QuestionBankResponseDTO | null>(null);
 
     // Queries
     const { data, error } = useQuestionBanks(queryParams);
 
-    const questions = (data?.data || []) as QuestionBankDto[];
-    const meta = data?.meta;
+    const questions = (data?.data || []) as QuestionBankResponseDTO[];
+    const meta = data ? {
+        total: data.total,
+        page: data.page,
+        totalPages: data.totalPages,
+    } : null;
 
     const handleCreate = () => {
         setIsCreateDialogOpen(true);
     };
 
-    const handleEdit = (question: QuestionBankDto) => {
+    const handleEdit = (question: QuestionBankResponseDTO) => {
         setEditingQuestion(question);
     };
 
-    const handleView = (question: QuestionBankDto) => {
+    const handleView = (question: QuestionBankResponseDTO) => {
         setViewingQuestion(question);
     };
 
-    const handleDelete = (question: QuestionBankDto) => {
+    const handleDelete = (question: QuestionBankResponseDTO) => {
         setDeletingQuestion(question);
     };
 
@@ -149,7 +153,7 @@ export function QuestionBankPage() {
                             variant="outline"
                             size="sm"
                             onClick={() => setPage((p) => Math.max(1, p - 1))}
-                            disabled={page === 1 || !meta.hasPrev}
+                            disabled={page === 1}
                         >
                             Previous
                         </Button>
@@ -157,7 +161,7 @@ export function QuestionBankPage() {
                             variant="outline"
                             size="sm"
                             onClick={() => setPage((p) => p + 1)}
-                            disabled={page === meta.totalPages || !meta.hasNext}
+                            disabled={page >= (meta.totalPages || 1)}
                         >
                             Next
                         </Button>
