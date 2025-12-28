@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { z } from 'zod'; // Add z import
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+
 import { useCreateCourse } from '@/features/courses/api/courses';
 import {
     Dialog,
@@ -13,20 +14,10 @@ import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
 import { storageApi } from '@/lib/storage-api';
-import { JlptLevel, CourseStatus } from '@workspace/dtos';
+import { JlptLevel, CourseStatus, courseCreateDTOSchema, type CourseCreateDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
 
-const createCourseSchema = z.object({
-    title: z.string().min(1, 'Title is required'),
-    description: z.string().optional(),
-    jlptLevel: z.nativeEnum(JlptLevel),
-    price: z.number().min(0, 'Price must be positive'),
-    status: z.nativeEnum(CourseStatus).optional(),
-    thumbnailUrl: z.string().optional(),
-    previewVideoUrl: z.string().optional(),
-});
-
-type CreateCourseFormData = z.infer<typeof createCourseSchema>;
+type CreateCourseFormData = z.input<typeof courseCreateDTOSchema>;
 
 interface CreateCourseDialogProps {
     open: boolean;
@@ -47,12 +38,14 @@ export function CreateCourseDialog({ open, onOpenChange }: CreateCourseDialogPro
         watch,
         reset,
     } = useForm<CreateCourseFormData>({
-        resolver: zodResolver(createCourseSchema),
+        resolver: zodResolver(courseCreateDTOSchema),
         defaultValues: {
             title: '',
             jlptLevel: JlptLevel.N5,
             price: 0,
             status: CourseStatus.DRAFT,
+            featured: false,
+            isFree: false,
         },
     });
 
@@ -100,7 +93,7 @@ export function CreateCourseDialog({ open, onOpenChange }: CreateCourseDialogPro
                 ...data,
                 thumbnailUrl,
                 previewVideoUrl,
-            };
+            } as CourseCreateDTO;
 
             await createCourse.mutateAsync(courseData);
             toast.success('Course created successfully!', {

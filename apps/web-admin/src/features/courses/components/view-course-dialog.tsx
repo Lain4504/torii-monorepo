@@ -7,12 +7,12 @@ import {
 } from '@workspace/ui/components/dialog';
 import { Badge } from '@workspace/ui/components/badge';
 import { Label } from '@workspace/ui/components/label';
-import type { CourseResponseDto } from '@workspace/dtos';
+import type { CourseResponseDTO } from '@workspace/schemas';
 
 interface ViewCourseDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    course: CourseResponseDto | null;
+    course: CourseResponseDTO | null;
 }
 
 export function ViewCourseDialog({

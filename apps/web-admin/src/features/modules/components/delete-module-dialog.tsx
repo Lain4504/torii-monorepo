@@ -9,11 +9,11 @@
     AlertDialogTitle,
 } from '@workspace/ui/components/alert-dialog';
 import { useDeleteModule } from '@/features/modules/api/modules';
-import type { ModuleResponseDto } from '@workspace/dtos';
+import type { ModuleResponseDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
 
 interface DeleteModuleDialogProps {
-    module: ModuleResponseDto | null;
+    module: ModuleResponseDTO | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }

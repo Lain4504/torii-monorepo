@@ -1,5 +1,5 @@
 import { apiClient } from './api-client';
-import { PresignedUploadUrlRequest, PresignedUploadUrlResponse, ConfirmUploadRequest, ConfirmUploadResponse } from '@workspace/dtos';
+import type { StoragePresignedUrlRequestDTO, StoragePresignedUrlResponseDTO, StorageConfirmUploadRequestDTO, StorageConfirmUploadResponseDTO } from '@workspace/schemas';
 
 // ============================================================================
 // API Functions
@@ -7,14 +7,16 @@ import { PresignedUploadUrlRequest, PresignedUploadUrlResponse, ConfirmUploadReq
 
 export const storageApi = {
     // POST /api/storage/upload-url
-    async generateUploadUrl(data: PresignedUploadUrlRequest): Promise<PresignedUploadUrlResponse> {
-        const response = await apiClient.post<PresignedUploadUrlResponse>('/api/storage/upload-url', data);
+    // POST /api/storage/upload-url
+    async generateUploadUrl(data: StoragePresignedUrlRequestDTO): Promise<StoragePresignedUrlResponseDTO> {
+        const response = await apiClient.post<StoragePresignedUrlResponseDTO>('/api/storage/upload-url', data);
         return response.data;
     },
 
     // POST /api/storage/confirm
-    async confirmUpload(data: ConfirmUploadRequest): Promise<ConfirmUploadResponse> {
-        const response = await apiClient.post<ConfirmUploadResponse>('/api/storage/confirm', data);
+    // POST /api/storage/confirm
+    async confirmUpload(data: StorageConfirmUploadRequestDTO): Promise<StorageConfirmUploadResponseDTO> {
+        const response = await apiClient.post<StorageConfirmUploadResponseDTO>('/api/storage/confirm', data);
         return response.data;
     },
 };

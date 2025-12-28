@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
-import { PaginatedResponseDto, ModuleResponseDto, CreateModuleDto, UpdateModuleDto, ModuleQueryDto } from '@workspace/dtos';
+import type { PaginatedResponse, ModuleResponseDTO, ModuleCreateDTO, ModuleUpdateDTO, ModuleQueryDTO } from '@workspace/schemas';
 
 // ============================================================================
 // API Functions
@@ -8,26 +8,26 @@ import { PaginatedResponseDto, ModuleResponseDto, CreateModuleDto, UpdateModuleD
 
 export const modulesApi = {
     // GET /api/admin/modules
-    async findAll(params: ModuleQueryDto): Promise<PaginatedResponseDto<ModuleResponseDto>> {
-        const response = await apiClient.get<PaginatedResponseDto<ModuleResponseDto>>('/api/admin/modules', { params });
+    async findAll(params: ModuleQueryDTO): Promise<PaginatedResponse<ModuleResponseDTO>> {
+        const response = await apiClient.get<PaginatedResponse<ModuleResponseDTO>>('/api/admin/modules', { params });
         return response.data;
     },
 
     // GET /api/admin/modules/:id
-    async findOne(id: string): Promise<ModuleResponseDto> {
-        const response = await apiClient.get<ModuleResponseDto>(`/api/admin/modules/${id}`);
+    async findOne(id: string): Promise<ModuleResponseDTO> {
+        const response = await apiClient.get<ModuleResponseDTO>(`/api/admin/modules/${id}`);
         return response.data;
     },
 
     // POST /api/admin/modules
-    async create(module: CreateModuleDto): Promise<ModuleResponseDto> {
-        const response = await apiClient.post<ModuleResponseDto>('/api/admin/modules', module);
+    async create(module: ModuleCreateDTO): Promise<ModuleResponseDTO> {
+        const response = await apiClient.post<ModuleResponseDTO>('/api/admin/modules', module);
         return response.data;
     },
 
     // PATCH /api/admin/modules/:id
-    async update(id: string, module: UpdateModuleDto): Promise<ModuleResponseDto> {
-        const response = await apiClient.patch<ModuleResponseDto>(`/api/admin/modules/${id}`, module);
+    async update(id: string, module: ModuleUpdateDTO): Promise<ModuleResponseDTO> {
+        const response = await apiClient.patch<ModuleResponseDTO>(`/api/admin/modules/${id}`, module);
         return response.data;
     },
 
@@ -38,8 +38,8 @@ export const modulesApi = {
     },
 
     // PATCH /api/admin/modules/:id/restore
-    async restore(id: string): Promise<ModuleResponseDto> {
-        const response = await apiClient.patch<ModuleResponseDto>(`/api/admin/modules/${id}/restore`);
+    async restore(id: string): Promise<ModuleResponseDTO> {
+        const response = await apiClient.patch<ModuleResponseDTO>(`/api/admin/modules/${id}/restore`);
         return response.data;
     },
 };
@@ -51,7 +51,10 @@ export const modulesApi = {
 /**
  * Hook: Get modules list with pagination and filters
  */
-export function useModules(params: ModuleQueryDto) {
+/**
+ * Hook: Get modules list with pagination and filters
+ */
+export function useModules(params: ModuleQueryDTO) {
     return useQuery({
         queryKey: ['modules', params],
         queryFn: () => modulesApi.findAll(params),
@@ -77,7 +80,7 @@ export function useCreateModule() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (module: CreateModuleDto) => modulesApi.create(module),
+        mutationFn: (module: ModuleCreateDTO) => modulesApi.create(module),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['modules'] });
         },
@@ -91,7 +94,7 @@ export function useUpdateModule() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({ id, module }: { id: string; module: UpdateModuleDto }) =>
+        mutationFn: ({ id, module }: { id: string; module: ModuleUpdateDTO }) =>
             modulesApi.update(id, module),
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['modules', variables.id] });

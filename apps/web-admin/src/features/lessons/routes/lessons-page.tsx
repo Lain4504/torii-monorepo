@@ -8,7 +8,7 @@ import { CreateLessonDialog } from '@/features/lessons/components/create-lesson-
 import { EditLessonDialog } from '@/features/lessons/components/edit-lesson-dialog';
 import { DeleteLessonDialog } from '@/features/lessons/components/delete-lesson-dialog';
 import { ViewLessonDialog } from '@/features/lessons/components/view-lesson-dialog';
-import type { LessonQueryDto, LessonResponseDto } from '@workspace/dtos';
+import type { LessonQueryDTO, LessonResponseDTO } from '@workspace/schemas';
 
 export default function LessonsPage() {
   const [page, setPage] = useState(1);
@@ -16,16 +16,16 @@ export default function LessonsPage() {
   const [contentTypeFilter, setContentTypeFilter] = useState<string>('');
   const location = useLocation();
   // @ts-ignore
-    const [moduleIdFilter, setModuleIdFilter] = useState(() => new URLSearchParams(location.search).get('moduleId') || '');
+  const [moduleIdFilter, setModuleIdFilter] = useState(() => new URLSearchParams(location.search).get('moduleId') || '');
   const [statusFilter, setStatusFilter] = useState('');
 
   // Dialog States
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [editingLesson, setEditingLesson] = useState<LessonResponseDto | null>(null);
-  const [deletingLesson, setDeletingLesson] = useState<LessonResponseDto | null>(null);
-  const [viewingLesson, setViewingLesson] = useState<LessonResponseDto | null>(null);
+  const [editingLesson, setEditingLesson] = useState<LessonResponseDTO | null>(null);
+  const [deletingLesson, setDeletingLesson] = useState<LessonResponseDTO | null>(null);
+  const [viewingLesson, setViewingLesson] = useState<LessonResponseDTO | null>(null);
 
-  const queryParams: LessonQueryDto = {
+  const queryParams: LessonQueryDTO = {
     page,
     limit: 10,
     ...(search && { search }),
@@ -37,7 +37,12 @@ export default function LessonsPage() {
   const { data: lessonsData, isLoading, error } = useLessons(queryParams);
 
   const lessons = lessonsData?.data || [];
-  const meta = lessonsData?.meta;
+  const meta = lessonsData ? {
+    total: lessonsData.total,
+    totalPages: lessonsData.totalPages,
+    page: lessonsData.page,
+    limit: lessonsData.limit
+  } : null;
 
   if (isLoading) {
     return (

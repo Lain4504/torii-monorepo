@@ -1,4 +1,4 @@
-import 'reflect-metadata'
+
 import { Geist, Geist_Mono } from "next/font/google"
 
 import "@workspace/ui/globals.css"

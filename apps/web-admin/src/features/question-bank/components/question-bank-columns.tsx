@@ -1,5 +1,5 @@
 import { createColumnHelper } from '@tanstack/react-table';
-import { QuestionBankDto, QuestionStatus } from '@workspace/dtos';
+import { type QuestionBankResponseDTO, QuestionStatus } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
 import { ArrowUpDown, MoreHorizontal, Pencil, Eye, Trash } from 'lucide-react';
 import {
@@ -11,12 +11,12 @@ import {
     DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu';
 
-const columnHelper = createColumnHelper<QuestionBankDto>();
+const columnHelper = createColumnHelper<QuestionBankResponseDTO>();
 
 export type QuestionBankColumnsProps = {
-    onEdit: (question: QuestionBankDto) => void;
-    onView: (question: QuestionBankDto) => void;
-    onDelete: (question: QuestionBankDto) => void;
+    onEdit: (question: QuestionBankResponseDTO) => void;
+    onView: (question: QuestionBankResponseDTO) => void;
+    onDelete: (question: QuestionBankResponseDTO) => void;
     page: number;
     limit: number;
 };

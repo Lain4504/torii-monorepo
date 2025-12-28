@@ -1,5 +1,5 @@
 ﻿import { createColumnHelper } from '@tanstack/react-table';
-import type { ModuleResponseDto } from '@workspace/dtos';
+import type { ModuleResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
 import { ArrowUpDown, MoreHorizontal, Pencil, Trash, Eye, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -12,12 +12,12 @@ import {
     DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu';
 
-const columnHelper = createColumnHelper<ModuleResponseDto>();
+const columnHelper = createColumnHelper<ModuleResponseDTO>();
 
 export type ModulesColumnsProps = {
-    onView: (module: ModuleResponseDto) => void;
-    onEdit: (module: ModuleResponseDto) => void;
-    onDelete: (module: ModuleResponseDto) => void;
+    onView: (module: ModuleResponseDTO) => void;
+    onEdit: (module: ModuleResponseDTO) => void;
+    onDelete: (module: ModuleResponseDTO) => void;
     page: number;
     limit: number;
     courseTitleMap?: Map<string, string>;
@@ -71,11 +71,10 @@ export const getModulesColumns = ({ onView, onEdit, onDelete, page, limit, cours
             return (
                 <div className="ml-4">
                     <span
-                        className={`px-2 py-1 rounded text-xs ${
-                            isDeleted
-                                ? 'bg-red-100 text-red-800'
-                                : 'bg-green-100 text-green-800'
-                        }`}
+                        className={`px-2 py-1 rounded text-xs ${isDeleted
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-green-100 text-green-800'
+                            }`}
                     >
                         {isDeleted ? 'Deleted' : 'Active'}
                     </span>

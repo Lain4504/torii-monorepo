@@ -20,6 +20,28 @@ export const userLoginDTOSchema = z.object({
 
 export type UserLoginDTO = z.infer<typeof userLoginDTOSchema>;
 
+// Admin Create User DTO
+export const userCreateDTOSchema = userSchema
+    .pick({
+        email: true,
+        fullName: true,
+        password: true,
+        role: true,
+        status: true,
+        phone: true,
+        avatarUrl: true,
+        bio: true,
+        dateOfBirth: true,
+        gender: true,
+        jlptLevel: true,
+    })
+    .extend({
+        role: userSchema.shape.role.optional(),
+        status: userSchema.shape.status.optional(),
+    });
+
+export type UserCreateDTO = z.infer<typeof userCreateDTOSchema>;
+
 // Update DTO
 export const userUpdateDTOSchema = userSchema
     .pick({
@@ -36,8 +58,9 @@ export const userUpdateDTOSchema = userSchema
 
 export type UserUpdateDTO = z.infer<typeof userUpdateDTOSchema>;
 
-// Admin Update DTO (includes role/status)
+// Admin Update DTO (includes role/status/email)
 export const userAdminUpdateDTOSchema = userUpdateDTOSchema.extend({
+    email: userSchema.shape.email.optional(),
     role: userSchema.shape.role.optional(),
     status: userSchema.shape.status.optional(),
 }).partial();

@@ -9,11 +9,11 @@ import {
     AlertDialogTitle,
 } from '@workspace/ui/components/alert-dialog';
 import { useDeleteLesson } from '@/features/lessons/api/lesson';
-import type { LessonResponseDto } from '@workspace/dtos';
+import type { LessonResponseDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
 
 interface DeleteLessonDialogProps {
-    lesson: LessonResponseDto | null;
+    lesson: LessonResponseDTO | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }

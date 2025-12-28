@@ -14,14 +14,14 @@ import {
     TableRow,
 } from '@workspace/ui/components/table';
 import { useState } from 'react';
-import type { ModuleResponseDto } from '@workspace/dtos';
+import type { ModuleResponseDTO } from '@workspace/schemas';
 import { getModulesColumns } from './modules-columns';
 
 interface ModulesTableProps {
-    data: ModuleResponseDto[];
-    onView: (module: ModuleResponseDto) => void;
-    onEdit: (module: ModuleResponseDto) => void;
-    onDelete: (module: ModuleResponseDto) => void;
+    data: ModuleResponseDTO[];
+    onView: (module: ModuleResponseDTO) => void;
+    onEdit: (module: ModuleResponseDTO) => void;
+    onDelete: (module: ModuleResponseDTO) => void;
     page: number;
     limit: number;
     courseTitleMap?: Map<string, string>;

@@ -26,8 +26,9 @@ import {
     QuestionJlptLevel,
     QuestionDifficultyLevel,
     QuestionStatus,
-} from '@workspace/dtos';
-import type { UpdateQuestionBankDto, QuestionBankDto } from '@workspace/dtos';
+    type QuestionBankUpdateDTO,
+    type QuestionBankResponseDTO,
+} from '@workspace/schemas';
 import { useUpdateQuestionBank } from '@/features/question-bank/api/question-bank';
 import { toast } from '@workspace/ui/components/sonner';
 
@@ -50,7 +51,7 @@ type UpdateQuestionFormData = z.infer<typeof updateQuestionSchema>;
 interface EditQuestionBankDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    question: QuestionBankDto | null;
+    question: QuestionBankResponseDTO | null;
 }
 
 export function EditQuestionBankDialog({
@@ -131,17 +132,17 @@ export function EditQuestionBankDialog({
                 }
             }
 
-            const dto: UpdateQuestionBankDto = {
+            const dto: QuestionBankUpdateDTO = {
                 questionText: data.questionText,
                 questionType: data.questionType,
                 jlptLevel: data.jlptLevel,
                 category: data.category || undefined,
                 subcategory: data.subcategory || undefined,
                 difficulty: data.difficulty,
-                options: options,
+                options: options || undefined,
                 correctAnswer: data.correctAnswer || undefined,
                 explanation: data.explanation || undefined,
-                tags: tags,
+                tags: tags || undefined,
                 status: data.status,
             };
 

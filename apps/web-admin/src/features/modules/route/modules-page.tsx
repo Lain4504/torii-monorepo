@@ -10,7 +10,7 @@ import { CreateModuleDialog } from '@/features/modules/components/create-module-
 import { EditModuleDialog } from '@/features/modules/components/edit-module-dialog';
 import { DeleteModuleDialog } from '@/features/modules/components/delete-module-dialog';
 import { ViewModuleDialog } from '@/features/modules/components/view-module-dialog';
-import type { ModuleQueryDto, ModuleResponseDto } from '@workspace/dtos';
+import type { ModuleQueryDTO, ModuleResponseDTO } from '@workspace/schemas';
 
 export default function ModulesPage() {
   const [page, setPage] = useState(1);
@@ -21,11 +21,11 @@ export default function ModulesPage() {
 
   // Dialog States
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [editingModule, setEditingModule] = useState<ModuleResponseDto | null>(null);
-  const [deletingModule, setDeletingModule] = useState<ModuleResponseDto | null>(null);
-  const [viewingModule, setViewingModule] = useState<ModuleResponseDto | null>(null);
+  const [editingModule, setEditingModule] = useState<ModuleResponseDTO | null>(null);
+  const [deletingModule, setDeletingModule] = useState<ModuleResponseDTO | null>(null);
+  const [viewingModule, setViewingModule] = useState<ModuleResponseDTO | null>(null);
 
-  const queryParams: ModuleQueryDto = {
+  const queryParams: ModuleQueryDTO = {
     page,
     limit: 10,
     ...(search && { search }),
@@ -36,7 +36,12 @@ export default function ModulesPage() {
   const { data: modulesData, isLoading, error } = useModules(queryParams);
 
   const modules = modulesData?.data || [];
-  const meta = modulesData?.meta;
+  const meta = modulesData ? {
+    total: modulesData.total,
+    totalPages: modulesData.totalPages,
+    page: modulesData.page,
+    limit: modulesData.limit
+  } : null;
 
   // Get unique courseIds from modules and courseIdFilter
   const uniqueCourseIds = useMemo(() => {

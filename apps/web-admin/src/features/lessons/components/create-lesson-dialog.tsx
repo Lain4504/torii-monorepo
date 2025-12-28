@@ -14,21 +14,12 @@ import { Input } from '@workspace/ui/components/input';
 import { Textarea } from '@workspace/ui/components/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
 import { storageApi } from '@/lib/storage-api';
-import { LessonContentType } from '@workspace/dtos';
+import { LessonContentType, lessonCreateDTOSchema } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
 
-const createLessonSchema = z.object({
-    moduleId: z.string().uuid(),
-    title: z.string().min(1, 'Title is required'),
-    contentType: z.nativeEnum(LessonContentType),
-    videoUrl: z.string().optional(),
-    articleContent: z.string().optional(),
-    order: z.number().min(0).optional(),
-    isPreview: z.boolean().optional(),
-    isUnlocked: z.boolean().optional(),
-});
+const createLessonSchema = lessonCreateDTOSchema;
 
-type CreateLessonFormData = z.infer<typeof createLessonSchema>;
+type CreateLessonFormData = z.input<typeof createLessonSchema>;
 
 interface CreateLessonDialogProps {
     open: boolean;
@@ -91,6 +82,8 @@ export function CreateLessonDialog({ open, onOpenChange, moduleId }: CreateLesso
 
             const payload = {
                 ...data,
+                isPreview: data.isPreview ?? false,
+                isUnlocked: data.isUnlocked ?? false,
                 videoUrl,
             };
 

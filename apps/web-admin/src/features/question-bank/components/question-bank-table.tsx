@@ -14,14 +14,14 @@ import {
     TableRow,
 } from '@workspace/ui/components/table';
 import { useState } from 'react';
-import type { QuestionBankDto } from '@workspace/dtos';
+import type { QuestionBankResponseDTO } from '@workspace/schemas';
 import { getQuestionBankColumns } from './question-bank-columns';
 
 interface QuestionBankTableProps {
-    data: QuestionBankDto[];
-    onEdit: (question: QuestionBankDto) => void;
-    onView: (question: QuestionBankDto) => void;
-    onDelete: (question: QuestionBankDto) => void;
+    data: QuestionBankResponseDTO[];
+    onEdit: (question: QuestionBankResponseDTO) => void;
+    onView: (question: QuestionBankResponseDTO) => void;
+    onDelete: (question: QuestionBankResponseDTO) => void;
     page: number;
     limit: number;
 }

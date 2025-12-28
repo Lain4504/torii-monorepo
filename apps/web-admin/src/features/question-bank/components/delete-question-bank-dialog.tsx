@@ -9,11 +9,11 @@ import {
     AlertDialogTitle,
 } from '@workspace/ui/components/alert-dialog';
 import { useDeleteQuestionBank } from '@/features/question-bank/api/question-bank';
-import type { QuestionBankDto } from '@workspace/dtos';
+import type { QuestionBankResponseDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
 
 interface DeleteQuestionBankDialogProps {
-    question: QuestionBankDto | null;
+    question: QuestionBankResponseDTO | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }

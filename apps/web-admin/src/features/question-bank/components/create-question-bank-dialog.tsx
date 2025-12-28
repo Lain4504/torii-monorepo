@@ -25,8 +25,8 @@ import {
     QuestionType,
     QuestionJlptLevel,
     QuestionDifficultyLevel,
-} from '@workspace/dtos';
-import type { CreateQuestionBankDto } from '@workspace/dtos';
+    type QuestionBankCreateDTO,
+} from '@workspace/schemas';
 import { useCreateQuestionBank } from '@/features/question-bank/api/question-bank';
 import { toast } from '@workspace/ui/components/sonner';
 
@@ -110,17 +110,17 @@ export function CreateQuestionBankDialog({
                 }
             }
 
-            const dto: CreateQuestionBankDto = {
+            const dto: QuestionBankCreateDTO = {
                 questionText: data.questionText,
                 questionType: data.questionType,
                 jlptLevel: data.jlptLevel,
                 category: data.category || undefined,
                 subcategory: data.subcategory || undefined,
                 difficulty: data.difficulty,
-                options: options,
+                options: options || undefined,
                 correctAnswer: data.correctAnswer || undefined,
                 explanation: data.explanation || undefined,
-                tags: tags,
+                tags: tags || undefined,
             };
 
             await createQuestionBank.mutateAsync(dto);

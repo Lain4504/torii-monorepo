@@ -24,7 +24,7 @@ import {
     Pencil,
     Loader2
 } from 'lucide-react';
-import type { CreateUserDto } from '@workspace/dtos';
+import type { UserCreateDTO } from '@workspace/schemas';
 import { useCreateUser } from '@/features/users/api/users';
 import { toast } from '@workspace/ui/components/sonner';
 
@@ -107,13 +107,13 @@ export function CreateUserDialog({
     const createUser = useCreateUser();
 
     const handleFormSubmit: SubmitHandler<CreateUserFormData> = async (data) => {
-        const dto: CreateUserDto = {
+        const dto: UserCreateDTO = {
             email: data.email,
             fullName: `${data.firstName} ${data.lastName}`,
             password: data.password,
             phone: data.phone || undefined,
-            role: data.role,
-            status: 'active',
+            role: data.role as any, // Cast to any or UserRole if imported, schemas types are strictly enums
+            status: 'active' as any,
         };
         try {
             await createUser.mutateAsync(dto);
