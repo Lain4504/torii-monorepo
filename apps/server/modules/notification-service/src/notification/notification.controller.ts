@@ -1,27 +1,27 @@
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, EventPattern, Payload } from '@nestjs/microservices';
-import {
-  NotificationQueryDto,
-  NotificationResponseDto,
-  NotificationListResponseDto,
-  CreateNotificationDto,
-  MarkAsReadRequestDto,
-  MarkAllAsReadRequestDto,
-  DeleteNotificationRequestDto,
-  UnreadCountResponseDto,
-} from '@workspace/dtos';
+import type {
+  NotificationResponseDTO,
+  NotificationQueryDTO,
+  NotificationCreateDTO,
+  NotificationMarkAsReadRequestDTO,
+  NotificationMarkAllAsReadRequestDTO,
+  NotificationDeleteRequestDTO,
+  NotificationUnreadCountResponseDTO,
+  PaginatedResponse,
+} from '@workspace/schemas';
 import { NotificationService } from './notification.service';
 
 @Controller()
 export class NotificationController {
   private readonly logger = new Logger(NotificationController.name);
 
-  constructor(private readonly notificationService: NotificationService) {}
+  constructor(private readonly notificationService: NotificationService) { }
 
   @MessagePattern({ cmd: 'notification.findAll' })
   async findAll(
-    @Payload() payload: { userId: string; query: NotificationQueryDto },
-  ): Promise<NotificationListResponseDto> {
+    @Payload() payload: { userId: string; query: NotificationQueryDTO },
+  ): Promise<PaginatedResponse<NotificationResponseDTO>> {
     try {
       this.logger.log(`Finding notifications for user: ${payload.userId}`);
       return await this.notificationService.findAll(payload.userId, payload.query);
@@ -33,8 +33,8 @@ export class NotificationController {
 
   @MessagePattern({ cmd: 'notification.markAsRead' })
   async markAsRead(
-    @Payload() payload: MarkAsReadRequestDto,
-  ): Promise<NotificationResponseDto> {
+    @Payload() payload: NotificationMarkAsReadRequestDTO,
+  ): Promise<NotificationResponseDTO> {
     try {
       this.logger.log(`Marking notification ${payload.notificationId} as read for user: ${payload.userId}`);
       return await this.notificationService.markAsRead(
@@ -49,7 +49,7 @@ export class NotificationController {
 
   @MessagePattern({ cmd: 'notification.markAllAsRead' })
   async markAllAsRead(
-    @Payload() payload: MarkAllAsReadRequestDto,
+    @Payload() payload: NotificationMarkAllAsReadRequestDTO,
   ): Promise<{ success: boolean; message: string; count: number }> {
     try {
       this.logger.log(`Marking all notifications as read for user: ${payload.userId}`);
@@ -63,7 +63,7 @@ export class NotificationController {
   @MessagePattern({ cmd: 'notification.getUnreadCount' })
   async getUnreadCount(
     @Payload() payload: { userId: string },
-  ): Promise<UnreadCountResponseDto> {
+  ): Promise<NotificationUnreadCountResponseDTO> {
     try {
       this.logger.log(`Getting unread count for user: ${payload.userId}`);
       return await this.notificationService.getUnreadCount(payload.userId);
@@ -75,7 +75,7 @@ export class NotificationController {
 
   @MessagePattern({ cmd: 'notification.delete' })
   async delete(
-    @Payload() payload: DeleteNotificationRequestDto,
+    @Payload() payload: NotificationDeleteRequestDTO,
   ): Promise<{ success: boolean; message: string }> {
     try {
       this.logger.log(`Deleting notification ${payload.notificationId} for user: ${payload.userId}`);
@@ -91,8 +91,8 @@ export class NotificationController {
 
   @MessagePattern({ cmd: 'notification.create' })
   async create(
-    @Payload() payload: CreateNotificationDto,
-  ): Promise<NotificationResponseDto> {
+    @Payload() payload: NotificationCreateDTO,
+  ): Promise<NotificationResponseDTO> {
     try {
       this.logger.log(`Creating notification for user: ${payload.userId}`);
       this.logger.debug('Notification data:', JSON.stringify(payload, null, 2));

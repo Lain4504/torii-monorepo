@@ -53,7 +53,6 @@
     "@nestjs/swagger": "^11.2.3",
     "@prisma/adapter-pg": "^7.1.0",
     "@prisma/client": "^7.1.0",
-    "@workspace/dtos": "workspace:^",
     "@workspace/protocol": "workspace:*",
     "@workspace/schemas": "workspace:*",
     "axios": "^1.13.2",

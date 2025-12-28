@@ -1,10 +1,13 @@
 import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
-import {
-  CreateBlogCommentDto,
-  UpdateBlogCommentDto,
-  BlogCommentQueryDto,
-} from '@workspace/dtos';
+import type {
+  BlogCommentCreateDTO,
+  BlogCommentUpdateDTO,
+  BlogCommentQueryDTO,
+  BlogCommentResponseDTO,
+  BlogCommentPaginatedResponse,
+  PaginatedResponse,
+} from '@workspace/schemas';
 
 @Injectable()
 export class BlogCommentService {
@@ -14,7 +17,7 @@ export class BlogCommentService {
     private readonly prisma: PrismaService,
   ) { }
 
-  async createComment(dto: CreateBlogCommentDto) {
+  async createComment(dto: BlogCommentCreateDTO): Promise<BlogCommentResponseDTO> {
     // Verify post exists
     const post = await this.prisma.blogPost.findUnique({
       where: { id: dto.postId },
@@ -73,7 +76,7 @@ export class BlogCommentService {
     return this.formatCommentResponse(comment);
   }
 
-  async findAllComments(query: BlogCommentQueryDto) {
+  async findAllComments(query: BlogCommentQueryDTO): Promise<BlogCommentPaginatedResponse> {
     const page = query.page || 1;
     const limit = query.limit || 20;
     const skip = (page - 1) * limit;
@@ -124,18 +127,14 @@ export class BlogCommentService {
 
     return {
       data: formattedComments,
-      meta: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-        hasNext: page * limit < total,
-        hasPrev: page > 1,
-      },
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
     };
   }
 
-  async findCommentById(id: string) {
+  async findCommentById(id: string): Promise<BlogCommentResponseDTO> {
     const comment = await this.prisma.blogComment.findUnique({
       where: { id },
       include: {
@@ -156,7 +155,7 @@ export class BlogCommentService {
     };
   }
 
-  async updateComment(id: string, authorId: string, dto: UpdateBlogCommentDto) {
+  async updateComment(id: string, authorId: string, dto: BlogCommentUpdateDTO): Promise<BlogCommentResponseDTO> {
     const comment = await this.prisma.blogComment.findUnique({
       where: { id },
     });
@@ -220,7 +219,7 @@ export class BlogCommentService {
     return { success: true, message: 'Comment deleted successfully' };
   }
 
-  async getCommentWithReplies(commentId: string, depth: number = 2) {
+  async getCommentWithReplies(commentId: string, depth: number = 2): Promise<BlogCommentResponseDTO | null> {
     if (depth <= 0) {
       return null;
     }
@@ -261,7 +260,7 @@ export class BlogCommentService {
     };
   }
 
-  private async formatCommentResponse(comment: any) {
+  private async formatCommentResponse(comment: any): Promise<BlogCommentResponseDTO> {
     // Get author info from User table
     let authorInfo: { id: string; fullName: string; email: string } | null = null;
 

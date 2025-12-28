@@ -1,21 +1,22 @@
-import { Body, Controller, Delete, Get, Inject, Param, Patch, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Param, Patch, Post, Query, UsePipes } from '@nestjs/common';
 import { ClientProxy } from "@nestjs/microservices";
 import { firstValueFrom } from "rxjs";
+import { ZodValidationPipe } from '@server/shared/pipes/zod-validation.pipe';
 import {
-    BulkFlashcardOperationsRequestDto,
-    BulkFlashcardOperationsResponseDto,
-    CreateFlashcardRequestDto,
-    CreateFlashcardResponseDto,
-    DeleteFlashcardRequestDto,
-    DeleteFlashcardResponseDto,
-    DifficultyLevel,
-    FindAllFlashcardsRequestDto,
-    FlashcardViewListResponseDto,
-    GetFlashcardByIdRequestDto,
-    GetFlashcardByIdResponseDto,
-    UpdateFlashcardRequestDto,
-    UpdateFlashcardResponseDto
-} from "@workspace/dtos";
+    flashcardCreateDTOSchema,
+    flashcardUpdateDTOSchema,
+    flashcardQueryDTOSchema,
+    bulkFlashcardOperationsDTOSchema,
+} from "@workspace/schemas";
+import type {
+    FlashcardCreateDTO,
+    FlashcardUpdateDTO,
+    FlashcardQueryDTO,
+    FlashcardResponseDTO,
+    FlashcardPaginatedResponse,
+    BulkFlashcardOperationsDTO,
+    BulkFlashcardOperationsResponseDTO,
+} from "@workspace/schemas";
 
 @Controller('api/me/flashcards')
 export class FlashcardController {
@@ -27,71 +28,57 @@ export class FlashcardController {
     }
 
     @Post()
+    @UsePipes(new ZodValidationPipe(flashcardCreateDTOSchema))
     async createFlashcard(
-        @Body() data: CreateFlashcardRequestDto,
-    ) {
+        @Body() data: FlashcardCreateDTO,
+    ): Promise<FlashcardResponseDTO> {
         const userId = this.MOCK_USER_ID;
-        return await firstValueFrom<CreateFlashcardResponseDto>(
+        return await firstValueFrom<FlashcardResponseDTO>(
             this.natsClient.send({ cmd: 'flashcard.create' }, { userId, input: data })
         );
     }
 
     @Get()
+    @UsePipes(new ZodValidationPipe(flashcardQueryDTOSchema.partial()))
     async getFlashcards(
-        @Query('page') page: number = 1,
-        @Query('limit') limit: number = 10,
-        @Query('deckId') deckId?: string,
-        @Query('search') search?: string,
-    ) {
-        const payload: FindAllFlashcardsRequestDto = {
-            page: Number(page),
-            limit: Number(limit),
-            deckId: deckId,
-            search: search,
-            // Default values for required fields
-            difficulty: DifficultyLevel.DIFFICULTY_UNSPECIFIED,
-            tags: [],
-            jlptLevel: undefined,
-            dueForReview: false,
-            userId: undefined
-        };
-
-        return await firstValueFrom<FlashcardViewListResponseDto>(
-            this.natsClient.send({ cmd: 'flashcard.getAll' }, payload)
+        @Query() query: FlashcardQueryDTO,
+    ): Promise<FlashcardPaginatedResponse> {
+        return await firstValueFrom<FlashcardPaginatedResponse>(
+            this.natsClient.send({ cmd: 'flashcard.getAll' }, query)
         );
     }
 
     @Get(':id')
-    async getFlashcardById(@Param('id') id: string) {
-        const payload: GetFlashcardByIdRequestDto = { id };
-        return await firstValueFrom<GetFlashcardByIdResponseDto>(
-            this.natsClient.send({ cmd: 'flashcard.getById' }, payload)
+    async getFlashcardById(@Param('id') id: string): Promise<FlashcardResponseDTO> {
+        return await firstValueFrom<FlashcardResponseDTO>(
+            this.natsClient.send({ cmd: 'flashcard.getById' }, { id })
         );
     }
 
     @Patch(':id')
+    @UsePipes(new ZodValidationPipe(flashcardUpdateDTOSchema.partial()))
     async updateFlashcard(
         @Param('id') id: string,
-        @Body() data: Omit<UpdateFlashcardRequestDto, 'id'>
-    ) {
+        @Body() data: Omit<FlashcardUpdateDTO, 'id'>
+    ): Promise<FlashcardResponseDTO> {
         const userId = this.MOCK_USER_ID;
-        const payload: UpdateFlashcardRequestDto = { ...data, id };
-        return await firstValueFrom<UpdateFlashcardResponseDto>(
+        const payload: FlashcardUpdateDTO = { ...data, id } as FlashcardUpdateDTO;
+        return await firstValueFrom<FlashcardResponseDTO>(
             this.natsClient.send({ cmd: 'flashcard.update' }, { userId, input: payload })
         );
     }
 
     @Delete(':id')
-    async deleteFlashcard(@Param('id') id: string) {
-        const payload: DeleteFlashcardRequestDto = { id };
-        return await firstValueFrom<DeleteFlashcardResponseDto>(
-            this.natsClient.send({ cmd: 'flashcard.delete' }, payload)
+    async deleteFlashcard(@Param('id') id: string): Promise<void> {
+        return await firstValueFrom<void>(
+            this.natsClient.send({ cmd: 'flashcard.delete' }, { id })
         );
     }
 
     @Post('bulk')
-    async bulkOperations(@Body() data: BulkFlashcardOperationsRequestDto) {
-        return await firstValueFrom<BulkFlashcardOperationsResponseDto>(
+    @UsePipes(new ZodValidationPipe(bulkFlashcardOperationsDTOSchema))
+    async bulkOperations(@Body() data: BulkFlashcardOperationsDTO): Promise<BulkFlashcardOperationsResponseDTO> {
+        return await firstValueFrom<BulkFlashcardOperationsResponseDTO>(
             this.natsClient.send({ cmd: 'flashcard.bulkOperations' }, data)
         );
     }

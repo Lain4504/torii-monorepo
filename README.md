@@ -14,7 +14,7 @@ torii-monorepo/
 │   └── web-learner/          # Next.js Learning Platform
 ├── packages/
 │   ├── protocol/             # Shared Protobuf definitions & generated code (@bufbuild/protobuf)
-│   ├── dtos/                 # Shared Data Transfer Objects (Plain TS)
+│   ├── schemas/              # Shared Zod schemas & DTO types (@workspace/schemas)
 │   ├── ui/                   # Shared UI components
 │   └── *-config/             # Cấu hình ESLint, TypeScript dùng chung
 ├── nats_server.conf          # Cấu hình NATS Server (JetStream, Auth Callout)
@@ -54,25 +54,25 @@ docker-compose down -v
 
 ### 3. Application Setup
 
-1. **Cài đặt dependencies:**
-   ```bash
-   pnpm install
-   ```
+1.  **Cài đặt dependencies:**
+    ```bash
+    pnpm install
+    ```
 
-2. **Cấu hình biến môi trường:**
-   Copy file mẫu và tạo file `.env` tại thư mục root:
-   ```bash
-   cp .env.example .env
-   ```
-   *Lưu ý: `.env.example` đã được cấu hình sẵn để kết nối với Infrastructure Docker mặc định.*
+2.  **Cấu hình biến môi trường:**
+    Copy file mẫu và tạo file `.env` tại thư mục root:
+    ```bash
+    cp .env.example .env
+    ```
+    *Lưu ý: `.env.example` đã được cấu hình sẵn để kết nối với Infrastructure Docker mặc định.*
 
-3. **Database Migration & Generation:**
-   ```bash
-   cd apps/server
-   pnpx prisma generate
-   pnpx prisma db push
-   ```
-   *Lệnh `db push` sẽ đồng bộ schema Prisma vào database `wajlc` đang chạy trên Docker.*
+3.  **Database Migration & Generation:**
+    ```bash
+    cd apps/server
+    pnpx prisma generate
+    pnpx prisma db push
+    ```
+    *Lệnh `db push` sẽ đồng bộ schema Prisma vào database `wajlc` đang chạy trên Docker.*
 
 ### 4. Running the App
 
@@ -120,19 +120,19 @@ Toàn bộ hệ thống backend giao tiếp qua **NATS Message Broker**.
 ## 📦 Protocol Workflow
 
 **Cập nhật Protocol:**
-1. Chỉnh sửa file `.proto` trong `packages/protocol/proto/`.
-2. Generate code:
-   ```bash
-   cd packages/protocol
-   pnpm run clean
-   pnpm run generate
-   pnpm run build
-   ```
+1.  Chỉnh sửa file `.proto` trong `packages/protocol/proto/`.
+2.  Generate code:
+    ```bash
+    cd packages/protocol
+    pnpm run clean
+    pnpm run generate
+    pnpm run build
+    ```
 
-### 5. Shared DTOs
-Sử dụng `@workspace/dtos` cho các data structure không cần Protobuf (thường là API response/request đơn giản).
+### 5. Shared Schemas & DTOs
+Sử dụng `@workspace/schemas` cho Zod schemas và TypeScript types được chia sẻ giữa Backend và Frontend.
 ```bash
-pnpm --filter @workspace/dtos run build # Sau khi thay đổi nội dung DTO
+pnpm --filter @workspace/schemas run build # Sau khi thay đổi nội dung schemas
 ```
 
 **Happy Coding! 🚀**

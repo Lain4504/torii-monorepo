@@ -1,28 +1,24 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import {
-  CreateQuestionBankDto,
-  UpdateQuestionBankDto,
-  QuestionBankQueryDto,
-  QuestionBankDto,
-  CreateQuestionBankResponseDto,
-  UpdateQuestionBankResponseDto,
-  DeleteQuestionBankResponseDto,
-  GetQuestionBankByIdResponseDto,
-  QuestionBankListResponseDto,
+  type QuestionBankCreateDTO,
+  type QuestionBankUpdateDTO,
+  type QuestionBankQueryDTO,
+  type QuestionBankResponseDTO,
+  type PaginatedResponse,
   QuestionStatus,
-} from '@workspace/dtos';
+} from '@workspace/schemas';
 
 @Injectable()
 export class QuestionBankService {
   private readonly logger = new Logger(QuestionBankService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   /**
    * Map Prisma QuestionBank to QuestionBankDto
    */
-  private toQuestionBankDto(question: any): QuestionBankDto {
+  private toQuestionBankDto(question: any): QuestionBankResponseDTO {
     return {
       id: question.id,
       questionText: question.questionText,
@@ -46,7 +42,7 @@ export class QuestionBankService {
   /**
    * Get all questions with filters
    */
-  async findAll(query: QuestionBankQueryDto): Promise<QuestionBankListResponseDto> {
+  async findAll(query: QuestionBankQueryDTO): Promise<PaginatedResponse<QuestionBankResponseDTO>> {
     try {
       const {
         page = 1,
@@ -59,15 +55,15 @@ export class QuestionBankService {
         status,
         tags,
       } = query;
-      
+
       // Parse page and limit to numbers (in case they come as strings from query params)
       const pageNum = typeof page === 'string' ? parseInt(page, 10) : Number(page) || 1;
       const limitNum = typeof limit === 'string' ? parseInt(limit, 10) : Number(limit) || 10;
-      
+
       // Ensure page and limit are valid positive numbers
       const validPage = pageNum > 0 ? pageNum : 1;
       const validLimit = limitNum > 0 ? limitNum : 10;
-      
+
       const skip = (validPage - 1) * validLimit;
 
       const whereClause: Record<string, any> = {};
@@ -116,30 +112,20 @@ export class QuestionBankService {
       const totalPages = Math.ceil(total / validLimit);
 
       return {
-        success: true,
-        message: `${questions.length} question(s) retrieved successfully`,
-        error: '',
-        data: {
-          success: true,
-          message: '',
-          data: questions.map((q) => this.toQuestionBankDto(q)),
-          meta: {
-            page: validPage,
-            limit: validLimit,
-            total,
-            totalPages,
-            hasNext: validPage < totalPages,
-            hasPrev: validPage > 1,
-          },
-        },
+        data: questions.map((q) => this.toQuestionBankDto(q)),
+        total,
+        page: validPage,
+        limit: validLimit,
+        totalPages,
       };
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(`Error fetching questions: ${error.message}`, error.stack);
       return {
-        success: false,
-        message: 'Failed to fetch questions',
-        error: error.message,
-        data: null as any,
+        data: [],
+        total: 0,
+        page: 1,
+        limit: 10,
+        totalPages: 0,
       };
     }
   }
@@ -147,42 +133,27 @@ export class QuestionBankService {
   /**
    * Get question by ID
    */
-  async findOne(id: string): Promise<GetQuestionBankByIdResponseDto> {
+  async findOne(id: string): Promise<QuestionBankResponseDTO | null> {
     try {
       const question = await this.prisma.questionBank.findUnique({
         where: { id },
       });
 
       if (!question) {
-        return {
-          success: false,
-          message: 'Question not found',
-          error: 'NOT_FOUND',
-          data: null as any,
-        };
+        return null;
       }
 
-      return {
-        success: true,
-        message: 'Question retrieved successfully',
-        error: '',
-        data: this.toQuestionBankDto(question),
-      };
-    } catch (error) {
+      return this.toQuestionBankDto(question);
+    } catch (error: any) {
       this.logger.error(`Error fetching question ${id}: ${error.message}`, error.stack);
-      return {
-        success: false,
-        message: 'Failed to fetch question',
-        error: error.message,
-        data: null as any,
-      };
+      return null;
     }
   }
 
   /**
    * Create new question
    */
-  async create(input: CreateQuestionBankDto): Promise<CreateQuestionBankResponseDto> {
+  async create(input: QuestionBankCreateDTO): Promise<QuestionBankResponseDTO> {
     try {
       const question = await this.prisma.questionBank.create({
         data: {
@@ -202,39 +173,24 @@ export class QuestionBankService {
         },
       });
 
-      return {
-        success: true,
-        message: 'Question created successfully',
-        error: '',
-        data: this.toQuestionBankDto(question),
-      };
-    } catch (error) {
+      return this.toQuestionBankDto(question);
+    } catch (error: any) {
       this.logger.error(`Error creating question: ${error.message}`, error.stack);
-      return {
-        success: false,
-        message: 'Failed to create question',
-        error: error.message,
-        data: null as any,
-      };
+      throw error;
     }
   }
 
   /**
    * Update existing question
    */
-  async update(id: string, input: UpdateQuestionBankDto): Promise<UpdateQuestionBankResponseDto> {
+  async update(id: string, input: QuestionBankUpdateDTO): Promise<QuestionBankResponseDTO> {
     try {
       const existing = await this.prisma.questionBank.findUnique({
         where: { id },
       });
 
       if (!existing) {
-        return {
-          success: false,
-          message: 'Question not found',
-          error: 'NOT_FOUND',
-          data: null as any,
-        };
+        throw new Error('Question not found');
       }
 
       const question = await this.prisma.questionBank.update({
@@ -254,59 +210,34 @@ export class QuestionBankService {
         },
       });
 
-      return {
-        success: true,
-        message: 'Question updated successfully',
-        error: '',
-        data: this.toQuestionBankDto(question),
-      };
-    } catch (error) {
+      return this.toQuestionBankDto(question);
+    } catch (error: any) {
       this.logger.error(`Error updating question ${id}: ${error.message}`, error.stack);
-      return {
-        success: false,
-        message: 'Failed to update question',
-        error: error.message,
-        data: null as any,
-      };
+      throw error;
     }
   }
 
   /**
    * Delete question
    */
-  async delete(id: string): Promise<DeleteQuestionBankResponseDto> {
+  async delete(id: string): Promise<boolean> {
     try {
       const existing = await this.prisma.questionBank.findUnique({
         where: { id },
       });
 
       if (!existing) {
-        return {
-          success: false,
-          message: 'Question not found',
-          error: 'NOT_FOUND',
-          data: false,
-        };
+        return false;
       }
 
       await this.prisma.questionBank.delete({
         where: { id },
       });
 
-      return {
-        success: true,
-        message: 'Question deleted successfully',
-        error: '',
-        data: true,
-      };
-    } catch (error) {
+      return true;
+    } catch (error: any) {
       this.logger.error(`Error deleting question ${id}: ${error.message}`, error.stack);
-      return {
-        success: false,
-        message: 'Failed to delete question',
-        error: error.message,
-        data: false,
-      };
+      return false;
     }
   }
 }

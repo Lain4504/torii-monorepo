@@ -3,25 +3,26 @@ import { RpcException } from '@nestjs/microservices';
 import { PrismaService } from '@server/shared';
 import { Notification } from '@prisma/generated';
 import {
-  NotificationResponseDto,
-  NotificationQueryDto,
-  CreateNotificationDto,
-  NotificationListResponseDto,
-  UnreadCountResponseDto,
-} from '@workspace/dtos';
+  NotificationResponseDTO,
+  NotificationQueryDTO,
+  NotificationCreateDTO,
+  NotificationPaginatedResponse,
+  NotificationUnreadCountResponseDTO,
+  PaginatedResponse,
+} from '@workspace/schemas';
 
 @Injectable()
 export class NotificationService {
   private readonly logger = new Logger(NotificationService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   /**
    * Map Notification entity to NotificationResponseDto
    */
   private toNotificationResponseDto(
     notification: Notification,
-  ): NotificationResponseDto {
+  ): NotificationResponseDTO {
     return {
       id: notification.id,
       userId: notification.userId,
@@ -41,8 +42,8 @@ export class NotificationService {
    */
   async findAll(
     userId: string,
-    query: NotificationQueryDto,
-  ): Promise<NotificationListResponseDto> {
+    query: NotificationQueryDTO,
+  ): Promise<PaginatedResponse<NotificationResponseDTO>> {
     try {
       const { page = 1, limit = 10, isRead } = query;
       const skip = (page - 1) * limit;
@@ -69,18 +70,11 @@ export class NotificationService {
       const totalPages = Math.ceil(total / limit);
 
       return {
-        success: true,
-        message: `${notifications.length} notification(s) retrieved successfully`,
-        error: '',
         data: notifications.map((n) => this.toNotificationResponseDto(n)),
-        meta: {
-          page,
-          limit,
-          total,
-          totalPages,
-          hasNext: page < totalPages,
-          hasPrev: page > 1,
-        },
+        total,
+        page,
+        limit,
+        totalPages,
       };
     } catch (error: any) {
       this.logger.error('Failed to retrieve notifications', error);
@@ -94,7 +88,7 @@ export class NotificationService {
   /**
    * Mark a notification as read
    */
-  async markAsRead(notificationId: string, userId: string): Promise<NotificationResponseDto> {
+  async markAsRead(notificationId: string, userId: string): Promise<NotificationResponseDTO> {
     try {
       // Verify notification exists and belongs to user
       const existing = await this.prisma.notification.findFirst({
@@ -166,7 +160,7 @@ export class NotificationService {
   /**
    * Get unread count for a user
    */
-  async getUnreadCount(userId: string): Promise<UnreadCountResponseDto> {
+  async getUnreadCount(userId: string): Promise<NotificationUnreadCountResponseDTO> {
     try {
       const count = await this.prisma.notification.count({
         where: {
@@ -176,11 +170,7 @@ export class NotificationService {
       });
 
       return {
-        success: true,
-        message: 'Unread count retrieved successfully',
-        data: {
-          count,
-        },
+        count,
       };
     } catch (error: any) {
       this.logger.error('Error getting unread count', error);
@@ -235,7 +225,7 @@ export class NotificationService {
   /**
    * Create a notification (for event-driven use cases)
    */
-  async create(data: CreateNotificationDto): Promise<NotificationResponseDto> {
+  async create(data: NotificationCreateDTO): Promise<NotificationResponseDTO> {
     try {
       const notification = await this.prisma.notification.create({
         data: {
@@ -283,7 +273,7 @@ export class NotificationService {
         const MOCK_USER_ID = '5e808603-1e54-4dc9-ae93-f1e347c101ab';
         userIdsToNotify = [MOCK_USER_ID];
         this.logger.log(`No userIds provided, using fallback MOCK_USER_ID: ${MOCK_USER_ID}`);
-        
+
         // Note: Wishlist query is skipped for now
         // To enable wishlist query in the future, uncomment below:
         // const wishlistUsers = await this.prisma.$queryRaw<Array<{ user_id: string }>>`

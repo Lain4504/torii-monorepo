@@ -1,11 +1,13 @@
 import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { PrismaService, generateSlug } from '@server/shared';
-import {
-  CreateBlogPostDto,
-  UpdateBlogPostDto,
-  BlogPostQueryDto,
-  BlogPostStatus,
-} from '@workspace/dtos';
+import { BlogPostStatus } from '@workspace/schemas';
+import type {
+  BlogPostCreateDTO,
+  BlogPostUpdateDTO,
+  BlogPostQueryDTO,
+  BlogPostResponseDTO,
+  PaginatedResponse,
+} from '@workspace/schemas';
 
 @Injectable()
 export class BlogService {
@@ -39,7 +41,7 @@ export class BlogService {
   // BLOG POST METHODS
   // =========================
 
-  async createPost(dto: CreateBlogPostDto) {
+  async createPost(dto: BlogPostCreateDTO): Promise<BlogPostResponseDTO> {
     // Auto-generate slug from title if not provided
     const baseSlug = dto.slug || generateSlug(dto.title);
 
@@ -81,7 +83,7 @@ export class BlogService {
         coverImageUrl: finalDto.coverImageUrl,
         authorId: finalDto.authorId,
         status: finalDto.status || BlogPostStatus.DRAFT,
-        publishedAt: finalDto.publishedAt ? new Date(finalDto.publishedAt) : null,
+        publishedAt: finalDto.publishedAt || null,
         seoTitle: finalDto.seoTitle,
         seoDescription: finalDto.seoDescription,
         tags: finalDto.tags || [],
@@ -95,7 +97,7 @@ export class BlogService {
     return this.formatPostResponseWithAuthor(post);
   }
 
-  async findAllPosts(query: BlogPostQueryDto) {
+  async findAllPosts(query: BlogPostQueryDTO): Promise<PaginatedResponse<BlogPostResponseDTO>> {
     const page = query.page || 1;
     const limit = query.limit || 10;
     const skip = (page - 1) * limit;
@@ -145,18 +147,14 @@ export class BlogService {
 
     return {
       data: await Promise.all(posts.map((post) => this.formatPostResponseWithAuthor(post))),
-      meta: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-        hasNext: page * limit < total,
-        hasPrev: page > 1,
-      },
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
     };
   }
 
-  async findPostById(id: string) {
+  async findPostById(id: string): Promise<BlogPostResponseDTO> {
     const post = await this.prisma.blogPost.findUnique({
       where: { id },
     });
@@ -168,7 +166,7 @@ export class BlogService {
     return this.formatPostResponseWithAuthor(post);
   }
 
-  async updatePost(id: string, dto: UpdateBlogPostDto) {
+  async updatePost(id: string, dto: BlogPostUpdateDTO): Promise<BlogPostResponseDTO> {
     const existing = await this.prisma.blogPost.findUnique({
       where: { id },
     });
@@ -210,8 +208,8 @@ export class BlogService {
       updateData.slug = slug;
     }
 
-    if (dto.publishedAt) {
-      updateData.publishedAt = new Date(dto.publishedAt);
+    if (dto.publishedAt !== undefined) {
+      updateData.publishedAt = dto.publishedAt;
     }
 
     // Update tags if provided (tags is now a string array)
@@ -247,7 +245,7 @@ export class BlogService {
   // HELPER METHODS
   // =========================
 
-  private async formatPostResponseWithAuthor(post: any) {
+  private async formatPostResponseWithAuthor(post: any): Promise<BlogPostResponseDTO> {
     // Get author info from User table
     let authorInfo: { id: string; fullName: string; email: string } | null = null;
 

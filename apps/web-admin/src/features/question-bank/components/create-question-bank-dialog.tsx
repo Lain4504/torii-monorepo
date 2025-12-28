@@ -25,22 +25,19 @@ import {
     QuestionType,
     QuestionJlptLevel,
     QuestionDifficultyLevel,
+    questionBankCreateDTOSchema,
     type QuestionBankCreateDTO,
 } from '@workspace/schemas';
 import { useCreateQuestionBank } from '@/features/question-bank/api/question-bank';
 import { toast } from '@workspace/ui/components/sonner';
 
-const createQuestionSchema = z.object({
-    questionText: z.string().min(1, 'Question text is required'),
-    questionType: z.nativeEnum(QuestionType),
-    jlptLevel: z.nativeEnum(QuestionJlptLevel).optional(),
-    category: z.string().optional(),
-    subcategory: z.string().optional(),
-    difficulty: z.nativeEnum(QuestionDifficultyLevel).optional(),
-    options: z.string().optional(), // We'll parse this string to JSON
-    correctAnswer: z.string().optional(),
-    explanation: z.string().optional(),
-    tags: z.string().optional(), // We'll parse comma-separated string
+const createQuestionSchema = questionBankCreateDTOSchema.omit({
+    tags: true,
+    options: true,
+    createdBy: true
+}).extend({
+    tags: z.string().optional(),
+    options: z.string().optional(),
 });
 
 type CreateQuestionFormData = z.infer<typeof createQuestionSchema>;

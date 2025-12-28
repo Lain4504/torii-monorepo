@@ -2,21 +2,21 @@ import { Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { PrismaService } from '@server/shared';
 import { Module as ModuleEntity } from '@prisma/generated';
-import { PaginatedResponseDto, ModuleResponseDto } from '@workspace/dtos';
 import {
-  CreateModuleDto,
-  UpdateModuleDto,
-  ModuleQueryDto,
-  UpdateModuleRequestDto,
-} from '@workspace/dtos';
+  type PaginatedResponse,
+  type ModuleResponseDTO,
+  type ModuleCreateDTO,
+  type ModuleUpdateDTO,
+  type ModuleQueryDTO,
+} from '@workspace/schemas';
 
 @Injectable()
 export class ModuleService {
   private readonly logger = new Logger(ModuleService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
-  private toModuleResponseDto(m: ModuleEntity): ModuleResponseDto {
+  private toModuleResponseDto(m: ModuleEntity): ModuleResponseDTO {
     return {
       id: m.id,
       courseId: m.courseId,
@@ -31,10 +31,10 @@ export class ModuleService {
     };
   }
 
-  async findAll(query: ModuleQueryDto): Promise<PaginatedResponseDto<ModuleResponseDto>> {
+  async findAll(query: ModuleQueryDTO): Promise<PaginatedResponse<ModuleResponseDTO>> {
     try {
       const { page = 1, limit = 10, courseId, search } = query;
-      const skip = (page - 1) * limit;
+      const skip = (Number(page) - 1) * Number(limit);
 
       const whereClause: Record<string, any> = { deletedAt: null };
 
@@ -51,39 +51,39 @@ export class ModuleService {
         this.prisma.module.count({ where: whereClause }),
         this.prisma.module.findMany({
           where: whereClause,
-          take: limit,
+          take: Number(limit),
           skip,
           orderBy: { order: 'asc' },
         }),
       ]);
 
-      const totalPages = Math.ceil(total / limit);
+      const totalPages = Math.ceil(total / Number(limit));
 
       return {
-        success: true,
-        message: `${items.length} module(s) retrieved successfully`,
-        error: '',
         data: items.map(m => this.toModuleResponseDto(m)),
-        meta: { page, limit, total, totalPages, hasNext: page < totalPages, hasPrev: page > 1 },
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        totalPages,
       };
     } catch (error: any) {
       this.logger.error('Failed to retrieve modules', error);
       return {
-        success: false,
-        message: 'Failed to retrieve modules',
-        error: error?.message,
         data: [],
-        meta: { page: query.page || 1, limit: query.limit || 10, total: 0, totalPages: 0, hasNext: false, hasPrev: false },
+        total: 0,
+        page: query.page ? Number(query.page) : 1,
+        limit: query.limit ? Number(query.limit) : 10,
+        totalPages: 0,
       };
     }
   }
 
-  async findOne(id: string): Promise<ModuleResponseDto | null> {
+  async findOne(id: string): Promise<ModuleResponseDTO | null> {
     const m = await this.prisma.module.findFirst({ where: { id, deletedAt: null } });
     return m ? this.toModuleResponseDto(m) : null;
   }
 
-  async create(input: CreateModuleDto): Promise<ModuleResponseDto> {
+  async create(input: ModuleCreateDTO): Promise<ModuleResponseDTO> {
     try {
       // Optionally set order to end of current modules in course if not provided
       let order = input.order;
@@ -109,7 +109,7 @@ export class ModuleService {
     }
   }
 
-  async update(id: string, input: UpdateModuleDto): Promise<ModuleResponseDto> {
+  async update(id: string, input: ModuleUpdateDTO): Promise<ModuleResponseDTO> {
     const existing = await this.prisma.module.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       throw new RpcException({ status: 404, message: `Module with id ${id} not found` });
@@ -154,7 +154,7 @@ export class ModuleService {
     }
   }
 
-  async restore(id: string): Promise<ModuleResponseDto> {
+  async restore(id: string): Promise<ModuleResponseDTO> {
     const existing = await this.prisma.module.findUnique({ where: { id } });
     if (!existing) {
       throw new RpcException({ status: 404, message: `Module with id ${id} not found` });

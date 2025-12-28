@@ -1,18 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { PrismaService } from '@server/shared';
-import {
-  CreateFlashcardDeckDto,
-  CreateFlashcardDeckResponseDto,
-  FlashcardDeckDto,
-  FlashcardDeckListResponseDto,
-  FlashcardDeckQueryDto,
-  DeleteFlashcardDeckRequestDto,
-  DeleteFlashcardDeckResponseDto,
-  UpdateFlashcardDeckDto,
-  UpdateFlashcardDeckResponseDto,
-} from '@workspace/dtos';
 import { UserRole, UserStatus } from '@workspace/schemas';
+import type {
+  FlashcardDeckCreateDTO,
+  FlashcardDeckUpdateDTO,
+  FlashcardDeckQueryDTO,
+  FlashcardDeckResponseDTO,
+  FlashcardDeckPaginatedResponse,
+} from '@workspace/schemas';
+
 
 @Injectable()
 export class FlashcardDeckService {
@@ -21,9 +18,9 @@ export class FlashcardDeckService {
   constructor(private readonly prisma: PrismaService) { }
 
   /**
-   * Map FlashcardDeck entity to FlashcardDeckDto
+   * Map FlashcardDeck entity to FlashcardDeckResponseDTO
    */
-  private toFlashcardDeckDto(deck: any): FlashcardDeckDto {
+  private toFlashcardDeckResponseDTO(deck: any): FlashcardDeckResponseDTO {
     return {
       id: deck.id,
       userId: deck.userId,
@@ -69,8 +66,8 @@ export class FlashcardDeckService {
    */
   async createDeck(
     userId: string,
-    data: CreateFlashcardDeckDto,
-  ): Promise<CreateFlashcardDeckResponseDto> {
+    data: FlashcardDeckCreateDTO,
+  ): Promise<FlashcardDeckResponseDTO> {
     try {
 
       // Auto-create user if not exists (user management not fully implemented yet)
@@ -104,12 +101,7 @@ export class FlashcardDeckService {
 
       this.logger.log(`Flashcard deck created: ${deck.id} by user ${userId}`);
 
-      return {
-        success: true,
-        message: 'Flashcard deck created successfully',
-        error: '',
-        data: this.toFlashcardDeckDto(deck),
-      };
+      return this.toFlashcardDeckResponseDTO(deck);
     } catch (error: any) {
       this.logger.error('Error creating flashcard deck', error);
       throw new RpcException({
@@ -124,8 +116,8 @@ export class FlashcardDeckService {
    */
   async findAllDecks(
     userId: string,
-    query: FlashcardDeckQueryDto,
-  ): Promise<FlashcardDeckListResponseDto> {
+    query: FlashcardDeckQueryDTO,
+  ): Promise<FlashcardDeckPaginatedResponse> {
     try {
       const { page = 1, limit = 10, search, jlptLevel } = query;
       const skip = (page - 1) * limit;
@@ -158,18 +150,11 @@ export class FlashcardDeckService {
       const totalPages = Math.ceil(total / limit);
 
       return {
-        success: true,
-        message: `${decks.length} flashcard deck(s) retrieved successfully`,
-        error: '',
-        data: decks.map((deck) => this.toFlashcardDeckDto(deck)),
-        meta: {
-          page,
-          limit,
-          total,
-          totalPages,
-          hasNext: page < totalPages,
-          hasPrev: page > 1,
-        },
+        data: decks.map((deck) => this.toFlashcardDeckResponseDTO(deck)),
+        total,
+        page,
+        limit,
+        totalPages,
       };
     } catch (error: any) {
       this.logger.error('Error retrieving flashcard decks', error);
@@ -186,8 +171,8 @@ export class FlashcardDeckService {
   async updateDeck(
     userId: string,
     deckId: string,
-    data: UpdateFlashcardDeckDto,
-  ): Promise<UpdateFlashcardDeckResponseDto> {
+    data: FlashcardDeckUpdateDTO,
+  ): Promise<FlashcardDeckResponseDTO> {
     try {
       // Verify ownership
       await this.verifyDeckOwnership(userId, deckId);
@@ -223,12 +208,7 @@ export class FlashcardDeckService {
 
       this.logger.log(`Flashcard deck updated: ${deckId} by user ${userId}`);
 
-      return {
-        success: true,
-        message: 'Flashcard deck updated successfully',
-        error: '',
-        data: this.toFlashcardDeckDto(deck),
-      };
+      return this.toFlashcardDeckResponseDTO(deck);
     } catch (error: any) {
       if (error instanceof RpcException) {
         throw error;
@@ -246,8 +226,8 @@ export class FlashcardDeckService {
    */
   async deleteDeck(
     userId: string,
-    data: DeleteFlashcardDeckRequestDto,
-  ): Promise<DeleteFlashcardDeckResponseDto> {
+    data: { id: string },
+  ): Promise<{ success: boolean }> {
     try {
       // Verify ownership
       await this.verifyDeckOwnership(userId, data.id);
@@ -259,12 +239,7 @@ export class FlashcardDeckService {
 
       this.logger.log(`Flashcard deck deleted: ${data.id} by user ${userId}`);
 
-      return {
-        success: true,
-        message: 'Flashcard deck deleted successfully',
-        error: '',
-        data: undefined,
-      };
+      return { success: true };
     } catch (error: any) {
       if (error instanceof RpcException) {
         throw error;

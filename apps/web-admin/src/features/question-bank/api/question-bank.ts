@@ -17,9 +17,6 @@ export interface QuestionBankFilters {
     category: string;
 }
 
-interface ApiResponse<T> {
-    data: T;
-}
 
 // ============================================================================
 // API Functions
@@ -28,29 +25,29 @@ interface ApiResponse<T> {
 export const questionBankApi = {
     // GET /api/question-bank
     async findAll(params: QuestionBankQueryDTO): Promise<PaginatedResponse<QuestionBankResponseDTO>> {
-        const response = await apiClient.get<ApiResponse<PaginatedResponse<QuestionBankResponseDTO>>>('/api/question-bank', { params });
-        return response.data.data;
+        const response = await apiClient.get<PaginatedResponse<QuestionBankResponseDTO>>('/api/question-bank', { params });
+        return response.data;
     },
 
     // GET /api/question-bank/:id
     async findOne(id: string): Promise<QuestionBankResponseDTO> {
-        const response = await apiClient.get<ApiResponse<QuestionBankResponseDTO>>(`/api/question-bank/${id}`);
+        const response = await apiClient.get<QuestionBankResponseDTO>(`/api/question-bank/${id}`);
         // Unwrap nested response
-        return response.data.data;
+        return response.data;
     },
 
     // POST /api/question-bank
     async create(question: QuestionBankCreateDTO): Promise<QuestionBankResponseDTO> {
-        const response = await apiClient.post<ApiResponse<QuestionBankResponseDTO>>('/api/question-bank', question);
+        const response = await apiClient.post<QuestionBankResponseDTO>('/api/question-bank', question);
         // Unwrap nested response
-        return response.data.data;
+        return response.data;
     },
 
     // PUT /api/question-bank/:id
     async update(id: string, question: QuestionBankUpdateDTO): Promise<QuestionBankResponseDTO> {
-        const response = await apiClient.put<ApiResponse<QuestionBankResponseDTO>>(`/api/question-bank/${id}`, question);
+        const response = await apiClient.put<QuestionBankResponseDTO>(`/api/question-bank/${id}`, question);
         // Unwrap nested response
-        return response.data.data;
+        return response.data;
     },
 
     // DELETE /api/question-bank/:id

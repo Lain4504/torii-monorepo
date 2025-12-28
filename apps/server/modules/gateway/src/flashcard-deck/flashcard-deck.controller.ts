@@ -8,18 +8,24 @@ import {
   Patch,
   Post,
   Query,
+  HttpStatus,
+  UsePipes,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
+import { ZodValidationPipe } from '@server/shared/pipes/zod-validation.pipe';
 import {
-  CreateFlashcardDeckDto,
-  CreateFlashcardDeckResponseDto,
-  FlashcardDeckListResponseDto,
-  FlashcardDeckQueryDto,
-  DeleteFlashcardDeckResponseDto,
-  UpdateFlashcardDeckDto,
-  UpdateFlashcardDeckResponseDto,
-} from '@workspace/dtos';
+  flashcardDeckCreateDTOSchema,
+  flashcardDeckUpdateDTOSchema,
+  flashcardDeckQueryDTOSchema,
+} from '@workspace/schemas';
+import type {
+  FlashcardDeckCreateDTO,
+  FlashcardDeckUpdateDTO,
+  FlashcardDeckResponseDTO,
+  FlashcardDeckQueryDTO,
+  FlashcardDeckPaginatedResponse,
+} from '@workspace/schemas';
 
 @Controller('api/me/flashcard-decks')
 export class FlashcardDeckController {
@@ -28,15 +34,16 @@ export class FlashcardDeckController {
   constructor(
     @Inject('NATS_SERVICE')
     private readonly natsClient: ClientProxy,
-  ) {}
+  ) { }
 
   @Post()
+  @UsePipes(new ZodValidationPipe(flashcardDeckCreateDTOSchema))
   async create(
-    @Body() input: CreateFlashcardDeckDto,
-  ): Promise<CreateFlashcardDeckResponseDto> {
+    @Body() input: FlashcardDeckCreateDTO,
+  ): Promise<FlashcardDeckResponseDTO> {
     const userId = this.MOCK_USER_ID;
     try {
-      const response = await lastValueFrom<CreateFlashcardDeckResponseDto>(
+      const response = await lastValueFrom<FlashcardDeckResponseDTO>(
         this.natsClient.send(
           { cmd: 'flashcard-deck.create' },
           { userId, input },
@@ -50,21 +57,12 @@ export class FlashcardDeckController {
   }
 
   @Get()
+  @UsePipes(new ZodValidationPipe(flashcardDeckQueryDTOSchema.partial()))
   async findAll(
-    @Query('page') page?: number,
-    @Query('limit') limit?: number,
-    @Query('search') search?: string,
-    @Query('jlptLevel') jlptLevel?: string,
-  ): Promise<FlashcardDeckListResponseDto> {
+    @Query() query: FlashcardDeckQueryDTO,
+  ): Promise<FlashcardDeckPaginatedResponse> {
     const userId = this.MOCK_USER_ID;
-    const query: FlashcardDeckQueryDto = {
-      page: page ? Number(page) : 1,
-      limit: limit ? Number(limit) : 10,
-      ...(search && { search }),
-      ...(jlptLevel && { jlptLevel: jlptLevel as string }),
-    };
-
-    const response = await lastValueFrom<FlashcardDeckListResponseDto>(
+    const response = await lastValueFrom<FlashcardDeckPaginatedResponse>(
       this.natsClient.send(
         { cmd: 'flashcard-deck.findAll' },
         { userId, query },
@@ -75,13 +73,14 @@ export class FlashcardDeckController {
   }
 
   @Patch(':id')
+  @UsePipes(new ZodValidationPipe(flashcardDeckUpdateDTOSchema.partial()))
   async update(
     @Param('id') id: string,
-    @Body() input: UpdateFlashcardDeckDto,
-  ): Promise<UpdateFlashcardDeckResponseDto> {
+    @Body() input: FlashcardDeckUpdateDTO,
+  ): Promise<FlashcardDeckResponseDTO> {
     const userId = this.MOCK_USER_ID;
     try {
-      const response = await lastValueFrom<UpdateFlashcardDeckResponseDto>(
+      const response = await lastValueFrom<FlashcardDeckResponseDTO>(
         this.natsClient.send(
           { cmd: 'flashcard-deck.update' },
           { userId, deckId: id, input },
@@ -97,10 +96,10 @@ export class FlashcardDeckController {
   @Delete(':id')
   async delete(
     @Param('id') id: string,
-  ): Promise<DeleteFlashcardDeckResponseDto> {
+  ): Promise<{ success: boolean }> {
     const userId = this.MOCK_USER_ID;
     try {
-      const response = await lastValueFrom<DeleteFlashcardDeckResponseDto>(
+      const response = await lastValueFrom<{ success: boolean }>(
         this.natsClient.send(
           { cmd: 'flashcard-deck.delete' },
           { userId, input: { id } },

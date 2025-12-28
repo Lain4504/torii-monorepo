@@ -26,24 +26,21 @@ import {
     QuestionJlptLevel,
     QuestionDifficultyLevel,
     QuestionStatus,
+    questionBankUpdateDTOSchema,
     type QuestionBankUpdateDTO,
     type QuestionBankResponseDTO,
 } from '@workspace/schemas';
 import { useUpdateQuestionBank } from '@/features/question-bank/api/question-bank';
 import { toast } from '@workspace/ui/components/sonner';
 
-const updateQuestionSchema = z.object({
+const updateQuestionSchema = questionBankUpdateDTOSchema.omit({
+    tags: true,
+    options: true
+}).extend({
     questionText: z.string().min(1, 'Question text is required'),
     questionType: z.nativeEnum(QuestionType),
-    jlptLevel: z.nativeEnum(QuestionJlptLevel).optional(),
-    category: z.string().optional(),
-    subcategory: z.string().optional(),
-    difficulty: z.nativeEnum(QuestionDifficultyLevel).optional(),
-    options: z.string().optional(), // We'll parse this string to JSON
-    correctAnswer: z.string().optional(),
-    explanation: z.string().optional(),
-    tags: z.string().optional(), // We'll parse comma-separated string
-    status: z.nativeEnum(QuestionStatus).optional(),
+    tags: z.string().optional(),
+    options: z.string().optional(),
 });
 
 type UpdateQuestionFormData = z.infer<typeof updateQuestionSchema>;

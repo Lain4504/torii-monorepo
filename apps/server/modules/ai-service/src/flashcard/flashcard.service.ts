@@ -1,54 +1,53 @@
-import {
-    BulkFlashcardOperationsRequestDto,
-    BulkFlashcardOperationsResponseDto,
-    CreateFlashcardRequestDto,
-    CreateFlashcardResponseDto,
-    DeleteFlashcardRequestDto,
-    DeleteFlashcardResponseDto,
-    DifficultyLevel,
-    FindAllFlashcardsRequestDto,
-    FlashcardViewListResponseDto,
-    GetFlashcardByIdRequestDto,
-    GetFlashcardByIdResponseDto,
-    UpdateFlashcardRequestDto,
-    UpdateFlashcardResponseDto
-} from "@workspace/dtos";
-import { PrismaService } from "@server/shared";
+import { Injectable, Logger } from "@nestjs/common";
 import { RpcException } from '@nestjs/microservices';
+import { PrismaService } from "@server/shared";
+import { FlashcardDifficulty } from "@workspace/schemas";
+import type {
+    FlashcardCreateDTO,
+    FlashcardUpdateDTO,
+    FlashcardQueryDTO,
+    FlashcardResponseDTO,
+    FlashcardPaginatedResponse,
+    BulkFlashcardOperationsDTO,
+    BulkFlashcardOperationsResponseDTO,
+} from "@workspace/schemas";
 
 /**
- * Helper function to convert difficulty string to DifficultyLevel enum
+ * Helper function to convert difficulty string to FlashcardDifficulty enum
  */
-function toDifficultyLevel(difficulty: string): DifficultyLevel {
+function toDifficultyLevel(difficulty: string): FlashcardDifficulty {
     switch (difficulty?.toLowerCase()) {
         case 'easy':
-            return DifficultyLevel.EASY;
+            return FlashcardDifficulty.EASY;
         case 'medium':
-            return DifficultyLevel.MEDIUM;
+            return FlashcardDifficulty.MEDIUM;
         case 'hard':
-            return DifficultyLevel.HARD;
+            return FlashcardDifficulty.HARD;
         default:
-            return DifficultyLevel.DIFFICULTY_UNSPECIFIED;
+            return FlashcardDifficulty.DIFFICULTY_UNSPECIFIED;
     }
 }
 
 /**
- * Helper function to convert DifficultyLevel enum to string for DB
+ * Helper function to convert FlashcardDifficulty enum to string for DB
  */
-function fromDifficultyLevel(level: DifficultyLevel): string {
+function fromDifficultyLevel(level: FlashcardDifficulty): string {
     switch (level) {
-        case DifficultyLevel.EASY:
+        case FlashcardDifficulty.EASY:
             return 'easy';
-        case DifficultyLevel.MEDIUM:
+        case FlashcardDifficulty.MEDIUM:
             return 'medium';
-        case DifficultyLevel.HARD:
+        case FlashcardDifficulty.HARD:
             return 'hard';
         default:
             return 'medium'; // Default
     }
 }
 
+@Injectable()
 export class FlashcardService {
+    private readonly logger = new Logger(FlashcardService.name);
+
     constructor(private readonly prisma: PrismaService) {
     }
 
@@ -79,8 +78,8 @@ export class FlashcardService {
 
     async createFlashcard(
         userId: string,
-        data: CreateFlashcardRequestDto,
-    ): Promise<CreateFlashcardResponseDto> {
+        data: FlashcardCreateDTO,
+    ): Promise<FlashcardResponseDTO> {
         try {
             const { deckId } = data;
 
@@ -97,7 +96,7 @@ export class FlashcardService {
                     imageUrl: data.imageUrl || null,
                     audioUrl: data.audioUrl || null,
                     tags: data.tags || [],
-                    difficulty: data.difficulty ? fromDifficultyLevel(data.difficulty) : 'medium',
+                    difficulty: data.difficulty !== undefined ? fromDifficultyLevel(data.difficulty) : 'medium',
                     // Default SM-2 values
                     intervalDays: 1,
                     easeFactor: 2.5,
@@ -117,17 +116,12 @@ export class FlashcardService {
                 }
             });
 
-            return {
-                success: true,
-                message: 'Flashcard created successfully',
-                error: '',
-                data: this.mapToProto(flashcard)
-            };
-        } catch (error) {
+            return this.mapToProto(flashcard);
+        } catch (error: any) {
             if (error instanceof RpcException) {
                 throw error;
             }
-            console.error(`[FlashcardService] Error creating flashcard: ${error.message}`, error);
+            this.logger.error(`Error creating flashcard: ${error.message}`, error.stack);
             throw new RpcException({
                 status: 400,
                 message: `Failed to create flashcard: ${error?.message || 'Unknown error'}`,
@@ -135,7 +129,7 @@ export class FlashcardService {
         }
     }
 
-    async getFlashcards(params: FindAllFlashcardsRequestDto): Promise<FlashcardViewListResponseDto> {
+    async getFlashcards(params: FlashcardQueryDTO): Promise<FlashcardPaginatedResponse> {
         try {
             const { page = 1, limit = 10, deckId } = params;
             const skip = (page - 1) * limit;
@@ -155,55 +149,25 @@ export class FlashcardService {
             ]);
 
             return {
-                success: true,
-                message: `${flashcards.length} flashcard(s) retrieved successfully`,
-                error: '',
-                data: flashcards.map(fc => ({
-                    id: fc.id,
-                    deckId: fc.deckId,
-                    frontText: fc.frontText,
-                    backText: fc.backText.substring(0, 100), // Truncate for list view
-                    tags: fc.tags,
-                    difficulty: toDifficultyLevel(fc.difficulty), // Convert to enum
-                    nextReviewDate: fc.nextReviewDate ? fc.nextReviewDate.toISOString().split('T')[0] : undefined, // Format: YYYY-MM-DD
-                    reviewCount: fc.reviewCount,
-                    intervalDays: fc.intervalDays,
-                    easeFactor: Number(fc.easeFactor),
-                    correctCount: fc.correctCount,
-                    createdAt: fc.createdAt,
-                    updatedAt: fc.updatedAt
-                })),
-                meta: {
-                    page,
-                    limit,
-                    total,
-                    totalPages: Math.ceil(total / limit),
-                    hasNext: page * limit < total,
-                    hasPrev: page > 1
-                }
+                data: flashcards.map(fc => this.mapToProto(fc)),
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit),
             };
-        } catch (error) {
-            return {
-                success: false,
-                message: 'Failed to retrieve flashcards',
-                error: error?.message || 'An unexpected error occurred',
-                data: [],
-                meta: {
-                    page: 0,
-                    limit: 0,
-                    total: 0,
-                    totalPages: 0,
-                    hasNext: false,
-                    hasPrev: false
-                }
-            };
+        } catch (error: any) {
+            this.logger.error(`Error getting flashcards: ${error.message}`, error.stack);
+            throw new RpcException({
+                status: 400,
+                message: `Failed to retrieve flashcards: ${error?.message || 'Unknown error'}`,
+            });
         }
     }
 
     async updateFlashcard(
         userId: string,
-        data: UpdateFlashcardRequestDto,
-    ): Promise<UpdateFlashcardResponseDto> {
+        data: FlashcardUpdateDTO,
+    ): Promise<FlashcardResponseDTO> {
         try {
             const {
                 id,
@@ -246,20 +210,16 @@ export class FlashcardService {
                     imageUrl: imageUrl ?? undefined,
                     audioUrl: audioUrl ?? undefined,
                     tags: tags ?? undefined,
-                    difficulty: difficulty ? fromDifficultyLevel(difficulty) : undefined,
+                    difficulty: difficulty !== undefined ? fromDifficultyLevel(difficulty) : undefined,
                 }
             });
 
-            return {
-                success: true,
-                message: 'Flashcard updated successfully',
-                error: '',
-                data: this.mapToProto(updated)
-            };
-        } catch (error) {
+            return this.mapToProto(updated);
+        } catch (error: any) {
             if (error instanceof RpcException) {
                 throw error;
             }
+            this.logger.error(`Error updating flashcard: ${error.message}`, error.stack);
             throw new RpcException({
                 status: 400,
                 message: `Failed to update flashcard: ${error?.message || 'Unknown error'}`,
@@ -267,84 +227,56 @@ export class FlashcardService {
         }
     }
 
-    async deleteFlashcard(data: DeleteFlashcardRequestDto): Promise<DeleteFlashcardResponseDto> {
+    async deleteFlashcard(data: { id: string }): Promise<{ success: boolean }> {
         try {
             await this.prisma.flashcard.delete({
                 where: { id: data.id }
             });
 
-            return {
-                success: true,
-                message: 'Flashcard deleted successfully',
-                error: '',
-                data: null as any
-            };
-        } catch (error) {
-            // Handle P2025 (Record to delete does not exist)
-            if (error.code === 'P2025') {
-                return {
-                    success: false,
-                    message: 'Flashcard not found',
-                    error: `Flashcard with ID ${data.id} does not exist`,
-                    data: null as any
-                };
-            }
-            return {
-                success: false,
-                message: 'Failed to delete flashcard',
-                error: error?.message || 'Unknown error',
-                data: null as any
-            };
+            return { success: true };
+        } catch (error: any) {
+            this.logger.error(`Error deleting flashcard: ${error.message}`, error.stack);
+            throw new RpcException({
+                status: 400,
+                message: `Failed to delete flashcard: ${error?.message || 'Unknown error'}`,
+            });
         }
     }
 
-    async getFlashcardById(req: GetFlashcardByIdRequestDto): Promise<GetFlashcardByIdResponseDto> {
+    async getFlashcardById(req: { id: string }): Promise<FlashcardResponseDTO> {
         try {
             const flashcard = await this.prisma.flashcard.findUnique({
                 where: { id: req.id }
             });
 
             if (!flashcard) {
-                return {
-                    success: false,
+                throw new RpcException({
+                    status: 404,
                     message: 'Flashcard not found',
-                    error: `Flashcard with ID ${req.id} does not exist`,
-                    data: null as any
-                };
+                });
             }
 
-            return {
-                success: true,
-                message: 'Flashcard retrieved successfully',
-                error: '',
-                data: this.mapToProto(flashcard)
-            };
-        } catch (error) {
-            return {
-                success: false,
-                message: 'Failed to get flashcard',
-                error: error?.message || 'Unknown error',
-                data: null as any
-            };
+            return this.mapToProto(flashcard);
+        } catch (error: any) {
+            if (error instanceof RpcException) throw error;
+            this.logger.error(`Error getting flashcard by id: ${error.message}`, error.stack);
+            throw new RpcException({
+                status: 400,
+                message: `Failed to get flashcard: ${error?.message || 'Unknown error'}`,
+            });
         }
     }
 
-    async bulkOperations(data: BulkFlashcardOperationsRequestDto): Promise<BulkFlashcardOperationsResponseDto> {
+    async bulkOperations(data: BulkFlashcardOperationsDTO): Promise<BulkFlashcardOperationsResponseDTO> {
         // TODO: Implement bulk operations
         return {
-            success: false,
-            message: 'Not implemented',
-            error: 'Bulk operations are not yet implemented',
-            data: {
-                successCount: 0,
-                failedCount: 0,
-                errorMessages: []
-            }
+            successCount: 0,
+            failedCount: 0,
+            errorMessages: ['Not implemented']
         };
     }
 
-    // Helper to map DB entity to Full Proto Message
-    private mapToProto(fc: any): any {
+    private mapToProto(fc: any): FlashcardResponseDTO {
         return {
             id: fc.id,
             deckId: fc.deckId,
@@ -356,7 +288,7 @@ export class FlashcardService {
             audioUrl: fc.audioUrl || undefined,
             tags: fc.tags,
             difficulty: toDifficultyLevel(fc.difficulty),
-            nextReviewDate: fc.nextReviewDate ? fc.nextReviewDate.toISOString().split('T')[0] : undefined,
+            nextReviewDate: fc.nextReviewDate || undefined,
             intervalDays: fc.intervalDays,
             easeFactor: Number(fc.easeFactor),
             reviewCount: fc.reviewCount,

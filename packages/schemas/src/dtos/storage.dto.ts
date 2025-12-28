@@ -68,3 +68,19 @@ export const storageDeleteFileResponseDTOSchema = z.object({
 });
 
 export type StorageDeleteFileResponseDTO = z.infer<typeof storageDeleteFileResponseDTOSchema>;
+
+// Get Signed URL
+export const storageGetSignedUrlRequestDTOSchema = z.object({
+    fileId: z.string().min(1),
+    expiresIn: z.number().optional(),
+});
+
+export type StorageGetSignedUrlRequestDTO = z.infer<typeof storageGetSignedUrlRequestDTOSchema>;
+
+export const storageGetSignedUrlResponseDTOSchema = z.object({
+    fileId: z.string(),
+    signedUrl: z.string().url(),
+    expiresIn: z.number(),
+});
+
+export type StorageGetSignedUrlResponseDTO = z.infer<typeof storageGetSignedUrlResponseDTOSchema>;

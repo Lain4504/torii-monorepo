@@ -1,7 +1,11 @@
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { LessonService } from './lesson.service';
-import { LessonQueryDto, CreateLessonDto, UpdateLessonRequestDto } from '@workspace/dtos';
+import {
+  type LessonCreateDTO,
+  type LessonUpdateDTO,
+  type LessonQueryDTO,
+} from '@workspace/schemas';
 
 @Controller()
 export class LessonController {
@@ -12,7 +16,7 @@ export class LessonController {
   }
 
   @MessagePattern({ cmd: 'lesson.findAll' })
-  async findAll(@Payload() query: LessonQueryDto) {
+  async findAll(@Payload() query: LessonQueryDTO) {
     return await this.lessonService.findAll(query);
   }
 
@@ -22,13 +26,13 @@ export class LessonController {
   }
 
   @MessagePattern({ cmd: 'lesson.create' })
-  async create(@Payload() input: CreateLessonDto) {
+  async create(@Payload() input: LessonCreateDTO) {
     this.logger.log('Received lesson.create request');
     return await this.lessonService.create(input);
   }
 
   @MessagePattern({ cmd: 'lesson.update' })
-  async update(@Payload() data: UpdateLessonRequestDto) {
+  async update(@Payload() data: { id: string; input: LessonUpdateDTO }) {
     return await this.lessonService.update(data.id, data.input);
   }
 

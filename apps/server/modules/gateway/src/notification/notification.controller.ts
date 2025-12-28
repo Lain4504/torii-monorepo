@@ -7,18 +7,21 @@ import {
   Param,
   Patch,
   Query,
+  UsePipes,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
-import {
-  NotificationQueryDto,
-  NotificationListResponseDto,
-  NotificationResponseDto,
-  MarkAsReadRequestDto,
-  MarkAllAsReadRequestDto,
-  DeleteNotificationRequestDto,
-  UnreadCountResponseDto,
-} from '@workspace/dtos';
+import { ZodValidationPipe } from '@server/shared/pipes/zod-validation.pipe';
+import { notificationQueryDTOSchema } from '@workspace/schemas';
+import type {
+  NotificationQueryDTO,
+  NotificationResponseDTO,
+  NotificationMarkAsReadRequestDTO,
+  NotificationMarkAllAsReadRequestDTO,
+  NotificationDeleteRequestDTO,
+  NotificationUnreadCountResponseDTO,
+  PaginatedResponse,
+} from '@workspace/schemas';
 
 @Controller('api/notifications')
 export class NotificationController {
@@ -26,24 +29,17 @@ export class NotificationController {
   constructor(
     @Inject('NATS_SERVICE')
     private readonly natsClient: ClientProxy,
-  ) {}
+  ) { }
 
   @Get()
+  @UsePipes(new ZodValidationPipe(notificationQueryDTOSchema))
   async findAll(
-    @Query('page') page?: number,
-    @Query('limit') limit?: number,
-    @Query('isRead') isRead?: string,
-  ): Promise<NotificationListResponseDto> {
+    @Query() queryDTO: NotificationQueryDTO,
+  ): Promise<PaginatedResponse<NotificationResponseDTO>> {
     const userId = this.MOCK_USER_ID;
     try {
-      const query: NotificationQueryDto = {
-        page: page ? Number(page) : 1,
-        limit: limit ? Number(limit) : 10,
-        ...(isRead !== undefined && { isRead: isRead === 'true' }),
-      };
-
-      const response = await lastValueFrom<NotificationListResponseDto>(
-        this.natsClient.send({ cmd: 'notification.findAll' }, { userId, query }),
+      const response = await lastValueFrom<PaginatedResponse<NotificationResponseDTO>>(
+        this.natsClient.send({ cmd: 'notification.findAll' }, { userId, query: queryDTO }),
       );
 
       return response;
@@ -56,15 +52,15 @@ export class NotificationController {
   @Patch(':id/read')
   async markAsRead(
     @Param('id') id: string,
-  ): Promise<NotificationResponseDto> {
+  ): Promise<NotificationResponseDTO> {
     const userId = this.MOCK_USER_ID;
     try {
-      const payload: MarkAsReadRequestDto = {
+      const payload: NotificationMarkAsReadRequestDTO = {
         notificationId: id,
         userId,
       };
 
-      const response = await lastValueFrom<NotificationResponseDto>(
+      const response = await lastValueFrom<NotificationResponseDTO>(
         this.natsClient.send({ cmd: 'notification.markAsRead' }, payload),
       );
 
@@ -79,7 +75,7 @@ export class NotificationController {
   async markAllAsRead(): Promise<{ success: boolean; message: string; count: number }> {
     const userId = this.MOCK_USER_ID;
     try {
-      const payload: MarkAllAsReadRequestDto = {
+      const payload: NotificationMarkAllAsReadRequestDTO = {
         userId,
       };
 
@@ -95,10 +91,10 @@ export class NotificationController {
   }
 
   @Get('unread-count')
-  async getUnreadCount(): Promise<UnreadCountResponseDto> {
+  async getUnreadCount(): Promise<NotificationUnreadCountResponseDTO> {
     const userId = this.MOCK_USER_ID;
     try {
-      const response = await lastValueFrom<UnreadCountResponseDto>(
+      const response = await lastValueFrom<NotificationUnreadCountResponseDTO>(
         this.natsClient.send({ cmd: 'notification.getUnreadCount' }, { userId }),
       );
 
@@ -115,7 +111,7 @@ export class NotificationController {
   ): Promise<{ success: boolean; message: string }> {
     const userId = this.MOCK_USER_ID;
     try {
-      const payload: DeleteNotificationRequestDto = {
+      const payload: NotificationDeleteRequestDTO = {
         notificationId: id,
         userId,
       };
