@@ -13,8 +13,12 @@ export class JwtTokenProvider {
         this.expiresIn = config.get<string>('JWT_EXPIRES_IN', '7d')!;
     }
 
-    async generateToken(payload: TokenPayload): Promise<string> {
-        return jwt.sign(payload, this.secretKey, { expiresIn: this.expiresIn });
+    async generateToken(payload: TokenPayload, expiresIn?: string): Promise<string> {
+        return jwt.sign(payload, this.secretKey, { expiresIn: expiresIn || this.expiresIn });
+    }
+
+    async generateRefreshToken(payload: TokenPayload): Promise<string> {
+        return jwt.sign(payload, this.secretKey, { expiresIn: '7d' });
     }
 
     async verifyToken(token: string): Promise<TokenPayload | null> {

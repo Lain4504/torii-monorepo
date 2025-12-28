@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add initial React + TypeScript + Vite template with ESLint configuration for meet" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(auth): implement cookie-based authentication with access and refresh tokens" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -20,7 +20,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="poll-feature-meet" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -50,13 +50,20 @@
         &quot;number&quot;: 38
       },
       &quot;lastSeen&quot;: 1766885614934
+    },
+    {
+      &quot;id&quot;: {
+        &quot;id&quot;: &quot;PR_kwDOQmD9iM66oPXy&quot;,
+        &quot;number&quot;: 31
+      },
+      &quot;lastSeen&quot;: 1766974161892
     }
   ]
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/Lain4504/torii-monorepo.git&quot;,
-    &quot;accountId&quot;: &quot;849886b4-fefd-425b-8df5-973c7910d660&quot;
+    &quot;accountId&quot;: &quot;b00df774-879c-47f6-b5d3-0a65d83c1c54&quot;
   }
 }</component>
   <component name="KubernetesApiPersistence">{}</component>
@@ -74,25 +81,30 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Docker.docker-compose.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.IDE.editor.colors.Color Scheme Font&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;E:\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "#40 on auth-cookies",
+    "junie.onboarding.icon.badge.shown": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "pnpm",
+    "settings.editor.selected.configurable": "reference.settingsdialog.IDE.editor.colors.Color Scheme Font",
+    "ts.external.directory.path": "E:\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "postgresql"
+    ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="E:\demo\team-source\torii-monorepo\apps\web-admin\src\features\question-bank" />
@@ -120,13 +132,16 @@
       <list>
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
+        <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
+        <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
       </list>
     </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-6a121458b545-JavaScript-WS-251.25410.117" />
+        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.25410.109" />
+        <option value="bundled-js-predefined-d6986cc7102b-6a121458b545-JavaScript-IU-251.25410.109" />
       </set>
     </attachedChunks>
   </component>
@@ -167,150 +182,11 @@
       <workItem from="1766734238257" duration="5995000" />
       <workItem from="1766812088279" duration="123000" />
       <workItem from="1766826149900" duration="3567000" />
-    </task>
-    <task id="LOCAL-00298" summary="fix to can run">
-      <option name="closed" value="true" />
-      <created>1766593003115</created>
-      <option name="number" value="00298" />
-      <option name="presentableId" value="LOCAL-00298" />
-      <option name="project" value="LOCAL" />
-      <updated>1766593003117</updated>
-    </task>
-    <task id="LOCAL-00299" summary="fix to can run">
-      <option name="closed" value="true" />
-      <created>1766594780565</created>
-      <option name="number" value="00299" />
-      <option name="presentableId" value="LOCAL-00299" />
-      <option name="project" value="LOCAL" />
-      <updated>1766594780565</updated>
-    </task>
-    <task id="LOCAL-00300" summary="fix to done room flow">
-      <option name="closed" value="true" />
-      <created>1766626874547</created>
-      <option name="number" value="00300" />
-      <option name="presentableId" value="LOCAL-00300" />
-      <option name="project" value="LOCAL" />
-      <updated>1766626874548</updated>
-    </task>
-    <task id="LOCAL-00301" summary="fix to done room flow">
-      <option name="closed" value="true" />
-      <created>1766627662089</created>
-      <option name="number" value="00301" />
-      <option name="presentableId" value="LOCAL-00301" />
-      <option name="project" value="LOCAL" />
-      <updated>1766627662089</updated>
-    </task>
-    <task id="LOCAL-00302" summary="fix to done room flow">
-      <option name="closed" value="true" />
-      <created>1766628036327</created>
-      <option name="number" value="00302" />
-      <option name="presentableId" value="LOCAL-00302" />
-      <option name="project" value="LOCAL" />
-      <updated>1766628036327</updated>
-    </task>
-    <task id="LOCAL-00303" summary="fix to done room flow">
-      <option name="closed" value="true" />
-      <created>1766628626464</created>
-      <option name="number" value="00303" />
-      <option name="presentableId" value="LOCAL-00303" />
-      <option name="project" value="LOCAL" />
-      <updated>1766628626464</updated>
-    </task>
-    <task id="LOCAL-00304" summary="fix to done room flow">
-      <option name="closed" value="true" />
-      <created>1766628913587</created>
-      <option name="number" value="00304" />
-      <option name="presentableId" value="LOCAL-00304" />
-      <option name="project" value="LOCAL" />
-      <updated>1766628913587</updated>
-    </task>
-    <task id="LOCAL-00305" summary="rename">
-      <option name="closed" value="true" />
-      <created>1766630244007</created>
-      <option name="number" value="00305" />
-      <option name="presentableId" value="LOCAL-00305" />
-      <option name="project" value="LOCAL" />
-      <updated>1766630244007</updated>
-    </task>
-    <task id="LOCAL-00306" summary="rename">
-      <option name="closed" value="true" />
-      <created>1766630467937</created>
-      <option name="number" value="00306" />
-      <option name="presentableId" value="LOCAL-00306" />
-      <option name="project" value="LOCAL" />
-      <updated>1766630467937</updated>
-    </task>
-    <task id="LOCAL-00307" summary="rename">
-      <option name="closed" value="true" />
-      <created>1766630653535</created>
-      <option name="number" value="00307" />
-      <option name="presentableId" value="LOCAL-00307" />
-      <option name="project" value="LOCAL" />
-      <updated>1766630653535</updated>
-    </task>
-    <task id="LOCAL-00308" summary="rename">
-      <option name="closed" value="true" />
-      <created>1766630790786</created>
-      <option name="number" value="00308" />
-      <option name="presentableId" value="LOCAL-00308" />
-      <option name="project" value="LOCAL" />
-      <updated>1766630790786</updated>
-    </task>
-    <task id="LOCAL-00309" summary="rename">
-      <option name="closed" value="true" />
-      <created>1766631518916</created>
-      <option name="number" value="00309" />
-      <option name="presentableId" value="LOCAL-00309" />
-      <option name="project" value="LOCAL" />
-      <updated>1766631518916</updated>
-    </task>
-    <task id="LOCAL-00310" summary="rename">
-      <option name="closed" value="true" />
-      <created>1766631592726</created>
-      <option name="number" value="00310" />
-      <option name="presentableId" value="LOCAL-00310" />
-      <option name="project" value="LOCAL" />
-      <updated>1766631592726</updated>
-    </task>
-    <task id="LOCAL-00311" summary="rename">
-      <option name="closed" value="true" />
-      <created>1766631973891</created>
-      <option name="number" value="00311" />
-      <option name="presentableId" value="LOCAL-00311" />
-      <option name="project" value="LOCAL" />
-      <updated>1766631973891</updated>
-    </task>
-    <task id="LOCAL-00312" summary="rename">
-      <option name="closed" value="true" />
-      <created>1766632642474</created>
-      <option name="number" value="00312" />
-      <option name="presentableId" value="LOCAL-00312" />
-      <option name="project" value="LOCAL" />
-      <updated>1766632642474</updated>
-    </task>
-    <task id="LOCAL-00313" summary="rename">
-      <option name="closed" value="true" />
-      <created>1766632850758</created>
-      <option name="number" value="00313" />
-      <option name="presentableId" value="LOCAL-00313" />
-      <option name="project" value="LOCAL" />
-      <updated>1766632850758</updated>
-    </task>
-    <task id="LOCAL-00314" summary="rename">
-      <option name="closed" value="true" />
-      <created>1766633107265</created>
-      <option name="number" value="00314" />
-      <option name="presentableId" value="LOCAL-00314" />
-      <option name="project" value="LOCAL" />
-      <updated>1766633107265</updated>
-    </task>
-    <task id="LOCAL-00315" summary="rename">
-      <option name="closed" value="true" />
-      <created>1766633342398</created>
-      <option name="number" value="00315" />
-      <option name="presentableId" value="LOCAL-00315" />
-      <option name="project" value="LOCAL" />
-      <updated>1766633342398</updated>
+      <workItem from="1766929635077" duration="73000" />
+      <workItem from="1766929759619" duration="39000" />
+      <workItem from="1766929840821" duration="9339000" />
+      <workItem from="1766940341673" duration="161000" />
+      <workItem from="1766969621474" duration="4122000" />
     </task>
     <task id="LOCAL-00316" summary="feat(waiting-room): add waiting room module and controller for managing user approvals and messages">
       <option name="closed" value="true" />
@@ -560,7 +436,151 @@
       <option name="project" value="LOCAL" />
       <updated>1766888637054</updated>
     </task>
-    <option name="localTasksCounter" value="347" />
+    <task id="LOCAL-00347" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
+      <option name="closed" value="true" />
+      <created>1766933117148</created>
+      <option name="number" value="00347" />
+      <option name="presentableId" value="LOCAL-00347" />
+      <option name="project" value="LOCAL" />
+      <updated>1766933117149</updated>
+    </task>
+    <task id="LOCAL-00348" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
+      <option name="closed" value="true" />
+      <created>1766933120895</created>
+      <option name="number" value="00348" />
+      <option name="presentableId" value="LOCAL-00348" />
+      <option name="project" value="LOCAL" />
+      <updated>1766933120895</updated>
+    </task>
+    <task id="LOCAL-00349" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
+      <option name="closed" value="true" />
+      <created>1766934767129</created>
+      <option name="number" value="00349" />
+      <option name="presentableId" value="LOCAL-00349" />
+      <option name="project" value="LOCAL" />
+      <updated>1766934767129</updated>
+    </task>
+    <task id="LOCAL-00350" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
+      <option name="closed" value="true" />
+      <created>1766934785448</created>
+      <option name="number" value="00350" />
+      <option name="presentableId" value="LOCAL-00350" />
+      <option name="project" value="LOCAL" />
+      <updated>1766934785448</updated>
+    </task>
+    <task id="LOCAL-00351" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
+      <option name="closed" value="true" />
+      <created>1766936219920</created>
+      <option name="number" value="00351" />
+      <option name="presentableId" value="LOCAL-00351" />
+      <option name="project" value="LOCAL" />
+      <updated>1766936219920</updated>
+    </task>
+    <task id="LOCAL-00352" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
+      <option name="closed" value="true" />
+      <created>1766936224979</created>
+      <option name="number" value="00352" />
+      <option name="presentableId" value="LOCAL-00352" />
+      <option name="project" value="LOCAL" />
+      <updated>1766936224979</updated>
+    </task>
+    <task id="LOCAL-00353" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
+      <option name="closed" value="true" />
+      <created>1766936227508</created>
+      <option name="number" value="00353" />
+      <option name="presentableId" value="LOCAL-00353" />
+      <option name="project" value="LOCAL" />
+      <updated>1766936227509</updated>
+    </task>
+    <task id="LOCAL-00354" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
+      <option name="closed" value="true" />
+      <created>1766936244687</created>
+      <option name="number" value="00354" />
+      <option name="presentableId" value="LOCAL-00354" />
+      <option name="project" value="LOCAL" />
+      <updated>1766936244687</updated>
+    </task>
+    <task id="LOCAL-00355" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
+      <option name="closed" value="true" />
+      <created>1766939722450</created>
+      <option name="number" value="00355" />
+      <option name="presentableId" value="LOCAL-00355" />
+      <option name="project" value="LOCAL" />
+      <updated>1766939722450</updated>
+    </task>
+    <task id="LOCAL-00356" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
+      <option name="closed" value="true" />
+      <created>1766970773183</created>
+      <option name="number" value="00356" />
+      <option name="presentableId" value="LOCAL-00356" />
+      <option name="project" value="LOCAL" />
+      <updated>1766970773183</updated>
+    </task>
+    <task id="LOCAL-00357" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
+      <option name="closed" value="true" />
+      <created>1766970805799</created>
+      <option name="number" value="00357" />
+      <option name="presentableId" value="LOCAL-00357" />
+      <option name="project" value="LOCAL" />
+      <updated>1766970805799</updated>
+    </task>
+    <task id="LOCAL-00358" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
+      <option name="closed" value="true" />
+      <created>1766970824192</created>
+      <option name="number" value="00358" />
+      <option name="presentableId" value="LOCAL-00358" />
+      <option name="project" value="LOCAL" />
+      <updated>1766970824192</updated>
+    </task>
+    <task id="LOCAL-00359" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
+      <option name="closed" value="true" />
+      <created>1766974011612</created>
+      <option name="number" value="00359" />
+      <option name="presentableId" value="LOCAL-00359" />
+      <option name="project" value="LOCAL" />
+      <updated>1766974011612</updated>
+    </task>
+    <task id="LOCAL-00360" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
+      <option name="closed" value="true" />
+      <created>1766974106784</created>
+      <option name="number" value="00360" />
+      <option name="presentableId" value="LOCAL-00360" />
+      <option name="project" value="LOCAL" />
+      <updated>1766974106784</updated>
+    </task>
+    <task id="LOCAL-00361" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
+      <option name="closed" value="true" />
+      <created>1766975807141</created>
+      <option name="number" value="00361" />
+      <option name="presentableId" value="LOCAL-00361" />
+      <option name="project" value="LOCAL" />
+      <updated>1766975807141</updated>
+    </task>
+    <task id="LOCAL-00362" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
+      <option name="closed" value="true" />
+      <created>1766976435788</created>
+      <option name="number" value="00362" />
+      <option name="presentableId" value="LOCAL-00362" />
+      <option name="project" value="LOCAL" />
+      <updated>1766976435790</updated>
+    </task>
+    <task id="LOCAL-00363" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
+      <option name="closed" value="true" />
+      <created>1766976452144</created>
+      <option name="number" value="00363" />
+      <option name="presentableId" value="LOCAL-00363" />
+      <option name="project" value="LOCAL" />
+      <updated>1766976452144</updated>
+    </task>
+    <task id="LOCAL-00364" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
+      <option name="closed" value="true" />
+      <created>1766976479340</created>
+      <option name="number" value="00364" />
+      <option name="presentableId" value="LOCAL-00364" />
+      <option name="project" value="LOCAL" />
+      <updated>1766976479340</updated>
+    </task>
+    <option name="localTasksCounter" value="365" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -577,7 +597,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="refactoring-structure-web-admin" />
+                        <option value="auth-cookies" />
                       </list>
                     </value>
                   </entry>
@@ -614,7 +634,8 @@
     <MESSAGE value="refactor: standardize import paths for feature components" />
     <MESSAGE value="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components" />
     <MESSAGE value="feat: add initial React + TypeScript + Vite template with ESLint configuration for meet" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: add initial React + TypeScript + Vite template with ESLint configuration for meet" />
+    <MESSAGE value="feat(auth): implement cookie-based authentication with access and refresh tokens" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(auth): implement cookie-based authentication with access and refresh tokens" />
   </component>
   <component name="com.apollographql.ijplugin.settings.ProjectSettingsState">
     <option name="lspPassPathToSuperGraphYaml" value="false" />

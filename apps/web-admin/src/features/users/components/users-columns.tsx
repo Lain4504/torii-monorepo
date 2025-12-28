@@ -10,6 +10,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu';
+import { Can } from '@/components/auth/can.tsx';
 
 const columnHelper = createColumnHelper<UserResponseDTO>();
 
@@ -117,12 +118,14 @@ export const getUsersColumns = ({ onView, onEdit, onDelete, page, limit }: Users
                         <DropdownMenuItem onClick={() => onView(user)}>
                             <Eye className="mr-2 h-4 w-4" /> View Details
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => onEdit(user)}>
-                            <Pencil className="mr-2 h-4 w-4" /> Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => onDelete(user)} className="text-red-600">
-                            <Trash className="mr-2 h-4 w-4" /> Delete
-                        </DropdownMenuItem>
+                        <Can permission="user.manage">
+                            <DropdownMenuItem onClick={() => onEdit(user)}>
+                                <Pencil className="mr-2 h-4 w-4" /> Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => onDelete(user)} className="text-red-600">
+                                <Trash className="mr-2 h-4 w-4" /> Delete
+                            </DropdownMenuItem>
+                        </Can>
                     </DropdownMenuContent>
                 </DropdownMenu>
             );

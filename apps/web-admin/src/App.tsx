@@ -1,6 +1,9 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { Provider as ReduxProvider } from 'react-redux'
+import { store } from './store'
 import { Toaster } from '@workspace/ui/components/sonner'
+import { AuthGuard } from './components/auth/auth-guard.tsx'
 // Component imports
 import DashboardLayout from "./components/layout/dashboard-layout.tsx";
 // Feature imports
@@ -31,29 +34,35 @@ const queryClient = new QueryClient({
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route element={<DashboardLayout />}>
-            <Route index element={<DashboardPage />} />
-            <Route path="users" element={<UsersPage />} />
-            <Route path="courses" element={<CoursesPage />} />
-            <Route path="modules" element={<ModulesPage />} />
-            <Route path="lessons" element={<LessonsPage />} />
-            <Route path="question-bank" element={<QuestionBankPage />} />
-            <Route path="rooms" element={<RoomsPage />} />
-            <Route path="payments" element={<PaymentsPage />} />
-            <Route path="analytics" element={<AnalyticsPage />} />
-            <Route path="ai-service" element={<AIServicePage />} />
-            <Route path="notifications" element={<NotificationsPage />} />
-            <Route path="permissions" element={<PermissionsPage />} />
-            <Route path="settings" element={<SettingsPage />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-      <Toaster richColors position="top-right" />
-    </QueryClientProvider>
+    <ReduxProvider store={store}>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route element={
+              <AuthGuard>
+                <DashboardLayout />
+              </AuthGuard>
+            }>
+              <Route index element={<DashboardPage />} />
+              <Route path="users" element={<UsersPage />} />
+              <Route path="courses" element={<CoursesPage />} />
+              <Route path="modules" element={<ModulesPage />} />
+              <Route path="lessons" element={<LessonsPage />} />
+              <Route path="question-bank" element={<QuestionBankPage />} />
+              <Route path="rooms" element={<RoomsPage />} />
+              <Route path="payments" element={<PaymentsPage />} />
+              <Route path="analytics" element={<AnalyticsPage />} />
+              <Route path="ai-service" element={<AIServicePage />} />
+              <Route path="notifications" element={<NotificationsPage />} />
+              <Route path="permissions" element={<PermissionsPage />} />
+              <Route path="settings" element={<SettingsPage />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+        <Toaster richColors position="top-right" />
+      </QueryClientProvider>
+    </ReduxProvider>
   )
 }
 

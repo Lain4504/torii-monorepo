@@ -34,9 +34,8 @@ export class AuthService {
             throw new BadRequestException(ErrEmailExisted.message);
         }
 
-        // Hash password
-        const salt = bcrypt.genSaltSync(10);
-        const hashedPassword = await bcrypt.hash(`${data.password}.${salt}`, 10);
+        // Hash password (bcrypt handles salt internally)
+        const hashedPassword = await bcrypt.hash(data.password, 10);
 
         // Create user
         const newId = uuidv4();
@@ -46,7 +45,7 @@ export class AuthService {
                 email: data.email,
                 fullName: data.fullName,
                 password: hashedPassword,
-                salt,
+                salt: '', // Empty - bcrypt handles salt internally
                 role: UserRole.LEARNER,
                 status: UserStatus.ACTIVE,
             } as any,
@@ -54,7 +53,7 @@ export class AuthService {
         return newId;
     }
 
-    async login(dto: UserLoginDTO): Promise<string> {
+    async login(dto: UserLoginDTO): Promise<{ accessToken: string; refreshToken: string }> {
         const data = userLoginDTOSchema.parse(dto);
 
         // Find user
@@ -63,8 +62,8 @@ export class AuthService {
             throw new BadRequestException(ErrInvalidCredentials.message);
         }
 
-        // Verify password
-        const isMatch = await bcrypt.compare(`${data.password}.${user.salt}`, user.password);
+        // Verify password (bcrypt handles salt internally)
+        const isMatch = await bcrypt.compare(data.password, user.password);
         if (!isMatch) {
             throw new BadRequestException(ErrInvalidCredentials.message);
         }
@@ -74,13 +73,35 @@ export class AuthService {
             throw new BadRequestException(ErrUserInactivated.message);
         }
 
-        // Generate token
-        const token = await this.tokenProvider.generateToken({
+        // Generate tokens
+        const payload = { sub: user.id, role: user.role as UserRole };
+        const accessToken = await this.tokenProvider.generateToken(payload, '15m');
+        const refreshToken = await this.tokenProvider.generateRefreshToken(payload);
+
+        return { accessToken, refreshToken };
+    }
+
+    async refreshAccessToken(refreshToken: string): Promise<string> {
+        const payload = await this.tokenProvider.verifyToken(refreshToken);
+
+        if (!payload) {
+            throw new BadRequestException(ErrInvalidToken.message);
+        }
+
+        const user = await this.prisma.user.findUnique({ where: { id: payload.sub } });
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        if ([UserStatus.DELETED, UserStatus.INACTIVE, UserStatus.BANNED].includes(user.status as UserStatus)) {
+            throw new BadRequestException(ErrUserInactivated.message);
+        }
+
+        // Generate new access token
+        return this.tokenProvider.generateToken({
             sub: user.id,
             role: user.role as UserRole,
-        });
-
-        return token;
+        }, '15m');
     }
 
     async introspectToken(token: string): Promise<TokenPayload> {

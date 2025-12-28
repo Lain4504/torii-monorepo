@@ -9,6 +9,7 @@ import { EditCourseDialog } from '@/features/courses/components/edit-course-dial
 import { DeleteCourseDialog } from '@/features/courses/components/delete-course-dialog';
 import { ViewCourseDialog } from '@/features/courses/components/view-course-dialog';
 import type { CourseQueryDTO, CourseResponseDTO } from '@workspace/schemas';
+import { Can } from '@/components/auth/can.tsx';
 
 export default function CoursesPage() {
   const [page, setPage] = useState(1);
@@ -67,7 +68,9 @@ export default function CoursesPage() {
           <h1 className="text-3xl font-bold tracking-tight">Courses</h1>
           <p className="text-muted-foreground">Manage all courses in the system</p>
         </div>
-        <Button onClick={() => setShowCreateDialog(true)}>Create Course</Button>
+        <Can permission="course.create">
+          <Button onClick={() => setShowCreateDialog(true)}>Create Course</Button>
+        </Can>
       </div>
 
       <CoursesPrimaryToolbar
