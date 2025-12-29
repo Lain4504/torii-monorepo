@@ -27,23 +27,20 @@ export const ErrInvalidToken = new Error('Invalid token');
 export const ErrUserNotFound = new Error('User not found');
 export const ErrForbidden = new Error('Forbidden');
 
-// Zod Schema
+// Zod Schema - Auth Only Fields
 export const userSchema = z.object({
     id: z.string().uuid(),
     email: z.string().email(ErrEmailInvalid.message),
     fullName: z.string().min(2, ErrFirstNameAtLeast2Chars.message),
     password: z.string().min(8, ErrPasswordAtLeast8Chars.message),
     salt: z.string().min(8),
-    phone: z.string().optional().nullable(),
-    avatarUrl: z.string().url().optional().nullable(),
-    bio: z.string().max(500).optional().nullable(),
-    dateOfBirth: z.string().optional().nullable(),
-    gender: z.enum(['male', 'female', 'other']).optional().nullable(),
-    jlptLevel: z.enum(['N5', 'N4', 'N3', 'N2', 'N1']).optional().nullable(),
     role: z.nativeEnum(UserRole),
     status: z.nativeEnum(UserStatus),
+    emailVerified: z.boolean().default(false),
+    lastLoginAt: z.date().optional().nullable(),
     createdAt: z.date(),
     updatedAt: z.date(),
+    deletedAt: z.date().optional().nullable(),
 });
 
 export type User = z.infer<typeof userSchema>;

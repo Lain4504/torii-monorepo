@@ -28,12 +28,6 @@ export const userCreateDTOSchema = userSchema
         password: true,
         role: true,
         status: true,
-        phone: true,
-        avatarUrl: true,
-        bio: true,
-        dateOfBirth: true,
-        gender: true,
-        jlptLevel: true,
     })
     .extend({
         role: userSchema.shape.role.optional(),
@@ -42,16 +36,10 @@ export const userCreateDTOSchema = userSchema
 
 export type UserCreateDTO = z.infer<typeof userCreateDTOSchema>;
 
-// Update DTO
+// Update DTO (minimal auth fields)
 export const userUpdateDTOSchema = userSchema
     .pick({
         fullName: true,
-        phone: true,
-        avatarUrl: true,
-        bio: true,
-        dateOfBirth: true,
-        gender: true,
-        jlptLevel: true,
         password: true,
     })
     .partial();

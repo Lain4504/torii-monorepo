@@ -15,8 +15,14 @@ export class AuthController {
 
     @MessagePattern({ cmd: 'auth.signin' })
     async signin(@Payload() dto: UserLoginDTO) {
-        const token = await this.authService.login(dto);
-        return { success: true, data: token };
+        const tokens = await this.authService.login(dto);
+        return { success: true, data: tokens };
+    }
+
+    @MessagePattern({ cmd: 'auth.refresh' })
+    async refresh(@Payload() payload: { refreshToken: string }) {
+        const accessToken = await this.authService.refreshAccessToken(payload.refreshToken);
+        return { success: true, data: { accessToken } };
     }
 
     @MessagePattern({ cmd: 'auth.signout' })

@@ -15,6 +15,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu';
+import { Can } from '@/components/auth/can.tsx';
 
 interface UsersPrimaryToolbarProps {
     search: string;
@@ -44,9 +45,11 @@ export function UsersPrimaryToolbar({
                         Manage user accounts, roles, and permissions
                     </p>
                 </div>
-                <Button onClick={onAddNew}>
-                    <Plus className="mr-2 h-4 w-4" /> Add New User
-                </Button>
+                <Can permission="user.manage">
+                    <Button onClick={onAddNew}>
+                        <Plus className="mr-2 h-4 w-4" /> Add New User
+                    </Button>
+                </Can>
             </div>
 
             <div className="flex flex-col md:flex-row gap-4">

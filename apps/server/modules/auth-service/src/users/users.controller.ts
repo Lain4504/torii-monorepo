@@ -31,6 +31,12 @@ export class UsersController {
         return { success: true, data: user };
     }
 
+    @MessagePattern({ cmd: 'user.profileWithRBAC' })
+    async profileWithRBAC(@Payload() userId: string) {
+        const user = await this.usersService.getUserProfile(userId);
+        return { success: true, data: user };
+    }
+
     @MessagePattern({ cmd: 'users.update' })
     async update(@Payload() payload: { id: string; requester?: Requester } & UserUpdateDTO) {
         const { id, requester, ...dto } = payload;

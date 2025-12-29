@@ -47,7 +47,13 @@ export class RemoteAuthGuard implements CanActivate {
         return true;
     }
 
-    private extractTokenFromHeader(request: Request): string | undefined {
+    private extractTokenFromHeader(request: any): string | undefined {
+        // First try to get token from cookies (preferred method)
+        if (request.cookies?.accessToken) {
+            return request.cookies.accessToken;
+        }
+
+        // Fallback to Authorization header for backward compatibility
         const [type, token] = request.headers.authorization?.split(' ') ?? [];
         return type === 'Bearer' ? token : undefined;
     }

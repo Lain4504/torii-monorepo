@@ -1,5 +1,11 @@
-import { Injectable, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
-import bcrypt from 'bcrypt';
+import {
+    Injectable,
+    InternalServerErrorException,
+    NotFoundException,
+    BadRequestException,
+    ForbiddenException
+} from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import type {
     UserUpdateDTO,
@@ -11,8 +17,10 @@ import {
     UserRole,
     UserStatus,
     ErrEmailExisted,
+    ErrUserNotFound,
 } from '@workspace/schemas';
 import { PrismaService } from '@server/shared';
+import { RBACService } from '../rbac/rbac.service';
 
 export interface CreateUserDTO {
     email: string;
@@ -40,6 +48,7 @@ export interface PaginatedResponse<T> {
 export class UsersService {
     constructor(
         private readonly prisma: PrismaService,
+        private readonly rbacService: RBACService,
     ) { }
 
     /**
@@ -130,6 +139,39 @@ export class UsersService {
      */
     async profile(userId: string): Promise<UserResponseDTO> {
         return this.findOne(userId);
+    }
+
+    /**
+   * Get user profile with RBAC data
+   * Returns user info along with computed role, permissions, and staff template
+   */
+    async getUserProfile(userId: string) {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+                id: true,
+                email: true,
+                fullName: true,
+                role: true,
+                status: true,
+                emailVerified: true,
+                lastLoginAt: true,
+                createdAt: true,
+                updatedAt: true,
+            },
+        });
+
+        if (!user) {
+            throw new NotFoundException(ErrUserNotFound.message);
+        }
+
+        // Get permissions from RBAC service
+        const rbacData = await this.rbacService.getUserPermissions(user.id, user.role);
+
+        return {
+            ...user,
+            permissions: rbacData.permissions,
+        };
     }
 
     /**

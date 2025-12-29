@@ -32,6 +32,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
+import { Can } from "../auth/can.tsx"
 
 // Dữ liệu menu chính - for Torii Learning Platform
 interface NavItem {
@@ -39,6 +40,8 @@ interface NavItem {
   url: string
   icon: React.ComponentType<{ className?: string }>
   badge?: string
+  permission?: string // Optional permission required to see this item
+  anyPermission?: string[] // Any of these permissions
 }
 
 const mainNavItems: NavItem[] = [
@@ -46,31 +49,37 @@ const mainNavItems: NavItem[] = [
     title: "Dashboard",
     url: "/",
     icon: Home,
+    // No permission required - everyone can see dashboard
   },
   {
     title: "Users",
     url: "/users",
     icon: Users,
+    permission: "user.view",
   },
   {
     title: "Rooms",
     url: "/rooms",
     icon: Video,
+    anyPermission: ["live_class.schedule", "live_class.manage"],
   },
   {
     title: "Courses",
     url: "/courses",
     icon: BookOpen,
+    anyPermission: ["course.view_restricted", "course.create", "course.update"],
   },
   {
     title: "Question Bank",
     url: "/question-bank",
     icon: FileQuestion,
+    permission: "exam.manage",
   },
   {
     title: "Assessments",
     url: "/assessments",
     icon: ClipboardList,
+    permission: "exam.manage",
   },
 ]
 
@@ -79,11 +88,13 @@ const workflowNavItems: NavItem[] = [
     title: "Payments",
     url: "/payments",
     icon: CreditCard,
+    permission: "payment.view",
   },
   {
     title: "Analytics",
     url: "/analytics",
     icon: BarChart3,
+    permission: "report.view",
   },
 ]
 
@@ -93,23 +104,96 @@ const secondaryNavItems: NavItem[] = [
     title: "AI Service",
     url: "/ai-service",
     icon: Sparkles,
+    permission: "ai.config",
   },
   {
     title: "Notifications",
     url: "/notifications",
     icon: Bell,
+    // No specific permission - available to all authenticated users
   },
   {
     title: "Permissions",
     url: "/permissions",
     icon: Shield,
+    permission: "system.config",
   },
   {
     title: "Settings",
     url: "/settings",
     icon: Settings,
+    permission: "system.config",
   },
 ]
+
+interface NavItemButtonProps {
+  item: NavItem
+  pathname: string
+  sidebarModeState: 'expanded' | 'collapsed' | 'hover'
+}
+
+function NavItemButton({ item, pathname, sidebarModeState }: NavItemButtonProps) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          variant="ghost"
+          asChild
+          className={cn(
+            "relative w-full h-8 lg:h-8 px-2",
+            sidebarModeState === 'expanded' && "justify-start",
+            sidebarModeState === 'collapsed' && "lg:justify-center",
+            sidebarModeState === 'hover' && "lg:justify-center lg:group-hover:justify-start",
+            pathname === item.url && "bg-accent"
+          )}
+        >
+          <Link to={item.url}>
+            <item.icon className={cn(
+              "size-4",
+              sidebarModeState === 'expanded' && "mr-2",
+              sidebarModeState === 'hover' && "lg:mr-0 lg:group-hover:mr-2"
+            )} />
+            <span className={cn(
+              "transition-opacity duration-300 whitespace-nowrap",
+              sidebarModeState === 'expanded' && "inline",
+              sidebarModeState === 'collapsed' && "hidden",
+              sidebarModeState === 'hover' && "hidden lg:group-hover:inline"
+            )}>
+              {item.title}
+            </span>
+            {item.badge && (
+              <>
+                {sidebarModeState === 'collapsed' && (
+                  <span className="absolute right-0 top-1 hidden lg:inline-flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] leading-none text-white">
+                    {item.badge}
+                  </span>
+                )}
+                {sidebarModeState === 'hover' && (
+                  <>
+                    <span className="absolute right-0 top-1 hidden lg:inline-flex lg:group-hover:hidden h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] leading-none text-white">
+                      {item.badge}
+                    </span>
+                    <span className="ml-auto hidden lg:group-hover:flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+                      {item.badge}
+                    </span>
+                  </>
+                )}
+                {sidebarModeState === 'expanded' && (
+                  <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+                    {item.badge}
+                  </span>
+                )}
+              </>
+            )}
+          </Link>
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent side="right" className={cn("lg:block hidden", sidebarModeState === 'expanded' && "hidden")}>
+        <p>{item.title}</p>
+      </TooltipContent>
+    </Tooltip>
+  )
+}
 
 export function DashboardSidebar() {
   const location = useLocation()
@@ -187,68 +271,36 @@ export function DashboardSidebar() {
               )}>
                 Main Navigation
               </h3>
-              {/* Main Navigation Items */}
+              {/* Main Navigation Items with permissions */}
               <div className="space-y-1">
-                {mainNavItems.map((item) => (
-                  <Tooltip key={item.title}>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        asChild
-                        className={cn(
-                          "relative w-full h-8 lg:h-8 px-2",
-                          sidebarModeState === 'expanded' && "justify-start",
-                          sidebarModeState === 'collapsed' && "lg:justify-center",
-                          sidebarModeState === 'hover' && "lg:justify-center lg:group-hover:justify-start",
-                          pathname === item.url && "bg-accent"
-                        )}
-                      >
-                        <Link to={item.url}>
-                          <item.icon className={cn(
-                            "size-4",
-                            sidebarModeState === 'expanded' && "mr-2",
-                            sidebarModeState === 'hover' && "lg:mr-0 lg:group-hover:mr-2"
-                          )} />
-                          <span className={cn(
-                            "transition-opacity duration-300 whitespace-nowrap",
-                            sidebarModeState === 'expanded' && "inline",
-                            sidebarModeState === 'collapsed' && "hidden",
-                            sidebarModeState === 'hover' && "hidden lg:group-hover:inline"
-                          )}>
-                            {item.title}
-                          </span>
-                          {item.badge && (
-                            <>
-                              {sidebarModeState === 'collapsed' && (
-                                <span className="absolute right-0 top-1 hidden lg:inline-flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] leading-none text-white">
-                                  {item.badge}
-                                </span>
-                              )}
-                              {sidebarModeState === 'hover' && (
-                                <>
-                                  <span className="absolute right-0 top-1 hidden lg:inline-flex lg:group-hover:hidden h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] leading-none text-white">
-                                    {item.badge}
-                                  </span>
-                                  <span className="ml-auto hidden lg:group-hover:flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-                                    {item.badge}
-                                  </span>
-                                </>
-                              )}
-                              {sidebarModeState === 'expanded' && (
-                                <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-                                  {item.badge}
-                                </span>
-                              )}
-                            </>
-                          )}
-                        </Link>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="right" className={cn("lg:block hidden", sidebarModeState === 'expanded' && "hidden")}>
-                      <p>{item.title}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                ))}
+                {mainNavItems.map((item) => {
+                  // If item has no permission requirement, show to everyone
+                  if (!item.permission && !item.anyPermission) {
+                    return (
+                      <NavItemButton
+                        key={item.title}
+                        item={item}
+                        pathname={pathname}
+                        sidebarModeState={sidebarModeState}
+                      />
+                    )
+                  }
+
+                  // Otherwise, wrap with Can component
+                  return (
+                    <Can
+                      key={item.title}
+                      permission={item.permission}
+                      anyPermission={item.anyPermission}
+                    >
+                      <NavItemButton
+                        item={item}
+                        pathname={pathname}
+                        sidebarModeState={sidebarModeState}
+                      />
+                    </Can>
+                  )
+                })}
               </div>
             </div>
 
@@ -261,66 +313,32 @@ export function DashboardSidebar() {
                 Management
               </h3>
               <div className="space-y-1">
-                {workflowNavItems.map((item) => (
-                  <Tooltip key={item.title}>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        asChild
-                        className={cn(
-                          "relative w-full h-8 lg:h-8 px-2",
-                          sidebarModeState === 'expanded' && "justify-start",
-                          sidebarModeState === 'collapsed' && "lg:justify-center",
-                          sidebarModeState === 'hover' && "lg:justify-center lg:group-hover:justify-start",
-                          pathname === item.url && "bg-accent"
-                        )}
-                      >
-                        <Link to={item.url}>
-                          <item.icon className={cn(
-                            "size-4",
-                            sidebarModeState === 'expanded' && "mr-2",
-                            sidebarModeState === 'hover' && "lg:mr-0 lg:group-hover:mr-2"
-                          )} />
-                          <span className={cn(
-                            "transition-opacity duration-300 whitespace-nowrap",
-                            sidebarModeState === 'expanded' && "inline",
-                            sidebarModeState === 'collapsed' && "hidden",
-                            sidebarModeState === 'hover' && "hidden lg:group-hover:inline"
-                          )}>
-                            {item.title}
-                          </span>
-                          {item.badge && (
-                            <>
-                              {sidebarModeState === 'collapsed' && (
-                                <span className="absolute right-0 top-1 hidden lg:inline-flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] leading-none text-white">
-                                  {item.badge}
-                                </span>
-                              )}
-                              {sidebarModeState === 'hover' && (
-                                <>
-                                  <span className="absolute right-0 top-1 hidden lg:inline-flex lg:group-hover:hidden h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] leading-none text-white">
-                                    {item.badge}
-                                  </span>
-                                  <span className="ml-auto hidden lg:group-hover:flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-                                    {item.badge}
-                                  </span>
-                                </>
-                              )}
-                              {sidebarModeState === 'expanded' && (
-                                <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-                                  {item.badge}
-                                </span>
-                              )}
-                            </>
-                          )}
-                        </Link>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="right" className={cn("lg:block hidden", sidebarModeState === 'expanded' && "hidden")}>
-                      <p>{item.title}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                ))}
+                {workflowNavItems.map((item) => {
+                  if (!item.permission && !item.anyPermission) {
+                    return (
+                      <NavItemButton
+                        key={item.title}
+                        item={item}
+                        pathname={pathname}
+                        sidebarModeState={sidebarModeState}
+                      />
+                    )
+                  }
+
+                  return (
+                    <Can
+                      key={item.title}
+                      permission={item.permission}
+                      anyPermission={item.anyPermission}
+                    >
+                      <NavItemButton
+                        item={item}
+                        pathname={pathname}
+                        sidebarModeState={sidebarModeState}
+                      />
+                    </Can>
+                  )
+                })}
               </div>
             </div>
 
@@ -339,42 +357,32 @@ export function DashboardSidebar() {
                 System
               </h3>
               <div className="space-y-1">
-                {secondaryNavItems.map((item) => (
-                  <Tooltip key={item.title}>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        asChild
-                        className={cn(
-                          "relative w-full h-8 lg:h-8 px-2",
-                          sidebarModeState === 'expanded' && "justify-start",
-                          sidebarModeState === 'collapsed' && "lg:justify-center",
-                          sidebarModeState === 'hover' && "lg:justify-center lg:group-hover:justify-start",
-                          pathname === item.url && "bg-accent"
-                        )}
-                      >
-                        <Link to={item.url}>
-                          <item.icon className={cn(
-                            "size-4",
-                            sidebarModeState === 'expanded' && "mr-2",
-                            sidebarModeState === 'hover' && "lg:mr-0 lg:group-hover:mr-2"
-                          )} />
-                          <span className={cn(
-                            "transition-opacity duration-300 whitespace-nowrap",
-                            sidebarModeState === 'expanded' && "inline",
-                            sidebarModeState === 'collapsed' && "hidden",
-                            sidebarModeState === 'hover' && "hidden lg:group-hover:inline"
-                          )}>
-                            {item.title}
-                          </span>
-                        </Link>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="right" className={cn("lg:block hidden", sidebarModeState === 'expanded' && "hidden")}>
-                      <p>{item.title}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                ))}
+                {secondaryNavItems.map((item) => {
+                  if (!item.permission && !item.anyPermission) {
+                    return (
+                      <NavItemButton
+                        key={item.title}
+                        item={item}
+                        pathname={pathname}
+                        sidebarModeState={sidebarModeState}
+                      />
+                    )
+                  }
+
+                  return (
+                    <Can
+                      key={item.title}
+                      permission={item.permission}
+                      anyPermission={item.anyPermission}
+                    >
+                      <NavItemButton
+                        item={item}
+                        pathname={pathname}
+                        sidebarModeState={sidebarModeState}
+                      />
+                    </Can>
+                  )
+                })}
               </div>
             </div>
           </div>

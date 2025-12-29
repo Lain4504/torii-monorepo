@@ -15,8 +15,10 @@ export interface FindAllUsersParams {
 export const usersApi = {
     // GET /admin/users
     async findAll(params: FindAllUsersParams): Promise<PaginatedResponse<UserResponseDTO>> {
-        const response = await apiClient.get<PaginatedResponse<UserResponseDTO>>('/admin/users', { params });
-        return response.data;
+        const response = await apiClient.get<{ success: boolean; data: PaginatedResponse<UserResponseDTO> }>('/admin/users', { params });
+        // Backend returns: AxiosResponse with data = { success: true, data: PaginatedResponse }
+        // So response.data.data is the PaginatedResponse object { data: [...], total, page, limit, totalPages }
+        return response.data.data;
     },
 
     // GET /admin/users/:id
