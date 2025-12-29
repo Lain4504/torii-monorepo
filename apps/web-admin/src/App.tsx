@@ -20,6 +20,8 @@ import AIServicePage from './features/ai/routes/ai-service-page'
 import NotificationsPage from './features/settings/routes/notifications-page'
 import PermissionsPage from './features/settings/routes/permissions-page'
 import SettingsPage from './features/settings/routes/settings-page'
+import { PermissionsPage as RBACPermissionsPage } from './features/permissions'
+import { AuditLogsPage } from './features/audit'
 
 import LoginPage from './features/auth/routes/login-page'
 
@@ -55,6 +57,8 @@ function App() {
               <Route path="analytics" element={<AnalyticsPage />} />
               <Route path="ai-service" element={<AIServicePage />} />
               <Route path="notifications" element={<NotificationsPage />} />
+              <Route path="rbac/permissions" element={<RBACPermissionsPage />} />
+              <Route path="rbac/audit-logs" element={<AuditLogsPage />} />
               <Route path="permissions" element={<PermissionsPage />} />
               <Route path="settings" element={<SettingsPage />} />
             </Route>

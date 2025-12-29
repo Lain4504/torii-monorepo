@@ -1,9 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@server/shared';
+import { PrismaService, AuditLogService } from '@server/shared';
 import { RBACConfigService } from './rbac-config.service';
 
 export interface UserPermissions {
     permissions: string[];
+}
+
+export interface AuditContext {
+    actorId: string;
+    actorEmail: string;
+    actorRole: string;
+    ipAddress?: string;
+    userAgent?: string;
 }
 
 @Injectable()
@@ -11,6 +19,7 @@ export class RBACService {
     constructor(
         private readonly prisma: PrismaService,
         private readonly rbacConfig: RBACConfigService,
+        private readonly auditLog: AuditLogService,
     ) { }
 
     /**
@@ -79,7 +88,11 @@ export class RBACService {
     /**
      * ADMIN: Set permissions for a role (replaces all existing)
      */
-    async setRolePermissions(roleCode: string, permissionCodes: string[]): Promise<void> {
+    async setRolePermissions(
+        roleCode: string,
+        permissionCodes: string[],
+        context?: AuditContext,
+    ): Promise<void> {
         // Validate role exists in config
         const role = this.rbacConfig.getRoleByCode(roleCode);
         if (!role) {
@@ -94,6 +107,9 @@ export class RBACService {
             }
         }
 
+        // Get old permissions for audit log
+        const oldPermissions = await this.getRolePermissions(roleCode);
+
         // Delete all existing permissions for this role
         await this.prisma.rolePermission.deleteMany({
             where: { roleCode },
@@ -106,6 +122,28 @@ export class RBACService {
                     roleCode,
                     permissionCode: permCode,
                 })),
+            });
+        }
+
+        // Audit log
+        if (context) {
+            await this.auditLog.log({
+                userId: context.actorId,
+                userEmail: context.actorEmail,
+                userRole: context.actorRole,
+                action: 'permission.update_role',
+                entity: 'role_permission',
+                entityId: roleCode,
+                description: `Updated permissions for role "${role.name}" (${roleCode})`,
+                metadata: {
+                    roleCode,
+                    roleName: role.name,
+                    permissionCount: permissionCodes.length,
+                },
+                oldValues: { permissions: oldPermissions },
+                newValues: { permissions: permissionCodes },
+                ipAddress: context.ipAddress,
+                userAgent: context.userAgent,
             });
         }
     }
@@ -143,11 +181,21 @@ export class RBACService {
     /**
      * ADMIN: Add custom permission to a user (override)
      */
-    async grantPermissionToUser(userId: string, permissionCode: string): Promise<void> {
+    async grantPermissionToUser(
+        userId: string,
+        permissionCode: string,
+        context?: AuditContext,
+    ): Promise<void> {
         // Validate permission exists in config
         if (!this.rbacConfig.isValidPermission(permissionCode)) {
             throw new Error(`Permission ${permissionCode} not found in RBAC config`);
         }
+
+        // Get user info for audit
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+            select: { email: true, fullName: true },
+        });
 
         await this.prisma.userPermission.upsert({
             where: {
@@ -165,18 +213,70 @@ export class RBACService {
                 isGranted: true,
             },
         });
+
+        // Audit log
+        if (context && user) {
+            await this.auditLog.log({
+                userId: context.actorId,
+                userEmail: context.actorEmail,
+                userRole: context.actorRole,
+                action: 'permission.grant_user',
+                entity: 'user_permission',
+                entityId: `${userId}:${permissionCode}`,
+                description: `Granted "${permissionCode}" permission to user ${user.fullName} (${user.email})`,
+                metadata: {
+                    targetUserId: userId,
+                    targetUserEmail: user.email,
+                    permissionCode,
+                },
+                newValues: { permissionCode, isGranted: true },
+                ipAddress: context.ipAddress,
+                userAgent: context.userAgent,
+            });
+        }
     }
 
     /**
      * ADMIN: Revoke permission from a user
      */
-    async revokePermissionFromUser(userId: string, permissionCode: string): Promise<void> {
+    async revokePermissionFromUser(
+        userId: string,
+        permissionCode: string,
+        context?: AuditContext,
+    ): Promise<void> {
+        // Get user info for audit
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+            select: { email: true, fullName: true },
+        });
+
         await this.prisma.userPermission.deleteMany({
             where: {
                 userId,
                 permissionCode,
             },
         });
+
+        // Audit log
+        if (context && user) {
+            await this.auditLog.log({
+                userId: context.actorId,
+                userEmail: context.actorEmail,
+                userRole: context.actorRole,
+                action: 'permission.revoke_user',
+                entity: 'user_permission',
+                entityId: `${userId}:${permissionCode}`,
+                description: `Revoked "${permissionCode}" permission from user ${user.fullName} (${user.email})`,
+                metadata: {
+                    targetUserId: userId,
+                    targetUserEmail: user.email,
+                    permissionCode,
+                },
+                oldValues: { permissionCode, isGranted: true },
+                ipAddress: context.ipAddress,
+                userAgent: context.userAgent,
+            });
+        }
     }
 
     /**

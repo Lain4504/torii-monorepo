@@ -96,3 +96,6 @@ export {
 // Auth guards, pipes, providers
 export * from './pipes/zod-validation.pipe';
 export * from './providers/jwt-token.provider';
+
+// Audit logging
+export * from './audit';

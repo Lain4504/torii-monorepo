@@ -209,6 +209,49 @@ model UserPermission {
 }
 
 // ============================================
+// Audit Log (Generic System-Wide Logging)
+// ============================================
+
+model AuditLog {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  
+  // Who performed the action
+  userId      String   @map("user_id") @db.Uuid
+  userEmail   String   @map("user_email") @db.VarChar(255)
+  userRole    String   @map("user_role") @db.VarChar(50)
+  
+  // What action was performed
+  action      String   @db.VarChar(100)  // e.g., "permission.grant", "user.create", "course.delete"
+  entity      String   @db.VarChar(100)  // e.g., "role_permission", "user", "course"
+  entityId    String?  @map("entity_id") @db.VarChar(255)  // ID of affected entity
+  
+  // Action details
+  description String   @db.Text          // Human-readable description
+  metadata    Json?                       // Flexible JSON for action-specific data
+  
+  // State changes (for updates)
+  oldValues   Json?    @map("old_values")  // Previous state
+  newValues   Json?    @map("new_values")  // New state
+  
+  // Request context
+  ipAddress   String?  @map("ip_address") @db.VarChar(45)   // IPv4/IPv6
+  userAgent   String?  @map("user_agent") @db.Text
+  
+  // Timestamp
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp()
+  
+  // Relations
+  user        User     @relation("UserAuditLogs", fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([action])
+  @@index([entity])
+  @@index([entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ============================================
 // User Model
 // ============================================
 
@@ -230,6 +273,7 @@ model User {
   userPermissions UserPermission[]
   flashcardDecks  FlashcardDeck[]
   blogComments    BlogComment[]
+  auditLogs       AuditLog[]       @relation("UserAuditLogs")
 
   @@index([email])
   @@index([role])

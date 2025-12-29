@@ -27,7 +27,10 @@ export class RemoteAuthGuard implements CanActivate {
             }
 
             // Check user status
-            const user = await this.prisma.user.findUnique({ where: { id: payload.sub } });
+            const user = await this.prisma.user.findUnique({
+                where: { id: payload.sub },
+                select: { id: true, status: true, email: true }
+            });
             if (!user) {
                 throw new UnauthorizedException('User not found');
             }
@@ -36,7 +39,15 @@ export class RemoteAuthGuard implements CanActivate {
                 throw new UnauthorizedException('User is not active');
             }
 
-            request['requester'] = payload;
+            // Add email to payload for audit logging
+            const enrichedPayload = {
+                ...payload,
+                email: user.email,
+            };
+
+            // Set both for compatibility
+            request['user'] = enrichedPayload;
+            request['requester'] = enrichedPayload; // Legacy support
         } catch (error) {
             if (error instanceof UnauthorizedException) {
                 throw error;
