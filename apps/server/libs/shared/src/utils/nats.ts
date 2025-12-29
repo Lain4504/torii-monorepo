@@ -86,7 +86,7 @@ export function wipeSlice(buf: Buffer): void {
  * Example usage with NestJS NATS:
  * 
  * ```typescript
- * // In app.module.ts or nats.module.ts
+ * // In meet.module.ts or nats.module.ts
  * import { Module } from '@nestjs/common';
  * import { Client sModule, Transport } from '@nestjs/microservices';
  * 

@@ -103,17 +103,47 @@ pnpm dlx shadcn@latest add [component-name]
 
 ---
 
-## 🛰 Microservices Architecture (NATS-based)
+## 🛰 Microservices Architecture (Domain-Driven)
 
-Toàn bộ hệ thống backend giao tiếp qua **NATS Message Broker**.
+Toàn bộ hệ thống backend được chia thành các **Domain Services** giao tiếp qua **NATS Message Broker** và **Protobuf**. Kiến trúc này tập trung vào các nghiệp vụ lõi (Learning, Real-time Class, AI) thay vì chia theo chức năng kỹ thuật.
 
-| # | Service | Port (Local) | Nhiệm vụ chính |
-|:---:|:---|:---|:---|
-| 1 | **Gateway** | `8080` (HTTP) | API Gateway, Auth Interceptor, NATS Proxy |
-| 2 | **Auth** | `8081` | Quản lý User, RBAC, Authentication Service |
-| 3 | **Course** | `8082` | Quản lý khóa học, bài học, lộ trình JLPT |
-| 4 | **Room** | `8083` | Quản lý phòng học trực tuyến (LiveKit integration) |
-| - | ... | ... | Các service khác (Assessment, Payment, AI...) |
+### 🏛 System Map
+
+```mermaid
+graph TB
+    Client((Clients)) --> Gateway[API Gateway]
+    Gateway -- NATS/RPC --> ServiceLayer
+    
+    subgraph ServiceLayer [Microservices Ecosystem]
+        direction TB
+        Identity[<b>Identity</b><br>Auth & Users]
+        LMS[<b>LMS</b><br>Courses & Content]
+        Meet[<b>Meet</b><br>WebRTC & Classrooms]
+        Billing[<b>Billing</b><br>Payments & Coupons]
+        Cortex[<b>Cortex</b><br>AI Agents]
+        Flashcards[<b>Flashcards</b><br>Spaced Repetition]
+        Gamification[<b>Gamification</b><br>Badges & Points]
+        Assessment[<b>Assessment</b><br>Exams & Tests]
+        Community[<b>Community</b><br>Blog, Social & Notif]
+        Storage[<b>Storage</b><br>File Assets]
+    end
+```
+
+### 🧩 Service Domains (Modules)
+
+| Directory Name | Domain Name | Ports | Trách nhiệm chính (Bounded Context) |
+|:---|:---|:---|:---|
+| `gateway` | **Gateway** | `8080` | Entry point duy nhất, xử lý HTTP requests, Authentication guard (Auth Callout), và routing qua NATS. |
+| `module/identity` | **Identity** | - | **Core Auth**: Đăng ký, đăng nhập, Quản lý User, RBAC (Roles & Permissions). Là "Single Source of Truth" về danh tính. |
+| `module/lms` | **LMS** | - | **Learning Core**: Quản lý khóa học, bài học (Lessons), lộ trình học tập, tracking tiến độ học viên. |
+| `module/meet` | **Meet** | - | **Live Class Engine**: Quản lý phòng học ảo, tích hợp LiveKit (WebRTC), Recording, Whiteboard và điểm danh thời gian thực. |
+| `module/cortex` | **Cortex** | - | **AI Brain**: Hệ thống Multi-Agent (Sensei, Analytics, Proctoring). Là "trung tâm trí tuệ" của nền tảng. |
+| `module/flashcards` | **Flashcards** | - | **Study Tool**: Quản lý bộ thẻ (Decks), thuật toán Spaced Repetition (SRS) để ôn tập từ vựng. |
+| `module/gamification`| **Gamification**| - | **Engagement**: Hệ thống điểm thưởng, huy hiệu (Badges), bảng xếp hạng (Leaderboards) và Streaks. |
+| `module/assessment`| **Assessment**| - | **Testing Engine**: Ngân hàng câu hỏi, bài kiểm tra (Quiz), tổ chức thi thử JLPT và chấm điểm tự động. |
+| `module/billing` | **Billing** | - | **Finance**: Xử lý thanh toán, hóa đơn (Invoices), mã giảm giá (Coupons) và quản lý doanh thu. |
+| `module/community` | **Community** | - | **Social**: Blog, Bình luận, Profile xã hội và Hệ thống thông báo (Notification Center). |
+| `module/storage` | **Storage** | - | **Assets**: Quản lý upload/download file tập trung, tích hợp S3/MinIO. |
 
 ---
 

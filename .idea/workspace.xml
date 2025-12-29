@@ -4,23 +4,42 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(audit): implement audit logging service and related API endpoints">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="chore: remove deprecated modules and controllers across services">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/audit/audit-log.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/audit/audit-log.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/guards/remote-auth.guard.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/guards/remote-auth.guard.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/auth-service/src/rbac/audit-log.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/auth-service/src/rbac/audit-log.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/auth-service/src/rbac/rbac.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/auth-service/src/rbac/rbac.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/sensei/src/flashcard-deck/flashcard-deck.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/sensei/src/flashcard-deck/flashcard-deck.module.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/sensei/src/flashcard-deck/flashcard-deck.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/sensei/src/flashcard/flashcard.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/sensei/src/flashcard/flashcard.module.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/sensei/src/flashcard/flashcard.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/sensei/src/main.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/sensei/src/sensei.module.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/sensei/tsconfig.app.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/nest-cli.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/nest-cli.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="639" />
+    <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
+  </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="TypeScript File" />
       </list>
+    </option>
+  </component>
+  <component name="FormatOnSaveOptions">
+    <option name="myRunOnSave" value="false" />
+    <option name="myAllFileTypesSelected" value="true" />
+    <option name="mySelectedFileTypes">
+      <set />
     </option>
   </component>
   <component name="Git.Settings">
@@ -66,16 +85,20 @@
     }
   ]
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/Lain4504/torii-monorepo.git&quot;,
-    &quot;accountId&quot;: &quot;b00df774-879c-47f6-b5d3-0a65d83c1c54&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/Lain4504/torii-monorepo.git",
+    "accountId": "5126b88c-ccf3-4397-984d-7c1b52a2aa60"
   }
-}</component>
+}]]></component>
   <component name="KubernetesApiPersistence">{}</component>
   <component name="KubernetesApiProvider">{
   &quot;isMigrated&quot;: true
 }</component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
   </component>
@@ -90,18 +113,26 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
+    "RunOnceActivity.MCP Project settings loaded": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "audit-logs",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
     "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "E:/demo/team-source/torii-monorepo",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "pnpm",
-    "settings.editor.selected.configurable": "reference.settingsdialog.IDE.editor.colors.Color Scheme Font",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "to.speed.mode.migration.done": "true",
     "ts.external.directory.path": "E:\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib",
     "vue.rearranger.settings.migration": "true"
   },
@@ -140,14 +171,15 @@
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
+        <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
       </list>
     </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.25410.109" />
-        <option value="bundled-js-predefined-d6986cc7102b-6a121458b545-JavaScript-IU-251.25410.109" />
+        <option value="bundled-jdk-30f59d01ecdd-26cb7f24e5b0-intellij.indexing.shared.core-IU-253.29346.138" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.29346.138" />
       </set>
     </attachedChunks>
   </component>
@@ -193,22 +225,10 @@
       <workItem from="1766929840821" duration="9339000" />
       <workItem from="1766940341673" duration="161000" />
       <workItem from="1766969621474" duration="4122000" />
-    </task>
-    <task id="LOCAL-00319" summary="fix: enhance participant removal logic and align with Go server implementation">
-      <option name="closed" value="true" />
-      <created>1766717654215</created>
-      <option name="number" value="00319" />
-      <option name="presentableId" value="LOCAL-00319" />
-      <option name="project" value="LOCAL" />
-      <updated>1766717654216</updated>
-    </task>
-    <task id="LOCAL-00320" summary="fix: enhance participant removal logic and align with Go server implementation">
-      <option name="closed" value="true" />
-      <created>1766718878343</created>
-      <option name="number" value="00320" />
-      <option name="presentableId" value="LOCAL-00320" />
-      <option name="project" value="LOCAL" />
-      <updated>1766718878343</updated>
+      <workItem from="1767005109359" duration="25000" />
+      <workItem from="1767013483400" duration="200000" />
+      <workItem from="1767016120401" duration="1615000" />
+      <workItem from="1767017792350" duration="2790000" />
     </task>
     <task id="LOCAL-00321" summary="fix: enhance participant removal logic and align with Go server implementation">
       <option name="closed" value="true" />
@@ -586,7 +606,23 @@
       <option name="project" value="LOCAL" />
       <updated>1766979412900</updated>
     </task>
-    <option name="localTasksCounter" value="368" />
+    <task id="LOCAL-00368" summary="chore: remove deprecated modules and controllers across services">
+      <option name="closed" value="true" />
+      <created>1767017933257</created>
+      <option name="number" value="00368" />
+      <option name="presentableId" value="LOCAL-00368" />
+      <option name="project" value="LOCAL" />
+      <updated>1767017933257</updated>
+    </task>
+    <task id="LOCAL-00369" summary="chore: remove deprecated modules and controllers across services">
+      <option name="closed" value="true" />
+      <created>1767018513023</created>
+      <option name="number" value="00369" />
+      <option name="presentableId" value="LOCAL-00369" />
+      <option name="project" value="LOCAL" />
+      <updated>1767018513023</updated>
+    </task>
+    <option name="localTasksCounter" value="370" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -616,7 +652,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat(lti): implement LTI V1 service with room management and JWT authentication" />
     <MESSAGE value="feat: implement WebhookService for room event notifications" />
     <MESSAGE value="feat(storage): integrate Cloudflare R2 for file storage - add R2 provider and update storage service for presigned URLs - enhance file metadata handling and implement direct upload functionality" />
     <MESSAGE value="refactor: split room controllers and servces for diffrent features" />
@@ -641,7 +676,12 @@
     <MESSAGE value="feat: add initial React + TypeScript + Vite template with ESLint configuration for meet" />
     <MESSAGE value="feat(auth): implement cookie-based authentication with access and refresh tokens" />
     <MESSAGE value="feat(audit): implement audit logging service and related API endpoints" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(audit): implement audit logging service and related API endpoints" />
+    <MESSAGE value="chore: remove deprecated modules and controllers across services" />
+    <option name="LAST_COMMIT_MESSAGE" value="chore: remove deprecated modules and controllers across services" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
   <component name="com.apollographql.ijplugin.settings.ProjectSettingsState">
     <option name="lspPassPathToSuperGraphYaml" value="false" />

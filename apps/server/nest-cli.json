@@ -29,83 +29,103 @@
         "webpack": false
       }
     },
-    "auth-service": {
+    "identity": {
       "type": "application",
-      "root": "modules/auth-service",
+      "root": "modules/identity",
       "entryFile": "main",
-      "sourceRoot": "modules/auth-service/src",
+      "sourceRoot": "modules/identity/src",
       "compilerOptions": {
-        "tsConfigPath": "modules/auth-service/tsconfig.app.json",
+        "tsConfigPath": "modules/identity/tsconfig.app.json",
         "webpack": false
       }
     },
-    "course-service": {
+    "lms": {
       "type": "application",
-      "root": "modules/course-service",
+      "root": "modules/lms",
       "entryFile": "main",
-      "sourceRoot": "modules/course-service/src",
+      "sourceRoot": "modules/lms/src",
       "compilerOptions": {
-        "tsConfigPath": "modules/course-service/tsconfig.app.json",
+        "tsConfigPath": "modules/lms/tsconfig.app.json",
         "webpack": false
       }
     },
-    "room-service": {
+    "meet": {
       "type": "application",
-      "root": "modules/room-service",
+      "root": "modules/meet",
       "entryFile": "main",
-      "sourceRoot": "modules/room-service/src",
+      "sourceRoot": "modules/meet/src",
       "compilerOptions": {
-        "tsConfigPath": "modules/room-service/tsconfig.app.json",
+        "tsConfigPath": "modules/meet/tsconfig.app.json",
         "webpack": false
       }
     },
-    "assessment-service": {
+    "assessment": {
       "type": "application",
-      "root": "modules/assessment-service",
+      "root": "modules/assessment",
       "entryFile": "main",
-      "sourceRoot": "modules/assessment-service/src",
+      "sourceRoot": "modules/assessment/src",
       "compilerOptions": {
-        "tsConfigPath": "modules/assessment-service/tsconfig.app.json",
+        "tsConfigPath": "modules/assessment/tsconfig.app.json",
         "webpack": false
       }
     },
-    "payment-service": {
+    "billing": {
       "type": "application",
-      "root": "modules/payment-service",
+      "root": "modules/billing",
       "entryFile": "main",
-      "sourceRoot": "modules/payment-service/src",
+      "sourceRoot": "modules/billing/src",
       "compilerOptions": {
-        "tsConfigPath": "modules/payment-service/tsconfig.app.json",
+        "tsConfigPath": "modules/billing/tsconfig.app.json",
         "webpack": false
       }
     },
-    "ai-service": {
+    "flashcards": {
       "type": "application",
-      "root": "modules/ai-service",
+      "root": "modules/flashcards",
       "entryFile": "main",
-      "sourceRoot": "modules/ai-service/src",
+      "sourceRoot": "modules/flashcards/src",
       "compilerOptions": {
-        "tsConfigPath": "modules/ai-service/tsconfig.app.json",
+        "tsConfigPath": "modules/flashcards/tsconfig.app.json",
         "webpack": false
       }
     },
-    "notification-service": {
+    "cortex": {
       "type": "application",
-      "root": "modules/notification-service",
+      "root": "modules/cortex",
       "entryFile": "main",
-      "sourceRoot": "modules/notification-service/src",
+      "sourceRoot": "modules/cortex/src",
       "compilerOptions": {
-        "tsConfigPath": "modules/notification-service/tsconfig.app.json",
+        "tsConfigPath": "modules/cortex/tsconfig.app.json",
         "webpack": false
       }
     },
-    "storage-service": {
+    "gamification": {
       "type": "application",
-      "root": "modules/storage-service",
+      "root": "modules/gamification",
       "entryFile": "main",
-      "sourceRoot": "modules/storage-service/src",
+      "sourceRoot": "modules/gamification/src",
       "compilerOptions": {
-        "tsConfigPath": "modules/storage-service/tsconfig.app.json",
+        "tsConfigPath": "modules/gamification/tsconfig.app.json",
+        "webpack": false
+      }
+    },
+    "community": {
+      "type": "application",
+      "root": "modules/community",
+      "entryFile": "main",
+      "sourceRoot": "modules/community/src",
+      "compilerOptions": {
+        "tsConfigPath": "modules/community/tsconfig.app.json",
+        "webpack": false
+      }
+    },
+    "storage": {
+      "type": "application",
+      "root": "modules/storage",
+      "entryFile": "main",
+      "sourceRoot": "modules/storage/src",
+      "compilerOptions": {
+        "tsConfigPath": "modules/storage/tsconfig.app.json",
         "webpack": false
       }
     }
