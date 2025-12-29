@@ -1,10 +1,10 @@
-import { Controller, Get, Put, Post, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Put, Post, Delete, Body, Param, UseGuards, Request, Ip } from '@nestjs/common';
 import { RBACService } from './rbac.service';
 import { RBACConfigService } from './rbac-config.service';
 import { RBACSeederService } from './rbac-seeder.service';
+import { RemoteAuthGuard } from '@server/shared';
 
-// TODO: Add authentication guard
-// @UseGuards(AuthGuard, AdminGuard)
+@UseGuards(RemoteAuthGuard)
 @Controller('rbac')
 export class RBACController {
     constructor(
@@ -83,9 +83,27 @@ export class RBACController {
     async setRolePermissions(
         @Param('roleCode') roleCode: string,
         @Body('permissions') permissions: string[],
+        @Request() req,
+        @Ip() ip: string,
     ) {
         try {
-            await this.rbacService.setRolePermissions(roleCode, permissions);
+            console.log('🔍 setRolePermissions called');
+            console.log('🔍 req.user:', req.user);
+
+            // Only pass audit context if user is authenticated
+            const context = req.user ? {
+                actorId: req.user.sub,
+                actorEmail: req.user.email,
+                actorRole: req.user.role,
+                ipAddress: ip,
+                userAgent: req.headers?.['user-agent'],
+            } : undefined;
+
+            console.log('🔍 Audit context:', context);
+
+            await this.rbacService.setRolePermissions(roleCode, permissions, context);
+
+            console.log('✅ Permissions updated successfully');
 
             return {
                 success: true,
@@ -93,6 +111,7 @@ export class RBACController {
                 data: { roleCode, permissions },
             };
         } catch (error) {
+            console.error('❌ Error updating permissions:', error);
             return {
                 success: false,
                 message: error.message,
@@ -153,9 +172,19 @@ export class RBACController {
     async grantUserPermission(
         @Param('userId') userId: string,
         @Param('permissionCode') permissionCode: string,
+        @Request() req,
+        @Ip() ip: string,
     ) {
         try {
-            await this.rbacService.grantPermissionToUser(userId, permissionCode);
+            const context = req.user ? {
+                actorId: req.user.sub,
+                actorEmail: req.user.email,
+                actorRole: req.user.role,
+                ipAddress: ip,
+                userAgent: req.headers?.['user-agent'],
+            } : undefined;
+
+            await this.rbacService.grantPermissionToUser(userId, permissionCode, context);
 
             return {
                 success: true,
@@ -176,9 +205,19 @@ export class RBACController {
     async revokeUserPermission(
         @Param('userId') userId: string,
         @Param('permissionCode') permissionCode: string,
+        @Request() req,
+        @Ip() ip: string,
     ) {
         try {
-            await this.rbacService.revokePermissionFromUser(userId, permissionCode);
+            const context = req.user ? {
+                actorId: req.user.sub,
+                actorEmail: req.user.email,
+                actorRole: req.user.role,
+                ipAddress: ip,
+                userAgent: req.headers?.['user-agent'],
+            } : undefined;
+
+            await this.rbacService.revokePermissionFromUser(userId, permissionCode, context);
 
             return {
                 success: true,

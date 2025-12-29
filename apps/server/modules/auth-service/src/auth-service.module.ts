@@ -10,6 +10,7 @@ import { RBACService } from './rbac/rbac.service';
 import { RBACConfigService } from './rbac/rbac-config.service';
 import { RBACSeederService } from './rbac/rbac-seeder.service';
 import { RBACController } from './rbac/rbac.controller';
+import { AuditLogController } from './rbac/audit-log.controller';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { RBACController } from './rbac/rbac.controller';
     SharedModule, // Provides JwtTokenProvider
     UsersModule,  // Exports PrismaClient
   ],
-  controllers: [AuthController, UsersController, RBACController],
+  controllers: [AuthController, UsersController, RBACController, AuditLogController],
   providers: [AuthService, UsersService, RBACConfigService, RBACSeederService, RBACService],
   exports: [AuthService, UsersService, RBACConfigService, RBACService],
 })
