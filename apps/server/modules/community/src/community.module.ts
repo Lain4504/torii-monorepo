@@ -4,6 +4,7 @@ import { PrismaModule } from '@server/shared';
 import { BlogModule } from './blog/blog.module';
 import { BlogCommentModule } from './blog-comment/blog-comment.module';
 import { NotificationModule } from './notification/notification.module';
+import { WishlistModule } from './wishlist/wishlist.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { NotificationModule } from './notification/notification.module';
     BlogModule,
     BlogCommentModule,
     NotificationModule,
+    WishlistModule,
   ],
 })
 export class CommunityModule {}

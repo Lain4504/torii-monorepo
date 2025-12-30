@@ -14,10 +14,10 @@ import { BlogModule } from './blog/blog.module';
 import { BlogCommentModule } from './blog-comment/blog-comment.module';
 import { NotificationModule } from './notification/notification.module';
 import { QuestionBankModule } from './question-bank/question-bank.module';
+import { WishlistModule } from './wishlist/wishlist.module';
 import { WaitingRoomModule } from './waiting-room/waiting-room.module';
 import { ModuleModule } from './module/module.module';
 import { LessonModule } from './lesson/lesson.module';
-
 
 import { GatewayController } from './gateway.controller';
 import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
@@ -33,9 +33,7 @@ import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
         const password = configService.get('REDIS_PASSWORD');
         const url = `redis://${password ? `:${password}@` : ''}${host}:${port}`;
         return {
-          stores: [
-            new KeyvRedis(url),
-          ],
+          stores: [new KeyvRedis(url)],
         };
       },
       inject: [ConfigService],
@@ -55,16 +53,14 @@ import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
     BlogModule,
     BlogCommentModule,
     QuestionBankModule,
+    WishlistModule,
     NotificationModule,
     WaitingRoomModule,
     ModuleModule,
     LessonModule,
   ],
   controllers: [GatewayController],
-  providers: [
-    ApiKeyGuard,
-  ],
+  providers: [ApiKeyGuard],
   exports: [],
 })
-export class GatewayModule { }
-
+export class GatewayModule {}
