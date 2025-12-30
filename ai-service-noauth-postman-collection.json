@@ -1,0 +1,359 @@
+{
+  "info": {
+    "name": "Torii AI Learning Support Service - No Auth (Real AI)",
+    "description": "Postman collection for testing the AI-Powered Learning Support service with REAL Google Gemini AI (no authentication required). All three agents (Sensei, Assessment, Analytics) now generate authentic AI responses instead of mock data.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "torii-ai-service-noauth-real-ai"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Sensei Agent - Language Learning",
+      "item": [
+        {
+          "name": "Grammar Check - Basic",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"こんにちは、世界！\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ai/grammar-check",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ai", "grammar-check"]
+            },
+            "description": "Check Japanese grammar using REAL Google Gemini AI - provides detailed analysis and corrections"
+          },
+          "response": []
+        },
+        {
+          "name": "Grammar Check - Invalid Grammar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"私は昨日学校に行きましたです。\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ai/grammar-check",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ai", "grammar-check"]
+            },
+            "description": "Check grammar with intentional errors using REAL AI - demonstrates error detection and correction suggestions"
+          },
+          "response": []
+        },
+        {
+          "name": "Translate - English to Japanese",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Hello, how are you today?\",\n  \"from\": \"en\",\n  \"to\": \"ja\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ai/translate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ai", "translate"]
+            },
+            "description": "Translate English to Japanese using REAL Google Gemini AI with natural, accurate translations"
+          },
+          "response": []
+        },
+        {
+          "name": "Translate - Japanese to English",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"おはようございます。お元気ですか？\",\n  \"from\": \"ja\",\n  \"to\": \"en\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ai/translate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ai", "translate"]
+            },
+            "description": "Translate Japanese to English using REAL Google Gemini AI with contextual accuracy"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Flashcard - Basic Word",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"word\": \"こんにちは\",\n  \"meaning\": \"hello\",\n  \"example\": \"こんにちは、田中さん\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ai/flashcard",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ai", "flashcard"]
+            },
+            "description": "Create a comprehensive flashcard using REAL Google Gemini AI - generates reading, part of speech, JLPT level, and example sentences"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Flashcard - Verb",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"word\": \"食べる\",\n  \"meaning\": \"to eat\",\n  \"example\": \"私は朝ご飯を食べます。\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ai/flashcard",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ai", "flashcard"]
+            },
+            "description": "Create a detailed verb flashcard using REAL Google Gemini AI - includes conjugation patterns and usage examples"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Assessment Agent - JLPT Tests",
+      "item": [
+        {
+          "name": "Generate JLPT N5 Vocabulary Test",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"level\": \"N5\",\n  \"type\": \"vocabulary\",\n  \"questionCount\": 5\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ai/test/generate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ai", "test", "generate"]
+            },
+            "description": "Generate REAL AI-powered JLPT N5 vocabulary test with authentic questions and multiple choice options"
+          },
+          "response": []
+        },
+        {
+          "name": "Generate JLPT N4 Grammar Test",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"level\": \"N4\",\n  \"type\": \"grammar\",\n  \"questionCount\": 3\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ai/test/generate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ai", "test", "generate"]
+            },
+            "description": "Generate REAL AI-powered JLPT N4 grammar test with sentence completion questions and correct particle usage"
+          },
+          "response": []
+        },
+        {
+          "name": "Evaluate Test Answers",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"testId\": \"jlpt-n5-vocab-test-001\",\n  \"answers\": {\n    \"q1\": \"B\",\n    \"q2\": \"A\",\n    \"q3\": \"C\",\n    \"q4\": \"D\",\n    \"q5\": \"A\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ai/test/evaluate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ai", "test", "evaluate"]
+            },
+            "description": "Evaluate test answers using AI analysis - provides detailed feedback and performance insights"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Analytics Agent - Progress Tracking",
+      "item": [
+        {
+          "name": "Track Grammar Lesson Progress",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"test-user-001\",\n  \"activity\": \"completed_grammar_lesson\",\n  \"score\": 85\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ai/progress/track",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ai", "progress", "track"]
+            },
+            "description": "Track grammar lesson progress using REAL AI analysis - provides performance insights and learning recommendations"
+          },
+          "response": []
+        },
+        {
+          "name": "Track Vocabulary Practice",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"test-user-001\",\n  \"activity\": \"vocabulary_practice\",\n  \"score\": 92\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ai/progress/track",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ai", "progress", "track"]
+            },
+            "description": "Track vocabulary practice using REAL AI analysis - evaluates learning patterns and suggests improvements"
+          },
+          "response": []
+        },
+        {
+          "name": "Track JLPT Test Completion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"test-user-001\",\n  \"activity\": \"completed_jlpt_n5_test\",\n  \"score\": 78\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ai/progress/track",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ai", "progress", "track"]
+            },
+            "description": "Track JLPT test completion using REAL AI analysis - assesses test performance and learning progress"
+          },
+          "response": []
+        },
+        {
+          "name": "Suggest Study Path",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"test-user-001\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ai/path/suggest",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ai", "path", "suggest"]
+            },
+            "description": "Get personalized study path recommendations using REAL AI analysis - creates customized learning plans based on user progress"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Test AI Endpoint (Quick Health Check)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"こんにちは\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ai/grammar-check",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ai", "grammar-check"]
+            },
+            "description": "Quick health check using REAL AI grammar check - verifies AI service is responding with authentic responses"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
