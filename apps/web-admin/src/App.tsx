@@ -22,6 +22,7 @@ import PermissionsPage from './features/settings/routes/permissions-page'
 import SettingsPage from './features/settings/routes/settings-page'
 import { PermissionsPage as RBACPermissionsPage } from './features/permissions'
 import { AuditLogsPage } from './features/audit'
+import { BlogPage } from './features/blog/routes/blog-page'
 
 import LoginPage from './features/auth/routes/login-page'
 
@@ -53,6 +54,7 @@ function App() {
               <Route path="lessons" element={<LessonsPage />} />
               <Route path="question-bank" element={<QuestionBankPage />} />
               <Route path="rooms" element={<RoomsPage />} />
+              <Route path="blogs" element={<BlogPage />} />
               <Route path="payments" element={<PaymentsPage />} />
               <Route path="analytics" element={<AnalyticsPage />} />
               <Route path="ai-service" element={<AIServicePage />} />
