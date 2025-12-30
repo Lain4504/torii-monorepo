@@ -1,10 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from '@server/shared';
-import { BlogModule } from './blog/blog.module';
-import { BlogCommentModule } from './blog-comment/blog-comment.module';
-import { NotificationModule } from './notification/notification.module';
-import { WishlistModule } from './wishlist/wishlist.module';
+import { BlogModule } from './modules/blog/blog.module';
+import { BlogCommentModule } from './modules/blog-comment/blog-comment.module';
+import { NotificationModule } from './modules/notification/notification.module';
+import { WishlistModule } from './modules/wishlist/wishlist.module';
+
+import { BlogController } from './interfaces/nats/blog.controller';
+import { BlogCommentController } from './interfaces/nats/blog-comment.controller';
+import { NotificationController } from './interfaces/nats/notification.controller';
+import { WishlistController } from './interfaces/nats/wishlist.controller';
 
 @Module({
   imports: [
@@ -17,5 +22,6 @@ import { WishlistModule } from './wishlist/wishlist.module';
     NotificationModule,
     WishlistModule,
   ],
+  controllers: [BlogController, BlogCommentController, NotificationController, WishlistController],
 })
-export class CommunityModule {}
+export class CommunityModule { }

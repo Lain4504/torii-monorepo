@@ -2,24 +2,16 @@ import { Module } from '@nestjs/common';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import KeyvRedis from '@keyv/redis';
-import { CourseModule } from './course/course.module';
-import { AuthModule } from './auth/auth.module';
+import { IdentityGatewayModule } from './identity/identity.module';
+import { LmsGatewayModule } from './lms/lms.module';
+import { MeetGatewayModule } from './meet/meet.module';
+import { FlashcardsGatewayModule } from './flashcards/flashcards.module';
+import { CommunityGatewayModule } from './community/community.module';
+import { AssessmentGatewayModule } from './assessment/assessment.module';
+import { StorageGatewayModule } from './storage/storage-gateway.module';
+import { CortexGatewayModule } from './cortex/cortex.module';
+import { GamificationGatewayModule } from './gamification/gamification.module';
 import { SharedModule, NatsAuthModule, NatsClientModule } from '@server/shared';
-import { RoomModule } from './room/room.module';
-import { AdminModule } from './admin/admin.module';
-import { FlashcardModule } from './flashcard/flashcard.module';
-import { FlashcardDeckModule } from './flashcard-deck/flashcard-deck.module';
-import { StorageModule } from './storage/storage.module';
-import { BlogModule } from './blog/blog.module';
-import { BlogCommentModule } from './blog-comment/blog-comment.module';
-import { NotificationModule } from './notification/notification.module';
-import { QuestionBankModule } from './question-bank/question-bank.module';
-import { WishlistModule } from './wishlist/wishlist.module';
-import { WaitingRoomModule } from './waiting-room/waiting-room.module';
-import { ModuleModule } from './module/module.module';
-import { LessonModule } from './lesson/lesson.module';
-
-import { GatewayController } from './gateway.controller';
 import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
 
 @Module({
@@ -40,26 +32,22 @@ import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
     }),
 
     NatsClientModule, // Add NATS client for GatewayService
-    AuthModule,
-
-    FlashcardModule,
-    FlashcardDeckModule,
-    CourseModule,
     SharedModule,
     NatsAuthModule, // Auth callout handler - only in Gateway
-    RoomModule,
-    AdminModule,
-    StorageModule,
-    BlogModule,
-    BlogCommentModule,
-    QuestionBankModule,
-    WishlistModule,
-    NotificationModule,
-    WaitingRoomModule,
-    ModuleModule,
-    LessonModule,
+
+    // Domain Aggregation Modules
+    IdentityGatewayModule,
+    LmsGatewayModule,
+    MeetGatewayModule,
+    FlashcardsGatewayModule,
+    AssessmentGatewayModule,
+    CommunityGatewayModule,
+    StorageGatewayModule,
+    CortexGatewayModule,
+    GamificationGatewayModule,
+
   ],
-  controllers: [GatewayController],
+  controllers: [],
   providers: [ApiKeyGuard],
   exports: [],
 })

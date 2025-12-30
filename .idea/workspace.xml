@@ -4,20 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="chore: remove deprecated modules and controllers across services">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="chore: remove obsolete modules and controllers from gateway services">
+      <change afterPath="$PROJECT_DIR$/apps/server/modules/assessment/src/infrastructure/.gitkeep" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/server/modules/community/src/infrastructure/.gitkeep" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/server/modules/cortex/src/infrastructure/.gitkeep" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/server/modules/cortex/src/modules/.gitkeep" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/server/modules/flashcards/src/infrastructure/.gitkeep" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/server/modules/gamification/src/infrastructure/.gitkeep" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/server/modules/gamification/src/modules/.gitkeep" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/sensei/src/flashcard-deck/flashcard-deck.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/sensei/src/flashcard-deck/flashcard-deck.module.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/sensei/src/flashcard-deck/flashcard-deck.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/sensei/src/flashcard/flashcard.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/sensei/src/flashcard/flashcard.module.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/sensei/src/flashcard/flashcard.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/sensei/src/main.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/sensei/src/sensei.module.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/sensei/tsconfig.app.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/nest-cli.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/nest-cli.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -25,7 +20,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="639" />
+    <option name="cachedIndexableFilesCount" value="661" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -45,7 +40,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="auth-cookies" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -85,12 +80,12 @@
     }
   ]
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Lain4504/torii-monorepo.git",
-    "accountId": "5126b88c-ccf3-4397-984d-7c1b52a2aa60"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Lain4504/torii-monorepo.git&quot;,
+    &quot;accountId&quot;: &quot;5126b88c-ccf3-4397-984d-7c1b52a2aa60&quot;
   }
-}]]></component>
+}</component>
   <component name="KubernetesApiPersistence">{}</component>
   <component name="KubernetesApiProvider">{
   &quot;isMigrated&quot;: true
@@ -121,11 +116,11 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "polls-features-meet",
     "ignore.virus.scanning.warn.message": "true",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "E:/demo/team-source/torii-monorepo",
+    "last_opened_file_path": "E:/demo/team-source/torii-monorepo/apps/server/modules/gamification/src/modules",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -143,11 +138,15 @@
   }
 }]]></component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\meet\src\redis" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\meet\src\polls" />
+      <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\gateway\src\meet" />
+      <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\gateway\src\meet\room" />
+      <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\gateway\src\meet\auth" />
       <recent name="E:\demo\team-source\torii-monorepo\apps\web-admin\src\features\question-bank" />
-      <recent name="E:\demo\team-source\torii-monorepo\apps\web-admin\src\features\courses" />
-      <recent name="E:\demo\team-source\torii-monorepo\apps\server\libs\shared\src\utils" />
-      <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\room-service\src\utils" />
     </key>
   </component>
   <component name="RunManager">
@@ -229,54 +228,7 @@
       <workItem from="1767013483400" duration="200000" />
       <workItem from="1767016120401" duration="1615000" />
       <workItem from="1767017792350" duration="2790000" />
-    </task>
-    <task id="LOCAL-00321" summary="fix: enhance participant removal logic and align with Go server implementation">
-      <option name="closed" value="true" />
-      <created>1766720446114</created>
-      <option name="number" value="00321" />
-      <option name="presentableId" value="LOCAL-00321" />
-      <option name="project" value="LOCAL" />
-      <updated>1766720446114</updated>
-    </task>
-    <task id="LOCAL-00322" summary="fix: enhance participant removal logic and align with Go server implementation">
-      <option name="closed" value="true" />
-      <created>1766721326393</created>
-      <option name="number" value="00322" />
-      <option name="presentableId" value="LOCAL-00322" />
-      <option name="project" value="LOCAL" />
-      <updated>1766721326393</updated>
-    </task>
-    <task id="LOCAL-00323" summary="fix: enhance participant removal logic and align with Go server implementation">
-      <option name="closed" value="true" />
-      <created>1766722179230</created>
-      <option name="number" value="00323" />
-      <option name="presentableId" value="LOCAL-00323" />
-      <option name="project" value="LOCAL" />
-      <updated>1766722179231</updated>
-    </task>
-    <task id="LOCAL-00324" summary="fix: enhance participant removal logic and align with Go server implementation">
-      <option name="closed" value="true" />
-      <created>1766722419879</created>
-      <option name="number" value="00324" />
-      <option name="presentableId" value="LOCAL-00324" />
-      <option name="project" value="LOCAL" />
-      <updated>1766722419880</updated>
-    </task>
-    <task id="LOCAL-00325" summary="fix: update LiveKit token generation and implement hand raise/lower functionality">
-      <option name="closed" value="true" />
-      <created>1766741984939</created>
-      <option name="number" value="00325" />
-      <option name="presentableId" value="LOCAL-00325" />
-      <option name="project" value="LOCAL" />
-      <updated>1766741984940</updated>
-    </task>
-    <task id="LOCAL-00326" summary="feat(docker): enhance Docker setup with LiveKit configuration and streamline service definitions">
-      <option name="closed" value="true" />
-      <created>1766812994581</created>
-      <option name="number" value="00326" />
-      <option name="presentableId" value="LOCAL-00326" />
-      <option name="project" value="LOCAL" />
-      <updated>1766812994581</updated>
+      <workItem from="1767061481612" duration="3000" />
     </task>
     <task id="LOCAL-00327" summary="chore(docker): enhance Docker setup with LiveKit configuration and streamline service definitions">
       <option name="closed" value="true" />
@@ -622,7 +574,55 @@
       <option name="project" value="LOCAL" />
       <updated>1767018513023</updated>
     </task>
-    <option name="localTasksCounter" value="370" />
+    <task id="LOCAL-00370" summary="feat(polls): implement polls module with controller and service for managing polls">
+      <option name="closed" value="true" />
+      <created>1767058070188</created>
+      <option name="number" value="00370" />
+      <option name="presentableId" value="LOCAL-00370" />
+      <option name="project" value="LOCAL" />
+      <updated>1767058070188</updated>
+    </task>
+    <task id="LOCAL-00371" summary="chore: remove obsolete modules and controllers from gateway services">
+      <option name="closed" value="true" />
+      <created>1767060390097</created>
+      <option name="number" value="00371" />
+      <option name="presentableId" value="LOCAL-00371" />
+      <option name="project" value="LOCAL" />
+      <updated>1767060390098</updated>
+    </task>
+    <task id="LOCAL-00372" summary="chore: remove obsolete modules and controllers from gateway services">
+      <option name="closed" value="true" />
+      <created>1767080369562</created>
+      <option name="number" value="00372" />
+      <option name="presentableId" value="LOCAL-00372" />
+      <option name="project" value="LOCAL" />
+      <updated>1767080369562</updated>
+    </task>
+    <task id="LOCAL-00373" summary="chore: remove obsolete modules and controllers from gateway services">
+      <option name="closed" value="true" />
+      <created>1767080997592</created>
+      <option name="number" value="00373" />
+      <option name="presentableId" value="LOCAL-00373" />
+      <option name="project" value="LOCAL" />
+      <updated>1767080997596</updated>
+    </task>
+    <task id="LOCAL-00374" summary="chore: remove obsolete modules and controllers from gateway services">
+      <option name="closed" value="true" />
+      <created>1767081862159</created>
+      <option name="number" value="00374" />
+      <option name="presentableId" value="LOCAL-00374" />
+      <option name="project" value="LOCAL" />
+      <updated>1767081862159</updated>
+    </task>
+    <task id="LOCAL-00375" summary="chore: remove obsolete modules and controllers from gateway services">
+      <option name="closed" value="true" />
+      <created>1767082162013</created>
+      <option name="number" value="00375" />
+      <option name="presentableId" value="LOCAL-00375" />
+      <option name="project" value="LOCAL" />
+      <updated>1767082162013</updated>
+    </task>
+    <option name="localTasksCounter" value="376" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -639,7 +639,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="auth-cookies" />
+                        <option value="polls-features-meet" />
                       </list>
                     </value>
                   </entry>
@@ -652,11 +652,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat: implement WebhookService for room event notifications" />
-    <MESSAGE value="feat(storage): integrate Cloudflare R2 for file storage - add R2 provider and update storage service for presigned URLs - enhance file metadata handling and implement direct upload functionality" />
-    <MESSAGE value="refactor: split room controllers and servces for diffrent features" />
-    <MESSAGE value="migration: remove metadata form room_info" />
-    <MESSAGE value="feat(room): update breakroom logic" />
     <MESSAGE value="fix: format type" />
     <MESSAGE value="fix: to go" />
     <MESSAGE value="refactor: create utils for meet features" />
@@ -676,8 +671,13 @@
     <MESSAGE value="feat: add initial React + TypeScript + Vite template with ESLint configuration for meet" />
     <MESSAGE value="feat(auth): implement cookie-based authentication with access and refresh tokens" />
     <MESSAGE value="feat(audit): implement audit logging service and related API endpoints" />
+    <MESSAGE value="feat(polls): implement polls module with controller and service for managing polls" />
+    <MESSAGE value="chore: remove unused modules and controllers in gateway and meet services" />
     <MESSAGE value="chore: remove deprecated modules and controllers across services" />
-    <option name="LAST_COMMIT_MESSAGE" value="chore: remove deprecated modules and controllers across services" />
+    <MESSAGE value="chore: remove deprecated controllers and" />
+    <MESSAGE value="chore: remove obsolete modules and controllers from gateway services modules across services including auth, RBAC, blog, comments, and LMS" />
+    <MESSAGE value="chore: remove obsolete modules and controllers from gateway services" />
+    <option name="LAST_COMMIT_MESSAGE" value="chore: remove obsolete modules and controllers from gateway services" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

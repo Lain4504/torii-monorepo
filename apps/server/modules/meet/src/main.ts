@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions } from '@nestjs/microservices';
 import { createNatsServiceConfig } from '@server/shared';
-import { RoomServiceModule } from './meet.module';
+import { MeetModule } from './meet.module';
 
 async function bootstrap() {
   console.log('🚀 Starting Room Microservice...');
@@ -11,7 +11,7 @@ async function bootstrap() {
 
   // Pure NATS Microservice - No HTTP server needed!
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
-    RoomServiceModule,
+    MeetModule,
     natsConfig,
   );
 

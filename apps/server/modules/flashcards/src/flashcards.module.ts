@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
-import { FlashcardModule } from './flashcard/flashcard.module';
-import { FlashcardDeckModule } from './flashcard-deck/flashcard-deck.module';
+import { FlashcardModule } from './modules/flashcard/flashcard.module';
+import { FlashcardDeckModule } from './modules/flashcard-deck/flashcard-deck.module';
+import { FlashcardController } from './interfaces/nats/flashcard.controller';
+import { FlashcardDeckController } from './interfaces/nats/flashcard-deck.controller';
 
 @Module({
     imports: [FlashcardModule, FlashcardDeckModule],
-    controllers: [],
+    controllers: [FlashcardController, FlashcardDeckController],
     providers: [],
 })
 export class FlashcardsModule { }
