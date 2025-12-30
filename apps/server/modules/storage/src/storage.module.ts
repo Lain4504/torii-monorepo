@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { SharedModule } from '@server/shared';
-import { StorageController } from './storage.controller';
-import { StorageService } from './storage.service';
-import { R2Provider } from './r2/r2.provider';
+import { StorageFeatureModule } from './modules/storage/storage.module';
+import { StorageController } from './interfaces/nats/storage.controller';
 
 @Module({
   imports: [
@@ -12,10 +11,10 @@ import { R2Provider } from './r2/r2.provider';
       envFilePath: '../../../.env',
     }),
     SharedModule,
+    StorageFeatureModule,
   ],
   controllers: [StorageController],
-  providers: [StorageService, R2Provider],
-
+  providers: [],
 })
 export class StorageModule { }
 

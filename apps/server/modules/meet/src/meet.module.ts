@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { RoomModule } from './room/room.module';
+import { RoomModule } from './modules/room/room.module';
 import { SharedModule } from '@server/shared';
 
 @Module({
@@ -13,5 +13,5 @@ import { SharedModule } from '@server/shared';
     RoomModule,
   ],
 })
-export class RoomServiceModule {}
+export class MeetModule { }
 

@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from '@server/shared';
-import { QuestionBankModule } from './question-bank/question-bank.module';
+import { QuestionBankModule } from './modules/question-bank/question-bank.module';
+import { QuestionBankController } from './interfaces/nats/question-bank.controller';
 
 @Module({
   imports: [
@@ -11,7 +12,7 @@ import { QuestionBankModule } from './question-bank/question-bank.module';
     PrismaModule,
     QuestionBankModule,
   ],
-  controllers: [],
+  controllers: [QuestionBankController],
   providers: [],
 })
-export class AssessmentModule {}
+export class AssessmentModule { }
