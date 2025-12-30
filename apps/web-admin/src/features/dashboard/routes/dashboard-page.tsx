@@ -81,6 +81,10 @@ export default function DashboardPage() {
               <span className="text-2xl">📊</span>
               <span className="text-sm font-medium">View Analytics</span>
             </button>
+            <button className="flex items-center gap-2 p-3 rounded-lg border hover:bg-accent transition-colors">
+              <span className="text-2xl">📝</span>
+              <span className="text-sm font-medium">Manage Blog</span>
+            </button>
           </div>
         </div>
       </div>

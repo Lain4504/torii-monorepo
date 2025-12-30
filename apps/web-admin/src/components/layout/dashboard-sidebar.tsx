@@ -14,6 +14,7 @@ import {
   Shield,
   Sparkles,
   FileQuestion,
+  Newspaper,
 } from "lucide-react"
 
 import { cn } from "@workspace/ui/lib/utils"
@@ -80,6 +81,12 @@ const mainNavItems: NavItem[] = [
     url: "/assessments",
     icon: ClipboardList,
     permission: "exam.manage",
+  },
+  {
+    title: "Blog",
+    url: "/blogs",
+    icon: Newspaper,
+    anyPermission: ["blog.write", "blog.manage"],
   },
 ]
 
