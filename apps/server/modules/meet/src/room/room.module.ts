@@ -6,6 +6,7 @@ import { RoomController } from './room.controller';
 import { UserController } from './user.controller';
 import { WebhookController } from '../webhook/webhook.controller';
 import { WaitingRoomController } from '../waiting-room/waiting-room.controller';
+import { PollsController } from '../polls/polls.controller';
 // NOTE: NatsAuthCalloutController removed - auth callout is now handled
 // directly in NatsController via raw NATS subscription to bypass JSON parsing
 
@@ -40,6 +41,12 @@ import { WebhookService } from '../webhook/webhook.service';
 import { WebhookNotifierService } from '../webhook/webhook-notifier.service';
 import { LiveKitService } from '../livekit/livekit.service';
 
+// Polls services
+import { PollsService } from '../polls/polls.service';
+import { RedisPollService } from '../redis/redis-poll.service';
+// TODO: Import AnalyticsService later
+// import { AnalyticsService } from '../analytics/analytics.service';
+
 // Auth services
 import { WajlcAuthService } from '../auth/wajlc-auth.service';
 
@@ -50,6 +57,7 @@ import { WajlcAuthService } from '../auth/wajlc-auth.service';
     UserController,
     WebhookController,
     WaitingRoomController,
+    PollsController,
     // NatsAuthCalloutController removed - handled in NatsController now
   ],
   providers: [
@@ -88,6 +96,11 @@ import { WajlcAuthService } from '../auth/wajlc-auth.service';
 
     // Webhook services
     WebhookNotifierService,
+
+    // Polls services
+    PollsService,
+    RedisPollService,
+    // TODO: Add AnalyticsService later
   ],
   exports: [
     RoomInfoService,

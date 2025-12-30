@@ -5,7 +5,7 @@ import KeyvRedis from '@keyv/redis';
 import { CourseModule } from './course/course.module';
 import { AuthModule } from './auth/auth.module';
 import { SharedModule, NatsAuthModule, NatsClientModule } from '@server/shared';
-import { RoomModule } from './room/room.module';
+import { RoomModule } from './meet/room.module';
 import { AdminModule } from './admin/admin.module';
 import { FlashcardModule } from './flashcard/flashcard.module';
 import { FlashcardDeckModule } from './flashcard-deck/flashcard-deck.module';
@@ -19,7 +19,6 @@ import { WaitingRoomModule } from './waiting-room/waiting-room.module';
 import { ModuleModule } from './module/module.module';
 import { LessonModule } from './lesson/lesson.module';
 
-import { GatewayController } from './gateway.controller';
 import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
 
 @Module({
@@ -59,7 +58,7 @@ import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
     ModuleModule,
     LessonModule,
   ],
-  controllers: [GatewayController],
+  controllers: [],
   providers: [ApiKeyGuard],
   exports: [],
 })

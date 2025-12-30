@@ -1,13 +1,3 @@
-/**
- * Auth Room Controller (User Controller for Room Features)
- *
- * Handles user/participant operations within rooms (not authentication/login)
- * - Generate join tokens
- * - Update user lock settings
- * - Mute/unmute tracks
- * - Remove participants
- * - Switch presenter
- */
 
 import {
     Controller,
@@ -35,7 +25,8 @@ import {
     RemoveParticipantReq,
     RemoveParticipantReqSchema,
     SwitchPresenterReq,
-    SwitchPresenterReqSchema,
+    SwitchPresenterReqSchema, VerifyTokenReq, VerifyTokenReqSchema, IsRoomActiveReqSchema, VerifyTokenResSchema,
+    NatsSubjectsSchema,
 } from '@workspace/protocol';
 import {
     sendCommonProtoJsonResponse,
@@ -43,54 +34,70 @@ import {
     sendCommonProtobufResponse,
     parseAndValidateRequest,
     ApiKeyGuard,
-    JwtAuthGuard,
+    JwtAuthGuard, sendProtobufResponse,
 } from '@server/shared';
+import {ConfigService} from "@nestjs/config";
 
 /**
- * AuthRoomController handles user operations within rooms (ApiKeyGuard routes)
- * Routes under /auth/user
+ * UserRoomSettingController handles user operations within rooms (JwtAuthGuard routes)
+ * Routes under /api
  */
-@Controller('auth/room')
-@UseGuards(ApiKeyGuard)
-export class AuthRoomController {
+@Controller('api')
+@UseGuards(JwtAuthGuard)
+export class UserRoomSettingController {
     constructor(
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
+        private readonly configService: ConfigService,
     ) { }
 
     /**
-     * HandleGenerateJoinToken generates a join token for a user
+     * HandleVerifyToken verifies a user's token before they join a room
      *
-     * @route POST /auth/user/getJoinToken
+     * @route POST /api/verifyToken
      */
-    @Post('getJoinToken')
+    @Post('verifyToken')
     @HttpCode(HttpStatus.OK)
-    async handleGenerateJoinToken(
-        @Body() body: any,
+    async handleVerifyToken(
+        @Req() req: Request,
+        @Body() bodyBuffer: Buffer,
         @Res() res: Response,
     ): Promise<void> {
-        // Parse and validate request
-        let request: GenerateTokenReq;
+        // Get locals set by JwtAuthGuard
+        const roomId = (req as any).roomId as string;
+        const requestedUserId = (req as any).requestedUserId as string;
+
+        // Parse protobuf request
+        let request: VerifyTokenReq;
         try {
-            request = parseAndValidateRequest<GenerateTokenReq>(body, GenerateTokenReqSchema);
+            request = fromBinary(VerifyTokenReqSchema, bodyBuffer);
         } catch (error) {
             sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Invalid request');
             return;
         }
 
-        // Validate userInfo
-        if (!request.userInfo) {
-            sendCommonProtoJsonResponse(res, false, 'UserInfo required');
+        // Check for duplicate join
+        try {
+            const userStatus = await this.natsClient
+                .send('room.getUserStatus', { roomId, userId: requestedUserId })
+                .toPromise();
+
+            if (userStatus === 'online') {
+                sendCommonProtoJsonResponse(res, false, 'notifications.room-disconnected-duplicate-entry');
+                return;
+            }
+        } catch (error) {
+            sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error checking user status');
             return;
         }
 
-        // Check if user is blocked (via NATS)
+        // Check if user is in block list
         try {
             const isBlocked = await this.natsClient
-                .send({ cmd: 'user.isUserInBlockList' }, { roomId: request.roomId, userId: request.userInfo.userId })
+                .send({ cmd: 'user.isUserInBlockList' }, { roomId, userId: requestedUserId })
                 .toPromise();
 
             if (isBlocked) {
-                sendCommonProtoJsonResponse(res, false, 'this user is blocked to join this session');
+                sendCommonProtoJsonResponse(res, false, 'notifications.you-are-blocked');
                 return;
             }
         } catch (error) {
@@ -98,51 +105,79 @@ export class AuthRoomController {
             return;
         }
 
-        // Check if room is active (via NATS)
+        // Check if room is active
         try {
-            const roomInfo = await this.natsClient
-                .send({ cmd: 'room.getRoomInfoByRoomId' }, { roomId: request.roomId, isRunning: true })
+            const isRoomActiveReq = create(IsRoomActiveReqSchema, { roomId });
+            // Send plain object to NATS - NestJS handles JSON serialization
+            const roomActiveResponse = await this.natsClient
+                .send({ cmd: 'room.isActive' }, isRoomActiveReq)
                 .toPromise();
 
-            if (!roomInfo || !roomInfo.id) {
-                sendCommonProtoJsonResponse(res, false, 'room is not active. create room first');
+            if (!roomActiveResponse) {
+                sendCommonProtoJsonResponse(res, false, 'room status unavailable');
                 return;
             }
-        } catch (error) {
-            sendCommonProtoJsonResponse(res, false, 'room is not active. create room first');
-            return;
-        }
 
-        // Generate token (via NATS)
-        try {
-            const result = await this.natsClient
-                .send({ cmd: 'user.generateJoinToken' }, request)
-                .toPromise();
+            // roomActiveResponse can be either IsRoomActiveRes or full payload { res, roomDbInfo, rInfo, meta }
+            const roomData = roomActiveResponse?.res ? roomActiveResponse : { res: roomActiveResponse };
+            const rr = roomData.res;
+            const rInfo = roomData.rInfo;
+            const roomDbInfo = roomData.roomDbInfo;
+            const meta = roomData.meta ?? roomData.metadata;
 
-            const response = create(GenerateTokenResSchema, {
+            if (!rr?.isActive) {
+                sendCommonProtoJsonResponse(res, false, rr?.msg || 'room is not active');
+                return;
+            }
+
+            // Check max participants
+            if (
+                (rInfo?.maxParticipants || 0) > 0 &&
+                (roomDbInfo?.joinedParticipants || 0) >= (rInfo?.maxParticipants || 0)
+            ) {
+                sendCommonProtoJsonResponse(res, false, 'notifications.max-num-participates-exceeded');
+                return;
+            }
+
+            // Build successful response
+            // Accept env as comma-separated string or array
+            const rawWsUrls = this.configService.get<string>('NATS_WS_URLS');
+            const natsWsUrls = rawWsUrls
+                ? rawWsUrls.split(',').map((u) => u.trim()).filter((u) => !!u)
+                : this.configService.get<string[]>('NATS_WS_URLS') || [];
+            const version = '1.0.0';
+
+            // Read NATS subjects from config
+            const natsSubjects = {
+                systemApiWorker: this.configService.get<string>('NATS_SUBJECT_SYSTEM_API_WORKER') || 'sysApiWorker',
+                systemJsWorker: this.configService.get<string>('NATS_SUBJECT_SYSTEM_JS_WORKER') || 'sysJsWorker',
+                systemPublic: this.configService.get<string>('NATS_SUBJECT_SYSTEM_PUBLIC') || 'sysPublic',
+                systemPrivate: this.configService.get<string>('NATS_SUBJECT_SYSTEM_PRIVATE') || 'sysPrivate',
+                chat: this.configService.get<string>('NATS_SUBJECT_CHAT') || 'chat',
+                whiteboard: this.configService.get<string>('NATS_SUBJECT_WHITEBOARD') || 'whiteboard',
+                dataChannel: this.configService.get<string>('NATS_SUBJECT_DATA_CHANNEL') || 'dataChannel',
+            };
+
+            const response = create(VerifyTokenResSchema, {
                 status: true,
-                msg: 'success',
-                token: result.token,
+                msg: 'token is valid',
+                natsWsUrls: natsWsUrls,
+                serverVersion: version,
+                roomId: roomId,
+                userId: requestedUserId,
+                natsSubjects: create(NatsSubjectsSchema, natsSubjects),
+                enabledSelfInsertEncryptionKey:
+                    meta?.roomFeatures?.endToEndEncryptionFeatures?.enabledSelfInsertEncryptionKey || false,
             });
 
-            res.status(200);
-            sendProtoJsonResponse(res, GenerateTokenResSchema, response);
+            console.log(response);
+
+            // Keep parameter order consistent with sendProtobufResponse(res, schema, message)
+            sendProtobufResponse(res, VerifyTokenResSchema, response);
         } catch (error) {
-            sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error generating token');
+            sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error verifying token');
         }
     }
-}
-
-/**
- * UserApiController handles user operations within rooms (JwtAuthGuard routes)
- * Routes under /api
- */
-@Controller('api')
-@UseGuards(JwtAuthGuard)
-export class UserApiController {
-    constructor(
-        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-    ) { }
 
     /**
      * HandleUpdateUserLockSetting updates user lock settings

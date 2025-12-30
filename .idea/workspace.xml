@@ -5,19 +5,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="chore: remove deprecated modules and controllers across services">
+      <change afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/meet/polls.controller.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/meet/user-room-setting-controller.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/polls/polls.controller.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/polls/polls.module.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/polls/polls.service.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/redis/redis-poll.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/sensei/src/flashcard-deck/flashcard-deck.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/sensei/src/flashcard-deck/flashcard-deck.module.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/sensei/src/flashcard-deck/flashcard-deck.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/sensei/src/flashcard/flashcard.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/sensei/src/flashcard/flashcard.module.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/sensei/src/flashcard/flashcard.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/sensei/src/main.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/sensei/src/sensei.module.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/sensei/tsconfig.app.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/nest-cli.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/nest-cli.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/room/auth-room.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/meet/auth-room.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/room/room.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/meet/room.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/room/room.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/meet/room.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/webhook/webhook.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/meet/webhook.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/room/room-end.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/room/room-end.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/room/room.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/room/room.module.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,7 +47,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="auth-cookies" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -85,12 +87,12 @@
     }
   ]
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Lain4504/torii-monorepo.git",
-    "accountId": "5126b88c-ccf3-4397-984d-7c1b52a2aa60"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Lain4504/torii-monorepo.git&quot;,
+    &quot;accountId&quot;: &quot;5126b88c-ccf3-4397-984d-7c1b52a2aa60&quot;
   }
-}]]></component>
+}</component>
   <component name="KubernetesApiPersistence">{}</component>
   <component name="KubernetesApiProvider">{
   &quot;isMigrated&quot;: true
@@ -121,11 +123,11 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "polls-features-meet",
     "ignore.virus.scanning.warn.message": "true",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "E:/demo/team-source/torii-monorepo",
+    "last_opened_file_path": "E:/demo/team-source/torii-monorepo/apps/server/modules/meet/src/redis",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -143,11 +145,15 @@
   }
 }]]></component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\meet\src\redis" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\meet\src\polls" />
+      <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\gateway\src\meet" />
+      <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\gateway\src\meet\room" />
+      <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\gateway\src\meet\auth" />
       <recent name="E:\demo\team-source\torii-monorepo\apps\web-admin\src\features\question-bank" />
-      <recent name="E:\demo\team-source\torii-monorepo\apps\web-admin\src\features\courses" />
-      <recent name="E:\demo\team-source\torii-monorepo\apps\server\libs\shared\src\utils" />
-      <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\room-service\src\utils" />
     </key>
   </component>
   <component name="RunManager">

@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
 import { RoomApiController, RoomController } from './room.controller';
-import { AuthRoomController, UserApiController } from './auth-room.controller';
-import { WebhookController } from '../webhook/webhook.controller';
+import { AuthRoomController } from './auth-room.controller';
+import { WebhookController } from './webhook.controller';
 import { NatsClientModule, SharedModule } from '@server/shared';
+import {PollsController} from "./polls.controller";
+import {UserRoomSettingController} from "./user-room-setting-controller";
 
 @Module({
   imports: [
@@ -13,8 +15,9 @@ import { NatsClientModule, SharedModule } from '@server/shared';
     RoomController,
     RoomApiController,
     AuthRoomController,
-    UserApiController,
+    UserRoomSettingController,
     WebhookController,
+    PollsController
   ],
 })
 export class RoomModule { }
