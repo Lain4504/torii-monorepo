@@ -21,7 +21,7 @@ import {
 } from 'nats';
 
 // Constants
-const NATS_PREFIX = 'pnm-';
+const NATS_PREFIX = 'wajlc-';
 const DEFAULT_TTL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds (standard for JS/TS)
 
 /**
@@ -96,7 +96,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
      */
     private async connectToNats(): Promise<void> {
         try {
-            const natsUrl = this.configService.get<string>('NATS_URL') || 'nats://localhost:4222';
+            const natsUrl = this.configService.get<string>('NATS_URL');
             const nkeySeed = this.configService.get<string>('NATS_NKEY_SEED');
 
             const options: any = {

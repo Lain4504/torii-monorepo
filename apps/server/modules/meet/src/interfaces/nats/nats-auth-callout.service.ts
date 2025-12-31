@@ -213,9 +213,9 @@ export class NatsAuthCalloutService {
      * Set permissions for recorder
      */
     private setPermissionForRecorder(tokenData: any, natsClaims: any): void {
-        const recorderChannel = this.configService.get<string>('NATS_RECORDER_CHANNEL') || 'pnm-recorder';
-        const recorderInfoKv = this.configService.get<string>('NATS_RECORDER_INFO_KV') || 'pnm-recorder-info';
-        const transcodingJobs = this.configService.get<string>('NATS_TRANSCODING_JOBS') || 'pnm-RecorderTranscoderJobs';
+        const recorderChannel = this.configService.get<string>('NATS_RECORDER_CHANNEL') || 'recorderChannel';
+        const recorderInfoKv = this.configService.get<string>('NATS_RECORDER_INFO_KV') || 'recorderInfo';
+        const transcodingJobs = this.configService.get<string>('NATS_TRANSCODING_JOBS') || 'recorderTranscoderJobs';
         const userId = tokenData.userId || tokenData.user_id;
 
         const pubAllow = [

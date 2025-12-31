@@ -26,7 +26,7 @@ const DEFAULT_NUM_WORKERS = 50;
 const DEFAULT_JOB_QUEUE_SIZE = 1000;
 const NATS_AUTH_SERVICE_ENDPOINT_SUBJECT = '$SYS.REQ.USER.AUTH';
 const NATS_CONNECTION_EVENT_SUBJECT_FORMAT = '$SYS.ACCOUNT.%s.>';
-const PREFIX = 'pnm-';
+const PREFIX = 'wajlc-';
 const NATS_AUTH_SERVICE_NAME = PREFIX + 'auth';
 const NATS_AUTH_SERVICE_QUEUE_GROUP = PREFIX + 'auth-queue';
 const NATS_CONNECTION_EVENT_QUEUE_GROUP = PREFIX + 'conn-event-queue';
@@ -415,7 +415,7 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
 
      */
     private async createTranscoderStream() {
-        const transcodingJobs = this.configService.get<string>('NATS_TRANSCODING_JOBS') || 'pnm-RecorderTranscoderJobs';
+        const transcodingJobs = this.configService.get<string>('NATS_TRANSCODING_JOBS') || 'recorderTranscoderJobs';
         const numReplicas = this.configService.get<number>('NATS_NUM_REPLICAS') || 1;
 
         this.logger.log(`Creating transcoder stream: ${transcodingJobs}`);
