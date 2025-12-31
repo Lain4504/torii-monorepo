@@ -1,12 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
-import { create } from '@bufbuild/protobuf';
+import { create, toJsonString } from '@bufbuild/protobuf';
 import {
     ActivatePollsReq,
     CreatePollReq,
     SubmitPollResponseReq,
     ClosePollReq,
     PollInfo,
+    PollInfoSchema,
     PollResponsesResult,
     PollResponsesResultOptions,
     PollResponsesResultOptionsSchema,
@@ -93,8 +94,9 @@ export class PollsService {
     }
 
     private async createRoomPollHash(r: CreatePollReq): Promise<void> {
-        // TypeScript equivalent of Go logic, using string for uint64/int64 fields per protocol
-        const p = {
+        // Match Go server logic: use protobuf message and marshal via protojson
+        // Go: protojson.Marshal(p) where p is *plugnmeet.PollInfo
+        const p = create(PollInfoSchema, {
             id: r.pollId,
             roomId: r.roomId,
             question: r.question,
@@ -103,10 +105,11 @@ export class PollsService {
             created: Math.floor(Date.now() / 1000).toString(), // int64 -> string for protocol
             createdBy: r.userId,
             closedBy: '',
-        };
+        });
 
+        // Use protobuf JSON marshaling like Go's protojson.Marshal
         const pollVal: Record<string, string> = {};
-        pollVal[r.pollId] = JSON.stringify(p);
+        pollVal[r.pollId] = toJsonString(PollInfoSchema, p);
 
         await this.redisPollService.createRoomPoll(r.roomId, pollVal);
     }

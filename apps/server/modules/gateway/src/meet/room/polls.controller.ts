@@ -20,7 +20,7 @@ import {
 import type { Request, Response } from 'express';
 import { Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { create } from '@bufbuild/protobuf';
+import { create, fromBinary } from '@bufbuild/protobuf';
 import {
     ActivatePollsReq,
     ActivatePollsReqSchema,
@@ -34,9 +34,7 @@ import {
     PollResponseSchema,
 } from '@workspace/protocol';
 import {
-    sendCommonProtoJsonResponse,
-    sendProtoJsonResponse,
-    parseAndValidateRequest,
+    sendProtobufResponse,
     JwtAuthGuard,
 } from '@server/shared';
 
@@ -51,28 +49,43 @@ export class PollsController {
     @HttpCode(HttpStatus.OK)
     async handleActivatePolls(
         @Req() req: Request,
-        @Body() body: any,
+        @Body() bodyBuffer: Buffer,
         @Res() res: Response,
     ): Promise<void> {
         const isAdmin = (req as any).isAdmin as boolean;
         const roomId = (req as any).roomId as string;
 
         if (!isAdmin) {
-            sendCommonProtoJsonResponse(res, false, 'only admin can perform this task');
+            const response = create(PollResponseSchema, {
+                status: false,
+                msg: 'only admin can perform this task',
+            });
+            res.status(200);
+            sendProtobufResponse(res, PollResponseSchema, response);
             return;
         }
 
         if (!roomId) {
-            sendCommonProtoJsonResponse(res, false, 'roomId required');
+            const response = create(PollResponseSchema, {
+                status: false,
+                msg: 'roomId required',
+            });
+            res.status(200);
+            sendProtobufResponse(res, PollResponseSchema, response);
             return;
         }
 
         let request: ActivatePollsReq;
         try {
-            request = parseAndValidateRequest<ActivatePollsReq>(body, ActivatePollsReqSchema);
+            request = fromBinary(ActivatePollsReqSchema, bodyBuffer);
             (request as any).roomId = roomId;
         } catch (error) {
-            sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Invalid request');
+            const response = create(PollResponseSchema, {
+                status: false,
+                msg: error instanceof Error ? error.message : 'Invalid request',
+            });
+            res.status(200);
+            sendProtobufResponse(res, PollResponseSchema, response);
             return;
         }
 
@@ -87,9 +100,14 @@ export class PollsController {
             });
 
             res.status(200);
-            sendProtoJsonResponse(res, PollResponseSchema, response);
+            sendProtobufResponse(res, PollResponseSchema, response);
         } catch (error) {
-            sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error activating polls');
+            const response = create(PollResponseSchema, {
+                status: false,
+                msg: error instanceof Error ? error.message : 'Error activating polls',
+            });
+            res.status(200);
+            sendProtobufResponse(res, PollResponseSchema, response);
         }
     }
 
@@ -97,7 +115,7 @@ export class PollsController {
     @HttpCode(HttpStatus.OK)
     async handleCreatePoll(
         @Req() req: Request,
-        @Body() body: any,
+        @Body() bodyBuffer: Buffer,
         @Res() res: Response,
     ): Promise<void> {
         const isAdmin = (req as any).isAdmin as boolean;
@@ -105,17 +123,27 @@ export class PollsController {
         const requestedUserId = (req as any).requestedUserId as string;
 
         if (!isAdmin) {
-            sendCommonProtoJsonResponse(res, false, 'Only admin can perform this task');
+            const response = create(PollResponseSchema, {
+                status: false,
+                msg: 'only admin can perform this task',
+            });
+            res.status(200);
+            sendProtobufResponse(res, PollResponseSchema, response);
             return;
         }
 
         let request: CreatePollReq;
         try {
-            request = parseAndValidateRequest<CreatePollReq>(body, CreatePollReqSchema);
+            request = fromBinary(CreatePollReqSchema, bodyBuffer);
             (request as any).roomId = roomId;
             (request as any).userId = requestedUserId;
         } catch (error) {
-            sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Invalid request');
+            const response = create(PollResponseSchema, {
+                status: false,
+                msg: error instanceof Error ? error.message : 'Invalid request',
+            });
+            res.status(200);
+            sendProtobufResponse(res, PollResponseSchema, response);
             return;
         }
 
@@ -131,9 +159,14 @@ export class PollsController {
             });
 
             res.status(200);
-            sendProtoJsonResponse(res, PollResponseSchema, response);
+            sendProtobufResponse(res, PollResponseSchema, response);
         } catch (error) {
-            sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error creating poll');
+            const response = create(PollResponseSchema, {
+                status: false,
+                msg: error instanceof Error ? error.message : 'Error creating poll',
+            });
+            res.status(200);
+            sendProtobufResponse(res, PollResponseSchema, response);
         }
     }
 
@@ -157,9 +190,14 @@ export class PollsController {
             });
 
             res.status(200);
-            sendProtoJsonResponse(res, PollResponseSchema, response);
+            sendProtobufResponse(res, PollResponseSchema, response);
         } catch (error) {
-            sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error listing polls');
+            const response = create(PollResponseSchema, {
+                status: false,
+                msg: error instanceof Error ? error.message : 'Error listing polls',
+            });
+            res.status(200);
+            sendProtobufResponse(res, PollResponseSchema, response);
         }
     }
 
@@ -173,7 +211,12 @@ export class PollsController {
         const roomId = (req as any).roomId as string;
 
         if (!pollId) {
-            sendCommonProtoJsonResponse(res, false, 'pollId required');
+            const response = create(PollResponseSchema, {
+                status: false,
+                msg: 'poll Id required',
+            });
+            res.status(200);
+            sendProtobufResponse(res, PollResponseSchema, response);
             return;
         }
 
@@ -190,9 +233,14 @@ export class PollsController {
             });
 
             res.status(200);
-            sendProtoJsonResponse(res, PollResponseSchema, response);
+            sendProtobufResponse(res, PollResponseSchema, response);
         } catch (error) {
-            sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error getting total responses');
+            const response = create(PollResponseSchema, {
+                status: false,
+                msg: error instanceof Error ? error.message : 'Error getting total responses',
+            });
+            res.status(200);
+            sendProtobufResponse(res, PollResponseSchema, response);
         }
     }
 
@@ -207,7 +255,12 @@ export class PollsController {
         const roomId = (req as any).roomId as string;
 
         if (!pollId || !userId) {
-            sendCommonProtoJsonResponse(res, false, 'both userId & pollId required');
+            const response = create(PollResponseSchema, {
+                status: false,
+                msg: 'both userId & pollId required',
+            });
+            res.status(200);
+            sendProtobufResponse(res, PollResponseSchema, response);
             return;
         }
 
@@ -224,9 +277,14 @@ export class PollsController {
             });
 
             res.status(200);
-            sendProtoJsonResponse(res, PollResponseSchema, response);
+            sendProtobufResponse(res, PollResponseSchema, response);
         } catch (error) {
-            sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error getting user selection');
+            const response = create(PollResponseSchema, {
+                status: false,
+                msg: error instanceof Error ? error.message : 'Error getting user selection',
+            });
+            res.status(200);
+            sendProtobufResponse(res, PollResponseSchema, response);
         }
     }
 
@@ -234,17 +292,22 @@ export class PollsController {
     @HttpCode(HttpStatus.OK)
     async handleUserSubmitResponse(
         @Req() req: Request,
-        @Body() body: any,
+        @Body() bodyBuffer: Buffer,
         @Res() res: Response,
     ): Promise<void> {
         const roomId = (req as any).roomId as string;
 
         let request: SubmitPollResponseReq;
         try {
-            request = parseAndValidateRequest<SubmitPollResponseReq>(body, SubmitPollResponseReqSchema);
+            request = fromBinary(SubmitPollResponseReqSchema, bodyBuffer);
             (request as any).roomId = roomId;
         } catch (error) {
-            sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Invalid request');
+            const response = create(PollResponseSchema, {
+                status: false,
+                msg: error instanceof Error ? error.message : 'Invalid request',
+            });
+            res.status(200);
+            sendProtobufResponse(res, PollResponseSchema, response);
             return;
         }
 
@@ -260,9 +323,14 @@ export class PollsController {
             });
 
             res.status(200);
-            sendProtoJsonResponse(res, PollResponseSchema, response);
+            sendProtobufResponse(res, PollResponseSchema, response);
         } catch (error) {
-            sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error submitting response');
+            const response = create(PollResponseSchema, {
+                status: false,
+                msg: error instanceof Error ? error.message : 'Error submitting response',
+            });
+            res.status(200);
+            sendProtobufResponse(res, PollResponseSchema, response);
         }
     }
 
@@ -270,7 +338,7 @@ export class PollsController {
     @HttpCode(HttpStatus.OK)
     async handleClosePoll(
         @Req() req: Request,
-        @Body() body: any,
+        @Body() bodyBuffer: Buffer,
         @Res() res: Response,
     ): Promise<void> {
         const isAdmin = (req as any).isAdmin as boolean;
@@ -278,17 +346,27 @@ export class PollsController {
         const requestedUserId = (req as any).requestedUserId as string;
 
         if (!isAdmin) {
-            sendCommonProtoJsonResponse(res, false, 'only admin can perform this task');
+            const response = create(PollResponseSchema, {
+                status: false,
+                msg: 'only admin can perform this task',
+            });
+            res.status(200);
+            sendProtobufResponse(res, PollResponseSchema, response);
             return;
         }
 
         let request: ClosePollReq;
         try {
-            request = parseAndValidateRequest<ClosePollReq>(body, ClosePollReqSchema);
+            request = fromBinary(ClosePollReqSchema, bodyBuffer);
             (request as any).roomId = roomId;
             (request as any).userId = requestedUserId;
         } catch (error) {
-            sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Invalid request');
+            const response = create(PollResponseSchema, {
+                status: false,
+                msg: error instanceof Error ? error.message : 'Invalid request',
+            });
+            res.status(200);
+            sendProtobufResponse(res, PollResponseSchema, response);
             return;
         }
 
@@ -304,9 +382,14 @@ export class PollsController {
             });
 
             res.status(200);
-            sendProtoJsonResponse(res, PollResponseSchema, response);
+            sendProtobufResponse(res, PollResponseSchema, response);
         } catch (error) {
-            sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error closing poll');
+            const response = create(PollResponseSchema, {
+                status: false,
+                msg: error instanceof Error ? error.message : 'Error closing poll',
+            });
+            res.status(200);
+            sendProtobufResponse(res, PollResponseSchema, response);
         }
     }
 
@@ -321,12 +404,22 @@ export class PollsController {
         const roomId = (req as any).roomId as string;
 
         if (!isAdmin) {
-            sendCommonProtoJsonResponse(res, false, 'only admin can perform this task');
+            const response = create(PollResponseSchema, {
+                status: false,
+                msg: 'only admin can perform this task',
+            });
+            res.status(200);
+            sendProtobufResponse(res, PollResponseSchema, response);
             return;
         }
 
         if (!pollId) {
-            sendCommonProtoJsonResponse(res, false, 'pollId required');
+            const response = create(PollResponseSchema, {
+                status: false,
+                msg: 'pollId required',
+            });
+            res.status(200);
+            sendProtobufResponse(res, PollResponseSchema, response);
             return;
         }
 
@@ -343,9 +436,14 @@ export class PollsController {
             });
 
             res.status(200);
-            sendProtoJsonResponse(res, PollResponseSchema, response);
+            sendProtobufResponse(res, PollResponseSchema, response);
         } catch (error) {
-            sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error getting poll details');
+            const response = create(PollResponseSchema, {
+                status: false,
+                msg: error instanceof Error ? error.message : 'Error getting poll details',
+            });
+            res.status(200);
+            sendProtobufResponse(res, PollResponseSchema, response);
         }
     }
 
@@ -371,9 +469,14 @@ export class PollsController {
             });
 
             res.status(200);
-            sendProtoJsonResponse(res, PollResponseSchema, response);
+            sendProtobufResponse(res, PollResponseSchema, response);
         } catch (error) {
-            sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error getting poll results');
+            const response = create(PollResponseSchema, {
+                status: false,
+                msg: error instanceof Error ? error.message : 'Error getting poll results',
+            });
+            res.status(200);
+            sendProtobufResponse(res, PollResponseSchema, response);
         }
     }
 
@@ -397,9 +500,17 @@ export class PollsController {
             });
 
             res.status(200);
-            sendProtoJsonResponse(res, PollResponseSchema, response);
+            sendProtobufResponse(res, PollResponseSchema, response);
         } catch (error) {
-            sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error getting polls stats');
+            const response = create(PollResponseSchema, {
+                status: false,
+                msg: error instanceof Error ? error.message : 'Error getting polls stats',
+            });
+            res.status(200);
+            sendProtobufResponse(res, PollResponseSchema, response);
         }
     }
 }
+
+
+
