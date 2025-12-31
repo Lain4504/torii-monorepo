@@ -511,6 +511,3 @@ export class PollsController {
         }
     }
 }
-
-
-
