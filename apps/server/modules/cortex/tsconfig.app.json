@@ -3,7 +3,7 @@
     "compilerOptions": {
         "declaration": false,
         "rootDir": "../../",
-        "outDir": "../../dist/modules/ai-service"
+        "outDir": "../../dist/modules/cortex"
     },
     "include": [
         "src/**/*",

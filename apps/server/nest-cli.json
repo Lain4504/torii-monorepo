@@ -79,16 +79,6 @@
         "webpack": false
       }
     },
-    "ai-service": {
-      "type": "application",
-      "root": "modules/ai-service",
-      "entryFile": "main",
-      "sourceRoot": "modules/ai-service/src",
-      "compilerOptions": {
-        "tsConfigPath": "modules/ai-service/tsconfig.app.json",
-        "webpack": false
-      }
-    },
     "notification-service": {
       "type": "application",
       "root": "modules/notification-service",
@@ -106,6 +96,16 @@
       "sourceRoot": "modules/storage-service/src",
       "compilerOptions": {
         "tsConfigPath": "modules/storage-service/tsconfig.app.json",
+        "webpack": false
+      }
+    },
+    "cortex": {
+      "type": "application",
+      "root": "modules/cortex",
+      "entryFile": "main",
+      "sourceRoot": "modules/cortex/src",
+      "compilerOptions": {
+        "tsConfigPath": "modules/cortex/tsconfig.app.json",
         "webpack": false
       }
     }

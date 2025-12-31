@@ -5,7 +5,7 @@ import { FastMcpModule } from './fastmcp/fastmcp.module';
 import { SenseiAgentModule } from './sensei-agent/sensei-agent.module';
 import { AssessmentAgentModule } from './assessment-agent/assessment-agent.module';
 import { AnalyticsAgentModule } from './analytics-agent/analytics-agent.module';
-import { AiController } from './ai.controller';
+import { CortexController } from './cortex.controller';
 
 @Module({
     imports: [
@@ -16,7 +16,7 @@ import { AiController } from './ai.controller';
         AssessmentAgentModule,
         AnalyticsAgentModule,
     ],
-    controllers: [AiController],
+    controllers: [CortexController],
     providers: [],
 })
-export class AiServiceModule { }
+export class CortexModule { }

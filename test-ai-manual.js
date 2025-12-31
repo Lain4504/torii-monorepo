@@ -31,7 +31,7 @@ async function runTests() {
     // Create transport and client
     const transport = new StdioClientTransport({
       command: 'npx',
-      args: ['tsx', 'apps/server/modules/ai-service/src/fastmcp/server.ts'],
+      args: ['tsx', 'apps/server/modules/cortex/src/fastmcp/server.ts'],
     });
 
     const client = new Client({

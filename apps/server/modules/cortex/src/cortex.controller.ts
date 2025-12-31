@@ -5,8 +5,8 @@ import { AssessmentAgentService } from './assessment-agent/assessment-agent.serv
 import { AnalyticsAgentService } from './analytics-agent/analytics-agent.service';
 
 @Controller()
-export class AiController {
-  private readonly logger = new Logger(AiController.name);
+export class CortexController {
+  private readonly logger = new Logger(CortexController.name);
 
   constructor(
     private readonly senseiService: SenseiAgentService,
