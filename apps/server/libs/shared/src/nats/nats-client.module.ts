@@ -18,7 +18,7 @@ import { nkeyAuthenticator } from 'nats';
                 name: 'NATS_SERVICE',
                 imports: [ConfigModule],
                 useFactory: (configService: ConfigService) => {
-                    const natsUrl = configService.get<string>('NATS_URL') || 'nats://localhost:4222';
+                    const natsUrl = configService.get<string>('NATS_URL');
                     const nkeySeed = configService.get<string>('NATS_NKEY_SEED');
 
                     const options: any = {

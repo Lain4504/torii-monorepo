@@ -96,7 +96,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
      */
     private async connectToNats(): Promise<void> {
         try {
-            const natsUrl = this.configService.get<string>('NATS_URL') || 'nats://localhost:4222';
+            const natsUrl = this.configService.get<string>('NATS_URL');
             const nkeySeed = this.configService.get<string>('NATS_NKEY_SEED');
 
             const options: any = {

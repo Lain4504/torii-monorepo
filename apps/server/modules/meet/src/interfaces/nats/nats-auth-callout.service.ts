@@ -213,9 +213,9 @@ export class NatsAuthCalloutService {
      * Set permissions for recorder
      */
     private setPermissionForRecorder(tokenData: any, natsClaims: any): void {
-        const recorderChannel = this.configService.get<string>('NATS_RECORDER_CHANNEL') || 'wajlc-recorder';
-        const recorderInfoKv = this.configService.get<string>('NATS_RECORDER_INFO_KV') || 'wajlc-recorder-info';
-        const transcodingJobs = this.configService.get<string>('NATS_TRANSCODING_JOBS') || 'wajlc-RecorderTranscoderJobs';
+        const recorderChannel = this.configService.get<string>('NATS_RECORDER_CHANNEL');
+        const recorderInfoKv = this.configService.get<string>('NATS_RECORDER_INFO_KV');
+        const transcodingJobs = this.configService.get<string>('NATS_TRANSCODING_JOBS');
         const userId = tokenData.userId || tokenData.user_id;
 
         const pubAllow = [

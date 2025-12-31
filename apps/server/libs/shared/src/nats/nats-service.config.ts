@@ -15,7 +15,7 @@ import { nkeyAuthenticator } from 'nats';
  * @returns MicroserviceOptions for Transport.NATS
  */
 export function createNatsServiceConfig(): MicroserviceOptions {
-    const natsUrl = process.env.NATS_URL || 'nats://localhost:4222';
+    const natsUrl = process.env.NATS_URL;
     const nkeySeed = process.env.NATS_NKEY_SEED;
 
     const options: any = {
