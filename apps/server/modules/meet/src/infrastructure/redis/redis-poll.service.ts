@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 import { SubmitPollResponseReq, ClosePollReq, PollInfo } from '@workspace/protocol';
 
-const POLLS_KEY = 'pnm:polls:';
+const POLLS_KEY = 'wajlc:polls:';
 const POLL_RESPONDENTS_SUB_KEY = ':respondents:';
 const POLL_VOTED_USERS_SUB_KEY = ':voted_users';
 const POLL_ALL_RES_SUB_KEY = ':all_respondents';

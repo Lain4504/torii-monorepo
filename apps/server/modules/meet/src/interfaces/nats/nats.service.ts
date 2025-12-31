@@ -21,7 +21,7 @@ import {
 } from 'nats';
 
 // Constants
-const NATS_PREFIX = 'pnm-';
+const NATS_PREFIX = 'wajlc-';
 const DEFAULT_TTL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds (standard for JS/TS)
 
 /**

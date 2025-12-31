@@ -9,7 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 import { v4 as uuidv4 } from 'uuid';
 
-const REDIS_PREFIX = 'pnm:';
+const REDIS_PREFIX = 'wajlc:';
 const ROOM_CREATION_LOCK_KEY = `${REDIS_PREFIX}roomCreationLock-%s`;
 const JANITOR_LOCK_KEY = `${REDIS_PREFIX}janitorLeaderLock`;
 
