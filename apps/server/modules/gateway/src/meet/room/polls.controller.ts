@@ -213,7 +213,7 @@ export class PollsController {
         if (!pollId) {
             const response = create(PollResponseSchema, {
                 status: false,
-                msg: 'poll Id required',
+                msg: 'pollId required',
             });
             res.status(200);
             sendProtobufResponse(res, PollResponseSchema, response);
