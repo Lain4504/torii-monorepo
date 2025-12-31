@@ -5,7 +5,7 @@ import { RBACService } from '../../modules/rbac/rbac.service';
 import { RBACConfigService } from '../../modules/rbac/rbac-config.service';
 import { RBACSeederService } from '../../modules/rbac/rbac-seeder.service';
 
-@Controller('rbac')
+@Controller('api/rbac')
 @UseGuards(FirebaseAuthGuard, RolesGuard)
 export class RBACController {
     private readonly logger = new Logger(RBACController.name);

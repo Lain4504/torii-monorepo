@@ -8,7 +8,7 @@ import {
 import { FirebaseAuthGuard, RolesGuard, Roles } from '@server/shared';
 import { UserRole } from '@workspace/schemas';
 
-@Controller('lessons')
+@Controller('api/lessons')
 @UseGuards(FirebaseAuthGuard)
 export class LessonController {
   private readonly logger = new Logger(LessonController.name);

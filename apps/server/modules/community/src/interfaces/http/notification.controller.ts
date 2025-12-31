@@ -9,7 +9,7 @@ import type {
 import { NotificationService } from '../../modules/notification/notification.service';
 import { FirebaseAuthGuard } from '@server/shared';
 
-@Controller('notifications')
+@Controller('api/notifications')
 @UseGuards(FirebaseAuthGuard)
 export class NotificationController {
     private readonly logger = new Logger(NotificationController.name);

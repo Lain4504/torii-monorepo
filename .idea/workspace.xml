@@ -4,9 +4,22 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`).">
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/proxy/proxy.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/proxy/proxy.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/storage/src/interfaces/nats/storage.controller.ts" beforeDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="chore: remove legacy gateway modules in preparation for migration to HTTP-based interfaces">
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/assessment/src/interfaces/http/question-bank.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/assessment/src/interfaces/http/question-bank.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/community/src/community.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/community/src/community.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/community/src/interfaces/http/blog-comment.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/community/src/interfaces/http/blog-comment.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/community/src/interfaces/http/blog.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/community/src/interfaces/http/blog.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/community/src/interfaces/http/notification.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/community/src/interfaces/http/notification.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/flashcards/src/interfaces/http/flashcard-deck.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/flashcards/src/interfaces/http/flashcard-deck.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/flashcards/src/interfaces/http/flashcard.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/flashcards/src/interfaces/http/flashcard.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/http/audit-log.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/http/audit-log.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/http/auth.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/http/auth.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/http/rbac.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/http/rbac.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/http/users.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/http/users.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/lms/src/interfaces/http/course.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/lms/src/interfaces/http/course.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/lms/src/interfaces/http/lesson.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/lms/src/interfaces/http/lesson.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/lms/src/interfaces/http/module.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/lms/src/interfaces/http/module.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/lms/src/interfaces/http/wishlist.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/lms/src/interfaces/http/wishlist.controller.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -229,63 +242,7 @@
       <workItem from="1767139678426" duration="1450000" />
       <workItem from="1767179041805" duration="1585000" />
       <workItem from="1767182827516" duration="3496000" />
-      <workItem from="1767192481085" duration="8868000" />
-    </task>
-    <task id="LOCAL-00335" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
-      <option name="closed" value="true" />
-      <created>1766842964163</created>
-      <option name="number" value="00335" />
-      <option name="presentableId" value="LOCAL-00335" />
-      <option name="project" value="LOCAL" />
-      <updated>1766842964163</updated>
-    </task>
-    <task id="LOCAL-00336" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
-      <option name="closed" value="true" />
-      <created>1766843159615</created>
-      <option name="number" value="00336" />
-      <option name="presentableId" value="LOCAL-00336" />
-      <option name="project" value="LOCAL" />
-      <updated>1766843159615</updated>
-    </task>
-    <task id="LOCAL-00337" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
-      <option name="closed" value="true" />
-      <created>1766843257565</created>
-      <option name="number" value="00337" />
-      <option name="presentableId" value="LOCAL-00337" />
-      <option name="project" value="LOCAL" />
-      <updated>1766843257566</updated>
-    </task>
-    <task id="LOCAL-00338" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
-      <option name="closed" value="true" />
-      <created>1766843303972</created>
-      <option name="number" value="00338" />
-      <option name="presentableId" value="LOCAL-00338" />
-      <option name="project" value="LOCAL" />
-      <updated>1766843303972</updated>
-    </task>
-    <task id="LOCAL-00339" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
-      <option name="closed" value="true" />
-      <created>1766843641163</created>
-      <option name="number" value="00339" />
-      <option name="presentableId" value="LOCAL-00339" />
-      <option name="project" value="LOCAL" />
-      <updated>1766843641164</updated>
-    </task>
-    <task id="LOCAL-00340" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
-      <option name="closed" value="true" />
-      <created>1766843907926</created>
-      <option name="number" value="00340" />
-      <option name="presentableId" value="LOCAL-00340" />
-      <option name="project" value="LOCAL" />
-      <updated>1766843907926</updated>
-    </task>
-    <task id="LOCAL-00341" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
-      <option name="closed" value="true" />
-      <created>1766844061902</created>
-      <option name="number" value="00341" />
-      <option name="presentableId" value="LOCAL-00341" />
-      <option name="project" value="LOCAL" />
-      <updated>1766844061902</updated>
+      <workItem from="1767192481085" duration="10184000" />
     </task>
     <task id="LOCAL-00342" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
       <option name="closed" value="true" />
@@ -623,7 +580,63 @@
       <option name="project" value="LOCAL" />
       <updated>1767201429298</updated>
     </task>
-    <option name="localTasksCounter" value="384" />
+    <task id="LOCAL-00384" summary="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`).">
+      <option name="closed" value="true" />
+      <created>1767201502978</created>
+      <option name="number" value="00384" />
+      <option name="presentableId" value="LOCAL-00384" />
+      <option name="project" value="LOCAL" />
+      <updated>1767201502978</updated>
+    </task>
+    <task id="LOCAL-00385" summary="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`).">
+      <option name="closed" value="true" />
+      <created>1767201710089</created>
+      <option name="number" value="00385" />
+      <option name="presentableId" value="LOCAL-00385" />
+      <option name="project" value="LOCAL" />
+      <updated>1767201710089</updated>
+    </task>
+    <task id="LOCAL-00386" summary="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`).">
+      <option name="closed" value="true" />
+      <created>1767201815280</created>
+      <option name="number" value="00386" />
+      <option name="presentableId" value="LOCAL-00386" />
+      <option name="project" value="LOCAL" />
+      <updated>1767201815280</updated>
+    </task>
+    <task id="LOCAL-00387" summary="chore: remove legacy gateway modules in preparation for migration to HTTP-based interfaces">
+      <option name="closed" value="true" />
+      <created>1767202026701</created>
+      <option name="number" value="00387" />
+      <option name="presentableId" value="LOCAL-00387" />
+      <option name="project" value="LOCAL" />
+      <updated>1767202026701</updated>
+    </task>
+    <task id="LOCAL-00388" summary="chore: remove legacy gateway modules in preparation for migration to HTTP-based interfaces">
+      <option name="closed" value="true" />
+      <created>1767202273525</created>
+      <option name="number" value="00388" />
+      <option name="presentableId" value="LOCAL-00388" />
+      <option name="project" value="LOCAL" />
+      <updated>1767202273525</updated>
+    </task>
+    <task id="LOCAL-00389" summary="chore: remove legacy gateway modules in preparation for migration to HTTP-based interfaces">
+      <option name="closed" value="true" />
+      <created>1767202389871</created>
+      <option name="number" value="00389" />
+      <option name="presentableId" value="LOCAL-00389" />
+      <option name="project" value="LOCAL" />
+      <updated>1767202389871</updated>
+    </task>
+    <task id="LOCAL-00390" summary="chore: remove legacy gateway modules in preparation for migration to HTTP-based interfaces">
+      <option name="closed" value="true" />
+      <created>1767202522420</created>
+      <option name="number" value="00390" />
+      <option name="presentableId" value="LOCAL-00390" />
+      <option name="project" value="LOCAL" />
+      <updated>1767202522420</updated>
+    </task>
+    <option name="localTasksCounter" value="391" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -653,7 +666,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="fix: update LiveKit configuration and improve participant count handling" />
     <MESSAGE value="fix: enhance participant removal logic" />
     <MESSAGE value="fix: enhance participant removal logic and align with Go server implementation" />
     <MESSAGE value="fix: update LiveKit token generation and implement hand raise/lower functionality" />
@@ -678,7 +690,8 @@
     <MESSAGE value="chore: migrate LMS and Flashcards modules to HTTP-based interfaces &#10;&#10;- Replaced NATS-based controllers (`course.controller`, `lesson.controller`, `module.controller`) with new HTTP controllers.&#10;- Added HTTP controllers for Flashcards (`flashcard.controller`, `flashcard-deck.controller`).&#10;- Updated `LmsModule` and `main.ts` to enable both HTTP and NATS-based communication.&#10;- Integrated CORS and global validation pipes for HTTP services.&#10;- Updated `ProxyController` to route LMS and Flashcards endpoints (`/courses`, `/lessons`, `/modules`, `/flashcards`, `/flash" />
     <MESSAGE value="chore: migrate LMS and Flashcards modules to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`course.controller`, `lesson.controller`, `module.controller`) with new HTTP controllers.&#10;- Added HTTP controllers for Flashcards (`flashcard.controller`, `flashcard-deck.controller`).&#10;- Updated `LmsModule` and `main.ts` to enable both HTTP and NATS-based communication.&#10;- Integrated CORS and global validation pipes for HTTP services.&#10;- Updated `ProxyController` to route LMS and Flashcards endpoints (`/courses`, `/lessons`, `/modules`, `/flashcards`, `/flashcard-decks`)." />
     <MESSAGE value="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`)." />
-    <option name="LAST_COMMIT_MESSAGE" value="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`)." />
+    <MESSAGE value="chore: remove legacy gateway modules in preparation for migration to HTTP-based interfaces" />
+    <option name="LAST_COMMIT_MESSAGE" value="chore: remove legacy gateway modules in preparation for migration to HTTP-based interfaces" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

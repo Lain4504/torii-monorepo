@@ -7,7 +7,7 @@ import type {
 } from '@workspace/schemas';
 import { FirebaseAuthGuard } from '@server/shared';
 
-@Controller('blog-comments')
+@Controller('api/blog-comments')
 export class BlogCommentController {
     constructor(private readonly blogCommentService: BlogCommentService) { }
 

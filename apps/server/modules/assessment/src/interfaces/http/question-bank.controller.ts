@@ -10,7 +10,7 @@ import {
 import { UserRole } from '@workspace/schemas';
 import { FirebaseAuthGuard, RolesGuard, Roles } from '@server/shared';
 
-@Controller('question-banks')
+@Controller('api/question-banks')
 @UseGuards(FirebaseAuthGuard)
 export class QuestionBankController {
     constructor(private readonly questionBankService: QuestionBankService) { }

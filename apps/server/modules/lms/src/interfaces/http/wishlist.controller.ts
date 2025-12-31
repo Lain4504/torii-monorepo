@@ -6,7 +6,7 @@ import {
 } from '@workspace/schemas';
 import { FirebaseAuthGuard } from '@server/shared';
 
-@Controller('wishlists')
+@Controller('api/wishlists')
 @UseGuards(FirebaseAuthGuard)
 export class WishlistController {
     constructor(private readonly wishlistService: WishlistService) { }

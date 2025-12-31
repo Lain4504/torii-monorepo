@@ -7,7 +7,7 @@ import type {
 } from '@workspace/schemas';
 import { FirebaseAuthGuard } from '@server/shared';
 
-@Controller('flashcard-decks')
+@Controller('api/flashcard-decks')
 @UseGuards(FirebaseAuthGuard)
 export class FlashcardDeckController {
     private readonly logger = new Logger(FlashcardDeckController.name);

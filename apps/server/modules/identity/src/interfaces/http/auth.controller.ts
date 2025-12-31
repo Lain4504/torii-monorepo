@@ -14,7 +14,7 @@ interface FirebaseSyncDTO {
  * Auth HTTP Controller
  * Handles Firebase authentication and user profile management
  */
-@Controller('auth')
+@Controller('api/auth')
 export class AuthController {
     constructor(private readonly prisma: PrismaService) { }
 

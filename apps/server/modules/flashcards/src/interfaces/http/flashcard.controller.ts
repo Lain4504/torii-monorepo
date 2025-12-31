@@ -10,7 +10,7 @@ import type {
 import { FirebaseAuthGuard } from '@server/shared';
 import type { Request } from 'express';
 
-@Controller('flashcards')
+@Controller('api/flashcards')
 @UseGuards(FirebaseAuthGuard)
 export class FlashcardController {
     private readonly logger = new Logger(FlashcardController.name);
