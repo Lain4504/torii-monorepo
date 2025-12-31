@@ -21,9 +21,14 @@ export class ProxyController {
         '/admin/users': process.env.IDENTITY_SERVICE_URL || 'http://localhost:8081',
         '/admin/audit-logs': process.env.IDENTITY_SERVICE_URL || 'http://localhost:8081',
         '/rbac': process.env.IDENTITY_SERVICE_URL || 'http://localhost:8081',
-        // Add more services as they are migrated
-        // '/courses': process.env.LMS_SERVICE_URL || 'http://localhost:8082',
-        // '/flashcards': process.env.FLASHCARDS_SERVICE_URL || 'http://localhost:8083',
+        // LMS Service Routes
+        '/courses': process.env.LMS_SERVICE_URL || 'http://localhost:8082',
+        '/modules': process.env.LMS_SERVICE_URL || 'http://localhost:8082',
+        '/lessons': process.env.LMS_SERVICE_URL || 'http://localhost:8082',
+
+        // Flashcards Service Routes
+        '/flashcards': process.env.FLASHCARDS_SERVICE_URL || 'http://localhost:8083',
+        '/flashcard-decks': process.env.FLASHCARDS_SERVICE_URL || 'http://localhost:8083',
     };
 
     /**

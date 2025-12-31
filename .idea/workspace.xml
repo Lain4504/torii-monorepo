@@ -4,24 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(auth): migrate authentication system to Firebase&#10;&#10;- Replaced RemoteAuthGuard with FirebaseAuthGuard for Firebase-based authentication.&#10;- Added Firebase Admin integration via `FirebaseAuthService` and `FirebaseAuthModule`.&#10;- Updated Prisma User model to include `firebaseUid`.&#10;- Removed legacy password-based authentication system.&#10;- Implemented `/auth/firebase-sync` endpoint for syncing Firebase users with the local database.&#10;- Updated web-admin to integrate Firebase Authentication.&#10;- Adjusted API client to include Firebase ID tokens in requests.">
-      <change beforePath="$PROJECT_DIR$/.env.example" beforeDir="false" afterPath="$PROJECT_DIR$/.env.example" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/identity/admin/admin.module.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/identity/admin/users.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/identity/auth/auth.module.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/identity/identity.module.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/identity/rbac/rbac-gateway.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/main.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/identity.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/identity.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/nats/audit-log.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/nats/firebase-sync.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/nats/rbac.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/nats/users.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/main.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="chore: remove deprecated identity modules and controllers, migrate to HTTP-based interfaces&#10;&#10;- Deleted obsolete modules and controllers (`AdminModule`, `AuthModule`, `RBACController`, etc.).&#10;- Added new HTTP controllers (`AuthController`, `AuditLogController`) for identity services.&#10;- Introduced `ProxyController` to route requests to microservices.&#10;- Updated service structure to align with the removal of NATS-based controllers.">
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/lms/src/interfaces/nats/course.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/lms/src/interfaces/nats/lesson.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/lms/src/interfaces/nats/module.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/lms/src/lms.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/lms/src/lms.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/lms/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/lms/src/main.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -242,15 +230,7 @@
       <workItem from="1767139678426" duration="1450000" />
       <workItem from="1767179041805" duration="1585000" />
       <workItem from="1767182827516" duration="3496000" />
-      <workItem from="1767192481085" duration="7501000" />
-    </task>
-    <task id="LOCAL-00329" summary="refactor: standardize import paths for feature components">
-      <option name="closed" value="true" />
-      <created>1766833421571</created>
-      <option name="number" value="00329" />
-      <option name="presentableId" value="LOCAL-00329" />
-      <option name="project" value="LOCAL" />
-      <updated>1766833421571</updated>
+      <workItem from="1767192481085" duration="8048000" />
     </task>
     <task id="LOCAL-00330" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
       <option name="closed" value="true" />
@@ -636,7 +616,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767197633873</updated>
     </task>
-    <option name="localTasksCounter" value="378" />
+    <task id="LOCAL-00378" summary="chore: remove deprecated identity modules and controllers, migrate to HTTP-based interfaces&#10;&#10;- Deleted obsolete modules and controllers (`AdminModule`, `AuthModule`, `RBACController`, etc.).&#10;- Added new HTTP controllers (`AuthController`, `AuditLogController`) for identity services.&#10;- Introduced `ProxyController` to route requests to microservices.&#10;- Updated service structure to align with the removal of NATS-based controllers.">
+      <option name="closed" value="true" />
+      <created>1767200209390</created>
+      <option name="number" value="00378" />
+      <option name="presentableId" value="LOCAL-00378" />
+      <option name="project" value="LOCAL" />
+      <updated>1767200209391</updated>
+    </task>
+    <option name="localTasksCounter" value="379" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -666,7 +654,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="fix to done room flow" />
     <MESSAGE value="rename" />
     <MESSAGE value="feat(waiting-room): add waiting room module and controller for managing user approvals and messages" />
     <MESSAGE value="feat(room): refactor room creation logic and migrate database operations to RoomInfoService" />
@@ -691,7 +678,8 @@
     <MESSAGE value="chore(nats): remove default values for NATS config and update `.env.example` with explicit keys and new defaults" />
     <MESSAGE value="fix(polls): update request handling to use protobuf for better validation" />
     <MESSAGE value="feat(auth): migrate authentication system to Firebase&#10;&#10;- Replaced RemoteAuthGuard with FirebaseAuthGuard for Firebase-based authentication.&#10;- Added Firebase Admin integration via `FirebaseAuthService` and `FirebaseAuthModule`.&#10;- Updated Prisma User model to include `firebaseUid`.&#10;- Removed legacy password-based authentication system.&#10;- Implemented `/auth/firebase-sync` endpoint for syncing Firebase users with the local database.&#10;- Updated web-admin to integrate Firebase Authentication.&#10;- Adjusted API client to include Firebase ID tokens in requests." />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(auth): migrate authentication system to Firebase&#10;&#10;- Replaced RemoteAuthGuard with FirebaseAuthGuard for Firebase-based authentication.&#10;- Added Firebase Admin integration via `FirebaseAuthService` and `FirebaseAuthModule`.&#10;- Updated Prisma User model to include `firebaseUid`.&#10;- Removed legacy password-based authentication system.&#10;- Implemented `/auth/firebase-sync` endpoint for syncing Firebase users with the local database.&#10;- Updated web-admin to integrate Firebase Authentication.&#10;- Adjusted API client to include Firebase ID tokens in requests." />
+    <MESSAGE value="chore: remove deprecated identity modules and controllers, migrate to HTTP-based interfaces&#10;&#10;- Deleted obsolete modules and controllers (`AdminModule`, `AuthModule`, `RBACController`, etc.).&#10;- Added new HTTP controllers (`AuthController`, `AuditLogController`) for identity services.&#10;- Introduced `ProxyController` to route requests to microservices.&#10;- Updated service structure to align with the removal of NATS-based controllers." />
+    <option name="LAST_COMMIT_MESSAGE" value="chore: remove deprecated identity modules and controllers, migrate to HTTP-based interfaces&#10;&#10;- Deleted obsolete modules and controllers (`AdminModule`, `AuthModule`, `RBACController`, etc.).&#10;- Added new HTTP controllers (`AuthController`, `AuditLogController`) for identity services.&#10;- Introduced `ProxyController` to route requests to microservices.&#10;- Updated service structure to align with the removal of NATS-based controllers." />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
