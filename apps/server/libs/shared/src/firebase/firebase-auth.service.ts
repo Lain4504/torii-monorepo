@@ -1,6 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as admin from 'firebase-admin';
+import * as path from 'path';
 
 export interface FirebaseUser {
     uid: string;
@@ -40,9 +41,14 @@ export class FirebaseAuthService implements OnModuleInit {
 
             // Initialize Firebase Admin SDK
             if (serviceAccountPath) {
-                // Use service account key file
-                this.logger.log(`Initializing Firebase with service account: ${serviceAccountPath}`);
-                const serviceAccount = require(serviceAccountPath);
+                // Resolve path relative to workspace root (process.cwd())
+                // This ensures it works from any module (gateway, identity, etc.)
+                const absolutePath = path.isAbsolute(serviceAccountPath)
+                    ? serviceAccountPath
+                    : path.join(process.cwd(), serviceAccountPath);
+
+                this.logger.log(`Initializing Firebase with service account: ${absolutePath}`);
+                const serviceAccount = require(absolutePath);
 
                 this.firebaseApp = admin.initializeApp({
                     credential: admin.credential.cert(serviceAccount),

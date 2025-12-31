@@ -48,6 +48,7 @@
     "@keyv/redis": "^5.1.5",
     "@livekit/protocol": "^1.43.4",
     "@nats-io/jwt": "0.0.10-5",
+    "@nestjs/axios": "^4.0.1",
     "@nestjs/cache-manager": "^3.0.1",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",

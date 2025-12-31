@@ -2,7 +2,13 @@ import { Module } from '@nestjs/common';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import KeyvRedis from '@keyv/redis';
-import { IdentityGatewayModule } from './identity/identity.module';
+import { SharedModule, NatsAuthModule, NatsClientModule } from '@server/shared';
+import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
+
+// Proxy Module - Routes to microservices
+import { ProxyModule } from './proxy/proxy.module';
+
+// Keep gateway modules for services not yet migrated
 import { LmsGatewayModule } from './lms/lms.module';
 import { MeetGatewayModule } from './meet/meet.module';
 import { FlashcardsGatewayModule } from './flashcards/flashcards.module';
@@ -11,9 +17,11 @@ import { AssessmentGatewayModule } from './assessment/assessment.module';
 import { StorageGatewayModule } from './storage/storage-gateway.module';
 import { CortexGatewayModule } from './cortex/cortex.module';
 import { GamificationGatewayModule } from './gamification/gamification.module';
-import { SharedModule, NatsAuthModule, NatsClientModule } from '@server/shared';
-import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
 
+/**
+ * API Gateway Module
+ * Routes requests to microservices (HTTP proxy pattern)
+ */
 @Module({
   imports: [
     CacheModule.registerAsync({
@@ -31,12 +39,14 @@ import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
       inject: [ConfigService],
     }),
 
-    NatsClientModule, // Add NATS client for GatewayService
+    NatsClientModule,
     SharedModule,
     NatsAuthModule, // Auth callout handler - only in Gateway
 
-    // Domain Aggregation Modules
-    IdentityGatewayModule,
+    // Proxy Module - Handles Identity routes
+    ProxyModule,
+
+    // Legacy Gateway Modules (to be migrated)
     LmsGatewayModule,
     MeetGatewayModule,
     FlashcardsGatewayModule,
@@ -45,10 +55,9 @@ import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
     StorageGatewayModule,
     CortexGatewayModule,
     GamificationGatewayModule,
-
   ],
   controllers: [],
   providers: [ApiKeyGuard],
   exports: [],
 })
-export class GatewayModule {}
+export class GatewayModule { }

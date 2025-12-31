@@ -5,10 +5,14 @@ import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { RBACModule } from './modules/rbac/rbac.module';
 
-import { UsersController } from './interfaces/nats/users.controller';
-import { RBACController } from './interfaces/nats/rbac.controller';
-import { AuditLogController } from './interfaces/nats/audit-log.controller';
-import { FirebaseSyncController } from './interfaces/nats/firebase-sync.controller';
+// HTTP Controllers (for client requests via Gateway)
+import { AuthController } from './interfaces/http/auth.controller';
+import { UsersController } from './interfaces/http/users.controller';
+import { RBACController } from './interfaces/http/rbac.controller';
+import { AuditLogController } from './interfaces/http/audit-log.controller';
+
+// NATS Controllers - REMOVED (no longer needed for client requests)
+// Keep only if needed for inter-service communication in the future
 
 @Module({
   imports: [
@@ -20,7 +24,13 @@ import { FirebaseSyncController } from './interfaces/nats/firebase-sync.controll
     AuthModule,
     RBACModule,
   ],
-  controllers: [UsersController, RBACController, AuditLogController, FirebaseSyncController],
+  controllers: [
+    // HTTP Controllers only
+    AuthController,
+    UsersController,
+    RBACController,
+    AuditLogController,
+  ],
   providers: [],
   exports: [AuthModule, UsersModule, RBACModule],
 })

@@ -24,15 +24,6 @@ async function bootstrap() {
   await app.startAllMicroservices();
   const httpAdapter = app.get(HttpAdapterHost);
 
-  app.enableCors({
-    origin: process.env.CORS_ORIGIN?.split(',') || [
-      'http://localhost:5173', // web-admin
-      'http://localhost:3000', // web-learner
-      'http://localhost:5174', // meet
-    ],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    credentials: true,
-  });
 
   await app.listen(process.env.port ?? 8080);
 }
