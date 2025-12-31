@@ -13,10 +13,10 @@ import type {
     PaginatedResponse,
 } from '@workspace/schemas';
 import { UserRole } from '@workspace/schemas';
-import { RemoteAuthGuard, RolesGuard, Roles, ZodValidationPipe } from '@server/shared';
+import { FirebaseAuthGuard, RolesGuard, Roles, ZodValidationPipe } from '@server/shared';
 
 @Controller('admin/users')
-@UseGuards(RemoteAuthGuard, RolesGuard)
+@UseGuards(FirebaseAuthGuard, RolesGuard)
 export class UsersController {
     constructor(
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,

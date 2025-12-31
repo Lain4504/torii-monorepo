@@ -77,7 +77,8 @@ export class UsersService {
             this.prisma.user.count({ where }),
         ]);
 
-        const data = users.map(({ password, salt, ...rest }) => rest as any);
+        // No need to filter fields - password/salt removed from schema
+        const data = users.map(user => user as any);
 
         return {
             data,
@@ -98,8 +99,7 @@ export class UsersService {
             throw new NotFoundException('User not found');
         }
 
-        const { password, salt, ...rest } = user;
-        return rest as any;
+        return user as any;
     }
 
     /**
@@ -130,8 +130,7 @@ export class UsersService {
             } as any,
         });
 
-        const { password, salt: _, ...rest } = user;
-        return rest as any;
+        return user as any;
     }
 
     /**
@@ -154,8 +153,7 @@ export class UsersService {
                 fullName: true,
                 role: true,
                 status: true,
-                emailVerified: true,
-                lastLoginAt: true,
+
                 createdAt: true,
                 updatedAt: true,
             },
@@ -203,8 +201,7 @@ export class UsersService {
             data: { ...updateData, updatedAt: new Date() },
         });
 
-        const { password, salt, ...rest } = updatedUser;
-        return rest as any;
+        return updatedUser as any;
     }
 
     /**

@@ -4,14 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="chore(nats): remove default values for NATS config and update `.env.example` with explicit keys and new defaults">
-      <change beforePath="$PROJECT_DIR$/.env.example" beforeDir="false" afterPath="$PROJECT_DIR$/.env.example" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(auth): migrate authentication system to Firebase&#10;&#10;- Replaced RemoteAuthGuard with FirebaseAuthGuard for Firebase-based authentication.&#10;- Added Firebase Admin integration via `FirebaseAuthService` and `FirebaseAuthModule`.&#10;- Updated Prisma User model to include `firebaseUid`.&#10;- Removed legacy password-based authentication system.&#10;- Implemented `/auth/firebase-sync` endpoint for syncing Firebase users with the local database.&#10;- Updated web-admin to integrate Firebase Authentication.&#10;- Adjusted API client to include Firebase ID tokens in requests.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/nats/nats-client.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/nats/nats-client.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/nats/nats-service.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/nats/nats-service.config.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/nats-auth-callout.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/nats-auth-callout.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/nats.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/nats.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/flashcards/src/modules/flashcard-deck/flashcard-deck.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/flashcards/src/modules/flashcard-deck/flashcard-deck.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/identity/auth/auth.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/identity/auth/auth.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/identity/auth/auth.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/identity.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/identity.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/nats/audit-log.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/nats/audit-log.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/nats/auth.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/users/users.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/users/users.service.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,7 +21,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="696" />
+    <option name="cachedIndexableFilesCount" value="690" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -39,7 +41,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="meet-livekit-ui" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -116,7 +118,7 @@
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;migration-to-firebase-authentication&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
@@ -142,11 +144,11 @@
       <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\meet\src\redis" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\demo\team-source\torii-monorepo\apps\server" />
       <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\meet\src\polls" />
       <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\gateway\src\meet" />
       <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\gateway\src\meet\room" />
       <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\gateway\src\meet\auth" />
-      <recent name="E:\demo\team-source\torii-monorepo\apps\web-admin\src\features\question-bank" />
     </key>
   </component>
   <component name="RunManager">
@@ -232,14 +234,7 @@
       <workItem from="1767139678426" duration="1450000" />
       <workItem from="1767179041805" duration="1585000" />
       <workItem from="1767182827516" duration="3496000" />
-    </task>
-    <task id="LOCAL-00327" summary="chore(docker): enhance Docker setup with LiveKit configuration and streamline service definitions">
-      <option name="closed" value="true" />
-      <created>1766813104282</created>
-      <option name="number" value="00327" />
-      <option name="presentableId" value="LOCAL-00327" />
-      <option name="project" value="LOCAL" />
-      <updated>1766813104282</updated>
+      <workItem from="1767192481085" duration="5084000" />
     </task>
     <task id="LOCAL-00328" summary="refactor: standardize import paths for feature components">
       <option name="closed" value="true" />
@@ -625,7 +620,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767082162013</updated>
     </task>
-    <option name="localTasksCounter" value="376" />
+    <task id="LOCAL-00376" summary="feat(auth): migrate authentication system to Firebase&#10;&#10;- Replaced RemoteAuthGuard with FirebaseAuthGuard for Firebase-based authentication.&#10;- Added Firebase Admin integration via `FirebaseAuthService` and `FirebaseAuthModule`.&#10;- Updated Prisma User model to include `firebaseUid`.&#10;- Removed legacy password-based authentication system.&#10;- Implemented `/auth/firebase-sync` endpoint for syncing Firebase users with the local database.&#10;- Updated web-admin to integrate Firebase Authentication.&#10;- Adjusted API client to include Firebase ID tokens in requests.">
+      <option name="closed" value="true" />
+      <created>1767196691164</created>
+      <option name="number" value="00376" />
+      <option name="presentableId" value="LOCAL-00376" />
+      <option name="project" value="LOCAL" />
+      <updated>1767196691165</updated>
+    </task>
+    <option name="localTasksCounter" value="377" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -655,8 +658,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="refactor: create utils for meet features" />
-    <MESSAGE value="fix to can run" />
     <MESSAGE value="fix to done room flow" />
     <MESSAGE value="rename" />
     <MESSAGE value="feat(waiting-room): add waiting room module and controller for managing user approvals and messages" />
@@ -680,7 +681,9 @@
     <MESSAGE value="chore: remove obsolete modules and controllers from gateway services" />
     <MESSAGE value="chore: update key prefixes to &quot;wajlc&quot; across Redis and NATS services" />
     <MESSAGE value="chore(nats): remove default values for NATS config and update `.env.example` with explicit keys and new defaults" />
-    <option name="LAST_COMMIT_MESSAGE" value="chore(nats): remove default values for NATS config and update `.env.example` with explicit keys and new defaults" />
+    <MESSAGE value="fix(polls): update request handling to use protobuf for better validation" />
+    <MESSAGE value="feat(auth): migrate authentication system to Firebase&#10;&#10;- Replaced RemoteAuthGuard with FirebaseAuthGuard for Firebase-based authentication.&#10;- Added Firebase Admin integration via `FirebaseAuthService` and `FirebaseAuthModule`.&#10;- Updated Prisma User model to include `firebaseUid`.&#10;- Removed legacy password-based authentication system.&#10;- Implemented `/auth/firebase-sync` endpoint for syncing Firebase users with the local database.&#10;- Updated web-admin to integrate Firebase Authentication.&#10;- Adjusted API client to include Firebase ID tokens in requests." />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(auth): migrate authentication system to Firebase&#10;&#10;- Replaced RemoteAuthGuard with FirebaseAuthGuard for Firebase-based authentication.&#10;- Added Firebase Admin integration via `FirebaseAuthService` and `FirebaseAuthModule`.&#10;- Updated Prisma User model to include `firebaseUid`.&#10;- Removed legacy password-based authentication system.&#10;- Implemented `/auth/firebase-sync` endpoint for syncing Firebase users with the local database.&#10;- Updated web-admin to integrate Firebase Authentication.&#10;- Adjusted API client to include Firebase ID tokens in requests." />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

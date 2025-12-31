@@ -5,10 +5,10 @@ import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { RBACModule } from './modules/rbac/rbac.module';
 
-import { AuthController } from './interfaces/nats/auth.controller';
 import { UsersController } from './interfaces/nats/users.controller';
 import { RBACController } from './interfaces/nats/rbac.controller';
 import { AuditLogController } from './interfaces/nats/audit-log.controller';
+import { FirebaseSyncController } from './interfaces/nats/firebase-sync.controller';
 
 @Module({
   imports: [
@@ -20,7 +20,7 @@ import { AuditLogController } from './interfaces/nats/audit-log.controller';
     AuthModule,
     RBACModule,
   ],
-  controllers: [AuthController, UsersController, RBACController, AuditLogController],
+  controllers: [UsersController, RBACController, AuditLogController, FirebaseSyncController],
   providers: [],
   exports: [AuthModule, UsersModule, RBACModule],
 })
