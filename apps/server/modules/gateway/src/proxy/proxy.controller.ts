@@ -17,18 +17,39 @@ export class ProxyController {
 
     // Service mapping: route prefix → service URL
     private readonly serviceMap: Record<string, string> = {
-        '/auth': process.env.IDENTITY_SERVICE_URL || 'http://localhost:8081',
-        '/admin/users': process.env.IDENTITY_SERVICE_URL || 'http://localhost:8081',
-        '/admin/audit-logs': process.env.IDENTITY_SERVICE_URL || 'http://localhost:8081',
-        '/rbac': process.env.IDENTITY_SERVICE_URL || 'http://localhost:8081',
+        '/api/auth': process.env.IDENTITY_SERVICE_URL || 'http://localhost:8081',
+        '/api/admin/users': process.env.IDENTITY_SERVICE_URL || 'http://localhost:8081',
+        '/api/admin/audit-logs': process.env.IDENTITY_SERVICE_URL || 'http://localhost:8081',
+        '/api/rbac': process.env.IDENTITY_SERVICE_URL || 'http://localhost:8081',
         // LMS Service Routes
-        '/courses': process.env.LMS_SERVICE_URL || 'http://localhost:8082',
-        '/modules': process.env.LMS_SERVICE_URL || 'http://localhost:8082',
-        '/lessons': process.env.LMS_SERVICE_URL || 'http://localhost:8082',
+        '/api/courses': process.env.LMS_SERVICE_URL || 'http://localhost:8082',
+        '/api/modules': process.env.LMS_SERVICE_URL || 'http://localhost:8082',
+        '/api/lessons': process.env.LMS_SERVICE_URL || 'http://localhost:8082',
 
         // Flashcards Service Routes
-        '/flashcards': process.env.FLASHCARDS_SERVICE_URL || 'http://localhost:8083',
-        '/flashcard-decks': process.env.FLASHCARDS_SERVICE_URL || 'http://localhost:8083',
+        '/api/flashcards': process.env.FLASHCARDS_SERVICE_URL || 'http://localhost:8083',
+        '/api/flashcard-decks': process.env.FLASHCARDS_SERVICE_URL || 'http://localhost:8083',
+
+        // Community Service Routes
+        '/api/blogs': process.env.COMMUNITY_SERVICE_URL || 'http://localhost:8084',
+        '/api/blog-comments': process.env.COMMUNITY_SERVICE_URL || 'http://localhost:8084',
+        '/api/notifications': process.env.COMMUNITY_SERVICE_URL || 'http://localhost:8084',
+        '/api/wishlists': process.env.COMMUNITY_SERVICE_URL || 'http://localhost:8084',
+
+        // Assessment Service Routes
+        '/api/question-banks': process.env.ASSESSMENT_SERVICE_URL || 'http://localhost:8085',
+
+        // Storage Service Routes
+        '/api/storage': process.env.STORAGE_SERVICE_URL || 'http://localhost:8086',
+
+        // Gamification Service Routes
+        '/api/gamification': process.env.GAMIFICATION_SERVICE_URL || 'http://localhost:8088',
+
+        // Billing Service Routes
+        '/api/billing': process.env.BILLING_SERVICE_URL || 'http://localhost:8089',
+
+        // Cortex Service Routes
+        '/api/cortex': process.env.CORTEX_SERVICE_URL || 'http://localhost:8090',
     };
 
     /**
@@ -48,7 +69,11 @@ export class ProxyController {
             });
         }
 
-        const url = `${targetService}${req.path}`;
+        // Rewrite path: Strip /api prefix for forwarding to microservices
+        // Example: /api/auth/login -> /auth/login
+        const servicePath = req.path.replace(/^\/api/, '');
+        const url = `${targetService}${servicePath}`;
+
         const contentType = req.headers['content-type'] || '';
         const isProtobuf = contentType.includes('application/protobuf') ||
             contentType.includes('application/octet-stream');

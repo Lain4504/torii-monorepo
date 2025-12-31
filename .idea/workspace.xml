@@ -4,12 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="chore: remove deprecated identity modules and controllers, migrate to HTTP-based interfaces&#10;&#10;- Deleted obsolete modules and controllers (`AdminModule`, `AuthModule`, `RBACController`, etc.).&#10;- Added new HTTP controllers (`AuthController`, `AuditLogController`) for identity services.&#10;- Introduced `ProxyController` to route requests to microservices.&#10;- Updated service structure to align with the removal of NATS-based controllers.">
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/lms/src/interfaces/nats/course.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/lms/src/interfaces/nats/lesson.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/lms/src/interfaces/nats/module.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/lms/src/lms.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/lms/src/lms.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/lms/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/lms/src/main.ts" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`).">
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/proxy/proxy.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/proxy/proxy.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/storage/src/interfaces/nats/storage.controller.ts" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -102,41 +99,43 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Docker.docker-compose.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;migration-to-firebase-authentication&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;E:/demo/team-source/torii-monorepo/apps/server/modules/gamification/src/modules&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;E:\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "migration-to-firebase-authentication",
+    "ignore.virus.scanning.warn.message": "true",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "E:/demo/team-source/torii-monorepo/apps/server/modules/billing/src/modules",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "pnpm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "to.speed.mode.migration.done": "true",
+    "ts.external.directory.path": "E:\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;postgresql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "postgresql"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\billing\src\modules" />
+      <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\billing\src\infrastructure" />
       <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\meet\src\redis" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -230,47 +229,7 @@
       <workItem from="1767139678426" duration="1450000" />
       <workItem from="1767179041805" duration="1585000" />
       <workItem from="1767182827516" duration="3496000" />
-      <workItem from="1767192481085" duration="8048000" />
-    </task>
-    <task id="LOCAL-00330" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
-      <option name="closed" value="true" />
-      <created>1766841193559</created>
-      <option name="number" value="00330" />
-      <option name="presentableId" value="LOCAL-00330" />
-      <option name="project" value="LOCAL" />
-      <updated>1766841193559</updated>
-    </task>
-    <task id="LOCAL-00331" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
-      <option name="closed" value="true" />
-      <created>1766841318034</created>
-      <option name="number" value="00331" />
-      <option name="presentableId" value="LOCAL-00331" />
-      <option name="project" value="LOCAL" />
-      <updated>1766841318034</updated>
-    </task>
-    <task id="LOCAL-00332" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
-      <option name="closed" value="true" />
-      <created>1766841917231</created>
-      <option name="number" value="00332" />
-      <option name="presentableId" value="LOCAL-00332" />
-      <option name="project" value="LOCAL" />
-      <updated>1766841917231</updated>
-    </task>
-    <task id="LOCAL-00333" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
-      <option name="closed" value="true" />
-      <created>1766842547515</created>
-      <option name="number" value="00333" />
-      <option name="presentableId" value="LOCAL-00333" />
-      <option name="project" value="LOCAL" />
-      <updated>1766842547516</updated>
-    </task>
-    <task id="LOCAL-00334" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
-      <option name="closed" value="true" />
-      <created>1766842819096</created>
-      <option name="number" value="00334" />
-      <option name="presentableId" value="LOCAL-00334" />
-      <option name="project" value="LOCAL" />
-      <updated>1766842819096</updated>
+      <workItem from="1767192481085" duration="8868000" />
     </task>
     <task id="LOCAL-00335" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
       <option name="closed" value="true" />
@@ -624,7 +583,47 @@
       <option name="project" value="LOCAL" />
       <updated>1767200209391</updated>
     </task>
-    <option name="localTasksCounter" value="379" />
+    <task id="LOCAL-00379" summary="chore: migrate LMS and Flashcards modules to HTTP-based interfaces &#10;&#10;- Replaced NATS-based controllers (`course.controller`, `lesson.controller`, `module.controller`) with new HTTP controllers.&#10;- Added HTTP controllers for Flashcards (`flashcard.controller`, `flashcard-deck.controller`).&#10;- Updated `LmsModule` and `main.ts` to enable both HTTP and NATS-based communication.&#10;- Integrated CORS and global validation pipes for HTTP services.&#10;- Updated `ProxyController` to route LMS and Flashcards endpoints (`/courses`, `/lessons`, `/modules`, `/flashcards`, `/flashcard-decks`).">
+      <option name="closed" value="true" />
+      <created>1767200840237</created>
+      <option name="number" value="00379" />
+      <option name="presentableId" value="LOCAL-00379" />
+      <option name="project" value="LOCAL" />
+      <updated>1767200840237</updated>
+    </task>
+    <task id="LOCAL-00380" summary="chore: migrate LMS and Flashcards modules to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`course.controller`, `lesson.controller`, `module.controller`) with new HTTP controllers.&#10;- Added HTTP controllers for Flashcards (`flashcard.controller`, `flashcard-deck.controller`).&#10;- Updated `LmsModule` and `main.ts` to enable both HTTP and NATS-based communication.&#10;- Integrated CORS and global validation pipes for HTTP services.&#10;- Updated `ProxyController` to route LMS and Flashcards endpoints (`/courses`, `/lessons`, `/modules`, `/flashcards`, `/flashcard-decks`).">
+      <option name="closed" value="true" />
+      <created>1767200861652</created>
+      <option name="number" value="00380" />
+      <option name="presentableId" value="LOCAL-00380" />
+      <option name="project" value="LOCAL" />
+      <updated>1767200861652</updated>
+    </task>
+    <task id="LOCAL-00381" summary="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`).">
+      <option name="closed" value="true" />
+      <created>1767201201617</created>
+      <option name="number" value="00381" />
+      <option name="presentableId" value="LOCAL-00381" />
+      <option name="project" value="LOCAL" />
+      <updated>1767201201617</updated>
+    </task>
+    <task id="LOCAL-00382" summary="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`).">
+      <option name="closed" value="true" />
+      <created>1767201338277</created>
+      <option name="number" value="00382" />
+      <option name="presentableId" value="LOCAL-00382" />
+      <option name="project" value="LOCAL" />
+      <updated>1767201338278</updated>
+    </task>
+    <task id="LOCAL-00383" summary="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`).">
+      <option name="closed" value="true" />
+      <created>1767201429297</created>
+      <option name="number" value="00383" />
+      <option name="presentableId" value="LOCAL-00383" />
+      <option name="project" value="LOCAL" />
+      <updated>1767201429298</updated>
+    </task>
+    <option name="localTasksCounter" value="384" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -654,9 +653,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="rename" />
-    <MESSAGE value="feat(waiting-room): add waiting room module and controller for managing user approvals and messages" />
-    <MESSAGE value="feat(room): refactor room creation logic and migrate database operations to RoomInfoService" />
     <MESSAGE value="fix: update LiveKit configuration and improve participant count handling" />
     <MESSAGE value="fix: enhance participant removal logic" />
     <MESSAGE value="fix: enhance participant removal logic and align with Go server implementation" />
@@ -679,7 +675,10 @@
     <MESSAGE value="fix(polls): update request handling to use protobuf for better validation" />
     <MESSAGE value="feat(auth): migrate authentication system to Firebase&#10;&#10;- Replaced RemoteAuthGuard with FirebaseAuthGuard for Firebase-based authentication.&#10;- Added Firebase Admin integration via `FirebaseAuthService` and `FirebaseAuthModule`.&#10;- Updated Prisma User model to include `firebaseUid`.&#10;- Removed legacy password-based authentication system.&#10;- Implemented `/auth/firebase-sync` endpoint for syncing Firebase users with the local database.&#10;- Updated web-admin to integrate Firebase Authentication.&#10;- Adjusted API client to include Firebase ID tokens in requests." />
     <MESSAGE value="chore: remove deprecated identity modules and controllers, migrate to HTTP-based interfaces&#10;&#10;- Deleted obsolete modules and controllers (`AdminModule`, `AuthModule`, `RBACController`, etc.).&#10;- Added new HTTP controllers (`AuthController`, `AuditLogController`) for identity services.&#10;- Introduced `ProxyController` to route requests to microservices.&#10;- Updated service structure to align with the removal of NATS-based controllers." />
-    <option name="LAST_COMMIT_MESSAGE" value="chore: remove deprecated identity modules and controllers, migrate to HTTP-based interfaces&#10;&#10;- Deleted obsolete modules and controllers (`AdminModule`, `AuthModule`, `RBACController`, etc.).&#10;- Added new HTTP controllers (`AuthController`, `AuditLogController`) for identity services.&#10;- Introduced `ProxyController` to route requests to microservices.&#10;- Updated service structure to align with the removal of NATS-based controllers." />
+    <MESSAGE value="chore: migrate LMS and Flashcards modules to HTTP-based interfaces &#10;&#10;- Replaced NATS-based controllers (`course.controller`, `lesson.controller`, `module.controller`) with new HTTP controllers.&#10;- Added HTTP controllers for Flashcards (`flashcard.controller`, `flashcard-deck.controller`).&#10;- Updated `LmsModule` and `main.ts` to enable both HTTP and NATS-based communication.&#10;- Integrated CORS and global validation pipes for HTTP services.&#10;- Updated `ProxyController` to route LMS and Flashcards endpoints (`/courses`, `/lessons`, `/modules`, `/flashcards`, `/flash" />
+    <MESSAGE value="chore: migrate LMS and Flashcards modules to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`course.controller`, `lesson.controller`, `module.controller`) with new HTTP controllers.&#10;- Added HTTP controllers for Flashcards (`flashcard.controller`, `flashcard-deck.controller`).&#10;- Updated `LmsModule` and `main.ts` to enable both HTTP and NATS-based communication.&#10;- Integrated CORS and global validation pipes for HTTP services.&#10;- Updated `ProxyController` to route LMS and Flashcards endpoints (`/courses`, `/lessons`, `/modules`, `/flashcards`, `/flashcard-decks`)." />
+    <MESSAGE value="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`)." />
+    <option name="LAST_COMMIT_MESSAGE" value="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`)." />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
