@@ -96,6 +96,55 @@ server.addTool({
   },
 });
 
+server.addTool({
+  name: 'sensei_generate_drill',
+  description: 'Generate practice drills for grammar or vocabulary',
+  parameters: z.object({
+    drillType: z.enum(['grammar', 'vocabulary', 'kanji', 'particles']),
+    level: z.enum(['N5', 'N4', 'N3', 'N2', 'N1']),
+    topic: z.string().optional(),
+  }),
+  execute: async ({ drillType, level, topic }) => {
+    if (!checkRateLimit()) {
+      return 'Rate limit exceeded. Please try again later.';
+    }
+    const prompt = `Generate ${drillType} practice drills for JLPT ${level} level${topic ? ` focusing on the topic: "${topic}"` : ''}. Include 5-7 exercises such as fill-in-the-gaps, sentence building, or multiple-choice questions. Provide answers and explanations.`;
+    return await callGemini(prompt);
+  },
+});
+
+server.addTool({
+  name: 'sensei_simulate_conversation',
+  description: 'Simulate a Japanese conversation for practice',
+  parameters: z.object({
+    topic: z.string(),
+    level: z.enum(['N5', 'N4', 'N3', 'N2', 'N1']),
+  }),
+  execute: async ({ topic, level }) => {
+    if (!checkRateLimit()) {
+      return 'Rate limit exceeded. Please try again later.';
+    }
+    const prompt = `Create a simulated Japanese conversation about "${topic}" at JLPT ${level} level. Include 6-8 dialogue exchanges, with natural Japanese responses, romaji pronunciation, English translations, and suggestions for alternative responses. Make it interactive and educational.`;
+    return await callGemini(prompt);
+  },
+});
+
+server.addTool({
+  name: 'sensei_recommend_resources',
+  description: 'Recommend learning resources for a specific concept',
+  parameters: z.object({
+    concept: z.string(),
+    level: z.enum(['N5', 'N4', 'N3', 'N2', 'N1']),
+  }),
+  execute: async ({ concept, level }) => {
+    if (!checkRateLimit()) {
+      return 'Rate limit exceeded. Please try again later.';
+    }
+    const prompt = `Recommend learning resources for the Japanese language concept "${concept}" at JLPT ${level} level. Include textbooks, online resources, videos, practice websites, and study tips. Explain why each resource is helpful.`;
+    return await callGemini(prompt);
+  },
+});
+
 // Assessment Agent Tools
 server.addTool({
   name: 'assessment_generate_jlpt_test',
@@ -130,6 +179,39 @@ server.addTool({
   },
 });
 
+server.addTool({
+  name: 'assessment_get_benchmark',
+  description: 'Get progress benchmark for a user at a specific JLPT level',
+  parameters: z.object({
+    userId: z.string(),
+    level: z.enum(['N5', 'N4', 'N3', 'N2', 'N1']),
+  }),
+  execute: async ({ userId, level }) => {
+    if (!checkRateLimit(userId)) {
+      return 'Error: Rate limit exceeded. Please try again later.';
+    }
+    const prompt = `Provide a progress benchmark for user ${userId} at JLPT ${level} level. Compare their performance against passing thresholds, identify skill gaps (vocabulary, grammar, reading, listening), and provide readiness assessment with percentage estimates.`;
+    return await callGemini(prompt);
+  },
+});
+
+server.addTool({
+  name: 'assessment_schedule_test',
+  description: 'Schedule a practice test for a user',
+  parameters: z.object({
+    userId: z.string(),
+    level: z.enum(['N5', 'N4', 'N3', 'N2', 'N1']),
+    date: z.string(),
+  }),
+  execute: async ({ userId, level, date }) => {
+    if (!checkRateLimit(userId)) {
+      return 'Error: Rate limit exceeded. Please try again later.';
+    }
+    const prompt = `Schedule a JLPT ${level} practice test for user ${userId} on ${date}. Provide a confirmation message, test preparation recommendations, study tips for the remaining time, and what to expect on test day.`;
+    return await callGemini(prompt);
+  },
+});
+
 // Analytics Agent Tools
 server.addTool({
   name: 'analytics_track_progress',
@@ -159,6 +241,53 @@ server.addTool({
       return 'Error: Rate limit exceeded. Please try again later.';
     }
     const prompt = `Suggest a personalized study path for Japanese learning for user ${userId}. Based on typical learner progress, recommend next steps, focus areas, resources, and a timeline. Make it adaptive and encouraging.`;
+    return await callGemini(prompt);
+  },
+});
+
+server.addTool({
+  name: 'analytics_identify_weaknesses',
+  description: 'Identify learning weaknesses from user performance data',
+  parameters: z.object({
+    userId: z.string(),
+  }),
+  execute: async ({ userId }) => {
+    if (!checkRateLimit(userId)) {
+      return 'Error: Rate limit exceeded. Please try again later.';
+    }
+    const prompt = `Analyze learning patterns for user ${userId} and identify weaknesses. Look for recurring error patterns in grammar, vocabulary, kanji, particles, verb conjugations, etc. Provide specific areas needing improvement with actionable recommendations.`;
+    return await callGemini(prompt);
+  },
+});
+
+server.addTool({
+  name: 'analytics_predict_readiness',
+  description: 'Predict JLPT exam readiness based on performance trends',
+  parameters: z.object({
+    userId: z.string(),
+    level: z.enum(['N5', 'N4', 'N3', 'N2', 'N1']),
+  }),
+  execute: async ({ userId, level }) => {
+    if (!checkRateLimit(userId)) {
+      return 'Error: Rate limit exceeded. Please try again later.';
+    }
+    const prompt = `Predict JLPT ${level} exam readiness for user ${userId}. Based on typical learning progress patterns, estimate score predictions, identify strong/weak areas, calculate readiness percentage, and recommend when they should take the exam. Include confidence level in predictions.`;
+    return await callGemini(prompt);
+  },
+});
+
+server.addTool({
+  name: 'analytics_generate_report',
+  description: 'Generate a comprehensive progress report',
+  parameters: z.object({
+    userId: z.string(),
+    reportType: z.enum(['daily', 'weekly', 'monthly', 'overall']),
+  }),
+  execute: async ({ userId, reportType }) => {
+    if (!checkRateLimit(userId)) {
+      return 'Error: Rate limit exceeded. Please try again later.';
+    }
+    const prompt = `Generate a ${reportType} progress report for user ${userId}. Include: study time statistics, completed activities, test scores, skill progression (vocabulary, grammar, kanji, reading, listening), achievements unlocked, comparison with goals, areas of improvement, and motivational insights. Format as a comprehensive, visual-friendly report.`;
     return await callGemini(prompt);
   },
 });
