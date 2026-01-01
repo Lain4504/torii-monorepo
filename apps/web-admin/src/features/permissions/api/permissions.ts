@@ -24,29 +24,29 @@ export interface PermissionsResponse {
 // API calls
 const permissionsApi = {
     async getRoles() {
-        const res = await apiClient.get('/rbac/roles');
+        const res = await apiClient.get('/api/rbac/roles');
         return res.data.data as RoleDefinition[];
     },
 
     async getPermissions() {
-        const res = await apiClient.get('/rbac/permissions');
+        const res = await apiClient.get('/api/rbac/permissions');
         return res.data.data as PermissionsResponse;
     },
 
     async getRolePermissions(roleCode: string) {
-        const res = await apiClient.get(`/rbac/roles/${roleCode}/permissions`);
+        const res = await apiClient.get(`/api/rbac/roles/${roleCode}/permissions`);
         return res.data.data.permissions as string[];
     },
 
     async updateRolePermissions(roleCode: string, permissions: string[]) {
-        const res = await apiClient.put(`/rbac/roles/${roleCode}/permissions`, {
+        const res = await apiClient.put(`/api/rbac/roles/${roleCode}/permissions`, {
             permissions,
         });
         return res.data;
     },
 
     async reseed() {
-        const res = await apiClient.post('/rbac/reseed');
+        const res = await apiClient.post('/api/rbac/reseed');
         return res.data;
     },
 };

@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Patch, Post, Request, UseGuards } from '@nestjs/common';
 import { FirebaseAuthGuard } from '@server/shared';
 import { PrismaService } from '@server/shared';
+import { RBACService } from '../../modules/rbac/rbac.service';
 import { UserRole, UserStatus } from '@workspace/schemas';
 import type { ReqWithRequester } from '@workspace/schemas';
 
@@ -14,9 +15,12 @@ interface FirebaseSyncDTO {
  * Auth HTTP Controller
  * Handles Firebase authentication and user profile management
  */
-@Controller('api/auth')
+@Controller('auth')
 export class AuthController {
-    constructor(private readonly prisma: PrismaService) { }
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly rbacService: RBACService,
+    ) { }
 
     /**
      * Sync user from Firebase to local database
@@ -41,18 +45,7 @@ export class AuthController {
                     },
                 });
 
-                return {
-                    success: true,
-                    data: {
-                        user: {
-                            id: user.id,
-                            email: user.email,
-                            fullName: user.fullName,
-                            role: user.role,
-                            status: user.status,
-                        },
-                    },
-                };
+                // Fall through to get permissions
             } else {
                 // User doesn't exist by Firebase UID
                 // Check if user exists by email (migration case)
@@ -81,19 +74,24 @@ export class AuthController {
                     });
                 }
 
-                return {
-                    success: true,
-                    data: {
-                        user: {
-                            id: user.id,
-                            email: user.email,
-                            fullName: user.fullName,
-                            role: user.role,
-                            status: user.status,
-                        },
-                    },
-                };
             }
+
+            // Get permissions
+            const { permissions } = await this.rbacService.getUserPermissions(user.id, user.role);
+
+            return {
+                success: true,
+                data: {
+                    user: {
+                        id: user.id,
+                        email: user.email,
+                        fullName: user.fullName,
+                        role: user.role,
+                        status: user.status,
+                        permissions,
+                    },
+                },
+            };
         } catch (error: any) {
             return {
                 success: false,
@@ -128,9 +126,17 @@ export class AuthController {
             };
         }
 
+        // Get permissions
+        const { permissions } = await this.rbacService.getUserPermissions(user.id, user.role);
+
         return {
             success: true,
-            data: { user },
+            data: {
+                user: {
+                    ...user,
+                    permissions,
+                }
+            },
         };
     }
 
@@ -158,9 +164,17 @@ export class AuthController {
             },
         });
 
+        // Get permissions
+        const { permissions } = await this.rbacService.getUserPermissions(user.id, user.role);
+
         return {
             success: true,
-            data: { user },
+            data: {
+                user: {
+                    ...user,
+                    permissions,
+                }
+            },
         };
     }
 

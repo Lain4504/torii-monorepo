@@ -21,6 +21,13 @@ async function bootstrap() {
     limit: '10mb'
   }));
 
+  // Enable CORS
+  app.enableCors({
+    origin: true, // Allow dynamic origin for development
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+  });
+
   await app.startAllMicroservices();
   const httpAdapter = app.get(HttpAdapterHost);
 

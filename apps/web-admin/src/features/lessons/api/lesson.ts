@@ -9,37 +9,37 @@ import type { PaginatedResponse, LessonResponseDTO, LessonCreateDTO, LessonUpdat
 export const lessonsApi = {
     // GET /api/admin/lessons
     async findAll(params: LessonQueryDTO): Promise<PaginatedResponse<LessonResponseDTO>> {
-        const response = await apiClient.get<PaginatedResponse<LessonResponseDTO>>('/api/admin/lessons', { params });
+        const response = await apiClient.get<PaginatedResponse<LessonResponseDTO>>('/api/lessons', { params });
         return response.data;
     },
 
     // GET /api/admin/lessons/:id
     async findOne(id: string): Promise<LessonResponseDTO> {
-        const response = await apiClient.get<LessonResponseDTO>(`/api/admin/lessons/${id}`);
+        const response = await apiClient.get<LessonResponseDTO>(`/api/lessons/${id}`);
         return response.data;
     },
 
     // POST /api/admin/lessons
     async create(lesson: LessonCreateDTO): Promise<LessonResponseDTO> {
-        const response = await apiClient.post<LessonResponseDTO>('/api/admin/lessons', lesson);
+        const response = await apiClient.post<LessonResponseDTO>('/api/lessons', lesson);
         return response.data;
     },
 
     // PATCH /api/admin/lessons/:id
     async update(id: string, lesson: LessonUpdateDTO): Promise<LessonResponseDTO> {
-        const response = await apiClient.patch<LessonResponseDTO>(`/api/admin/lessons/${id}`, lesson);
+        const response = await apiClient.patch<LessonResponseDTO>(`/api/lessons/${id}`, lesson);
         return response.data;
     },
 
     // DELETE /api/admin/lessons/:id
     async delete(id: string): Promise<boolean> {
-        const response = await apiClient.delete(`/api/admin/lessons/${id}`);
+        const response = await apiClient.delete(`/api/lessons/${id}`);
         return response.data;
     },
 
     // PATCH /api/admin/lessons/:id/restore
     async restore(id: string): Promise<LessonResponseDTO> {
-        const response = await apiClient.patch<LessonResponseDTO>(`/api/admin/lessons/${id}/restore`);
+        const response = await apiClient.patch<LessonResponseDTO>(`/api/lessons/${id}/restore`);
         return response.data;
     },
 };

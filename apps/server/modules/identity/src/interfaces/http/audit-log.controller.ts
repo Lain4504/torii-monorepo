@@ -2,7 +2,7 @@ import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { AuditLogService, type AuditLogFilters, FirebaseAuthGuard } from '@server/shared';
 
 @UseGuards(FirebaseAuthGuard)
-@Controller('api/admin/audit-logs')
+@Controller('admin/audit-logs')
 export class AuditLogController {
     constructor(private readonly auditLogService: AuditLogService) { }
 

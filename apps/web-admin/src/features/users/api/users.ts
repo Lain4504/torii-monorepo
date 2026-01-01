@@ -13,36 +13,35 @@ export interface FindAllUsersParams {
 // ============================================================================
 
 export const usersApi = {
-    // GET /admin/users
+    // GET /api/admin/users
     async findAll(params: FindAllUsersParams): Promise<PaginatedResponse<UserResponseDTO>> {
-        const response = await apiClient.get<{ success: boolean; data: PaginatedResponse<UserResponseDTO> }>('/admin/users', { params });
-        // Backend returns: AxiosResponse with data = { success: true, data: PaginatedResponse }
-        // So response.data.data is the PaginatedResponse object { data: [...], total, page, limit, totalPages }
-        return response.data.data;
+        const response = await apiClient.get<PaginatedResponse<UserResponseDTO>>('/api/admin/users', { params });
+        // Backend returns PaginatedResponse directly
+        return response.data;
     },
 
-    // GET /admin/users/:id
+    // GET /api/admin/users/:id
     async findOne(id: string): Promise<UserResponseDTO> {
-        const response = await apiClient.get<UserResponseDTO>(`/admin/users/${id}`);
+        const response = await apiClient.get<UserResponseDTO>(`/api/admin/users/${id}`);
         return response.data;
     },
 
-    // POST /admin/users
+    // POST /api/admin/users
     async create(user: UserCreateDTO): Promise<UserResponseDTO> {
-        const response = await apiClient.post<UserResponseDTO>('/admin/users', user);
+        const response = await apiClient.post<UserResponseDTO>('/api/admin/users', user);
         return response.data;
     },
 
-    // PATCH /admin/users/:id
+    // PATCH /api/admin/users/:id
     async update(id: string, user: UserAdminUpdateDTO): Promise<UserResponseDTO> {
-        const response = await apiClient.patch<UserResponseDTO>(`/admin/users/${id}`, user);
+        const response = await apiClient.patch<UserResponseDTO>(`/api/admin/users/${id}`, user);
         return response.data;
     },
 
-    // DELETE /admin/users/:id
+    // DELETE /api/admin/users/:id
     async delete(params: { id: string; hardDelete?: boolean }): Promise<void> {
         const { id, hardDelete } = params;
-        await apiClient.delete(`/admin/users/${id}`, {
+        await apiClient.delete(`/api/admin/users/${id}`, {
             params: hardDelete !== undefined ? { hardDelete } : undefined,
         });
     },

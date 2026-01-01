@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { SharedModule } from '@server/shared';
 import { UsersModule } from './modules/users/users.module';
-import { AuthModule } from './modules/auth/auth.module';
 import { RBACModule } from './modules/rbac/rbac.module';
 
 // HTTP Controllers (for client requests via Gateway)
@@ -21,7 +20,6 @@ import { AuditLogController } from './interfaces/http/audit-log.controller';
     }),
     SharedModule,
     UsersModule,
-    AuthModule,
     RBACModule,
   ],
   controllers: [
@@ -32,6 +30,6 @@ import { AuditLogController } from './interfaces/http/audit-log.controller';
     AuditLogController,
   ],
   providers: [],
-  exports: [AuthModule, UsersModule, RBACModule],
+  exports: [UsersModule, RBACModule],
 })
 export class IdentityModule { }

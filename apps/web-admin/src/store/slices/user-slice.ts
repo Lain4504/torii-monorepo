@@ -7,6 +7,7 @@ export interface UserState {
     fullName: string | null;
     avatarUrl: string | null;
     role: 'admin' | 'staff' | 'lecturer' | 'learner' | null;
+    status: string | null;
     permissions: string[];
     staffTemplate?: 'sales_staff' | 'academic_staff' | 'support_staff';
 }
@@ -17,6 +18,7 @@ const initialState: UserState = {
     fullName: null,
     avatarUrl: null,
     role: null,
+    status: null,
     permissions: [],
     staffTemplate: undefined,
 };

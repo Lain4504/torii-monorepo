@@ -26,7 +26,7 @@ import { UsersService } from '../../modules/users/users.service';
  * Users HTTP Controller (Admin)
  * Handles user management operations
  */
-@Controller('api/admin/users')
+@Controller('admin/users')
 @UseGuards(FirebaseAuthGuard, RolesGuard)
 export class UsersController {
     constructor(private readonly usersService: UsersService) { }

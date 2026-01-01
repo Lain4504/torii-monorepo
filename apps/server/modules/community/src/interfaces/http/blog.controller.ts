@@ -8,7 +8,7 @@ import type {
 import { UserRole } from '@workspace/schemas';
 import { FirebaseAuthGuard, RolesGuard, Roles } from '@server/shared';
 
-@Controller('api/blogs')
+@Controller('blogs')
 export class BlogController {
     private readonly logger = new Logger(BlogController.name);
 

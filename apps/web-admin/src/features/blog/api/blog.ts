@@ -13,33 +13,33 @@ import type {
 // ============================================================================
 
 export const blogApi = {
-    // GET /api/v1/admin/blogs
+    // GET /api/blogs
     async findAll(params: BlogPostQueryDTO): Promise<PaginatedResponse<BlogPostResponseDTO>> {
-        const response = await apiClient.get<PaginatedResponse<BlogPostResponseDTO>>('/api/v1/admin/blogs', { params });
+        const response = await apiClient.get<PaginatedResponse<BlogPostResponseDTO>>('/api/blogs', { params });
         return response.data;
     },
 
-    // GET /api/v1/admin/blogs/:id
+    // GET /api/blogs/:id
     async findOne(id: string): Promise<BlogPostResponseDTO> {
-        const response = await apiClient.get<BlogPostResponseDTO>(`/api/v1/admin/blogs/${id}`);
+        const response = await apiClient.get<BlogPostResponseDTO>(`/api/blogs/${id}`);
         return response.data;
     },
 
-    // POST /api/v1/admin/blogs
+    // POST /api/blogs
     async create(blog: BlogPostCreateDTO): Promise<BlogPostResponseDTO> {
-        const response = await apiClient.post<BlogPostResponseDTO>('/api/v1/admin/blogs', blog);
+        const response = await apiClient.post<BlogPostResponseDTO>('/api/blogs', blog);
         return response.data;
     },
 
-    // PATCH /api/v1/admin/blogs/:id
+    // PATCH /api/blogs/:id
     async update(id: string, blog: BlogPostUpdateDTO): Promise<BlogPostResponseDTO> {
-        const response = await apiClient.patch<BlogPostResponseDTO>(`/api/v1/admin/blogs/${id}`, blog);
+        const response = await apiClient.patch<BlogPostResponseDTO>(`/api/blogs/${id}`, blog);
         return response.data;
     },
 
-    // DELETE /api/v1/admin/blogs/:id
+    // DELETE /api/blogs/:id
     async delete(id: string): Promise<void> {
-        await apiClient.delete(`/api/v1/admin/blogs/${id}`);
+        await apiClient.delete(`/api/blogs/${id}`);
     },
 };
 

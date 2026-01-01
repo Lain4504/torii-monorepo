@@ -4,14 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="chore: remove obsolete controllers for room, auth-room, and polls in preparation for HTTP-based migration">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="chore: refactor API routes and enable CORS across services&#10;&#10;- Updated API route prefixes in multiple controllers (e.g., `@Controller('/api/...')` → `@Controller('/')`).&#10;- Adjusted corresponding client API calls to match updated backend routes.&#10;- Enabled CORS in gateway with dynamic origins and method support.&#10;- Enhanced `LoginPage` logic to integrate Firebase authentication and modified API endpoints accordingly.&#10;- Added permission fetching in the `AuthController`.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/firebase/firebase-auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/firebase/firebase-auth.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/main.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/users/users.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/users/users.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/http/user-room-setting.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/http/user-room-setting.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/TEST_ACCOUNTS.md" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/TEST_ACCOUNTS.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/community/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/community/src/main.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/users/api/users.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/features/users/api/users.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,7 +15,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="662" />
+    <option name="cachedIndexableFilesCount" value="658" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -235,63 +231,8 @@
       <workItem from="1767179041805" duration="1585000" />
       <workItem from="1767182827516" duration="3496000" />
       <workItem from="1767192481085" duration="10184000" />
-      <workItem from="1767234621203" duration="2315000" />
-    </task>
-    <task id="LOCAL-00346" summary="feat: add initial React + TypeScript + Vite template with ESLint configuration for meet">
-      <option name="closed" value="true" />
-      <created>1766888637054</created>
-      <option name="number" value="00346" />
-      <option name="presentableId" value="LOCAL-00346" />
-      <option name="project" value="LOCAL" />
-      <updated>1766888637054</updated>
-    </task>
-    <task id="LOCAL-00347" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
-      <option name="closed" value="true" />
-      <created>1766933117148</created>
-      <option name="number" value="00347" />
-      <option name="presentableId" value="LOCAL-00347" />
-      <option name="project" value="LOCAL" />
-      <updated>1766933117149</updated>
-    </task>
-    <task id="LOCAL-00348" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
-      <option name="closed" value="true" />
-      <created>1766933120895</created>
-      <option name="number" value="00348" />
-      <option name="presentableId" value="LOCAL-00348" />
-      <option name="project" value="LOCAL" />
-      <updated>1766933120895</updated>
-    </task>
-    <task id="LOCAL-00349" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
-      <option name="closed" value="true" />
-      <created>1766934767129</created>
-      <option name="number" value="00349" />
-      <option name="presentableId" value="LOCAL-00349" />
-      <option name="project" value="LOCAL" />
-      <updated>1766934767129</updated>
-    </task>
-    <task id="LOCAL-00350" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
-      <option name="closed" value="true" />
-      <created>1766934785448</created>
-      <option name="number" value="00350" />
-      <option name="presentableId" value="LOCAL-00350" />
-      <option name="project" value="LOCAL" />
-      <updated>1766934785448</updated>
-    </task>
-    <task id="LOCAL-00351" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
-      <option name="closed" value="true" />
-      <created>1766936219920</created>
-      <option name="number" value="00351" />
-      <option name="presentableId" value="LOCAL-00351" />
-      <option name="project" value="LOCAL" />
-      <updated>1766936219920</updated>
-    </task>
-    <task id="LOCAL-00352" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
-      <option name="closed" value="true" />
-      <created>1766936224979</created>
-      <option name="number" value="00352" />
-      <option name="presentableId" value="LOCAL-00352" />
-      <option name="project" value="LOCAL" />
-      <updated>1766936224979</updated>
+      <workItem from="1767234621203" duration="4843000" />
+      <workItem from="1767259125707" duration="4838000" />
     </task>
     <task id="LOCAL-00353" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
       <option name="closed" value="true" />
@@ -629,7 +570,63 @@
       <option name="project" value="LOCAL" />
       <updated>1767234826678</updated>
     </task>
-    <option name="localTasksCounter" value="395" />
+    <task id="LOCAL-00395" summary="chore: remove obsolete controllers for room, auth-room, and polls in preparation for HTTP-based migration">
+      <option name="closed" value="true" />
+      <created>1767237003861</created>
+      <option name="number" value="00395" />
+      <option name="presentableId" value="LOCAL-00395" />
+      <option name="project" value="LOCAL" />
+      <updated>1767237003861</updated>
+    </task>
+    <task id="LOCAL-00396" summary="chore: remove obsolete controllers for room, auth-room, and polls in preparation for HTTP-based migration">
+      <option name="closed" value="true" />
+      <created>1767239023244</created>
+      <option name="number" value="00396" />
+      <option name="presentableId" value="LOCAL-00396" />
+      <option name="project" value="LOCAL" />
+      <updated>1767239023244</updated>
+    </task>
+    <task id="LOCAL-00397" summary="chore: refactor API routes and enable CORS across services&#10;&#10;- Updated API route prefixes in multiple controllers (e.g., `@Controller('/api/...')` → `@Controller('/')`).&#10;- Adjusted corresponding client API calls to match updated backend routes.&#10;- Enabled CORS in gateway with dynamic origins and method support.&#10;- Enhanced `LoginPage` logic to integrate Firebase authentication and modified API endpoints accordingly.&#10;- Added permission fetching in the `AuthController`.">
+      <option name="closed" value="true" />
+      <created>1767239252734</created>
+      <option name="number" value="00397" />
+      <option name="presentableId" value="LOCAL-00397" />
+      <option name="project" value="LOCAL" />
+      <updated>1767239252735</updated>
+    </task>
+    <task id="LOCAL-00398" summary="chore: refactor API routes and enable CORS across services&#10;&#10;- Updated API route prefixes in multiple controllers (e.g., `@Controller('/api/...')` → `@Controller('/')`).&#10;- Adjusted corresponding client API calls to match updated backend routes.&#10;- Enabled CORS in gateway with dynamic origins and method support.&#10;- Enhanced `LoginPage` logic to integrate Firebase authentication and modified API endpoints accordingly.&#10;- Added permission fetching in the `AuthController`.">
+      <option name="closed" value="true" />
+      <created>1767259212082</created>
+      <option name="number" value="00398" />
+      <option name="presentableId" value="LOCAL-00398" />
+      <option name="project" value="LOCAL" />
+      <updated>1767259212083</updated>
+    </task>
+    <task id="LOCAL-00399" summary="chore: refactor API routes and enable CORS across services&#10;&#10;- Updated API route prefixes in multiple controllers (e.g., `@Controller('/api/...')` → `@Controller('/')`).&#10;- Adjusted corresponding client API calls to match updated backend routes.&#10;- Enabled CORS in gateway with dynamic origins and method support.&#10;- Enhanced `LoginPage` logic to integrate Firebase authentication and modified API endpoints accordingly.&#10;- Added permission fetching in the `AuthController`.">
+      <option name="closed" value="true" />
+      <created>1767265083514</created>
+      <option name="number" value="00399" />
+      <option name="presentableId" value="LOCAL-00399" />
+      <option name="project" value="LOCAL" />
+      <updated>1767265083514</updated>
+    </task>
+    <task id="LOCAL-00400" summary="chore: refactor API routes and enable CORS across services&#10;&#10;- Updated API route prefixes in multiple controllers (e.g., `@Controller('/api/...')` → `@Controller('/')`).&#10;- Adjusted corresponding client API calls to match updated backend routes.&#10;- Enabled CORS in gateway with dynamic origins and method support.&#10;- Enhanced `LoginPage` logic to integrate Firebase authentication and modified API endpoints accordingly.&#10;- Added permission fetching in the `AuthController`.">
+      <option name="closed" value="true" />
+      <created>1767267251281</created>
+      <option name="number" value="00400" />
+      <option name="presentableId" value="LOCAL-00400" />
+      <option name="project" value="LOCAL" />
+      <updated>1767267251281</updated>
+    </task>
+    <task id="LOCAL-00401" summary="chore: refactor API routes and enable CORS across services&#10;&#10;- Updated API route prefixes in multiple controllers (e.g., `@Controller('/api/...')` → `@Controller('/')`).&#10;- Adjusted corresponding client API calls to match updated backend routes.&#10;- Enabled CORS in gateway with dynamic origins and method support.&#10;- Enhanced `LoginPage` logic to integrate Firebase authentication and modified API endpoints accordingly.&#10;- Added permission fetching in the `AuthController`.">
+      <option name="closed" value="true" />
+      <created>1767267694991</created>
+      <option name="number" value="00401" />
+      <option name="presentableId" value="LOCAL-00401" />
+      <option name="project" value="LOCAL" />
+      <updated>1767267694993</updated>
+    </task>
+    <option name="localTasksCounter" value="402" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -646,7 +643,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="main" />
+                        <option value="migration-to-firebase-authentication" />
                       </list>
                     </value>
                   </entry>
@@ -659,8 +656,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="fix: enhance participant removal logic and align with Go server implementation" />
-    <MESSAGE value="fix: update LiveKit token generation and implement hand raise/lower functionality" />
     <MESSAGE value="feat(docker): enhance Docker setup with LiveKit configuration and streamline service definitions" />
     <MESSAGE value="chore(docker): enhance Docker setup with LiveKit configuration and streamline service definitions" />
     <MESSAGE value="refactor: standardize import paths for feature components" />
@@ -684,7 +679,9 @@
     <MESSAGE value="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`)." />
     <MESSAGE value="chore: remove legacy gateway modules in preparation for migration to HTTP-based interfaces" />
     <MESSAGE value="chore: remove obsolete controllers for room, auth-room, and polls in preparation for HTTP-based migration" />
-    <option name="LAST_COMMIT_MESSAGE" value="chore: remove obsolete controllers for room, auth-room, and polls in preparation for HTTP-based migration" />
+    <MESSAGE value="chore: update API routes and enable CORS configuration for HTTP-based migration  &#10;&#10;- Standardized API route prefixes across controllers (`AuthController`, `RBACController`, `AuditLogController`, etc.) by removing redundant `/api` prefix.  &#10;- Enabled CORS with dynamic origin support for development in `gateway/main.ts`.  &#10;- Updated web-admin API client to align with new API route structure.  &#10;- Integrated permission fetching in `AuthController` to streamline user role and permission data retrieval." />
+    <MESSAGE value="chore: refactor API routes and enable CORS across services&#10;&#10;- Updated API route prefixes in multiple controllers (e.g., `@Controller('/api/...')` → `@Controller('/')`).&#10;- Adjusted corresponding client API calls to match updated backend routes.&#10;- Enabled CORS in gateway with dynamic origins and method support.&#10;- Enhanced `LoginPage` logic to integrate Firebase authentication and modified API endpoints accordingly.&#10;- Added permission fetching in the `AuthController`." />
+    <option name="LAST_COMMIT_MESSAGE" value="chore: refactor API routes and enable CORS across services&#10;&#10;- Updated API route prefixes in multiple controllers (e.g., `@Controller('/api/...')` → `@Controller('/')`).&#10;- Adjusted corresponding client API calls to match updated backend routes.&#10;- Enabled CORS in gateway with dynamic origins and method support.&#10;- Enhanced `LoginPage` logic to integrate Firebase authentication and modified API endpoints accordingly.&#10;- Added permission fetching in the `AuthController`." />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

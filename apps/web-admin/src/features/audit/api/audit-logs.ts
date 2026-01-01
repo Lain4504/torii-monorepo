@@ -58,7 +58,7 @@ const auditLogsApi = {
         if (filters.page) params.append('page', filters.page.toString());
         if (filters.limit) params.append('limit', filters.limit.toString());
 
-        const res = await apiClient.get(`/admin/audit-logs?${params.toString()}`);
+        const res = await apiClient.get(`/api/admin/audit-logs?${params.toString()}`);
         return res.data.data as PaginatedAuditLogs;
     },
 };

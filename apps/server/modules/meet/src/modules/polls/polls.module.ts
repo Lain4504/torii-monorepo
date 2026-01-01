@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { PollsController } from './polls.controller';
+
 import { PollsService } from './polls.service';
 import { NatsService } from '../../interfaces/nats/nats.service';
 import { NatsCacheService } from '../../interfaces/nats/nats-cache.service';
@@ -13,7 +13,7 @@ import { RedisPollService } from '../../infrastructure/redis/redis-poll.service'
 
 @Module({
     imports: [ConfigModule],
-    controllers: [PollsController],
+    controllers: [],
     providers: [
         PollsService,
         RedisPollService,

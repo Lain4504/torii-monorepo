@@ -23,36 +23,36 @@ export interface QuestionBankFilters {
 // ============================================================================
 
 export const questionBankApi = {
-    // GET /api/question-bank
+    // GET /api/question-banks
     async findAll(params: QuestionBankQueryDTO): Promise<PaginatedResponse<QuestionBankResponseDTO>> {
-        const response = await apiClient.get<PaginatedResponse<QuestionBankResponseDTO>>('/api/question-bank', { params });
+        const response = await apiClient.get<PaginatedResponse<QuestionBankResponseDTO>>('/api/question-banks', { params });
         return response.data;
     },
 
-    // GET /api/question-bank/:id
+    // GET /api/question-banks/:id
     async findOne(id: string): Promise<QuestionBankResponseDTO> {
-        const response = await apiClient.get<QuestionBankResponseDTO>(`/api/question-bank/${id}`);
+        const response = await apiClient.get<QuestionBankResponseDTO>(`/api/question-banks/${id}`);
         // Unwrap nested response
         return response.data;
     },
 
-    // POST /api/question-bank
+    // POST /api/question-banks
     async create(question: QuestionBankCreateDTO): Promise<QuestionBankResponseDTO> {
-        const response = await apiClient.post<QuestionBankResponseDTO>('/api/question-bank', question);
+        const response = await apiClient.post<QuestionBankResponseDTO>('/api/question-banks', question);
         // Unwrap nested response
         return response.data;
     },
 
-    // PUT /api/question-bank/:id
+    // PUT /api/question-banks/:id
     async update(id: string, question: QuestionBankUpdateDTO): Promise<QuestionBankResponseDTO> {
-        const response = await apiClient.put<QuestionBankResponseDTO>(`/api/question-bank/${id}`, question);
+        const response = await apiClient.put<QuestionBankResponseDTO>(`/api/question-banks/${id}`, question);
         // Unwrap nested response
         return response.data;
     },
 
-    // DELETE /api/question-bank/:id
+    // DELETE /api/question-banks/:id
     async delete(id: string): Promise<void> {
-        await apiClient.delete(`/api/question-bank/${id}`);
+        await apiClient.delete(`/api/question-banks/${id}`);
     },
 };
 

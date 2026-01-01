@@ -2,11 +2,9 @@ import { Module } from '@nestjs/common';
 import { SharedModule } from '@server/shared';
 
 // Controllers
-import { RoomController } from './room.controller';
-import { UserController } from './user.controller';
+
 import { WebhookController } from '../../infrastructure/webhook/webhook.controller';
-import { WaitingRoomController } from '../waiting-room/waiting-room.controller';
-import { PollsController } from '../polls/polls.controller';
+
 // NOTE: NatsAuthCalloutController removed - auth callout is now handled
 // directly in NatsController via raw NATS subscription to bypass JSON parsing
 
@@ -53,11 +51,7 @@ import { WajlcAuthService } from '../auth/wajlc-auth.service';
 @Module({
   imports: [SharedModule],
   controllers: [
-    RoomController,
-    UserController,
     WebhookController,
-    WaitingRoomController,
-    PollsController,
     // NatsAuthCalloutController removed - handled in NatsController now
   ],
   providers: [

@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '@/store/hooks.ts';
-import { setAuthenticated, setError, selectAuthError } from '@/store/slices/auth-slice.ts';
-import { setUser } from '@/store/slices/user-slice.ts';
-import { apiClient } from '@/lib/api-client.ts';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { setAuthenticated, setError, selectAuthError } from '@/store/slices/auth-slice';
+import { setUser } from '@/store/slices/user-slice';
+import { apiClient } from '@/lib/api-client';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Label } from '@workspace/ui/components/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@workspace/ui/components/card';
 import { toast } from '@workspace/ui/components/sonner';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '@/lib/firebase-config';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -24,7 +26,7 @@ export default function LoginPage() {
   useEffect(() => {
     async function checkExistingAuth() {
       try {
-        const response = await apiClient.get('/auth/profile');
+        const response = await apiClient.get('/api/auth/profile');
         if (response.data.success) {
           navigate('/', { replace: true });
         }
@@ -47,40 +49,57 @@ export default function LoginPage() {
       setIsSubmitting(true);
       dispatch(setError(null));
 
-      // Call login API (sets HTTP-only cookies)
-      const loginResponse = await apiClient.post('/auth/login', { email, password });
+      // 1. Authenticate with Firebase
+      await signInWithEmailAndPassword(auth, email, password);
+      // Note: apiClient interceptor will automatically attach the token
 
-      if (loginResponse.data.success) {
-        // Fetch user profile with RBAC data
-        const profileResponse = await apiClient.get('/auth/profile');
+      // 2. Fetch user profile (Backend verifies token)
+      const profileResponse = await apiClient.get('/api/auth/profile');
 
-        if (profileResponse.data.success && profileResponse.data.data) {
-          const userData = profileResponse.data.data;
+      if (profileResponse.data.success && profileResponse.data.data) {
+        const userData = profileResponse.data.data.user; // Ensure correct path to user object
 
-          // Block learner role
-          if (userData.role === 'learner') {
-            dispatch(setError('Learners cannot access admin panel. Please use the learner portal.'));
-            toast.error('Access denied: This is an admin-only application');
-            return;
-          }
+        // Block learner role
+        if (userData.role === 'learner') {
+          dispatch(setError('Learners cannot access admin panel. Please use the learner portal.'));
+          toast.error('Access denied: This is an admin-only application');
+          return;
+        }
 
-          // Store user data in Redux
-          dispatch(setUser({
+        // Store user data in Redux
+        dispatch(setUser({
+          id: userData.id,
+          email: userData.email,
+          fullName: userData.fullName,
+          role: userData.role,
+          status: userData.status || 'active',
+          permissions: userData.permissions || [],
+        }));
+
+        dispatch(setAuthenticated({
+          isAuthenticated: true,
+          user: {
             id: userData.id,
             email: userData.email,
             fullName: userData.fullName,
-            avatarUrl: userData.avatarUrl,
             role: userData.role,
-            permissions: userData.permissions || [],
-          }));
+            status: userData.status || 'active',
+          }
+        }));
 
-          dispatch(setAuthenticated(true));
-          toast.success('Login successful!');
-          navigate('/', { replace: true });
-        }
+        toast.success('Login successful!');
+        navigate('/', { replace: true });
       }
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Login failed. Please check your credentials.';
+      console.error("Login Error:", err);
+      let errorMessage = 'Login failed. Please check your credentials.';
+
+      if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
+        errorMessage = 'Invalid email or password.';
+      } else if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      }
+
       dispatch(setError(errorMessage));
       toast.error(errorMessage);
     } finally {
