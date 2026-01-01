@@ -54,16 +54,26 @@ export class ProxyController {
         // Meet Service Routes
         '/webhook': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
         '/auth/room': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
+
+        // Room Management
         '/api/room': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
+
+        // Polls
         '/api/polls': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
+
+        // Waiting Room
         '/api/waitingRoom': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
+
+        // User/Participant Management
         '/api/verifyToken': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
         '/api/updateLockSettings': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
-        '/api/muteUnMuteTrack': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
+        '/api/muteUnmuteTrack': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
         '/api/removeParticipant': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
         '/api/switchPresenter': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
         '/api/endRoom': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
         '/api/changeVisibility': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
+
+        '/api/breakoutRoom': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
     };
 
     /**
@@ -83,63 +93,60 @@ export class ProxyController {
             });
         }
 
-        // Rewrite path: Strip /api prefix for forwarding to microservices
-        // Example: /api/auth/login -> /auth/login
+        // Rewrite path: Strip /api prefix
         const servicePath = req.path.replace(/^\/api/, '');
         const url = `${targetService}${servicePath}`;
 
-        const contentType = req.headers['content-type'] || '';
-        const isProtobuf = contentType.includes('application/protobuf') ||
-            contentType.includes('application/octet-stream');
-
-        this.logger.log(`Proxying ${req.method} ${req.path} → ${url} (${isProtobuf ? 'protobuf' : 'json'})`);
+        this.logger.log(`Proxy: ${req.method} ${req.path} → ${url}`);
 
         try {
             const response: AxiosResponse = await firstValueFrom(
                 this.httpService.request({
                     method: req.method,
                     url,
-                    data: req.body, // Already parsed by body-parser (JSON or Buffer)
+                    data: req.body,
                     headers: {
                         ...req.headers,
-                        // Remove headers that shouldn't be forwarded
                         host: undefined,
                         connection: undefined,
                     },
                     params: req.query,
-                    // For protobuf, expect binary response
-                    responseType: isProtobuf ? 'arraybuffer' : 'json',
-                    // Don't throw on HTTP errors
+                    responseType: 'arraybuffer', // Handles both JSON and Protobuf binary
                     validateStatus: () => true,
                 })
             );
 
-            // Set response headers
-            if (response.headers['content-type']) {
-                res.setHeader('content-type', response.headers['content-type']);
+            // Forward headers but exclude CORS and connection-specific headers
+            // Gateway handles CORS for the client
+            const excludedHeaders = [
+                'connection',
+                'content-length',
+                'transfer-encoding',
+                'access-control-allow-origin',
+                'access-control-allow-credentials',
+                'access-control-allow-methods',
+                'access-control-allow-headers',
+                'access-control-max-age'
+            ];
+
+            if (response.headers) {
+                Object.entries(response.headers).forEach(([key, value]) => {
+                    if (value && !excludedHeaders.includes(key.toLowerCase())) {
+                        res.setHeader(key, value);
+                    }
+                });
             }
 
-            // Forward response based on content type
-            const responseContentType = response.headers['content-type'] || '';
-            const isResponseProtobuf = responseContentType.includes('application/protobuf') ||
-                responseContentType.includes('application/octet-stream');
-
-            if (isResponseProtobuf) {
-                // Send binary data directly
-                res.status(response.status).send(Buffer.from(response.data));
-            } else {
-                // Send JSON
-                res.status(response.status).json(response.data);
-            }
+            // Send raw data
+            res.status(response.status).send(response.data);
         } catch (error: any) {
             this.logger.error(`Proxy error: ${error.message}`, error.stack);
-            res.status(500).json({
+            res.status(502).json({
                 success: false,
-                message: 'Internal gateway error',
+                message: 'Bad Gateway',
             });
         }
     }
-
     /**
      * Determine target service based on request path
      */

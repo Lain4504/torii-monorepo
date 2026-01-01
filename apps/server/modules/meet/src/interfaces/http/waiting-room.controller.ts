@@ -33,7 +33,7 @@ import { WaitingRoomService } from '../../modules/waiting-room/waiting-room.serv
  * WaitingRoomController handles waiting room operations
  * Routes under /api/waitingRoom (with JwtAuthGuard)
  */
-@Controller('api/waitingRoom')
+@Controller('waitingRoom')
 @UseGuards(JwtAuthGuard)
 export class WaitingRoomController {
     constructor(

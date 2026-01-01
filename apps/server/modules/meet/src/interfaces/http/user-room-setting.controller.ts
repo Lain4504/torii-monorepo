@@ -47,7 +47,7 @@ import { RoomInfoService } from '../../modules/room/room-info.service';
  * UserRoomSettingController handles user operations within rooms (JwtAuthGuard routes)
  * Routes under /api
  */
-@Controller('api')
+@Controller()
 @UseGuards(JwtAuthGuard)
 export class UserRoomSettingController {
     constructor(
@@ -137,7 +137,7 @@ export class UserRoomSettingController {
             }
 
             // Build successful response
-            const rawWsUrls = this.configService.get<string>('NATS_WS_URLS');
+            const rawWsUrls = this.configService.get<string>('NATS_WS_URLS') || 'ws://localhost:8222';
             const natsWsUrls = rawWsUrls
                 ? rawWsUrls.split(',').map((u) => u.trim()).filter((u) => !!u)
                 : this.configService.get<string[]>('NATS_WS_URLS') || [];
@@ -244,7 +244,7 @@ export class UserRoomSettingController {
      *
      * @route POST /api/muteUnMuteTrack
      */
-    @Post('muteUnMuteTrack')
+    @Post('muteUnmuteTrack')
     @HttpCode(HttpStatus.OK)
     async handleMuteUnMuteTrack(
         @Req() req: Request,

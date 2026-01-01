@@ -274,7 +274,7 @@ export class RoomController {
  * RoomApiController handles room-related API operations with JWT auth
  * Routes under /api (with JwtAuthGuard)
  */
-@Controller('api')
+@Controller()
 @UseGuards(JwtAuthGuard)
 export class RoomApiController {
   constructor(

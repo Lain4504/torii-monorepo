@@ -37,7 +37,7 @@ import {
 } from '@server/shared';
 import { PollsService } from '../../modules/polls/polls.service';
 
-@Controller('api/polls')
+@Controller('polls')
 @UseGuards(JwtAuthGuard)
 export class PollsController {
     constructor(
@@ -120,6 +120,7 @@ export class PollsController {
         const requestedUserId = (req as any).requestedUserId as string;
 
         if (!isAdmin) {
+
             const response = create(PollResponseSchema, {
                 status: false,
                 msg: 'only admin can perform this task',
@@ -156,6 +157,7 @@ export class PollsController {
             res.status(200);
             sendProtobufResponse(res, PollResponseSchema, response);
         } catch (error) {
+
             const response = create(PollResponseSchema, {
                 status: false,
                 msg: error instanceof Error ? error.message : 'Error creating poll',

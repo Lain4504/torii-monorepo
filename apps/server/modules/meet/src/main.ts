@@ -4,16 +4,27 @@ import { MicroserviceOptions } from '@nestjs/microservices';
 import { ValidationPipe } from '@nestjs/common';
 import { createNatsServiceConfig } from '@server/shared';
 import { MeetModule } from './meet.module';
+import * as bodyParser from 'body-parser';
 
 async function bootstrap() {
   // 1. Create HTTP application
   const httpApp = await NestFactory.create(MeetModule);
 
   // Enable CORS
-  httpApp.enableCors({
-    origin: process.env.CORS_ORIGIN || '*',
-    credentials: true,
-  });
+  // CORS handled by Gateway
+  // httpApp.enableCors({...});
+
+  // Configure body parser to match old Gateway architecture
+  // JSON parser for application/json requests
+  httpApp.use(bodyParser.json({
+    type: ['application/json', 'application/webhook+json']
+  }));
+
+  // Raw binary parser for protobuf requests
+  httpApp.use(bodyParser.raw({
+    type: ['application/protobuf', 'application/octet-stream'],
+    limit: '10mb'
+  }));
 
   // Global validation pipe
   httpApp.useGlobalPipes(

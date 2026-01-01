@@ -4,10 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="chore: refactor API routes and enable CORS across services&#10;&#10;- Updated API route prefixes in multiple controllers (e.g., `@Controller('/api/...')` → `@Controller('/')`).&#10;- Adjusted corresponding client API calls to match updated backend routes.&#10;- Enabled CORS in gateway with dynamic origins and method support.&#10;- Enhanced `LoginPage` logic to integrate Firebase authentication and modified API endpoints accordingly.&#10;- Added permission fetching in the `AuthController`.">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="chore: update API route prefixes for Meet module and configure body parser&#10;&#10;- Refactored API route prefixes in Meet controllers (e.g., `@Controller('api/...')` → `@Controller(...)`).&#10;- Added body parser configuration for JSON and protobuf request handling.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/assessment/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/assessment/src/main.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/billing/src/main.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/server/modules/community/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/community/src/main.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/users/api/users.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/features/users/api/users.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/cortex/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/cortex/src/main.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/flashcards/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/flashcards/src/main.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/proxy/proxy.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/proxy/proxy.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/main.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/lms/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/lms/src/main.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/main.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -232,47 +239,7 @@
       <workItem from="1767182827516" duration="3496000" />
       <workItem from="1767192481085" duration="10184000" />
       <workItem from="1767234621203" duration="4843000" />
-      <workItem from="1767259125707" duration="4838000" />
-    </task>
-    <task id="LOCAL-00353" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
-      <option name="closed" value="true" />
-      <created>1766936227508</created>
-      <option name="number" value="00353" />
-      <option name="presentableId" value="LOCAL-00353" />
-      <option name="project" value="LOCAL" />
-      <updated>1766936227509</updated>
-    </task>
-    <task id="LOCAL-00354" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
-      <option name="closed" value="true" />
-      <created>1766936244687</created>
-      <option name="number" value="00354" />
-      <option name="presentableId" value="LOCAL-00354" />
-      <option name="project" value="LOCAL" />
-      <updated>1766936244687</updated>
-    </task>
-    <task id="LOCAL-00355" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
-      <option name="closed" value="true" />
-      <created>1766939722450</created>
-      <option name="number" value="00355" />
-      <option name="presentableId" value="LOCAL-00355" />
-      <option name="project" value="LOCAL" />
-      <updated>1766939722450</updated>
-    </task>
-    <task id="LOCAL-00356" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
-      <option name="closed" value="true" />
-      <created>1766970773183</created>
-      <option name="number" value="00356" />
-      <option name="presentableId" value="LOCAL-00356" />
-      <option name="project" value="LOCAL" />
-      <updated>1766970773183</updated>
-    </task>
-    <task id="LOCAL-00357" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
-      <option name="closed" value="true" />
-      <created>1766970805799</created>
-      <option name="number" value="00357" />
-      <option name="presentableId" value="LOCAL-00357" />
-      <option name="project" value="LOCAL" />
-      <updated>1766970805799</updated>
+      <workItem from="1767259125707" duration="9967000" />
     </task>
     <task id="LOCAL-00358" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
       <option name="closed" value="true" />
@@ -626,7 +593,47 @@
       <option name="project" value="LOCAL" />
       <updated>1767267694993</updated>
     </task>
-    <option name="localTasksCounter" value="402" />
+    <task id="LOCAL-00402" summary="chore: refactor API routes and enable CORS across services&#10;&#10;- Updated API route prefixes in multiple controllers (e.g., `@Controller('/api/...')` → `@Controller('/')`).&#10;- Adjusted corresponding client API calls to match updated backend routes.&#10;- Enabled CORS in gateway with dynamic origins and method support.&#10;- Enhanced `LoginPage` logic to integrate Firebase authentication and modified API endpoints accordingly.&#10;- Added permission fetching in the `AuthController`.">
+      <option name="closed" value="true" />
+      <created>1767269749312</created>
+      <option name="number" value="00402" />
+      <option name="presentableId" value="LOCAL-00402" />
+      <option name="project" value="LOCAL" />
+      <updated>1767269749313</updated>
+    </task>
+    <task id="LOCAL-00403" summary="chore: refactor API routes and enable CORS across services&#10;&#10;- Updated API route prefixes in multiple controllers (e.g., `@Controller('/api/...')` → `@Controller('/')`).&#10;- Adjusted corresponding client API calls to match updated backend routes.&#10;- Enabled CORS in gateway with dynamic origins and method support.&#10;- Enhanced `LoginPage` logic to integrate Firebase authentication and modified API endpoints accordingly.&#10;- Added permission fetching in the `AuthController`.">
+      <option name="closed" value="true" />
+      <created>1767270171390</created>
+      <option name="number" value="00403" />
+      <option name="presentableId" value="LOCAL-00403" />
+      <option name="project" value="LOCAL" />
+      <updated>1767270171390</updated>
+    </task>
+    <task id="LOCAL-00404" summary="chore: update API route prefixes for Meet module and configure body parser&#10;&#10;- Refactored API route prefixes in Meet controllers (e.g., `@Controller('api/...')` → `@Controller(...)`).&#10;- Added body parser configuration for JSON and protobuf request handling.">
+      <option name="closed" value="true" />
+      <created>1767272918791</created>
+      <option name="number" value="00404" />
+      <option name="presentableId" value="LOCAL-00404" />
+      <option name="project" value="LOCAL" />
+      <updated>1767272918791</updated>
+    </task>
+    <task id="LOCAL-00405" summary="chore: update API route prefixes for Meet module and configure body parser&#10;&#10;- Refactored API route prefixes in Meet controllers (e.g., `@Controller('api/...')` → `@Controller(...)`).&#10;- Added body parser configuration for JSON and protobuf request handling.">
+      <option name="closed" value="true" />
+      <created>1767273678887</created>
+      <option name="number" value="00405" />
+      <option name="presentableId" value="LOCAL-00405" />
+      <option name="project" value="LOCAL" />
+      <updated>1767273678887</updated>
+    </task>
+    <task id="LOCAL-00406" summary="chore: update API route prefixes for Meet module and configure body parser&#10;&#10;- Refactored API route prefixes in Meet controllers (e.g., `@Controller('api/...')` → `@Controller(...)`).&#10;- Added body parser configuration for JSON and protobuf request handling.">
+      <option name="closed" value="true" />
+      <created>1767273737480</created>
+      <option name="number" value="00406" />
+      <option name="presentableId" value="LOCAL-00406" />
+      <option name="project" value="LOCAL" />
+      <updated>1767273737488</updated>
+    </task>
+    <option name="localTasksCounter" value="407" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -656,7 +663,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat(docker): enhance Docker setup with LiveKit configuration and streamline service definitions" />
     <MESSAGE value="chore(docker): enhance Docker setup with LiveKit configuration and streamline service definitions" />
     <MESSAGE value="refactor: standardize import paths for feature components" />
     <MESSAGE value="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components" />
@@ -681,7 +687,8 @@
     <MESSAGE value="chore: remove obsolete controllers for room, auth-room, and polls in preparation for HTTP-based migration" />
     <MESSAGE value="chore: update API routes and enable CORS configuration for HTTP-based migration  &#10;&#10;- Standardized API route prefixes across controllers (`AuthController`, `RBACController`, `AuditLogController`, etc.) by removing redundant `/api` prefix.  &#10;- Enabled CORS with dynamic origin support for development in `gateway/main.ts`.  &#10;- Updated web-admin API client to align with new API route structure.  &#10;- Integrated permission fetching in `AuthController` to streamline user role and permission data retrieval." />
     <MESSAGE value="chore: refactor API routes and enable CORS across services&#10;&#10;- Updated API route prefixes in multiple controllers (e.g., `@Controller('/api/...')` → `@Controller('/')`).&#10;- Adjusted corresponding client API calls to match updated backend routes.&#10;- Enabled CORS in gateway with dynamic origins and method support.&#10;- Enhanced `LoginPage` logic to integrate Firebase authentication and modified API endpoints accordingly.&#10;- Added permission fetching in the `AuthController`." />
-    <option name="LAST_COMMIT_MESSAGE" value="chore: refactor API routes and enable CORS across services&#10;&#10;- Updated API route prefixes in multiple controllers (e.g., `@Controller('/api/...')` → `@Controller('/')`).&#10;- Adjusted corresponding client API calls to match updated backend routes.&#10;- Enabled CORS in gateway with dynamic origins and method support.&#10;- Enhanced `LoginPage` logic to integrate Firebase authentication and modified API endpoints accordingly.&#10;- Added permission fetching in the `AuthController`." />
+    <MESSAGE value="chore: update API route prefixes for Meet module and configure body parser&#10;&#10;- Refactored API route prefixes in Meet controllers (e.g., `@Controller('api/...')` → `@Controller(...)`).&#10;- Added body parser configuration for JSON and protobuf request handling." />
+    <option name="LAST_COMMIT_MESSAGE" value="chore: update API route prefixes for Meet module and configure body parser&#10;&#10;- Refactored API route prefixes in Meet controllers (e.g., `@Controller('api/...')` → `@Controller(...)`).&#10;- Added body parser configuration for JSON and protobuf request handling." />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

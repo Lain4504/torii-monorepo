@@ -9,10 +9,8 @@ async function bootstrap() {
   const httpApp = await NestFactory.create(IdentityModule);
 
   // Enable CORS
-  httpApp.enableCors({
-    origin: process.env.CORS_ORIGIN || '*',
-    credentials: true,
-  });
+  // CORS handled by Gateway
+  // httpApp.enableCors({...});
 
   // Global validation pipe
   httpApp.useGlobalPipes(new ValidationPipe({
