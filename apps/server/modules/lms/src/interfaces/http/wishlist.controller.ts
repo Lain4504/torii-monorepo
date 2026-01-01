@@ -4,10 +4,10 @@ import {
     type WishlistCreateDTO,
     type WishlistQueryDTO,
 } from '@workspace/schemas';
-import { FirebaseAuthGuard } from '@server/shared';
+import { GatewayAuthGuard } from '@server/shared';
 
-@Controller('api/wishlists')
-@UseGuards(FirebaseAuthGuard)
+@Controller('wishlists')
+@UseGuards(GatewayAuthGuard)
 export class WishlistController {
     constructor(private readonly wishlistService: WishlistService) { }
 

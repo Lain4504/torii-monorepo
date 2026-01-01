@@ -7,11 +7,11 @@ import {
   type CourseResponseDTO,
   type PaginatedResponse,
 } from '@workspace/schemas';
-import { FirebaseAuthGuard, RolesGuard, Roles } from '@server/shared';
+import { GatewayAuthGuard } from '@server/shared';
 import { UserRole } from '@workspace/schemas';
 
 @Controller('courses')
-@UseGuards(FirebaseAuthGuard)
+@UseGuards(GatewayAuthGuard)
 export class CourseController {
   private readonly logger = new Logger(CourseController.name);
 
@@ -28,8 +28,6 @@ export class CourseController {
   }
 
   @Post()
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.LECTURER)
   async create(@Body() input: CourseCreateDTO): Promise<CourseResponseDTO> {
     try {
       this.logger.log('Received course.create request');
@@ -41,8 +39,6 @@ export class CourseController {
   }
 
   @Patch(':id')
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.STAFF)
   async update(
     @Param('id') id: string,
     @Body() input: CourseUpdateDTO
@@ -57,15 +53,11 @@ export class CourseController {
   }
 
   @Delete(':id')
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN)
   delete(@Param('id') id: string): Promise<boolean> {
     return this.courseService.delete(id);
   }
 
   @Post(':id/restore')
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN)
   async restore(@Param('id') id: string): Promise<CourseResponseDTO> {
     try {
       this.logger.log(`Restoring course: ${id}`);

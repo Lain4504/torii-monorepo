@@ -7,10 +7,10 @@ import type {
     NotificationDeleteRequestDTO,
 } from '@workspace/schemas';
 import { NotificationService } from '../../modules/notification/notification.service';
-import { FirebaseAuthGuard } from '@server/shared';
+import { GatewayAuthGuard } from '@server/shared';
 
 @Controller('api/notifications')
-@UseGuards(FirebaseAuthGuard)
+@UseGuards(GatewayAuthGuard)
 export class NotificationController {
     private readonly logger = new Logger(NotificationController.name);
 

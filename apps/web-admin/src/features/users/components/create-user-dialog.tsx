@@ -94,7 +94,6 @@ export function CreateUserDialog({
             firstName: '',
             lastName: '',
             email: '',
-            phone: '',
             password: '',
             role: UserRole.LEARNER,
             aiFeedback: true,
@@ -113,7 +112,6 @@ export function CreateUserDialog({
             email: data.email,
             fullName: `${data.firstName} ${data.lastName}`,
             password: data.password,
-            phone: data.phone || undefined,
             role: data.role,
             status: UserStatus.ACTIVE,
         };
@@ -238,16 +236,6 @@ export function CreateUserDialog({
                             {errors.email && (
                                 <p className="text-sm text-destructive">{errors.email.message}</p>
                             )}
-                        </div>
-                        <div className="space-y-2">
-                            <label htmlFor="phone" className="text-sm font-medium">
-                                Phone Number <span className="text-muted-foreground">(Optional)</span>
-                            </label>
-                            <Input
-                                id="phone"
-                                placeholder="+81"
-                                {...register('phone')}
-                            />
                         </div>
                         <div className="space-y-2">
                             <label htmlFor="password" className="text-sm font-medium">

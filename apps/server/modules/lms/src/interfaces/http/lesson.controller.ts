@@ -5,11 +5,10 @@ import {
   type LessonUpdateDTO,
   type LessonQueryDTO,
 } from '@workspace/schemas';
-import { FirebaseAuthGuard, RolesGuard, Roles } from '@server/shared';
-import { UserRole } from '@workspace/schemas';
+import { GatewayAuthGuard } from '@server/shared';
 
 @Controller('lessons')
-@UseGuards(FirebaseAuthGuard)
+@UseGuards(GatewayAuthGuard)
 export class LessonController {
   private readonly logger = new Logger(LessonController.name);
 
@@ -27,30 +26,22 @@ export class LessonController {
   }
 
   @Post()
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.LECTURER)
   async create(@Body() input: LessonCreateDTO) {
     this.logger.log('Received lesson.create request');
     return await this.lessonService.create(input);
   }
 
   @Patch(':id')
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.LECTURER)
   async update(@Param('id') id: string, @Body() input: LessonUpdateDTO) {
     return await this.lessonService.update(id, input);
   }
 
   @Delete(':id')
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.LECTURER)
   async delete(@Param('id') id: string) {
     return await this.lessonService.delete(id);
   }
 
   @Post(':id/restore')
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN)
   async restore(@Param('id') id: string) {
     return await this.lessonService.restore(id);
   }

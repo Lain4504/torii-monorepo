@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { SharedModule } from '@server/shared';
+import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { RBACModule } from './modules/rbac/rbac.module';
 
@@ -19,6 +20,7 @@ import { AuditLogController } from './interfaces/http/audit-log.controller';
       isGlobal: true,
     }),
     SharedModule,
+    AuthModule,
     UsersModule,
     RBACModule,
   ],

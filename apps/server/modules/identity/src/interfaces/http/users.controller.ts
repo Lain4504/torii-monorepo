@@ -7,11 +7,11 @@ import {
     Param,
     Query,
     Body,
-    UseGuards,
     UsePipes,
+    UseGuards,
     Request,
 } from '@nestjs/common';
-import { FirebaseAuthGuard, RolesGuard, Roles, ZodValidationPipe } from '@server/shared';
+import { ZodValidationPipe } from '@server/shared';
 import { UserRole, userCreateDTOSchema, userAdminUpdateDTOSchema } from '@workspace/schemas';
 import type {
     UserResponseDTO,
@@ -21,13 +21,14 @@ import type {
     ReqWithRequester,
 } from '@workspace/schemas';
 import { UsersService } from '../../modules/users/users.service';
+import { GatewayAuthGuard } from '@server/shared';
 
 /**
  * Users HTTP Controller (Admin)
  * Handles user management operations
  */
 @Controller('admin/users')
-@UseGuards(FirebaseAuthGuard, RolesGuard)
+@UseGuards(GatewayAuthGuard)
 export class UsersController {
     constructor(private readonly usersService: UsersService) { }
 
@@ -35,7 +36,6 @@ export class UsersController {
      * Get all users with pagination
      */
     @Get()
-    @Roles(UserRole.ADMIN)
     async findAll(
         @Query('page') page: number = 1,
         @Query('limit') limit: number = 10,
@@ -52,7 +52,6 @@ export class UsersController {
      * Get user by ID
      */
     @Get(':id')
-    @Roles(UserRole.ADMIN)
     async findOne(@Param('id') id: string): Promise<UserResponseDTO> {
         return this.usersService.findOne(id);
     }
@@ -61,7 +60,6 @@ export class UsersController {
      * Create new user
      */
     @Post()
-    @Roles(UserRole.ADMIN)
     @UsePipes(new ZodValidationPipe(userCreateDTOSchema))
     async create(@Body() dto: UserCreateDTO): Promise<UserResponseDTO> {
         return this.usersService.create(dto);
@@ -71,7 +69,6 @@ export class UsersController {
      * Update user
      */
     @Patch(':id')
-    @Roles(UserRole.ADMIN)
     @UsePipes(new ZodValidationPipe(userAdminUpdateDTOSchema))
     async update(
         @Request() req: ReqWithRequester,
@@ -85,7 +82,6 @@ export class UsersController {
      * Delete user
      */
     @Delete(':id')
-    @Roles(UserRole.ADMIN)
     async delete(
         @Request() req: ReqWithRequester,
         @Param('id') id: string,

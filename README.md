@@ -180,7 +180,7 @@ graph TB
 | Service | Port | Protocol | Trách nhiệm chính (Bounded Context) |
 |:---|:---|:---|:---|
 | **Gateway** | `8080` | HTTP | Entry point duy nhất, HTTP proxy routing, Authentication guard (Auth Callout via NATS). |
-| **Identity** | `8081` | HTTP | **Core Auth**: Đăng ký, đăng nhập, Quản lý User, RBAC (Roles & Permissions). Là "Single Source of Truth" về danh tính. |
+| **Identity** | `8081` | HTTP | **Core Auth**: Đăng ký, đăng nhập, Quản lý User, RBAC. **Tính năng mới**: Refresh Token Rotation, Dual-Mode Auth (Cookie/Web & JSON/Mobile), Secure Mobile Flow. |
 | **LMS** | `8082` | HTTP | **Learning Core**: Quản lý khóa học, bài học (Lessons), lộ trình học tập, tracking tiến độ học viên. |
 | **Flashcards** | `8083` | HTTP | **Study Tool**: Quản lý bộ thẻ (Decks), thuật toán Spaced Repetition (SRS) để ôn tập từ vựng. |
 | **Community** | `8084` | HTTP | **Social**: Blog, Bình luận, Profile xã hội và Hệ thống thông báo (Notification Center). |

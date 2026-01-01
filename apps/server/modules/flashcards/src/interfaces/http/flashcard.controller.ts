@@ -7,11 +7,11 @@ import type {
     FlashcardPaginatedResponse,
     BulkFlashcardOperationsDTO,
 } from "@workspace/schemas";
-import { FirebaseAuthGuard } from '@server/shared';
+import { GatewayAuthGuard } from '@server/shared';
 import type { Request } from 'express';
 
-@Controller('api/flashcards')
-@UseGuards(FirebaseAuthGuard)
+@Controller('flashcards')
+@UseGuards(GatewayAuthGuard)
 export class FlashcardController {
     private readonly logger = new Logger(FlashcardController.name);
 

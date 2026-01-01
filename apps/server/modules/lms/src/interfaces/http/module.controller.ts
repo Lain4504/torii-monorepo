@@ -5,11 +5,9 @@ import {
   type ModuleUpdateDTO,
   type ModuleQueryDTO,
 } from '@workspace/schemas';
-import { FirebaseAuthGuard, RolesGuard, Roles } from '@server/shared';
-import { UserRole } from '@workspace/schemas';
+import { GatewayAuthGuard } from '@server/shared';
 
 @Controller('modules')
-@UseGuards(FirebaseAuthGuard)
 export class ModuleController {
   private readonly logger = new Logger(ModuleController.name);
 
@@ -27,30 +25,22 @@ export class ModuleController {
   }
 
   @Post()
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.LECTURER)
   async create(@Body() input: ModuleCreateDTO) {
     this.logger.log('Received module.create request');
     return await this.moduleService.create(input);
   }
 
   @Patch(':id')
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.LECTURER)
   async update(@Param('id') id: string, @Body() input: ModuleUpdateDTO) {
     return await this.moduleService.update(id, input);
   }
 
   @Delete(':id')
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.STAFF)
   async delete(@Param('id') id: string) {
     return await this.moduleService.delete(id);
   }
 
   @Post(':id/restore')
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN)
   async restore(@Param('id') id: string) {
     return await this.moduleService.restore(id);
   }

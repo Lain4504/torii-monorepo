@@ -7,10 +7,10 @@ import type {
     StorageDeleteFileRequestDTO,
     StorageGetSignedUrlRequestDTO,
 } from '@workspace/schemas';
-import { FirebaseAuthGuard } from '@server/shared';
+import { GatewayAuthGuard } from '@server/shared';
 
 @Controller('storage')
-@UseGuards(FirebaseAuthGuard)
+@UseGuards(GatewayAuthGuard)
 export class StorageController {
     private readonly logger = new Logger(StorageController.name);
 

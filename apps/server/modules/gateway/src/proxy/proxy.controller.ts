@@ -17,6 +17,7 @@ export class ProxyController {
 
     // Service mapping: route prefix → service URL
     private readonly serviceMap: Record<string, string> = {
+        // Identity Service Routes
         '/api/auth': process.env.IDENTITY_SERVICE_URL || 'http://localhost:8081',
         '/api/admin/users': process.env.IDENTITY_SERVICE_URL || 'http://localhost:8081',
         '/api/admin/audit-logs': process.env.IDENTITY_SERVICE_URL || 'http://localhost:8081',

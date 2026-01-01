@@ -8,7 +8,7 @@ import {
 import { Badge } from '@workspace/ui/components/badge';
 import { Label } from '@workspace/ui/components/label';
 import type { UserResponseDTO } from '@workspace/schemas';
-import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar';
+import { Avatar, AvatarFallback } from '@workspace/ui/components/avatar';
 
 interface ViewUserDialogProps {
     open: boolean;
@@ -36,7 +36,6 @@ export function ViewUserDialog({
                 <div className="space-y-6">
                     <div className="flex items-center gap-4">
                         <Avatar className="h-16 w-16">
-                            <AvatarImage src={user.avatarUrl || ''} alt={user.fullName} />
                             <AvatarFallback>{user.fullName?.charAt(0) || 'U'}</AvatarFallback>
                         </Avatar>
                         <div>
@@ -72,11 +71,6 @@ export function ViewUserDialog({
                                 </Badge>
                             </div>
                         </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label>Phone</Label>
-                        <p className="text-sm">{user.phone || '-'}</p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground">

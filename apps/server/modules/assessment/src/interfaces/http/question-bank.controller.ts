@@ -7,11 +7,10 @@ import {
     type QuestionBankResponseDTO,
     type PaginatedResponse,
 } from '@workspace/schemas';
-import { UserRole } from '@workspace/schemas';
-import { FirebaseAuthGuard, RolesGuard, Roles } from '@server/shared';
+import { GatewayAuthGuard } from '@server/shared';
 
 @Controller('question-banks')
-@UseGuards(FirebaseAuthGuard)
+@UseGuards(GatewayAuthGuard)
 export class QuestionBankController {
     constructor(private readonly questionBankService: QuestionBankService) { }
 
@@ -26,15 +25,11 @@ export class QuestionBankController {
     }
 
     @Post()
-    @UseGuards(RolesGuard)
-    @Roles(UserRole.ADMIN, UserRole.LECTURER)
     async create(@Body() input: QuestionBankCreateDTO): Promise<QuestionBankResponseDTO> {
         return this.questionBankService.create(input);
     }
 
     @Patch(':id')
-    @UseGuards(RolesGuard)
-    @Roles(UserRole.ADMIN, UserRole.LECTURER)
     async update(
         @Param('id') id: string,
         @Body() input: QuestionBankUpdateDTO,
@@ -43,8 +38,6 @@ export class QuestionBankController {
     }
 
     @Delete(':id')
-    @UseGuards(RolesGuard)
-    @Roles(UserRole.ADMIN, UserRole.LECTURER)
     async delete(@Param('id') id: string): Promise<boolean> {
         return this.questionBankService.delete(id);
     }

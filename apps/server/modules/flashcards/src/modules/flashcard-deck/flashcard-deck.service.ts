@@ -76,7 +76,6 @@ export class FlashcardDeckService {
         where: { id: userId },
         create: {
           id: userId,
-          firebaseUid: `temp-${userId}`, // Temporary Firebase UID
           email: `user-${userId}@temp.com`, // Temporary email
           fullName: 'User', // Temporary name
           role: UserRole.LEARNER,

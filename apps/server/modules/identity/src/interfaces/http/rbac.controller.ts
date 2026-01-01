@@ -1,12 +1,13 @@
+
 import { Controller, Get, Put, Post, Param, Body, UseGuards, Logger } from '@nestjs/common';
-import { FirebaseAuthGuard, RolesGuard, Roles } from '@server/shared';
+import { GatewayAuthGuard } from '@server/shared';
 import { UserRole } from '@workspace/schemas';
 import { RBACService } from '../../modules/rbac/rbac.service';
 import { RBACConfigService } from '../../modules/rbac/rbac-config.service';
 import { RBACSeederService } from '../../modules/rbac/rbac-seeder.service';
 
 @Controller('rbac')
-@UseGuards(FirebaseAuthGuard, RolesGuard)
+@UseGuards(GatewayAuthGuard)
 export class RBACController {
     private readonly logger = new Logger(RBACController.name);
 
@@ -17,7 +18,6 @@ export class RBACController {
     ) { }
 
     @Get('roles')
-    @Roles(UserRole.ADMIN)
     async getRoles() {
         const roles = this.rbacConfig.getRoles();
         return {
@@ -27,7 +27,6 @@ export class RBACController {
     }
 
     @Get('permissions')
-    @Roles(UserRole.ADMIN)
     async getPermissions() {
         const permissions = this.rbacConfig.getPermissions();
 
@@ -50,7 +49,6 @@ export class RBACController {
     }
 
     @Get('roles/:roleCode/permissions')
-    @Roles(UserRole.ADMIN)
     async getRolePermissions(@Param('roleCode') roleCode: string) {
         try {
             const permissions = await this.rbacService.getRolePermissions(roleCode);
@@ -71,7 +69,6 @@ export class RBACController {
     }
 
     @Put('roles/:roleCode/permissions')
-    @Roles(UserRole.ADMIN)
     async setRolePermissions(
         @Param('roleCode') roleCode: string,
         @Body() data: { permissions: string[] }
@@ -87,7 +84,7 @@ export class RBACController {
                 data: { roleCode, permissions: data.permissions },
             };
         } catch (error) {
-            this.logger.error(`Error updating permissions: ${error.message}`);
+            this.logger.error(`Error updating permissions: ${error.message} `);
             return {
                 success: false,
                 message: error.message,
@@ -96,7 +93,6 @@ export class RBACController {
     }
 
     @Post('reseed')
-    @Roles(UserRole.ADMIN)
     async reseedPermissions() {
         try {
             const result = await this.seeder.reseedNewPermissions();

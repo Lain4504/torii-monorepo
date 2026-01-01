@@ -5,9 +5,10 @@ import type {
     BlogCommentUpdateDTO,
     BlogCommentQueryDTO,
 } from '@workspace/schemas';
-import { FirebaseAuthGuard } from '@server/shared';
+import { GatewayAuthGuard } from '@server/shared';
 
-@Controller('api/blog-comments')
+@Controller('blog-comments')
+@UseGuards(GatewayAuthGuard)
 export class BlogCommentController {
     constructor(private readonly blogCommentService: BlogCommentService) { }
 
@@ -27,7 +28,6 @@ export class BlogCommentController {
     }
 
     @Post()
-    @UseGuards(FirebaseAuthGuard)
     async createComment(@Body() dto: BlogCommentCreateDTO, @Req() req: any) {
         // Ideally we force authorId from req.user.uid
         // Let's assume service or DTO handles validation, but for security we should probably set it.
@@ -39,7 +39,6 @@ export class BlogCommentController {
     }
 
     @Patch(':id')
-    @UseGuards(FirebaseAuthGuard)
     updateComment(
         @Param('id') id: string,
         @Body() dto: BlogCommentUpdateDTO,
@@ -50,7 +49,6 @@ export class BlogCommentController {
     }
 
     @Delete(':id')
-    @UseGuards(FirebaseAuthGuard)
     deleteComment(@Param('id') id: string, @Req() req: any) {
         const userId = req.user.uid;
         return this.blogCommentService.deleteComment(id, userId);

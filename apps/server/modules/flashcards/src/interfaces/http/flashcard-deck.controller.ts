@@ -5,10 +5,10 @@ import type {
     FlashcardDeckUpdateDTO,
     FlashcardDeckQueryDTO,
 } from '@workspace/schemas';
-import { FirebaseAuthGuard } from '@server/shared';
+import { GatewayAuthGuard } from '@server/shared';
 
-@Controller('api/flashcard-decks')
-@UseGuards(FirebaseAuthGuard)
+@Controller('flashcard-decks')
+@UseGuards(GatewayAuthGuard)
 export class FlashcardDeckController {
     private readonly logger = new Logger(FlashcardDeckController.name);
 

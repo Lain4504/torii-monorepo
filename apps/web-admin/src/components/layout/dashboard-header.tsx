@@ -28,16 +28,16 @@ export function DashboardHeader() {
 
   const handleLogout = async () => {
     try {
-      await apiClient.post('/auth/logout')
+      await apiClient.post('/api/auth/logout')
       dispatch(clearUser())
-      dispatch(setAuthenticated(false))
+      dispatch(setAuthenticated({ isAuthenticated: false }))
       toast.success('Logged out successfully')
       navigate('/login')
     } catch (error) {
       console.error('Logout error:', error)
       // Clear local state even if API call fails
       dispatch(clearUser())
-      dispatch(setAuthenticated(false))
+      dispatch(setAuthenticated({ isAuthenticated: false }))
       navigate('/login')
     }
   }
