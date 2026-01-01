@@ -104,6 +104,14 @@ import { WajlcAuthService } from '../auth/wajlc-auth.service';
   ],
   exports: [
     RoomInfoService,
+    RoomCreateService,
+    RoomEndService,
+    RoomModifyService,
+    RoomUserService,
+    RoomDurationService,
+    PollsService, // Export PollsService so it can be used in MeetModule
+    WebhookService, // Export WebhookService
+    WaitingRoomService, // Export WaitingRoomService
     LiveKitService,
   ],
 })

@@ -1,7 +1,8 @@
 import { NestFactory } from '@nestjs/core';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { IdentityModule } from './identity.module';
+import { MicroserviceOptions } from '@nestjs/microservices';
 import { ValidationPipe } from '@nestjs/common';
+import { createNatsServiceConfig } from '@server/shared';
+import { IdentityModule } from './identity.module';
 
 async function bootstrap() {
   // 1. Create HTTP application (for client requests)
@@ -27,12 +28,7 @@ async function bootstrap() {
   // 2. Create NATS microservice (for inter-service communication)
   const natsApp = await NestFactory.createMicroservice<MicroserviceOptions>(
     IdentityModule,
-    {
-      transport: Transport.NATS,
-      options: {
-        servers: [process.env.NATS_URL || 'nats://localhost:4222'],
-      },
-    },
+    createNatsServiceConfig(),
   );
 
   await natsApp.listen();

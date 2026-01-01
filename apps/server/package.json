@@ -63,7 +63,6 @@
     "@workspace/schemas": "workspace:*",
     "axios": "^1.13.2",
     "axios-retry": "^4.5.0",
-    "bcrypt": "^5.1.1",
     "body-parser": "^2.2.1",
     "cache-manager": "^7.2.7",
     "class-transformer": "^0.5.1",

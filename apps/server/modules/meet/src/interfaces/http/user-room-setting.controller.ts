@@ -10,8 +10,6 @@ import {
     HttpStatus,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
-import { Inject } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
 import { fromBinary, create } from '@bufbuild/protobuf';
 import {
     GenerateTokenReq,
@@ -25,7 +23,11 @@ import {
     RemoveParticipantReq,
     RemoveParticipantReqSchema,
     SwitchPresenterReq,
-    SwitchPresenterReqSchema, VerifyTokenReq, VerifyTokenReqSchema, IsRoomActiveReqSchema, VerifyTokenResSchema,
+    SwitchPresenterReqSchema,
+    VerifyTokenReq,
+    VerifyTokenReqSchema,
+    IsRoomActiveReqSchema,
+    VerifyTokenResSchema,
     NatsSubjectsSchema,
 } from '@workspace/protocol';
 import {
@@ -34,9 +36,12 @@ import {
     sendCommonProtobufResponse,
     parseAndValidateRequest,
     ApiKeyGuard,
-    JwtAuthGuard, sendProtobufResponse,
+    JwtAuthGuard,
+    sendProtobufResponse,
 } from '@server/shared';
-import {ConfigService} from "@nestjs/config";
+import { ConfigService } from "@nestjs/config";
+import { RoomUserService } from '../../modules/room/room-user.service';
+import { RoomInfoService } from '../../modules/room/room-info.service';
 
 /**
  * UserRoomSettingController handles user operations within rooms (JwtAuthGuard routes)
@@ -46,7 +51,8 @@ import {ConfigService} from "@nestjs/config";
 @UseGuards(JwtAuthGuard)
 export class UserRoomSettingController {
     constructor(
-        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
+        private readonly roomUserService: RoomUserService,
+        private readonly roomInfoService: RoomInfoService,
         private readonly configService: ConfigService,
     ) { }
 
@@ -77,9 +83,7 @@ export class UserRoomSettingController {
 
         // Check for duplicate join
         try {
-            const userStatus = await this.natsClient
-                .send('room.getUserStatus', { roomId, userId: requestedUserId })
-                .toPromise();
+            const userStatus = await this.roomUserService.getUserStatus(roomId, requestedUserId);
 
             if (userStatus === 'online') {
                 sendCommonProtoJsonResponse(res, false, 'notifications.room-disconnected-duplicate-entry');
@@ -92,9 +96,7 @@ export class UserRoomSettingController {
 
         // Check if user is in block list
         try {
-            const isBlocked = await this.natsClient
-                .send({ cmd: 'user.isUserInBlockList' }, { roomId, userId: requestedUserId })
-                .toPromise();
+            const isBlocked = await this.roomUserService.isUserInBlockList(roomId, requestedUserId);
 
             if (isBlocked) {
                 sendCommonProtoJsonResponse(res, false, 'notifications.you-are-blocked');
@@ -108,22 +110,17 @@ export class UserRoomSettingController {
         // Check if room is active
         try {
             const isRoomActiveReq = create(IsRoomActiveReqSchema, { roomId });
-            // Send plain object to NATS - NestJS handles JSON serialization
-            const roomActiveResponse = await this.natsClient
-                .send({ cmd: 'room.isActive' }, isRoomActiveReq)
-                .toPromise();
+            const roomActiveResponse = await this.roomInfoService.isRoomActive(isRoomActiveReq);
 
             if (!roomActiveResponse) {
                 sendCommonProtoJsonResponse(res, false, 'room status unavailable');
                 return;
             }
 
-            // roomActiveResponse can be either IsRoomActiveRes or full payload { res, roomDbInfo, rInfo, meta }
-            const roomData = roomActiveResponse?.res ? roomActiveResponse : { res: roomActiveResponse };
-            const rr = roomData.res;
-            const rInfo = roomData.rInfo;
-            const roomDbInfo = roomData.roomDbInfo;
-            const meta = roomData.meta ?? roomData.metadata;
+            const rr = roomActiveResponse.res;
+            const rInfo = roomActiveResponse.rInfo;
+            const roomDbInfo = roomActiveResponse.roomDbInfo;
+            const meta = roomActiveResponse.meta ?? roomActiveResponse.metadata;
 
             if (!rr?.isActive) {
                 sendCommonProtoJsonResponse(res, false, rr?.msg || 'room is not active');
@@ -132,15 +129,14 @@ export class UserRoomSettingController {
 
             // Check max participants
             if (
-                (rInfo?.maxParticipants || 0) > 0 &&
-                (roomDbInfo?.joinedParticipants || 0) >= (rInfo?.maxParticipants || 0)
+                Number(rInfo?.maxParticipants || 0) > 0 &&
+                (roomDbInfo?.joinedParticipants || 0) >= Number(rInfo?.maxParticipants || 0)
             ) {
                 sendCommonProtoJsonResponse(res, false, 'notifications.max-num-participates-exceeded');
                 return;
             }
 
             // Build successful response
-            // Accept env as comma-separated string or array
             const rawWsUrls = this.configService.get<string>('NATS_WS_URLS');
             const natsWsUrls = rawWsUrls
                 ? rawWsUrls.split(',').map((u) => u.trim()).filter((u) => !!u)
@@ -170,9 +166,6 @@ export class UserRoomSettingController {
                     meta?.roomFeatures?.endToEndEncryptionFeatures?.enabledSelfInsertEncryptionKey || false,
             });
 
-            console.log(response);
-
-            // Keep parameter order consistent with sendProtobufResponse(res, schema, message)
             sendProtobufResponse(res, VerifyTokenResSchema, response);
         } catch (error) {
             sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error verifying token');
@@ -217,11 +210,9 @@ export class UserRoomSettingController {
             return;
         }
 
-        // Check if room is running (via NATS)
+        // Check if room is running
         try {
-            const room = await this.natsClient
-                .send({ cmd: 'room.getRoomInfoBySid' }, { sid: request.roomSid, isRunning: 1 })
-                .toPromise();
+            const room = await this.roomInfoService.getRoomInfoBySid(request.roomSid, 1);
 
             if (!room || !room.id) {
                 sendCommonProtobufResponse(res, false, 'room isn\'t running');
@@ -232,14 +223,15 @@ export class UserRoomSettingController {
             return;
         }
 
-        // Add requestedUserId to request
-        request.requestedUserId = requestedUserId;
-
-        // Call user service via NATS
+        // Call service directly
         try {
-            await this.natsClient
-                .send({ cmd: 'user.updateLockSettings' }, request)
-                .toPromise();
+            await this.roomUserService.updateUserLockSettings({
+                roomId: request.roomId,
+                userId: request.userId,
+                service: request.service,
+                direction: request.direction as 'lock' | 'unlock',
+                requestedUserId,
+            });
 
             sendCommonProtobufResponse(res, true, 'success');
         } catch (error) {
@@ -270,8 +262,6 @@ export class UserRoomSettingController {
             return;
         }
 
-        // TODO: CommonValidation (via NATS if needed)
-
         // Parse protobuf request
         let request: MuteUnMuteTrackReq;
         try {
@@ -287,11 +277,9 @@ export class UserRoomSettingController {
             return;
         }
 
-        // Check if room is running (via NATS)
+        // Check if room is running
         try {
-            const room = await this.natsClient
-                .send({ cmd: 'room.getRoomInfoBySid' }, { sid: request.sid, isRunning: 1 })
-                .toPromise();
+            const room = await this.roomInfoService.getRoomInfoBySid(request.sid, 1);
 
             if (!room || !room.id) {
                 sendCommonProtobufResponse(res, false, 'room isn\'t running');
@@ -302,14 +290,15 @@ export class UserRoomSettingController {
             return;
         }
 
-        // Add requestedUserId to request
-        request.requestedUserId = requestedUserId;
-
-        // Call user service via NATS
+        // Call service directly
         try {
-            await this.natsClient
-                .send({ cmd: 'user.muteUnMuteTrack' }, request)
-                .toPromise();
+            await this.roomUserService.handleMuteUnMuteTrack({
+                roomId: request.roomId,
+                userId: request.userId,
+                trackSid: request.trackSid,
+                muted: request.muted,
+                requestedUserId,
+            });
 
             sendCommonProtobufResponse(res, true, 'success');
         } catch (error) {
@@ -340,8 +329,6 @@ export class UserRoomSettingController {
             return;
         }
 
-        // TODO: CommonValidation (via NATS if needed)
-
         // Parse protobuf request
         let request: RemoveParticipantReq;
         try {
@@ -363,11 +350,9 @@ export class UserRoomSettingController {
             return;
         }
 
-        // Check if room is running (via NATS)
+        // Check if room is running
         try {
-            const room = await this.natsClient
-                .send({ cmd: 'room.getRoomInfoBySid' }, { sid: request.sid, isRunning: 1 })
-                .toPromise();
+            const room = await this.roomInfoService.getRoomInfoBySid(request.sid, 1);
 
             if (!room || !room.id) {
                 sendCommonProtobufResponse(res, false, 'room isn\'t running');
@@ -378,11 +363,15 @@ export class UserRoomSettingController {
             return;
         }
 
-        // Call user service via NATS
+        // Call service directly
         try {
-            await this.natsClient
-                .send({ cmd: 'user.removeParticipant' }, request)
-                .toPromise();
+            await this.roomUserService.handleRemoveParticipant({
+                sid: request.sid,
+                roomId: request.roomId,
+                userId: request.userId,
+                msg: request.msg,
+                blockUser: request.blockUser,
+            });
 
             sendCommonProtobufResponse(res, true, 'success');
         } catch (error) {
@@ -422,15 +411,15 @@ export class UserRoomSettingController {
             return;
         }
 
-        // Set roomId and requestedUserId from token (matches proto field names)
-        request.roomId = roomId;
-        request.requestedUserId = requestedUserId;
-
-        // Call user service via NATS
+        // Call service directly
         try {
-            await this.natsClient
-                .send({ cmd: 'user.switchPresenter' }, request)
-                .toPromise();
+            // Note: switchPresenter is private, use handleSwitchPresenter instead
+            await this.roomUserService.handleSwitchPresenter({
+                roomId,
+                userId: request.userId,
+                requestedUserId,
+                task: request.task,
+            });
 
             sendCommonProtobufResponse(res, true, 'success');
         } catch (error) {

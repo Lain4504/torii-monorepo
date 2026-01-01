@@ -13,8 +13,6 @@ import {
   UseGuards, HttpCode, HttpStatus,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
-import { Inject } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
 import { fromBinary, create } from '@bufbuild/protobuf';
 import {
   CreateRoomReq,
@@ -49,6 +47,10 @@ import {
   ApiKeyGuard,
   JwtAuthGuard,
 } from '@server/shared';
+import { RoomCreateService } from '../../modules/room/room-create.service';
+import { RoomInfoService } from '../../modules/room/room-info.service';
+import { RoomEndService } from '../../modules/room/room-end.service';
+import { RoomModifyService } from '../../modules/room/room-modify.service';
 
 /**
  * RoomController handles room-related operations
@@ -58,7 +60,10 @@ import {
 @UseGuards(ApiKeyGuard)
 export class RoomController {
   constructor(
-    @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
+    private readonly roomCreateService: RoomCreateService,
+    private readonly roomInfoService: RoomInfoService,
+    private readonly roomEndService: RoomEndService,
+    private readonly roomModifyService: RoomModifyService,
   ) { }
 
   /**
@@ -80,11 +85,9 @@ export class RoomController {
       return;
     }
 
-    // Call room service via NATS (plain object, not binary)
+    // Call room service directly
     try {
-      const roomInfo = await this.natsClient
-        .send({ cmd: 'room.create' }, request)
-        .toPromise();
+      const roomInfo = await this.roomCreateService.createRoom(request);
 
       const response = create(CreateRoomResSchema, {
         status: true,
@@ -110,39 +113,22 @@ export class RoomController {
     @Body() body: any,
     @Res() res: Response,
   ): Promise<void> {
-    console.log('🔵 [Gateway] handleIsRoomActive called with body:', JSON.stringify(body));
-
     // Parse and validate request
     let request: IsRoomActiveReq;
     try {
       request = parseAndValidateRequest<IsRoomActiveReq>(body, IsRoomActiveReqSchema);
-      console.log('🔵 [Gateway] Parsed request:', JSON.stringify(request));
     } catch (error) {
-      console.error('🔴 [Gateway] Failed to parse request:', error);
       sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Invalid request');
       return;
     }
 
-    // Call room service via NATS
-    // IMPORTANT: Do NOT use toBinary() - NestJS NATS transport expects plain objects
-    // It will handle JSON serialization automatically
+    // Call room service directly
     try {
-      console.log('🔵 [Gateway] Sending NATS message:', {
-        pattern: 'room.isActive',
-        request: request
-      });
+      const result = await this.roomInfoService.isRoomActive(request);
 
-      const response = await this.natsClient
-        .send({ cmd: 'room.isActive' }, request)
-        .toPromise();
-
-      const payload = response?.res ? response.res : response;
-
-      console.log('🟢 [Gateway] Received NATS response:', payload);
       res.status(200);
-      sendProtoJsonResponse(res, IsRoomActiveResSchema, payload);
+      sendProtoJsonResponse(res, IsRoomActiveResSchema, result.res);
     } catch (error) {
-      console.error('🔴 [Gateway] NATS error:', error);
       sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error checking room status');
     }
   }
@@ -167,16 +153,14 @@ export class RoomController {
       return;
     }
 
-    // Call room service via NATS (plain object, not binary)
+    // Call room service directly
     try {
-      const result = await this.natsClient
-        .send({ cmd: 'room.getActiveInfo' }, request)
-        .toPromise();
+      const result = await this.roomInfoService.getActiveRoomInfo(request);
 
       const response = create(GetActiveRoomInfoResSchema, {
-        status: result.status,
-        msg: result.msg,
-        room: result.room,
+        status: result.success,
+        msg: result.message,
+        room: result.data || undefined,
       });
 
       res.status(200);
@@ -196,19 +180,17 @@ export class RoomController {
   async handleGetActiveRoomsInfo(
     @Res() res: Response,
   ): Promise<void> {
-    // Call room service via NATS (no request body)
+    // Call room service directly
     try {
-      const result = await this.natsClient
-        .send({ cmd: 'room.getActiveRoomsInfo' }, {})
-        .toPromise();
+      const result = await this.roomInfoService.getActiveRoomsInfo();
 
       const response = create(GetActiveRoomsInfoResSchema, {
-        status: result.status,
-        msg: result.msg,
-        rooms: result.rooms,
+        status: result.success,
+        msg: result.message,
+        rooms: result.data || [],
       });
 
-      res.status(200);  // Set 200 OK
+      res.status(200);
       sendProtoJsonResponse(res, GetActiveRoomsInfoResSchema, response);
     } catch (error) {
       sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error getting rooms info');
@@ -235,11 +217,9 @@ export class RoomController {
       return;
     }
 
-    // Call room service via NATS (plain object, not binary)
+    // Call room service directly
     try {
-      const result = await this.natsClient
-        .send({ cmd: 'room.end' }, request)
-        .toPromise();
+      const result = await this.roomEndService.endRoom(request);
 
       sendCommonProtoJsonResponse(res, result.status, result.msg);
     } catch (error) {
@@ -267,13 +247,11 @@ export class RoomController {
       return;
     }
 
-    // Call room service via NATS (plain object, not binary)
+    // Call room service directly
     try {
-      const result = await this.natsClient
-        .send({ cmd: 'room.fetchPast' }, request)
-        .toPromise();
+      const result = await this.roomInfoService.fetchPastRooms(request);
 
-      if (result.totalRooms === 0) {
+      if (!result.totalRooms || parseInt(result.totalRooms) === 0) {
         sendCommonProtoJsonResponse(res, false, 'no info found');
         return;
       }
@@ -300,7 +278,8 @@ export class RoomController {
 @UseGuards(JwtAuthGuard)
 export class RoomApiController {
   constructor(
-    @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
+    private readonly roomEndService: RoomEndService,
+    private readonly roomModifyService: RoomModifyService,
   ) { }
 
   /**
@@ -340,11 +319,9 @@ export class RoomApiController {
       return;
     }
 
-    // Call room service via NATS (plain object, not binary)
+    // Call room service directly
     try {
-      const result = await this.natsClient
-        .send({ cmd: 'room.end' }, request)
-        .toPromise();
+      const result = await this.roomEndService.endRoom(request);
 
       sendCommonProtobufResponse(res, result.status, result.msg);
     } catch (error) {
@@ -389,11 +366,9 @@ export class RoomApiController {
       return;
     }
 
-    // Call room service via NATS (plain object, not binary)
+    // Call room service directly
     try {
-      const result = await this.natsClient
-        .send({ cmd: 'room.changeVisibility' }, request)
-        .toPromise();
+      const result = await this.roomModifyService.changeVisibility(request);
 
       sendCommonProtobufResponse(res, result.status, result.msg);
     } catch (error) {

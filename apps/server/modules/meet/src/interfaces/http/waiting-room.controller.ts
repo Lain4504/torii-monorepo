@@ -1,5 +1,5 @@
 /**
- * Waiting Room Controller (Gateway)
+ * Waiting Room Controller
  * 
  * Handles HTTP endpoints for waiting room operations
  * Routes under /api/waitingRoom (with JWT auth)
@@ -14,10 +14,8 @@ import {
     UseGuards,
     HttpCode,
     HttpStatus,
-    Inject,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
-import { ClientProxy } from '@nestjs/microservices';
 import { fromBinary } from '@bufbuild/protobuf';
 import {
     ApproveWaitingUsersReq,
@@ -29,6 +27,7 @@ import {
     sendCommonProtobufResponse,
     JwtAuthGuard,
 } from '@server/shared';
+import { WaitingRoomService } from '../../modules/waiting-room/waiting-room.service';
 
 /**
  * WaitingRoomController handles waiting room operations
@@ -38,7 +37,7 @@ import {
 @UseGuards(JwtAuthGuard)
 export class WaitingRoomController {
     constructor(
-        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
+        private readonly waitingRoomService: WaitingRoomService,
     ) { }
 
     /**
@@ -75,13 +74,11 @@ export class WaitingRoomController {
         // Set roomId from token
         request.roomId = roomId;
 
-        // Call room service via NATS
+        // Call service directly
         try {
-            const result = await this.natsClient
-                .send({ cmd: 'waitingRoom.approveUsers' }, request)
-                .toPromise();
+            await this.waitingRoomService.approveWaitingUsers(request);
 
-            sendCommonProtobufResponse(res, result.status, result.msg);
+            sendCommonProtobufResponse(res, true, 'success');
         } catch (error) {
             sendCommonProtobufResponse(res, false, error instanceof Error ? error.message : 'Error approving users');
         }
@@ -121,13 +118,11 @@ export class WaitingRoomController {
         // Set roomId from token
         request.roomId = roomId;
 
-        // Call room service via NATS
+        // Call service directly
         try {
-            const result = await this.natsClient
-                .send({ cmd: 'waitingRoom.updateMsg' }, request)
-                .toPromise();
+            await this.waitingRoomService.updateWaitingRoomMessage(request);
 
-            sendCommonProtobufResponse(res, result.status, result.msg);
+            sendCommonProtobufResponse(res, true, 'success');
         } catch (error) {
             sendCommonProtobufResponse(res, false, error instanceof Error ? error.message : 'Error updating waiting room message');
         }

@@ -4,22 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="chore: remove legacy gateway modules in preparation for migration to HTTP-based interfaces">
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/assessment/src/interfaces/http/question-bank.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/assessment/src/interfaces/http/question-bank.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/community/src/community.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/community/src/community.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/community/src/interfaces/http/blog-comment.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/community/src/interfaces/http/blog-comment.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/community/src/interfaces/http/blog.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/community/src/interfaces/http/blog.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/community/src/interfaces/http/notification.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/community/src/interfaces/http/notification.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/flashcards/src/interfaces/http/flashcard-deck.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/flashcards/src/interfaces/http/flashcard-deck.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/flashcards/src/interfaces/http/flashcard.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/flashcards/src/interfaces/http/flashcard.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/http/audit-log.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/http/audit-log.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/http/auth.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/http/auth.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/http/rbac.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/http/rbac.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/http/users.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/http/users.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/lms/src/interfaces/http/course.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/lms/src/interfaces/http/course.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/lms/src/interfaces/http/lesson.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/lms/src/interfaces/http/lesson.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/lms/src/interfaces/http/module.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/lms/src/interfaces/http/module.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/lms/src/interfaces/http/wishlist.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/lms/src/interfaces/http/wishlist.controller.ts" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="chore: remove obsolete controllers for room, auth-room, and polls in preparation for HTTP-based migration">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/firebase/firebase-auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/firebase/firebase-auth.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/main.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/users/users.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/users/users.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/http/user-room-setting.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/http/user-room-setting.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/TEST_ACCOUNTS.md" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/TEST_ACCOUNTS.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,7 +19,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="690" />
+    <option name="cachedIndexableFilesCount" value="662" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -112,39 +104,39 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "migration-to-firebase-authentication",
-    "ignore.virus.scanning.warn.message": "true",
-    "junie.onboarding.icon.badge.shown": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "E:/demo/team-source/torii-monorepo/apps/server/modules/billing/src/modules",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "pnpm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "to.speed.mode.migration.done": "true",
-    "ts.external.directory.path": "E:\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Docker.docker-compose.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;#46 on migration-to-firebase-authentication&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;E:/demo/team-source/torii-monorepo/apps/server/modules/billing/src/modules&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;E:\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "postgresql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;postgresql&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\billing\src\modules" />
@@ -243,38 +235,7 @@
       <workItem from="1767179041805" duration="1585000" />
       <workItem from="1767182827516" duration="3496000" />
       <workItem from="1767192481085" duration="10184000" />
-    </task>
-    <task id="LOCAL-00342" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
-      <option name="closed" value="true" />
-      <created>1766844724815</created>
-      <option name="number" value="00342" />
-      <option name="presentableId" value="LOCAL-00342" />
-      <option name="project" value="LOCAL" />
-      <updated>1766844724815</updated>
-    </task>
-    <task id="LOCAL-00343" summary="feat: add initial React + TypeScript + Vite template with ESLint configuration for meet">
-      <option name="closed" value="true" />
-      <created>1766886077094</created>
-      <option name="number" value="00343" />
-      <option name="presentableId" value="LOCAL-00343" />
-      <option name="project" value="LOCAL" />
-      <updated>1766886077095</updated>
-    </task>
-    <task id="LOCAL-00344" summary="feat: add initial React + TypeScript + Vite template with ESLint configuration for meet">
-      <option name="closed" value="true" />
-      <created>1766886779344</created>
-      <option name="number" value="00344" />
-      <option name="presentableId" value="LOCAL-00344" />
-      <option name="project" value="LOCAL" />
-      <updated>1766886779344</updated>
-    </task>
-    <task id="LOCAL-00345" summary="feat: add initial React + TypeScript + Vite template with ESLint configuration for meet">
-      <option name="closed" value="true" />
-      <created>1766886923345</created>
-      <option name="number" value="00345" />
-      <option name="presentableId" value="LOCAL-00345" />
-      <option name="project" value="LOCAL" />
-      <updated>1766886923345</updated>
+      <workItem from="1767234621203" duration="2315000" />
     </task>
     <task id="LOCAL-00346" summary="feat: add initial React + TypeScript + Vite template with ESLint configuration for meet">
       <option name="closed" value="true" />
@@ -636,7 +597,39 @@
       <option name="project" value="LOCAL" />
       <updated>1767202522420</updated>
     </task>
-    <option name="localTasksCounter" value="391" />
+    <task id="LOCAL-00391" summary="chore: remove obsolete controllers for room, auth-room, and polls in preparation for HTTP-based migration">
+      <option name="closed" value="true" />
+      <created>1767230309391</created>
+      <option name="number" value="00391" />
+      <option name="presentableId" value="LOCAL-00391" />
+      <option name="project" value="LOCAL" />
+      <updated>1767230309392</updated>
+    </task>
+    <task id="LOCAL-00392" summary="chore: remove obsolete controllers for room, auth-room, and polls in preparation for HTTP-based migration">
+      <option name="closed" value="true" />
+      <created>1767231449047</created>
+      <option name="number" value="00392" />
+      <option name="presentableId" value="LOCAL-00392" />
+      <option name="project" value="LOCAL" />
+      <updated>1767231449048</updated>
+    </task>
+    <task id="LOCAL-00393" summary="chore: remove obsolete controllers for room, auth-room, and polls in preparation for HTTP-based migration">
+      <option name="closed" value="true" />
+      <created>1767233089530</created>
+      <option name="number" value="00393" />
+      <option name="presentableId" value="LOCAL-00393" />
+      <option name="project" value="LOCAL" />
+      <updated>1767233089530</updated>
+    </task>
+    <task id="LOCAL-00394" summary="chore: remove obsolete controllers for room, auth-room, and polls in preparation for HTTP-based migration">
+      <option name="closed" value="true" />
+      <created>1767234826678</created>
+      <option name="number" value="00394" />
+      <option name="presentableId" value="LOCAL-00394" />
+      <option name="project" value="LOCAL" />
+      <updated>1767234826678</updated>
+    </task>
+    <option name="localTasksCounter" value="395" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -666,7 +659,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="fix: enhance participant removal logic" />
     <MESSAGE value="fix: enhance participant removal logic and align with Go server implementation" />
     <MESSAGE value="fix: update LiveKit token generation and implement hand raise/lower functionality" />
     <MESSAGE value="feat(docker): enhance Docker setup with LiveKit configuration and streamline service definitions" />
@@ -691,7 +683,8 @@
     <MESSAGE value="chore: migrate LMS and Flashcards modules to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`course.controller`, `lesson.controller`, `module.controller`) with new HTTP controllers.&#10;- Added HTTP controllers for Flashcards (`flashcard.controller`, `flashcard-deck.controller`).&#10;- Updated `LmsModule` and `main.ts` to enable both HTTP and NATS-based communication.&#10;- Integrated CORS and global validation pipes for HTTP services.&#10;- Updated `ProxyController` to route LMS and Flashcards endpoints (`/courses`, `/lessons`, `/modules`, `/flashcards`, `/flashcard-decks`)." />
     <MESSAGE value="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`)." />
     <MESSAGE value="chore: remove legacy gateway modules in preparation for migration to HTTP-based interfaces" />
-    <option name="LAST_COMMIT_MESSAGE" value="chore: remove legacy gateway modules in preparation for migration to HTTP-based interfaces" />
+    <MESSAGE value="chore: remove obsolete controllers for room, auth-room, and polls in preparation for HTTP-based migration" />
+    <option name="LAST_COMMIT_MESSAGE" value="chore: remove obsolete controllers for room, auth-room, and polls in preparation for HTTP-based migration" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

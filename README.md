@@ -74,6 +74,35 @@ docker-compose down -v
     ```
     *Lệnh `db push` sẽ đồng bộ schema Prisma vào database `wajlc` đang chạy trên Docker.*
 
+4.  **Environment Variables (Service URLs):**
+    Đảm bảo `.env` có các biến sau cho microservices:
+    ```bash
+    # Microservice Ports
+    IDENTITY_HTTP_PORT=8081
+    LMS_HTTP_PORT=8082
+    FLASHCARDS_HTTP_PORT=8083
+    COMMUNITY_HTTP_PORT=8084
+    ASSESSMENT_HTTP_PORT=8085
+    STORAGE_HTTP_PORT=8086
+    GAMIFICATION_HTTP_PORT=8088
+    BILLING_HTTP_PORT=8089
+    CORTEX_HTTP_PORT=8090
+    MEET_HTTP_PORT=8091
+    
+    # Service URLs (for Gateway proxy)
+    IDENTITY_SERVICE_URL=http://localhost:8081
+    LMS_SERVICE_URL=http://localhost:8082
+    FLASHCARDS_SERVICE_URL=http://localhost:8083
+    COMMUNITY_SERVICE_URL=http://localhost:8084
+    ASSESSMENT_SERVICE_URL=http://localhost:8085
+    STORAGE_SERVICE_URL=http://localhost:8086
+    GAMIFICATION_SERVICE_URL=http://localhost:8088
+    BILLING_SERVICE_URL=http://localhost:8089
+    CORTEX_SERVICE_URL=http://localhost:8090
+    MEET_SERVICE_URL=http://localhost:8091
+    ```
+
+
 ### 4. Running the App
 
 Chạy toàn bộ Backend Microservices ở chế độ Watch Mode:
@@ -103,47 +132,94 @@ pnpm dlx shadcn@latest add [component-name]
 
 ---
 
-## 🛰 Microservices Architecture (Domain-Driven)
+## 🛰 Microservices Architecture (HTTP + NATS Hybrid)
 
-Toàn bộ hệ thống backend được chia thành các **Domain Services** giao tiếp qua **NATS Message Broker** và **Protobuf**. Kiến trúc này tập trung vào các nghiệp vụ lõi (Learning, Real-time Class, AI) thay vì chia theo chức năng kỹ thuật.
+Hệ thống backend được chia thành các **Domain Services độc lập**, giao tiếp qua **HTTP REST API** (cho request/response) và **NATS Message Broker** (cho realtime events và async jobs). Kiến trúc này tập trung vào các nghiệp vụ lõi (Learning, Real-time Class, AI) thay vì chia theo chức năng kỹ thuật.
 
-### 🏛 System Map
+### 🏛 System Architecture
 
 ```mermaid
 graph TB
-    Client((Clients)) --> Gateway[API Gateway]
-    Gateway -- NATS/RPC --> ServiceLayer
+    Client((Clients)) -->|HTTP| Gateway[API Gateway :8080]
+    Gateway -->|HTTP Proxy| ServiceLayer
+    Gateway -.->|NATS Auth Callout| NATS[(NATS Server)]
     
     subgraph ServiceLayer [Microservices Ecosystem]
         direction TB
-        Identity[<b>Identity</b><br>Auth & Users]
-        LMS[<b>LMS</b><br>Courses & Content]
-        Meet[<b>Meet</b><br>WebRTC & Classrooms]
-        Billing[<b>Billing</b><br>Payments & Coupons]
-        Cortex[<b>Cortex</b><br>AI Agents]
-        Flashcards[<b>Flashcards</b><br>Spaced Repetition]
-        Gamification[<b>Gamification</b><br>Badges & Points]
-        Assessment[<b>Assessment</b><br>Exams & Tests]
-        Community[<b>Community</b><br>Blog, Social & Notif]
-        Storage[<b>Storage</b><br>File Assets]
+        Identity[<b>Identity</b> :8081<br>Auth & Users]
+        LMS[<b>LMS</b> :8082<br>Courses & Content]
+        Flashcards[<b>Flashcards</b> :8083<br>Spaced Repetition]
+        Community[<b>Community</b> :8084<br>Blog & Social]
+        Assessment[<b>Assessment</b> :8085<br>Exams & Tests]
+        Storage[<b>Storage</b> :8086<br>File Assets]
+        Gamification[<b>Gamification</b> :8088<br>Badges & Points]
+        Billing[<b>Billing</b> :8089<br>Payments]
+        Cortex[<b>Cortex</b> :8090<br>AI Agents]
+        Meet[<b>Meet</b> :8091<br>WebRTC & Classrooms]
     end
+    
+    ServiceLayer -.->|Realtime Events| NATS
+    Meet -.->|WebSocket & Jobs| NATS
 ```
+
+### 📡 Communication Patterns
+
+**1. HTTP (Request/Response):**
+- Client → Gateway → Microservice HTTP endpoint
+- Synchronous CRUD operations
+- RESTful API design
+
+**2. NATS (Realtime & Async):**
+- Auth callout for LiveKit (Meet service)
+- WebSocket communication (Meet service)
+- Async job processing (transcoding, analytics)
+- Inter-service events (optional)
 
 ### 🧩 Service Domains (Modules)
 
-| Directory Name | Domain Name | Ports | Trách nhiệm chính (Bounded Context) |
+| Service | Port | Protocol | Trách nhiệm chính (Bounded Context) |
 |:---|:---|:---|:---|
-| `gateway` | **Gateway** | `8080` | Entry point duy nhất, xử lý HTTP requests, Authentication guard (Auth Callout), và routing qua NATS. |
-| `module/identity` | **Identity** | - | **Core Auth**: Đăng ký, đăng nhập, Quản lý User, RBAC (Roles & Permissions). Là "Single Source of Truth" về danh tính. |
-| `module/lms` | **LMS** | - | **Learning Core**: Quản lý khóa học, bài học (Lessons), lộ trình học tập, tracking tiến độ học viên. |
-| `module/meet` | **Meet** | - | **Live Class Engine**: Quản lý phòng học ảo, tích hợp LiveKit (WebRTC), Recording, Whiteboard và điểm danh thời gian thực. |
-| `module/cortex` | **Cortex** | - | **AI Brain**: Hệ thống Multi-Agent (Sensei, Analytics, Proctoring). Là "trung tâm trí tuệ" của nền tảng. |
-| `module/flashcards` | **Flashcards** | - | **Study Tool**: Quản lý bộ thẻ (Decks), thuật toán Spaced Repetition (SRS) để ôn tập từ vựng. |
-| `module/gamification`| **Gamification**| - | **Engagement**: Hệ thống điểm thưởng, huy hiệu (Badges), bảng xếp hạng (Leaderboards) và Streaks. |
-| `module/assessment`| **Assessment**| - | **Testing Engine**: Ngân hàng câu hỏi, bài kiểm tra (Quiz), tổ chức thi thử JLPT và chấm điểm tự động. |
-| `module/billing` | **Billing** | - | **Finance**: Xử lý thanh toán, hóa đơn (Invoices), mã giảm giá (Coupons) và quản lý doanh thu. |
-| `module/community` | **Community** | - | **Social**: Blog, Bình luận, Profile xã hội và Hệ thống thông báo (Notification Center). |
-| `module/storage` | **Storage** | - | **Assets**: Quản lý upload/download file tập trung, tích hợp S3/MinIO. |
+| **Gateway** | `8080` | HTTP | Entry point duy nhất, HTTP proxy routing, Authentication guard (Auth Callout via NATS). |
+| **Identity** | `8081` | HTTP | **Core Auth**: Đăng ký, đăng nhập, Quản lý User, RBAC (Roles & Permissions). Là "Single Source of Truth" về danh tính. |
+| **LMS** | `8082` | HTTP | **Learning Core**: Quản lý khóa học, bài học (Lessons), lộ trình học tập, tracking tiến độ học viên. |
+| **Flashcards** | `8083` | HTTP | **Study Tool**: Quản lý bộ thẻ (Decks), thuật toán Spaced Repetition (SRS) để ôn tập từ vựng. |
+| **Community** | `8084` | HTTP | **Social**: Blog, Bình luận, Profile xã hội và Hệ thống thông báo (Notification Center). |
+| **Assessment** | `8085` | HTTP | **Testing Engine**: Ngân hàng câu hỏi, bài kiểm tra (Quiz), tổ chức thi thử JLPT và chấm điểm tự động. |
+| **Storage** | `8086` | HTTP | **Assets**: Quản lý upload/download file tập trung, tích hợp S3/MinIO. |
+| **Gamification** | `8088` | HTTP | **Engagement**: Hệ thống điểm thưởng, huy hiệu (Badges), bảng xếp hạng (Leaderboards) và Streaks. |
+| **Billing** | `8089` | HTTP | **Finance**: Xử lý thanh toán, hóa đơn (Invoices), mã giảm giá (Coupons) và quản lý doanh thu. |
+| **Cortex** | `8090` | HTTP | **AI Brain**: Hệ thống Multi-Agent (Sensei, Analytics, Proctoring). Là "trung tâm trí tuệ" của nền tảng. |
+| **Meet** | `8091` | HTTP + NATS | **Live Class Engine**: Quản lý phóng học ảo, tích hợp LiveKit (WebRTC), Recording, Whiteboard. NATS cho realtime WebSocket và auth callout. |
+
+### 🔌 Service Communication Examples
+
+**HTTP Request Flow (Room Creation):**
+```
+Client → Gateway:8080/auth/room/create
+       → Meet:8091/auth/room/create
+       → RoomCreateService.createRoom()
+       → PostgreSQL
+       ← Response
+```
+
+**NATS Realtime Flow (WebSocket Events):**
+```
+WebSocket Client → NATS (system worker stream)
+                 → Meet NATS Controller
+                 → Process PING, raise hand, etc.
+                 → Broadcast via NATS
+                 → All connected clients
+```
+
+**LiveKit Auth Callout:**
+```
+LiveKit → NATS (auth.request)
+        → Gateway NatsAuthModule
+        → Verify JWT token
+        ← Auth response
+```
+
+---
 
 ---
 

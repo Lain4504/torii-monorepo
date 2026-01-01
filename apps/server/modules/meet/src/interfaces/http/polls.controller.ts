@@ -18,8 +18,6 @@ import {
     HttpStatus,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
-import { Inject } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
 import { create, fromBinary } from '@bufbuild/protobuf';
 import {
     ActivatePollsReq,
@@ -37,12 +35,13 @@ import {
     sendProtobufResponse,
     JwtAuthGuard,
 } from '@server/shared';
+import { PollsService } from '../../modules/polls/polls.service';
 
 @Controller('api/polls')
 @UseGuards(JwtAuthGuard)
 export class PollsController {
     constructor(
-        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
+        private readonly pollsService: PollsService,
     ) { }
 
     @Post('activate')
@@ -90,13 +89,11 @@ export class PollsController {
         }
 
         try {
-            const result = await this.natsClient
-                .send({ cmd: 'polls.activate' }, request)
-                .toPromise();
+            await this.pollsService.manageActivation(request);
 
             const response = create(PollResponseSchema, {
-                status: result.status,
-                msg: result.msg,
+                status: true,
+                msg: 'success',
             });
 
             res.status(200);
@@ -148,14 +145,12 @@ export class PollsController {
         }
 
         try {
-            const result = await this.natsClient
-                .send({ cmd: 'polls.create' }, request)
-                .toPromise();
+            const pollId = await this.pollsService.createPoll(request);
 
             const response = create(PollResponseSchema, {
-                status: result.status,
-                msg: result.msg,
-                pollId: result.pollId,
+                status: true,
+                msg: 'success',
+                pollId: pollId,
             });
 
             res.status(200);
@@ -179,14 +174,12 @@ export class PollsController {
         const roomId = (req as any).roomId as string;
 
         try {
-            const result = await this.natsClient
-                .send({ cmd: 'polls.listPolls' }, { roomId })
-                .toPromise();
+            const polls = await this.pollsService.listPolls(roomId);
 
             const response = create(PollResponseSchema, {
-                status: result.status,
-                msg: result.msg,
-                polls: result.polls,
+                status: true,
+                msg: 'success',
+                polls: polls,
             });
 
             res.status(200);
@@ -221,15 +214,13 @@ export class PollsController {
         }
 
         try {
-            const result = await this.natsClient
-                .send({ cmd: 'polls.countTotalResponses' }, { roomId, pollId })
-                .toPromise();
+            const totalResponses = await this.pollsService.getPollTotalResponses(roomId, pollId);
 
             const response = create(PollResponseSchema, {
-                status: result.status,
-                msg: result.msg,
-                pollId: result.pollId,
-                totalResponses: result.totalResponses,
+                status: true,
+                msg: 'success',
+                pollId: pollId,
+                totalResponses: totalResponses,
             });
 
             res.status(200);
@@ -265,15 +256,13 @@ export class PollsController {
         }
 
         try {
-            const result = await this.natsClient
-                .send({ cmd: 'polls.userSelectedOption' }, { roomId, pollId, userId })
-                .toPromise();
+            const voted = await this.pollsService.userSelectedOption(roomId, pollId, userId);
 
             const response = create(PollResponseSchema, {
-                status: result.status,
-                msg: result.msg,
-                pollId: result.pollId,
-                voted: result.voted,
+                status: true,
+                msg: 'success',
+                pollId: pollId,
+                voted: voted,
             });
 
             res.status(200);
@@ -312,14 +301,12 @@ export class PollsController {
         }
 
         try {
-            const result = await this.natsClient
-                .send({ cmd: 'polls.submitResponse' }, request)
-                .toPromise();
+            await this.pollsService.userSubmitResponse(request);
 
             const response = create(PollResponseSchema, {
-                status: result.status,
-                msg: result.msg,
-                pollId: result.pollId,
+                status: true,
+                msg: 'success',
+                pollId: request.pollId,
             });
 
             res.status(200);
@@ -371,14 +358,12 @@ export class PollsController {
         }
 
         try {
-            const result = await this.natsClient
-                .send({ cmd: 'polls.closePoll' }, request)
-                .toPromise();
+            await this.pollsService.closePoll(request);
 
             const response = create(PollResponseSchema, {
-                status: result.status,
-                msg: result.msg,
-                pollId: result.pollId,
+                status: true,
+                msg: 'success',
+                pollId: request.pollId,
             });
 
             res.status(200);
@@ -424,15 +409,13 @@ export class PollsController {
         }
 
         try {
-            const result = await this.natsClient
-                .send({ cmd: 'polls.pollResponsesDetails' }, { roomId, pollId })
-                .toPromise();
+            const responses = await this.pollsService.getPollResponsesDetails(roomId, pollId);
 
             const response = create(PollResponseSchema, {
-                status: result.status,
-                msg: result.msg,
-                pollId: result.pollId,
-                responses: result.responses,
+                status: true,
+                msg: 'success',
+                pollId: pollId,
+                responses: responses,
             });
 
             res.status(200);
@@ -457,15 +440,13 @@ export class PollsController {
         const roomId = (req as any).roomId as string;
 
         try {
-            const result = await this.natsClient
-                .send({ cmd: 'polls.pollResponsesResult' }, { roomId, pollId })
-                .toPromise();
+            const pollResponsesResult = await this.pollsService.getResponsesResult(roomId, pollId);
 
             const response = create(PollResponseSchema, {
-                status: result.status,
-                msg: result.msg,
-                pollId: result.pollId,
-                pollResponsesResult: result.pollResponsesResult,
+                status: true,
+                msg: 'success',
+                pollId: pollId,
+                pollResponsesResult: pollResponsesResult,
             });
 
             res.status(200);
@@ -489,14 +470,12 @@ export class PollsController {
         const roomId = (req as any).roomId as string;
 
         try {
-            const result = await this.natsClient
-                .send({ cmd: 'polls.pollsStats' }, { roomId })
-                .toPromise();
+            const stats = await this.pollsService.getPollsStats(roomId);
 
             const response = create(PollResponseSchema, {
-                status: result.status,
-                msg: result.msg,
-                stats: result.stats,
+                status: true,
+                msg: 'success',
+                stats: stats,
             });
 
             res.status(200);

@@ -1,6 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as admin from 'firebase-admin';
+import { getApp, getApps } from 'firebase-admin/app';
 import * as path from 'path';
 
 export interface FirebaseUser {
@@ -29,6 +30,7 @@ export class FirebaseAuthService implements OnModuleInit {
 
     /**
      * Initialize Firebase Admin SDK
+     * Checks if app already exists before initializing to prevent duplicate initialization errors
      */
     private async initializeFirebase(): Promise<void> {
         try {
@@ -37,6 +39,13 @@ export class FirebaseAuthService implements OnModuleInit {
 
             if (!projectId) {
                 throw new Error('FIREBASE_PROJECT_ID is not configured');
+            }
+
+            // Check if Firebase app already exists
+            if (getApps().length > 0) {
+                this.logger.log('Firebase Admin SDK already initialized, using existing app');
+                this.firebaseApp = getApp() as admin.app.App;
+                return;
             }
 
             // Initialize Firebase Admin SDK

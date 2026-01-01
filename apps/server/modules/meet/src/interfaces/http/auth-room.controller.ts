@@ -20,8 +20,6 @@ import {
     HttpStatus,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
-import { Inject } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
 import { fromBinary, create } from '@bufbuild/protobuf';
 import {
     GenerateTokenReq,
@@ -35,34 +33,33 @@ import {
     RemoveParticipantReq,
     RemoveParticipantReqSchema,
     SwitchPresenterReq,
-    SwitchPresenterReqSchema, VerifyTokenReq, VerifyTokenReqSchema, IsRoomActiveReqSchema, VerifyTokenResSchema,
-    NatsSubjectsSchema,
+    SwitchPresenterReqSchema,
 } from '@workspace/protocol';
 import {
     sendCommonProtoJsonResponse,
     sendProtoJsonResponse,
-    sendCommonProtobufResponse,
     parseAndValidateRequest,
     ApiKeyGuard,
-    JwtAuthGuard, sendProtobufResponse,
 } from '@server/shared';
-import {ConfigService} from "@nestjs/config";
+import { RoomUserService } from '../../modules/room/room-user.service';
+import { RoomInfoService } from '../../modules/room/room-info.service';
 
 /**
  * AuthRoomController handles user operations within rooms (ApiKeyGuard routes)
- * Routes under /auth/user
+ * Routes under /auth/room
  */
 @Controller('auth/room')
 @UseGuards(ApiKeyGuard)
 export class AuthRoomController {
     constructor(
-        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
+        private readonly roomUserService: RoomUserService,
+        private readonly roomInfoService: RoomInfoService,
     ) { }
 
     /**
      * HandleGenerateJoinToken generates a join token for a user
      *
-     * @route POST /auth/user/getJoinToken
+     * @route POST /auth/room/getJoinToken
      */
     @Post('getJoinToken')
     @HttpCode(HttpStatus.OK)
@@ -85,11 +82,9 @@ export class AuthRoomController {
             return;
         }
 
-        // Check if user is blocked (via NATS)
+        // Check if user is blocked
         try {
-            const isBlocked = await this.natsClient
-                .send({ cmd: 'user.isUserInBlockList' }, { roomId: request.roomId, userId: request.userInfo.userId })
-                .toPromise();
+            const isBlocked = await this.roomUserService.isUserInBlockList(request.roomId, request.userInfo.userId);
 
             if (isBlocked) {
                 sendCommonProtoJsonResponse(res, false, 'this user is blocked to join this session');
@@ -100,11 +95,9 @@ export class AuthRoomController {
             return;
         }
 
-        // Check if room is active (via NATS)
+        // Check if room is active
         try {
-            const roomInfo = await this.natsClient
-                .send({ cmd: 'room.getRoomInfoByRoomId' }, { roomId: request.roomId, isRunning: true })
-                .toPromise();
+            const roomInfo = await this.roomInfoService.getRoomInfoByRoomId(request.roomId, true);
 
             if (!roomInfo || !roomInfo.id) {
                 sendCommonProtoJsonResponse(res, false, 'room is not active. create room first');
@@ -115,11 +108,9 @@ export class AuthRoomController {
             return;
         }
 
-        // Generate token (via NATS)
+        // Generate token
         try {
-            const result = await this.natsClient
-                .send({ cmd: 'user.generateJoinToken' }, request)
-                .toPromise();
+            const result = await this.roomUserService.getWajlcJoinToken(request);
 
             const response = create(GenerateTokenResSchema, {
                 status: true,

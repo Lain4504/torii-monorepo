@@ -50,6 +50,20 @@ export class ProxyController {
 
         // Cortex Service Routes
         '/api/cortex': process.env.CORTEX_SERVICE_URL || 'http://localhost:8090',
+
+        // Meet Service Routes
+        '/webhook': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
+        '/auth/room': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
+        '/api/room': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
+        '/api/polls': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
+        '/api/waitingRoom': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
+        '/api/verifyToken': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
+        '/api/updateLockSettings': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
+        '/api/muteUnMuteTrack': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
+        '/api/removeParticipant': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
+        '/api/switchPresenter': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
+        '/api/endRoom': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
+        '/api/changeVisibility': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
     };
 
     /**

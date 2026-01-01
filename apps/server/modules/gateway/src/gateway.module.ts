@@ -8,9 +8,6 @@ import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
 // Proxy Module - Routes to microservices
 import { ProxyModule } from './proxy/proxy.module';
 
-// Keep gateway modules for services not yet migrated
-import { MeetGatewayModule } from './meet/meet.module';
-
 /**
  * API Gateway Module
  * Routes requests to microservices (HTTP proxy pattern)
@@ -36,11 +33,8 @@ import { MeetGatewayModule } from './meet/meet.module';
     SharedModule,
     NatsAuthModule, // Auth callout handler - only in Gateway
 
-    // Proxy Module - Handles Identity routes
+    // Proxy Module - Handles all routes to microservices
     ProxyModule,
-
-    // Legacy Gateway Modules (to be migrated)
-    MeetGatewayModule,
   ],
   controllers: [],
   providers: [ApiKeyGuard],
