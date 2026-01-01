@@ -9,15 +9,7 @@ export * from './nats/nats-auth.module';
 export * from './nats/nats-auth.service';
 export { createNatsServiceConfig } from './nats/nats-service.config';
 
-// Firebase
-export * from './firebase/firebase-auth.module';
-export * from './firebase/firebase-auth.service';
-
 // Guards
-export * from './guards/firebase-auth.guard';
-export * from './guards/roles.guard';
-export * from './guards/roles.decorator';
-export * from './guards/api-key.guard';
 export * from './guards/jwt-auth.guard';
 
 export * from './utils/slug.utils';
