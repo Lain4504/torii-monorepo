@@ -257,21 +257,19 @@ model AuditLog {
 // ============================================
 
 model User {
-  id            String    @id @default(uuid()) @db.Uuid
-  email         String    @unique @db.VarChar(255)
-  password      String    @db.VarChar(255)
-  salt          String    @db.VarChar(255)
-  fullName      String    @map("full_name") @db.VarChar(100)
-  role          String    @default("learner") @db.VarChar(50)
-  status        String    @default("active") @db.VarChar(20)
-  emailVerified Boolean   @default(false) @map("email_verified")
-  lastLoginAt   DateTime? @map("last_login_at") @db.Timestamp()
-  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamp()
-  updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamp()
-  deletedAt     DateTime? @map("deleted_at") @db.Timestamp()
+  id          String    @id @default(uuid()) @db.Uuid
+  password    String?   @db.VarChar(255) // Nullable for now or required if strictly no firebase
+  email       String    @unique @db.VarChar(255)
+  fullName    String    @map("full_name") @db.VarChar(100)
+  role        String    @default("learner") @db.VarChar(50)
+  status      String    @default("active") @db.VarChar(20)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp()
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamp()
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamp()
 
   // Relations
   userPermissions UserPermission[]
+  refreshTokens   RefreshToken[]   // ← Added
   flashcardDecks  FlashcardDeck[]
   blogComments    BlogComment[]
   auditLogs       AuditLog[]       @relation("UserAuditLogs")
@@ -282,6 +280,25 @@ model User {
   @@index([status])
   @@map("users")
 }
+
+// Refresh Token Model - For JWT refresh token rotation
+model RefreshToken {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  tokenHash String    @unique @map("token_hash") @db.VarChar(64) // SHA-256 hash
+  expiresAt DateTime  @map("expires_at") @db.Timestamp()
+  revokedAt DateTime? @map("revoked_at") @db.Timestamp()
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamp()
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tokenHash])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
+
 
 // Bảng flashcard deck - Clone từ SQL schema
 model FlashcardDeck {

@@ -1,14 +1,22 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { SharedModule } from '@server/shared';
-import { UsersModule } from '../users/users.module';
+import { RefreshTokenService } from './refresh-token.service';
+import { PrismaService } from '@server/shared';
+import { JwtTokenProvider } from '@server/shared';
+import { RBACModule } from '../rbac/rbac.module';
 
+/**
+ * Auth Module
+ * Provides authentication services
+ */
 @Module({
-    imports: [
-        SharedModule,
-        UsersModule,
+    imports: [RBACModule],
+    providers: [
+        AuthService,
+        RefreshTokenService,
+        PrismaService,
+        JwtTokenProvider,
     ],
-    providers: [AuthService],
-    exports: [AuthService],
+    exports: [AuthService, RefreshTokenService],
 })
 export class AuthModule { }

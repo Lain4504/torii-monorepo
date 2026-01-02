@@ -89,10 +89,6 @@ export const getUsersColumns = ({ onView, onEdit, onDelete, page, limit }: Users
             );
         },
     }),
-    columnHelper.accessor('phone', {
-        header: 'Phone',
-        cell: (info) => info.getValue() || '-',
-    }),
     columnHelper.display({
         id: 'actions',
         cell: ({ row }) => {

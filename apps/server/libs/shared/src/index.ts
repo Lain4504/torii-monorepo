@@ -8,12 +8,11 @@ export * from './nats/nats-client.module';
 export * from './nats/nats-auth.module';
 export * from './nats/nats-auth.service';
 export { createNatsServiceConfig } from './nats/nats-service.config';
+
 // Guards
 export * from './guards/api-key.guard';
 export * from './guards/jwt-auth.guard';
-export * from './guards/remote-auth.guard';
-export * from './guards/roles.guard';
-export * from './guards/roles.decorator';
+export * from './guards/gateway-auth.guard';
 
 export * from './utils/slug.utils';
 export * from './utils/webhook_verify';

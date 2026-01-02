@@ -2,13 +2,13 @@
 
 ## Quick Reference
 
-| Email | Password | Role | Access |
-|-------|----------|------|--------|
-| admin@torii.com | password123 | Admin | ✅ Full access |
-| staff@torii.com | password123 | Staff | ✅ Limited admin access |
-| lecturer@torii.com | password123 | Lecturer | ✅ Teaching features |
-| learner@torii.com | password123 | Learner | ❌ **BLOCKED** from web-admin |
-| staff.sales@torii.com | password123 | Staff | ✅ Sales/support features |
+| Email | Password | Role | FirebaseUID | Access  |
+|-------|----------|------|---------------------|----------------------------|
+| admin@torii.com | password123 | Admin | nPR4w0Ns1NOeACZMB8RbSaQ2V9L2 | ✅ Full access              |
+| staff@torii.com | password123 | Staff | jvw95Pn4BPQZclKSq3C2RqEVzA83 | ✅ Limited admin access     |
+| lecturer@torii.com | password123 | Lecturer | 5grDA3cgPeSdYhVj9Zw0PpQYbQV2 | ✅ Teaching features        |
+| learner@torii.com | password123 | Learner | E3CDPLKzIDMn28vvYcikmw3H1CU2  | ❌ **BLOCKED** from web-admin |
+| staff.sales@torii.com | password123 | Staff |  hdlbbMXDTdQkTktb9wOBSg6V7Ez2                           | ✅ Sales/support features   |
 
 ---
 
@@ -75,7 +75,7 @@ After login, check Redux state for permissions:
 
 ## Notes
 
-- All passwords are hashed with bcrypt (10 rounds)
-- Users are marked as email_verified = true
-- Status is set to 'active'
-- Safe to run multiple times (uses ON CONFLICT DO UPDATE)
+- **Authentication:** Handled via Firebase Auth. The SQL script inserts `firebase_uid` for mapping.
+- **Passwords:** Managed by Firebase (defaults to `password123` for test accounts).
+- **Status:** Users are set to 'active'.
+- **Idempotency:** Safe to run multiple times (uses ON CONFLICT DO UPDATE).

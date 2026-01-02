@@ -1,14 +1,18 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { SharedModule } from '@server/shared';
-import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { UsersModule } from './modules/users/users.module';
 import { RBACModule } from './modules/rbac/rbac.module';
 
-import { AuthController } from './interfaces/nats/auth.controller';
-import { UsersController } from './interfaces/nats/users.controller';
-import { RBACController } from './interfaces/nats/rbac.controller';
-import { AuditLogController } from './interfaces/nats/audit-log.controller';
+// HTTP Controllers (for client requests via Gateway)
+import { AuthController } from './interfaces/http/auth.controller';
+import { UsersController } from './interfaces/http/users.controller';
+import { RBACController } from './interfaces/http/rbac.controller';
+import { AuditLogController } from './interfaces/http/audit-log.controller';
+
+// NATS Controllers - REMOVED (no longer needed for client requests)
+// Keep only if needed for inter-service communication in the future
 
 @Module({
   imports: [
@@ -16,12 +20,18 @@ import { AuditLogController } from './interfaces/nats/audit-log.controller';
       isGlobal: true,
     }),
     SharedModule,
-    UsersModule,
     AuthModule,
+    UsersModule,
     RBACModule,
   ],
-  controllers: [AuthController, UsersController, RBACController, AuditLogController],
+  controllers: [
+    // HTTP Controllers only
+    AuthController,
+    UsersController,
+    RBACController,
+    AuditLogController,
+  ],
   providers: [],
-  exports: [AuthModule, UsersModule, RBACModule],
+  exports: [UsersModule, RBACModule],
 })
 export class IdentityModule { }

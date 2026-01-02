@@ -6,13 +6,15 @@ import { createNatsServiceConfig } from '@server/shared';
 import { LmsModule } from './lms.module';
 
 async function bootstrap() {
-  const app = await NestFactory.createMicroservice<MicroserviceOptions>(
-    LmsModule,
-    createNatsServiceConfig(),
-  );
+  // 1. Create HTTP application
+  const httpApp = await NestFactory.create(LmsModule);
 
-  // Add validation pipe for microservice
-  app.useGlobalPipes(
+  // Enable CORS
+  // CORS handled by Gateway
+  // httpApp.enableCors({...});
+
+  // Global validation pipe
+  httpApp.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
       transform: true,
@@ -20,8 +22,18 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen();
-  console.log('Course Microservice is listening on NATS...');
+  const HTTP_PORT = process.env.LMS_HTTP_PORT || 8082;
+  await httpApp.listen(HTTP_PORT);
+  console.log(`🚀 LMS Service HTTP listening on port ${HTTP_PORT}`);
+
+  // 2. Create NATS microservice (optional, keep for inter-service)
+  const natsApp = await NestFactory.createMicroservice<MicroserviceOptions>(
+    LmsModule,
+    createNatsServiceConfig(),
+  );
+
+  await natsApp.listen();
+  console.log('📡 LMS Service NATS microservice listening');
 }
 
 bootstrap();

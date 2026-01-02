@@ -76,10 +76,8 @@ export class FlashcardDeckService {
         where: { id: userId },
         create: {
           id: userId,
-          email: `user-${userId}@temp.com`, // Temporary email, will be updated when user management is complete
-          fullName: 'User', // Temporary name, will be updated when user management is complete
-          password: '', // Placeholder
-          salt: '', // Placeholder
+          email: `user-${userId}@temp.com`, // Temporary email
+          fullName: 'User', // Temporary name
           role: UserRole.LEARNER,
           status: UserStatus.ACTIVE,
         },

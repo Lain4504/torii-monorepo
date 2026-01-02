@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '@/store/hooks.ts';
-import { setAuthenticated, setError, selectAuthError } from '@/store/slices/auth-slice.ts';
-import { setUser } from '@/store/slices/user-slice.ts';
-import { apiClient } from '@/lib/api-client.ts';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { setAuthenticated, setLoading, setError, selectAuthError } from '@/store/slices/auth-slice';
+import { setUser } from '@/store/slices/user-slice';
+import { apiClient } from '@/lib/api-client';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Label } from '@workspace/ui/components/label';
@@ -16,7 +16,7 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false); // Local loading state for form
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const error = useAppSelector(selectAuthError);
 
@@ -24,7 +24,7 @@ export default function LoginPage() {
   useEffect(() => {
     async function checkExistingAuth() {
       try {
-        const response = await apiClient.get('/auth/profile');
+        const response = await apiClient.get('/api/auth/profile');
         if (response.data.success) {
           navigate('/', { replace: true });
         }
@@ -47,15 +47,15 @@ export default function LoginPage() {
       setIsSubmitting(true);
       dispatch(setError(null));
 
-      // Call login API (sets HTTP-only cookies)
-      const loginResponse = await apiClient.post('/auth/login', { email, password });
+      // Step 1: Call login API (sets HTTP-only cookies)
+      const loginResponse = await apiClient.post('/api/auth/login', { email, password });
 
       if (loginResponse.data.success) {
-        // Fetch user profile with RBAC data
-        const profileResponse = await apiClient.get('/auth/profile');
+        // Step 2: Fetch user profile with RBAC data
+        const profileResponse = await apiClient.get('/api/auth/profile');
 
-        if (profileResponse.data.success && profileResponse.data.data) {
-          const userData = profileResponse.data.data;
+        if (profileResponse.data.success && profileResponse.data.data?.user) {
+          const userData = profileResponse.data.data.user;
 
           // Block learner role
           if (userData.role === 'learner') {
@@ -69,12 +69,16 @@ export default function LoginPage() {
             id: userData.id,
             email: userData.email,
             fullName: userData.fullName,
-            avatarUrl: userData.avatarUrl,
+            avatarUrl: null, // Backend doesn't provide this field
             role: userData.role,
+            status: userData.status,
             permissions: userData.permissions || [],
           }));
 
-          dispatch(setAuthenticated(true));
+          // Set authenticated state BEFORE navigation to prevent race condition
+          dispatch(setAuthenticated({ isAuthenticated: true, user: userData }));
+          dispatch(setLoading(false)); // ← Important: Tell AuthGuard we're done
+
           toast.success('Login successful!');
           navigate('/', { replace: true });
         }

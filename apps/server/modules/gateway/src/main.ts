@@ -21,18 +21,16 @@ async function bootstrap() {
     limit: '10mb'
   }));
 
-  await app.startAllMicroservices();
-  const httpAdapter = app.get(HttpAdapterHost);
-
+  // Enable CORS
   app.enableCors({
-    origin: process.env.CORS_ORIGIN?.split(',') || [
-      'http://localhost:5173', // web-admin
-      'http://localhost:3000', // web-learner
-      'http://localhost:5174', // meet
-    ],
+    origin: true, // Allow dynamic origin for development
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
+
+  await app.startAllMicroservices();
+  const httpAdapter = app.get(HttpAdapterHost);
+
 
   await app.listen(process.env.port ?? 8080);
 }

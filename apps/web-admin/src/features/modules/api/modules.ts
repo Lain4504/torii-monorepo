@@ -9,37 +9,37 @@ import type { PaginatedResponse, ModuleResponseDTO, ModuleCreateDTO, ModuleUpdat
 export const modulesApi = {
     // GET /api/admin/modules
     async findAll(params: ModuleQueryDTO): Promise<PaginatedResponse<ModuleResponseDTO>> {
-        const response = await apiClient.get<PaginatedResponse<ModuleResponseDTO>>('/api/admin/modules', { params });
+        const response = await apiClient.get<PaginatedResponse<ModuleResponseDTO>>('/api/modules', { params });
         return response.data;
     },
 
     // GET /api/admin/modules/:id
     async findOne(id: string): Promise<ModuleResponseDTO> {
-        const response = await apiClient.get<ModuleResponseDTO>(`/api/admin/modules/${id}`);
+        const response = await apiClient.get<ModuleResponseDTO>(`/api/modules/${id}`);
         return response.data;
     },
 
     // POST /api/admin/modules
     async create(module: ModuleCreateDTO): Promise<ModuleResponseDTO> {
-        const response = await apiClient.post<ModuleResponseDTO>('/api/admin/modules', module);
+        const response = await apiClient.post<ModuleResponseDTO>('/api/modules', module);
         return response.data;
     },
 
     // PATCH /api/admin/modules/:id
     async update(id: string, module: ModuleUpdateDTO): Promise<ModuleResponseDTO> {
-        const response = await apiClient.patch<ModuleResponseDTO>(`/api/admin/modules/${id}`, module);
+        const response = await apiClient.patch<ModuleResponseDTO>(`/api/modules/${id}`, module);
         return response.data;
     },
 
     // DELETE /api/admin/modules/:id
     async delete(id: string): Promise<boolean> {
-        const response = await apiClient.delete(`/api/admin/modules/${id}`);
+        const response = await apiClient.delete(`/api/modules/${id}`);
         return response.data;
     },
 
     // PATCH /api/admin/modules/:id/restore
     async restore(id: string): Promise<ModuleResponseDTO> {
-        const response = await apiClient.patch<ModuleResponseDTO>(`/api/admin/modules/${id}/restore`);
+        const response = await apiClient.patch<ModuleResponseDTO>(`/api/modules/${id}/restore`);
         return response.data;
     },
 };

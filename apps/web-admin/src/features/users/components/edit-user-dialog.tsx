@@ -44,7 +44,6 @@ export function EditUserDialog({
         values: user ? {
             fullName: user.fullName,
             email: user.email,
-            phone: user.phone || undefined,
             role: user.role as any,
             status: user.status as any,
         } : undefined,
@@ -55,10 +54,7 @@ export function EditUserDialog({
         try {
             await updateUser.mutateAsync({
                 id: user.id,
-                user: {
-                    ...data,
-                    phone: data.phone || undefined,
-                },
+                user: data,
             });
             toast.success('User updated successfully!', {
                 description: `Changes to ${data.fullName} have been saved.`,
@@ -103,14 +99,6 @@ export function EditUserDialog({
                         {errors.email && (
                             <p className="text-sm text-destructive">{errors.email.message}</p>
                         )}
-                    </div>
-
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Phone</label>
-                        <Input
-                            {...register('phone')}
-                            placeholder="Phone Number"
-                        />
                     </div>
 
                     <div className="space-y-2">

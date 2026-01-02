@@ -1,7 +1,7 @@
-import { type ReactNode, useEffect } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/store/hooks.ts';
-import { selectIsAuthenticated, selectAuthLoading, setAuthenticated, setLoading, setError } from '@/store/slices/auth-slice.ts';
+import { selectIsAuthenticated, setAuthenticated, setLoading, setError } from '@/store/slices/auth-slice.ts';
 import { setUser } from '@/store/slices/user-slice.ts';
 import { apiClient } from '@/lib/api-client.ts';
 
@@ -11,29 +11,40 @@ interface AuthGuardProps {
 
 /**
  * AuthGuard wraps protected routes and ensures user is authenticated
- * Fetches user profile on mount if authenticated but Redux state is empty
+ * Only verifies session if not already authenticated
  */
 export function AuthGuard({ children }: AuthGuardProps) {
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
     const isAuthenticated = useAppSelector(selectIsAuthenticated);
-    const isLoading = useAppSelector(selectAuthLoading);
+    const [hasVerified, setHasVerified] = useState(false);
 
     useEffect(() => {
-        async function checkAuth() {
+        async function verifySession() {
+            // Skip verification if already authenticated
+            if (isAuthenticated) {
+                setHasVerified(true);
+                return;
+            }
+
+            // Skip if already verified once
+            if (hasVerified) {
+                return;
+            }
+
             try {
                 dispatch(setLoading(true));
 
                 // Try to fetch user profile (will use HTTP-only cookies)
-                const response = await apiClient.get('/auth/profile');
+                const response = await apiClient.get('/api/auth/profile');
 
-                if (response.data.success && response.data.data) {
-                    const userData = response.data.data;
+                if (response.data.success && response.data.data?.user) {
+                    const userData = response.data.data.user;
 
                     // Block learner role from accessing web-admin
                     if (userData.role === 'learner') {
-                        dispatch(setError('Learners cannot access admin panel. Please use the learner portal.'));
-                        dispatch(setAuthenticated(false));
+                        dispatch(setError('Learners cannot access admin panel.'));
+                        dispatch(setAuthenticated({ isAuthenticated: false }));
                         navigate('/login', { replace: true });
                         return;
                     }
@@ -43,32 +54,35 @@ export function AuthGuard({ children }: AuthGuardProps) {
                         id: userData.id,
                         email: userData.email,
                         fullName: userData.fullName,
-                        avatarUrl: userData.avatarUrl,
+                        avatarUrl: null,
                         role: userData.role,
+                        status: userData.status,
                         permissions: userData.permissions || [],
                     }));
 
-                    dispatch(setAuthenticated(true));
+                    dispatch(setAuthenticated({
+                        isAuthenticated: true,
+                        user: userData
+                    }));
+
+                    setHasVerified(true);
                 } else {
-                    // Not authenticated, redirect to login
-                    navigate('/login', { replace: true });
+                    throw new Error('Session invalid');
                 }
             } catch (error) {
-                // Error fetching profile, redirect to login
-                console.error('Auth check failed:', error);
+                console.warn('Session verification failed, redirecting to login');
+                dispatch(setAuthenticated({ isAuthenticated: false }));
                 navigate('/login', { replace: true });
             } finally {
                 dispatch(setLoading(false));
             }
         }
 
-        if (!isAuthenticated) {
-            checkAuth();
-        }
-    }, [isAuthenticated, dispatch, navigate]);
+        verifySession();
+    }, [isAuthenticated, hasVerified, dispatch, navigate]);
 
-    // Show loading spinner while checking auth
-    if (isLoading) {
+    // Show loading only if not authenticated and not verified yet
+    if (!isAuthenticated && !hasVerified) {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
@@ -76,6 +90,5 @@ export function AuthGuard({ children }: AuthGuardProps) {
         );
     }
 
-    // Only render children if authenticated
     return isAuthenticated ? <>{children}</> : null;
 }

@@ -1,125 +1,193 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
-import bcrypt from 'bcrypt';
-import { v4 as uuidv4 } from 'uuid';
+import { Injectable, UnauthorizedException, ConflictException, NotFoundException } from '@nestjs/common';
+import * as argon2 from 'argon2';
+import { PrismaService } from '@server/shared';
+import { JwtTokenProvider } from '@server/shared';
+import { RBACService } from '../rbac/rbac.service';
+import { UserRole, UserStatus } from '@workspace/schemas';
 import type {
     UserRegistrationDTO,
     UserLoginDTO,
-    TokenPayload,
+    UserResponseDTO,
 } from '@workspace/schemas';
-import {
-    userRegistrationDTOSchema,
-    userLoginDTOSchema,
-    UserRole,
-    UserStatus,
-    ErrEmailExisted,
-    ErrInvalidCredentials,
-    ErrUserInactivated,
-    ErrInvalidToken,
-} from '@workspace/schemas';
-import { PrismaService, JwtTokenProvider } from '@server/shared';
+
+export interface AuthResponse {
+    user: UserResponseDTO;
+    accessToken: string;
+}
+
+export interface AuthResult {
+    success: boolean;
+    data?: AuthResponse | { user: UserResponseDTO };
+    message?: string;
+}
 
 @Injectable()
 export class AuthService {
     constructor(
         private readonly prisma: PrismaService,
-        private readonly tokenProvider: JwtTokenProvider,
+        private readonly jwtTokenProvider: JwtTokenProvider,
+        private readonly rbacService: RBACService,
     ) { }
 
-    async register(dto: UserRegistrationDTO): Promise<string> {
-        const data = userRegistrationDTOSchema.parse(dto);
+    /**
+     * Register a new user
+     */
+    async register(dto: UserRegistrationDTO): Promise<UserResponseDTO> {
+        // Check if email already exists
+        const existingUser = await this.prisma.user.findUnique({
+            where: { email: dto.email },
+        });
 
-        // Check email exists
-        const existingUser = await this.prisma.user.findFirst({ where: { email: data.email } });
         if (existingUser) {
-            throw new BadRequestException(ErrEmailExisted.message);
+            throw new ConflictException('Email already exists');
         }
 
-        // Hash password (bcrypt handles salt internally)
-        const hashedPassword = await bcrypt.hash(data.password, 10);
+        // Hash password
+        const hashedPassword = await argon2.hash(dto.password);
 
         // Create user
-        const newId = uuidv4();
-        await this.prisma.user.create({
+        const user = await this.prisma.user.create({
             data: {
-                id: newId,
-                email: data.email,
-                fullName: data.fullName,
+                email: dto.email,
                 password: hashedPassword,
-                salt: '', // Empty - bcrypt handles salt internally
+                fullName: dto.fullName,
                 role: UserRole.LEARNER,
                 status: UserStatus.ACTIVE,
-            } as any,
+            },
+            select: {
+                id: true,
+                email: true,
+                fullName: true,
+                role: true,
+                status: true,
+                createdAt: true,
+                updatedAt: true,
+            },
         });
-        return newId;
+
+        return user as UserResponseDTO;
     }
 
-    async login(dto: UserLoginDTO): Promise<{ accessToken: string; refreshToken: string }> {
-        const data = userLoginDTOSchema.parse(dto);
-
+    /**
+     * Login user and generate JWT token
+     */
+    async login(dto: UserLoginDTO): Promise<AuthResponse> {
         // Find user
-        const user = await this.prisma.user.findFirst({ where: { email: data.email } });
-        if (!user) {
-            throw new BadRequestException(ErrInvalidCredentials.message);
+        const user = await this.prisma.user.findUnique({
+            where: { email: dto.email },
+        });
+
+        if (!user || !user.password) {
+            throw new UnauthorizedException('Invalid credentials');
         }
 
-        // Verify password (bcrypt handles salt internally)
-        const isMatch = await bcrypt.compare(data.password, user.password);
-        if (!isMatch) {
-            throw new BadRequestException(ErrInvalidCredentials.message);
+        // Verify password
+        const isValid = await argon2.verify(user.password, dto.password);
+        if (!isValid) {
+            throw new UnauthorizedException('Invalid credentials');
         }
 
-        // Check status
-        if ([UserStatus.DELETED, UserStatus.INACTIVE, UserStatus.BANNED].includes(user.status as UserStatus)) {
-            throw new BadRequestException(ErrUserInactivated.message);
+        // Check if user is active
+        if (user.status !== UserStatus.ACTIVE) {
+            throw new UnauthorizedException('Account is not active');
         }
 
-        // Generate tokens
-        const payload = { sub: user.id, role: user.role as UserRole };
-        const accessToken = await this.tokenProvider.generateToken(payload, '15m');
-        const refreshToken = await this.tokenProvider.generateRefreshToken(payload);
-
-        return { accessToken, refreshToken };
-    }
-
-    async refreshAccessToken(refreshToken: string): Promise<string> {
-        const payload = await this.tokenProvider.verifyToken(refreshToken);
-
-        if (!payload) {
-            throw new BadRequestException(ErrInvalidToken.message);
-        }
-
-        const user = await this.prisma.user.findUnique({ where: { id: payload.sub } });
-        if (!user) {
-            throw new NotFoundException('User not found');
-        }
-
-        if ([UserStatus.DELETED, UserStatus.INACTIVE, UserStatus.BANNED].includes(user.status as UserStatus)) {
-            throw new BadRequestException(ErrUserInactivated.message);
-        }
-
-        // Generate new access token
-        return this.tokenProvider.generateToken({
+        // Generate JWT token
+        const accessToken = await this.jwtTokenProvider.generateToken({
             sub: user.id,
             role: user.role as UserRole,
-        }, '15m');
+        });
+
+        return {
+            user: {
+                id: user.id,
+                email: user.email,
+                fullName: user.fullName,
+                role: user.role,
+                status: user.status,
+                emailVerified: false, // TODO: Implement email verification
+                createdAt: user.createdAt,
+                updatedAt: user.updatedAt,
+            } as UserResponseDTO,
+            accessToken,
+        };
     }
 
-    async introspectToken(token: string): Promise<TokenPayload> {
-        const payload = await this.tokenProvider.verifyToken(token);
+    /**
+     * Get user profile with permissions
+     */
+    async getProfile(userId: string): Promise<UserResponseDTO & { permissions: string[] }> {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+                id: true,
+                email: true,
+                fullName: true,
+                role: true,
+                status: true,
+                createdAt: true,
+                updatedAt: true,
+            },
+        });
 
-        if (!payload) {
-            throw new BadRequestException(ErrInvalidToken.message);
-        }
-
-        const user = await this.prisma.user.findUnique({ where: { id: payload.sub } });
         if (!user) {
             throw new NotFoundException('User not found');
         }
 
-        if ([UserStatus.DELETED, UserStatus.INACTIVE, UserStatus.BANNED].includes(user.status as UserStatus)) {
-            throw new BadRequestException(ErrUserInactivated.message);
-        }
+        // Get permissions
+        const { permissions } = await this.rbacService.getUserPermissions(user.id, user.role);
 
-        return { sub: user.id, role: user.role as UserRole };
+        return {
+            ...user,
+            emailVerified: false, // TODO: Add emailVerified to Prisma schema
+            permissions,
+        } as UserResponseDTO & { permissions: string[] };
+    }
+
+    /**
+     * Update user profile
+     */
+    async updateProfile(
+        userId: string,
+        dto: { fullName?: string },
+    ): Promise<UserResponseDTO & { permissions: string[] }> {
+        const user = await this.prisma.user.update({
+            where: { id: userId },
+            data: {
+                fullName: dto.fullName,
+                updatedAt: new Date(),
+            },
+            select: {
+                id: true,
+                email: true,
+                fullName: true,
+                role: true,
+                status: true,
+                createdAt: true,
+                updatedAt: true,
+            },
+        });
+
+        // Get permissions
+        const { permissions } = await this.rbacService.getUserPermissions(user.id, user.role);
+
+        return {
+            ...user,
+            emailVerified: false,
+            permissions,
+        } as UserResponseDTO & { permissions: string[] };
+    }
+
+    /**
+     * Delete user profile (soft delete)
+     */
+    async deleteProfile(userId: string): Promise<void> {
+        await this.prisma.user.update({
+            where: { id: userId },
+            data: {
+                status: UserStatus.DELETED,
+                deletedAt: new Date(),
+            },
+        });
     }
 }

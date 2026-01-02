@@ -4,14 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="chore(nats): remove default values for NATS config and update `.env.example` with explicit keys and new defaults">
-      <change beforePath="$PROJECT_DIR$/.env.example" beforeDir="false" afterPath="$PROJECT_DIR$/.env.example" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="chore: remove Firebase dependencies and restore JWT-based authentication system&#10;&#10;- Removed `firebase` and related packages from `web-admin` and lockfile.&#10;- Added `argon2` for password hashing and `JwtTokenProvider` to `AuthController`.&#10;- Introduced new guards for API key and role-based protection (`api-key.guard`, `roles.guard`, `roles.decorator`).">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/nats/nats-client.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/nats/nats-client.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/nats/nats-service.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/nats/nats-service.config.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/nats-auth-callout.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/nats-auth-callout.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/nats.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/nats.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,7 +14,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="696" />
+    <option name="cachedIndexableFilesCount" value="656" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -39,7 +34,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="meet-livekit-ui" />
+        <entry key="$PROJECT_DIR$" value="refactoring-to-support-mobile-app" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -116,11 +111,11 @@
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;#46 on migration-to-firebase-authentication&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;E:/demo/team-source/torii-monorepo/apps/server/modules/gamification/src/modules&quot;,
+    &quot;last_opened_file_path&quot;: &quot;E:/demo/team-source/torii-monorepo/apps/server/modules/billing/src/modules&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -139,14 +134,16 @@
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\billing\src\modules" />
+      <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\billing\src\infrastructure" />
       <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\meet\src\redis" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\demo\team-source\torii-monorepo\apps\server" />
       <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\meet\src\polls" />
       <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\gateway\src\meet" />
       <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\gateway\src\meet\room" />
       <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\gateway\src\meet\auth" />
-      <recent name="E:\demo\team-source\torii-monorepo\apps\web-admin\src\features\question-bank" />
     </key>
   </component>
   <component name="RunManager">
@@ -232,358 +229,12 @@
       <workItem from="1767139678426" duration="1450000" />
       <workItem from="1767179041805" duration="1585000" />
       <workItem from="1767182827516" duration="3496000" />
-    </task>
-    <task id="LOCAL-00327" summary="chore(docker): enhance Docker setup with LiveKit configuration and streamline service definitions">
-      <option name="closed" value="true" />
-      <created>1766813104282</created>
-      <option name="number" value="00327" />
-      <option name="presentableId" value="LOCAL-00327" />
-      <option name="project" value="LOCAL" />
-      <updated>1766813104282</updated>
-    </task>
-    <task id="LOCAL-00328" summary="refactor: standardize import paths for feature components">
-      <option name="closed" value="true" />
-      <created>1766833055383</created>
-      <option name="number" value="00328" />
-      <option name="presentableId" value="LOCAL-00328" />
-      <option name="project" value="LOCAL" />
-      <updated>1766833055383</updated>
-    </task>
-    <task id="LOCAL-00329" summary="refactor: standardize import paths for feature components">
-      <option name="closed" value="true" />
-      <created>1766833421571</created>
-      <option name="number" value="00329" />
-      <option name="presentableId" value="LOCAL-00329" />
-      <option name="project" value="LOCAL" />
-      <updated>1766833421571</updated>
-    </task>
-    <task id="LOCAL-00330" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
-      <option name="closed" value="true" />
-      <created>1766841193559</created>
-      <option name="number" value="00330" />
-      <option name="presentableId" value="LOCAL-00330" />
-      <option name="project" value="LOCAL" />
-      <updated>1766841193559</updated>
-    </task>
-    <task id="LOCAL-00331" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
-      <option name="closed" value="true" />
-      <created>1766841318034</created>
-      <option name="number" value="00331" />
-      <option name="presentableId" value="LOCAL-00331" />
-      <option name="project" value="LOCAL" />
-      <updated>1766841318034</updated>
-    </task>
-    <task id="LOCAL-00332" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
-      <option name="closed" value="true" />
-      <created>1766841917231</created>
-      <option name="number" value="00332" />
-      <option name="presentableId" value="LOCAL-00332" />
-      <option name="project" value="LOCAL" />
-      <updated>1766841917231</updated>
-    </task>
-    <task id="LOCAL-00333" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
-      <option name="closed" value="true" />
-      <created>1766842547515</created>
-      <option name="number" value="00333" />
-      <option name="presentableId" value="LOCAL-00333" />
-      <option name="project" value="LOCAL" />
-      <updated>1766842547516</updated>
-    </task>
-    <task id="LOCAL-00334" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
-      <option name="closed" value="true" />
-      <created>1766842819096</created>
-      <option name="number" value="00334" />
-      <option name="presentableId" value="LOCAL-00334" />
-      <option name="project" value="LOCAL" />
-      <updated>1766842819096</updated>
-    </task>
-    <task id="LOCAL-00335" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
-      <option name="closed" value="true" />
-      <created>1766842964163</created>
-      <option name="number" value="00335" />
-      <option name="presentableId" value="LOCAL-00335" />
-      <option name="project" value="LOCAL" />
-      <updated>1766842964163</updated>
-    </task>
-    <task id="LOCAL-00336" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
-      <option name="closed" value="true" />
-      <created>1766843159615</created>
-      <option name="number" value="00336" />
-      <option name="presentableId" value="LOCAL-00336" />
-      <option name="project" value="LOCAL" />
-      <updated>1766843159615</updated>
-    </task>
-    <task id="LOCAL-00337" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
-      <option name="closed" value="true" />
-      <created>1766843257565</created>
-      <option name="number" value="00337" />
-      <option name="presentableId" value="LOCAL-00337" />
-      <option name="project" value="LOCAL" />
-      <updated>1766843257566</updated>
-    </task>
-    <task id="LOCAL-00338" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
-      <option name="closed" value="true" />
-      <created>1766843303972</created>
-      <option name="number" value="00338" />
-      <option name="presentableId" value="LOCAL-00338" />
-      <option name="project" value="LOCAL" />
-      <updated>1766843303972</updated>
-    </task>
-    <task id="LOCAL-00339" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
-      <option name="closed" value="true" />
-      <created>1766843641163</created>
-      <option name="number" value="00339" />
-      <option name="presentableId" value="LOCAL-00339" />
-      <option name="project" value="LOCAL" />
-      <updated>1766843641164</updated>
-    </task>
-    <task id="LOCAL-00340" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
-      <option name="closed" value="true" />
-      <created>1766843907926</created>
-      <option name="number" value="00340" />
-      <option name="presentableId" value="LOCAL-00340" />
-      <option name="project" value="LOCAL" />
-      <updated>1766843907926</updated>
-    </task>
-    <task id="LOCAL-00341" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
-      <option name="closed" value="true" />
-      <created>1766844061902</created>
-      <option name="number" value="00341" />
-      <option name="presentableId" value="LOCAL-00341" />
-      <option name="project" value="LOCAL" />
-      <updated>1766844061902</updated>
-    </task>
-    <task id="LOCAL-00342" summary="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components">
-      <option name="closed" value="true" />
-      <created>1766844724815</created>
-      <option name="number" value="00342" />
-      <option name="presentableId" value="LOCAL-00342" />
-      <option name="project" value="LOCAL" />
-      <updated>1766844724815</updated>
-    </task>
-    <task id="LOCAL-00343" summary="feat: add initial React + TypeScript + Vite template with ESLint configuration for meet">
-      <option name="closed" value="true" />
-      <created>1766886077094</created>
-      <option name="number" value="00343" />
-      <option name="presentableId" value="LOCAL-00343" />
-      <option name="project" value="LOCAL" />
-      <updated>1766886077095</updated>
-    </task>
-    <task id="LOCAL-00344" summary="feat: add initial React + TypeScript + Vite template with ESLint configuration for meet">
-      <option name="closed" value="true" />
-      <created>1766886779344</created>
-      <option name="number" value="00344" />
-      <option name="presentableId" value="LOCAL-00344" />
-      <option name="project" value="LOCAL" />
-      <updated>1766886779344</updated>
-    </task>
-    <task id="LOCAL-00345" summary="feat: add initial React + TypeScript + Vite template with ESLint configuration for meet">
-      <option name="closed" value="true" />
-      <created>1766886923345</created>
-      <option name="number" value="00345" />
-      <option name="presentableId" value="LOCAL-00345" />
-      <option name="project" value="LOCAL" />
-      <updated>1766886923345</updated>
-    </task>
-    <task id="LOCAL-00346" summary="feat: add initial React + TypeScript + Vite template with ESLint configuration for meet">
-      <option name="closed" value="true" />
-      <created>1766888637054</created>
-      <option name="number" value="00346" />
-      <option name="presentableId" value="LOCAL-00346" />
-      <option name="project" value="LOCAL" />
-      <updated>1766888637054</updated>
-    </task>
-    <task id="LOCAL-00347" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
-      <option name="closed" value="true" />
-      <created>1766933117148</created>
-      <option name="number" value="00347" />
-      <option name="presentableId" value="LOCAL-00347" />
-      <option name="project" value="LOCAL" />
-      <updated>1766933117149</updated>
-    </task>
-    <task id="LOCAL-00348" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
-      <option name="closed" value="true" />
-      <created>1766933120895</created>
-      <option name="number" value="00348" />
-      <option name="presentableId" value="LOCAL-00348" />
-      <option name="project" value="LOCAL" />
-      <updated>1766933120895</updated>
-    </task>
-    <task id="LOCAL-00349" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
-      <option name="closed" value="true" />
-      <created>1766934767129</created>
-      <option name="number" value="00349" />
-      <option name="presentableId" value="LOCAL-00349" />
-      <option name="project" value="LOCAL" />
-      <updated>1766934767129</updated>
-    </task>
-    <task id="LOCAL-00350" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
-      <option name="closed" value="true" />
-      <created>1766934785448</created>
-      <option name="number" value="00350" />
-      <option name="presentableId" value="LOCAL-00350" />
-      <option name="project" value="LOCAL" />
-      <updated>1766934785448</updated>
-    </task>
-    <task id="LOCAL-00351" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
-      <option name="closed" value="true" />
-      <created>1766936219920</created>
-      <option name="number" value="00351" />
-      <option name="presentableId" value="LOCAL-00351" />
-      <option name="project" value="LOCAL" />
-      <updated>1766936219920</updated>
-    </task>
-    <task id="LOCAL-00352" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
-      <option name="closed" value="true" />
-      <created>1766936224979</created>
-      <option name="number" value="00352" />
-      <option name="presentableId" value="LOCAL-00352" />
-      <option name="project" value="LOCAL" />
-      <updated>1766936224979</updated>
-    </task>
-    <task id="LOCAL-00353" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
-      <option name="closed" value="true" />
-      <created>1766936227508</created>
-      <option name="number" value="00353" />
-      <option name="presentableId" value="LOCAL-00353" />
-      <option name="project" value="LOCAL" />
-      <updated>1766936227509</updated>
-    </task>
-    <task id="LOCAL-00354" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
-      <option name="closed" value="true" />
-      <created>1766936244687</created>
-      <option name="number" value="00354" />
-      <option name="presentableId" value="LOCAL-00354" />
-      <option name="project" value="LOCAL" />
-      <updated>1766936244687</updated>
-    </task>
-    <task id="LOCAL-00355" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
-      <option name="closed" value="true" />
-      <created>1766939722450</created>
-      <option name="number" value="00355" />
-      <option name="presentableId" value="LOCAL-00355" />
-      <option name="project" value="LOCAL" />
-      <updated>1766939722450</updated>
-    </task>
-    <task id="LOCAL-00356" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
-      <option name="closed" value="true" />
-      <created>1766970773183</created>
-      <option name="number" value="00356" />
-      <option name="presentableId" value="LOCAL-00356" />
-      <option name="project" value="LOCAL" />
-      <updated>1766970773183</updated>
-    </task>
-    <task id="LOCAL-00357" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
-      <option name="closed" value="true" />
-      <created>1766970805799</created>
-      <option name="number" value="00357" />
-      <option name="presentableId" value="LOCAL-00357" />
-      <option name="project" value="LOCAL" />
-      <updated>1766970805799</updated>
-    </task>
-    <task id="LOCAL-00358" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
-      <option name="closed" value="true" />
-      <created>1766970824192</created>
-      <option name="number" value="00358" />
-      <option name="presentableId" value="LOCAL-00358" />
-      <option name="project" value="LOCAL" />
-      <updated>1766970824192</updated>
-    </task>
-    <task id="LOCAL-00359" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
-      <option name="closed" value="true" />
-      <created>1766974011612</created>
-      <option name="number" value="00359" />
-      <option name="presentableId" value="LOCAL-00359" />
-      <option name="project" value="LOCAL" />
-      <updated>1766974011612</updated>
-    </task>
-    <task id="LOCAL-00360" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
-      <option name="closed" value="true" />
-      <created>1766974106784</created>
-      <option name="number" value="00360" />
-      <option name="presentableId" value="LOCAL-00360" />
-      <option name="project" value="LOCAL" />
-      <updated>1766974106784</updated>
-    </task>
-    <task id="LOCAL-00361" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
-      <option name="closed" value="true" />
-      <created>1766975807141</created>
-      <option name="number" value="00361" />
-      <option name="presentableId" value="LOCAL-00361" />
-      <option name="project" value="LOCAL" />
-      <updated>1766975807141</updated>
-    </task>
-    <task id="LOCAL-00362" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
-      <option name="closed" value="true" />
-      <created>1766976435788</created>
-      <option name="number" value="00362" />
-      <option name="presentableId" value="LOCAL-00362" />
-      <option name="project" value="LOCAL" />
-      <updated>1766976435790</updated>
-    </task>
-    <task id="LOCAL-00363" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
-      <option name="closed" value="true" />
-      <created>1766976452144</created>
-      <option name="number" value="00363" />
-      <option name="presentableId" value="LOCAL-00363" />
-      <option name="project" value="LOCAL" />
-      <updated>1766976452144</updated>
-    </task>
-    <task id="LOCAL-00364" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
-      <option name="closed" value="true" />
-      <created>1766976479340</created>
-      <option name="number" value="00364" />
-      <option name="presentableId" value="LOCAL-00364" />
-      <option name="project" value="LOCAL" />
-      <updated>1766976479340</updated>
-    </task>
-    <task id="LOCAL-00365" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
-      <option name="closed" value="true" />
-      <created>1766976779633</created>
-      <option name="number" value="00365" />
-      <option name="presentableId" value="LOCAL-00365" />
-      <option name="project" value="LOCAL" />
-      <updated>1766976779633</updated>
-    </task>
-    <task id="LOCAL-00366" summary="feat(auth): implement cookie-based authentication with access and refresh tokens">
-      <option name="closed" value="true" />
-      <created>1766976796451</created>
-      <option name="number" value="00366" />
-      <option name="presentableId" value="LOCAL-00366" />
-      <option name="project" value="LOCAL" />
-      <updated>1766976796451</updated>
-    </task>
-    <task id="LOCAL-00367" summary="feat(audit): implement audit logging service and related API endpoints">
-      <option name="closed" value="true" />
-      <created>1766979412900</created>
-      <option name="number" value="00367" />
-      <option name="presentableId" value="LOCAL-00367" />
-      <option name="project" value="LOCAL" />
-      <updated>1766979412900</updated>
-    </task>
-    <task id="LOCAL-00368" summary="chore: remove deprecated modules and controllers across services">
-      <option name="closed" value="true" />
-      <created>1767017933257</created>
-      <option name="number" value="00368" />
-      <option name="presentableId" value="LOCAL-00368" />
-      <option name="project" value="LOCAL" />
-      <updated>1767017933257</updated>
-    </task>
-    <task id="LOCAL-00369" summary="chore: remove deprecated modules and controllers across services">
-      <option name="closed" value="true" />
-      <created>1767018513023</created>
-      <option name="number" value="00369" />
-      <option name="presentableId" value="LOCAL-00369" />
-      <option name="project" value="LOCAL" />
-      <updated>1767018513023</updated>
-    </task>
-    <task id="LOCAL-00370" summary="feat(polls): implement polls module with controller and service for managing polls">
-      <option name="closed" value="true" />
-      <created>1767058070188</created>
-      <option name="number" value="00370" />
-      <option name="presentableId" value="LOCAL-00370" />
-      <option name="project" value="LOCAL" />
-      <updated>1767058070188</updated>
+      <workItem from="1767192481085" duration="10184000" />
+      <workItem from="1767234621203" duration="4843000" />
+      <workItem from="1767259125707" duration="9967000" />
+      <workItem from="1767285731463" duration="67000" />
+      <workItem from="1767312615857" duration="5665000" />
+      <workItem from="1767322940795" duration="310000" />
     </task>
     <task id="LOCAL-00371" summary="chore: remove obsolete modules and controllers from gateway services">
       <option name="closed" value="true" />
@@ -625,7 +276,359 @@
       <option name="project" value="LOCAL" />
       <updated>1767082162013</updated>
     </task>
-    <option name="localTasksCounter" value="376" />
+    <task id="LOCAL-00376" summary="feat(auth): migrate authentication system to Firebase&#10;&#10;- Replaced RemoteAuthGuard with FirebaseAuthGuard for Firebase-based authentication.&#10;- Added Firebase Admin integration via `FirebaseAuthService` and `FirebaseAuthModule`.&#10;- Updated Prisma User model to include `firebaseUid`.&#10;- Removed legacy password-based authentication system.&#10;- Implemented `/auth/firebase-sync` endpoint for syncing Firebase users with the local database.&#10;- Updated web-admin to integrate Firebase Authentication.&#10;- Adjusted API client to include Firebase ID tokens in requests.">
+      <option name="closed" value="true" />
+      <created>1767196691164</created>
+      <option name="number" value="00376" />
+      <option name="presentableId" value="LOCAL-00376" />
+      <option name="project" value="LOCAL" />
+      <updated>1767196691165</updated>
+    </task>
+    <task id="LOCAL-00377" summary="feat(auth): migrate authentication system to Firebase&#10;&#10;- Replaced RemoteAuthGuard with FirebaseAuthGuard for Firebase-based authentication.&#10;- Added Firebase Admin integration via `FirebaseAuthService` and `FirebaseAuthModule`.&#10;- Updated Prisma User model to include `firebaseUid`.&#10;- Removed legacy password-based authentication system.&#10;- Implemented `/auth/firebase-sync` endpoint for syncing Firebase users with the local database.&#10;- Updated web-admin to integrate Firebase Authentication.&#10;- Adjusted API client to include Firebase ID tokens in requests.">
+      <option name="closed" value="true" />
+      <created>1767197633873</created>
+      <option name="number" value="00377" />
+      <option name="presentableId" value="LOCAL-00377" />
+      <option name="project" value="LOCAL" />
+      <updated>1767197633873</updated>
+    </task>
+    <task id="LOCAL-00378" summary="chore: remove deprecated identity modules and controllers, migrate to HTTP-based interfaces&#10;&#10;- Deleted obsolete modules and controllers (`AdminModule`, `AuthModule`, `RBACController`, etc.).&#10;- Added new HTTP controllers (`AuthController`, `AuditLogController`) for identity services.&#10;- Introduced `ProxyController` to route requests to microservices.&#10;- Updated service structure to align with the removal of NATS-based controllers.">
+      <option name="closed" value="true" />
+      <created>1767200209390</created>
+      <option name="number" value="00378" />
+      <option name="presentableId" value="LOCAL-00378" />
+      <option name="project" value="LOCAL" />
+      <updated>1767200209391</updated>
+    </task>
+    <task id="LOCAL-00379" summary="chore: migrate LMS and Flashcards modules to HTTP-based interfaces &#10;&#10;- Replaced NATS-based controllers (`course.controller`, `lesson.controller`, `module.controller`) with new HTTP controllers.&#10;- Added HTTP controllers for Flashcards (`flashcard.controller`, `flashcard-deck.controller`).&#10;- Updated `LmsModule` and `main.ts` to enable both HTTP and NATS-based communication.&#10;- Integrated CORS and global validation pipes for HTTP services.&#10;- Updated `ProxyController` to route LMS and Flashcards endpoints (`/courses`, `/lessons`, `/modules`, `/flashcards`, `/flashcard-decks`).">
+      <option name="closed" value="true" />
+      <created>1767200840237</created>
+      <option name="number" value="00379" />
+      <option name="presentableId" value="LOCAL-00379" />
+      <option name="project" value="LOCAL" />
+      <updated>1767200840237</updated>
+    </task>
+    <task id="LOCAL-00380" summary="chore: migrate LMS and Flashcards modules to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`course.controller`, `lesson.controller`, `module.controller`) with new HTTP controllers.&#10;- Added HTTP controllers for Flashcards (`flashcard.controller`, `flashcard-deck.controller`).&#10;- Updated `LmsModule` and `main.ts` to enable both HTTP and NATS-based communication.&#10;- Integrated CORS and global validation pipes for HTTP services.&#10;- Updated `ProxyController` to route LMS and Flashcards endpoints (`/courses`, `/lessons`, `/modules`, `/flashcards`, `/flashcard-decks`).">
+      <option name="closed" value="true" />
+      <created>1767200861652</created>
+      <option name="number" value="00380" />
+      <option name="presentableId" value="LOCAL-00380" />
+      <option name="project" value="LOCAL" />
+      <updated>1767200861652</updated>
+    </task>
+    <task id="LOCAL-00381" summary="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`).">
+      <option name="closed" value="true" />
+      <created>1767201201617</created>
+      <option name="number" value="00381" />
+      <option name="presentableId" value="LOCAL-00381" />
+      <option name="project" value="LOCAL" />
+      <updated>1767201201617</updated>
+    </task>
+    <task id="LOCAL-00382" summary="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`).">
+      <option name="closed" value="true" />
+      <created>1767201338277</created>
+      <option name="number" value="00382" />
+      <option name="presentableId" value="LOCAL-00382" />
+      <option name="project" value="LOCAL" />
+      <updated>1767201338278</updated>
+    </task>
+    <task id="LOCAL-00383" summary="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`).">
+      <option name="closed" value="true" />
+      <created>1767201429297</created>
+      <option name="number" value="00383" />
+      <option name="presentableId" value="LOCAL-00383" />
+      <option name="project" value="LOCAL" />
+      <updated>1767201429298</updated>
+    </task>
+    <task id="LOCAL-00384" summary="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`).">
+      <option name="closed" value="true" />
+      <created>1767201502978</created>
+      <option name="number" value="00384" />
+      <option name="presentableId" value="LOCAL-00384" />
+      <option name="project" value="LOCAL" />
+      <updated>1767201502978</updated>
+    </task>
+    <task id="LOCAL-00385" summary="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`).">
+      <option name="closed" value="true" />
+      <created>1767201710089</created>
+      <option name="number" value="00385" />
+      <option name="presentableId" value="LOCAL-00385" />
+      <option name="project" value="LOCAL" />
+      <updated>1767201710089</updated>
+    </task>
+    <task id="LOCAL-00386" summary="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`).">
+      <option name="closed" value="true" />
+      <created>1767201815280</created>
+      <option name="number" value="00386" />
+      <option name="presentableId" value="LOCAL-00386" />
+      <option name="project" value="LOCAL" />
+      <updated>1767201815280</updated>
+    </task>
+    <task id="LOCAL-00387" summary="chore: remove legacy gateway modules in preparation for migration to HTTP-based interfaces">
+      <option name="closed" value="true" />
+      <created>1767202026701</created>
+      <option name="number" value="00387" />
+      <option name="presentableId" value="LOCAL-00387" />
+      <option name="project" value="LOCAL" />
+      <updated>1767202026701</updated>
+    </task>
+    <task id="LOCAL-00388" summary="chore: remove legacy gateway modules in preparation for migration to HTTP-based interfaces">
+      <option name="closed" value="true" />
+      <created>1767202273525</created>
+      <option name="number" value="00388" />
+      <option name="presentableId" value="LOCAL-00388" />
+      <option name="project" value="LOCAL" />
+      <updated>1767202273525</updated>
+    </task>
+    <task id="LOCAL-00389" summary="chore: remove legacy gateway modules in preparation for migration to HTTP-based interfaces">
+      <option name="closed" value="true" />
+      <created>1767202389871</created>
+      <option name="number" value="00389" />
+      <option name="presentableId" value="LOCAL-00389" />
+      <option name="project" value="LOCAL" />
+      <updated>1767202389871</updated>
+    </task>
+    <task id="LOCAL-00390" summary="chore: remove legacy gateway modules in preparation for migration to HTTP-based interfaces">
+      <option name="closed" value="true" />
+      <created>1767202522420</created>
+      <option name="number" value="00390" />
+      <option name="presentableId" value="LOCAL-00390" />
+      <option name="project" value="LOCAL" />
+      <updated>1767202522420</updated>
+    </task>
+    <task id="LOCAL-00391" summary="chore: remove obsolete controllers for room, auth-room, and polls in preparation for HTTP-based migration">
+      <option name="closed" value="true" />
+      <created>1767230309391</created>
+      <option name="number" value="00391" />
+      <option name="presentableId" value="LOCAL-00391" />
+      <option name="project" value="LOCAL" />
+      <updated>1767230309392</updated>
+    </task>
+    <task id="LOCAL-00392" summary="chore: remove obsolete controllers for room, auth-room, and polls in preparation for HTTP-based migration">
+      <option name="closed" value="true" />
+      <created>1767231449047</created>
+      <option name="number" value="00392" />
+      <option name="presentableId" value="LOCAL-00392" />
+      <option name="project" value="LOCAL" />
+      <updated>1767231449048</updated>
+    </task>
+    <task id="LOCAL-00393" summary="chore: remove obsolete controllers for room, auth-room, and polls in preparation for HTTP-based migration">
+      <option name="closed" value="true" />
+      <created>1767233089530</created>
+      <option name="number" value="00393" />
+      <option name="presentableId" value="LOCAL-00393" />
+      <option name="project" value="LOCAL" />
+      <updated>1767233089530</updated>
+    </task>
+    <task id="LOCAL-00394" summary="chore: remove obsolete controllers for room, auth-room, and polls in preparation for HTTP-based migration">
+      <option name="closed" value="true" />
+      <created>1767234826678</created>
+      <option name="number" value="00394" />
+      <option name="presentableId" value="LOCAL-00394" />
+      <option name="project" value="LOCAL" />
+      <updated>1767234826678</updated>
+    </task>
+    <task id="LOCAL-00395" summary="chore: remove obsolete controllers for room, auth-room, and polls in preparation for HTTP-based migration">
+      <option name="closed" value="true" />
+      <created>1767237003861</created>
+      <option name="number" value="00395" />
+      <option name="presentableId" value="LOCAL-00395" />
+      <option name="project" value="LOCAL" />
+      <updated>1767237003861</updated>
+    </task>
+    <task id="LOCAL-00396" summary="chore: remove obsolete controllers for room, auth-room, and polls in preparation for HTTP-based migration">
+      <option name="closed" value="true" />
+      <created>1767239023244</created>
+      <option name="number" value="00396" />
+      <option name="presentableId" value="LOCAL-00396" />
+      <option name="project" value="LOCAL" />
+      <updated>1767239023244</updated>
+    </task>
+    <task id="LOCAL-00397" summary="chore: refactor API routes and enable CORS across services&#10;&#10;- Updated API route prefixes in multiple controllers (e.g., `@Controller('/api/...')` → `@Controller('/')`).&#10;- Adjusted corresponding client API calls to match updated backend routes.&#10;- Enabled CORS in gateway with dynamic origins and method support.&#10;- Enhanced `LoginPage` logic to integrate Firebase authentication and modified API endpoints accordingly.&#10;- Added permission fetching in the `AuthController`.">
+      <option name="closed" value="true" />
+      <created>1767239252734</created>
+      <option name="number" value="00397" />
+      <option name="presentableId" value="LOCAL-00397" />
+      <option name="project" value="LOCAL" />
+      <updated>1767239252735</updated>
+    </task>
+    <task id="LOCAL-00398" summary="chore: refactor API routes and enable CORS across services&#10;&#10;- Updated API route prefixes in multiple controllers (e.g., `@Controller('/api/...')` → `@Controller('/')`).&#10;- Adjusted corresponding client API calls to match updated backend routes.&#10;- Enabled CORS in gateway with dynamic origins and method support.&#10;- Enhanced `LoginPage` logic to integrate Firebase authentication and modified API endpoints accordingly.&#10;- Added permission fetching in the `AuthController`.">
+      <option name="closed" value="true" />
+      <created>1767259212082</created>
+      <option name="number" value="00398" />
+      <option name="presentableId" value="LOCAL-00398" />
+      <option name="project" value="LOCAL" />
+      <updated>1767259212083</updated>
+    </task>
+    <task id="LOCAL-00399" summary="chore: refactor API routes and enable CORS across services&#10;&#10;- Updated API route prefixes in multiple controllers (e.g., `@Controller('/api/...')` → `@Controller('/')`).&#10;- Adjusted corresponding client API calls to match updated backend routes.&#10;- Enabled CORS in gateway with dynamic origins and method support.&#10;- Enhanced `LoginPage` logic to integrate Firebase authentication and modified API endpoints accordingly.&#10;- Added permission fetching in the `AuthController`.">
+      <option name="closed" value="true" />
+      <created>1767265083514</created>
+      <option name="number" value="00399" />
+      <option name="presentableId" value="LOCAL-00399" />
+      <option name="project" value="LOCAL" />
+      <updated>1767265083514</updated>
+    </task>
+    <task id="LOCAL-00400" summary="chore: refactor API routes and enable CORS across services&#10;&#10;- Updated API route prefixes in multiple controllers (e.g., `@Controller('/api/...')` → `@Controller('/')`).&#10;- Adjusted corresponding client API calls to match updated backend routes.&#10;- Enabled CORS in gateway with dynamic origins and method support.&#10;- Enhanced `LoginPage` logic to integrate Firebase authentication and modified API endpoints accordingly.&#10;- Added permission fetching in the `AuthController`.">
+      <option name="closed" value="true" />
+      <created>1767267251281</created>
+      <option name="number" value="00400" />
+      <option name="presentableId" value="LOCAL-00400" />
+      <option name="project" value="LOCAL" />
+      <updated>1767267251281</updated>
+    </task>
+    <task id="LOCAL-00401" summary="chore: refactor API routes and enable CORS across services&#10;&#10;- Updated API route prefixes in multiple controllers (e.g., `@Controller('/api/...')` → `@Controller('/')`).&#10;- Adjusted corresponding client API calls to match updated backend routes.&#10;- Enabled CORS in gateway with dynamic origins and method support.&#10;- Enhanced `LoginPage` logic to integrate Firebase authentication and modified API endpoints accordingly.&#10;- Added permission fetching in the `AuthController`.">
+      <option name="closed" value="true" />
+      <created>1767267694991</created>
+      <option name="number" value="00401" />
+      <option name="presentableId" value="LOCAL-00401" />
+      <option name="project" value="LOCAL" />
+      <updated>1767267694993</updated>
+    </task>
+    <task id="LOCAL-00402" summary="chore: refactor API routes and enable CORS across services&#10;&#10;- Updated API route prefixes in multiple controllers (e.g., `@Controller('/api/...')` → `@Controller('/')`).&#10;- Adjusted corresponding client API calls to match updated backend routes.&#10;- Enabled CORS in gateway with dynamic origins and method support.&#10;- Enhanced `LoginPage` logic to integrate Firebase authentication and modified API endpoints accordingly.&#10;- Added permission fetching in the `AuthController`.">
+      <option name="closed" value="true" />
+      <created>1767269749312</created>
+      <option name="number" value="00402" />
+      <option name="presentableId" value="LOCAL-00402" />
+      <option name="project" value="LOCAL" />
+      <updated>1767269749313</updated>
+    </task>
+    <task id="LOCAL-00403" summary="chore: refactor API routes and enable CORS across services&#10;&#10;- Updated API route prefixes in multiple controllers (e.g., `@Controller('/api/...')` → `@Controller('/')`).&#10;- Adjusted corresponding client API calls to match updated backend routes.&#10;- Enabled CORS in gateway with dynamic origins and method support.&#10;- Enhanced `LoginPage` logic to integrate Firebase authentication and modified API endpoints accordingly.&#10;- Added permission fetching in the `AuthController`.">
+      <option name="closed" value="true" />
+      <created>1767270171390</created>
+      <option name="number" value="00403" />
+      <option name="presentableId" value="LOCAL-00403" />
+      <option name="project" value="LOCAL" />
+      <updated>1767270171390</updated>
+    </task>
+    <task id="LOCAL-00404" summary="chore: update API route prefixes for Meet module and configure body parser&#10;&#10;- Refactored API route prefixes in Meet controllers (e.g., `@Controller('api/...')` → `@Controller(...)`).&#10;- Added body parser configuration for JSON and protobuf request handling.">
+      <option name="closed" value="true" />
+      <created>1767272918791</created>
+      <option name="number" value="00404" />
+      <option name="presentableId" value="LOCAL-00404" />
+      <option name="project" value="LOCAL" />
+      <updated>1767272918791</updated>
+    </task>
+    <task id="LOCAL-00405" summary="chore: update API route prefixes for Meet module and configure body parser&#10;&#10;- Refactored API route prefixes in Meet controllers (e.g., `@Controller('api/...')` → `@Controller(...)`).&#10;- Added body parser configuration for JSON and protobuf request handling.">
+      <option name="closed" value="true" />
+      <created>1767273678887</created>
+      <option name="number" value="00405" />
+      <option name="presentableId" value="LOCAL-00405" />
+      <option name="project" value="LOCAL" />
+      <updated>1767273678887</updated>
+    </task>
+    <task id="LOCAL-00406" summary="chore: update API route prefixes for Meet module and configure body parser&#10;&#10;- Refactored API route prefixes in Meet controllers (e.g., `@Controller('api/...')` → `@Controller(...)`).&#10;- Added body parser configuration for JSON and protobuf request handling.">
+      <option name="closed" value="true" />
+      <created>1767273737480</created>
+      <option name="number" value="00406" />
+      <option name="presentableId" value="LOCAL-00406" />
+      <option name="project" value="LOCAL" />
+      <updated>1767273737488</updated>
+    </task>
+    <task id="LOCAL-00407" summary="return to manual jwt auth">
+      <option name="closed" value="true" />
+      <created>1767278962398</created>
+      <option name="number" value="00407" />
+      <option name="presentableId" value="LOCAL-00407" />
+      <option name="project" value="LOCAL" />
+      <updated>1767278962398</updated>
+    </task>
+    <task id="LOCAL-00408" summary="chore: remove Firebase dependencies and restore JWT-based authentication system&#10;&#10;- Removed `firebase` and related packages from `web-admin` and lockfile.&#10;- Added `argon2` for password hashing and `JwtTokenProvider` to `AuthController`.&#10;- Introduced new guards for API key and role-based protection (`api-key.guard`, `roles.guard`, `roles.decorator`).">
+      <option name="closed" value="true" />
+      <created>1767279257040</created>
+      <option name="number" value="00408" />
+      <option name="presentableId" value="LOCAL-00408" />
+      <option name="project" value="LOCAL" />
+      <updated>1767279257040</updated>
+    </task>
+    <task id="LOCAL-00409" summary="chore: remove Firebase dependencies and restore JWT-based authentication system&#10;&#10;- Removed `firebase` and related packages from `web-admin` and lockfile.&#10;- Added `argon2` for password hashing and `JwtTokenProvider` to `AuthController`.&#10;- Introduced new guards for API key and role-based protection (`api-key.guard`, `roles.guard`, `roles.decorator`).">
+      <option name="closed" value="true" />
+      <created>1767279753997</created>
+      <option name="number" value="00409" />
+      <option name="presentableId" value="LOCAL-00409" />
+      <option name="project" value="LOCAL" />
+      <updated>1767279753997</updated>
+    </task>
+    <task id="LOCAL-00410" summary="chore: remove Firebase dependencies and restore JWT-based authentication system&#10;&#10;- Removed `firebase` and related packages from `web-admin` and lockfile.&#10;- Added `argon2` for password hashing and `JwtTokenProvider` to `AuthController`.&#10;- Introduced new guards for API key and role-based protection (`api-key.guard`, `roles.guard`, `roles.decorator`).">
+      <option name="closed" value="true" />
+      <created>1767280155278</created>
+      <option name="number" value="00410" />
+      <option name="presentableId" value="LOCAL-00410" />
+      <option name="project" value="LOCAL" />
+      <updated>1767280155278</updated>
+    </task>
+    <task id="LOCAL-00411" summary="chore: remove Firebase dependencies and restore JWT-based authentication system&#10;&#10;- Removed `firebase` and related packages from `web-admin` and lockfile.&#10;- Added `argon2` for password hashing and `JwtTokenProvider` to `AuthController`.&#10;- Introduced new guards for API key and role-based protection (`api-key.guard`, `roles.guard`, `roles.decorator`).">
+      <option name="closed" value="true" />
+      <created>1767280389031</created>
+      <option name="number" value="00411" />
+      <option name="presentableId" value="LOCAL-00411" />
+      <option name="project" value="LOCAL" />
+      <updated>1767280389032</updated>
+    </task>
+    <task id="LOCAL-00412" summary="chore: remove Firebase dependencies and restore JWT-based authentication system&#10;&#10;- Removed `firebase` and related packages from `web-admin` and lockfile.&#10;- Added `argon2` for password hashing and `JwtTokenProvider` to `AuthController`.&#10;- Introduced new guards for API key and role-based protection (`api-key.guard`, `roles.guard`, `roles.decorator`).">
+      <option name="closed" value="true" />
+      <created>1767280743534</created>
+      <option name="number" value="00412" />
+      <option name="presentableId" value="LOCAL-00412" />
+      <option name="project" value="LOCAL" />
+      <updated>1767280743534</updated>
+    </task>
+    <task id="LOCAL-00413" summary="chore: remove Firebase dependencies and restore JWT-based authentication system&#10;&#10;- Removed `firebase` and related packages from `web-admin` and lockfile.&#10;- Added `argon2` for password hashing and `JwtTokenProvider` to `AuthController`.&#10;- Introduced new guards for API key and role-based protection (`api-key.guard`, `roles.guard`, `roles.decorator`).">
+      <option name="closed" value="true" />
+      <created>1767281215621</created>
+      <option name="number" value="00413" />
+      <option name="presentableId" value="LOCAL-00413" />
+      <option name="project" value="LOCAL" />
+      <updated>1767281215621</updated>
+    </task>
+    <task id="LOCAL-00414" summary="chore: remove Firebase dependencies and restore JWT-based authentication system&#10;&#10;- Removed `firebase` and related packages from `web-admin` and lockfile.&#10;- Added `argon2` for password hashing and `JwtTokenProvider` to `AuthController`.&#10;- Introduced new guards for API key and role-based protection (`api-key.guard`, `roles.guard`, `roles.decorator`).">
+      <option name="closed" value="true" />
+      <created>1767281452930</created>
+      <option name="number" value="00414" />
+      <option name="presentableId" value="LOCAL-00414" />
+      <option name="project" value="LOCAL" />
+      <updated>1767281452930</updated>
+    </task>
+    <task id="LOCAL-00415" summary="chore: remove Firebase dependencies and restore JWT-based authentication system&#10;&#10;- Removed `firebase` and related packages from `web-admin` and lockfile.&#10;- Added `argon2` for password hashing and `JwtTokenProvider` to `AuthController`.&#10;- Introduced new guards for API key and role-based protection (`api-key.guard`, `roles.guard`, `roles.decorator`).">
+      <option name="closed" value="true" />
+      <created>1767282821741</created>
+      <option name="number" value="00415" />
+      <option name="presentableId" value="LOCAL-00415" />
+      <option name="project" value="LOCAL" />
+      <updated>1767282821741</updated>
+    </task>
+    <task id="LOCAL-00416" summary="chore: remove Firebase dependencies and restore JWT-based authentication system&#10;&#10;- Removed `firebase` and related packages from `web-admin` and lockfile.&#10;- Added `argon2` for password hashing and `JwtTokenProvider` to `AuthController`.&#10;- Introduced new guards for API key and role-based protection (`api-key.guard`, `roles.guard`, `roles.decorator`).">
+      <option name="closed" value="true" />
+      <created>1767283630439</created>
+      <option name="number" value="00416" />
+      <option name="presentableId" value="LOCAL-00416" />
+      <option name="project" value="LOCAL" />
+      <updated>1767283630439</updated>
+    </task>
+    <task id="LOCAL-00417" summary="chore: remove Firebase dependencies and restore JWT-based authentication system&#10;&#10;- Removed `firebase` and related packages from `web-admin` and lockfile.&#10;- Added `argon2` for password hashing and `JwtTokenProvider` to `AuthController`.&#10;- Introduced new guards for API key and role-based protection (`api-key.guard`, `roles.guard`, `roles.decorator`).">
+      <option name="closed" value="true" />
+      <created>1767284128139</created>
+      <option name="number" value="00417" />
+      <option name="presentableId" value="LOCAL-00417" />
+      <option name="project" value="LOCAL" />
+      <updated>1767284128139</updated>
+    </task>
+    <task id="LOCAL-00418" summary="chore: remove Firebase dependencies and restore JWT-based authentication system&#10;&#10;- Removed `firebase` and related packages from `web-admin` and lockfile.&#10;- Added `argon2` for password hashing and `JwtTokenProvider` to `AuthController`.&#10;- Introduced new guards for API key and role-based protection (`api-key.guard`, `roles.guard`, `roles.decorator`).">
+      <option name="closed" value="true" />
+      <created>1767284278556</created>
+      <option name="number" value="00418" />
+      <option name="presentableId" value="LOCAL-00418" />
+      <option name="project" value="LOCAL" />
+      <updated>1767284278557</updated>
+    </task>
+    <task id="LOCAL-00419" summary="chore: remove Firebase dependencies and restore JWT-based authentication system&#10;&#10;- Removed `firebase` and related packages from `web-admin` and lockfile.&#10;- Added `argon2` for password hashing and `JwtTokenProvider` to `AuthController`.&#10;- Introduced new guards for API key and role-based protection (`api-key.guard`, `roles.guard`, `roles.decorator`).">
+      <option name="closed" value="true" />
+      <created>1767285752561</created>
+      <option name="number" value="00419" />
+      <option name="presentableId" value="LOCAL-00419" />
+      <option name="project" value="LOCAL" />
+      <updated>1767285752562</updated>
+    </task>
+    <option name="localTasksCounter" value="420" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -642,7 +645,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="main" />
+                        <option value="migration-to-firebase-authentication" />
                       </list>
                     </value>
                   </entry>
@@ -655,19 +658,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="refactor: create utils for meet features" />
-    <MESSAGE value="fix to can run" />
-    <MESSAGE value="fix to done room flow" />
-    <MESSAGE value="rename" />
-    <MESSAGE value="feat(waiting-room): add waiting room module and controller for managing user approvals and messages" />
-    <MESSAGE value="feat(room): refactor room creation logic and migrate database operations to RoomInfoService" />
-    <MESSAGE value="fix: update LiveKit configuration and improve participant count handling" />
-    <MESSAGE value="fix: enhance participant removal logic" />
-    <MESSAGE value="fix: enhance participant removal logic and align with Go server implementation" />
-    <MESSAGE value="fix: update LiveKit token generation and implement hand raise/lower functionality" />
-    <MESSAGE value="feat(docker): enhance Docker setup with LiveKit configuration and streamline service definitions" />
-    <MESSAGE value="chore(docker): enhance Docker setup with LiveKit configuration and streamline service definitions" />
-    <MESSAGE value="refactor: standardize import paths for feature components" />
     <MESSAGE value="feat: add delete dialogs for users, courses, and question banks; refactor user and question bank management components" />
     <MESSAGE value="feat: add initial React + TypeScript + Vite template with ESLint configuration for meet" />
     <MESSAGE value="feat(auth): implement cookie-based authentication with access and refresh tokens" />
@@ -680,7 +670,20 @@
     <MESSAGE value="chore: remove obsolete modules and controllers from gateway services" />
     <MESSAGE value="chore: update key prefixes to &quot;wajlc&quot; across Redis and NATS services" />
     <MESSAGE value="chore(nats): remove default values for NATS config and update `.env.example` with explicit keys and new defaults" />
-    <option name="LAST_COMMIT_MESSAGE" value="chore(nats): remove default values for NATS config and update `.env.example` with explicit keys and new defaults" />
+    <MESSAGE value="fix(polls): update request handling to use protobuf for better validation" />
+    <MESSAGE value="feat(auth): migrate authentication system to Firebase&#10;&#10;- Replaced RemoteAuthGuard with FirebaseAuthGuard for Firebase-based authentication.&#10;- Added Firebase Admin integration via `FirebaseAuthService` and `FirebaseAuthModule`.&#10;- Updated Prisma User model to include `firebaseUid`.&#10;- Removed legacy password-based authentication system.&#10;- Implemented `/auth/firebase-sync` endpoint for syncing Firebase users with the local database.&#10;- Updated web-admin to integrate Firebase Authentication.&#10;- Adjusted API client to include Firebase ID tokens in requests." />
+    <MESSAGE value="chore: remove deprecated identity modules and controllers, migrate to HTTP-based interfaces&#10;&#10;- Deleted obsolete modules and controllers (`AdminModule`, `AuthModule`, `RBACController`, etc.).&#10;- Added new HTTP controllers (`AuthController`, `AuditLogController`) for identity services.&#10;- Introduced `ProxyController` to route requests to microservices.&#10;- Updated service structure to align with the removal of NATS-based controllers." />
+    <MESSAGE value="chore: migrate LMS and Flashcards modules to HTTP-based interfaces &#10;&#10;- Replaced NATS-based controllers (`course.controller`, `lesson.controller`, `module.controller`) with new HTTP controllers.&#10;- Added HTTP controllers for Flashcards (`flashcard.controller`, `flashcard-deck.controller`).&#10;- Updated `LmsModule` and `main.ts` to enable both HTTP and NATS-based communication.&#10;- Integrated CORS and global validation pipes for HTTP services.&#10;- Updated `ProxyController` to route LMS and Flashcards endpoints (`/courses`, `/lessons`, `/modules`, `/flashcards`, `/flash" />
+    <MESSAGE value="chore: migrate LMS and Flashcards modules to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`course.controller`, `lesson.controller`, `module.controller`) with new HTTP controllers.&#10;- Added HTTP controllers for Flashcards (`flashcard.controller`, `flashcard-deck.controller`).&#10;- Updated `LmsModule` and `main.ts` to enable both HTTP and NATS-based communication.&#10;- Integrated CORS and global validation pipes for HTTP services.&#10;- Updated `ProxyController` to route LMS and Flashcards endpoints (`/courses`, `/lessons`, `/modules`, `/flashcards`, `/flashcard-decks`)." />
+    <MESSAGE value="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`)." />
+    <MESSAGE value="chore: remove legacy gateway modules in preparation for migration to HTTP-based interfaces" />
+    <MESSAGE value="chore: remove obsolete controllers for room, auth-room, and polls in preparation for HTTP-based migration" />
+    <MESSAGE value="chore: update API routes and enable CORS configuration for HTTP-based migration  &#10;&#10;- Standardized API route prefixes across controllers (`AuthController`, `RBACController`, `AuditLogController`, etc.) by removing redundant `/api` prefix.  &#10;- Enabled CORS with dynamic origin support for development in `gateway/main.ts`.  &#10;- Updated web-admin API client to align with new API route structure.  &#10;- Integrated permission fetching in `AuthController` to streamline user role and permission data retrieval." />
+    <MESSAGE value="chore: refactor API routes and enable CORS across services&#10;&#10;- Updated API route prefixes in multiple controllers (e.g., `@Controller('/api/...')` → `@Controller('/')`).&#10;- Adjusted corresponding client API calls to match updated backend routes.&#10;- Enabled CORS in gateway with dynamic origins and method support.&#10;- Enhanced `LoginPage` logic to integrate Firebase authentication and modified API endpoints accordingly.&#10;- Added permission fetching in the `AuthController`." />
+    <MESSAGE value="chore: update API route prefixes for Meet module and configure body parser&#10;&#10;- Refactored API route prefixes in Meet controllers (e.g., `@Controller('api/...')` → `@Controller(...)`).&#10;- Added body parser configuration for JSON and protobuf request handling." />
+    <MESSAGE value="return to manual jwt auth" />
+    <MESSAGE value="chore: remove Firebase dependencies and restore JWT-based authentication system&#10;&#10;- Removed `firebase` and related packages from `web-admin` and lockfile.&#10;- Added `argon2` for password hashing and `JwtTokenProvider` to `AuthController`.&#10;- Introduced new guards for API key and role-based protection (`api-key.guard`, `roles.guard`, `roles.decorator`)." />
+    <option name="LAST_COMMIT_MESSAGE" value="chore: remove Firebase dependencies and restore JWT-based authentication system&#10;&#10;- Removed `firebase` and related packages from `web-admin` and lockfile.&#10;- Added `argon2` for password hashing and `JwtTokenProvider` to `AuthController`.&#10;- Introduced new guards for API key and role-based protection (`api-key.guard`, `roles.guard`, `roles.decorator`)." />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
