@@ -4,6 +4,7 @@ import { Provider as ReduxProvider } from 'react-redux'
 import { store } from './store'
 import { Toaster } from '@workspace/ui/components/sonner'
 import { AuthGuard } from './components/auth/auth-guard.tsx'
+import { ThemeProvider } from "@/components/theme-provider"
 // Component imports
 import DashboardLayout from "./components/layout/dashboard-layout.tsx";
 // Feature imports
@@ -38,36 +39,38 @@ const queryClient = new QueryClient({
 function App() {
   return (
     <ReduxProvider store={store}>
-      <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route element={
-              <AuthGuard>
-                <DashboardLayout />
-              </AuthGuard>
-            }>
-              <Route index element={<DashboardPage />} />
-              <Route path="users" element={<UsersPage />} />
-              <Route path="courses" element={<CoursesPage />} />
-              <Route path="modules" element={<ModulesPage />} />
-              <Route path="lessons" element={<LessonsPage />} />
-              <Route path="question-bank" element={<QuestionBankPage />} />
-              <Route path="rooms" element={<RoomsPage />} />
-              <Route path="blogs" element={<BlogPage />} />
-              <Route path="payments" element={<PaymentsPage />} />
-              <Route path="analytics" element={<AnalyticsPage />} />
-              <Route path="ai-service" element={<AIServicePage />} />
-              <Route path="notifications" element={<NotificationsPage />} />
-              <Route path="rbac/permissions" element={<RBACPermissionsPage />} />
-              <Route path="rbac/audit-logs" element={<AuditLogsPage />} />
-              <Route path="permissions" element={<PermissionsPage />} />
-              <Route path="settings" element={<SettingsPage />} />
-            </Route>
-          </Routes>
-        </BrowserRouter>
-        <Toaster richColors position="top-right" />
-      </QueryClientProvider>
+      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <QueryClientProvider client={queryClient}>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route element={
+                <AuthGuard>
+                  <DashboardLayout />
+                </AuthGuard>
+              }>
+                <Route index element={<DashboardPage />} />
+                <Route path="users" element={<UsersPage />} />
+                <Route path="courses" element={<CoursesPage />} />
+                <Route path="modules" element={<ModulesPage />} />
+                <Route path="lessons" element={<LessonsPage />} />
+                <Route path="question-bank" element={<QuestionBankPage />} />
+                <Route path="rooms" element={<RoomsPage />} />
+                <Route path="blogs" element={<BlogPage />} />
+                <Route path="payments" element={<PaymentsPage />} />
+                <Route path="analytics" element={<AnalyticsPage />} />
+                <Route path="ai-service" element={<AIServicePage />} />
+                <Route path="notifications" element={<NotificationsPage />} />
+                <Route path="rbac/permissions" element={<RBACPermissionsPage />} />
+                <Route path="rbac/audit-logs" element={<AuditLogsPage />} />
+                <Route path="permissions" element={<PermissionsPage />} />
+                <Route path="settings" element={<SettingsPage />} />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+          <Toaster richColors position="top-right" />
+        </QueryClientProvider>
+      </ThemeProvider>
     </ReduxProvider>
   )
 }

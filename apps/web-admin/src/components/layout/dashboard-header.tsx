@@ -13,6 +13,8 @@ import {
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
 import { DashboardSidebar } from "./dashboard-sidebar.tsx";
+import { ModeToggle } from "@/components/mode-toggle"
+import { CommandMenu } from "@/components/command-menu"
 import { useAppSelector, useAppDispatch } from "@/store/hooks.ts"
 import { selectUser, clearUser, setAuthenticated } from "@/store/slices/auth-slice.ts"
 import { apiClient } from "@/lib/api-client.ts"
@@ -92,9 +94,12 @@ export function DashboardHeader() {
           </div>
         </div>
 
-        <div className="flex-1"></div>
+        <div className="flex-1 flex justify-center mx-4">
+          <CommandMenu />
+        </div>
 
         <div className="flex items-center gap-1 lg:gap-2 px-2 lg:px-3">
+          <ModeToggle />
           {/* User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
