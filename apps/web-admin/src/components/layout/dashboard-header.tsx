@@ -14,9 +14,7 @@ import {
 } from "@workspace/ui/components/dropdown-menu"
 import { DashboardSidebar } from "./dashboard-sidebar.tsx";
 import { useAppSelector, useAppDispatch } from "@/store/hooks.ts"
-import { selectUser } from "@/store/slices/user-slice.ts"
-import { setAuthenticated } from "@/store/slices/auth-slice.ts"
-import { clearUser } from "@/store/slices/user-slice.ts"
+import { selectUser, clearUser, setAuthenticated } from "@/store/slices/auth-slice.ts"
 import { apiClient } from "@/lib/api-client.ts"
 import { toast } from "@workspace/ui/components/sonner"
 
@@ -102,20 +100,20 @@ export function DashboardHeader() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center gap-2 h-9">
                 <Avatar className="h-7 w-7">
-                  <AvatarImage src={user.avatarUrl || undefined} alt={user.fullName || ''} />
-                  <AvatarFallback>{getInitials(user.fullName)}</AvatarFallback>
+                  <AvatarImage src={user?.avatarUrl || undefined} alt={user?.fullName || ''} />
+                  <AvatarFallback>{getInitials(user?.fullName || null)}</AvatarFallback>
                 </Avatar>
-                <span className="hidden sm:inline text-sm">{user.fullName}</span>
+                <span className="hidden sm:inline text-sm">{user?.fullName}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-64">
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{user.fullName}</p>
-                  <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                  <p className="text-sm font-medium leading-none">{user?.fullName}</p>
+                  <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
                   <div className="pt-2">
-                    <Badge variant={getRoleBadgeVariant(user.role)} className="text-xs">
-                      {getRoleLabel(user.role)}
+                    <Badge variant={getRoleBadgeVariant(user?.role || null)} className="text-xs">
+                      {getRoleLabel(user?.role || null)}
                     </Badge>
                   </div>
                 </div>

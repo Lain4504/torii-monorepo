@@ -3,8 +3,12 @@ import type { RootState } from '@/store';
 import { apiClient } from '@/lib/api-client';
 import type { UserResponseDTO, UserLoginDTO } from '@workspace/schemas';
 
-// Use UserResponseDTO from schemas
-export type User = UserResponseDTO;
+// Extended User type including permissions and profile fields
+export interface User extends UserResponseDTO {
+    permissions: string[];
+    avatarUrl?: string | null;
+    staffTemplate?: 'sales_staff' | 'academic_staff' | 'support_staff';
+}
 
 export interface AuthState {
     isAuthenticated: boolean;
@@ -75,6 +79,18 @@ export const authSlice = createSlice({
         setError: (state, action: PayloadAction<string | null>) => {
             state.error = action.payload;
         },
+        setUser: (state, action: PayloadAction<User>) => {
+            state.user = action.payload;
+        },
+        setPermissions: (state, action: PayloadAction<string[]>) => {
+            if (state.user) {
+                state.user.permissions = action.payload;
+            }
+        },
+        clearUser: (state) => {
+            state.user = null;
+            state.isAuthenticated = false;
+        }
     },
     extraReducers: (builder) => {
         // Login
@@ -103,8 +119,7 @@ export const authSlice = createSlice({
         });
 
         // Check Auth
-        // @ts-ignore
-        builder.addCase(checkAuth.pending, (state) => {
+        builder.addCase(checkAuth.pending, () => {
             // state.isLoading = true; // Handled manually or by AuthGuard
         });
         builder.addCase(checkAuth.fulfilled, (state, action) => {
@@ -120,12 +135,17 @@ export const authSlice = createSlice({
     }
 });
 
-export const { setAuthenticated, setLoading, setError } = authSlice.actions;
+export const { setAuthenticated, setLoading, setError, setUser, setPermissions, clearUser } = authSlice.actions;
 
 // Selectors
 export const selectIsAuthenticated = (state: RootState) => state.auth.isAuthenticated;
 export const selectAuthLoading = (state: RootState) => state.auth.isLoading;
 export const selectAuthError = (state: RootState) => state.auth.error;
+export const selectAuthUser = (state: RootState) => state.auth.user;
 export const selectUser = (state: RootState) => state.auth.user;
+export const selectRole = (state: RootState) => state.auth.user?.role;
+export const selectPermissions = (state: RootState) => state.auth.user?.permissions || [];
+export const selectStaffTemplate = (state: RootState) => state.auth.user?.staffTemplate;
 
 export default authSlice.reducer;
+
