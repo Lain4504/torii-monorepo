@@ -45,12 +45,15 @@ export class AuthService {
         // Hash password
         const hashedPassword = await argon2.hash(dto.password);
 
+        // Use email username as fullName if not provided
+        const fullName = dto.fullName || dto.email.split('@')[0];
+
         // Create user
         const user = await this.prisma.user.create({
             data: {
                 email: dto.email,
                 password: hashedPassword,
-                fullName: dto.fullName,
+                fullName,
                 role: UserRole.LEARNER,
                 status: UserStatus.ACTIVE,
             },

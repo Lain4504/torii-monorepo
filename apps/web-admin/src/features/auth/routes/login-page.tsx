@@ -28,14 +28,16 @@ export default function LoginPage() {
   const error = useAppSelector(selectAuthError);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Initial check
+  // Initial check - redirect if already authenticated
   useEffect(() => {
     dispatch(checkAuth())
       .unwrap()
       .then((user) => {
         if (user) navigate('/', { replace: true });
       })
-      .catch(() => { });
+      .catch(() => {
+        // Not authenticated, stay on login page
+      });
   }, [dispatch, navigate]);
 
   const form = useForm<UserLoginDTO>({
