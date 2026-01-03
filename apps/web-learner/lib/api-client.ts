@@ -46,7 +46,7 @@ apiClient.interceptors.response.use(
 
             try {
                 // Try to refresh the token
-                await apiClient.post('/auth/refresh');
+                await apiClient.post('/api/auth/refresh');
                 isRefreshing = false;
                 processQueue(null, 'success');
 
