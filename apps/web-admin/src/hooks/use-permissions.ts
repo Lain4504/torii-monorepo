@@ -1,6 +1,6 @@
-import { useAppSelector } from '../store/hooks';
-import { selectPermissions, selectRole, selectStaffTemplate } from '../store/slices/auth-slice';
-import { hasPermission, hasAnyPermission, hasAllPermissions } from '../utils/permissions';
+import { useAppSelector } from '@/hooks/hooks.ts';
+import { selectPermissions, selectRole, selectStaffTemplate } from '@/store/slices/auth-slice.ts';
+import { hasPermission, hasAnyPermission, hasAllPermissions } from '@/lib/utils/permissions.ts';
 
 export function usePermissions() {
     const permissions = useAppSelector(selectPermissions);

@@ -5,8 +5,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { userLoginDTOSchema, type UserLoginDTO } from '@workspace/schemas';
-import { useAppDispatch, useAppSelector } from '@/lib/redux/hooks';
-import { login, checkAuth } from '@/lib/redux/slices/authSlice';
+import { useAppDispatch, useAppSelector } from '@/hooks/hooks';
+import { login, checkAuth } from '@/store/slices/authSlice';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import {

@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from '@/store';
-import { apiClient } from '@/lib/api-client';
+import { apiClient } from '@/api/api-client.ts';
 import type { UserResponseDTO, UserLoginDTO } from '@workspace/schemas';
 
 // Extended User type including permissions and profile fields

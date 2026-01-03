@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { Outlet } from "react-router-dom"
-import { DashboardSidebar } from "./dashboard-sidebar.tsx";
-import { DashboardHeader } from "./dashboard-header.tsx";
+import { DashboardSidebar } from "@/components/layout/dashboard-sidebar.tsx";
+import { DashboardHeader } from "@/components/layout/dashboard-header.tsx";
 
 // Main layout component
 export default function DashboardLayout() {

@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense } from 'react';
-import { VerificationContent } from './verification-content';
+import { VerificationContent } from '@/components/auth/verification-content';
 
 export default function VerifyPage() {
     return (

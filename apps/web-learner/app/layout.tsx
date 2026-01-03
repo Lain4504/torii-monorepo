@@ -1,7 +1,7 @@
 import { Open_Sans } from "next/font/google"
 
 import "@workspace/ui/styles/globals.css"
-import { Providers } from "@/components/providers"
+import { Providers } from "@/lib/providers/providers"
 
 const fontSans = Open_Sans({
   subsets: ["latin"],

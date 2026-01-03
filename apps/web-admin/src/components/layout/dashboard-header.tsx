@@ -13,11 +13,11 @@ import {
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
 import { DashboardSidebar } from "./dashboard-sidebar.tsx";
-import { ModeToggle } from "@/components/mode-toggle"
-import { CommandMenu } from "@/components/command-menu"
-import { useAppSelector, useAppDispatch } from "@/store/hooks.ts"
+import { ModeToggle } from "@/components/layout/mode-toggle.tsx"
+import { CommandMenu } from "@/components/layout/command-menu.tsx"
+import { useAppSelector, useAppDispatch } from "@/hooks/hooks.ts"
 import { selectUser, clearUser, setAuthenticated } from "@/store/slices/auth-slice.ts"
-import { apiClient } from "@/lib/api-client.ts"
+import { apiClient } from "@/api/api-client.ts"
 import { toast } from "@workspace/ui/components/sonner"
 
 export function DashboardHeader() {
