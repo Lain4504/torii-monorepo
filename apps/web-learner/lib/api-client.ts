@@ -9,6 +9,7 @@ export const apiClient = axios.create({
 });
 
 let isRefreshing = false;
+let isRedirecting = false; // Prevent multiple simultaneous redirects
 let failedQueue: any[] = [];
 
 const processQueue = (error: any, token: string | null = null) => {
@@ -22,6 +23,31 @@ const processQueue = (error: any, token: string | null = null) => {
     failedQueue = [];
 };
 
+/**
+ * Safely redirect to login page, avoiding infinite loops
+ */
+const redirectToLogin = () => {
+    // Only run on client-side
+    if (typeof window === 'undefined') {
+        return;
+    }
+
+    // Prevent multiple simultaneous redirects
+    if (isRedirecting) {
+        return;
+    }
+
+    // Don't redirect if already on login page
+    if (window.location.pathname === '/login') {
+        console.log('Already on login page, skipping redirect');
+        return;
+    }
+
+    isRedirecting = true;
+    console.warn('Authentication failed - redirecting to login');
+    window.location.href = '/login';
+};
+
 // Response interceptor - Handle 401 with automatic token refresh
 apiClient.interceptors.response.use(
     (response) => response,
@@ -30,6 +56,15 @@ apiClient.interceptors.response.use(
 
         // If 401 and haven't tried to refresh yet
         if (error.response?.status === 401 && !originalRequest._retry) {
+            // Avoid infinite loop: don't retry refresh endpoint itself
+            if (originalRequest.url?.includes('/auth/refresh')) {
+                console.warn('Token refresh failed');
+                isRefreshing = false;
+                processQueue(error, null);
+                redirectToLogin();
+                return Promise.reject(error);
+            }
+
             if (isRefreshing) {
                 // Queue the request while refresh is in progress
                 return new Promise((resolve, reject) => {
@@ -46,7 +81,7 @@ apiClient.interceptors.response.use(
 
             try {
                 // Try to refresh the token
-                await apiClient.post('/auth/refresh');
+                await apiClient.post('/api/auth/refresh');
                 isRefreshing = false;
                 processQueue(null, 'success');
 
@@ -55,11 +90,7 @@ apiClient.interceptors.response.use(
             } catch (refreshError) {
                 isRefreshing = false;
                 processQueue(refreshError, null);
-
-                // Redirect to login if refresh fails (client-side)
-                if (typeof window !== 'undefined') {
-                    window.location.href = '/login';
-                }
+                redirectToLogin();
                 return Promise.reject(refreshError);
             }
         }

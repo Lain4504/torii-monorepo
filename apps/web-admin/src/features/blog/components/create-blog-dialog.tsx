@@ -24,7 +24,7 @@ import { BlogPostStatus, type BlogPostCreateDTO } from '@workspace/schemas';
 import { useCreateBlog } from '@/features/blog/api/blog';
 import { toast } from '@workspace/ui/components/sonner';
 import { useAppSelector } from '@/store/hooks';
-import { selectUser } from '@/store/slices/user-slice';
+import { selectUser } from '@/store/slices/auth-slice';
 import { storageApi } from '@/lib/storage-api';
 
 const createBlogSchema = z.object({

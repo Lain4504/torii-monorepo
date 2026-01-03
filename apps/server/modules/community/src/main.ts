@@ -4,10 +4,14 @@ import { MicroserviceOptions } from '@nestjs/microservices';
 import { ValidationPipe } from '@nestjs/common';
 import { createNatsServiceConfig } from '@server/shared';
 import { CommunityModule } from './community.module';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
     // 1. Create HTTP application
     const httpApp = await NestFactory.create(CommunityModule);
+
+    // Configure cookie parser - REQUIRED for web auth with httpOnly cookies
+    httpApp.use(cookieParser());
 
     // Enable CORS
     // CORS handled by Gateway

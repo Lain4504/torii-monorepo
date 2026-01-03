@@ -2,13 +2,11 @@ import { z } from 'zod';
 import { userSchema } from '../models/user.model';
 
 // Registration DTO
-export const userRegistrationDTOSchema = userSchema
-    .pick({
-        email: true,
-        fullName: true,
-        password: true,
-    })
-    .required();
+export const userRegistrationDTOSchema = z.object({
+    email: userSchema.shape.email,
+    password: userSchema.shape.password,
+    fullName: userSchema.shape.fullName.optional(), // Optional for email+password only registration
+});
 
 export type UserRegistrationDTO = z.infer<typeof userRegistrationDTOSchema>;
 

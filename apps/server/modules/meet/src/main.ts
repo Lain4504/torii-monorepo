@@ -5,10 +5,14 @@ import { ValidationPipe } from '@nestjs/common';
 import { createNatsServiceConfig } from '@server/shared';
 import { MeetModule } from './meet.module';
 import * as bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   // 1. Create HTTP application
   const httpApp = await NestFactory.create(MeetModule);
+
+  // Configure cookie parser - REQUIRED for web auth with httpOnly cookies
+  httpApp.use(cookieParser());
 
   // Enable CORS
   // CORS handled by Gateway

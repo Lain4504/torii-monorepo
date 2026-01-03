@@ -10,6 +10,7 @@ export const apiClient = axios.create({
 
 // State for refresh token process
 let isRefreshing = false;
+let isRedirecting = false; // Prevent multiple simultaneous redirects
 let failedRequestsQueue: Array<{
     resolve: (value?: unknown) => void;
     reject: (error?: unknown) => void;
@@ -30,6 +31,26 @@ const processQueue = (error: unknown = null) => {
     failedRequestsQueue = [];
 };
 
+/**
+ * Safely redirect to login page, avoiding infinite loops
+ */
+const redirectToLogin = () => {
+    // Prevent multiple simultaneous redirects
+    if (isRedirecting) {
+        return;
+    }
+
+    // Don't redirect if already on login page
+    if (window.location.pathname === '/login') {
+        console.log('Already on login page, skipping redirect');
+        return;
+    }
+
+    isRedirecting = true;
+    console.warn('Authentication failed - redirecting to login');
+    window.location.href = '/login';
+};
+
 // Response interceptor - Handle 401 errors with automatic token refresh
 apiClient.interceptors.response.use(
     (response) => response,
@@ -41,12 +62,10 @@ apiClient.interceptors.response.use(
 
             // Avoid infinite loop: don't retry refresh endpoint itself
             if (originalRequest.url?.includes('/auth/refresh')) {
-                console.warn('Token refresh failed - redirecting to login');
+                console.warn('Token refresh failed');
                 isRefreshing = false;
                 processQueue(error);
-
-                // Clear state and redirect
-                window.location.href = '/login';
+                redirectToLogin();
                 return Promise.reject(error);
             }
 
@@ -85,9 +104,7 @@ apiClient.interceptors.response.use(
                 console.error('Token refresh failed:', refreshError);
                 processQueue(refreshError);
                 isRefreshing = false;
-
-                // Redirect to login
-                window.location.href = '/login';
+                redirectToLogin();
                 return Promise.reject(refreshError);
             }
         }
