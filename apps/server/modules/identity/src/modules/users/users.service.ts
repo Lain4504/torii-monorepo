@@ -23,7 +23,7 @@ import { RBACService } from '../rbac/rbac.service';
 
 export interface CreateUserDTO {
     email: string;
-    fullName: string;
+    displayName: string;
     role?: UserRole;
     status?: UserStatus;
 }
@@ -60,7 +60,7 @@ export class UsersService {
             ? {
                 OR: [
                     { email: { contains: search, mode: 'insensitive' as any } },
-                    { fullName: { contains: search, mode: 'insensitive' as any } },
+                    { displayName: { contains: search, mode: 'insensitive' as any } },
                 ],
             }
             : {};
@@ -117,7 +117,7 @@ export class UsersService {
             data: {
                 id: newId,
                 email: dto.email,
-                fullName: dto.fullName,
+                displayName: dto.displayName,
                 role: dto.role || UserRole.LEARNER,
                 status: dto.status || UserStatus.ACTIVE,
             } as any,
@@ -143,7 +143,7 @@ export class UsersService {
             select: {
                 id: true,
                 email: true,
-                fullName: true,
+                displayName: true,
                 role: true,
                 status: true,
 

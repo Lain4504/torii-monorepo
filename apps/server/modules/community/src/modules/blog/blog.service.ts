@@ -248,7 +248,7 @@ export class BlogService {
 
   private async formatPostResponseWithAuthor(post: any): Promise<BlogPostResponseDTO> {
     // Get author info from User table
-    let authorInfo: { id: string; fullName: string; email: string } | null = null;
+    let authorInfo: { id: string; displayName: string; email: string } | null = null;
 
     if (post.authorId) {
       try {
@@ -256,7 +256,7 @@ export class BlogService {
           where: { id: post.authorId },
           select: {
             id: true,
-            fullName: true,
+            displayName: true,
             email: true,
           },
         });
@@ -264,7 +264,7 @@ export class BlogService {
         if (user) {
           authorInfo = {
             id: user.id,
-            fullName: user.fullName || user.email || 'Unknown',
+            displayName: user.displayName || user.email || 'Unknown',
             email: user.email,
           };
         }

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Patch, Post, Request, UseGuards, Res, HttpCode, HttpStatus, UnauthorizedException } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Patch, Post, Request, UseGuards, Res, HttpCode, HttpStatus, UnauthorizedException, Query, BadRequestException } from '@nestjs/common';
 import type { Response } from 'express';
 import { GatewayAuthGuard } from '@server/shared';
 import { AuthService } from '../../modules/auth/auth.service';
@@ -38,6 +38,66 @@ export class AuthController {
     }
 
     /**
+     * Resend verification email
+     * POST /auth/resend-verification
+     */
+    @Post('resend-verification')
+    @HttpCode(HttpStatus.OK)
+    async resendVerification(@Body('email') email: string) {
+        if (!email) {
+            throw new BadRequestException('Email is required');
+        }
+
+        try {
+            await this.authService.resendVerification(email);
+            return {
+                success: true,
+                message: 'Verification email sent'
+            };
+        } catch (error: any) {
+            return {
+                success: false,
+                message: error.message || 'Failed to resend verification email'
+            };
+        }
+    }
+
+    /**
+     * Verify email via OTP
+     * GET /auth/verify-email
+     */
+    @Get('verify-email')
+    async verifyEmail(
+        @Query('email') email: string,
+        @Query('otp') otp: string,
+    ) {
+        if (!email || !otp) {
+            throw new BadRequestException('Email and OTP are required');
+        }
+
+        try {
+            const isValid = await this.authService.verifyEmail(email, otp);
+
+            if (!isValid) {
+                return {
+                    success: false,
+                    message: 'Invalid or expired OTP'
+                };
+            }
+
+            return {
+                success: true,
+                message: 'Email verified successfully'
+            };
+        } catch (error: any) {
+            return {
+                success: false,
+                message: error.message || 'Verification failed'
+            };
+        }
+    }
+
+    /**
      * Login user
      * POST /auth/login
      * 
@@ -69,7 +129,7 @@ export class AuthController {
                         user: {
                             id: user.id,
                             email: user.email,
-                            fullName: user.fullName,
+                            displayName: user.displayName,
                             role: user.role,
                             status: user.status,
                         }
@@ -97,7 +157,7 @@ export class AuthController {
                         user: {
                             id: user.id,
                             email: user.email,
-                            fullName: user.fullName,
+                            displayName: user.displayName,
                             role: user.role,
                             status: user.status,
                         }
@@ -243,7 +303,7 @@ export class AuthController {
     @UseGuards(GatewayAuthGuard)
     async updateProfile(
         @Request() req: ReqWithRequester,
-        @Body() dto: { fullName?: string },
+        @Body() dto: { displayName?: string },
     ) {
         try {
             const user = await this.authService.updateProfile(req.requester.sub, dto);

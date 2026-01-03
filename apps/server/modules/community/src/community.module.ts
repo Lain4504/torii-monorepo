@@ -10,6 +10,7 @@ import { NotificationModule } from './modules/notification/notification.module';
 import { BlogController } from './interfaces/http/blog.controller';
 import { BlogCommentController } from './interfaces/http/blog-comment.controller';
 import { NotificationController } from './interfaces/http/notification.controller';
+import { EmailEventController } from './interfaces/event/email.event.controller';
 
 @Module({
   imports: [
@@ -26,6 +27,9 @@ import { NotificationController } from './interfaces/http/notification.controlle
     BlogController,
     BlogCommentController,
     NotificationController,
+
+    // Event Controllers
+    EmailEventController,
   ],
 })
 export class CommunityModule { }

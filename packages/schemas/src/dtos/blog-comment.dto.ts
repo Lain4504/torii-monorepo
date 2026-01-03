@@ -32,7 +32,7 @@ export type BlogCommentQueryDTO = z.infer<typeof blogCommentQueryDTOSchema>;
 export const blogCommentResponseDTOSchema: z.ZodType<any> = blogCommentSchema.extend({
     author: z.object({
         id: z.string().uuid(),
-        fullName: z.string(),
+        displayName: z.string(),
         avatarUrl: z.string().optional(),
     }).optional(),
     replyCount: z.number().optional(),

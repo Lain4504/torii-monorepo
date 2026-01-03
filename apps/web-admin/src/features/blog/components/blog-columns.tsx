@@ -53,7 +53,7 @@ export const getBlogColumns = ({ onView, onEdit, onDelete, page, limit }: BlogCo
         header: 'Author',
         cell: (info) => {
             const author = info.getValue();
-            return <div className="ml-4">{author?.fullName || 'Unknown'}</div>;
+            return <div className="ml-4">{author?.displayName || 'Unknown'}</div>;
         },
     }),
     columnHelper.accessor('status', {

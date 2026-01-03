@@ -5,9 +5,31 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(auth): add Redux-based authentication flow to web-learner&#10;&#10;- Implemented `authSlice` with login, logout, register, and checkAuth functionality.&#10;- Added `AuthInitializer` component to manage authentication state.&#10;- Created `LoginForm` component integrated with Redux and Zod validation.&#10;- Updated login page to use `AuthInitializer` and `LoginForm`.&#10;- Created reusable UI components (Field, Item, Empty) for consistent styling.">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/auth/routes/login-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/features/auth/routes/login-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/auth/login-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/auth/login-form.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/audit/audit-log.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/audit/audit-log.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/shared.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/shared.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/community/src/community.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/community/src/community.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/community/src/modules/blog-comment/blog-comment.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/community/src/modules/blog-comment/blog-comment.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/community/src/modules/blog/blog.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/community/src/modules/blog/blog.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/community/src/modules/notification/notification.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/community/src/modules/notification/notification.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/flashcards/src/modules/flashcard-deck/flashcard-deck.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/flashcards/src/modules/flashcard-deck/flashcard-deck.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/http/auth.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/http/auth.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/auth.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/rbac/rbac.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/rbac/rbac.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/users/users.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/users/users.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/prisma/migrations/migration_lock.toml" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/migrations/migration_lock.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/layout/dashboard-header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/layout/dashboard-header.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/users/components/create-user-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/features/users/components/create-user-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/users/components/users-columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/features/users/components/users-columns.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/users/components/users-primary-toolbar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/features/users/components/users-primary-toolbar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/users/components/view-user-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/features/users/components/view-user-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/store/slices/auth-slice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/store/slices/auth-slice.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/auth/register-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/auth/register-form.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/redux/slices/authSlice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/redux/slices/authSlice.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/user.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/user.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/models/user.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/models/user.model.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -15,7 +37,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="561" />
+    <option name="cachedIndexableFilesCount" value="567" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -100,39 +122,39 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Docker.docker-compose.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;web-learner-auth&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;E:/Ky8/bmap-capstone/torii-monorepo&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;E:\\Ky8\\bmap-capstone\\torii-monorepo\\node_modules\\typescript\\lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "verify-register",
+    "ignore.virus.scanning.warn.message": "true",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "E:/Ky8/bmap-capstone/torii-monorepo",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "pnpm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "to.speed.mode.migration.done": "true",
+    "ts.external.directory.path": "E:\\Ky8\\bmap-capstone\\torii-monorepo\\node_modules\\typescript\\lib",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;postgresql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "postgresql"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="E:\Ky8\bmap-capstone\torii-monorepo" />
@@ -239,6 +261,7 @@
       <workItem from="1767322940795" duration="310000" />
       <workItem from="1767432341687" duration="5940000" />
       <workItem from="1767441903721" duration="133000" />
+      <workItem from="1767453248086" duration="1264000" />
     </task>
     <task id="LOCAL-00376" summary="feat(auth): migrate authentication system to Firebase&#10;&#10;- Replaced RemoteAuthGuard with FirebaseAuthGuard for Firebase-based authentication.&#10;- Added Firebase Admin integration via `FirebaseAuthService` and `FirebaseAuthModule`.&#10;- Updated Prisma User model to include `firebaseUid`.&#10;- Removed legacy password-based authentication system.&#10;- Implemented `/auth/firebase-sync` endpoint for syncing Firebase users with the local database.&#10;- Updated web-admin to integrate Firebase Authentication.&#10;- Adjusted API client to include Firebase ID tokens in requests.">
       <option name="closed" value="true" />

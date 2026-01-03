@@ -20,7 +20,7 @@ export interface AuditLog {
     user?: {
         id: string;
         email: string;
-        fullName: string;
+        displayName: string;
         role: string;
     };
 }

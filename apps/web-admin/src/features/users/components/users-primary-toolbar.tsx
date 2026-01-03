@@ -110,7 +110,7 @@ export function UsersPrimaryToolbar({
                             <DropdownMenuItem onClick={() => onSortChange('createdAt', 'asc')}>
                                 Oldest First
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onSortChange('fullName', 'asc')}>
+                            <DropdownMenuItem onClick={() => onSortChange('displayName', 'asc')}>
                                 Name (A-Z)
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => onSortChange('email', 'asc')}>

@@ -64,6 +64,8 @@ export const checkAuth = createAsyncThunk(
     }
 );
 
+
+
 export const authSlice = createSlice({
     name: 'auth',
     initialState,
@@ -130,8 +132,11 @@ export const authSlice = createSlice({
         builder.addCase(checkAuth.rejected, (state) => {
             state.isLoading = false;
             state.isAuthenticated = false;
+            state.isAuthenticated = false;
             state.user = null;
         });
+
+
     }
 });
 

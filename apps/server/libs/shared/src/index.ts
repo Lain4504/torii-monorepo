@@ -97,4 +97,11 @@ export * from './pipes/zod-validation.pipe';
 export * from './providers/jwt-token.provider';
 
 // Audit logging
+// Redis
+export * from './redis/redis.module';
+export * from './redis/redis.provider';
+
+// Audit logging
 export * from './audit';
+
+

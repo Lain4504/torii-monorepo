@@ -30,7 +30,7 @@ export function DeleteUserDialog({
         try {
             await deleteUser.mutateAsync({ id: user.id, hardDelete: true });
             toast.success('User deleted successfully!', {
-                description: `${user.fullName} has been removed from the system.`,
+                description: `${user.displayName} has been removed from the system.`,
             });
             onOpenChange(false);
         } catch (error: any) {
@@ -47,7 +47,7 @@ export function DeleteUserDialog({
                     <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                     <AlertDialogDescription>
                         This action cannot be undone. This will permanently delete the user
-                        "{user?.fullName}" and remove their data from our servers.
+                        "{user?.displayName}" and remove their data from our servers.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>

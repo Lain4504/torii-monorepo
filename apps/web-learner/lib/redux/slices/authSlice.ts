@@ -85,6 +85,21 @@ export const checkAuth = createAsyncThunk(
     }
 );
 
+export const verifyEmail = createAsyncThunk(
+    'auth/verifyEmail',
+    async ({ email, otp }: { email: string; otp: string }, { rejectWithValue }) => {
+        try {
+            const response = await apiClient.get(`/api/auth/verify-email?email=${encodeURIComponent(email)}&otp=${encodeURIComponent(otp)}`);
+            return response.data;
+        } catch (error: any) {
+            if (error.response && error.response.data.message) {
+                return rejectWithValue(error.response.data.message);
+            }
+            return rejectWithValue(error.message || 'Verification failed');
+        }
+    }
+);
+
 export const authSlice = createSlice({
     name: 'auth',
     initialState,
@@ -155,6 +170,13 @@ export const authSlice = createSlice({
             .addCase(checkAuth.rejected, (state) => {
                 state.isAuthenticated = false;
                 state.user = null;
+            })
+
+            // Verify Email
+            .addCase(verifyEmail.fulfilled, (state) => {
+                if (state.user) {
+                    state.user.emailVerified = true;
+                }
             });
     },
 });

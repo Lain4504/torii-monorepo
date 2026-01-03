@@ -194,7 +194,7 @@ export class RBACService {
         // Get user info for audit
         const user = await this.prisma.user.findUnique({
             where: { id: userId },
-            select: { email: true, fullName: true },
+            select: { email: true, displayName: true },
         });
 
         await this.prisma.userPermission.upsert({
@@ -223,7 +223,7 @@ export class RBACService {
                 action: 'permission.grant_user',
                 entity: 'user_permission',
                 entityId: `${userId}:${permissionCode}`,
-                description: `Granted "${permissionCode}" permission to user ${user.fullName} (${user.email})`,
+                description: `Granted "${permissionCode}" permission to user ${user.displayName} (${user.email})`,
                 metadata: {
                     targetUserId: userId,
                     targetUserEmail: user.email,
@@ -247,7 +247,7 @@ export class RBACService {
         // Get user info for audit
         const user = await this.prisma.user.findUnique({
             where: { id: userId },
-            select: { email: true, fullName: true },
+            select: { email: true, displayName: true },
         });
 
         await this.prisma.userPermission.deleteMany({
@@ -266,7 +266,7 @@ export class RBACService {
                 action: 'permission.revoke_user',
                 entity: 'user_permission',
                 entityId: `${userId}:${permissionCode}`,
-                description: `Revoked "${permissionCode}" permission from user ${user.fullName} (${user.email})`,
+                description: `Revoked "${permissionCode}" permission from user ${user.displayName} (${user.email})`,
                 metadata: {
                     targetUserId: userId,
                     targetUserEmail: user.email,

@@ -102,7 +102,7 @@ export class AuditLogService {
                         select: {
                             id: true,
                             email: true,
-                            fullName: true,
+                            displayName: true,
                             role: true,
                         },
                     },
@@ -147,7 +147,7 @@ export class AuditLogService {
                     select: {
                         id: true,
                         email: true,
-                        fullName: true,
+                        displayName: true,
                     },
                 },
             },
@@ -167,7 +167,7 @@ export class AuditLogService {
                     select: {
                         id: true,
                         email: true,
-                        fullName: true,
+                        displayName: true,
                     },
                 },
             },

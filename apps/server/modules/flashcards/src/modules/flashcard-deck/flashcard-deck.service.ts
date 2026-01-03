@@ -77,7 +77,7 @@ export class FlashcardDeckService {
         create: {
           id: userId,
           email: `user-${userId}@temp.com`, // Temporary email
-          fullName: 'User', // Temporary name
+          displayName: 'User', // Temporary name
           role: UserRole.LEARNER,
           status: UserStatus.ACTIVE,
         },

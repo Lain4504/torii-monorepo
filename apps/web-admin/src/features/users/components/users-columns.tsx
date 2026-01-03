@@ -34,14 +34,14 @@ export const getUsersColumns = ({ onView, onEdit, onDelete, page, limit }: Users
         },
         size: 60,
     }),
-    columnHelper.accessor('fullName', {
+    columnHelper.accessor('displayName', {
         header: ({ column }) => {
             return (
                 <Button
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
                 >
-                    Full Name
+                    Display Name
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             );

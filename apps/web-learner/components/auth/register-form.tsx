@@ -83,7 +83,7 @@ export function RegisterForm() {
                 // Handle specific error messages from backend
                 const errorMessage = typeof resultAction.payload === 'string'
                     ? resultAction.payload
-                    : resultAction.payload?.message || 'Unable to create account';
+                    : (resultAction.payload as any)?.message || 'Unable to create account';
 
                 toast.error("Registration failed", {
                     description: errorMessage,

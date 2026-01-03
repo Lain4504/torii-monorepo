@@ -36,10 +36,10 @@ export function ViewUserDialog({
                 <div className="space-y-6">
                     <div className="flex items-center gap-4">
                         <Avatar className="h-16 w-16">
-                            <AvatarFallback>{user.fullName?.charAt(0) || 'U'}</AvatarFallback>
+                            <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
                         </Avatar>
                         <div>
-                            <h3 className="text-xl font-bold">{user.fullName}</h3>
+                            <h3 className="text-xl font-bold">{user.displayName}</h3>
                             <p className="text-muted-foreground">{user.email}</p>
                         </div>
                     </div>

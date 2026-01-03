@@ -5,7 +5,7 @@ import { userSchema } from '../models/user.model';
 export const userRegistrationDTOSchema = z.object({
     email: userSchema.shape.email,
     password: userSchema.shape.password,
-    fullName: userSchema.shape.fullName.optional(), // Optional for email+password only registration
+    displayName: userSchema.shape.displayName.optional(), // Optional for email+password only registration
 });
 
 export type UserRegistrationDTO = z.infer<typeof userRegistrationDTOSchema>;
@@ -22,7 +22,7 @@ export type UserLoginDTO = z.infer<typeof userLoginDTOSchema>;
 export const userCreateDTOSchema = userSchema
     .pick({
         email: true,
-        fullName: true,
+        displayName: true,
         password: true,
         role: true,
         status: true,
@@ -37,7 +37,7 @@ export type UserCreateDTO = z.infer<typeof userCreateDTOSchema>;
 // Update DTO (minimal auth fields)
 export const userUpdateDTOSchema = userSchema
     .pick({
-        fullName: true,
+        displayName: true,
         password: true,
     })
     .partial();
@@ -57,7 +57,7 @@ export type UserAdminUpdateDTO = z.infer<typeof userAdminUpdateDTOSchema>;
 export const userCondDTOSchema = userSchema
     .pick({
         email: true,
-        fullName: true,
+        displayName: true,
         role: true,
         status: true,
     })

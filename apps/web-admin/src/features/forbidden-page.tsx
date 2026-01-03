@@ -8,7 +8,7 @@ export default function ForbiddenPage() {
                     You don't have permission to access this resource.
                 </p>
                 <a
-                    href="/"
+                    href="/apps/web-admin/public"
                     className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
                     Go to Dashboard

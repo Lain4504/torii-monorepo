@@ -56,7 +56,7 @@ const roles = [
 ];
 
 const createUserSchema = userCreateDTOSchema.omit({
-    fullName: true,
+    displayName: true,
     status: true,
     role: true
 }).extend({
@@ -110,7 +110,7 @@ export function CreateUserDialog({
     const handleFormSubmit: SubmitHandler<CreateUserFormData> = async (data) => {
         const dto: UserCreateDTO = {
             email: data.email,
-            fullName: `${data.firstName} ${data.lastName}`,
+            displayName: `${data.firstName} ${data.lastName}`,
             password: data.password,
             role: data.role,
             status: UserStatus.ACTIVE,
@@ -118,7 +118,7 @@ export function CreateUserDialog({
         try {
             await createUser.mutateAsync(dto);
             toast.success('User created successfully!', {
-                description: `${dto.fullName} has been added to the system.`,
+                description: `${dto.displayName} has been added to the system.`,
             });
             reset();
             setHasProfilePhoto(false);

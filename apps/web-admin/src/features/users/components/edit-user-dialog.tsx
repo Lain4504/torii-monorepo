@@ -42,7 +42,7 @@ export function EditUserDialog({
     } = useForm<UpdateUserFormData>({
         resolver: zodResolver(userAdminUpdateDTOSchema),
         values: user ? {
-            fullName: user.fullName,
+            displayName: user.displayName,
             email: user.email,
             role: user.role as any,
             status: user.status as any,
@@ -57,7 +57,7 @@ export function EditUserDialog({
                 user: data,
             });
             toast.success('User updated successfully!', {
-                description: `Changes to ${data.fullName} have been saved.`,
+                description: `Changes to ${data.displayName} have been saved.`,
             });
             onOpenChange(false);
         } catch (error: any) {
@@ -79,13 +79,13 @@ export function EditUserDialog({
 
                 <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">Full Name</label>
+                        <label className="text-sm font-medium">Display Name</label>
                         <Input
-                            {...register('fullName')}
-                            placeholder="Full Name"
+                            {...register('displayName')}
+                            placeholder="Display Name"
                         />
-                        {errors.fullName && (
-                            <p className="text-sm text-destructive">{errors.fullName.message}</p>
+                        {errors.displayName && (
+                            <p className="text-sm text-destructive">{errors.displayName.message}</p>
                         )}
                     </div>
 
