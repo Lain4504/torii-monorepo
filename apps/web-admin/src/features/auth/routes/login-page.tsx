@@ -18,7 +18,8 @@ import {
   FieldError,
 } from '@workspace/ui/components/field';
 import { toast } from '@workspace/ui/components/sonner';
-import { Loader2, Eye, EyeOff, ShieldCheck, LayoutDashboard } from 'lucide-react';
+import { Spinner } from '@workspace/ui/components/spinner';
+import { Eye, EyeOff, ShieldCheck, LayoutDashboard } from 'lucide-react';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -183,7 +184,7 @@ export default function LoginPage() {
                 className="w-full h-11 text-base font-semibold shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-300"
                 disabled={loading}
               >
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {loading && <Spinner className="mr-2" />}
                 {loading ? 'Signing in...' : 'Sign In to Dashboard'}
               </Button>
             </form>

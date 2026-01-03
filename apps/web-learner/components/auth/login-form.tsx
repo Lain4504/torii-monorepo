@@ -20,7 +20,8 @@ import {
     FieldError,
 } from '@workspace/ui/components/field';
 import { toast } from '@workspace/ui/components/sonner';
-import { Loader2, Eye, EyeOff } from 'lucide-react';
+import { Spinner } from '@workspace/ui/components/spinner';
+import { Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export function LoginForm() {
@@ -119,7 +120,7 @@ export function LoginForm() {
                     )}
 
                     <Button type="submit" className="w-full" disabled={isLoading}>
-                        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        {isLoading && <Spinner className="mr-2" />}
                         Sign In
                     </Button>
                 </form>

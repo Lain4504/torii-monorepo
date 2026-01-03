@@ -61,6 +61,7 @@
     "@types/cookie-parser": "^1.4.10",
     "@workspace/protocol": "workspace:*",
     "@workspace/schemas": "workspace:*",
+    "argon2": "^0.44.0",
     "axios": "^1.13.2",
     "axios-retry": "^4.5.0",
     "body-parser": "^2.2.1",
