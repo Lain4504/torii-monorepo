@@ -98,9 +98,10 @@ export class BlogService {
   }
 
   async findAllPosts(query: BlogPostQueryDTO): Promise<PaginatedResponse<BlogPostResponseDTO>> {
-    const page = query.page || 1;
-    const limit = query.limit || 10;
-    const skip = (page - 1) * limit;
+    // Parse pagination params to numbers (query params are strings)
+    const pageNum = parseInt(String(query.page || 1), 10);
+    const limitNum = parseInt(String(query.limit || 10), 10);
+    const skip = (pageNum - 1) * limitNum;
 
     const where: any = {};
 
@@ -139,7 +140,7 @@ export class BlogService {
       this.prisma.blogPost.findMany({
         where,
         skip,
-        take: limit,
+        take: limitNum,
         orderBy,
       }),
       this.prisma.blogPost.count({ where }),
@@ -148,9 +149,9 @@ export class BlogService {
     return {
       data: await Promise.all(posts.map((post) => this.formatPostResponseWithAuthor(post))),
       total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
+      page: pageNum,
+      limit: limitNum,
+      totalPages: Math.ceil(total / limitNum),
     };
   }
 
@@ -247,7 +248,7 @@ export class BlogService {
 
   private async formatPostResponseWithAuthor(post: any): Promise<BlogPostResponseDTO> {
     // Get author info from User table
-    let authorInfo: { id: string; fullName: string; email: string } | null = null;
+    let authorInfo: { id: string; displayName: string; email: string } | null = null;
 
     if (post.authorId) {
       try {
@@ -255,7 +256,7 @@ export class BlogService {
           where: { id: post.authorId },
           select: {
             id: true,
-            fullName: true,
+            displayName: true,
             email: true,
           },
         });
@@ -263,7 +264,7 @@ export class BlogService {
         if (user) {
           authorInfo = {
             id: user.id,
-            fullName: user.fullName || user.email || 'Unknown',
+            displayName: user.displayName || user.email || 'Unknown',
             email: user.email,
           };
         }

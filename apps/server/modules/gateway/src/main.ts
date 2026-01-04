@@ -17,17 +17,16 @@ async function bootstrap() {
     limit: '10mb'
   }));
 
-  await app.startAllMicroservices();
-  const httpAdapter = app.get(HttpAdapterHost);
-
+  // Enable CORS
   app.enableCors({
-    origin: [
-      'http://localhost:5173',
-      'http://localhost:3000',
-    ],
+    origin: true, // Allow dynamic origin for development
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
+
+  await app.startAllMicroservices();
+  const httpAdapter = app.get(HttpAdapterHost);
+
 
   await app.listen(process.env.port ?? 8080);
 }

@@ -49,7 +49,7 @@ export type BlogPostQueryDTO = z.infer<typeof blogPostQueryDTOSchema>;
 export const blogPostResponseDTOSchema = blogPostSchema.extend({
     author: z.object({
         id: z.string().uuid(),
-        fullName: z.string(),
+        displayName: z.string(),
         avatarUrl: z.string().optional(),
     }).optional(),
 });

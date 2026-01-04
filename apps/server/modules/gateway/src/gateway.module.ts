@@ -2,8 +2,6 @@ import { Module } from '@nestjs/common';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import KeyvRedis from '@keyv/redis';
-import { CourseModule } from './course/course.module';
-import { AuthModule } from './auth/auth.module';
 import { SharedModule, NatsAuthModule, NatsClientModule } from '@server/shared';
 import { RoomModule } from './room/room.module';
 import { AdminModule } from './admin/admin.module';
@@ -22,6 +20,13 @@ import { AiModule } from './ai/ai.module';
 import { GatewayController } from './gateway.controller';
 import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
 
+// Proxy Module - Routes to microservices
+import { ProxyModule } from './proxy/proxy.module';
+
+/**
+ * API Gateway Module
+ * Routes requests to microservices (HTTP proxy pattern)
+ */
 @Module({
   imports: [
     CacheModule.registerAsync({
@@ -41,31 +46,13 @@ import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
       inject: [ConfigService],
     }),
 
-    NatsClientModule, // Add NATS client for GatewayService
-    AuthModule,
-
-    FlashcardModule,
-    FlashcardDeckModule,
-    CourseModule,
+    NatsClientModule,
     SharedModule,
     NatsAuthModule, // Auth callout handler - only in Gateway
-    RoomModule,
-    AdminModule,
-    StorageModule,
-    BlogModule,
-    BlogCommentModule,
-    QuestionBankModule,
-    NotificationModule,
-    WaitingRoomModule,
-    ModuleModule,
-    LessonModule,
-    AiModule,
-  ],
-  controllers: [GatewayController],
-  providers: [
-    ApiKeyGuard,
+
+    // Proxy Module - Handles all routes to microservices
+    ProxyModule,
   ],
   exports: [],
 })
 export class GatewayModule { }
-

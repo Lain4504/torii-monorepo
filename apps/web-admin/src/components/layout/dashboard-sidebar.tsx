@@ -32,6 +32,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
+import { Can } from "@/lib/guard/can.tsx"
 
 // Dữ liệu menu chính - for Torii Learning Platform
 interface NavItem {

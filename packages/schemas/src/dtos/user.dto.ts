@@ -2,13 +2,11 @@ import { z } from 'zod';
 import { userSchema } from '../models/user.model';
 
 // Registration DTO
-export const userRegistrationDTOSchema = userSchema
-    .pick({
-        email: true,
-        fullName: true,
-        password: true,
-    })
-    .required();
+export const userRegistrationDTOSchema = z.object({
+    email: userSchema.shape.email,
+    password: userSchema.shape.password,
+    displayName: userSchema.shape.displayName.optional(), // Optional for email+password only registration
+});
 
 export type UserRegistrationDTO = z.infer<typeof userRegistrationDTOSchema>;
 
@@ -24,7 +22,7 @@ export type UserLoginDTO = z.infer<typeof userLoginDTOSchema>;
 export const userCreateDTOSchema = userSchema
     .pick({
         email: true,
-        fullName: true,
+        displayName: true,
         password: true,
         role: true,
         status: true,
@@ -45,13 +43,7 @@ export type UserCreateDTO = z.infer<typeof userCreateDTOSchema>;
 // Update DTO
 export const userUpdateDTOSchema = userSchema
     .pick({
-        fullName: true,
-        phone: true,
-        avatarUrl: true,
-        bio: true,
-        dateOfBirth: true,
-        gender: true,
-        jlptLevel: true,
+        displayName: true,
         password: true,
     })
     .partial();
@@ -71,7 +63,7 @@ export type UserAdminUpdateDTO = z.infer<typeof userAdminUpdateDTOSchema>;
 export const userCondDTOSchema = userSchema
     .pick({
         email: true,
-        fullName: true,
+        displayName: true,
         role: true,
         status: true,
     })

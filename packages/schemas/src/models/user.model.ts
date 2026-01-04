@@ -31,7 +31,7 @@ export const ErrForbidden = new Error('Forbidden');
 export const userSchema = z.object({
     id: z.string().uuid(),
     email: z.string().email(ErrEmailInvalid.message),
-    fullName: z.string().min(2, ErrFirstNameAtLeast2Chars.message),
+    displayName: z.string().min(2, ErrFirstNameAtLeast2Chars.message),
     password: z.string().min(8, ErrPasswordAtLeast8Chars.message),
     salt: z.string().min(8),
     phone: z.string().optional().nullable(),

@@ -16,7 +16,7 @@ import { NatsSystemEventsService } from './nats-system-events.service';
 import { LiveKitService } from '../livekit/livekit.service';
 
 // Constants
-const NATS_PREFIX = 'pnm-';  // Must use dash, not colon! NATS bucket names cannot contain ':'
+const NATS_PREFIX = 'wajlc-';  // Must use dash, not colon! NATS bucket names cannot contain ':'
 const ROOM_USERS_BUCKET_PREFIX = `${NATS_PREFIX}roomUsers-`;
 const ROOM_USERS_BUCKET = `${ROOM_USERS_BUCKET_PREFIX}%s`;
 
