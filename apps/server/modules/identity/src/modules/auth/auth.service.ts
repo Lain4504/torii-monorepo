@@ -59,7 +59,7 @@ export class AuthService {
                 password: hashedPassword,
                 displayName,
                 role: UserRole.LEARNER,
-                status: UserStatus.ACTIVE,
+                status: UserStatus.PENDING,
             },
             select: {
                 id: true,
@@ -72,8 +72,16 @@ export class AuthService {
             },
         });
 
-        // Generate and send OTP
-        await this.generateAndSendOtp(user.email);
+        // Generate Magic Link token
+        const magicToken = await this.generateMagicToken(user.email);
+
+        // Emit NATS event for notification service to send email
+        this.natsClient.emit('auth.user.registered', {
+            email: user.email,
+            displayName: user.displayName,
+            magicToken, // Send token instead of OTP
+            verificationUrl: `${process.env.FRONTEND_URL}/verify?token=${magicToken}`,
+        });
 
         return {
             ...user,
@@ -101,8 +109,9 @@ export class AuthService {
         }
 
         // Check if user is active
-        if (user.status !== UserStatus.ACTIVE) {
-            throw new UnauthorizedException('Account is not active');
+        // Check if user is active or pending
+        if (user.status !== UserStatus.ACTIVE && user.status !== UserStatus.PENDING) {
+            throw new UnauthorizedException('Account is disabled or deleted');
         }
 
         // Generate JWT token
@@ -118,7 +127,7 @@ export class AuthService {
                 displayName: user.displayName,
                 role: user.role,
                 status: user.status,
-                emailVerified: false, // TODO: Implement email verification
+                emailVerified: user.status === UserStatus.ACTIVE,
                 createdAt: user.createdAt,
                 updatedAt: user.updatedAt,
             } as UserResponseDTO,
@@ -152,7 +161,7 @@ export class AuthService {
 
         return {
             ...user,
-            emailVerified: false, // TODO: Add emailVerified to Prisma schema
+            emailVerified: user.status === UserStatus.ACTIVE,
             permissions,
         } as UserResponseDTO & { permissions: string[] };
     }
@@ -175,7 +184,45 @@ export class AuthService {
     }
 
     /**
+     * Generate Magic Link token for email verification
+     * Returns the token to be used in verification URL
+     */
+    async generateMagicToken(email: string): Promise<string> {
+        // Generate secure random token (32 bytes = 64 hex chars)
+        const crypto = await import('crypto');
+        const token = crypto.randomBytes(32).toString('hex');
+
+        // Store email associated with token in Redis (24h expiry)
+        await this.redis.set(`magic-link:${token}`, email, 'EX', 86400);
+
+        return token;
+    }
+
+    /**
+     * Verify Magic Link token and activate user
+     */
+    async verifyMagicToken(token: string): Promise<{ success: boolean; email?: string }> {
+        const email = await this.redis.get(`magic-link:${token}`);
+
+        if (!email) {
+            return { success: false };
+        }
+
+        // Update user status to ACTIVE
+        await this.prisma.user.update({
+            where: { email },
+            data: { status: UserStatus.ACTIVE }
+        });
+
+        // Delete token (one-time use)
+        await this.redis.del(`magic-link:${token}`);
+
+        return { success: true, email };
+    }
+
+    /**
      * Resend verification OTP
+     * Rate limited: 3 requests per hour per email
      */
     async resendVerification(email: string): Promise<void> {
         const user = await this.prisma.user.findUnique({
@@ -186,11 +233,41 @@ export class AuthService {
             throw new NotFoundException('User not found');
         }
 
-        if (user.status !== UserStatus.ACTIVE) {
-            throw new UnauthorizedException('User is not active');
+        // Only allow resend for PENDING users (not yet verified)
+        if (user.status !== UserStatus.PENDING) {
+            throw new BadRequestException('Email already verified or account is not active');
         }
 
-        await this.generateAndSendOtp(email);
+        // Rate limiting: 3 requests per hour
+        const rateLimitKey = `resend-verification:${email}`;
+        const attempts = await this.redis.get(rateLimitKey);
+        const attemptsCount = attempts ? parseInt(attempts) : 0;
+
+        if (attemptsCount >= 3) {
+            const ttl = await this.redis.ttl(rateLimitKey);
+            const minutesLeft = Math.ceil(ttl / 60);
+            throw new BadRequestException(
+                `Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau ${minutesLeft} phút.`
+            );
+        }
+
+        // Generate new Magic Link token
+        const magicToken = await this.generateMagicToken(email);
+
+        // Emit NATS event for notification service to send email
+        this.natsClient.emit('auth.verification.resend', {
+            email,
+            displayName: user.displayName,
+            magicToken,
+            verificationUrl: `${process.env.FRONTEND_URL}/verify?token=${magicToken}`,
+        });
+
+        // Increment rate limit counter
+        if (attemptsCount === 0) {
+            await this.redis.set(rateLimitKey, '1', 'EX', 3600); // 1 hour
+        } else {
+            await this.redis.incr(rateLimitKey);
+        }
     }
 
     /**
@@ -205,6 +282,12 @@ export class AuthService {
 
         // OTP valid - clear it
         await this.redis.del(`otp:${email}`);
+
+        // Update user status to ACTIVE
+        await this.prisma.user.update({
+            where: { email },
+            data: { status: UserStatus.ACTIVE }
+        });
 
         return true;
     }

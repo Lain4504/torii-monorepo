@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 // Routes that require authentication
-const protectedRoutes = ['/dashboard', '/learn', '/profile', '/settings']
+const protectedRoutes = ['/learn', '/profile', '/settings']
 
 // Routes that are only accessible when NOT authenticated
 const authRoutes = ['/login', '/register']
@@ -30,7 +30,7 @@ export function proxy(request: NextRequest) {
 
     if (isAuthRoute && hasSession) {
         // Redirect to dashboard if accessing login/register while authenticated
-        return NextResponse.redirect(new URL('/dashboard', request.url))
+        return NextResponse.redirect(new URL('/', request.url))
     }
 
     return NextResponse.next()

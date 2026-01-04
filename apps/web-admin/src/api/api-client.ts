@@ -33,8 +33,9 @@ const processQueue = (error: unknown = null) => {
 
 /**
  * Safely redirect to login page, avoiding infinite loops
+ * Clears server-side auth state (cookies) before redirecting
  */
-const redirectToLogin = () => {
+const redirectToLogin = async () => {
     // Prevent multiple simultaneous redirects
     if (isRedirecting) {
         return;
@@ -48,6 +49,18 @@ const redirectToLogin = () => {
 
     isRedirecting = true;
     console.warn('Authentication failed - redirecting to login');
+
+    try {
+        // Call logout to clear server-side cookies
+        // Web-admin uses ONLY cookies for auth (no localStorage)
+        // Keep localStorage for user preferences (theme, sidebar)
+        await apiClient.post('/api/auth/logout').catch(() => {
+            // Ignore errors - we're logging out anyway
+        });
+    } catch (e) {
+        // Ignore - continue with redirect
+    }
+
     window.location.href = '/login';
 };
 

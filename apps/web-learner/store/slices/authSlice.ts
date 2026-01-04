@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { apiClient } from '../../api/api-client';
+import { UserStatus } from '@workspace/schemas';
 import type { UserResponseDTO, UserLoginDTO, UserRegistrationDTO } from '@workspace/schemas';
 
 // Define the auth state
@@ -48,7 +49,7 @@ export const register = createAsyncThunk(
         try {
             // Updated endpoint
             const response = await apiClient.post('/api/auth/register', userData);
-            return response.data; // UserResponseDTO
+            return response.data.data.user; // Extract user from { success: true, data: { user } }
         } catch (error: any) {
             if (error.response && error.response.data.message) {
                 return rejectWithValue(error.response.data.message);
@@ -89,13 +90,28 @@ export const verifyEmail = createAsyncThunk(
     'auth/verifyEmail',
     async ({ email, otp }: { email: string; otp: string }, { rejectWithValue }) => {
         try {
-            const response = await apiClient.get(`/api/auth/verify-email?email=${encodeURIComponent(email)}&otp=${encodeURIComponent(otp)}`);
+            const response = await apiClient.post('/api/auth/verify-email', { email, otp });
             return response.data;
         } catch (error: any) {
             if (error.response && error.response.data.message) {
                 return rejectWithValue(error.response.data.message);
             }
             return rejectWithValue(error.message || 'Verification failed');
+        }
+    }
+);
+
+export const fetchProfile = createAsyncThunk(
+    'auth/fetchProfile',
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await apiClient.get('/api/auth/profile');
+            return response.data.data.user;
+        } catch (error: any) {
+            if (error.response && error.response.data.message) {
+                return rejectWithValue(error.response.data.message);
+            }
+            return rejectWithValue(error.message || 'Failed to fetch profile');
         }
     }
 );
@@ -139,9 +155,8 @@ export const authSlice = createSlice({
             })
             .addCase(register.fulfilled, (state, action) => {
                 state.status = 'succeeded';
-                // Usually registration doesn't auto-login unless backend returns tokens
-                // If backend returns tokens and sets cookies, we could set isAuthenticated = true
-                // strict implementation: require login after register
+                state.isAuthenticated = true;
+                state.user = action.payload;
             })
             .addCase(register.rejected, (state, action) => {
                 state.status = 'failed';
@@ -176,7 +191,14 @@ export const authSlice = createSlice({
             .addCase(verifyEmail.fulfilled, (state) => {
                 if (state.user) {
                     state.user.emailVerified = true;
+                    state.user.status = UserStatus.ACTIVE;
                 }
+            })
+
+            // Fetch Profile
+            .addCase(fetchProfile.fulfilled, (state, action) => {
+                state.user = action.payload;
+                state.isAuthenticated = true;
             });
     },
 });

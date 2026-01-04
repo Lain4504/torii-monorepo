@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="chore(web-admin): remove unused features, components, and APIs&#10;&#10;- Deleted obsolete API modules for audit logs, blogs, and courses.&#10;- Removed unused components including AuthGuard, Can, DashboardHeader, DashboardLayout, and DashboardSidebar.&#10;- Streamlined codebase to remove dependencies on deprecated features.">
-      <change afterPath="$PROJECT_DIR$/apps/web-learner/components/layout/.gitkeep" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(ui): introduce OTP input components and enhance email verification flow&#10;&#10;- Added reusable `InputOTP` components (`InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator`) to the `ui` package.&#10;- Integrated `InputOTP` into email verification for a more dynamic OTP entry experience.&#10;- Updated `pnpm-lock.yaml` and `package.json` to include `input-otp` dependency.&#10;- Enhanced email verification UI for better user feedback, including loading spinners and error/success messages.">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/api-client.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/api/api-client.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/api/api-client.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/api/api-client.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -14,7 +15,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="567" />
+    <option name="cachedIndexableFilesCount" value="569" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -115,7 +116,7 @@
     "ignore.virus.scanning.warn.message": "true",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "E:/Ky8/bmap-capstone/torii-monorepo/apps/web-learner/components/layout",
+    "last_opened_file_path": "E:/Ky8/bmap-capstone/torii-monorepo/apps/web-learner",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -239,55 +240,8 @@
       <workItem from="1767322940795" duration="310000" />
       <workItem from="1767432341687" duration="5940000" />
       <workItem from="1767441903721" duration="133000" />
-      <workItem from="1767453248086" duration="5613000" />
-    </task>
-    <task id="LOCAL-00382" summary="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`).">
-      <option name="closed" value="true" />
-      <created>1767201338277</created>
-      <option name="number" value="00382" />
-      <option name="presentableId" value="LOCAL-00382" />
-      <option name="project" value="LOCAL" />
-      <updated>1767201338278</updated>
-    </task>
-    <task id="LOCAL-00383" summary="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`).">
-      <option name="closed" value="true" />
-      <created>1767201429297</created>
-      <option name="number" value="00383" />
-      <option name="presentableId" value="LOCAL-00383" />
-      <option name="project" value="LOCAL" />
-      <updated>1767201429298</updated>
-    </task>
-    <task id="LOCAL-00384" summary="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`).">
-      <option name="closed" value="true" />
-      <created>1767201502978</created>
-      <option name="number" value="00384" />
-      <option name="presentableId" value="LOCAL-00384" />
-      <option name="project" value="LOCAL" />
-      <updated>1767201502978</updated>
-    </task>
-    <task id="LOCAL-00385" summary="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`).">
-      <option name="closed" value="true" />
-      <created>1767201710089</created>
-      <option name="number" value="00385" />
-      <option name="presentableId" value="LOCAL-00385" />
-      <option name="project" value="LOCAL" />
-      <updated>1767201710089</updated>
-    </task>
-    <task id="LOCAL-00386" summary="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`).">
-      <option name="closed" value="true" />
-      <created>1767201815280</created>
-      <option name="number" value="00386" />
-      <option name="presentableId" value="LOCAL-00386" />
-      <option name="project" value="LOCAL" />
-      <updated>1767201815280</updated>
-    </task>
-    <task id="LOCAL-00387" summary="chore: remove legacy gateway modules in preparation for migration to HTTP-based interfaces">
-      <option name="closed" value="true" />
-      <created>1767202026701</created>
-      <option name="number" value="00387" />
-      <option name="presentableId" value="LOCAL-00387" />
-      <option name="project" value="LOCAL" />
-      <updated>1767202026701</updated>
+      <workItem from="1767453248086" duration="5731000" />
+      <workItem from="1767488214135" duration="4740000" />
     </task>
     <task id="LOCAL-00388" summary="chore: remove legacy gateway modules in preparation for migration to HTTP-based interfaces">
       <option name="closed" value="true" />
@@ -633,7 +587,55 @@
       <option name="project" value="LOCAL" />
       <updated>1767459330607</updated>
     </task>
-    <option name="localTasksCounter" value="431" />
+    <task id="LOCAL-00431" summary="chore(web-admin): remove unused features, components, and APIs&#10;&#10;- Deleted obsolete API modules for audit logs, blogs, and courses.&#10;- Removed unused components including AuthGuard, Can, DashboardHeader, DashboardLayout, and DashboardSidebar.&#10;- Streamlined codebase to remove dependencies on deprecated features.">
+      <option name="closed" value="true" />
+      <created>1767459487064</created>
+      <option name="number" value="00431" />
+      <option name="presentableId" value="LOCAL-00431" />
+      <option name="project" value="LOCAL" />
+      <updated>1767459487064</updated>
+    </task>
+    <task id="LOCAL-00432" summary="feat(ui): introduce OTP input components and enhance email verification flow&#10;&#10;- Added reusable `InputOTP` components (`InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator`) to the `ui` package.&#10;- Integrated `InputOTP` into email verification for a more dynamic OTP entry experience.&#10;- Updated `pnpm-lock.yaml` and `package.json` to include `input-otp` dependency.&#10;- Enhanced email verification UI for better user feedback, including loading spinners and error/success messages.">
+      <option name="closed" value="true" />
+      <created>1767488709108</created>
+      <option name="number" value="00432" />
+      <option name="presentableId" value="LOCAL-00432" />
+      <option name="project" value="LOCAL" />
+      <updated>1767488709108</updated>
+    </task>
+    <task id="LOCAL-00433" summary="feat(ui): introduce OTP input components and enhance email verification flow&#10;&#10;- Added reusable `InputOTP` components (`InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator`) to the `ui` package.&#10;- Integrated `InputOTP` into email verification for a more dynamic OTP entry experience.&#10;- Updated `pnpm-lock.yaml` and `package.json` to include `input-otp` dependency.&#10;- Enhanced email verification UI for better user feedback, including loading spinners and error/success messages.">
+      <option name="closed" value="true" />
+      <created>1767489198854</created>
+      <option name="number" value="00433" />
+      <option name="presentableId" value="LOCAL-00433" />
+      <option name="project" value="LOCAL" />
+      <updated>1767489198855</updated>
+    </task>
+    <task id="LOCAL-00434" summary="feat(ui): introduce OTP input components and enhance email verification flow&#10;&#10;- Added reusable `InputOTP` components (`InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator`) to the `ui` package.&#10;- Integrated `InputOTP` into email verification for a more dynamic OTP entry experience.&#10;- Updated `pnpm-lock.yaml` and `package.json` to include `input-otp` dependency.&#10;- Enhanced email verification UI for better user feedback, including loading spinners and error/success messages.">
+      <option name="closed" value="true" />
+      <created>1767491337459</created>
+      <option name="number" value="00434" />
+      <option name="presentableId" value="LOCAL-00434" />
+      <option name="project" value="LOCAL" />
+      <updated>1767491337461</updated>
+    </task>
+    <task id="LOCAL-00435" summary="feat(ui): introduce OTP input components and enhance email verification flow&#10;&#10;- Added reusable `InputOTP` components (`InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator`) to the `ui` package.&#10;- Integrated `InputOTP` into email verification for a more dynamic OTP entry experience.&#10;- Updated `pnpm-lock.yaml` and `package.json` to include `input-otp` dependency.&#10;- Enhanced email verification UI for better user feedback, including loading spinners and error/success messages.">
+      <option name="closed" value="true" />
+      <created>1767492629105</created>
+      <option name="number" value="00435" />
+      <option name="presentableId" value="LOCAL-00435" />
+      <option name="project" value="LOCAL" />
+      <updated>1767492629105</updated>
+    </task>
+    <task id="LOCAL-00436" summary="feat(ui): introduce OTP input components and enhance email verification flow&#10;&#10;- Added reusable `InputOTP` components (`InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator`) to the `ui` package.&#10;- Integrated `InputOTP` into email verification for a more dynamic OTP entry experience.&#10;- Updated `pnpm-lock.yaml` and `package.json` to include `input-otp` dependency.&#10;- Enhanced email verification UI for better user feedback, including loading spinners and error/success messages.">
+      <option name="closed" value="true" />
+      <created>1767492830852</created>
+      <option name="number" value="00436" />
+      <option name="presentableId" value="LOCAL-00436" />
+      <option name="project" value="LOCAL" />
+      <updated>1767492830853</updated>
+    </task>
+    <option name="localTasksCounter" value="437" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -663,7 +665,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat(audit): implement audit logging service and related API endpoints" />
     <MESSAGE value="feat(polls): implement polls module with controller and service for managing polls" />
     <MESSAGE value="chore: remove unused modules and controllers in gateway and meet services" />
     <MESSAGE value="chore: remove deprecated modules and controllers across services" />
@@ -688,7 +689,8 @@
     <MESSAGE value="feat(auth): add Redux-based authentication flow to web-learner&#10;&#10;- Implemented `authSlice` with login, logout, register, and checkAuth functionality.&#10;- Added `AuthInitializer` component to manage authentication state.&#10;- Created `LoginForm` component integrated with Redux and Zod validation.&#10;- Updated login page to use `AuthInitializer` and `LoginForm`.&#10;- Created reusable UI components (Field, Item, Empty) for consistent styling." />
     <MESSAGE value="feat(auth): add email verification flow and update user naming conventions&#10;&#10;- Implemented email verification handling, including OTP validation and resend functionality for both the backend and web apps.&#10;- Replaced `fullName` with `displayName` across all services and components for user naming consistency.&#10;- Introduced `EmailService` for email-related operations and integrated it with event handling via `EmailEventController`.&#10;- Updated database schema to reflect `displayName` column and removed deprecated `fullName`, `email_verified`, and `salt` fields.&#10;- Added support for Redis in the backend using a shared module for configuration and client management." />
     <MESSAGE value="chore(web-admin): remove unused features, components, and APIs&#10;&#10;- Deleted obsolete API modules for audit logs, blogs, and courses.&#10;- Removed unused components including AuthGuard, Can, DashboardHeader, DashboardLayout, and DashboardSidebar.&#10;- Streamlined codebase to remove dependencies on deprecated features." />
-    <option name="LAST_COMMIT_MESSAGE" value="chore(web-admin): remove unused features, components, and APIs&#10;&#10;- Deleted obsolete API modules for audit logs, blogs, and courses.&#10;- Removed unused components including AuthGuard, Can, DashboardHeader, DashboardLayout, and DashboardSidebar.&#10;- Streamlined codebase to remove dependencies on deprecated features." />
+    <MESSAGE value="feat(ui): introduce OTP input components and enhance email verification flow&#10;&#10;- Added reusable `InputOTP` components (`InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator`) to the `ui` package.&#10;- Integrated `InputOTP` into email verification for a more dynamic OTP entry experience.&#10;- Updated `pnpm-lock.yaml` and `package.json` to include `input-otp` dependency.&#10;- Enhanced email verification UI for better user feedback, including loading spinners and error/success messages." />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(ui): introduce OTP input components and enhance email verification flow&#10;&#10;- Added reusable `InputOTP` components (`InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator`) to the `ui` package.&#10;- Integrated `InputOTP` into email verification for a more dynamic OTP entry experience.&#10;- Updated `pnpm-lock.yaml` and `package.json` to include `input-otp` dependency.&#10;- Enhanced email verification UI for better user feedback, including loading spinners and error/success messages." />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

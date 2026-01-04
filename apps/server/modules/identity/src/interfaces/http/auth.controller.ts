@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Patch, Post, Request, UseGuards, Res, HttpCode, HttpStatus, UnauthorizedException, Query, BadRequestException } from '@nestjs/common';
 import type { Response } from 'express';
-import { GatewayAuthGuard } from '@server/shared';
+import { GatewayAuthGuard, VerifiedOnly } from '@server/shared';
 import { AuthService } from '../../modules/auth/auth.service';
 import { RefreshTokenService } from '../../modules/auth/refresh-token.service';
 import type { ReqWithRequester, UserRegistrationDTO, UserLoginDTO } from '@workspace/schemas';
@@ -22,13 +22,54 @@ export class AuthController {
      */
     @Post('register')
     @HttpCode(HttpStatus.CREATED)
-    async register(@Body() dto: UserRegistrationDTO) {
+    async register(
+        @Body() dto: UserRegistrationDTO,
+        @Request() req,
+        @Res({ passthrough: true }) res: Response
+    ) {
         try {
             const user = await this.authService.register(dto);
-            return {
-                success: true,
-                data: { user }
-            };
+
+            // AUTO-LOGIN: Generate tokens after registration
+            const accessToken = await this.authService['jwtTokenProvider'].generateToken({
+                sub: user.id,
+                role: user.role as any,
+            });
+            const refreshToken = await this.refreshTokenService.createRefreshToken(user.id);
+
+            // Check Platform
+            const platform = req.headers['x-platform'];
+
+            if (platform === 'mobile') {
+                return {
+                    success: true,
+                    data: {
+                        user,
+                        access_token: accessToken,
+                        refresh_token: refreshToken,
+                    }
+                };
+            } else {
+                // Web: Set httpOnly cookies
+                res.cookie('access_token', accessToken, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: 'lax',
+                    maxAge: 15 * 60 * 1000 // 15 minutes
+                });
+
+                res.cookie('refresh_token', refreshToken, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: 'lax',
+                    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+                });
+
+                return {
+                    success: true,
+                    data: { user }
+                };
+            }
         } catch (error: any) {
             return {
                 success: false,
@@ -62,14 +103,15 @@ export class AuthController {
         }
     }
 
+
     /**
-     * Verify email via OTP
-     * GET /auth/verify-email
+     * Verify email via OTP (Legacy - kept for backward compatibility)
+     * POST /auth/verify-email
      */
-    @Get('verify-email')
+    @Post('verify-email')
     async verifyEmail(
-        @Query('email') email: string,
-        @Query('otp') otp: string,
+        @Body('email') email: string,
+        @Body('otp') otp: string,
     ) {
         if (!email || !otp) {
             throw new BadRequestException('Email and OTP are required');
@@ -96,6 +138,41 @@ export class AuthController {
             };
         }
     }
+
+    /**
+     * Verify email via Magic Link token
+     * POST /auth/verify-magic-link
+     */
+    @Post('verify-magic-link')
+    @HttpCode(HttpStatus.OK)
+    async verifyMagicLink(@Body('token') token: string) {
+        if (!token) {
+            throw new BadRequestException('Token is required');
+        }
+
+        try {
+            const result = await this.authService.verifyMagicToken(token);
+
+            if (!result.success) {
+                return {
+                    success: false,
+                    message: 'Invalid or expired verification link'
+                };
+            }
+
+            return {
+                success: true,
+                message: 'Email verified successfully',
+                data: { email: result.email }
+            };
+        } catch (error: any) {
+            return {
+                success: false,
+                message: error.message || 'Verification failed'
+            };
+        }
+    }
+
 
     /**
      * Login user
@@ -300,7 +377,7 @@ export class AuthController {
      * PATCH /auth/profile
      */
     @Patch('profile')
-    @UseGuards(GatewayAuthGuard)
+    @VerifiedOnly()
     async updateProfile(
         @Request() req: ReqWithRequester,
         @Body() dto: { displayName?: string },

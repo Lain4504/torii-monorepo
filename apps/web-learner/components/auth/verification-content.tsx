@@ -1,144 +1,112 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
-import { authApi } from '@/api/services/auth-api';
 import { useAppDispatch } from '@/hooks/hooks';
-import { verifyEmail } from '@/store/slices/authSlice';
+import { fetchProfile } from '@/store/slices/authSlice';
 
 export function VerificationContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const dispatch = useAppDispatch();
-
-    // Use a ref to prevent double-firing in Strict Mode
-    const processedRef = useRef(false);
-
-    const email = searchParams.get('email');
-    const otp = searchParams.get('otp');
-
-    const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
-    const [message, setMessage] = useState('Đang xác thực...');
-    const [resendLoading, setResendLoading] = useState(false);
-    const [resendCooldown, setResendCooldown] = useState(0);
+    const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+    const [message, setMessage] = useState('');
 
     useEffect(() => {
-        let timer: NodeJS.Timeout;
-        if (resendCooldown > 0) {
-            timer = setInterval(() => setResendCooldown(prev => prev - 1), 1000);
-        }
-        return () => clearInterval(timer);
-    }, [resendCooldown]);
+        const token = searchParams.get('token');
 
-    useEffect(() => {
-        if (processedRef.current) return;
-
-        if (!email || !otp) {
+        if (!token) {
             setStatus('error');
-            setMessage('Thông tin xác thực không hợp lệ. Vui lòng kiểm tra lại đường dẫn.');
+            setMessage('Link xác thực không hợp lệ');
             return;
         }
 
-        processedRef.current = true;
+        // Verify magic link token
+        const verifyToken = async () => {
+            try {
+                const response = await fetch('/api/auth/verify-magic-link', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ token }),
+                });
 
-        const handleVerification = async () => {
-            // In App Router, dispatch needs to be typed correctly or used with a typed hook
-            // Assuming verifyEmail returns a standard Toolkit action result
-            const resultAction = await dispatch(verifyEmail({ email, otp }));
+                const data = await response.json();
 
-            if (verifyEmail.fulfilled.match(resultAction)) {
-                setStatus('success');
-                setMessage('Xác thực email thành công! Bạn có thể bắt đầu học ngay bây giờ.');
-            } else {
+                if (data.success) {
+                    setStatus('success');
+                    setMessage('Email đã được xác thực thành công!');
+
+                    // Refresh user profile to update status
+                    await dispatch(fetchProfile());
+
+                    // Redirect to home after 2 seconds
+                    setTimeout(() => {
+                        router.push('/');
+                    }, 2000);
+                } else {
+                    setStatus('error');
+                    setMessage(data.message || 'Link xác thực không hợp lệ hoặc đã hết hạn');
+                }
+            } catch (error) {
                 setStatus('error');
-                // resultAction.payload is typed as string | undefined in rejectWithValue scenarios usually
-                const errorMessage = typeof resultAction.payload === 'string'
-                    ? resultAction.payload
-                    : 'Mã xác thực không hợp lệ hoặc đã hết hạn.';
-                setMessage(errorMessage);
+                setMessage('Đã xảy ra lỗi khi xác thực. Vui lòng thử lại.');
             }
         };
 
-        handleVerification();
-    }, [email, otp, dispatch]);
+        verifyToken();
+    }, [searchParams, dispatch, router]);
 
-    const handleResend = async () => {
-        if (!email) return;
-
-        setResendLoading(true);
-        try {
-            await authApi.resendVerification(email);
-            setResendCooldown(60);
-            // Optionally show a toast here
-        } catch (error: any) {
-            console.error(error);
-            // Optionally show error toast
-        } finally {
-            setResendLoading(false);
-        }
-    };
-
-    if (status === 'verifying') {
+    if (status === 'loading') {
         return (
-            <div className="flex flex-col items-center justify-center space-y-4 py-8">
+            <div className="flex flex-col items-center justify-center space-y-4 py-12">
                 <Loader2 className="h-16 w-16 animate-spin text-primary" />
-                <p className="text-muted-foreground">{message}</p>
+                <h3 className="text-xl font-medium">Đang xác thực...</h3>
+                <p className="text-muted-foreground">Vui lòng đợi trong giây lát</p>
             </div>
         );
     }
 
     if (status === 'success') {
         return (
-            <div className="flex flex-col items-center justify-center space-y-6 py-4 text-center">
-                <div className="rounded-full bg-green-100 p-3 dark:bg-green-900/30">
-                    <CheckCircle2 className="h-12 w-12 text-green-600 dark:text-green-400" />
+            <div className="flex flex-col items-center justify-center space-y-6 py-8 text-center">
+                <div className="rounded-full bg-green-100 p-4 dark:bg-green-900/30">
+                    <CheckCircle2 className="h-16 w-16 text-green-600 dark:text-green-400" />
                 </div>
                 <div className="space-y-2">
-                    <h3 className="text-xl font-medium">Xác thực thành công</h3>
+                    <h3 className="text-2xl font-bold text-green-800 dark:text-green-200">
+                        Xác thực thành công!
+                    </h3>
                     <p className="text-muted-foreground">{message}</p>
+                    <p className="text-sm text-muted-foreground">
+                        Đang chuyển hướng về trang chủ...
+                    </p>
                 </div>
-                <Button asChild className="w-full">
-                    <Link href="/login">Đăng nhập</Link>
-                </Button>
             </div>
         );
     }
 
+    // Error state
     return (
-        <div className="flex flex-col items-center justify-center space-y-6 py-4 text-center">
-            <div className="rounded-full bg-red-100 p-3 dark:bg-red-900/30">
-                <XCircle className="h-12 w-12 text-red-600 dark:text-red-400" />
+        <div className="flex flex-col items-center justify-center space-y-6 py-8 text-center">
+            <div className="rounded-full bg-red-100 p-4 dark:bg-red-900/30">
+                <XCircle className="h-16 w-16 text-red-600 dark:text-red-400" />
             </div>
             <div className="space-y-2">
-                <h3 className="text-xl font-medium">Xác thực thất bại</h3>
-                <p className="text-muted-foreground text-red-600 dark:text-red-400">{message}</p>
+                <h3 className="text-2xl font-bold text-red-800 dark:text-red-200">
+                    Xác thực thất bại
+                </h3>
+                <p className="text-muted-foreground">{message}</p>
             </div>
-
-            <div className="flex w-full flex-col space-y-2">
-                <Button
-                    variant="outline"
-                    onClick={handleResend}
-                    disabled={resendLoading || resendCooldown > 0}
-                    className="w-full"
-                >
-                    {resendLoading ? (
-                        <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Đang gửi lại...
-                        </>
-                    ) : resendCooldown > 0 ? (
-                        `Gửi lại sau ${resendCooldown}s`
-                    ) : (
-                        'Gửi lại mã xác thực'
-                    )}
-                </Button>
-                <Button asChild variant="ghost" className="w-full">
-                    <Link href="/login">Quay lại đăng nhập</Link>
-                </Button>
-            </div>
+            <Button
+                onClick={() => router.push('/')}
+                className="w-full"
+            >
+                Về trang chủ
+            </Button>
         </div>
     );
 }
