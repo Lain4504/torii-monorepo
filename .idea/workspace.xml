@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(web-learner): add responsive home page sections with JLPT roadmap, features, and CTAs&#10;&#10;- Introduced `hero-section` to highlight platform's offerings and key metrics.&#10;- Added `course-categories-section` displaying JLPT levels N5-N1 with detailed descriptions.&#10;- Implemented `features-section` showcasing advanced platform features like AI Sensei and Gamification.&#10;- Created `cta-section` with promotional content and prominent">
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/layout.tsx" afterDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(web-learner): add responsive home page sections with JLPT roadmap, features, and CTAs&#10;&#10;- Introduced `hero-section` to highlight platform's offerings and key metrics.&#10;- Added `course-categories-section` displaying JLPT levels N5-N1 with detailed descriptions.&#10;- Implemented `features-section` showcasing advanced platform features like AI Sensei and Gamification.&#10;- Created `cta-section` with promotional content and prominent call-to-action buttons.&#10;- Ensured responsive design and modern UI/UX principles across all sections." />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -247,30 +245,6 @@
       <workItem from="1767441903721" duration="133000" />
       <workItem from="1767453248086" duration="5731000" />
       <workItem from="1767488214135" duration="5190000" />
-    </task>
-    <task id="LOCAL-00391" summary="chore: remove obsolete controllers for room, auth-room, and polls in preparation for HTTP-based migration">
-      <option name="closed" value="true" />
-      <created>1767230309391</created>
-      <option name="number" value="00391" />
-      <option name="presentableId" value="LOCAL-00391" />
-      <option name="project" value="LOCAL" />
-      <updated>1767230309392</updated>
-    </task>
-    <task id="LOCAL-00392" summary="chore: remove obsolete controllers for room, auth-room, and polls in preparation for HTTP-based migration">
-      <option name="closed" value="true" />
-      <created>1767231449047</created>
-      <option name="number" value="00392" />
-      <option name="presentableId" value="LOCAL-00392" />
-      <option name="project" value="LOCAL" />
-      <updated>1767231449048</updated>
-    </task>
-    <task id="LOCAL-00393" summary="chore: remove obsolete controllers for room, auth-room, and polls in preparation for HTTP-based migration">
-      <option name="closed" value="true" />
-      <created>1767233089530</created>
-      <option name="number" value="00393" />
-      <option name="presentableId" value="LOCAL-00393" />
-      <option name="project" value="LOCAL" />
-      <updated>1767233089530</updated>
     </task>
     <task id="LOCAL-00394" summary="chore: remove obsolete controllers for room, auth-room, and polls in preparation for HTTP-based migration">
       <option name="closed" value="true" />
@@ -640,7 +614,31 @@
       <option name="project" value="LOCAL" />
       <updated>1767516170478</updated>
     </task>
-    <option name="localTasksCounter" value="440" />
+    <task id="LOCAL-00440" summary="feat(web-learner): add responsive home page sections with JLPT roadmap, features, and CTAs&#10;&#10;- Introduced `hero-section` to highlight platform's offerings and key metrics.&#10;- Added `course-categories-section` displaying JLPT levels N5-N1 with detailed descriptions.&#10;- Implemented `features-section` showcasing advanced platform features like AI Sensei and Gamification.&#10;- Created `cta-section` with promotional content and prominent call-to-action buttons.&#10;- Ensured responsive design and modern UI/UX principles across all sections.">
+      <option name="closed" value="true" />
+      <created>1767516663053</created>
+      <option name="number" value="00440" />
+      <option name="presentableId" value="LOCAL-00440" />
+      <option name="project" value="LOCAL" />
+      <updated>1767516663053</updated>
+    </task>
+    <task id="LOCAL-00441" summary="feat(web-learner): add responsive home page sections with JLPT roadmap, features, and CTAs&#10;&#10;- Introduced `hero-section` to highlight platform's offerings and key metrics.&#10;- Added `course-categories-section` displaying JLPT levels N5-N1 with detailed descriptions.&#10;- Implemented `features-section` showcasing advanced platform features like AI Sensei and Gamification.&#10;- Created `cta-section` with promotional content and prominent call-to-action buttons.&#10;- Ensured responsive design and modern UI/UX principles across all sections.">
+      <option name="closed" value="true" />
+      <created>1767517030478</created>
+      <option name="number" value="00441" />
+      <option name="presentableId" value="LOCAL-00441" />
+      <option name="project" value="LOCAL" />
+      <updated>1767517030478</updated>
+    </task>
+    <task id="LOCAL-00442" summary="feat(web-learner): add responsive home page sections with JLPT roadmap, features, and CTAs&#10;&#10;- Introduced `hero-section` to highlight platform's offerings and key metrics.&#10;- Added `course-categories-section` displaying JLPT levels N5-N1 with detailed descriptions.&#10;- Implemented `features-section` showcasing advanced platform features like AI Sensei and Gamification.&#10;- Created `cta-section` with promotional content and prominent call-to-action buttons.&#10;- Ensured responsive design and modern UI/UX principles across all sections.">
+      <option name="closed" value="true" />
+      <created>1767517288441</created>
+      <option name="number" value="00442" />
+      <option name="presentableId" value="LOCAL-00442" />
+      <option name="project" value="LOCAL" />
+      <updated>1767517288441</updated>
+    </task>
+    <option name="localTasksCounter" value="443" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -670,7 +668,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="chore: remove deprecated modules and controllers across services" />
     <MESSAGE value="chore: remove deprecated controllers and" />
     <MESSAGE value="chore: remove obsolete modules and controllers from gateway services modules across services including auth, RBAC, blog, comments, and LMS" />
     <MESSAGE value="chore: remove obsolete modules and controllers from gateway services" />
@@ -695,7 +692,8 @@
     <MESSAGE value="feat(ui): introduce OTP input components and enhance email verification flow&#10;&#10;- Added reusable `InputOTP` components (`InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator`) to the `ui` package.&#10;- Integrated `InputOTP` into email verification for a more dynamic OTP entry experience.&#10;- Updated `pnpm-lock.yaml` and `package.json` to include `input-otp` dependency.&#10;- Enhanced email verification UI for better user feedback, including loading spinners and error/success messages." />
     <MESSAGE value="feat(auth): replace magic link with OTP-based email verification flow&#10;&#10;- Removed magic link email verification components and logic.&#10;- Implemented OTP verification via `OTPVerificationContent` component.&#10;- Updated backend services to handle OTP generation and email delivery.&#10;- Modified `register` flow to redirect users to OTP verification page upon success.&#10;- Adjusted email templates for OTP usage, replacing magic link-related text and formatting." />
     <MESSAGE value="feat(web-learner): add responsive home page sections with JLPT roadmap, features, and CTAs&#10;&#10;- Introduced `hero-section` to highlight platform's offerings and key metrics.&#10;- Added `course-categories-section` displaying JLPT levels N5-N1 with detailed descriptions.&#10;- Implemented `features-section` showcasing advanced platform features like AI Sensei and Gamification.&#10;- Created `cta-section` with promotional content and prominent" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(web-learner): add responsive home page sections with JLPT roadmap, features, and CTAs&#10;&#10;- Introduced `hero-section` to highlight platform's offerings and key metrics.&#10;- Added `course-categories-section` displaying JLPT levels N5-N1 with detailed descriptions.&#10;- Implemented `features-section` showcasing advanced platform features like AI Sensei and Gamification.&#10;- Created `cta-section` with promotional content and prominent" />
+    <MESSAGE value="feat(web-learner): add responsive home page sections with JLPT roadmap, features, and CTAs&#10;&#10;- Introduced `hero-section` to highlight platform's offerings and key metrics.&#10;- Added `course-categories-section` displaying JLPT levels N5-N1 with detailed descriptions.&#10;- Implemented `features-section` showcasing advanced platform features like AI Sensei and Gamification.&#10;- Created `cta-section` with promotional content and prominent call-to-action buttons.&#10;- Ensured responsive design and modern UI/UX principles across all sections." />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(web-learner): add responsive home page sections with JLPT roadmap, features, and CTAs&#10;&#10;- Introduced `hero-section` to highlight platform's offerings and key metrics.&#10;- Added `course-categories-section` displaying JLPT levels N5-N1 with detailed descriptions.&#10;- Implemented `features-section` showcasing advanced platform features like AI Sensei and Gamification.&#10;- Created `cta-section` with promotional content and prominent call-to-action buttons.&#10;- Ensured responsive design and modern UI/UX principles across all sections." />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
