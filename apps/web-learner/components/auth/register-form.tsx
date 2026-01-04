@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useAppDispatch, useAppSelector } from '@/lib/redux/hooks';
-import { register as registerAction, clearError } from '@/lib/redux/slices/authSlice';
+import { useAppDispatch, useAppSelector } from '@/hooks/hooks';
+import { register as registerAction, clearError } from '@/store/slices/authSlice';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import {
@@ -83,7 +83,7 @@ export function RegisterForm() {
                 // Handle specific error messages from backend
                 const errorMessage = typeof resultAction.payload === 'string'
                     ? resultAction.payload
-                    : resultAction.payload?.message || 'Unable to create account';
+                    : (resultAction.payload as any)?.message || 'Unable to create account';
 
                 toast.error("Registration failed", {
                     description: errorMessage,

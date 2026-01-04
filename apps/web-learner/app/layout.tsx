@@ -1,7 +1,9 @@
 import { Open_Sans } from "next/font/google"
 
 import "@workspace/ui/styles/globals.css"
-import { Providers } from "@/components/providers"
+import { Providers } from "@/lib/providers/providers"
+import { Header } from "@/components/layout/header"
+import { Toaster } from "@workspace/ui/components/sonner"
 
 const fontSans = Open_Sans({
   subsets: ["latin"],
@@ -18,7 +20,11 @@ export default function RootLayout({
       <body
         className={`${fontSans.variable} font-sans antialiased `}
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          <Header />
+          <main>{children}</main>
+          <Toaster />
+        </Providers>
       </body>
     </html>
   )

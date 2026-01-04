@@ -4,10 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(auth): add Redux-based authentication flow to web-learner&#10;&#10;- Implemented `authSlice` with login, logout, register, and checkAuth functionality.&#10;- Added `AuthInitializer` component to manage authentication state.&#10;- Created `LoginForm` component integrated with Redux and Zod validation.&#10;- Updated login page to use `AuthInitializer` and `LoginForm`.&#10;- Created reusable UI components (Field, Item, Empty) for consistent styling.">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="chore: update type imports and dependencies&#10;&#10;- Fixed import path for `routes.d.ts` in `next-env.d.ts`.&#10;- Added `@types/nodemailer` dependency to `apps/server`.&#10;- Updated `pnpm-lock.yaml` with dependency changes and new versions.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/features/auth/routes/login-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/features/auth/routes/login-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/auth/login-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/auth/login-form.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -15,7 +14,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="561" />
+    <option name="cachedIndexableFilesCount" value="569" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -50,31 +49,38 @@
     &quot;state&quot;: &quot;OPEN&quot;
   }
 }</component>
-  <component name="GitHubPullRequestState">{
-  &quot;prStates&quot;: [
+  <component name="GitHubPullRequestState"><![CDATA[{
+  "prStates": [
     {
-      &quot;id&quot;: {
-        &quot;id&quot;: &quot;PR_kwDOQmD9iM66sc24&quot;,
-        &quot;number&quot;: 35
+      "id": {
+        "id": "PR_kwDOQmD9iM66sc24",
+        "number": 35
       },
-      &quot;lastSeen&quot;: 1766837511440
+      "lastSeen": 1766837511440
     },
     {
-      &quot;id&quot;: {
-        &quot;id&quot;: &quot;PR_kwDOQmD9iM66twAD&quot;,
-        &quot;number&quot;: 38
+      "id": {
+        "id": "PR_kwDOQmD9iM66twAD",
+        "number": 38
       },
-      &quot;lastSeen&quot;: 1766885614934
+      "lastSeen": 1766885614934
     },
     {
-      &quot;id&quot;: {
-        &quot;id&quot;: &quot;PR_kwDOQmD9iM66oPXy&quot;,
-        &quot;number&quot;: 31
+      "id": {
+        "id": "PR_kwDOQmD9iM66oPXy",
+        "number": 31
       },
-      &quot;lastSeen&quot;: 1766974161892
+      "lastSeen": 1766974161892
+    },
+    {
+      "id": {
+        "id": "PR_kwDOQmD9iM67ZerY",
+        "number": 48
+      },
+      "lastSeen": 1767495744090
     }
   ]
-}</component>
+}]]></component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/Lain4504/torii-monorepo.git&quot;,
@@ -112,17 +118,17 @@
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;web-learner-auth&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;verify-register&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;E:/Ky8/bmap-capstone/torii-monorepo&quot;,
+    &quot;last_opened_file_path&quot;: &quot;E:/Ky8/bmap-capstone/torii-monorepo/apps/web-learner&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.github.copilot.settings.mcp.McpConfigurable&quot;,
     &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
     &quot;ts.external.directory.path&quot;: &quot;E:\\Ky8\\bmap-capstone\\torii-monorepo\\node_modules\\typescript\\lib&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
@@ -135,17 +141,18 @@
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\Ky8\bmap-capstone\torii-monorepo\apps\web-learner\components\layout" />
       <recent name="E:\Ky8\bmap-capstone\torii-monorepo" />
       <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\billing\src\modules" />
       <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\billing\src\infrastructure" />
       <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\meet\src\redis" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="E:\demo\team-source\torii-monorepo\apps\server" />
-      <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\meet\src\polls" />
-      <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\gateway\src\meet" />
-      <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\gateway\src\meet\room" />
-      <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\gateway\src\meet\auth" />
+      <recent name="E:\Ky8\bmap-capstone\torii-monorepo\apps\web-learner\components\auth" />
+      <recent name="E:\Ky8\bmap-capstone\torii-monorepo\apps\web-admin\src\hooks" />
+      <recent name="E:\Ky8\bmap-capstone\torii-monorepo\apps\web-learner\components" />
+      <recent name="E:\Ky8\bmap-capstone\torii-monorepo\apps\web-learner\lib\providers" />
+      <recent name="E:\Ky8\bmap-capstone\torii-monorepo\apps\web-learner\store" />
     </key>
   </component>
   <component name="RunManager">
@@ -239,118 +246,8 @@
       <workItem from="1767322940795" duration="310000" />
       <workItem from="1767432341687" duration="5940000" />
       <workItem from="1767441903721" duration="133000" />
-    </task>
-    <task id="LOCAL-00376" summary="feat(auth): migrate authentication system to Firebase&#10;&#10;- Replaced RemoteAuthGuard with FirebaseAuthGuard for Firebase-based authentication.&#10;- Added Firebase Admin integration via `FirebaseAuthService` and `FirebaseAuthModule`.&#10;- Updated Prisma User model to include `firebaseUid`.&#10;- Removed legacy password-based authentication system.&#10;- Implemented `/auth/firebase-sync` endpoint for syncing Firebase users with the local database.&#10;- Updated web-admin to integrate Firebase Authentication.&#10;- Adjusted API client to include Firebase ID tokens in requests.">
-      <option name="closed" value="true" />
-      <created>1767196691164</created>
-      <option name="number" value="00376" />
-      <option name="presentableId" value="LOCAL-00376" />
-      <option name="project" value="LOCAL" />
-      <updated>1767196691165</updated>
-    </task>
-    <task id="LOCAL-00377" summary="feat(auth): migrate authentication system to Firebase&#10;&#10;- Replaced RemoteAuthGuard with FirebaseAuthGuard for Firebase-based authentication.&#10;- Added Firebase Admin integration via `FirebaseAuthService` and `FirebaseAuthModule`.&#10;- Updated Prisma User model to include `firebaseUid`.&#10;- Removed legacy password-based authentication system.&#10;- Implemented `/auth/firebase-sync` endpoint for syncing Firebase users with the local database.&#10;- Updated web-admin to integrate Firebase Authentication.&#10;- Adjusted API client to include Firebase ID tokens in requests.">
-      <option name="closed" value="true" />
-      <created>1767197633873</created>
-      <option name="number" value="00377" />
-      <option name="presentableId" value="LOCAL-00377" />
-      <option name="project" value="LOCAL" />
-      <updated>1767197633873</updated>
-    </task>
-    <task id="LOCAL-00378" summary="chore: remove deprecated identity modules and controllers, migrate to HTTP-based interfaces&#10;&#10;- Deleted obsolete modules and controllers (`AdminModule`, `AuthModule`, `RBACController`, etc.).&#10;- Added new HTTP controllers (`AuthController`, `AuditLogController`) for identity services.&#10;- Introduced `ProxyController` to route requests to microservices.&#10;- Updated service structure to align with the removal of NATS-based controllers.">
-      <option name="closed" value="true" />
-      <created>1767200209390</created>
-      <option name="number" value="00378" />
-      <option name="presentableId" value="LOCAL-00378" />
-      <option name="project" value="LOCAL" />
-      <updated>1767200209391</updated>
-    </task>
-    <task id="LOCAL-00379" summary="chore: migrate LMS and Flashcards modules to HTTP-based interfaces &#10;&#10;- Replaced NATS-based controllers (`course.controller`, `lesson.controller`, `module.controller`) with new HTTP controllers.&#10;- Added HTTP controllers for Flashcards (`flashcard.controller`, `flashcard-deck.controller`).&#10;- Updated `LmsModule` and `main.ts` to enable both HTTP and NATS-based communication.&#10;- Integrated CORS and global validation pipes for HTTP services.&#10;- Updated `ProxyController` to route LMS and Flashcards endpoints (`/courses`, `/lessons`, `/modules`, `/flashcards`, `/flashcard-decks`).">
-      <option name="closed" value="true" />
-      <created>1767200840237</created>
-      <option name="number" value="00379" />
-      <option name="presentableId" value="LOCAL-00379" />
-      <option name="project" value="LOCAL" />
-      <updated>1767200840237</updated>
-    </task>
-    <task id="LOCAL-00380" summary="chore: migrate LMS and Flashcards modules to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`course.controller`, `lesson.controller`, `module.controller`) with new HTTP controllers.&#10;- Added HTTP controllers for Flashcards (`flashcard.controller`, `flashcard-deck.controller`).&#10;- Updated `LmsModule` and `main.ts` to enable both HTTP and NATS-based communication.&#10;- Integrated CORS and global validation pipes for HTTP services.&#10;- Updated `ProxyController` to route LMS and Flashcards endpoints (`/courses`, `/lessons`, `/modules`, `/flashcards`, `/flashcard-decks`).">
-      <option name="closed" value="true" />
-      <created>1767200861652</created>
-      <option name="number" value="00380" />
-      <option name="presentableId" value="LOCAL-00380" />
-      <option name="project" value="LOCAL" />
-      <updated>1767200861652</updated>
-    </task>
-    <task id="LOCAL-00381" summary="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`).">
-      <option name="closed" value="true" />
-      <created>1767201201617</created>
-      <option name="number" value="00381" />
-      <option name="presentableId" value="LOCAL-00381" />
-      <option name="project" value="LOCAL" />
-      <updated>1767201201617</updated>
-    </task>
-    <task id="LOCAL-00382" summary="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`).">
-      <option name="closed" value="true" />
-      <created>1767201338277</created>
-      <option name="number" value="00382" />
-      <option name="presentableId" value="LOCAL-00382" />
-      <option name="project" value="LOCAL" />
-      <updated>1767201338278</updated>
-    </task>
-    <task id="LOCAL-00383" summary="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`).">
-      <option name="closed" value="true" />
-      <created>1767201429297</created>
-      <option name="number" value="00383" />
-      <option name="presentableId" value="LOCAL-00383" />
-      <option name="project" value="LOCAL" />
-      <updated>1767201429298</updated>
-    </task>
-    <task id="LOCAL-00384" summary="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`).">
-      <option name="closed" value="true" />
-      <created>1767201502978</created>
-      <option name="number" value="00384" />
-      <option name="presentableId" value="LOCAL-00384" />
-      <option name="project" value="LOCAL" />
-      <updated>1767201502978</updated>
-    </task>
-    <task id="LOCAL-00385" summary="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`).">
-      <option name="closed" value="true" />
-      <created>1767201710089</created>
-      <option name="number" value="00385" />
-      <option name="presentableId" value="LOCAL-00385" />
-      <option name="project" value="LOCAL" />
-      <updated>1767201710089</updated>
-    </task>
-    <task id="LOCAL-00386" summary="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`).">
-      <option name="closed" value="true" />
-      <created>1767201815280</created>
-      <option name="number" value="00386" />
-      <option name="presentableId" value="LOCAL-00386" />
-      <option name="project" value="LOCAL" />
-      <updated>1767201815280</updated>
-    </task>
-    <task id="LOCAL-00387" summary="chore: remove legacy gateway modules in preparation for migration to HTTP-based interfaces">
-      <option name="closed" value="true" />
-      <created>1767202026701</created>
-      <option name="number" value="00387" />
-      <option name="presentableId" value="LOCAL-00387" />
-      <option name="project" value="LOCAL" />
-      <updated>1767202026701</updated>
-    </task>
-    <task id="LOCAL-00388" summary="chore: remove legacy gateway modules in preparation for migration to HTTP-based interfaces">
-      <option name="closed" value="true" />
-      <created>1767202273525</created>
-      <option name="number" value="00388" />
-      <option name="presentableId" value="LOCAL-00388" />
-      <option name="project" value="LOCAL" />
-      <updated>1767202273525</updated>
-    </task>
-    <task id="LOCAL-00389" summary="chore: remove legacy gateway modules in preparation for migration to HTTP-based interfaces">
-      <option name="closed" value="true" />
-      <created>1767202389871</created>
-      <option name="number" value="00389" />
-      <option name="presentableId" value="LOCAL-00389" />
-      <option name="project" value="LOCAL" />
-      <updated>1767202389871</updated>
+      <workItem from="1767453248086" duration="5731000" />
+      <workItem from="1767488214135" duration="5190000" />
     </task>
     <task id="LOCAL-00390" summary="chore: remove legacy gateway modules in preparation for migration to HTTP-based interfaces">
       <option name="closed" value="true" />
@@ -632,7 +529,119 @@
       <option name="project" value="LOCAL" />
       <updated>1767438421122</updated>
     </task>
-    <option name="localTasksCounter" value="425" />
+    <task id="LOCAL-00425" summary="feat(auth): add email verification flow and update user naming conventions&#10;&#10;- Implemented email verification handling, including OTP validation and resend functionality for both the backend and web apps.&#10;- Replaced `fullName` with `displayName` across all services and components for user naming consistency.&#10;- Introduced `EmailService` for email-related operations and integrated it with event handling via `EmailEventController`.&#10;- Updated database schema to reflect `displayName` column and removed deprecated `fullName`, `email_verified`, and `salt` fields.&#10;- Added support for Redis in the backend using a shared module for configuration and client management.">
+      <option name="closed" value="true" />
+      <created>1767455091865</created>
+      <option name="number" value="00425" />
+      <option name="presentableId" value="LOCAL-00425" />
+      <option name="project" value="LOCAL" />
+      <updated>1767455091866</updated>
+    </task>
+    <task id="LOCAL-00426" summary="feat(auth): add email verification flow and update user naming conventions&#10;&#10;- Implemented email verification handling, including OTP validation and resend functionality for both the backend and web apps.&#10;- Replaced `fullName` with `displayName` across all services and components for user naming consistency.&#10;- Introduced `EmailService` for email-related operations and integrated it with event handling via `EmailEventController`.&#10;- Updated database schema to reflect `displayName` column and removed deprecated `fullName`, `email_verified`, and `salt` fields.&#10;- Added support for Redis in the backend using a shared module for configuration and client management.">
+      <option name="closed" value="true" />
+      <created>1767455234547</created>
+      <option name="number" value="00426" />
+      <option name="presentableId" value="LOCAL-00426" />
+      <option name="project" value="LOCAL" />
+      <updated>1767455234549</updated>
+    </task>
+    <task id="LOCAL-00427" summary="chore(web-admin): remove unused features, components, and APIs&#10;&#10;- Deleted obsolete API modules for audit logs, blogs, and courses.&#10;- Removed unused components including AuthGuard, Can, DashboardHeader, DashboardLayout, and DashboardSidebar.&#10;- Streamlined codebase to remove dependencies on deprecated features.">
+      <option name="closed" value="true" />
+      <created>1767458566115</created>
+      <option name="number" value="00427" />
+      <option name="presentableId" value="LOCAL-00427" />
+      <option name="project" value="LOCAL" />
+      <updated>1767458566115</updated>
+    </task>
+    <task id="LOCAL-00428" summary="chore(web-admin): remove unused features, components, and APIs&#10;&#10;- Deleted obsolete API modules for audit logs, blogs, and courses.&#10;- Removed unused components including AuthGuard, Can, DashboardHeader, DashboardLayout, and DashboardSidebar.&#10;- Streamlined codebase to remove dependencies on deprecated features.">
+      <option name="closed" value="true" />
+      <created>1767459043127</created>
+      <option name="number" value="00428" />
+      <option name="presentableId" value="LOCAL-00428" />
+      <option name="project" value="LOCAL" />
+      <updated>1767459043127</updated>
+    </task>
+    <task id="LOCAL-00429" summary="chore(web-admin): remove unused features, components, and APIs&#10;&#10;- Deleted obsolete API modules for audit logs, blogs, and courses.&#10;- Removed unused components including AuthGuard, Can, DashboardHeader, DashboardLayout, and DashboardSidebar.&#10;- Streamlined codebase to remove dependencies on deprecated features.">
+      <option name="closed" value="true" />
+      <created>1767459244973</created>
+      <option name="number" value="00429" />
+      <option name="presentableId" value="LOCAL-00429" />
+      <option name="project" value="LOCAL" />
+      <updated>1767459244973</updated>
+    </task>
+    <task id="LOCAL-00430" summary="chore(web-admin): remove unused features, components, and APIs&#10;&#10;- Deleted obsolete API modules for audit logs, blogs, and courses.&#10;- Removed unused components including AuthGuard, Can, DashboardHeader, DashboardLayout, and DashboardSidebar.&#10;- Streamlined codebase to remove dependencies on deprecated features.">
+      <option name="closed" value="true" />
+      <created>1767459330607</created>
+      <option name="number" value="00430" />
+      <option name="presentableId" value="LOCAL-00430" />
+      <option name="project" value="LOCAL" />
+      <updated>1767459330607</updated>
+    </task>
+    <task id="LOCAL-00431" summary="chore(web-admin): remove unused features, components, and APIs&#10;&#10;- Deleted obsolete API modules for audit logs, blogs, and courses.&#10;- Removed unused components including AuthGuard, Can, DashboardHeader, DashboardLayout, and DashboardSidebar.&#10;- Streamlined codebase to remove dependencies on deprecated features.">
+      <option name="closed" value="true" />
+      <created>1767459487064</created>
+      <option name="number" value="00431" />
+      <option name="presentableId" value="LOCAL-00431" />
+      <option name="project" value="LOCAL" />
+      <updated>1767459487064</updated>
+    </task>
+    <task id="LOCAL-00432" summary="feat(ui): introduce OTP input components and enhance email verification flow&#10;&#10;- Added reusable `InputOTP` components (`InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator`) to the `ui` package.&#10;- Integrated `InputOTP` into email verification for a more dynamic OTP entry experience.&#10;- Updated `pnpm-lock.yaml` and `package.json` to include `input-otp` dependency.&#10;- Enhanced email verification UI for better user feedback, including loading spinners and error/success messages.">
+      <option name="closed" value="true" />
+      <created>1767488709108</created>
+      <option name="number" value="00432" />
+      <option name="presentableId" value="LOCAL-00432" />
+      <option name="project" value="LOCAL" />
+      <updated>1767488709108</updated>
+    </task>
+    <task id="LOCAL-00433" summary="feat(ui): introduce OTP input components and enhance email verification flow&#10;&#10;- Added reusable `InputOTP` components (`InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator`) to the `ui` package.&#10;- Integrated `InputOTP` into email verification for a more dynamic OTP entry experience.&#10;- Updated `pnpm-lock.yaml` and `package.json` to include `input-otp` dependency.&#10;- Enhanced email verification UI for better user feedback, including loading spinners and error/success messages.">
+      <option name="closed" value="true" />
+      <created>1767489198854</created>
+      <option name="number" value="00433" />
+      <option name="presentableId" value="LOCAL-00433" />
+      <option name="project" value="LOCAL" />
+      <updated>1767489198855</updated>
+    </task>
+    <task id="LOCAL-00434" summary="feat(ui): introduce OTP input components and enhance email verification flow&#10;&#10;- Added reusable `InputOTP` components (`InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator`) to the `ui` package.&#10;- Integrated `InputOTP` into email verification for a more dynamic OTP entry experience.&#10;- Updated `pnpm-lock.yaml` and `package.json` to include `input-otp` dependency.&#10;- Enhanced email verification UI for better user feedback, including loading spinners and error/success messages.">
+      <option name="closed" value="true" />
+      <created>1767491337459</created>
+      <option name="number" value="00434" />
+      <option name="presentableId" value="LOCAL-00434" />
+      <option name="project" value="LOCAL" />
+      <updated>1767491337461</updated>
+    </task>
+    <task id="LOCAL-00435" summary="feat(ui): introduce OTP input components and enhance email verification flow&#10;&#10;- Added reusable `InputOTP` components (`InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator`) to the `ui` package.&#10;- Integrated `InputOTP` into email verification for a more dynamic OTP entry experience.&#10;- Updated `pnpm-lock.yaml` and `package.json` to include `input-otp` dependency.&#10;- Enhanced email verification UI for better user feedback, including loading spinners and error/success messages.">
+      <option name="closed" value="true" />
+      <created>1767492629105</created>
+      <option name="number" value="00435" />
+      <option name="presentableId" value="LOCAL-00435" />
+      <option name="project" value="LOCAL" />
+      <updated>1767492629105</updated>
+    </task>
+    <task id="LOCAL-00436" summary="feat(ui): introduce OTP input components and enhance email verification flow&#10;&#10;- Added reusable `InputOTP` components (`InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator`) to the `ui` package.&#10;- Integrated `InputOTP` into email verification for a more dynamic OTP entry experience.&#10;- Updated `pnpm-lock.yaml` and `package.json` to include `input-otp` dependency.&#10;- Enhanced email verification UI for better user feedback, including loading spinners and error/success messages.">
+      <option name="closed" value="true" />
+      <created>1767492830852</created>
+      <option name="number" value="00436" />
+      <option name="presentableId" value="LOCAL-00436" />
+      <option name="project" value="LOCAL" />
+      <updated>1767492830853</updated>
+    </task>
+    <task id="LOCAL-00437" summary="feat(ui): introduce OTP input components and enhance email verification flow&#10;&#10;- Added reusable `InputOTP` components (`InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator`) to the `ui` package.&#10;- Integrated `InputOTP` into email verification for a more dynamic OTP entry experience.&#10;- Updated `pnpm-lock.yaml` and `package.json` to include `input-otp` dependency.&#10;- Enhanced email verification UI for better user feedback, including loading spinners and error/success messages.">
+      <option name="closed" value="true" />
+      <created>1767493239437</created>
+      <option name="number" value="00437" />
+      <option name="presentableId" value="LOCAL-00437" />
+      <option name="project" value="LOCAL" />
+      <updated>1767493239438</updated>
+    </task>
+    <task id="LOCAL-00438" summary="feat(ui): introduce OTP input components and enhance email verification flow&#10;&#10;- Added reusable `InputOTP` components (`InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator`) to the `ui` package.&#10;- Integrated `InputOTP` into email verification for a more dynamic OTP entry experience.&#10;- Updated `pnpm-lock.yaml` and `package.json` to include `input-otp` dependency.&#10;- Enhanced email verification UI for better user feedback, including loading spinners and error/success messages.">
+      <option name="closed" value="true" />
+      <created>1767493360737</created>
+      <option name="number" value="00438" />
+      <option name="presentableId" value="LOCAL-00438" />
+      <option name="project" value="LOCAL" />
+      <updated>1767493360737</updated>
+    </task>
+    <option name="localTasksCounter" value="439" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -649,7 +658,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="migration-to-firebase-authentication" />
+                        <option value="verify-register" />
                       </list>
                     </value>
                   </entry>
@@ -662,9 +671,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat: add initial React + TypeScript + Vite template with ESLint configuration for meet" />
-    <MESSAGE value="feat(auth): implement cookie-based authentication with access and refresh tokens" />
-    <MESSAGE value="feat(audit): implement audit logging service and related API endpoints" />
     <MESSAGE value="feat(polls): implement polls module with controller and service for managing polls" />
     <MESSAGE value="chore: remove unused modules and controllers in gateway and meet services" />
     <MESSAGE value="chore: remove deprecated modules and controllers across services" />
@@ -687,7 +693,10 @@
     <MESSAGE value="return to manual jwt auth" />
     <MESSAGE value="chore: remove Firebase dependencies and restore JWT-based authentication system&#10;&#10;- Removed `firebase` and related packages from `web-admin` and lockfile.&#10;- Added `argon2` for password hashing and `JwtTokenProvider` to `AuthController`.&#10;- Introduced new guards for API key and role-based protection (`api-key.guard`, `roles.guard`, `roles.decorator`)." />
     <MESSAGE value="feat(auth): add Redux-based authentication flow to web-learner&#10;&#10;- Implemented `authSlice` with login, logout, register, and checkAuth functionality.&#10;- Added `AuthInitializer` component to manage authentication state.&#10;- Created `LoginForm` component integrated with Redux and Zod validation.&#10;- Updated login page to use `AuthInitializer` and `LoginForm`.&#10;- Created reusable UI components (Field, Item, Empty) for consistent styling." />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(auth): add Redux-based authentication flow to web-learner&#10;&#10;- Implemented `authSlice` with login, logout, register, and checkAuth functionality.&#10;- Added `AuthInitializer` component to manage authentication state.&#10;- Created `LoginForm` component integrated with Redux and Zod validation.&#10;- Updated login page to use `AuthInitializer` and `LoginForm`.&#10;- Created reusable UI components (Field, Item, Empty) for consistent styling." />
+    <MESSAGE value="feat(auth): add email verification flow and update user naming conventions&#10;&#10;- Implemented email verification handling, including OTP validation and resend functionality for both the backend and web apps.&#10;- Replaced `fullName` with `displayName` across all services and components for user naming consistency.&#10;- Introduced `EmailService` for email-related operations and integrated it with event handling via `EmailEventController`.&#10;- Updated database schema to reflect `displayName` column and removed deprecated `fullName`, `email_verified`, and `salt` fields.&#10;- Added support for Redis in the backend using a shared module for configuration and client management." />
+    <MESSAGE value="chore(web-admin): remove unused features, components, and APIs&#10;&#10;- Deleted obsolete API modules for audit logs, blogs, and courses.&#10;- Removed unused components including AuthGuard, Can, DashboardHeader, DashboardLayout, and DashboardSidebar.&#10;- Streamlined codebase to remove dependencies on deprecated features." />
+    <MESSAGE value="feat(ui): introduce OTP input components and enhance email verification flow&#10;&#10;- Added reusable `InputOTP` components (`InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator`) to the `ui` package.&#10;- Integrated `InputOTP` into email verification for a more dynamic OTP entry experience.&#10;- Updated `pnpm-lock.yaml` and `package.json` to include `input-otp` dependency.&#10;- Enhanced email verification UI for better user feedback, including loading spinners and error/success messages." />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(ui): introduce OTP input components and enhance email verification flow&#10;&#10;- Added reusable `InputOTP` components (`InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator`) to the `ui` package.&#10;- Integrated `InputOTP` into email verification for a more dynamic OTP entry experience.&#10;- Updated `pnpm-lock.yaml` and `package.json` to include `input-otp` dependency.&#10;- Enhanced email verification UI for better user feedback, including loading spinners and error/success messages." />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

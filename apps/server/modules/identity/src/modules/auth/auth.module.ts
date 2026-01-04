@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RefreshTokenService } from './refresh-token.service';
-import { PrismaService } from '@server/shared';
+import { PrismaService, NatsClientModule, RedisModule } from '@server/shared';
 import { JwtTokenProvider } from '@server/shared';
 import { RBACModule } from '../rbac/rbac.module';
 
@@ -10,7 +10,11 @@ import { RBACModule } from '../rbac/rbac.module';
  * Provides authentication services
  */
 @Module({
-    imports: [RBACModule],
+    imports: [
+        RBACModule,
+        NatsClientModule,
+        RedisModule,
+    ],
     providers: [
         AuthService,
         RefreshTokenService,

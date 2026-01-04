@@ -13,6 +13,8 @@ export { createNatsServiceConfig } from './nats/nats-service.config';
 export * from './guards/api-key.guard';
 export * from './guards/jwt-auth.guard';
 export * from './guards/gateway-auth.guard';
+export * from './guards/verified.guard';
+export * from './guards/verified-only.decorator';
 
 export * from './utils/slug.utils';
 export * from './utils/webhook_verify';
@@ -97,4 +99,11 @@ export * from './pipes/zod-validation.pipe';
 export * from './providers/jwt-token.provider';
 
 // Audit logging
+// Redis
+export * from './redis/redis.module';
+export * from './redis/redis.provider';
+
+// Audit logging
 export * from './audit';
+
+

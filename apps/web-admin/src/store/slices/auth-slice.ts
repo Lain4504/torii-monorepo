@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from '@/store';
-import { apiClient } from '@/lib/api-client';
+import { apiClient } from '@/api/api-client.ts';
 import type { UserResponseDTO, UserLoginDTO } from '@workspace/schemas';
 
 // Extended User type including permissions and profile fields
@@ -63,6 +63,8 @@ export const checkAuth = createAsyncThunk(
         }
     }
 );
+
+
 
 export const authSlice = createSlice({
     name: 'auth',
@@ -130,8 +132,11 @@ export const authSlice = createSlice({
         builder.addCase(checkAuth.rejected, (state) => {
             state.isLoading = false;
             state.isAuthenticated = false;
+            state.isAuthenticated = false;
             state.user = null;
         });
+
+
     }
 });
 

@@ -3,29 +3,28 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Provider as ReduxProvider } from 'react-redux'
 import { store } from './store'
 import { Toaster } from '@workspace/ui/components/sonner'
-import { AuthGuard } from './components/auth/auth-guard.tsx'
-import { ThemeProvider } from "@/components/theme-provider"
+import { AuthGuard } from './lib/guard/auth-guard.tsx'
+import { ThemeProvider } from "@/lib/providers/theme-provider.tsx"
 // Component imports
-import DashboardLayout from "./components/layout/dashboard-layout.tsx";
+import DashboardLayout from "@/components/layout/dashboard-layout.tsx";
 // Feature imports
-import DashboardPage from './features/dashboard/routes/dashboard-page'
-import AnalyticsPage from './features/dashboard/routes/analytics-page'
-import { UsersPage } from './features/users/routes/users-page'
-import CoursesPage from './features/courses/routes/courses-page'
-import ModulesPage from './features/modules/routes/modules-page'
-import LessonsPage from './features/lessons/routes/lessons-page'
-import { QuestionBankPage } from './features/question-bank/routes/question-bank-page'
-import RoomsPage from './features/rooms/routes/rooms-page'
-import PaymentsPage from './features/finance/routes/payments-page'
-import AIServicePage from './features/ai/routes/ai-service-page'
-import NotificationsPage from './features/settings/routes/notifications-page'
-import PermissionsPage from './features/settings/routes/permissions-page'
-import SettingsPage from './features/settings/routes/settings-page'
-import { PermissionsPage as RBACPermissionsPage } from './features/permissions'
-import { AuditLogsPage } from './features/audit'
-import { BlogPage } from './features/blog/routes/blog-page'
+import DashboardPage from '@/routes/dashboard/dashboard-page.tsx'
+import AnalyticsPage from '@/routes/dashboard/analytics-page.tsx'
+import { UsersPage } from '@/routes/users/users-page.tsx'
+import CoursesPage from '@/routes/courses/courses-page.tsx'
+import ModulesPage from '@/routes/modules/modules-page.tsx'
+import LessonsPage from '@/routes/lessons/lessons-page.tsx'
+import { QuestionBankPage } from '@/routes/question-bank/question-bank-page.tsx'
+import RoomsPage from '@/routes/rooms/rooms-page.tsx'
+import PaymentsPage from '@/routes/finance/payments-page.tsx'
+import AIServicePage from '@/routes/ai/ai-service-page.tsx'
+import NotificationsPage from '@/routes/settings/notifications-page.tsx'
+import SettingsPage from '@/routes/settings/settings-page.tsx'
+import { BlogPage } from '@/routes/blog/blog-page.tsx'
 
-import LoginPage from './features/auth/routes/login-page'
+import LoginPage from '@/routes/auth/login-page.tsx'
+import {AuditLogsPage} from "@/routes/audit/audit-logs-page.tsx";
+import {PermissionsPage} from "@/routes/permissions/permissions-page.tsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -61,7 +60,6 @@ function App() {
                 <Route path="analytics" element={<AnalyticsPage />} />
                 <Route path="ai-service" element={<AIServicePage />} />
                 <Route path="notifications" element={<NotificationsPage />} />
-                <Route path="rbac/permissions" element={<RBACPermissionsPage />} />
                 <Route path="rbac/audit-logs" element={<AuditLogsPage />} />
                 <Route path="permissions" element={<PermissionsPage />} />
                 <Route path="settings" element={<SettingsPage />} />
