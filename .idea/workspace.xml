@@ -6,8 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(ui): introduce OTP input components and enhance email verification flow&#10;&#10;- Added reusable `InputOTP` components (`InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator`) to the `ui` package.&#10;- Integrated `InputOTP` into email verification for a more dynamic OTP entry experience.&#10;- Updated `pnpm-lock.yaml` and `package.json` to include `input-otp` dependency.&#10;- Enhanced email verification UI for better user feedback, including loading spinners and error/success messages.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/api-client.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/api/api-client.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/api/api-client.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/api/api-client.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/community/src/interfaces/event/email.event.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/community/src/interfaces/event/email.event.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/community/src/modules/notification/email.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/community/src/modules/notification/email.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -241,23 +244,7 @@
       <workItem from="1767432341687" duration="5940000" />
       <workItem from="1767441903721" duration="133000" />
       <workItem from="1767453248086" duration="5731000" />
-      <workItem from="1767488214135" duration="4740000" />
-    </task>
-    <task id="LOCAL-00388" summary="chore: remove legacy gateway modules in preparation for migration to HTTP-based interfaces">
-      <option name="closed" value="true" />
-      <created>1767202273525</created>
-      <option name="number" value="00388" />
-      <option name="presentableId" value="LOCAL-00388" />
-      <option name="project" value="LOCAL" />
-      <updated>1767202273525</updated>
-    </task>
-    <task id="LOCAL-00389" summary="chore: remove legacy gateway modules in preparation for migration to HTTP-based interfaces">
-      <option name="closed" value="true" />
-      <created>1767202389871</created>
-      <option name="number" value="00389" />
-      <option name="presentableId" value="LOCAL-00389" />
-      <option name="project" value="LOCAL" />
-      <updated>1767202389871</updated>
+      <workItem from="1767488214135" duration="5190000" />
     </task>
     <task id="LOCAL-00390" summary="chore: remove legacy gateway modules in preparation for migration to HTTP-based interfaces">
       <option name="closed" value="true" />
@@ -635,7 +622,23 @@
       <option name="project" value="LOCAL" />
       <updated>1767492830853</updated>
     </task>
-    <option name="localTasksCounter" value="437" />
+    <task id="LOCAL-00437" summary="feat(ui): introduce OTP input components and enhance email verification flow&#10;&#10;- Added reusable `InputOTP` components (`InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator`) to the `ui` package.&#10;- Integrated `InputOTP` into email verification for a more dynamic OTP entry experience.&#10;- Updated `pnpm-lock.yaml` and `package.json` to include `input-otp` dependency.&#10;- Enhanced email verification UI for better user feedback, including loading spinners and error/success messages.">
+      <option name="closed" value="true" />
+      <created>1767493239437</created>
+      <option name="number" value="00437" />
+      <option name="presentableId" value="LOCAL-00437" />
+      <option name="project" value="LOCAL" />
+      <updated>1767493239438</updated>
+    </task>
+    <task id="LOCAL-00438" summary="feat(ui): introduce OTP input components and enhance email verification flow&#10;&#10;- Added reusable `InputOTP` components (`InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator`) to the `ui` package.&#10;- Integrated `InputOTP` into email verification for a more dynamic OTP entry experience.&#10;- Updated `pnpm-lock.yaml` and `package.json` to include `input-otp` dependency.&#10;- Enhanced email verification UI for better user feedback, including loading spinners and error/success messages.">
+      <option name="closed" value="true" />
+      <created>1767493360737</created>
+      <option name="number" value="00438" />
+      <option name="presentableId" value="LOCAL-00438" />
+      <option name="project" value="LOCAL" />
+      <updated>1767493360737</updated>
+    </task>
+    <option name="localTasksCounter" value="439" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
