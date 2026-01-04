@@ -7,6 +7,8 @@ import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
 
 // Proxy Module - Routes to microservices
 import { ProxyModule } from './proxy/proxy.module';
+// AI Module - AI Agents Service
+import { AiModule } from './ai/ai.module';
 
 /**
  * API Gateway Module
@@ -35,6 +37,9 @@ import { ProxyModule } from './proxy/proxy.module';
 
     // Proxy Module - Handles all routes to microservices
     ProxyModule,
+    
+    // AI Module - AI Agents Service
+    AiModule,
   ],
   controllers: [],
   providers: [ApiKeyGuard],
