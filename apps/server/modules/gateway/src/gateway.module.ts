@@ -35,11 +35,11 @@ import { AiModule } from './ai/ai.module';
     SharedModule,
     NatsAuthModule, // Auth callout handler - only in Gateway
 
-    // Proxy Module - Handles all routes to microservices
-    ProxyModule,
-    
     // AI Module - AI Agents Service
     AiModule,
+
+    // Proxy Module - Handles all routes to microservices
+    ProxyModule,
   ],
   controllers: [],
   providers: [ApiKeyGuard],
