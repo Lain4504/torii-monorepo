@@ -7,6 +7,8 @@ import { Button } from '@workspace/ui/components/button';
 import { useAppDispatch } from '@/hooks/hooks';
 import { fetchProfile } from '@/store/slices/authSlice';
 
+import { apiClient } from '@/api/api-client';
+
 export function VerificationContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -26,15 +28,8 @@ export function VerificationContent() {
         // Verify magic link token
         const verifyToken = async () => {
             try {
-                const response = await fetch('/api/auth/verify-magic-link', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ token }),
-                });
-
-                const data = await response.json();
+                const response = await apiClient.post('/api/auth/verify-magic-link', { token });
+                const data = response.data;
 
                 if (data.success) {
                     setStatus('success');
