@@ -1,9 +1,14 @@
-import { Open_Sans } from "next/font/google"
+import { Poppins, Open_Sans } from "next/font/google"
 
 import "@workspace/ui/styles/globals.css"
 import { Providers } from "@/lib/providers/providers"
-import { Header } from "@/components/layout/header"
 import { Toaster } from "@workspace/ui/components/sonner"
+
+const fontHeading = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-heading",
+})
 
 const fontSans = Open_Sans({
   subsets: ["latin"],
@@ -18,11 +23,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${fontSans.variable} font-sans antialiased `}
+        className={`${fontHeading.variable} ${fontSans.variable} font-sans antialiased `}
       >
         <Providers>
-          <Header />
-          <main>{children}</main>
+          {children}
           <Toaster />
         </Providers>
       </body>
