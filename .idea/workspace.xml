@@ -4,7 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(web-learner): add responsive home page sections with JLPT roadmap, features, and CTAs&#10;&#10;- Introduced `hero-section` to highlight platform's offerings and key metrics.&#10;- Added `course-categories-section` displaying JLPT levels N5-N1 with detailed descriptions.&#10;- Implemented `features-section` showcasing advanced platform features like AI Sensei and Gamification.&#10;- Created `cta-section` with promotional content and prominent call-to-action buttons.&#10;- Ensured responsive design and modern UI/UX principles across all sections." />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(web-learner): add exam management interface with card-based UI and history tracking&#10;&#10;- Introduced `ExamCard` component to display exam details and statuses (new, in-progress, completed).&#10;- Created `ExamHistory` component for displaying past exam attempts in a table format.&#10;- Added `ExamStats` component to showcase key statistics such as average score, total exams taken, and hours practiced.&#10;- Implemented `ExamPage` layout with tabs for available exams and exam history, including filtering and searching functionality.&#10;- Ensured responsive design and adherence to platform UI/UX guidelines.">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/layout/dashboard-header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/layout/dashboard-header.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/layout/dashboard-layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/layout/dashboard-layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/layout/dashboard-sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/layout/dashboard-sidebar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/auth/login-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/auth/login-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/dashboard/dashboard-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/dashboard/dashboard-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/users/users-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/users/users-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -245,38 +254,6 @@
       <workItem from="1767441903721" duration="133000" />
       <workItem from="1767453248086" duration="5731000" />
       <workItem from="1767488214135" duration="5190000" />
-    </task>
-    <task id="LOCAL-00394" summary="chore: remove obsolete controllers for room, auth-room, and polls in preparation for HTTP-based migration">
-      <option name="closed" value="true" />
-      <created>1767234826678</created>
-      <option name="number" value="00394" />
-      <option name="presentableId" value="LOCAL-00394" />
-      <option name="project" value="LOCAL" />
-      <updated>1767234826678</updated>
-    </task>
-    <task id="LOCAL-00395" summary="chore: remove obsolete controllers for room, auth-room, and polls in preparation for HTTP-based migration">
-      <option name="closed" value="true" />
-      <created>1767237003861</created>
-      <option name="number" value="00395" />
-      <option name="presentableId" value="LOCAL-00395" />
-      <option name="project" value="LOCAL" />
-      <updated>1767237003861</updated>
-    </task>
-    <task id="LOCAL-00396" summary="chore: remove obsolete controllers for room, auth-room, and polls in preparation for HTTP-based migration">
-      <option name="closed" value="true" />
-      <created>1767239023244</created>
-      <option name="number" value="00396" />
-      <option name="presentableId" value="LOCAL-00396" />
-      <option name="project" value="LOCAL" />
-      <updated>1767239023244</updated>
-    </task>
-    <task id="LOCAL-00397" summary="chore: refactor API routes and enable CORS across services&#10;&#10;- Updated API route prefixes in multiple controllers (e.g., `@Controller('/api/...')` → `@Controller('/')`).&#10;- Adjusted corresponding client API calls to match updated backend routes.&#10;- Enabled CORS in gateway with dynamic origins and method support.&#10;- Enhanced `LoginPage` logic to integrate Firebase authentication and modified API endpoints accordingly.&#10;- Added permission fetching in the `AuthController`.">
-      <option name="closed" value="true" />
-      <created>1767239252734</created>
-      <option name="number" value="00397" />
-      <option name="presentableId" value="LOCAL-00397" />
-      <option name="project" value="LOCAL" />
-      <updated>1767239252735</updated>
     </task>
     <task id="LOCAL-00398" summary="chore: refactor API routes and enable CORS across services&#10;&#10;- Updated API route prefixes in multiple controllers (e.g., `@Controller('/api/...')` → `@Controller('/')`).&#10;- Adjusted corresponding client API calls to match updated backend routes.&#10;- Enabled CORS in gateway with dynamic origins and method support.&#10;- Enhanced `LoginPage` logic to integrate Firebase authentication and modified API endpoints accordingly.&#10;- Added permission fetching in the `AuthController`.">
       <option name="closed" value="true" />
@@ -638,7 +615,39 @@
       <option name="project" value="LOCAL" />
       <updated>1767517288441</updated>
     </task>
-    <option name="localTasksCounter" value="443" />
+    <task id="LOCAL-00443" summary="feat(web-learner): add modular course detail components&#10;&#10;- Introduced `CourseHeader`, `CourseCurriculum`, `CourseInstructor`, `CourseReviews`, and `CourseSidebar` components.&#10;- Implemented `CourseDetailPage` layout, combining the new components for a modular design.&#10;- Ensured responsive design and consistency with platform UI/UX standards.">
+      <option name="closed" value="true" />
+      <created>1767517891813</created>
+      <option name="number" value="00443" />
+      <option name="presentableId" value="LOCAL-00443" />
+      <option name="project" value="LOCAL" />
+      <updated>1767517891813</updated>
+    </task>
+    <task id="LOCAL-00444" summary="feat(web-learner): implement course catalog with filtering, search, and pagination&#10;&#10;- Added `CourseCard`, `CourseGrid`, `FilterSidebar`, and `SearchHeader` components.&#10;- Introduced a `CourseCatalogPage` layout featuring filters, search functionality, and a paginated grid of courses.&#10;- Ensured responsive design and adherence to UI/UX standards for browsing and discovery.">
+      <option name="closed" value="true" />
+      <created>1767518171880</created>
+      <option name="number" value="00444" />
+      <option name="presentableId" value="LOCAL-00444" />
+      <option name="project" value="LOCAL" />
+      <updated>1767518171880</updated>
+    </task>
+    <task id="LOCAL-00445" summary="feat(web-learner): add exam management interface with card-based UI and history tracking&#10;&#10;- Introduced `ExamCard` component to display exam details and statuses (new, in-progress, completed).&#10;- Created `ExamHistory` component for displaying past exam attempts in a table format.&#10;- Added `ExamStats` component to showcase key statistics such as average score, total exams taken, and hours practiced.&#10;- Implemented `ExamPage` layout with tabs for available exams and exam history, including filtering and searching functionality.&#10;- Ensured responsive design and adherence to platform UI/UX guidelines.">
+      <option name="closed" value="true" />
+      <created>1767518803927</created>
+      <option name="number" value="00445" />
+      <option name="presentableId" value="LOCAL-00445" />
+      <option name="project" value="LOCAL" />
+      <updated>1767518803927</updated>
+    </task>
+    <task id="LOCAL-00446" summary="feat(web-learner): add exam management interface with card-based UI and history tracking&#10;&#10;- Introduced `ExamCard` component to display exam details and statuses (new, in-progress, completed).&#10;- Created `ExamHistory` component for displaying past exam attempts in a table format.&#10;- Added `ExamStats` component to showcase key statistics such as average score, total exams taken, and hours practiced.&#10;- Implemented `ExamPage` layout with tabs for available exams and exam history, including filtering and searching functionality.&#10;- Ensured responsive design and adherence to platform UI/UX guidelines.">
+      <option name="closed" value="true" />
+      <created>1767518811653</created>
+      <option name="number" value="00446" />
+      <option name="presentableId" value="LOCAL-00446" />
+      <option name="project" value="LOCAL" />
+      <updated>1767518811653</updated>
+    </task>
+    <option name="localTasksCounter" value="447" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -668,9 +677,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="chore: remove deprecated controllers and" />
-    <MESSAGE value="chore: remove obsolete modules and controllers from gateway services modules across services including auth, RBAC, blog, comments, and LMS" />
-    <MESSAGE value="chore: remove obsolete modules and controllers from gateway services" />
     <MESSAGE value="chore: update key prefixes to &quot;wajlc&quot; across Redis and NATS services" />
     <MESSAGE value="chore(nats): remove default values for NATS config and update `.env.example` with explicit keys and new defaults" />
     <MESSAGE value="fix(polls): update request handling to use protobuf for better validation" />
@@ -693,7 +699,10 @@
     <MESSAGE value="feat(auth): replace magic link with OTP-based email verification flow&#10;&#10;- Removed magic link email verification components and logic.&#10;- Implemented OTP verification via `OTPVerificationContent` component.&#10;- Updated backend services to handle OTP generation and email delivery.&#10;- Modified `register` flow to redirect users to OTP verification page upon success.&#10;- Adjusted email templates for OTP usage, replacing magic link-related text and formatting." />
     <MESSAGE value="feat(web-learner): add responsive home page sections with JLPT roadmap, features, and CTAs&#10;&#10;- Introduced `hero-section` to highlight platform's offerings and key metrics.&#10;- Added `course-categories-section` displaying JLPT levels N5-N1 with detailed descriptions.&#10;- Implemented `features-section` showcasing advanced platform features like AI Sensei and Gamification.&#10;- Created `cta-section` with promotional content and prominent" />
     <MESSAGE value="feat(web-learner): add responsive home page sections with JLPT roadmap, features, and CTAs&#10;&#10;- Introduced `hero-section` to highlight platform's offerings and key metrics.&#10;- Added `course-categories-section` displaying JLPT levels N5-N1 with detailed descriptions.&#10;- Implemented `features-section` showcasing advanced platform features like AI Sensei and Gamification.&#10;- Created `cta-section` with promotional content and prominent call-to-action buttons.&#10;- Ensured responsive design and modern UI/UX principles across all sections." />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(web-learner): add responsive home page sections with JLPT roadmap, features, and CTAs&#10;&#10;- Introduced `hero-section` to highlight platform's offerings and key metrics.&#10;- Added `course-categories-section` displaying JLPT levels N5-N1 with detailed descriptions.&#10;- Implemented `features-section` showcasing advanced platform features like AI Sensei and Gamification.&#10;- Created `cta-section` with promotional content and prominent call-to-action buttons.&#10;- Ensured responsive design and modern UI/UX principles across all sections." />
+    <MESSAGE value="feat(web-learner): add modular course detail components&#10;&#10;- Introduced `CourseHeader`, `CourseCurriculum`, `CourseInstructor`, `CourseReviews`, and `CourseSidebar` components.&#10;- Implemented `CourseDetailPage` layout, combining the new components for a modular design.&#10;- Ensured responsive design and consistency with platform UI/UX standards." />
+    <MESSAGE value="feat(web-learner): implement course catalog with filtering, search, and pagination&#10;&#10;- Added `CourseCard`, `CourseGrid`, `FilterSidebar`, and `SearchHeader` components.&#10;- Introduced a `CourseCatalogPage` layout featuring filters, search functionality, and a paginated grid of courses.&#10;- Ensured responsive design and adherence to UI/UX standards for browsing and discovery." />
+    <MESSAGE value="feat(web-learner): add exam management interface with card-based UI and history tracking&#10;&#10;- Introduced `ExamCard` component to display exam details and statuses (new, in-progress, completed).&#10;- Created `ExamHistory` component for displaying past exam attempts in a table format.&#10;- Added `ExamStats` component to showcase key statistics such as average score, total exams taken, and hours practiced.&#10;- Implemented `ExamPage` layout with tabs for available exams and exam history, including filtering and searching functionality.&#10;- Ensured responsive design and adherence to platform UI/UX guidelines." />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(web-learner): add exam management interface with card-based UI and history tracking&#10;&#10;- Introduced `ExamCard` component to display exam details and statuses (new, in-progress, completed).&#10;- Created `ExamHistory` component for displaying past exam attempts in a table format.&#10;- Added `ExamStats` component to showcase key statistics such as average score, total exams taken, and hours practiced.&#10;- Implemented `ExamPage` layout with tabs for available exams and exam history, including filtering and searching functionality.&#10;- Ensured responsive design and adherence to platform UI/UX guidelines." />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

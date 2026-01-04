@@ -3,13 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@workspace/ui/components/button';
 import type { CourseQueryDTO, CourseResponseDTO } from '@workspace/schemas';
 import { Can } from "@/lib/guard/can";
-import {useCourses} from "@/api/services/courses.ts";
-import {CoursesPrimaryToolbar} from "@/components/courses/courses-primary-toolbar.tsx";
-import {CoursesTable} from "@/components/courses/courses-table.tsx";
-import {CreateCourseDialog} from "@/components/courses/create-course-dialog.tsx";
-import {EditCourseDialog} from "@/components/courses/edit-course-dialog.tsx";
-import {DeleteCourseDialog} from "@/components/courses/delete-course-dialog.tsx";
-import {ViewCourseDialog} from "@/components/courses/view-course-dialog.tsx";
+import { useCourses } from "@/api/services/courses.ts";
+import { CoursesPrimaryToolbar } from "@/components/courses/courses-primary-toolbar.tsx";
+import { CoursesTable } from "@/components/courses/courses-table.tsx";
+import { CreateCourseDialog } from "@/components/courses/create-course-dialog.tsx";
+import { EditCourseDialog } from "@/components/courses/edit-course-dialog.tsx";
+import { DeleteCourseDialog } from "@/components/courses/delete-course-dialog.tsx";
+import { ViewCourseDialog } from "@/components/courses/view-course-dialog.tsx";
 
 export default function CoursesPage() {
   const [page, setPage] = useState(1);
@@ -62,63 +62,71 @@ export default function CoursesPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="space-y-6 animate-in fade-in-50 duration-500">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Courses</h1>
-          <p className="text-muted-foreground">Manage all courses in the system</p>
+          <p className="text-muted-foreground">Manage and publish learning content.</p>
         </div>
         <Can permission="course.create">
           <Button onClick={() => setShowCreateDialog(true)}>Create Course</Button>
         </Can>
       </div>
 
-      <CoursesPrimaryToolbar
-        search={search}
-        onSearchChange={setSearch}
-        statusFilter={statusFilter}
-        onStatusFilterChange={setStatusFilter}
-        jlptLevelFilter={jlptLevelFilter}
-        onJlptLevelFilterChange={setJlptLevelFilter}
-      />
+      <div className="rounded-xl border bg-card text-card-foreground shadow-sm">
+        <div className="p-6">
+          <CoursesPrimaryToolbar
+            search={search}
+            onSearchChange={setSearch}
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+            jlptLevelFilter={jlptLevelFilter}
+            onJlptLevelFilterChange={setJlptLevelFilter}
+          />
 
-      <CoursesTable
-        data={courses}
-        onEdit={setEditingCourse}
-        onDelete={setDeletingCourse}
-        onView={setViewingCourse}
-        onModules={(course) => navigate(`/modules?courseId=${course.id}`)}
-        page={page}
-        limit={queryParams.limit || 10}
-      />
+          <div className="mt-6 rounded-md border">
+            <CoursesTable
+              data={courses}
+              onEdit={setEditingCourse}
+              onDelete={setDeletingCourse}
+              onView={setViewingCourse}
+              onModules={(course) => navigate(`/modules?courseId=${course.id}`)}
+              page={page}
+              limit={queryParams.limit || 10}
+            />
+          </div>
 
-      {/* Pagination */}
-      {meta && (
-        <div className="flex justify-between items-center">
-          <div className="text-sm text-muted-foreground">
-            Showing {courses.length} of {meta.total} courses
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              disabled={page <= 1}
-              onClick={() => setPage(page - 1)}
-            >
-              Previous
-            </Button>
-            <span className="px-4 py-2 text-sm">
-              Page {page} of {meta.totalPages}
-            </span>
-            <Button
-              variant="outline"
-              disabled={page >= meta.totalPages}
-              onClick={() => setPage(page + 1)}
-            >
-              Next
-            </Button>
-          </div>
+          {/* Pagination */}
+          {meta && (
+            <div className="flex items-center justify-between space-x-2 py-4">
+              <div className="flex-1 text-sm text-muted-foreground">
+                Showing {courses.length} of {meta.total} courses
+              </div>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page <= 1}
+                  onClick={() => setPage(page - 1)}
+                >
+                  Previous
+                </Button>
+                <div className="text-sm font-medium">
+                  Page {page} of {meta.totalPages}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page >= meta.totalPages}
+                  onClick={() => setPage(page + 1)}
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      </div>
 
       {/* Dialogs */}
       <CreateCourseDialog

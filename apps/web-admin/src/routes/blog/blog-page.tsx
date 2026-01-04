@@ -7,7 +7,7 @@ import { DeleteBlogDialog } from '@/components/blogs/delete-blog-dialog.tsx';
 import { ViewBlogDialog } from '@/components/blogs/view-blog-dialog.tsx';
 import type { BlogPostResponseDTO, BlogPostQueryDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
-import {useBlogs} from "@/api/services/blog.ts";
+import { useBlogs } from "@/api/services/blog.ts";
 
 export function BlogPage() {
     const [page, setPage] = useState(1);
@@ -51,55 +51,73 @@ export function BlogPage() {
     } : null;
 
     return (
-        <div className="p-6 space-y-6 max-w-full">
-            <BlogPrimaryToolbar
-                search={search}
-                onSearchChange={setSearch}
-                statusFilter={statusFilter}
-                onStatusFilterChange={setStatusFilter}
-                onSortChange={(field, order) => {
-                    setSortBy(field);
-                    setSortOrder(order);
-                }}
-                onAddNew={() => setShowCreateDialog(true)}
-            />
-
-            <BlogTable
-                data={blogs}
-                onEdit={setEditingBlog}
-                onDelete={setDeletingBlog}
-                onView={setViewingBlog}
-                page={page}
-                limit={queryParams.limit || 10}
-            />
-
-            {/* Pagination */}
-            {meta && (
-                <div className="flex justify-between items-center">
-                    <div className="text-sm text-muted-foreground">
-                        Showing {blogs.length} of {meta.total} posts
-                    </div>
-                    <div className="flex gap-2">
-                        <Button
-                            variant="outline"
-                            disabled={page <= 1}
-                            onClick={() => setPage(page - 1)}
-                        >
-                            Previous
-                        </Button>
-                        <span className="px-4 py-2 text-sm">
-                            Page {page} of {meta.totalPages}
-                        </span>
-                        <Button
-                            variant="outline"
-                            disabled={page >= meta.totalPages}
-                            onClick={() => setPage(page + 1)}
-                        >
-                            Next
-                        </Button>
-                    </div>
+        <div className="space-y-6 animate-in fade-in-50 duration-500">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold tracking-tight">Blog Posts</h1>
+                    <p className="text-muted-foreground">Manage articles, news, and community updates.</p>
                 </div>
-            )}
+                <Button onClick={() => setShowCreateDialog(true)}>
+                    Create New Post
+                </Button>
+            </div>
+
+            <div className="rounded-xl border bg-card text-card-foreground shadow-sm">
+                <div className="p-6">
+                    <BlogPrimaryToolbar
+                        search={search}
+                        onSearchChange={setSearch}
+                        statusFilter={statusFilter}
+                        onStatusFilterChange={setStatusFilter}
+                        onSortChange={(field, order) => {
+                            setSortBy(field);
+                            setSortOrder(order);
+                        }}
+                        onAddNew={() => setShowCreateDialog(true)}
+                    />
+
+                    <div className="mt-6 rounded-md border">
+                        <BlogTable
+                            data={blogs}
+                            onEdit={setEditingBlog}
+                            onDelete={setDeletingBlog}
+                            onView={setViewingBlog}
+                            page={page}
+                            limit={queryParams.limit || 10}
+                        />
+                    </div>
+
+                    {/* Pagination */}
+                    {meta && (
+                        <div className="flex items-center justify-between space-x-2 py-4">
+                            <div className="flex-1 text-sm text-muted-foreground">
+                                Showing {blogs.length} of {meta.total} posts
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={page <= 1}
+                                    onClick={() => setPage(page - 1)}
+                                >
+                                    Previous
+                                </Button>
+                                <div className="text-sm font-medium">
+                                    Page {page} of {meta.totalPages}
+                                </div>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={page >= meta.totalPages}
+                                    onClick={() => setPage(page + 1)}
+                                >
+                                    Next
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
 
             {/* Dialogs */}
             <CreateBlogDialog

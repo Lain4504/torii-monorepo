@@ -9,17 +9,16 @@ import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import {
   Form,
+  FormControl,
   FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from '@workspace/ui/components/form';
-import {
-  Field,
-  FieldLabel,
-  FieldContent,
-  FieldError,
-} from '@workspace/ui/components/field';
 import { toast } from '@workspace/ui/components/sonner';
-import { Spinner } from '@workspace/ui/components/spinner';
-import { Eye, EyeOff, ShieldCheck, LayoutDashboard } from 'lucide-react';
+import { Eye, EyeOff, Loader2, ShieldCheck, BarChart3, Users, Globe2 } from 'lucide-react';
+import { Checkbox } from "@workspace/ui/components/checkbox";
+import { Label } from "@workspace/ui/components/label";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -54,150 +53,197 @@ export default function LoginPage() {
 
       if (login.fulfilled.match(resultAction)) {
         const user = resultAction.payload;
+        // Basic protection check on frontend
         if (user.role === 'learner') {
           dispatch(setError('Learners cannot access admin panel.'));
-          toast.error('Access denied: Admin only.');
+          toast.error('Access denied: Admin portals are restricted.');
           return;
         }
-        toast.success('Login successful!');
+        toast.success(`Welcome back, ${user.displayName || 'Admin'}`);
         navigate('/', { replace: true });
       } else {
-        toast.error(typeof resultAction.payload === 'string' ? resultAction.payload : 'Login failed');
+        toast.error(typeof resultAction.payload === 'string' ? resultAction.payload : 'Authentication failed');
       }
     } catch (err) {
       console.error(err);
+      toast.error("An unexpected error occurred");
     }
   };
 
   return (
-    <div className="min-h-screen w-full flex">
-      {/* Left Panel - Branding & Visuals */}
-      <div className="hidden lg:flex w-1/2 bg-slate-900 relative overflow-hidden items-center justify-center">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-indigo-900/40 z-0" />
-        <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-10 z-0" />
+    <div className="flex min-h-screen w-full bg-background antialiased">
+      {/* Left Panel: Hero / Brand - Hidden on mobile */}
+      <div className="hidden lg:flex w-[55%] relative overflow-hidden bg-slate-950 flex-col justify-between p-12 text-white">
+        {/* Background Effects */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute top-[-20%] left-[-10%] h-[800px] w-[800px] rounded-full bg-blue-600/10 blur-[120px]" />
+          <div className="absolute bottom-[-20%] right-[-10%] h-[800px] w-[800px] rounded-full bg-indigo-600/10 blur-[120px]" />
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
+          {/* Torii Gate Abstract Shape/Image could go here, for now using gradients */}
+        </div>
 
-        <div className="relative z-10 p-12 text-white max-w-lg space-y-6">
-          <div className="flex items-center space-x-3 mb-8">
-            <div className="h-12 w-12 rounded-xl bg-blue-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
-              <ShieldCheck className="h-7 w-7 text-white" />
-            </div>
-            <h1 className="text-3xl font-bold tracking-tight">Torii Admin</h1>
+        {/* Content Layer */}
+        <div className="relative z-10">
+          <div className="flex items-center gap-3">
+            <div className="flex size-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 shadow-xl shadow-blue-500/20 text-white font-bold text-xl">T</div>
+            <span className="text-xl font-bold tracking-tight text-white/90">Torii Admin</span>
           </div>
+        </div>
 
-          <h2 className="text-4xl font-extrabold tracking-tight leading-tight">
-            Connect. Manage. <span className="text-blue-400">Scale.</span>
-          </h2>
-          <p className="text-lg text-slate-300 leading-relaxed">
-            The central command for Torii Nihongo's learning ecosystem. Manage users, monitor progress, and oversee the platform with ease.
+        <div className="relative z-10 max-w-lg space-y-8">
+          <h1 className="text-5xl font-bold tracking-tight leading-[1.1]">
+            Command Center for <span className="bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">Modern Education</span>
+          </h1>
+          <p className="text-lg text-slate-400 leading-relaxed">
+            Streamline operations, manage courses, and monitor learner progress from one centralized, powerful dashboard.
           </p>
 
-          <div className="grid grid-cols-2 gap-4 mt-8">
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-4 rounded-xl">
-              <LayoutDashboard className="h-6 w-6 text-blue-400 mb-2" />
-              <h3 className="font-semibold">Analytics</h3>
-              <p className="text-sm text-slate-400">Real-time data insights</p>
+          {/* Feature Pills */}
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-4 rounded-xl bg-white/5 p-4 border border-white/10 backdrop-blur-md shadow-sm transition-transform hover:scale-[1.02]">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-blue-500/20 text-blue-400">
+                <BarChart3 className="size-5" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-white">Real-time Analytics</h3>
+                <p className="text-xs text-slate-400">Monitor engagement and financial growth live.</p>
+              </div>
             </div>
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-4 rounded-xl">
-              <ShieldCheck className="h-6 w-6 text-emerald-400 mb-2" />
-              <h3 className="font-semibold">Security</h3>
-              <p className="text-sm text-slate-400">RBAC & Audit Logs</p>
+
+            <div className="flex items-center gap-4 rounded-xl bg-white/5 p-4 border border-white/10 backdrop-blur-md shadow-sm transition-transform hover:scale-[1.02]">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
+                <Users className="size-5" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-white">User Management</h3>
+                <p className="text-xs text-slate-400">Role-based access control for students and staff.</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 rounded-xl bg-white/5 p-4 border border-white/10 backdrop-blur-md shadow-sm transition-transform hover:scale-[1.02]">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-purple-500/20 text-purple-400">
+                <Globe2 className="size-5" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-white">Global Reach</h3>
+                <p className="text-xs text-slate-400">Manage courses and live sessions globally.</p>
+              </div>
             </div>
           </div>
         </div>
+
+        <div className="relative z-10 flex items-center gap-4 text-xs text-slate-500 font-medium tracking-wide uppercase">
+          <span>© 2026 Torii System</span>
+          <span className="h-px w-8 bg-slate-700"></span>
+          <span>Secure Enterprise Login</span>
+        </div>
       </div>
 
-      {/* Right Panel - Login Form */}
-      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-slate-50 dark:bg-slate-950">
-        <div className="w-full max-w-md space-y-8">
-          <div className="text-center lg:text-left">
-            <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Welcome back</h2>
-            <p className="mt-2 text-slate-600 dark:text-slate-400">
-              Please sign in to your admin account
-            </p>
+      {/* Right Panel: Login Form */}
+      <div className="flex flex-1 flex-col items-center justify-center p-8 lg:p-12 relative bg-background">
+        <div className="w-full max-w-sm space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+
+          <div className="text-center space-y-2">
+            <h2 className="text-3xl font-bold tracking-tight text-foreground">Welcome back</h2>
+            <p className="text-sm text-muted-foreground">Enter your credentials to access the admin portal.</p>
           </div>
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
               <FormField
                 control={form.control}
                 name="email"
-                render={({ field, fieldState }) => (
-                  <Field className="space-y-1.5">
-                    <FieldLabel className="text-slate-900 font-medium">Email Address</FieldLabel>
-                    <FieldContent>
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
                       <Input
-                        placeholder="admin@torii.jp"
+                        placeholder="name@company.com"
                         {...field}
-                        className="bg-white dark:bg-slate-900 h-11 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all font-medium"
+                        className="h-11 bg-muted/30"
+                        autoComplete="email"
                       />
-                    </FieldContent>
-                    <FieldError errors={[{ message: fieldState.error?.message }]} />
-                  </Field>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
                 name="password"
-                render={({ field, fieldState }) => (
-                  <Field className="space-y-1.5">
+                render={({ field }) => (
+                  <FormItem>
                     <div className="flex items-center justify-between">
-                      <FieldLabel className="text-slate-900 font-medium">Password</FieldLabel>
-                      <a href="#" className="text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors">
-                        Forgot password?
-                      </a>
+                      <FormLabel>Password</FormLabel>
+                      <Button variant="link" className="p-0 h-auto font-normal text-xs" type="button">Forgot password?</Button>
                     </div>
-                    <FieldContent>
+                    <FormControl>
                       <div className="relative">
                         <Input
                           type={showPassword ? "text" : "password"}
                           placeholder="••••••••"
                           {...field}
-                          className="pr-10 bg-white dark:bg-slate-900 h-11 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all font-medium"
+                          className="h-11 pr-10 bg-muted/30"
+                          autoComplete="current-password"
                         />
                         <Button
                           type="button"
                           variant="ghost"
-                          size="icon"
-                          className="absolute right-0 top-0 h-full px-3 text-slate-400 hover:text-slate-600 hover:bg-transparent"
+                          size="sm"
+                          className="absolute right-0 top-0 h-full w-10 px-0 hover:bg-transparent"
                           onClick={() => setShowPassword(!showPassword)}
                         >
                           {showPassword ? (
-                            <EyeOff className="h-4 w-4" />
+                            <EyeOff className="size-4 text-muted-foreground" />
                           ) : (
-                            <Eye className="h-4 w-4" />
+                            <Eye className="size-4 text-muted-foreground" />
                           )}
+                          <span className="sr-only">Toggle password visibility</span>
                         </Button>
                       </div>
-                    </FieldContent>
-                    <FieldError errors={[{ message: fieldState.error?.message }]} />
-                  </Field>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
 
+              <div className="flex items-center space-x-2">
+                <Checkbox id="remember" />
+                <Label htmlFor="remember" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground">Remember for 30 days</Label>
+              </div>
+
               {error && (
-                <div className="text-sm font-medium text-red-600 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/20 p-4 rounded-lg flex items-center animate-in fade-in slide-in-from-top-1">
-                  <ShieldCheck className="h-4 w-4 mr-2" />
-                  {error}
+                <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive font-medium flex items-center gap-2 animate-in fade-in zoom-in-95">
+                  <ShieldCheck className="size-4" />
+                  <span>{error}</span>
                 </div>
               )}
 
-              <Button
-                type="submit"
-                className="w-full h-11 text-base font-semibold shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-300"
-                disabled={loading}
-              >
-                {loading && <Spinner className="mr-2" />}
-                {loading ? 'Signing in...' : 'Sign In to Dashboard'}
+              <Button type="submit" className="w-full h-11 shadow-md" disabled={loading}>
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 size-4 animate-spin" />
+                    Authenticating...
+                  </>
+                ) : (
+                  "Sign In"
+                )}
               </Button>
             </form>
           </Form>
 
-          <div className="pt-6 text-center">
-            <p className="text-xs text-slate-500">
-              Protected by Torii Security Systems. <br />
-              Unauthorized access is prohibited and logged.
-            </p>
-          </div>
+          <p className="px-8 text-center text-xs text-muted-foreground">
+            By clicking continue, you agree to our{" "}
+            <a href="#" className="underline underline-offset-4 hover:text-primary">
+              Terms of Service
+            </a>{" "}
+            and{" "}
+            <a href="#" className="underline underline-offset-4 hover:text-primary">
+              Privacy Policy
+            </a>
+            .
+          </p>
         </div>
       </div>
     </div>
