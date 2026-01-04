@@ -51,6 +51,42 @@ export class CortexController {
     }
   }
 
+  @MessagePattern({ cmd: 'ai.drill.generate' })
+  async generatePracticeDrill(@Payload() data: { drillType: string; level: string; topic?: string }) {
+    try {
+      this.logger.log('AI Drill generate request received');
+      const result = await this.senseiService.generatePracticeDrill(data.drillType, data.level, data.topic);
+      return result;
+    } catch (error: any) {
+      this.logger.error('Error in ai.drill.generate:', error);
+      throw error;
+    }
+  }
+
+  @MessagePattern({ cmd: 'ai.conversation.simulate' })
+  async simulateConversation(@Payload() data: { topic: string; level: string }) {
+    try {
+      this.logger.log('AI Conversation simulate request received');
+      const result = await this.senseiService.simulateConversation(data.topic, data.level);
+      return result;
+    } catch (error: any) {
+      this.logger.error('Error in ai.conversation.simulate:', error);
+      throw error;
+    }
+  }
+
+  @MessagePattern({ cmd: 'ai.resources.recommend' })
+  async recommendResources(@Payload() data: { concept: string; level: string }) {
+    try {
+      this.logger.log('AI Resources recommend request received');
+      const result = await this.senseiService.recommendResources(data.concept, data.level);
+      return result;
+    } catch (error: any) {
+      this.logger.error('Error in ai.resources.recommend:', error);
+      throw error;
+    }
+  }
+
   // Assessment Agent Message Handlers
   @MessagePattern({ cmd: 'ai.test.generate' })
   async generateJLPTTest(@Payload() data: { level: string; type: string; questionCount: number }) {
@@ -76,6 +112,30 @@ export class CortexController {
     }
   }
 
+  @MessagePattern({ cmd: 'ai.benchmark.get' })
+  async getProgressBenchmark(@Payload() data: { userId: string; level: string }) {
+    try {
+      this.logger.log('AI Benchmark get request received');
+      const result = await this.assessmentService.getProgressBenchmark(data.userId, data.level);
+      return result;
+    } catch (error: any) {
+      this.logger.error('Error in ai.benchmark.get:', error);
+      throw error;
+    }
+  }
+
+  @MessagePattern({ cmd: 'ai.test.schedule' })
+  async scheduleTest(@Payload() data: { userId: string; level: string; date: string }) {
+    try {
+      this.logger.log('AI Test schedule request received');
+      const result = await this.assessmentService.scheduleTest(data.userId, data.level, data.date);
+      return result;
+    } catch (error: any) {
+      this.logger.error('Error in ai.test.schedule:', error);
+      throw error;
+    }
+  }
+
   // Analytics Agent Message Handlers
   @MessagePattern({ cmd: 'ai.progress.track' })
   async trackProgress(@Payload() data: { userId: string; activity: string; score?: number }) {
@@ -97,6 +157,42 @@ export class CortexController {
       return result;
     } catch (error: any) {
       this.logger.error('Error in ai.path.suggest:', error);
+      throw error;
+    }
+  }
+
+  @MessagePattern({ cmd: 'ai.weaknesses.identify' })
+  async identifyWeaknesses(@Payload() data: { userId: string }) {
+    try {
+      this.logger.log('AI Weaknesses identify request received');
+      const result = await this.analyticsService.identifyWeaknesses(data.userId);
+      return result;
+    } catch (error: any) {
+      this.logger.error('Error in ai.weaknesses.identify:', error);
+      throw error;
+    }
+  }
+
+  @MessagePattern({ cmd: 'ai.readiness.predict' })
+  async predictReadiness(@Payload() data: { userId: string; level: string }) {
+    try {
+      this.logger.log('AI Readiness predict request received');
+      const result = await this.analyticsService.predictReadiness(data.userId, data.level);
+      return result;
+    } catch (error: any) {
+      this.logger.error('Error in ai.readiness.predict:', error);
+      throw error;
+    }
+  }
+
+  @MessagePattern({ cmd: 'ai.report.generate' })
+  async generateReport(@Payload() data: { userId: string; reportType: string }) {
+    try {
+      this.logger.log('AI Report generate request received');
+      const result = await this.analyticsService.generateReport(data.userId, data.reportType);
+      return result;
+    } catch (error: any) {
+      this.logger.error('Error in ai.report.generate:', error);
       throw error;
     }
   }

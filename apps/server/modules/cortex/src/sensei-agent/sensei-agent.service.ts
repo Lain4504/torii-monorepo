@@ -69,4 +69,58 @@ Format as JSON with: {"word": "...", "reading": "...", "meaning": "...", "partOf
       };
     }
   }
+
+  async generatePracticeDrill(drillType: string, level: string, topic?: string): Promise<any> {
+    const prompt = `Generate a ${drillType} practice drill for JLPT ${level} level${topic ? ` on the topic: ${topic}` : ''}.
+Provide 5-10 exercises with answers and explanations.
+For fill-in-the-gaps: provide sentence with blank, options, correct answer.
+For sentence building: provide words, ask to build sentence.
+For multiple-choice: provide question and options.
+Format as JSON: {"drillType": "...", "level": "...", "exercises": [{"question": "...", "options": [...], "correctAnswer": "...", "explanation": "..."}]}`;
+
+    const response = await callGemini(prompt);
+    let cleanResponse = response.trim();
+    if (cleanResponse.startsWith('```json')) {
+      cleanResponse = cleanResponse.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+    }
+    try {
+      return JSON.parse(cleanResponse);
+    } catch (error) {
+      return { aiResponse: cleanResponse, error: 'Failed to parse' };
+    }
+  }
+
+  async simulateConversation(topic: string, level: string): Promise<any> {
+    const prompt = `Simulate a basic Japanese conversation for JLPT ${level} level on the topic: ${topic}.
+Provide a dialogue with 4-6 exchanges, including English translations.
+Format as JSON: {"topic": "...", "level": "...", "dialogue": [{"speaker": "A", "japanese": "...", "english": "..."}]}`;
+
+    const response = await callGemini(prompt);
+    let cleanResponse = response.trim();
+    if (cleanResponse.startsWith('```json')) {
+      cleanResponse = cleanResponse.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+    }
+    try {
+      return JSON.parse(cleanResponse);
+    } catch (error) {
+      return { aiResponse: cleanResponse, error: 'Failed to parse' };
+    }
+  }
+
+  async recommendResources(concept: string, level: string): Promise<any> {
+    const prompt = `Recommend supplementary materials for learning the Japanese concept: ${concept} at JLPT ${level} level.
+Suggest videos, articles, exercises from JLPT-aligned resources.
+Format as JSON: {"concept": "...", "level": "...", "recommendations": [{"type": "video/article/exercise", "title": "...", "description": "...", "url": "..."}]}`;
+
+    const response = await callGemini(prompt);
+    let cleanResponse = response.trim();
+    if (cleanResponse.startsWith('```json')) {
+      cleanResponse = cleanResponse.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+    }
+    try {
+      return JSON.parse(cleanResponse);
+    } catch (error) {
+      return { aiResponse: cleanResponse, error: 'Failed to parse' };
+    }
+  }
 }

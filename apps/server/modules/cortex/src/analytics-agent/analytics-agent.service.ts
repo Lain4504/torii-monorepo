@@ -98,4 +98,55 @@ Format as JSON with: {"userLevel": "...", "focusAreas": [...], "schedule": {...}
       };
     }
   }
+
+  async identifyWeaknesses(userId: string): Promise<any> {
+    const prompt = `Analyze learning data for user ${userId} to identify weaknesses.
+Detect patterns in errors like recurring issues with polite forms, specific kanji radicals, etc.
+Format as JSON: {"userId": "...", "weaknesses": [{"area": "grammar/vocab/kanji", "specificIssue": "...", "frequency": "...", "recommendation": "..."}]}`;
+
+    const response = await callGemini(prompt);
+    let cleanResponse = response.trim();
+    if (cleanResponse.startsWith('```json')) {
+      cleanResponse = cleanResponse.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+    }
+    try {
+      return JSON.parse(cleanResponse);
+    } catch (error) {
+      return { aiResponse: cleanResponse, error: 'Failed to parse' };
+    }
+  }
+
+  async predictReadiness(userId: string, level: string): Promise<any> {
+    const prompt = `Predict JLPT ${level} readiness for user ${userId} based on learning trends.
+Estimate exam score and predict dropout risk.
+Format as JSON: {"userId": "...", "level": "...", "estimatedScore": "...", "readinessPercentage": "...", "dropoutRisk": "low/medium/high", "alerts": "..."}`;
+
+    const response = await callGemini(prompt);
+    let cleanResponse = response.trim();
+    if (cleanResponse.startsWith('```json')) {
+      cleanResponse = cleanResponse.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+    }
+    try {
+      return JSON.parse(cleanResponse);
+    } catch (error) {
+      return { aiResponse: cleanResponse, error: 'Failed to parse' };
+    }
+  }
+
+  async generateReport(userId: string, reportType: string): Promise<any> {
+    const prompt = `Generate a ${reportType} report for user ${userId}.
+If instructor report, provide aggregated insights; if personal, focus on individual progress.
+Format as JSON: {"userId": "...", "reportType": "...", "summary": "...", "details": {...}, "exportable": true}`;
+
+    const response = await callGemini(prompt);
+    let cleanResponse = response.trim();
+    if (cleanResponse.startsWith('```json')) {
+      cleanResponse = cleanResponse.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+    }
+    try {
+      return JSON.parse(cleanResponse);
+    } catch (error) {
+      return { aiResponse: cleanResponse, error: 'Failed to parse' };
+    }
+  }
 }

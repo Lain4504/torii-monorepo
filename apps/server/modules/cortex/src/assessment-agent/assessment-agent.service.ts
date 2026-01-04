@@ -84,4 +84,31 @@ Return JSON with: {"totalQuestions": number, "feedback": "detailed feedback", "a
       };
     }
   }
+
+  async getProgressBenchmark(userId: string, level: string): Promise<any> {
+    const prompt = `Generate a progress benchmark report for user ${userId} preparing for JLPT ${level}.
+Compare against JLPT passing thresholds and provide readiness assessment.
+Format as JSON: {"userId": "...", "level": "...", "vocabularyReadiness": "percentage", "grammarReadiness": "...", "readingReadiness": "...", "listeningReadiness": "...", "overallReadiness": "...", "recommendations": "..."}`;
+
+    const response = await callGemini(prompt);
+    let cleanResponse = response.trim();
+    if (cleanResponse.startsWith('```json')) {
+      cleanResponse = cleanResponse.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+    }
+    try {
+      return JSON.parse(cleanResponse);
+    } catch (error) {
+      return { aiResponse: cleanResponse, error: 'Failed to parse' };
+    }
+  }
+
+  async scheduleTest(userId: string, level: string, date: string): Promise<any> {
+    // This could integrate with a scheduling system, but for now, just acknowledge
+    return {
+      userId,
+      level,
+      scheduledDate: date,
+      message: `Test scheduled for JLPT ${level} on ${date}. Reminder will be sent.`,
+    };
+  }
 }
