@@ -11,7 +11,7 @@ import { create, toJsonString } from '@bufbuild/protobuf';
 import { NatsService } from './nats.service';
 
 // Constants
-const NATS_PREFIX = 'pnm-';  // Must use dash, not colon! NATS bucket names cannot contain ':'
+const NATS_PREFIX = 'wajlc-';  // Must use dash, not colon! NATS bucket names cannot contain ':'
 const ROOM_USERS_BUCKET = `${NATS_PREFIX}roomUsers-%s`;
 const USER_INFO_BUCKET = `${NATS_PREFIX}userInfo-r_%s-u_%s`;
 const ROOM_USERS_BLOCK_LIST = `${NATS_PREFIX}usersBlockList-%s`;

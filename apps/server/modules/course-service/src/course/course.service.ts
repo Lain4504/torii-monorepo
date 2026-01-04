@@ -84,9 +84,12 @@ export class CourseService {
     query: CourseQueryDTO,
   ): Promise<PaginatedResponse<CourseResponseDTO>> {
     try {
-      const { page = 1, limit = 10, jlptLevel, status, search, featured } =
-        query;
-      const skip = (page - 1) * limit;
+      const { page, limit, jlptLevel, status, search, featured } = query;
+
+      // Parse pagination params to numbers (query params are strings)
+      const pageNum = parseInt(String(page || 1), 10);
+      const limitNum = parseInt(String(limit || 10), 10);
+      const skip = (pageNum - 1) * limitNum;
 
       const whereClause: Record<string, any> = {
         deletedAt: null, // Exclude soft-deleted courses
@@ -115,29 +118,31 @@ export class CourseService {
       const [total, courses] = await Promise.all([
         this.prisma.course.count({ where: whereClause }),
         this.prisma.course.findMany({
-          take: limit,
+          take: limitNum,
           skip: skip,
           where: whereClause,
           orderBy: { createdAt: 'desc' },
         }),
       ]);
 
-      const totalPages = Math.ceil(total / limit);
+      const totalPages = Math.ceil(total / limitNum);
 
       return {
         data: courses.map(course => this.toCourseResponseDto(course)),
         total,
-        page,
-        limit,
+        page: pageNum,
+        limit: limitNum,
         totalPages,
       };
     } catch (error: any) {
       this.logger.error('Failed to retrieve courses', error);
+      const pageNum = parseInt(String(query.page), 10) || 1;
+      const limitNum = parseInt(String(query.limit), 10) || 10;
       return {
         data: [],
         total: 0,
-        page: query.page || 1,
-        limit: query.limit || 10,
+        page: pageNum,
+        limit: limitNum,
         totalPages: 0,
       };
     }

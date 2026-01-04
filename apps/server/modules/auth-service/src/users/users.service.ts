@@ -1,5 +1,10 @@
-import { Injectable, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
-import bcrypt from 'bcrypt';
+import {
+    Injectable,
+    InternalServerErrorException,
+    NotFoundException,
+    BadRequestException,
+    ForbiddenException
+} from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import type {
     UserUpdateDTO,
@@ -16,8 +21,7 @@ import { PrismaService } from '@server/shared';
 
 export interface CreateUserDTO {
     email: string;
-    fullName: string;
-    password: string;
+    displayName: string;
     role?: UserRole;
     status?: UserStatus;
 }
@@ -53,7 +57,7 @@ export class UsersService {
             ? {
                 OR: [
                     { email: { contains: search, mode: 'insensitive' as any } },
-                    { fullName: { contains: search, mode: 'insensitive' as any } },
+                    { displayName: { contains: search, mode: 'insensitive' as any } },
                 ],
             }
             : {};
@@ -68,7 +72,8 @@ export class UsersService {
             this.prisma.user.count({ where }),
         ]);
 
-        const data = users.map(({ password, salt, ...rest }) => rest as any);
+        // No need to filter fields - password/salt removed from schema
+        const data = users.map(user => user as any);
 
         return {
             data,
@@ -89,12 +94,12 @@ export class UsersService {
             throw new NotFoundException('User not found');
         }
 
-        const { password, salt, ...rest } = user;
-        return rest as any;
+        return user as any;
     }
 
     /**
      * Create new user (admin only)
+     * Note: Firebase handles authentication, no password stored in DB
      */
     async create(dto: CreateUserDTO): Promise<UserResponseDTO> {
         // Check email exists
@@ -103,26 +108,19 @@ export class UsersService {
             throw new BadRequestException(ErrEmailExisted.message);
         }
 
-        // Hash password
-        const salt = bcrypt.genSaltSync(10);
-        const hashedPassword = await bcrypt.hash(`${dto.password}.${salt}`, 10);
-
-        // Create user
+        // Create user (Firebase handles password authentication)
         const newId = uuidv4();
         const user = await this.prisma.user.create({
             data: {
                 id: newId,
                 email: dto.email,
-                fullName: dto.fullName,
-                password: hashedPassword,
-                salt,
+                displayName: dto.displayName,
                 role: dto.role || UserRole.LEARNER,
                 status: dto.status || UserStatus.ACTIVE,
             } as any,
         });
 
-        const { password, salt: _, ...rest } = user;
-        return rest as any;
+        return user as any;
     }
 
     /**
@@ -133,7 +131,40 @@ export class UsersService {
     }
 
     /**
+   * Get user profile with RBAC data
+   * Returns user info along with computed role, permissions, and staff template
+   */
+    async getUserProfile(userId: string) {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+                id: true,
+                email: true,
+                displayName: true,
+                role: true,
+                status: true,
+
+                createdAt: true,
+                updatedAt: true,
+            },
+        });
+
+        if (!user) {
+            throw new NotFoundException(ErrUserNotFound.message);
+        }
+
+        // Get permissions from RBAC service
+        const rbacData = await this.rbacService.getUserPermissions(user.id, user.role);
+
+        return {
+            ...user,
+            permissions: rbacData.permissions,
+        };
+    }
+
+    /**
      * Update user
+     * Note: Password changes handled by Firebase, not stored in DB
      */
     async update(requester: Requester, userId: string, dto: UserUpdateDTO): Promise<UserResponseDTO> {
         if (requester.role !== UserRole.ADMIN && requester.sub !== userId) {
@@ -147,22 +178,17 @@ export class UsersService {
             throw new NotFoundException('User not found');
         }
 
-        // If updating password, hash it
+        // Update user data (password changes handled by Firebase)
         const updateData: any = { ...data };
-        if (data.password) {
-            const salt = bcrypt.genSaltSync(10);
-            const hashedPassword = await bcrypt.hash(`${data.password}.${salt}`, 10);
-            updateData.password = hashedPassword;
-            updateData.salt = salt;
-        }
+        // Remove password field if present - Firebase handles auth
+        delete updateData.password;
 
         const updatedUser = await this.prisma.user.update({
             where: { id: userId },
             data: { ...updateData, updatedAt: new Date() },
         });
 
-        const { password, salt, ...rest } = updatedUser;
-        return rest as any;
+        return updatedUser as any;
     }
 
     /**

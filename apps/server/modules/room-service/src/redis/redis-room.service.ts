@@ -9,7 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 import type { NatsKvRoomInfo } from '@workspace/protocol';
 
-const REDIS_PREFIX = 'pnm:';
+const REDIS_PREFIX = 'wajlc:';
 const TEMPORARY_ROOM_DATA_KEY = `${REDIS_PREFIX}temporaryRoomData:%s`;
 
 /**

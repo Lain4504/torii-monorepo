@@ -1,23 +1,56 @@
+import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions } from '@nestjs/microservices';
+import { ValidationPipe } from '@nestjs/common';
 import { createNatsServiceConfig } from '@server/shared';
-import { RoomServiceModule } from './app.module';
+import { MeetModule } from './meet.module';
+import * as bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
-  console.log('🚀 Starting Room Microservice...');
+  // 1. Create HTTP application
+  const httpApp = await NestFactory.create(MeetModule);
 
-  const natsConfig = createNatsServiceConfig();
-  console.log('📡 NATS Config created');
+  // Configure cookie parser - REQUIRED for web auth with httpOnly cookies
+  httpApp.use(cookieParser());
 
-  // Pure NATS Microservice - No HTTP server needed!
-  const app = await NestFactory.createMicroservice<MicroserviceOptions>(
-    RoomServiceModule,
-    natsConfig,
+  // Enable CORS
+  // CORS handled by Gateway
+  // httpApp.enableCors({...});
+
+  // Configure body parser to match old Gateway architecture
+  // JSON parser for application/json requests
+  httpApp.use(bodyParser.json({
+    type: ['application/json', 'application/webhook+json']
+  }));
+
+  // Raw binary parser for protobuf requests
+  httpApp.use(bodyParser.raw({
+    type: ['application/protobuf', 'application/octet-stream'],
+    limit: '10mb'
+  }));
+
+  // Global validation pipe
+  httpApp.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      forbidNonWhitelisted: false,
+    }),
   );
 
-  await app.listen();
-  console.log('✅ Room Microservice is listening on NATS...');
-  console.log('📝 Registered message patterns should appear above');
+  const HTTP_PORT = process.env.MEET_HTTP_PORT || 8091;
+  await httpApp.listen(HTTP_PORT);
+  console.log(`🚀 Meet Service HTTP listening on port ${HTTP_PORT}`);
+
+  // 2. Create NATS microservice for realtime features
+  const natsApp = await NestFactory.createMicroservice<MicroserviceOptions>(
+    MeetModule,
+    createNatsServiceConfig(),
+  );
+
+  await natsApp.listen();
+  console.log('📡 Meet Service NATS microservice listening (for realtime features)');
 }
 
 bootstrap();

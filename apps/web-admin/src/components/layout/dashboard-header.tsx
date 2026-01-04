@@ -9,10 +9,65 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
-import {DashboardSidebar} from "./dashboard-sidebar.tsx";
+import { DashboardSidebar } from "./dashboard-sidebar.tsx";
+import { ModeToggle } from "@/components/layout/mode-toggle.tsx"
+import { CommandMenu } from "@/components/layout/command-menu.tsx"
+import { useAppSelector, useAppDispatch } from "@/hooks/hooks.ts"
+import { selectUser, clearUser, setAuthenticated } from "@/store/slices/auth-slice.ts"
+import { apiClient } from "@/api/api-client.ts"
+import { toast } from "@workspace/ui/components/sonner"
 
 export function DashboardHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
+
+  const handleLogout = async () => {
+    try {
+      await apiClient.post('/api/auth/logout')
+      dispatch(clearUser())
+      dispatch(setAuthenticated({ isAuthenticated: false }))
+      toast.success('Logged out successfully')
+      navigate('/login')
+    } catch (error) {
+      console.error('Logout error:', error)
+      // Clear local state even if API call fails
+      dispatch(clearUser())
+      dispatch(setAuthenticated({ isAuthenticated: false }))
+      navigate('/login')
+    }
+  }
+
+  const getRoleBadgeVariant = (role: string | null) => {
+    switch (role) {
+      case 'admin':
+        return 'destructive'
+      case 'staff':
+        return 'default'
+      case 'lecturer':
+        return 'secondary'
+      case 'learner':
+        return 'outline'
+      default:
+        return 'outline'
+    }
+  }
+
+  const getRoleLabel = (role: string | null) => {
+    if (role === 'admin') return 'Admin'
+    if (role === 'staff') return 'Staff'
+    if (role === 'lecturer') return 'Lecturer'
+    if (role === 'learner') return 'Learner'
+    return 'User'
+  }
+
+  const getInitials = (name: string | null) => {
+    if (!name) return 'U'
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2)
+  }
 
   return (
     <>
@@ -33,18 +88,35 @@ export function DashboardHeader() {
           </div>
         </div>
 
-        <div className="flex-1"></div>
+        <div className="flex-1 flex justify-center mx-4">
+          <CommandMenu />
+        </div>
 
         <div className="flex items-center gap-1 lg:gap-2 px-2 lg:px-3">
+          <ModeToggle />
           {/* User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <User className="h-5 w-5" />
+              <Button variant="ghost" className="flex items-center gap-2 h-9">
+                <Avatar className="h-7 w-7">
+                  <AvatarImage src={user?.avatarUrl || undefined} alt={user?.displayName || ''} />
+                  <AvatarFallback>{getInitials(user?.displayName || null)}</AvatarFallback>
+                </Avatar>
+                <span className="hidden sm:inline text-sm">{user?.displayName}</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuContent align="end" className="w-64">
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">{user?.displayName}</p>
+                  <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+                  <div className="pt-2">
+                    <Badge variant={getRoleBadgeVariant(user?.role || null)} className="text-xs">
+                      {getRoleLabel(user?.role || null)}
+                    </Badge>
+                  </div>
+                </div>
+              </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>Profile</DropdownMenuItem>
               <DropdownMenuItem>Settings</DropdownMenuItem>

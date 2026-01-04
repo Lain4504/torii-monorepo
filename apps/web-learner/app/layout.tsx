@@ -1,17 +1,13 @@
+import { Open_Sans } from "next/font/google"
 
-import { Geist, Geist_Mono } from "next/font/google"
+import "@workspace/ui/styles/globals.css"
+import { Providers } from "@/lib/providers/providers"
+import { Header } from "@/components/layout/header"
+import { Toaster } from "@workspace/ui/components/sonner"
 
-import "@workspace/ui/globals.css"
-import { Providers } from "@/components/providers"
-
-const fontSans = Geist({
+const fontSans = Open_Sans({
   subsets: ["latin"],
   variable: "--font-sans",
-})
-
-const fontMono = Geist_Mono({
-  subsets: ["latin"],
-  variable: "--font-mono",
 })
 
 export default function RootLayout({
@@ -22,9 +18,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased `}
+        className={`${fontSans.variable} font-sans antialiased `}
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          <Header />
+          <main>{children}</main>
+          <Toaster />
+        </Providers>
       </body>
     </html>
   )
