@@ -1,20 +1,11 @@
 import React from "react"
 import { useLocation, Link } from "react-router-dom"
 import {
-  Home,
-  Users,
-  BookOpen,
-  ClipboardList,
-  Video,
-  CreditCard,
-  Settings,
-  BarChart3,
-  PanelLeftDashed,
-  Bell,
-  Shield,
-  Sparkles,
-  FileQuestion,
-  Newspaper,
+  PanelLeftClose,
+  PanelLeftOpen,
+  LogOut,
+  ChevronRight,
+  MoreVertical
 } from "lucide-react"
 
 import { cn } from "@workspace/ui/lib/utils"
@@ -29,390 +20,188 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
+import { Separator } from "@workspace/ui/components/separator"
+import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui/components/avatar"
+
 import { Can } from "@/lib/guard/can.tsx"
+import { useAppDispatch, useAppSelector } from "@/hooks/hooks"
+import { logout, selectUser } from "@/store/slices/auth-slice"
 
-// Dữ liệu menu chính - for Torii Learning Platform
-interface NavItem {
-  title: string
-  url: string
-  icon: React.ComponentType<{ className?: string }>
-  badge?: string
-  permission?: string // Optional permission required to see this item
-  anyPermission?: string[] // Any of these permissions
+import { mainNavItems, managementNavItems, systemNavItems, type NavItem } from "@/config/navigation"
+
+interface SidebarProps {
+  className?: string
+  isCollapsed: boolean
+  toggleCollapse: () => void
 }
 
-const mainNavItems: NavItem[] = [
-  {
-    title: "Dashboard",
-    url: "/",
-    icon: Home,
-    // No permission required - everyone can see dashboard
-  },
-  {
-    title: "Users",
-    url: "/users",
-    icon: Users,
-    permission: "user.view",
-  },
-  {
-    title: "Rooms",
-    url: "/rooms",
-    icon: Video,
-    anyPermission: ["live_class.schedule", "live_class.manage"],
-  },
-  {
-    title: "Courses",
-    url: "/courses",
-    icon: BookOpen,
-    anyPermission: ["course.view_restricted", "course.create", "course.update"],
-  },
-  {
-    title: "Question Bank",
-    url: "/question-bank",
-    icon: FileQuestion,
-    permission: "exam.manage",
-  },
-  {
-    title: "Assessments",
-    url: "/assessments",
-    icon: ClipboardList,
-    permission: "exam.manage",
-  },
-  {
-    title: "Blog",
-    url: "/blogs",
-    icon: Newspaper,
-    anyPermission: ["blog.write", "blog.manage"],
-  },
-]
-
-const workflowNavItems: NavItem[] = [
-  {
-    title: "Payments",
-    url: "/payments",
-    icon: CreditCard,
-    permission: "payment.view",
-  },
-  {
-    title: "Analytics",
-    url: "/analytics",
-    icon: BarChart3,
-    permission: "report.view",
-  },
-]
-
-// System Navigation
-const secondaryNavItems: NavItem[] = [
-  {
-    title: "AI Service",
-    url: "/ai-service",
-    icon: Sparkles,
-    permission: "ai.config",
-  },
-  {
-    title: "Notifications",
-    url: "/notifications",
-    icon: Bell,
-    // No specific permission - available to all authenticated users
-  },
-  {
-    title: "Permissions",
-    url: "/permissions",
-    icon: Shield,
-    permission: "system.config",
-  },
-  {
-    title: "Settings",
-    url: "/settings",
-    icon: Settings,
-    permission: "system.config",
-  },
-]
-
-interface NavItemButtonProps {
-  item: NavItem
-  pathname: string
-  sidebarModeState: 'expanded' | 'collapsed' | 'hover'
-}
-
-function NavItemButton({ item, pathname, sidebarModeState }: NavItemButtonProps) {
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          variant="ghost"
-          asChild
-          className={cn(
-            "relative w-full h-8 lg:h-8 px-2",
-            sidebarModeState === 'expanded' && "justify-start",
-            sidebarModeState === 'collapsed' && "lg:justify-center",
-            sidebarModeState === 'hover' && "lg:justify-center lg:group-hover:justify-start",
-            pathname === item.url && "bg-accent"
-          )}
-        >
-          <Link to={item.url}>
-            <item.icon className={cn(
-              "size-4",
-              sidebarModeState === 'expanded' && "mr-2",
-              sidebarModeState === 'hover' && "lg:mr-0 lg:group-hover:mr-2"
-            )} />
-            <span className={cn(
-              "transition-opacity duration-300 whitespace-nowrap",
-              sidebarModeState === 'expanded' && "inline",
-              sidebarModeState === 'collapsed' && "hidden",
-              sidebarModeState === 'hover' && "hidden lg:group-hover:inline"
-            )}>
-              {item.title}
-            </span>
-            {item.badge && (
-              <>
-                {sidebarModeState === 'collapsed' && (
-                  <span className="absolute right-0 top-1 hidden lg:inline-flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] leading-none text-white">
-                    {item.badge}
-                  </span>
-                )}
-                {sidebarModeState === 'hover' && (
-                  <>
-                    <span className="absolute right-0 top-1 hidden lg:inline-flex lg:group-hover:hidden h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] leading-none text-white">
-                      {item.badge}
-                    </span>
-                    <span className="ml-auto hidden lg:group-hover:flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-                      {item.badge}
-                    </span>
-                  </>
-                )}
-                {sidebarModeState === 'expanded' && (
-                  <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-                    {item.badge}
-                  </span>
-                )}
-              </>
-            )}
-          </Link>
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent side="right" className={cn("lg:block hidden", sidebarModeState === 'expanded' && "hidden")}>
-        <p>{item.title}</p>
-      </TooltipContent>
-    </Tooltip>
-  )
-}
-
-export function DashboardSidebar() {
+export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: SidebarProps) {
   const location = useLocation()
+  const dispatch = useAppDispatch()
+  const user = useAppSelector(selectUser)
   const pathname = location.pathname
-  const [sidebarModeState, setSidebarModeState] = React.useState<'expanded' | 'collapsed' | 'hover'>('hover')
 
-  React.useEffect(() => {
-    if (typeof window === 'undefined') return
-    const isMobile = window.matchMedia('(max-width: 1023px)').matches
-    if (isMobile) {
-      setSidebarModeState('expanded')
-    } else {
-      const stored = localStorage.getItem('sidebarMode') as 'expanded' | 'collapsed' | 'hover' | null
-      if (stored && (stored === 'expanded' || stored === 'collapsed' || stored === 'hover')) {
-        setSidebarModeState(stored)
-      }
+  const handleLogout = () => {
+    dispatch(logout())
+  }
+
+  const NavGroup = ({ title, items }: { title: string; items: NavItem[] }) => (
+    <div className="py-2">
+      {!isCollapsed && (
+        <h4 className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground/70 animate-in fade-in duration-300">
+          {title}
+        </h4>
+      )}
+      <div className="space-y-1 px-2">
+        {items.map((item) => (
+          <NavEntry key={item.url} item={item} />
+        ))}
+      </div>
+    </div>
+  )
+
+  const NavEntry = ({ item }: { item: NavItem }) => {
+    // Active if exact match or starts with url/ (sub-routes)
+    const isActive = item.url === "/"
+      ? pathname === "/"
+      : pathname === item.url || pathname.startsWith(item.url + "/")
+
+    const content = (
+      <Link
+        to={item.url}
+        className={cn(
+          "group flex items-center rounded-md px-3 py-2.5 text-sm font-medium transition-all duration-200 ease-in-out hover:bg-accent hover:text-accent-foreground",
+          isActive ? "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:text-primary-foreground" : "text-foreground/80",
+          isCollapsed ? "justify-center" : "justify-start"
+        )}
+      >
+        <item.icon className={cn("size-5 shrink-0 transition-transform duration-200", isActive && "scale-105")} />
+        {!isCollapsed && (
+          <span className="ml-3 truncate animate-in fade-in slide-in-from-left-2 duration-300">
+            {item.title}
+          </span>
+        )}
+        {!isCollapsed && isActive && (
+          <ChevronRight className="ml-auto size-4 opacity-50" />
+        )}
+      </Link>
+    )
+
+    if (isCollapsed) {
+      return (
+        <Tooltip delayDuration={0}>
+          <PermissionWrapper item={item}>
+            <TooltipTrigger asChild>{content}</TooltipTrigger>
+          </PermissionWrapper>
+          <TooltipContent side="right" className="flex items-center gap-2 font-medium z-50">
+            {item.title}
+          </TooltipContent>
+        </Tooltip>
+      )
     }
 
-    const onModeChange = (e: CustomEvent<'expanded' | 'collapsed' | 'hover'>) => {
-      const mode = e.detail
-      const nowMobile = window.matchMedia('(max-width: 1023px)').matches
-      if (nowMobile) {
-        setSidebarModeState('expanded')
-        return
-      }
-      setSidebarModeState(mode)
-      localStorage.setItem('sidebarMode', mode)
-    }
+    return (
+      <PermissionWrapper item={item}>
+        {content}
+      </PermissionWrapper>
+    )
+  }
 
-    const mq = window.matchMedia('(max-width: 1023px)')
-    const onMqChange = () => {
-      if (mq.matches) {
-        setSidebarModeState('expanded')
-      } else {
-        const stored = localStorage.getItem('sidebarMode') as 'expanded' | 'collapsed' | 'hover' | null
-        setSidebarModeState(stored || 'hover')
-      }
-    }
+  const PermissionWrapper = ({ item, children }: { item: NavItem; children: React.ReactNode }) => {
+    if (!item.permission && !item.anyPermission) return <>{children}</>
 
-    mq.addEventListener?.('change', onMqChange)
-    window.addEventListener('sidebar-mode-change', onModeChange as unknown as EventListener)
-    return () => {
-      mq.removeEventListener?.('change', onMqChange)
-      window.removeEventListener('sidebar-mode-change', onModeChange as unknown as EventListener)
-    }
-  }, [])
-
-  const setSidebarMode = (mode: 'expanded' | 'collapsed' | 'hover') => {
-    if (typeof window !== 'undefined') {
-      const isMobile = window.matchMedia('(max-width: 1023px)').matches
-      if (isMobile) return
-      localStorage.setItem('sidebarMode', mode)
-      setSidebarModeState(mode)
-      window.dispatchEvent(new CustomEvent('sidebar-mode-change', { detail: mode }))
-    }
+    return (
+      <Can permission={item.permission} anyPermission={item.anyPermission}>
+        {children}
+      </Can>
+    )
   }
 
   return (
     <TooltipProvider>
-      <div className="flex flex-col h-full">
-        {/* Navigation Content */}
-        <div
-          className="flex-1 overflow-y-auto sidebar-scroll"
-          style={{
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none'
-          }}
-        >
-          <div className="p-2 lg:p-2">
-            {/* Main Navigation */}
-            <div className="mb-6">
-              <h3 className={cn(
-                "text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300",
-                sidebarModeState === 'collapsed' && "hidden"
-              )}>
-                Main Navigation
-              </h3>
-              {/* Main Navigation Items with permissions */}
-              <div className="space-y-1">
-                {mainNavItems.map((item) => {
-                  // If item has no permission requirement, show to everyone
-                  if (!item.permission && !item.anyPermission) {
-                    return (
-                      <NavItemButton
-                        key={item.title}
-                        item={item}
-                        pathname={pathname}
-                        sidebarModeState={sidebarModeState}
-                      />
-                    )
-                  }
-
-                  // Otherwise, wrap with Can component
-                  return (
-                    <Can
-                      key={item.title}
-                      permission={item.permission}
-                      anyPermission={item.anyPermission}
-                    >
-                      <NavItemButton
-                        item={item}
-                        pathname={pathname}
-                        sidebarModeState={sidebarModeState}
-                      />
-                    </Can>
-                  )
-                })}
-              </div>
+      <div
+        className={cn(
+          "flex h-screen flex-col border-r bg-card/50 backdrop-blur-xl transition-[width] duration-300 ease-in-out",
+          isCollapsed ? "w-[80px]" : "w-[280px]",
+          className
+        )}
+      >
+        {/* Header / Logo */}
+        <div className="flex h-16 items-center border-b px-4 transition-all duration-300">
+          <div className={cn("flex items-center gap-2 overflow-hidden", isCollapsed ? "justify-center w-full" : "")}>
+            <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold shadow-lg shadow-primary/20 bg-gradient-to-br from-primary to-primary/80">
+              T
             </div>
-
-            {/* Workflow Navigation */}
-            <div className="mb-6">
-              <h3 className={cn(
-                "text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300",
-                sidebarModeState === 'collapsed' && "hidden"
-              )}>
-                Management
-              </h3>
-              <div className="space-y-1">
-                {workflowNavItems.map((item) => {
-                  if (!item.permission && !item.anyPermission) {
-                    return (
-                      <NavItemButton
-                        key={item.title}
-                        item={item}
-                        pathname={pathname}
-                        sidebarModeState={sidebarModeState}
-                      />
-                    )
-                  }
-
-                  return (
-                    <Can
-                      key={item.title}
-                      permission={item.permission}
-                      anyPermission={item.anyPermission}
-                    >
-                      <NavItemButton
-                        item={item}
-                        pathname={pathname}
-                        sidebarModeState={sidebarModeState}
-                      />
-                    </Can>
-                  )
-                })}
+            {!isCollapsed && ( // Using css trick for smoother transition or just conditional
+              <div className="flex flex-col whitespace-nowrap animate-in fade-in slide-in-from-left-2 duration-300">
+                <span className="text-lg font-bold tracking-tight text-foreground">Torii Admin</span>
+                <span className="text-[10px] uppercase text-muted-foreground">Management Portal</span>
               </div>
-            </div>
-
-            {/* Separator */}
-            <div className={cn(
-              "border-t border-sidebar-border my-4 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300",
-              sidebarModeState === 'collapsed' && "hidden"
-            )} />
-
-            {/* System Navigation */}
-            <div className="mb-4">
-              <h3 className={cn(
-                "text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300",
-                sidebarModeState === 'collapsed' && "hidden"
-              )}>
-                System
-              </h3>
-              <div className="space-y-1">
-                {secondaryNavItems.map((item) => {
-                  if (!item.permission && !item.anyPermission) {
-                    return (
-                      <NavItemButton
-                        key={item.title}
-                        item={item}
-                        pathname={pathname}
-                        sidebarModeState={sidebarModeState}
-                      />
-                    )
-                  }
-
-                  return (
-                    <Can
-                      key={item.title}
-                      permission={item.permission}
-                      anyPermission={item.anyPermission}
-                    >
-                      <NavItemButton
-                        item={item}
-                        pathname={pathname}
-                        sidebarModeState={sidebarModeState}
-                      />
-                    </Can>
-                  )
-                })}
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
-        {/* Footer with mode switcher - hidden on mobile */}
-        <div className="p-2 border-t border-sidebar-border hidden lg:block space-y-2">
-          {/* Mode Switcher */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="w-full h-10 lg:h-10 px-2 lg:justify-center">
-                <PanelLeftDashed className="h-5 w-5" />
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto py-4 scrollbar-none [&::-webkit-scrollbar]:hidden">
+          <NavGroup title="Overview" items={mainNavItems} />
+          <Separator className="my-2 mx-4 w-auto opacity-50" />
+          <NavGroup title="Management" items={managementNavItems} />
+          <Separator className="my-2 mx-4 w-auto opacity-50" />
+          <NavGroup title="System" items={systemNavItems} />
+        </div>
+
+        {/* User Footer */}
+        <div className="border-t p-4 bg-background/50">
+          <div className={cn("flex items-center", isCollapsed ? "justify-center" : "justify-between")}>
+            {!isCollapsed ? (
+              <div className="flex items-center gap-3 overflow-hidden animate-in fade-in duration-300">
+                <Avatar className="size-9 border-2 border-background shadow-sm">
+                  <AvatarImage src={user?.avatarUrl || undefined} />
+                  <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                    {user?.displayName?.[0]?.toUpperCase() || "U"}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col truncate max-w-[120px]">
+                  <span className="truncate text-sm font-semibold">{user?.displayName || "Admin User"}</span>
+                  <span className="truncate text-xs text-muted-foreground capitalize">{user?.role || "Administrator"}</span>
+                </div>
+              </div>
+            ) : (
+              <Avatar className="size-9 cursor-pointer border-2 border-background shadow-sm hover:scale-105 transition-transform" onClick={toggleCollapse}>
+                <AvatarFallback className="bg-primary/10 text-primary font-bold">
+                  {user?.displayName?.[0]?.toUpperCase() || "U"}
+                </AvatarFallback>
+              </Avatar>
+            )}
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className={cn("ml-auto shrink-0", isCollapsed && "hidden")}>
+                  <MoreVertical className="size-4 text-muted-foreground" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem onClick={toggleCollapse}>
+                  {isCollapsed ? <PanelLeftOpen className="mr-2 size-4" /> : <PanelLeftClose className="mr-2 size-4" />}
+                  {isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+                </DropdownMenuItem>
+                <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive" onClick={handleLogout}>
+                  <LogOut className="mr-2 size-4" />
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {isCollapsed && (
+            <div className="mt-4 flex justify-center">
+              <Button variant="ghost" size="icon" onClick={toggleCollapse} className="text-muted-foreground hover:text-foreground">
+                <PanelLeftOpen className="size-5" />
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent side="top" align="center" className="min-w-48">
-              <DropdownMenuLabel>Sidebar mode</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => setSidebarMode('expanded')}>Expanded</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSidebarMode('collapsed')}>Collapsed</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSidebarMode('hover')}>Expand on hover</DropdownMenuItem>
-              <DropdownMenuSeparator />
-            </DropdownMenuContent>
-          </DropdownMenu>
+            </div>
+          )}
         </div>
       </div>
     </TooltipProvider>

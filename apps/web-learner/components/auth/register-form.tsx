@@ -1,52 +1,50 @@
-"use client";
+'use client'
 
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useAppDispatch, useAppSelector } from '@/hooks/hooks';
-import { register as registerAction, clearError } from '@/store/slices/authSlice';
-import { Button } from '@workspace/ui/components/button';
-import { Input } from '@workspace/ui/components/input';
+import { useState, useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useAppDispatch, useAppSelector } from '@/hooks/hooks'
+import { register as registerAction, clearError } from '@/store/slices/authSlice'
+import { Button } from '@workspace/ui/components/button'
+import { Input } from '@workspace/ui/components/input'
 import {
     Form,
     FormField,
-} from '@workspace/ui/components/form';
-import {
-    Field,
-    FieldLabel,
-    FieldContent,
-    FieldError,
-} from '@workspace/ui/components/field';
-import { toast } from '@workspace/ui/components/sonner';
-import { Spinner } from '@workspace/ui/components/spinner';
-import { Eye, EyeOff } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { z } from 'zod';
-import { useEffect } from 'react';
+    FormItem,
+    FormLabel,
+    FormControl,
+    FormMessage,
+} from '@workspace/ui/components/form'
+import { toast } from '@workspace/ui/components/sonner'
+import { Spinner } from '@workspace/ui/components/spinner'
+import { Eye, EyeOff, Mail, Lock, UserPlus, CheckCircle, XCircle } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { z } from 'zod'
 
-// Registration schema - only email and password (no fullName)
+// Registration schema
 const registerFormSchema = z.object({
-    email: z.string().email("Please enter a valid email address"),
-    password: z.string()
-        .min(8, "Password must be at least 8 characters")
-        .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-        .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-        .regex(/[0-9]/, "Password must contain at least one number"),
-    confirmPassword: z.string().min(1, "Please confirm your password"),
+    email: z.string().email('Địa chỉ email không hợp lệ'),
+    password: z
+        .string()
+        .min(8, 'Mật khẩu phải có ít nhất 8 ký tự')
+        .regex(/[A-Z]/, 'Mật khẩu phải chứa ít nhất một chữ hoa')
+        .regex(/[a-z]/, 'Mật khẩu phải chứa ít nhất một chữ thường')
+        .regex(/[0-9]/, 'Mật khẩu phải chứa ít nhất một số'),
+    confirmPassword: z.string().min(1, 'Vui lòng xác nhận mật khẩu'),
 }).refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-});
+    message: 'Mật khẩu xác nhận không khớp',
+    path: ['confirmPassword'],
+})
 
-type RegisterFormData = z.infer<typeof registerFormSchema>;
+type RegisterFormData = z.infer<typeof registerFormSchema>
 
 export function RegisterForm() {
-    const dispatch = useAppDispatch();
-    const router = useRouter();
-    const { status, error } = useAppSelector((state) => state.auth);
-    const isLoading = status === 'loading';
-    const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const dispatch = useAppDispatch()
+    const router = useRouter()
+    const { status, error } = useAppSelector((state) => state.auth)
+    const isLoading = status === 'loading'
+    const [showPassword, setShowPassword] = useState(false)
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
     const form = useForm<RegisterFormData>({
         resolver: zodResolver(registerFormSchema),
@@ -55,151 +53,193 @@ export function RegisterForm() {
             password: '',
             confirmPassword: '',
         },
-    });
+        mode: 'onChange', // Enable live validation for password strength
+    })
+
+    // Watch password for strength meter
+    const password = form.watch('password')
+
+    // Password requirements check
+    const requirements = [
+        { label: 'Ít nhất 8 ký tự', valid: password?.length >= 8 },
+        { label: 'Chữ in hoa', valid: /[A-Z]/.test(password || '') },
+        { label: 'Chữ thường', valid: /[a-z]/.test(password || '') },
+        { label: 'Số', valid: /[0-9]/.test(password || '') },
+    ]
 
     // Clear error when component unmounts
     useEffect(() => {
         return () => {
-            dispatch(clearError());
-        };
-    }, [dispatch]);
+            dispatch(clearError())
+        }
+    }, [dispatch])
 
     const onSubmit = async (data: RegisterFormData) => {
         try {
             // Remove confirmPassword before sending to API
-            const { confirmPassword, ...registrationData } = data;
+            const { confirmPassword, ...registrationData } = data
 
-            const resultAction = await dispatch(registerAction(registrationData));
+            const resultAction = await dispatch(registerAction(registrationData))
 
             if (registerAction.fulfilled.match(resultAction)) {
-                form.reset();
-                toast.success('Account created successfully!', {
-                    description: 'Please check your email to verify your account.',
+                form.reset()
+                toast.success('Tạo tài khoản thành công!', {
+                    description: 'Vui lòng kiểm tra email để xác thực tài khoản.',
                     duration: 6000,
-                });
-                // Redirect to home page after successful registration
-                router.push('/');
+                })
+                router.push('/')
             } else {
-                // Handle specific error messages from backend
-                const errorMessage = typeof resultAction.payload === 'string'
-                    ? resultAction.payload
-                    : (resultAction.payload as any)?.message || 'Unable to create account';
+                const errorMessage =
+                    typeof resultAction.payload === 'string'
+                        ? resultAction.payload
+                        : (resultAction.payload as any)?.message || 'Không thể tạo tài khoản'
 
-                toast.error("Registration failed", {
+                toast.error('Đăng ký thất bại', {
                     description: errorMessage,
-                });
+                })
             }
         } catch (err) {
-            console.error("Registration error", err);
-            toast.error("Registration failed", {
-                description: "An unexpected error occurred",
-            });
+            console.error('Registration error', err)
+            toast.error('Đăng ký thất bại', {
+                description: 'Đã có lỗi không mong muốn xảy ra',
+            })
         }
-    };
+    }
 
     return (
         <div className="grid gap-6">
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                     <FormField
                         control={form.control}
                         name="email"
-                        render={({ field, fieldState }) => (
-                            <Field>
-                                <FieldLabel>Email</FieldLabel>
-                                <FieldContent>
-                                    <Input
-                                        placeholder="learner@torii.jp"
-                                        {...field}
-                                        aria-label="Email address"
-                                    />
-                                </FieldContent>
-                                <FieldError errors={[{ message: fieldState.error?.message }]} />
-                            </Field>
+                        render={({ field }) => (
+                            <FormItem className="space-y-1">
+                                <FormLabel className="text-slate-900 dark:text-slate-100">Email</FormLabel>
+                                <FormControl>
+                                    <div className="relative">
+                                        <Mail className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
+                                        <Input
+                                            placeholder="hoctiennhat@example.com"
+                                            className="pl-10 h-11 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:ring-indigo-500 transition-all rounded-lg"
+                                            {...field}
+                                        />
+                                    </div>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
                         )}
                     />
 
                     <FormField
                         control={form.control}
                         name="password"
-                        render={({ field, fieldState }) => (
-                            <Field>
-                                <FieldLabel>Password</FieldLabel>
-                                <FieldContent>
+                        render={({ field }) => (
+                            <FormItem className="space-y-1">
+                                <FormLabel className="text-slate-900 dark:text-slate-100">Mật khẩu</FormLabel>
+                                <FormControl>
                                     <div className="relative">
+                                        <Lock className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
                                         <Input
-                                            type={showPassword ? "text" : "password"}
-                                            placeholder="********"
+                                            type={showPassword ? 'text' : 'password'}
+                                            placeholder="••••••••"
+                                            className="pl-10 pr-10 h-11 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:ring-indigo-500 transition-all rounded-lg"
                                             {...field}
-                                            className="pr-10"
-                                            aria-label="Password"
                                         />
                                         <Button
                                             type="button"
                                             variant="ghost"
                                             size="icon"
-                                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                            className="absolute right-0 top-0 h-full px-3 hover:bg-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
                                             onClick={() => setShowPassword(!showPassword)}
-                                            aria-label={showPassword ? "Hide password" : "Show password"}
                                         >
                                             {showPassword ? (
-                                                <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                                <EyeOff className="h-4 w-4" />
                                             ) : (
-                                                <Eye className="h-4 w-4 text-muted-foreground" />
+                                                <Eye className="h-4 w-4" />
                                             )}
                                         </Button>
                                     </div>
-                                </FieldContent>
-                                <FieldError errors={[{ message: fieldState.error?.message }]} />
-                                <p className="text-xs text-muted-foreground mt-1">
-                                    Must contain uppercase, lowercase, and number
-                                </p>
-                            </Field>
+                                </FormControl>
+                                {/* Password Strength Indicators */}
+                                {/* Only show when user starts typing */}
+                                {password && (
+                                    <div className="mt-3 grid grid-cols-2 gap-2">
+                                        {requirements.map((req, index) => (
+                                            <div key={index} className="flex items-center gap-2 text-xs">
+                                                {req.valid ? (
+                                                    <CheckCircle className="h-3 w-3 text-green-500" />
+                                                ) : (
+                                                    <div className="h-3 w-3 rounded-full border border-slate-300 dark:border-slate-600" />
+                                                )}
+                                                <span className={req.valid ? 'text-green-600 dark:text-green-400 font-medium' : 'text-slate-500 dark:text-slate-400'}>
+                                                    {req.label}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                                <FormMessage />
+                            </FormItem>
                         )}
                     />
 
                     <FormField
                         control={form.control}
                         name="confirmPassword"
-                        render={({ field, fieldState }) => (
-                            <Field>
-                                <FieldLabel>Confirm Password</FieldLabel>
-                                <FieldContent>
+                        render={({ field }) => (
+                            <FormItem className="space-y-1">
+                                <FormLabel className="text-slate-900 dark:text-slate-100">Xác nhận mật khẩu</FormLabel>
+                                <FormControl>
                                     <div className="relative">
+                                        <Lock className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
                                         <Input
-                                            type={showConfirmPassword ? "text" : "password"}
-                                            placeholder="********"
+                                            type={showConfirmPassword ? 'text' : 'password'}
+                                            placeholder="••••••••"
+                                            className="pl-10 pr-10 h-11 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:ring-indigo-500 transition-all rounded-lg"
                                             {...field}
-                                            className="pr-10"
-                                            aria-label="Confirm password"
                                         />
                                         <Button
                                             type="button"
                                             variant="ghost"
                                             size="icon"
-                                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                            className="absolute right-0 top-0 h-full px-3 hover:bg-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
                                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                            aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
                                         >
                                             {showConfirmPassword ? (
-                                                <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                                <EyeOff className="h-4 w-4" />
                                             ) : (
-                                                <Eye className="h-4 w-4 text-muted-foreground" />
+                                                <Eye className="h-4 w-4" />
                                             )}
                                         </Button>
                                     </div>
-                                </FieldContent>
-                                <FieldError errors={[{ message: fieldState.error?.message }]} />
-                            </Field>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
                         )}
                     />
 
-                    <Button type="submit" className="w-full" disabled={isLoading}>
-                        {isLoading && <Spinner className="mr-2" />}
-                        Create Account
+                    {error && (
+                        <div className="flex items-center gap-2 text-sm font-medium text-red-600 bg-red-50 dark:bg-red-900/10 p-4 rounded-lg border border-red-100 dark:border-red-900/20">
+                            <XCircle className="h-4 w-4" />
+                            {error}
+                        </div>
+                    )}
+
+                    <Button
+                        type="submit"
+                        className="w-full h-12 bg-gradient-to-r from-indigo-600 to-teal-600 hover:from-indigo-700 hover:to-teal-700 text-white font-semibold text-base shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] rounded-lg mt-2"
+                        disabled={isLoading}
+                    >
+                        {isLoading ? (
+                            <Spinner className="mr-2 text-white" />
+                        ) : (
+                            <UserPlus className="mr-2 h-5 w-5" />
+                        )}
+                        Tạo tài khoản
                     </Button>
                 </form>
             </Form>
         </div>
-    );
+    )
 }

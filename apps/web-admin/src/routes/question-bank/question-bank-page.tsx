@@ -14,7 +14,7 @@ import { EditQuestionBankDialog } from '@/components/question-banks/edit-questio
 import { ViewQuestionBankDialog } from '@/components/question-banks/view-question-bank-dialog.tsx';
 import { DeleteQuestionBankDialog } from '@/components/question-banks/delete-question-bank-dialog.tsx';
 import { Button } from '@workspace/ui/components/button';
-import {type QuestionBankFilters, useQuestionBanks} from "@/api/services/question-bank.ts";
+import { type QuestionBankFilters, useQuestionBanks } from "@/api/services/question-bank.ts";
 
 export function QuestionBankPage() {
     // Filters state
@@ -121,52 +121,66 @@ export function QuestionBankPage() {
     }
 
     return (
-        <div className="p-6">
-            <QuestionBankPrimaryToolbar
-                filters={filters}
-                onFilterChange={updateFilter}
-                onReset={resetFilters}
-                hasActiveFilters={hasActiveFilters}
-                onAddNew={handleCreate}
-            />
-
-            <div className="mt-6">
-                <QuestionBankTable
-                    data={questions}
-                    onEdit={handleEdit}
-                    onView={handleView}
-                    onDelete={handleDelete}
-                    page={page}
-                    limit={queryParams.limit || 10}
-                />
+        <div className="space-y-6 animate-in fade-in-50 duration-500">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold tracking-tight">Question Bank</h1>
+                    <p className="text-muted-foreground">Manage repository of questions for exams and practice.</p>
+                </div>
+                <Button onClick={handleCreate}>
+                    Add New Question
+                </Button>
             </div>
 
-            {/* Pagination */}
-            {meta && (
-                <div className="mt-4 flex justify-between items-center">
-                    <div className="text-sm text-muted-foreground">
-                        Total: {meta.total} questions | Page {meta.page} of {meta.totalPages}
+            <div className="rounded-xl border bg-card text-card-foreground shadow-sm">
+                <div className="p-6">
+                    <QuestionBankPrimaryToolbar
+                        filters={filters}
+                        onFilterChange={updateFilter}
+                        onReset={resetFilters}
+                        hasActiveFilters={hasActiveFilters}
+                        onAddNew={handleCreate}
+                    />
+
+                    <div className="mt-6 rounded-md border">
+                        <QuestionBankTable
+                            data={questions}
+                            onEdit={handleEdit}
+                            onView={handleView}
+                            onDelete={handleDelete}
+                            page={page}
+                            limit={queryParams.limit || 10}
+                        />
                     </div>
-                    <div className="flex gap-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setPage((p) => Math.max(1, p - 1))}
-                            disabled={page === 1}
-                        >
-                            Previous
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setPage((p) => p + 1)}
-                            disabled={page >= (meta.totalPages || 1)}
-                        >
-                            Next
-                        </Button>
-                    </div>
+
+                    {/* Pagination */}
+                    {meta && (
+                        <div className="flex items-center justify-between space-x-2 py-4">
+                            <div className="flex-1 text-sm text-muted-foreground">
+                                Total: {meta.total} questions | Page {meta.page} of {meta.totalPages}
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                                    disabled={page === 1}
+                                >
+                                    Previous
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setPage((p) => p + 1)}
+                                    disabled={page >= (meta.totalPages || 1)}
+                                >
+                                    Next
+                                </Button>
+                            </div>
+                        </div>
+                    )}
                 </div>
-            )}
+            </div>
 
             {/* Dialogs */}
             <CreateQuestionBankDialog

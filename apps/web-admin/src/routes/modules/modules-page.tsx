@@ -9,8 +9,8 @@ import { EditModuleDialog } from '@/components/modules/edit-module-dialog.tsx';
 import { DeleteModuleDialog } from '@/components/modules/delete-module-dialog.tsx';
 import { ViewModuleDialog } from '@/components/modules/view-module-dialog.tsx';
 import type { ModuleQueryDTO, ModuleResponseDTO } from '@workspace/schemas';
-import {useModules} from "@/api/services/modules.ts";
-import {coursesApi} from "@/api/services/courses.ts";
+import { useModules } from "@/api/services/modules.ts";
+import { coursesApi } from "@/api/services/courses.ts";
 
 export default function ModulesPage() {
   const [page, setPage] = useState(1);
@@ -99,62 +99,70 @@ export default function ModulesPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="space-y-6 animate-in fade-in-50 duration-500">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Modules</h1>
-          <p className="text-muted-foreground">Manage all modules in the system</p>
+          <p className="text-muted-foreground">Manage learning modules and curriculum content.</p>
         </div>
         <Button onClick={() => setShowCreateDialog(true)}>Create Module</Button>
       </div>
 
-      <ModulesPrimaryToolbar
-        search={search}
-        onSearchChange={setSearch}
-        courseIdFilter={courseIdFilter}
-        onCourseIdFilterChange={setCourseIdFilter}
-        courseTitleMap={courseTitleMap}
-        statusFilter={statusFilter}
-        onStatusFilterChange={setStatusFilter}
-      />
+      <div className="rounded-xl border bg-card text-card-foreground shadow-sm">
+        <div className="p-6">
+          <ModulesPrimaryToolbar
+            search={search}
+            onSearchChange={setSearch}
+            courseIdFilter={courseIdFilter}
+            onCourseIdFilterChange={setCourseIdFilter}
+            courseTitleMap={courseTitleMap}
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+          />
 
-      <ModulesTable
-        data={modules}
-        onEdit={setEditingModule}
-        onDelete={setDeletingModule}
-        onView={setViewingModule}
-        page={page}
-        limit={queryParams.limit || 10}
-        courseTitleMap={courseTitleMap}
-      />
+          <div className="mt-6 rounded-md border">
+            <ModulesTable
+              data={modules}
+              onEdit={setEditingModule}
+              onDelete={setDeletingModule}
+              onView={setViewingModule}
+              page={page}
+              limit={queryParams.limit || 10}
+              courseTitleMap={courseTitleMap}
+            />
+          </div>
 
-      {/* Pagination */}
-      {meta && (
-        <div className="flex justify-between items-center">
-          <div className="text-sm text-muted-foreground">
-            Showing {modules.length} of {meta.total} modules
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              disabled={page <= 1}
-              onClick={() => setPage(page - 1)}
-            >
-              Previous
-            </Button>
-            <span className="px-4 py-2 text-sm">
-              Page {page} of {meta.totalPages}
-            </span>
-            <Button
-              variant="outline"
-              disabled={page >= meta.totalPages}
-              onClick={() => setPage(page + 1)}
-            >
-              Next
-            </Button>
-          </div>
+          {/* Pagination */}
+          {meta && (
+            <div className="flex items-center justify-between space-x-2 py-4">
+              <div className="flex-1 text-sm text-muted-foreground">
+                Showing {modules.length} of {meta.total} modules
+              </div>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page <= 1}
+                  onClick={() => setPage(page - 1)}
+                >
+                  Previous
+                </Button>
+                <div className="text-sm font-medium">
+                  Page {page} of {meta.totalPages}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page >= meta.totalPages}
+                  onClick={() => setPage(page + 1)}
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      </div>
 
       {/* Dialogs */}
       <CreateModuleDialog

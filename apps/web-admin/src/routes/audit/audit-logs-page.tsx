@@ -21,7 +21,7 @@ import {
     DialogTrigger,
 } from '@workspace/ui/components/dialog';
 import { ChevronLeft, ChevronRight, Eye, Loader2 } from 'lucide-react';
-import {type AuditLog, useAuditLogs} from "@/api/services/audit-logs.ts";
+import { type AuditLog, useAuditLogs } from "@/api/services/audit-logs.ts";
 
 function AuditLogDetailsDialog({ log }: { log: AuditLog }) {
     return (
@@ -146,7 +146,7 @@ export function AuditLogsPage() {
     };
 
     return (
-        <div className="p-6 space-y-6">
+        <div className="space-y-6 animate-in fade-in-50 duration-500">
             {/* Header */}
             <div>
                 <h1 className="text-3xl font-bold tracking-tight">Audit Logs</h1>
@@ -203,101 +203,104 @@ export function AuditLogsPage() {
                 </CardContent>
             </Card>
 
-            {/* Loading State */}
-            {isLoading && (
-                <div className="flex items-center justify-center py-12">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div>
-            )}
-
             {/* Table */}
-            {!isLoading && data && (
-                <>
-                    <Card>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Time</TableHead>
-                                    <TableHead>User</TableHead>
-                                    <TableHead>Action</TableHead>
-                                    <TableHead>Description</TableHead>
-                                    <TableHead className="text-right">Details</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {data.data.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">
-                                            No audit logs found
-                                        </TableCell>
-                                    </TableRow>
-                                ) : (
-                                    data.data.map((log) => (
-                                        <TableRow key={log.id}>
-                                            <TableCell className="font-mono text-xs">
-                                                {format(new Date(log.createdAt), 'yyyy-MM-dd HH:mm:ss')}
-                                            </TableCell>
-                                            <TableCell>
-                                                <div>
-                                                    <div className="font-medium text-sm">{log.userEmail}</div>
-                                                    <div className="text-xs text-muted-foreground">
-                                                        <Badge variant="outline" className="text-xs">
-                                                            {log.userRole}
-                                                        </Badge>
-                                                    </div>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge>{log.action}</Badge>
-                                                <div className="text-xs text-muted-foreground mt-1">{log.entity}</div>
-                                            </TableCell>
-                                            <TableCell className="max-w-md">
-                                                <div className="truncate">{log.description}</div>
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                <AuditLogDetailsDialog log={log} />
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
-                    </Card>
-
-                    {/* Pagination */}
-                    {data.totalPages > 1 && (
-                        <div className="flex items-center justify-between">
-                            <div className="text-sm text-muted-foreground">
-                                Showing {(data.page - 1) * data.limit + 1} to{' '}
-                                {Math.min(data.page * data.limit, data.total)} of {data.total} entries
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => handlePageChange(data.page - 1)}
-                                    disabled={data.page === 1}
-                                >
-                                    <ChevronLeft className="h-4 w-4" />
-                                    Previous
-                                </Button>
-                                <div className="text-sm">
-                                    Page {data.page} of {data.totalPages}
-                                </div>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => handlePageChange(data.page + 1)}
-                                    disabled={data.page === data.totalPages}
-                                >
-                                    Next
-                                    <ChevronRight className="h-4 w-4" />
-                                </Button>
-                            </div>
+            <div className="rounded-xl border bg-card text-card-foreground shadow-sm">
+                <div className="p-6">
+                    {isLoading && (
+                        <div className="flex items-center justify-center py-12">
+                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
                         </div>
                     )}
-                </>
-            )}
+
+                    {!isLoading && data && (
+                        <>
+                            <div className="rounded-md border">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Time</TableHead>
+                                            <TableHead>User</TableHead>
+                                            <TableHead>Action</TableHead>
+                                            <TableHead>Description</TableHead>
+                                            <TableHead className="text-right">Details</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {data.data.length === 0 ? (
+                                            <TableRow>
+                                                <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">
+                                                    No audit logs found
+                                                </TableCell>
+                                            </TableRow>
+                                        ) : (
+                                            data.data.map((log) => (
+                                                <TableRow key={log.id}>
+                                                    <TableCell className="font-mono text-xs">
+                                                        {format(new Date(log.createdAt), 'yyyy-MM-dd HH:mm:ss')}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <div>
+                                                            <div className="font-medium text-sm">{log.userEmail}</div>
+                                                            <div className="text-xs text-muted-foreground">
+                                                                <Badge variant="outline" className="text-xs">
+                                                                    {log.userRole}
+                                                                </Badge>
+                                                            </div>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Badge>{log.action}</Badge>
+                                                        <div className="text-xs text-muted-foreground mt-1">{log.entity}</div>
+                                                    </TableCell>
+                                                    <TableCell className="max-w-md">
+                                                        <div className="truncate">{log.description}</div>
+                                                    </TableCell>
+                                                    <TableCell className="text-right">
+                                                        <AuditLogDetailsDialog log={log} />
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))
+                                        )}
+                                    </TableBody>
+                                </Table>
+                            </div>
+
+                            {/* Pagination */}
+                            {data.totalPages > 1 && (
+                                <div className="flex items-center justify-between pt-4">
+                                    <div className="text-sm text-muted-foreground">
+                                        Showing {(data.page - 1) * data.limit + 1} to{' '}
+                                        {Math.min(data.page * data.limit, data.total)} of {data.total} entries
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => handlePageChange(data.page - 1)}
+                                            disabled={data.page === 1}
+                                        >
+                                            <ChevronLeft className="h-4 w-4" />
+                                            Previous
+                                        </Button>
+                                        <div className="text-sm font-medium">
+                                            Page {data.page} of {data.totalPages}
+                                        </div>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => handlePageChange(data.page + 1)}
+                                            disabled={data.page === data.totalPages}
+                                        >
+                                            Next
+                                            <ChevronRight className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
+                        </>
+                    )}
+                </div>
+            </div>
         </div>
     );
 }

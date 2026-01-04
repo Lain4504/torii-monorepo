@@ -1,50 +1,84 @@
 import { useState, useEffect } from "react"
-import { Outlet } from "react-router-dom"
+import { Outlet, useLocation } from "react-router-dom"
+import { Menu } from "lucide-react"
+
 import { DashboardSidebar } from "@/components/layout/dashboard-sidebar.tsx";
 import { DashboardHeader } from "@/components/layout/dashboard-header.tsx";
+import { Button } from "@workspace/ui/components/button"
+import { Sheet, SheetContent, SheetTrigger } from "@workspace/ui/components/sheet"
 
-// Main layout component
 export default function DashboardLayout() {
-  const [sidebarMode, setSidebarMode] = useState<"expanded" | "collapsed" | "hover">("hover")
+  const [isCollapsed, setIsCollapsed] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   useEffect(() => {
-    // init sidebar mode
-    const stored = typeof window !== 'undefined' ? (localStorage.getItem('sidebarMode') as 'expanded' | 'collapsed' | 'hover' | null) : null
-    if (stored === 'expanded' || stored === 'collapsed' || stored === 'hover') {
-      setSidebarMode(stored)
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024)
     }
-    const onModeChange = (e: CustomEvent<'expanded' | 'collapsed' | 'hover'>) => {
-      const mode = e.detail
-      if (mode === 'expanded' || mode === 'collapsed' || mode === 'hover') setSidebarMode(mode)
-    }
-    window.addEventListener('sidebar-mode-change', onModeChange as unknown as EventListener)
-
-    return () => {
-      window.removeEventListener('sidebar-mode-change', onModeChange as unknown as EventListener)
-    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
+  // Close mobile sidebar on route change
+  const location = useLocation()
+  useEffect(() => {
+    setMobileOpen(false)
+  }, [location])
+
   return (
-    <div className="h-screen w-full overflow-hidden">
-      <div className="flex h-full w-full max-w-full">
-        {/* Custom Sidebar với hover expand - chỉ hiện trên desktop */}
-        <div className="group relative hidden lg:block">
-          <div className={"fixed left-0 top-12 h-[calc(100vh-3rem)] bg-sidebar border-r border-sidebar-border transition-all duration-300 ease-in-out z-40 overflow-hidden " + (sidebarMode === 'expanded' ? 'w-64' : sidebarMode === 'collapsed' ? 'w-12' : 'w-12 hover:w-64')}>
-            <DashboardSidebar />
+    <div className="flex min-h-screen w-full bg-muted/40 font-sans">
+      {/* Desktop Sidebar */}
+      {!isMobile && (
+        <aside className="fixed inset-y-0 left-0 z-30 hidden border-r bg-background lg:block transition-all duration-300 ease-in-out">
+          <DashboardSidebar
+            isCollapsed={isCollapsed}
+            toggleCollapse={() => setIsCollapsed(!isCollapsed)}
+            className="border-none"
+          />
+        </aside>
+      )}
+
+      {/* Main Content Wrapper */}
+      <div
+        className={`flex flex-col flex-1 transition-all duration-300 ease-in-out ${!isMobile
+            ? (isCollapsed ? "pl-[80px]" : "pl-[280px]")
+            : "pl-0"
+          }`}
+      >
+        {/* Header - Sticky */}
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 px-6 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          {isMobile && (
+            <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="icon" className="shrink-0 lg:hidden">
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Toggle navigation menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="p-0 border-r w-[280px] sm:w-[300px]">
+                <DashboardSidebar
+                  isCollapsed={false}
+                  toggleCollapse={() => setMobileOpen(false)}
+                  className="w-full h-full border-none"
+                />
+              </SheetContent>
+            </Sheet>
+          )}
+
+          {/* Main Header Content (Breadcrumbs, Search, UserProfile) */}
+          <div className="flex flex-1 items-center justify-between">
+            <DashboardHeader />
           </div>
-        </div>
+        </header>
 
-        {/* Main Content Area */}
-        <div className={"flex flex-col flex-1 pt-12 min-h-0 max-w-full overflow-hidden dashboard-content " + (sidebarMode === 'expanded' ? 'lg:ml-64' : 'lg:ml-12')}>
-          <main className="flex-1 overflow-x-hidden max-w-full">
+        {/* Page Content */}
+        <main className="flex-1 p-4 lg:p-6 overflow-x-hidden">
+          <div className="mx-auto max-w-7xl animate-in fade-in-50 duration-500 slide-in-from-bottom-2">
             <Outlet />
-          </main>
-        </div>
-      </div>
-
-      {/* Header được đặt ngoài sidebar để trải dài hết màn hình */}
-      <div className="fixed top-0 left-0 right-0 z-50">
-        <DashboardHeader />
+          </div>
+        </main>
       </div>
     </div>
   )
