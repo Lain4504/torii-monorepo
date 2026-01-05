@@ -14,18 +14,16 @@ import {
     userUpdateDTOSchema,
     UserResponseDTO,
     UserRole,
-    UserStatus,
     ErrEmailExisted,
     ErrUserNotFound,
 } from '@workspace/schemas';
-import { PrismaService } from '@server/shared';
 import { RBACService } from '../rbac/rbac.service';
+import { UsersRepository } from './users.repository';
 
 export interface CreateUserDTO {
     email: string;
     displayName: string;
     role?: UserRole;
-    status?: UserStatus;
 }
 
 export interface PaginationOptions {
@@ -45,7 +43,7 @@ export interface PaginatedResponse<T> {
 @Injectable()
 export class UsersService {
     constructor(
-        private readonly prisma: PrismaService,
+        private readonly usersRepository: UsersRepository,
         private readonly rbacService: RBACService,
     ) { }
 
@@ -66,13 +64,12 @@ export class UsersService {
             : {};
 
         const [users, total] = await Promise.all([
-            this.prisma.user.findMany({
+            this.usersRepository.findMany({
                 where,
                 skip,
                 take: limit,
-                orderBy: { createdAt: 'desc' },
             }),
-            this.prisma.user.count({ where }),
+            this.usersRepository.count(where),
         ]);
 
         // No need to filter fields - password/salt removed from schema
@@ -91,7 +88,7 @@ export class UsersService {
      * Find one user by ID
      */
     async findOne(userId: string): Promise<UserResponseDTO> {
-        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        const user = await this.usersRepository.findById(userId);
 
         if (!user) {
             throw new NotFoundException('User not found');
@@ -106,22 +103,20 @@ export class UsersService {
      */
     async create(dto: CreateUserDTO): Promise<UserResponseDTO> {
         // Check email exists
-        const existingUser = await this.prisma.user.findFirst({ where: { email: dto.email } });
-        if (existingUser) {
+        const emailExists = await this.usersRepository.emailExists(dto.email);
+        if (emailExists) {
             throw new BadRequestException(ErrEmailExisted.message);
         }
 
         // Create user (Firebase handles password authentication)
         const newId = uuidv4();
-        const user = await this.prisma.user.create({
-            data: {
-                id: newId,
-                email: dto.email,
-                displayName: dto.displayName,
-                role: dto.role || UserRole.LEARNER,
-                status: dto.status || UserStatus.ACTIVE,
-            } as any,
-        });
+        const user = await this.usersRepository.create({
+            id: newId,
+            email: dto.email,
+            displayName: dto.displayName,
+            role: dto.role || UserRole.LEARNER,
+            // emailVerifiedAt: null (default) = pending
+        } as any);
 
         return user as any;
     }
@@ -138,19 +133,7 @@ export class UsersService {
    * Returns user info along with computed role, permissions, and staff template
    */
     async getUserProfile(userId: string) {
-        const user = await this.prisma.user.findUnique({
-            where: { id: userId },
-            select: {
-                id: true,
-                email: true,
-                displayName: true,
-                role: true,
-                status: true,
-
-                createdAt: true,
-                updatedAt: true,
-            },
-        });
+        const user = await this.usersRepository.getProfile(userId);
 
         if (!user) {
             throw new NotFoundException(ErrUserNotFound.message);
@@ -176,7 +159,7 @@ export class UsersService {
 
         const data = userUpdateDTOSchema.parse(dto);
 
-        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        const user = await this.usersRepository.findById(userId);
         if (!user) {
             throw new NotFoundException('User not found');
         }
@@ -186,10 +169,7 @@ export class UsersService {
         // Remove password field if present - Firebase handles auth
         delete updateData.password;
 
-        const updatedUser = await this.prisma.user.update({
-            where: { id: userId },
-            data: { ...updateData, updatedAt: new Date() },
-        });
+        const updatedUser = await this.usersRepository.update(userId, updateData);
 
         return updatedUser as any;
     }
@@ -202,21 +182,18 @@ export class UsersService {
             throw new ForbiddenException('Forbidden');
         }
 
-        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        const user = await this.usersRepository.findById(userId);
         if (!user) {
             throw new NotFoundException('User not found');
         }
 
         if (hardDelete) {
             // Hard delete - permanently remove from database
-            await this.prisma.user.delete({ where: { id: userId } });
+            await this.usersRepository.delete(userId);
             return { message: 'User permanently deleted' };
         } else {
             // Soft delete - mark as deleted
-            await this.prisma.user.update({
-                where: { id: userId },
-                data: { status: UserStatus.DELETED, deletedAt: new Date(), updatedAt: new Date() } as any,
-            });
+            await this.usersRepository.softDelete(userId);
             return { message: 'User soft deleted' };
         }
     }

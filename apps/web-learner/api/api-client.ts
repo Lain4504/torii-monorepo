@@ -78,8 +78,12 @@ apiClient.interceptors.response.use(
         // Check if error is 401 and we haven't already retried this request
         if (error.response?.status === 401 && !originalRequest._retry) {
 
-            // Avoid infinite loop: don't retry refresh endpoint itself
-            if (originalRequest.url?.includes('/auth/refresh')) {
+            // Avoid infinite loop: don't retry refresh endpoint itself or login endpoint
+            if (originalRequest.url?.includes('/auth/refresh') || originalRequest.url?.includes('/auth/login')) {
+                // If it's a login failure, just return the error so the UI can handle it
+                if (originalRequest.url?.includes('/auth/login')) {
+                    return Promise.reject(error);
+                }
                 console.warn('Token refresh failed');
                 isRefreshing = false;
                 processQueue(error);

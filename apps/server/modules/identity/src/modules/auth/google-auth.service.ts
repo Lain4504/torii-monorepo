@@ -1,0 +1,68 @@
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { OAuth2Client } from 'google-auth-library';
+import type { GoogleUserInfo } from './interfaces/oauth.interface';
+
+/**
+ * Google OAuth Service
+ * Handles Google OAuth token verification and user info extraction
+ */
+@Injectable()
+export class GoogleAuthService {
+    private readonly logger = new Logger(GoogleAuthService.name);
+    private readonly client: OAuth2Client;
+
+    constructor() {
+        const clientId = process.env.GOOGLE_CLIENT_ID;
+
+        if (!clientId) {
+            this.logger.warn('GOOGLE_CLIENT_ID not configured. Google OAuth will not work.');
+        }
+
+        this.client = new OAuth2Client(clientId);
+    }
+
+    /**
+     * Verify Google ID token and extract user information
+     */
+    async verifyIdToken(idToken: string): Promise<GoogleUserInfo> {
+        try {
+            const ticket = await this.client.verifyIdToken({
+                idToken,
+                audience: process.env.GOOGLE_CLIENT_ID,
+            });
+
+            const payload = ticket.getPayload();
+
+            if (!payload) {
+                throw new UnauthorizedException('Invalid Google ID token');
+            }
+
+            // Validate required fields
+            if (!payload.sub || !payload.email) {
+                throw new UnauthorizedException('Missing required fields in Google token');
+            }
+
+            this.logger.log(`Verified Google token for user: ${payload.email}`);
+
+            return {
+                sub: payload.sub,
+                name: payload.name || payload.email,
+                email: payload.email,
+                picture: payload.picture || '',
+                email_verified: payload.email_verified || false,
+                given_name: payload.given_name,
+                family_name: payload.family_name,
+            };
+        } catch (error) {
+            this.logger.error('Failed to verify Google ID token', error);
+            throw new UnauthorizedException('Invalid Google ID token');
+        }
+    }
+
+    /**
+     * Check if Google OAuth is configured
+     */
+    isConfigured(): boolean {
+        return !!process.env.GOOGLE_CLIENT_ID;
+    }
+}

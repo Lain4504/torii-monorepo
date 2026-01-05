@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useAppSelector } from '@/hooks/hooks'
 import { Button } from '@workspace/ui/components/button'
-import { VerificationBanner } from './verification-banner'
+
 import {
     BookOpen,
     GraduationCap,
@@ -36,7 +36,7 @@ export function Header() {
 
     return (
         <div className="flex flex-col w-full">
-            <VerificationBanner />
+
 
             {/* Main Header */}
             <header className="sticky top-0 z-50 w-full border-b border-teal-100 dark:border-teal-900 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md supports-[backdrop-filter]:bg-white/80 dark:supports-[backdrop-filter]:bg-slate-900/80 shadow-sm">

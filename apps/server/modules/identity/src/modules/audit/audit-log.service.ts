@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
+import { AuditLogRepository } from "./audit-log.repository";
 
 export interface AuditLogEntry {
     userId: string;
@@ -39,7 +39,9 @@ export interface PaginatedAuditLogs {
 export class AuditLogService {
     private readonly logger = new Logger(AuditLogService.name);
 
-    constructor(private readonly prisma: PrismaService) { }
+    constructor(
+        private readonly auditLogRepository: AuditLogRepository,
+    ) { }
 
     /**
      * Log an action to the audit log
@@ -53,21 +55,21 @@ export class AuditLogService {
                 entity: entry.entity,
             });
 
-            await this.prisma.auditLog.create({
-                data: {
-                    userId: entry.userId,
-                    userEmail: entry.userEmail,
-                    userRole: entry.userRole,
-                    action: entry.action,
-                    entity: entry.entity,
-                    entityId: entry.entityId,
-                    description: entry.description,
-                    metadata: entry.metadata || {},
-                    oldValues: entry.oldValues,
-                    newValues: entry.newValues,
-                    ipAddress: entry.ipAddress,
-                    userAgent: entry.userAgent,
+            await this.auditLogRepository.create({
+                user: {
+                    connect: { id: entry.userId },
                 },
+                userEmail: entry.userEmail,
+                userRole: entry.userRole,
+                action: entry.action,
+                entity: entry.entity,
+                entityId: entry.entityId,
+                description: entry.description,
+                metadata: entry.metadata || {},
+                oldValues: entry.oldValues,
+                newValues: entry.newValues,
+                ipAddress: entry.ipAddress,
+                userAgent: entry.userAgent,
             });
 
             this.logger.log(`Audit: ${entry.action} by ${entry.userEmail} on ${entry.entity}`);
@@ -85,18 +87,20 @@ export class AuditLogService {
     async query(filters: AuditLogFilters): Promise<PaginatedAuditLogs> {
         const { page = 1, limit = 50, startDate, endDate, ...where } = filters;
 
+        const whereClause = {
+            userId: where.userId,
+            action: where.action,
+            entity: where.entity,
+            entityId: where.entityId,
+            createdAt: {
+                gte: startDate,
+                lte: endDate,
+            },
+        };
+
         const [data, total] = await Promise.all([
-            this.prisma.auditLog.findMany({
-                where: {
-                    userId: where.userId,
-                    action: where.action,
-                    entity: where.entity,
-                    entityId: where.entityId,
-                    createdAt: {
-                        gte: startDate,
-                        lte: endDate,
-                    },
-                },
+            this.auditLogRepository.findMany({
+                where: whereClause,
                 include: {
                     user: {
                         select: {
@@ -107,22 +111,10 @@ export class AuditLogService {
                         },
                     },
                 },
-                orderBy: { createdAt: 'desc' },
                 skip: (page - 1) * limit,
                 take: limit,
             }),
-            this.prisma.auditLog.count({
-                where: {
-                    userId: where.userId,
-                    action: where.action,
-                    entity: where.entity,
-                    entityId: where.entityId,
-                    createdAt: {
-                        gte: startDate,
-                        lte: endDate,
-                    },
-                },
-            }),
+            this.auditLogRepository.count(whereClause),
         ]);
 
         return {
@@ -138,39 +130,13 @@ export class AuditLogService {
      * Get recent activity for a user
      */
     async getUserActivity(userId: string, limit = 20): Promise<any[]> {
-        return this.prisma.auditLog.findMany({
-            where: { userId },
-            orderBy: { createdAt: 'desc' },
-            take: limit,
-            include: {
-                user: {
-                    select: {
-                        id: true,
-                        email: true,
-                        displayName: true,
-                    },
-                },
-            },
-        });
+        return this.auditLogRepository.findByUserId(userId, limit);
     }
 
     /**
      * Get activity summary for entity
      */
     async getEntityActivity(entity: string, entityId: string, limit = 20): Promise<any[]> {
-        return this.prisma.auditLog.findMany({
-            where: { entity, entityId },
-            orderBy: { createdAt: 'desc' },
-            take: limit,
-            include: {
-                user: {
-                    select: {
-                        id: true,
-                        email: true,
-                        displayName: true,
-                    },
-                },
-            },
-        });
+        return this.auditLogRepository.findByEntity(entity, entityId, limit);
     }
 }
