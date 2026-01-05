@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { PrismaService } from '@server/shared';
-import { UserRole, UserStatus } from '@workspace/schemas';
+import { UserRole } from '@workspace/schemas';
 import type {
   FlashcardDeckCreateDTO,
   FlashcardDeckUpdateDTO,
@@ -79,7 +79,7 @@ export class FlashcardDeckService {
           email: `user-${userId}@temp.com`, // Temporary email
           displayName: 'User', // Temporary name
           role: UserRole.LEARNER,
-          status: UserStatus.ACTIVE,
+          // emailVerifiedAt: null (default) = pending
         },
         update: {}, // Don't update if user already exists
       });

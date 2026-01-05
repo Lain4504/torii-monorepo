@@ -1,7 +1,8 @@
 /**
  * 2FA Method Types
+ * Currently only TOTP (Google Authenticator) is supported
  */
-export type TwoFactorMethod = 'totp' | 'email' | 'sms';
+export type TwoFactorMethod = 'totp';
 
 /**
  * 2FA Status Response
@@ -9,7 +10,6 @@ export type TwoFactorMethod = 'totp' | 'email' | 'sms';
 export interface TwoFactorAuthStatus {
     isEnabled: boolean;
     method?: TwoFactorMethod;
-    phoneNumber?: string; // Masked: +84***1234
     backupCodesRemaining?: number;
     enabledAt?: Date;
     lastUsedAt?: Date;

@@ -258,19 +258,35 @@ model AuditLog {
 
 model User {
   id          String    @id @default(uuid()) @db.Uuid
-  password    String?   @db.VarChar(255) // Nullable for now or required if strictly no firebase
   email       String    @unique @db.VarChar(255)
   displayName String    @map("display_name") @db.VarChar(100)
+  
+  // Auth fields
+  password    String?   @db.VarChar(255) // Nullable for OAuth-only users
+  
+  // Profile fields
+  avatarUrl   String?   @map("avatar_url") @db.Text
+  
+  // Metadata (JSON for flexibility)
+  appMetadata  Json?    @default("{}") @map("app_metadata")  // App-specific data (providers, etc.)
+  userMetadata Json?    @default("{}") @map("user_metadata") // User profile data from OAuth
+  
+  // Role
   role        String    @default("learner") @db.VarChar(50)
-  status      String    @default("active") @db.VarChar(20)
-  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp()
-  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamp()
-  deletedAt   DateTime? @map("deleted_at") @db.Timestamp()
+  
+  // Timestamps (replace status field - Supabase pattern)
+  verifiedAt      DateTime? @map("verified_at") @db.Timestamp()  // null = not verified (pending)
+  bannedUntil     DateTime? @map("banned_until") @db.Timestamp()       // null = not banned, value = banned until this time
+  lastSignInAt    DateTime? @map("last_sign_in_at") @db.Timestamp()
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamp()
+  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamp()
+  deletedAt       DateTime? @map("deleted_at") @db.Timestamp()          // null = not deleted, value = soft deleted
 
   // Relations
+  identities      UserIdentity[]   // OAuth providers (email, google, etc.)
   userPermissions UserPermission[]
   refreshTokens   RefreshToken[]
-  twoFactorAuth   TwoFactorAuth?   // ← New: 2FA configuration
+  twoFactorAuth   TwoFactorAuth?
   flashcardDecks  FlashcardDeck[]
   blogComments    BlogComment[]
   auditLogs       AuditLog[]       @relation("UserAuditLogs")
@@ -278,8 +294,33 @@ model User {
 
   @@index([email])
   @@index([role])
-  @@index([status])
   @@map("users")
+}
+
+// User Identity Model - For OAuth providers (email, google, etc.)
+model UserIdentity {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  
+  // Provider info
+  provider   String   @db.VarChar(50)  // 'email', 'google', etc.
+  providerId String   @map("provider_id") @db.VarChar(255) // Provider's user ID
+  
+  // Provider metadata
+  providerData Json?  @map("provider_data") // Raw data from provider
+  
+  // Timestamps
+  lastSignInAt DateTime? @map("last_sign_in_at") @db.Timestamp()
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamp()
+  updatedAt    DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamp()
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([provider, providerId]) // Prevent duplicate provider accounts
+  @@index([userId])
+  @@index([provider])
+  @@map("user_identities")
 }
 
 // Refresh Token Model - For JWT refresh token rotation
@@ -307,15 +348,11 @@ model TwoFactorAuth {
 
   // 2FA Status
   isEnabled Boolean @default(false) @map("is_enabled")
-  method    String? @db.VarChar(20) // 'totp', 'email', 'sms'
+  method    String? @db.VarChar(20) // Currently only 'totp' supported (Google Authenticator)
 
   // TOTP Configuration (for Google Authenticator)
   totpSecret      String?  @map("totp_secret") @db.VarChar(255) // Encrypted with AES-256-GCM
   totpBackupCodes String[] @default([]) @map("totp_backup_codes") @db.VarChar(100) // Hashed with Argon2
-
-  // Phone for SMS (optional)
-  phoneNumber   String?  @map("phone_number") @db.VarChar(20)
-  phoneVerified Boolean  @default(false) @map("phone_verified")
 
   // Security & Metadata
   enabledAt      DateTime? @map("enabled_at") @db.Timestamp()
@@ -495,7 +532,7 @@ model Notification {
   title            String    @db.VarChar(255)
   message          String    @db.Text
   notificationType String?   @map("notification_type") @db.VarChar(50)
-  data             Json?     @map("data")
+  metadata             Json?     @map("data")
   isRead           Boolean   @default(false) @map("is_read")
   readAt           DateTime? @map("read_at")
   sentVia          String[]  @default([]) @map("sent_via") @db.VarChar(20)

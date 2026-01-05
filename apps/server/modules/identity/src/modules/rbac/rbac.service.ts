@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService, AuditLogService } from '@server/shared';
+import { PrismaService } from '@server/shared';
 import { RBACConfigService } from './rbac-config.service';
+import {AuditLogService} from "../audit/audit-log.service";
 
 export interface UserPermissions {
     permissions: string[];

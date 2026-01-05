@@ -2,7 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaService } from './prisma.service';
 import { JwtTokenProvider } from './providers/jwt-token.provider';
-import { AuditLogService } from '@server/shared/audit';
+import { AuditLogService } from '../../../modules/identity/src/modules/audit';
 
 import { RedisModule } from './redis/redis.module';
 

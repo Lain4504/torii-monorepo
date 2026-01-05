@@ -104,7 +104,7 @@ export * from './redis/redis.module';
 export * from './redis/redis.provider';
 
 // Audit logging
-export * from './audit';
+export * from '../../../modules/identity/src/modules/audit';
 
 // Encryption
 export * from './encryption';

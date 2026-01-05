@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, Length, IsOptional, IsPhoneNumber } from 'class-validator';
+import { IsString, IsNotEmpty, Length, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 /**
@@ -64,28 +64,4 @@ export class Disable2FADto {
     password: string;
 }
 
-/**
- * DTO for enabling SMS 2FA
- */
-export class EnableSmsDto {
-    @ApiProperty({
-        description: 'Phone number in E.164 format',
-        example: '+84901234567',
-    })
-    @IsPhoneNumber()
-    @IsNotEmpty()
-    phoneNumber: string;
-}
 
-/**
- * DTO for verifying phone number
- */
-export class VerifyPhoneDto {
-    @ApiProperty({
-        description: '6-digit verification code sent via SMS',
-        example: '123456',
-    })
-    @IsString()
-    @Length(6, 6)
-    code: string;
-}

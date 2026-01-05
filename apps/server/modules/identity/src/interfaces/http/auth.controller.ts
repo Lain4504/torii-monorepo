@@ -30,46 +30,11 @@ export class AuthController {
         try {
             const user = await this.authService.register(dto);
 
-            // AUTO-LOGIN: Generate tokens after registration
-            const accessToken = await this.authService['jwtTokenProvider'].generateToken({
-                sub: user.id,
-                role: user.role as any,
-            });
-            const refreshToken = await this.refreshTokenService.createRefreshToken(user.id);
-
-            // Check Platform
-            const platform = req.headers['x-platform'];
-
-            if (platform === 'mobile') {
-                return {
-                    success: true,
-                    data: {
-                        user,
-                        access_token: accessToken,
-                        refresh_token: refreshToken,
-                    }
-                };
-            } else {
-                // Web: Set httpOnly cookies
-                res.cookie('access_token', accessToken, {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production',
-                    sameSite: 'lax',
-                    maxAge: 15 * 60 * 1000 // 15 minutes
-                });
-
-                res.cookie('refresh_token', refreshToken, {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production',
-                    sameSite: 'lax',
-                    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-                });
-
-                return {
-                    success: true,
-                    data: { user }
-                };
-            }
+            return {
+                success: true,
+                message: 'Registration successful. Please check your email to verify your account.',
+                data: { user }
+            };
         } catch (error: any) {
             return {
                 success: false,
@@ -224,25 +189,13 @@ export class AuthController {
                             email: user!.email,
                             displayName: user!.displayName,
                             role: user!.role,
-                            status: user!.status,
+                            verifiedAt: user!.verifiedAt,
                         }
                     }
                 };
             } else {
                 // Web: Set httpOnly cookies
-                res.cookie('access_token', accessToken, {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production',
-                    sameSite: 'lax',
-                    maxAge: 15 * 60 * 1000 // 15 minutes
-                });
-
-                res.cookie('refresh_token', refreshToken, {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production',
-                    sameSite: 'lax',
-                    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-                });
+                this.setAuthCookies(res, accessToken!, refreshToken);
 
                 return {
                     success: true,
@@ -252,7 +205,7 @@ export class AuthController {
                             email: user!.email,
                             displayName: user!.displayName,
                             role: user!.role,
-                            status: user!.status,
+                            verifiedAt: user!.verifiedAt,
                         }
                     }
                 };
@@ -303,25 +256,13 @@ export class AuthController {
                             email: user.email,
                             displayName: user.displayName,
                             role: user.role,
-                            status: user.status,
+                            verifiedAt: user.verifiedAt,
                         }
                     }
                 };
             } else {
                 // Web: Set httpOnly cookies
-                res.cookie('access_token', accessToken, {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production',
-                    sameSite: 'lax',
-                    maxAge: 15 * 60 * 1000 // 15 minutes
-                });
-
-                res.cookie('refresh_token', refreshToken, {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production',
-                    sameSite: 'lax',
-                    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-                });
+                this.setAuthCookies(res, accessToken, refreshToken);
 
                 return {
                     success: true,
@@ -331,7 +272,7 @@ export class AuthController {
                             email: user.email,
                             displayName: user.displayName,
                             role: user.role,
-                            status: user.status,
+                            verifiedAt: user.verifiedAt,
                         }
                     }
                 };
@@ -340,6 +281,150 @@ export class AuthController {
             return {
                 success: false,
                 message: error.message || '2FA verification failed'
+            };
+        }
+    }
+
+    /**
+     * Login/Register with Google OAuth
+     * POST /auth/google
+     */
+    @Post('google')
+    @HttpCode(HttpStatus.OK)
+    async googleAuth(
+        @Body('idToken') idToken: string,
+        @Request() req,
+        @Res({ passthrough: true }) res: Response
+    ) {
+        if (!idToken) {
+            throw new BadRequestException('Google ID token is required');
+        }
+
+        try {
+            const { user, accessToken } = await this.authService.registerWithGoogle(idToken);
+
+            // Generate refresh token
+            const refreshToken = await this.refreshTokenService.createRefreshToken(user.id);
+
+            // Check Platform
+            const platform = req.headers['x-platform'];
+
+            if (platform === 'mobile') {
+                return {
+                    success: true,
+                    data: {
+                        access_token: accessToken,
+                        refresh_token: refreshToken,
+                        user: {
+                            id: user.id,
+                            email: user.email,
+                            displayName: user.displayName,
+                            role: user.role,
+                            verifiedAt: user.verifiedAt,
+                        }
+                    }
+                };
+            } else {
+                // Web: Set httpOnly cookies
+                this.setAuthCookies(res, accessToken, refreshToken);
+
+                return {
+                    success: true,
+                    data: {
+                        user: {
+                            id: user.id,
+                            email: user.email,
+                            displayName: user.displayName,
+                            role: user.role,
+                            verifiedAt: user.verifiedAt,
+                        }
+                    }
+                };
+            }
+        } catch (error: any) {
+            return {
+                success: false,
+                message: error.message || 'Google authentication failed'
+            };
+        }
+    }
+
+    /**
+     * Link Google account to existing user
+     * POST /auth/link/google
+     */
+    @Post('link/google')
+    @UseGuards(GatewayAuthGuard)
+    @HttpCode(HttpStatus.OK)
+    async linkGoogle(
+        @Request() req: ReqWithRequester,
+        @Body('idToken') idToken: string
+    ) {
+        if (!idToken) {
+            throw new BadRequestException('Google ID token is required');
+        }
+
+        try {
+            await this.authService.linkGoogleAccount(req.requester.sub, idToken);
+            return {
+                success: true,
+                message: 'Google account linked successfully',
+                provider: 'google'
+            };
+        } catch (error: any) {
+            return {
+                success: false,
+                message: error.message || 'Failed to link Google account'
+            };
+        }
+    }
+
+    /**
+     * Unlink OAuth provider
+     * DELETE /auth/link/:provider
+     */
+    @Delete('link/:provider')
+    @UseGuards(GatewayAuthGuard)
+    @HttpCode(HttpStatus.OK)
+    async unlinkProvider(
+        @Request() req: ReqWithRequester,
+        @Query('provider') provider: string
+    ) {
+        if (!provider) {
+            throw new BadRequestException('Provider is required');
+        }
+
+        try {
+            await this.authService.unlinkProvider(req.requester.sub, provider);
+            return {
+                success: true,
+                message: `${provider} account unlinked successfully`
+            };
+        } catch (error: any) {
+            return {
+                success: false,
+                message: error.message || 'Failed to unlink provider'
+            };
+        }
+    }
+
+    /**
+     * Get linked providers for authenticated user
+     * GET /auth/linked-providers
+     */
+    @Get('linked-providers')
+    @UseGuards(GatewayAuthGuard)
+    async getLinkedProviders(@Request() req: ReqWithRequester) {
+        try {
+            const providers = await this.authService.getLinkedProviders(req.requester.sub);
+            return {
+                success: true,
+                data: { providers }
+            };
+        } catch (error: any) {
+            return {
+                success: false,
+                message: error.message || 'Failed to get linked providers'
             };
         }
     }
@@ -400,19 +485,7 @@ export class AuthController {
             };
         } else {
             // Web: Set httpOnly cookies
-            res.cookie('access_token', newAccessToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'lax',
-                maxAge: 15 * 60 * 1000 // 15 minutes
-            });
-
-            res.cookie('refresh_token', newRefreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'lax',
-                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-            });
+            this.setAuthCookies(res, newAccessToken, newRefreshToken);
 
             return {
                 success: true,
@@ -510,5 +583,23 @@ export class AuthController {
                 message: error.message || 'Failed to delete profile'
             };
         }
+    }
+    /**
+     * Helper to set auth cookies
+     */
+    private setAuthCookies(res: Response, accessToken: string, refreshToken: string) {
+        res.cookie('access_token', accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 15 * 60 * 1000, // 15 minutes
+        });
+
+        res.cookie('refresh_token', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
     }
 }

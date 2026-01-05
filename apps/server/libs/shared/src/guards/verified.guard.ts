@@ -5,7 +5,6 @@ import {
     ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { UserStatus } from '@workspace/schemas';
 
 @Injectable()
 export class VerifiedGuard implements CanActivate {
@@ -21,10 +20,15 @@ export class VerifiedGuard implements CanActivate {
 
         const user = await this.prisma.user.findUnique({
             where: { id: sub },
-            select: { status: true },
+            select: {
+                verifiedAt: true,
+                bannedUntil: true,
+                deletedAt: true,
+            },
         });
 
-        if (!user || user.status !== UserStatus.ACTIVE) {
+        // Check if email verified and not banned/deleted
+        if (!user || !user.verifiedAt || user.deletedAt || (user.bannedUntil && user.bannedUntil > new Date())) {
             throw new ForbiddenException(
                 'Vui lòng xác thực email để thực hiện chức năng này.'
             );

@@ -6,7 +6,6 @@ import {
     NotFoundException,
     Inject,
 } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
 import { authenticator } from 'otplib';
 import * as QRCode from 'qrcode';
 import * as argon2 from 'argon2';
@@ -23,7 +22,7 @@ import type {
 
 /**
  * Two-Factor Authentication Service
- * Handles TOTP, Email OTP, and SMS OTP authentication
+ * Handles TOTP (Google Authenticator) authentication only
  */
 @Injectable()
 export class TwoFactorAuthService {
@@ -35,7 +34,6 @@ export class TwoFactorAuthService {
         private readonly twoFactorAuthRepository: TwoFactorAuthRepository,
         private readonly encryptionService: EncryptionService,
         @Inject(REDIS_CLIENT) private readonly redis: Redis,
-        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     ) {
         // Configure TOTP settings
         authenticator.options = {
@@ -142,9 +140,7 @@ export class TwoFactorAuthService {
         // Check rate limiting
         await this.checkRateLimit(userId);
 
-        const twoFactorAuth = await this.prisma.twoFactorAuth.findUnique({
-            where: { userId },
-        });
+        const twoFactorAuth = await this.twoFactorAuthRepository.findByUserId(userId);
 
         if (!twoFactorAuth || !twoFactorAuth.isEnabled || !twoFactorAuth.totpSecret) {
             throw new BadRequestException('TOTP 2FA is not enabled');
@@ -171,10 +167,7 @@ export class TwoFactorAuthService {
             await this.resetFailedAttempts(userId);
 
             // Update last used
-            await this.prisma.twoFactorAuth.update({
-                where: { userId },
-                data: { lastUsedAt: new Date() },
-            });
+            await this.twoFactorAuthRepository.updateLastUsed(userId);
 
             this.logger.log(`TOTP verification successful for user ${userId}`);
             return true;
@@ -216,9 +209,7 @@ export class TwoFactorAuthService {
         // Check rate limiting
         await this.checkRateLimit(userId);
 
-        const twoFactorAuth = await this.prisma.twoFactorAuth.findUnique({
-            where: { userId },
-        });
+        const twoFactorAuth = await this.twoFactorAuthRepository.findByUserId(userId);
 
         if (!twoFactorAuth || !twoFactorAuth.isEnabled) {
             throw new BadRequestException('2FA is not enabled');
@@ -254,9 +245,7 @@ export class TwoFactorAuthService {
      * Regenerate backup codes
      */
     async regenerateBackupCodes(userId: string): Promise<string[]> {
-        const twoFactorAuth = await this.prisma.twoFactorAuth.findUnique({
-            where: { userId },
-        });
+        const twoFactorAuth = await this.twoFactorAuthRepository.findByUserId(userId);
 
         if (!twoFactorAuth || !twoFactorAuth.isEnabled) {
             throw new BadRequestException('2FA is not enabled');
@@ -276,206 +265,19 @@ export class TwoFactorAuthService {
     }
 
     // ========================================
-    // Email/SMS OTP Methods
-    // ========================================
-
-    /**
-     * Send Email OTP
-     */
-    async sendEmailOtp(userId: string): Promise<void> {
-        const user = await this.prisma.user.findUnique({
-            where: { id: userId },
-            select: { email: true, displayName: true },
-        });
-
-        if (!user) {
-            throw new NotFoundException('User not found');
-        }
-
-        // Generate 6-digit OTP
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-        // Store in Redis with 5 minutes expiry
-        await this.redis.set(`2fa:email:${userId}`, otp, 'EX', 300);
-
-        // Emit NATS event for notification service
-        this.natsClient.emit('auth.2fa.email', {
-            email: user.email,
-            displayName: user.displayName,
-            otp,
-        });
-
-        this.logger.log(`Email OTP sent to user ${userId}`);
-    }
-
-    /**
-     * Send SMS OTP
-     */
-    async sendSmsOtp(userId: string): Promise<void> {
-        const twoFactorAuth = await this.prisma.twoFactorAuth.findUnique({
-            where: { userId },
-        });
-
-        if (!twoFactorAuth || !twoFactorAuth.phoneNumber || !twoFactorAuth.phoneVerified) {
-            throw new BadRequestException('Phone number not verified');
-        }
-
-        // Generate 6-digit OTP
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-        // Store in Redis with 5 minutes expiry
-        await this.redis.set(`2fa:sms:${userId}`, otp, 'EX', 300);
-
-        // Emit NATS event for SMS service
-        this.natsClient.emit('auth.2fa.sms', {
-            phoneNumber: twoFactorAuth.phoneNumber,
-            otp,
-        });
-
-        this.logger.log(`SMS OTP sent to user ${userId}`);
-    }
-
-    /**
-     * Verify Email/SMS OTP
-     */
-    async verifyOtp(
-        userId: string,
-        code: string,
-        method: '2fa-email' | '2fa-sms',
-    ): Promise<boolean> {
-        // Check rate limiting
-        await this.checkRateLimit(userId);
-
-        const key = method === '2fa-email' ? `2fa:email:${userId}` : `2fa:sms:${userId}`;
-        const storedOtp = await this.redis.get(key);
-
-        if (!storedOtp) {
-            throw new BadRequestException('OTP expired or not found');
-        }
-
-        if (storedOtp === code) {
-            // Delete OTP
-            await this.redis.del(key);
-
-            // Reset failed attempts
-            await this.resetFailedAttempts(userId);
-
-            // Update last used
-            await this.prisma.twoFactorAuth.update({
-                where: { userId },
-                data: { lastUsedAt: new Date() },
-            });
-
-            this.logger.log(`${method} OTP verification successful for user ${userId}`);
-            return true;
-        } else {
-            // Increment failed attempts
-            await this.incrementFailedAttempts(userId);
-            return false;
-        }
-    }
-
-    // ========================================
     // Management Methods
     // ========================================
-
-    /**
-     * Enable Email 2FA
-     */
-    async enableEmailOtp(userId: string): Promise<void> {
-        await this.prisma.twoFactorAuth.upsert({
-            where: { userId },
-            create: {
-                userId,
-                isEnabled: true,
-                method: 'email',
-                enabledAt: new Date(),
-            },
-            update: {
-                isEnabled: true,
-                method: 'email',
-                enabledAt: new Date(),
-                failedAttempts: 0,
-                lockedUntil: null,
-            },
-        });
-
-        this.logger.log(`Email 2FA enabled for user ${userId}`);
-    }
-
-    /**
-     * Enable SMS 2FA (requires phone verification first)
-     */
-    async enableSmsOtp(userId: string, phoneNumber: string): Promise<void> {
-        // Generate verification OTP
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-        // Store in Redis with 10 minutes expiry
-        await this.redis.set(`2fa:phone-verify:${userId}`, otp, 'EX', 600);
-
-        // Save phone number (not verified yet)
-        await this.prisma.twoFactorAuth.upsert({
-            where: { userId },
-            create: {
-                userId,
-                phoneNumber,
-                phoneVerified: false,
-            },
-            update: {
-                phoneNumber,
-                phoneVerified: false,
-            },
-        });
-
-        // Emit NATS event for SMS service
-        this.natsClient.emit('auth.2fa.phone-verify', {
-            phoneNumber,
-            otp,
-        });
-
-        this.logger.log(`Phone verification OTP sent to user ${userId}`);
-    }
-
-    /**
-     * Verify phone number
-     */
-    async verifyPhone(userId: string, code: string): Promise<void> {
-        const storedOtp = await this.redis.get(`2fa:phone-verify:${userId}`);
-
-        if (!storedOtp || storedOtp !== code) {
-            throw new BadRequestException('Invalid or expired verification code');
-        }
-
-        // Delete OTP
-        await this.redis.del(`2fa:phone-verify:${userId}`);
-
-        // Update phone as verified and enable SMS 2FA
-        await this.prisma.twoFactorAuth.update({
-            where: { userId },
-            data: {
-                phoneVerified: true,
-                isEnabled: true,
-                method: 'sms',
-                enabledAt: new Date(),
-            },
-        });
-
-        this.logger.log(`Phone verified and SMS 2FA enabled for user ${userId}`);
-    }
 
     /**
      * Disable 2FA
      */
     async disable2FA(userId: string): Promise<void> {
-        await this.prisma.twoFactorAuth.update({
-            where: { userId },
-            data: {
-                isEnabled: false,
-                totpSecret: null,
-                totpBackupCodes: [],
-                failedAttempts: 0,
-                lockedUntil: null,
-            },
+        await this.twoFactorAuthRepository.update(userId, {
+            isEnabled: false,
+            totpSecret: null,
+            totpBackupCodes: [],
+            failedAttempts: 0,
+            lockedUntil: null,
         });
 
         this.logger.log(`2FA disabled for user ${userId}`);
@@ -485,25 +287,15 @@ export class TwoFactorAuthService {
      * Get 2FA status
      */
     async get2FAStatus(userId: string): Promise<TwoFactorAuthStatus> {
-        const twoFactorAuth = await this.prisma.twoFactorAuth.findUnique({
-            where: { userId },
-        });
+        const twoFactorAuth = await this.twoFactorAuthRepository.findByUserId(userId);
 
         if (!twoFactorAuth || !twoFactorAuth.isEnabled) {
             return { isEnabled: false };
         }
 
-        // Mask phone number
-        let maskedPhone: string | undefined;
-        if (twoFactorAuth.phoneNumber) {
-            const phone = twoFactorAuth.phoneNumber;
-            maskedPhone = phone.slice(0, 3) + '***' + phone.slice(-4);
-        }
-
         return {
             isEnabled: true,
             method: twoFactorAuth.method as TwoFactorMethod,
-            phoneNumber: maskedPhone,
             backupCodesRemaining: twoFactorAuth.totpBackupCodes.length,
             enabledAt: twoFactorAuth.enabledAt || undefined,
             lastUsedAt: twoFactorAuth.lastUsedAt || undefined,
@@ -551,12 +343,10 @@ export class TwoFactorAuthService {
             await this.redis.set(`2fa:locked:${userId}`, '1', 'EX', 1800);
 
             // Update database
-            await this.prisma.twoFactorAuth.update({
-                where: { userId },
-                data: {
-                    lockedUntil: new Date(Date.now() + 30 * 60 * 1000),
-                    failedAttempts: attempts,
-                },
+            const lockUntil = new Date(Date.now() + 30 * 60 * 1000);
+            await this.twoFactorAuthRepository.update(userId, {
+                lockedUntil: lockUntil,
+                failedAttempts: attempts,
             });
 
             this.logger.warn(`User ${userId} locked due to ${attempts} failed 2FA attempts`);
@@ -570,12 +360,6 @@ export class TwoFactorAuthService {
         await this.redis.del(`2fa:attempts:${userId}`);
         await this.redis.del(`2fa:locked:${userId}`);
 
-        await this.prisma.twoFactorAuth.update({
-            where: { userId },
-            data: {
-                failedAttempts: 0,
-                lockedUntil: null,
-            },
-        });
+        await this.twoFactorAuthRepository.resetFailedAttempts(userId);
     }
 }

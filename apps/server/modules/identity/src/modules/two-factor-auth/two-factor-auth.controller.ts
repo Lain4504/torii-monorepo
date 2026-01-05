@@ -16,8 +16,6 @@ import type { ReqWithRequester } from '@workspace/schemas';
 import {
     EnableTotpDto,
     Disable2FADto,
-    EnableSmsDto,
-    VerifyPhoneDto,
 } from './dto/two-factor-auth.dto';
 import * as argon2 from 'argon2';
 import { PrismaService } from '@server/shared';
@@ -112,75 +110,6 @@ export class TwoFactorAuthController {
     }
 
     // ========================================
-    // Email 2FA Endpoints
-    // ========================================
-
-    @Post('email/enable')
-    @HttpCode(HttpStatus.OK)
-    @ApiOperation({ summary: 'Enable Email OTP 2FA' })
-    @ApiResponse({
-        status: 200,
-        description: 'Email 2FA enabled successfully',
-    })
-    async enableEmailOtp(@Request() req: ReqWithRequester) {
-        await this.twoFactorAuthService.enableEmailOtp(req.requester.sub);
-
-        return {
-            success: true,
-            message: 'Email 2FA enabled successfully',
-        };
-    }
-
-    // ========================================
-    // SMS 2FA Endpoints
-    // ========================================
-
-    @Post('sms/enable')
-    @HttpCode(HttpStatus.OK)
-    @ApiOperation({ summary: 'Enable SMS OTP 2FA (sends verification code)' })
-    @ApiResponse({
-        status: 200,
-        description: 'Verification code sent to phone number',
-    })
-    async enableSmsOtp(
-        @Request() req: ReqWithRequester,
-        @Body() dto: EnableSmsDto,
-    ) {
-        await this.twoFactorAuthService.enableSmsOtp(
-            req.requester.sub,
-            dto.phoneNumber,
-        );
-
-        return {
-            success: true,
-            message: 'Verification code sent to your phone number',
-        };
-    }
-
-    @Post('sms/verify-phone')
-    @HttpCode(HttpStatus.OK)
-    @ApiOperation({ summary: 'Verify phone number and enable SMS 2FA' })
-    @ApiResponse({
-        status: 200,
-        description: 'Phone verified and SMS 2FA enabled',
-    })
-    @ApiResponse({
-        status: 400,
-        description: 'Invalid verification code',
-    })
-    async verifyPhone(
-        @Request() req: ReqWithRequester,
-        @Body() dto: VerifyPhoneDto,
-    ) {
-        await this.twoFactorAuthService.verifyPhone(req.requester.sub, dto.code);
-
-        return {
-            success: true,
-            message: 'Phone verified and SMS 2FA enabled successfully',
-        };
-    }
-
-    // ========================================
     // Backup Codes Endpoints
     // ========================================
 
@@ -202,6 +131,7 @@ export class TwoFactorAuthController {
             message: 'Backup codes regenerated. Please save them in a safe place.',
         };
     }
+
 
     // ========================================
     // Status Endpoint
