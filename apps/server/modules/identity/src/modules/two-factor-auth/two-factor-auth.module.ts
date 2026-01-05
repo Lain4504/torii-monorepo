@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TwoFactorAuthService } from './two-factor-auth.service';
 import { TwoFactorAuthController } from './two-factor-auth.controller';
 import { TwoFactorAuthRepository } from './two-factor-auth.repository';
-import { PrismaService, NatsClientModule, RedisModule, EncryptionModule } from '@server/shared';
+import { PrismaService, NatsClientModule, RedisModule, EncryptionModule, JwtTokenProvider, GatewayAuthGuard } from '@server/shared';
 
 /**
  * Two-Factor Authentication Module
@@ -19,6 +19,8 @@ import { PrismaService, NatsClientModule, RedisModule, EncryptionModule } from '
         TwoFactorAuthService,
         TwoFactorAuthRepository,
         PrismaService,
+        JwtTokenProvider,
+        GatewayAuthGuard,
     ],
     exports: [TwoFactorAuthService],
 })

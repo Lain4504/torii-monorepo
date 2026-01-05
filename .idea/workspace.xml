@@ -6,11 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(auth): update user status handling and improve UI components">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/users/create-user-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/users/create-user-dialog.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/users/edit-user-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/users/edit-user-dialog.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/users/users-primary-toolbar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/users/users-primary-toolbar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/users/users-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/users/users-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/guards/gateway-auth.guard.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/auth.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/two-factor-auth/two-factor-auth.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/two-factor-auth/two-factor-auth.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/two-factor-auth/two-factor-auth.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/two-factor-auth/two-factor-auth.module.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -18,7 +17,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="674" />
+    <option name="cachedIndexableFilesCount" value="676" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -122,7 +121,7 @@
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;2fa-auth&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
@@ -255,6 +254,7 @@
       <workItem from="1767587330164" duration="542000" />
       <workItem from="1767602622981" duration="7446000" />
       <workItem from="1767618667139" duration="1110000" />
+      <workItem from="1767623108138" duration="3167000" />
     </task>
     <task id="LOCAL-00416" summary="chore: remove Firebase dependencies and restore JWT-based authentication system&#10;&#10;- Removed `firebase` and related packages from `web-admin` and lockfile.&#10;- Added `argon2` for password hashing and `JwtTokenProvider` to `AuthController`.&#10;- Introduced new guards for API key and role-based protection (`api-key.guard`, `roles.guard`, `roles.decorator`).">
       <option name="closed" value="true" />

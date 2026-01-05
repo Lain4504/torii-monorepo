@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { TwoFactorAuthService } from './two-factor-auth.service';
-import { JwtAuthGuard } from '@server/shared';
+import { GatewayAuthGuard } from '@server/shared';
 import type { ReqWithRequester } from '@workspace/schemas';
 import {
     EnableTotpDto,
@@ -26,7 +26,7 @@ import { PrismaService } from '@server/shared';
  */
 @ApiTags('Two-Factor Authentication')
 @Controller('auth/2fa')
-@UseGuards(JwtAuthGuard)
+@UseGuards(GatewayAuthGuard)
 @ApiBearerAuth()
 export class TwoFactorAuthController {
     constructor(

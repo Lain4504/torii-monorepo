@@ -166,7 +166,6 @@ export class AuthService {
      * Valid for 5 minutes
      */
     private async generate2FATempToken(userId: string, email: string, method: string): Promise<string> {
-        const jwt = await import('jsonwebtoken');
         const tempTokenExpiry = parseInt(process.env.TWO_FACTOR_TEMP_TOKEN_EXPIRY || '300'); // 5 minutes
 
         const payload = {
@@ -176,10 +175,11 @@ export class AuthService {
             type: '2fa-temp',
         };
 
-        // Generate token with JWT directly
-        const token = jwt.sign(payload, process.env.JWT_SECRET!, {
-            expiresIn: tempTokenExpiry,
-        });
+        // Generate token using JwtTokenProvider
+        const token = await this.jwtTokenProvider.generateToken(
+            payload as any,
+            `${tempTokenExpiry}s` // Convert to seconds format (e.g., "300s")
+        );
 
         // Store in Redis with expiry
         await this.redis.set(`2fa:temp:${userId}`, token, 'EX', tempTokenExpiry);

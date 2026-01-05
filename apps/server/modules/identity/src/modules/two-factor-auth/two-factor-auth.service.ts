@@ -49,6 +49,15 @@ export class TwoFactorAuthService {
      * Generate TOTP secret and QR code for user
      */
     async generateTotpSecret(userId: string): Promise<TotpSetupResponse> {
+        // Check if 2FA is already enabled
+        const existing2FA = await this.twoFactorAuthRepository.findByUserId(userId);
+
+        if (existing2FA && existing2FA.isEnabled) {
+            throw new BadRequestException(
+                '2FA is already enabled. Please disable it first if you want to reconfigure.'
+            );
+        }
+
         const user = await this.prisma.user.findUnique({
             where: { id: userId },
             select: { email: true, displayName: true },
@@ -89,6 +98,15 @@ export class TwoFactorAuthService {
         secret: string,
         code: string,
     ): Promise<EnableTotpResponse> {
+        // Check if 2FA is already enabled
+        const existing2FA = await this.twoFactorAuthRepository.findByUserId(userId);
+
+        if (existing2FA && existing2FA.isEnabled) {
+            throw new BadRequestException(
+                '2FA is already enabled. Please disable it first if you want to reconfigure.'
+            );
+        }
+
         // Verify the code with the secret
         const isValid = authenticator.verify({ token: code, secret });
 
