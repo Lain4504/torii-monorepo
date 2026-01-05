@@ -1,6 +1,6 @@
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
-import { SenseiAgentService } from './sensei-agent.service';
+import { SenseiAgentService } from '../../sensei-agent/sensei-agent.service';
 
 @Controller()
 export class SenseiAgentController {

@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
 import { SenseiAgentService } from './sensei-agent.service';
-import { SenseiAgentController } from './sensei-agent.controller';
 
 @Module({
-  controllers: [SenseiAgentController],
+  controllers: [],
   providers: [SenseiAgentService],
   exports: [SenseiAgentService],
 })

@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
 import { AssessmentAgentService } from './assessment-agent.service';
-import { AssessmentAgentController } from './assessment-agent.controller';
 
 @Module({
-  controllers: [AssessmentAgentController],
+  controllers: [],
   providers: [AssessmentAgentService],
   exports: [AssessmentAgentService],
 })

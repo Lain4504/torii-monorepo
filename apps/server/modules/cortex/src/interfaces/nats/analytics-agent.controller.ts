@@ -1,6 +1,6 @@
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
-import { AnalyticsAgentService } from './analytics-agent.service';
+import { AnalyticsAgentService } from '../../analytics-agent/analytics-agent.service';
 
 @Controller()
 export class AnalyticsAgentController {

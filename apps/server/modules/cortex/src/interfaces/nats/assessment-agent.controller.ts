@@ -1,6 +1,6 @@
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
-import { AssessmentAgentService } from './assessment-agent.service';
+import { AssessmentAgentService } from '../../assessment-agent/assessment-agent.service';
 
 @Controller()
 export class AssessmentAgentController {
