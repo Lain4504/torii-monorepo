@@ -19,7 +19,7 @@ import { userAdminUpdateDTOSchema, type UserAdminUpdateDTO } from '@workspace/sc
 type UpdateUserFormData = UserAdminUpdateDTO;
 
 import { toast } from '@workspace/ui/components/sonner';
-import {useUpdateUser} from "@/api/services/users.ts";
+import { useUpdateUser } from "@/api/services/users.ts";
 
 interface EditUserDialogProps {
     open: boolean;
@@ -45,7 +45,6 @@ export function EditUserDialog({
             displayName: user.displayName,
             email: user.email,
             role: user.role as any,
-            status: user.status as any,
         } : undefined,
     });
 
@@ -122,25 +121,7 @@ export function EditUserDialog({
                         )}
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Status</label>
-                        <Select
-                            value={watch('status')}
-                            onValueChange={(value) => setValue('status', value as any)}
-                        >
-                            <SelectTrigger>
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="active">Active</SelectItem>
-                                <SelectItem value="inactive">Inactive</SelectItem>
-                                <SelectItem value="suspended">Suspended</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        {errors.status && (
-                            <p className="text-sm text-destructive">{errors.status.message}</p>
-                        )}
-                    </div>
+
 
                     <div className="flex justify-end gap-3 pt-4">
                         <Button

@@ -1,5 +1,6 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
-import { AuditLogService, type AuditLogFilters, GatewayAuthGuard } from '@server/shared';
+import { GatewayAuthGuard } from '@server/shared';
+import {AuditLogFilters, AuditLogService} from "../../modules/audit/audit-log.service";
 
 @UseGuards(GatewayAuthGuard)
 @Controller('admin/audit-logs')

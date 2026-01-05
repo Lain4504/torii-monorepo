@@ -8,7 +8,7 @@ export const notificationResponseDTOSchema = z.object({
     title: z.string(),
     message: z.string(),
     notificationType: z.nativeEnum(NotificationType),
-    data: z.any().optional(),
+    metadata: z.any().optional(),
     isRead: z.boolean(),
     readAt: z.date().optional(),
     sentVia: z.array(z.string()),
@@ -30,7 +30,7 @@ export const notificationCreateDTOSchema = z.object({
     title: z.string().min(1),
     message: z.string().min(1),
     notificationType: z.nativeEnum(NotificationType),
-    data: z.any().optional(),
+    metadata: z.any().optional(),
     sentVia: z.array(z.string()).optional(),
 });
 

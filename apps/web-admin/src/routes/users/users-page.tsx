@@ -12,7 +12,7 @@ import { useUsers } from "@/api/services/users.ts";
 export function UsersPage() {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
-    const [filters, setFilters] = useState<{ role?: string; status?: string }>({});
+    const [filters, setFilters] = useState<{ role?: string }>({});
     const [sortBy, setSortBy] = useState('updatedAt');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
@@ -37,10 +37,7 @@ export function UsersPage() {
         if (filters.role) {
             result = result.filter((user) => user.role === filters.role);
         }
-        // Filter by status
-        if (filters.status) {
-            result = result.filter((user) => user.status === filters.status);
-        }
+
 
         // Sort
         return result.sort((a, b) => {
