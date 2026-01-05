@@ -217,6 +217,9 @@ importers:
       nkeys.js:
         specifier: ^1.1.0
         version: 1.1.0
+      nodemailer:
+        specifier: ^7.0.12
+        version: 7.0.12
       otplib:
         specifier: ^12.0.1
         version: 12.0.1
@@ -6485,6 +6488,10 @@ packages:
 
   node-releases@2.0.27:
     resolution: {integrity: sha512-nmh3lCkYZ3grZvqcCH+fjmQ7X+H0OeZgP40OierEaAptX4XofMh5kwNbWh7lBduUzCcV/8kZ+NDLCwm2iorIlA==}
+
+  nodemailer@7.0.12:
+    resolution: {integrity: sha512-H+rnK5bX2Pi/6ms3sN4/jRQvYSMltV6vqup/0SFOrxYYY/qoNvhXPlYq3e+Pm9RFJRwrMGbMIwi81M4dxpomhA==}
+    engines: {node: '>=6.0.0'}
 
   nopt@8.1.0:
     resolution: {integrity: sha512-ieGu42u/Qsa4TFktmaKEwM6MQH0pOWnaB3htzh0JRtx84+Mebc0cbZYN5bC+6WTZ4+77xrL9Pn5m7CV6VIkV7A==}
@@ -15192,6 +15199,8 @@ snapshots:
       resolve: 1.22.10
 
   node-releases@2.0.27: {}
+
+  nodemailer@7.0.12: {}
 
   nopt@8.1.0:
     dependencies:

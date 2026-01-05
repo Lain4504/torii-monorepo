@@ -9,7 +9,7 @@ import { TwoFactorAuthService } from '../two-factor-auth/two-factor-auth.service
 import { GoogleAuthService } from './google-auth.service';
 import { UserIdentityRepository } from './user-identity.repository';
 import { UsersRepository } from '../users/users.repository';
-import { TwoFactorAuthRepository } from '../two-factor-auth/two-factor-auth.repository';
+
 import { UserRole } from '@workspace/schemas';
 import type {
     UserRegistrationDTO,
@@ -40,7 +40,7 @@ export interface AuthResult {
 export class AuthService {
     constructor(
         private readonly usersRepository: UsersRepository,
-        private readonly twoFactorAuthRepository: TwoFactorAuthRepository,
+
         private readonly jwtTokenProvider: JwtTokenProvider,
         private readonly rbacService: RBACService,
         private readonly twoFactorAuthService: TwoFactorAuthService,
@@ -126,9 +126,9 @@ export class AuthService {
         }
 
         // Check if 2FA is enabled
-        const twoFactorAuth = await this.twoFactorAuthRepository.findByUserId(user.id);
+        const twoFactorStatus = await this.twoFactorAuthService.get2FAStatus(user.id);
 
-        if (twoFactorAuth?.isEnabled) {
+        if (twoFactorStatus.isEnabled) {
             // Generate temporary token (valid for 5 minutes)
             // Defaulting to 'totp' since it's the only supported method now
             const tempToken = await this.generate2FATempToken(user.id, user.email, 'totp');

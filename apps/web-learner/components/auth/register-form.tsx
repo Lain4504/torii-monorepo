@@ -87,7 +87,7 @@ export function RegisterForm() {
                     description: 'Vui lòng kiểm tra email để xác thực tài khoản.',
                     duration: 6000,
                 })
-                router.push('/')
+                router.push('/verify-request')
             } else {
                 const errorMessage =
                     typeof resultAction.payload === 'string'

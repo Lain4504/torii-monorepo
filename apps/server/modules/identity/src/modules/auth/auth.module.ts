@@ -7,6 +7,7 @@ import { PrismaService, NatsClientModule, RedisModule } from '@server/shared';
 import { JwtTokenProvider } from '@server/shared';
 import { RBACModule } from '../rbac/rbac.module';
 import { TwoFactorAuthModule } from '../two-factor-auth/two-factor-auth.module';
+import { UsersRepository } from '../users/users.repository';
 
 /**
  * Auth Module
@@ -24,6 +25,7 @@ import { TwoFactorAuthModule } from '../two-factor-auth/two-factor-auth.module';
         RefreshTokenService,
         GoogleAuthService,
         UserIdentityRepository,
+        UsersRepository,
         PrismaService,
         JwtTokenProvider,
     ],

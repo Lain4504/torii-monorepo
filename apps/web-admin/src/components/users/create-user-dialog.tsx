@@ -24,9 +24,9 @@ import {
     Pencil,
     Loader2
 } from 'lucide-react';
-import { userCreateDTOSchema, type UserCreateDTO, UserRole, UserStatus } from '@workspace/schemas';
+import { userCreateDTOSchema, type UserCreateDTO, UserRole } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
-import {useCreateUser} from "@/api/services/users.ts";
+import { useCreateUser } from "@/api/services/users.ts";
 
 const roles = [
     {
@@ -57,7 +57,6 @@ const roles = [
 
 const createUserSchema = userCreateDTOSchema.omit({
     displayName: true,
-    status: true,
     role: true
 }).extend({
     firstName: z.string().min(1, 'First name is required'),
@@ -113,7 +112,6 @@ export function CreateUserDialog({
             displayName: `${data.firstName} ${data.lastName}`,
             password: data.password,
             role: data.role,
-            status: UserStatus.ACTIVE,
         };
         try {
             await createUser.mutateAsync(dto);

@@ -20,8 +20,8 @@ import { Can } from "@/lib/guard/can";
 interface UsersPrimaryToolbarProps {
     search: string;
     onSearchChange: (value: string) => void;
-    filters: { role?: string; status?: string };
-    onFilterChange: (filters: { role?: string; status?: string }) => void;
+    filters: { role?: string };
+    onFilterChange: (filters: { role?: string }) => void;
     sortBy: string;
     sortOrder: 'asc' | 'desc';
     onSortChange: (field: string, order: 'asc' | 'desc') => void;
@@ -79,20 +79,7 @@ export function UsersPrimaryToolbar({
                     </SelectContent>
                 </Select>
 
-                {/* Status Filter */}
-                <Select
-                    value={filters.status || 'all'}
-                    onValueChange={(value) => onFilterChange({ ...filters, status: value === 'all' ? undefined : value })}
-                >
-                    <SelectTrigger className="w-[150px]">
-                        <SelectValue placeholder="All Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Status</SelectItem>
-                        <SelectItem value="active">Active</SelectItem>
-                        <SelectItem value="inactive">Inactive</SelectItem>
-                    </SelectContent>
-                </Select>
+
 
                 {/* Sort Dropdown */}
                 <DropdownMenu>
