@@ -269,7 +269,8 @@ model User {
 
   // Relations
   userPermissions UserPermission[]
-  refreshTokens   RefreshToken[]   // ← Added
+  refreshTokens   RefreshToken[]
+  twoFactorAuth   TwoFactorAuth?   // ← New: 2FA configuration
   flashcardDecks  FlashcardDeck[]
   blogComments    BlogComment[]
   auditLogs       AuditLog[]       @relation("UserAuditLogs")
@@ -297,6 +298,39 @@ model RefreshToken {
   @@index([tokenHash])
   @@index([expiresAt])
   @@map("refresh_tokens")
+}
+
+// Two-Factor Authentication Model - For 2FA configuration
+model TwoFactorAuth {
+  id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId String @unique @map("user_id") @db.Uuid
+
+  // 2FA Status
+  isEnabled Boolean @default(false) @map("is_enabled")
+  method    String? @db.VarChar(20) // 'totp', 'email', 'sms'
+
+  // TOTP Configuration (for Google Authenticator)
+  totpSecret      String?  @map("totp_secret") @db.VarChar(255) // Encrypted with AES-256-GCM
+  totpBackupCodes String[] @default([]) @map("totp_backup_codes") @db.VarChar(100) // Hashed with Argon2
+
+  // Phone for SMS (optional)
+  phoneNumber   String?  @map("phone_number") @db.VarChar(20)
+  phoneVerified Boolean  @default(false) @map("phone_verified")
+
+  // Security & Metadata
+  enabledAt      DateTime? @map("enabled_at") @db.Timestamp()
+  lastUsedAt     DateTime? @map("last_used_at") @db.Timestamp()
+  failedAttempts Int       @default(0) @map("failed_attempts")
+  lockedUntil    DateTime? @map("locked_until") @db.Timestamp()
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp()
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp()
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("two_factor_auth")
 }
 
 

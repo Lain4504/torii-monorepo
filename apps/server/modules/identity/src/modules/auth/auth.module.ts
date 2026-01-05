@@ -4,6 +4,7 @@ import { RefreshTokenService } from './refresh-token.service';
 import { PrismaService, NatsClientModule, RedisModule } from '@server/shared';
 import { JwtTokenProvider } from '@server/shared';
 import { RBACModule } from '../rbac/rbac.module';
+import { TwoFactorAuthModule } from '../two-factor-auth/two-factor-auth.module';
 
 /**
  * Auth Module
@@ -12,6 +13,7 @@ import { RBACModule } from '../rbac/rbac.module';
 @Module({
     imports: [
         RBACModule,
+        TwoFactorAuthModule,
         NatsClientModule,
         RedisModule,
     ],
@@ -24,3 +26,4 @@ import { RBACModule } from '../rbac/rbac.module';
     exports: [AuthService, RefreshTokenService],
 })
 export class AuthModule { }
+

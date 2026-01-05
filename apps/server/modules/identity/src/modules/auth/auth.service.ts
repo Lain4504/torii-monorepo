@@ -5,6 +5,7 @@ import * as argon2 from 'argon2';
 import { PrismaService, REDIS_CLIENT } from '@server/shared';
 import { JwtTokenProvider } from '@server/shared';
 import { RBACService } from '../rbac/rbac.service';
+import { TwoFactorAuthService } from '../two-factor-auth/two-factor-auth.service';
 import { UserRole, UserStatus } from '@workspace/schemas';
 import type {
     UserRegistrationDTO,
@@ -15,6 +16,14 @@ import type {
 export interface AuthResponse {
     user: UserResponseDTO;
     accessToken: string;
+}
+
+export interface LoginResponse {
+    requiresTwoFactor: boolean;
+    twoFactorMethod?: 'totp' | 'email' | 'sms';
+    tempToken?: string;
+    user?: UserResponseDTO;
+    accessToken?: string;
 }
 
 export interface AuthResult {
@@ -29,6 +38,7 @@ export class AuthService {
         private readonly prisma: PrismaService,
         private readonly jwtTokenProvider: JwtTokenProvider,
         private readonly rbacService: RBACService,
+        private readonly twoFactorAuthService: TwoFactorAuthService,
         @Inject(REDIS_CLIENT) private readonly redis: Redis,
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     ) { }
@@ -91,8 +101,9 @@ export class AuthService {
 
     /**
      * Login user and generate JWT token
+     * Now supports 2FA - returns requiresTwoFactor if 2FA is enabled
      */
-    async login(dto: UserLoginDTO): Promise<AuthResponse> {
+    async login(dto: UserLoginDTO): Promise<LoginResponse> {
         // Find user
         const user = await this.prisma.user.findUnique({
             where: { email: dto.email },
@@ -108,13 +119,145 @@ export class AuthService {
             throw new UnauthorizedException('Invalid credentials');
         }
 
-        // Check if user is active
         // Check if user is active or pending
         if (user.status !== UserStatus.ACTIVE && user.status !== UserStatus.PENDING) {
             throw new UnauthorizedException('Account is disabled or deleted');
         }
 
-        // Generate JWT token
+        // Check if 2FA is enabled
+        const twoFactorAuth = await this.prisma.twoFactorAuth.findUnique({
+            where: { userId: user.id },
+        });
+
+        if (twoFactorAuth?.isEnabled) {
+            // Generate temporary token (valid for 5 minutes)
+            const tempToken = await this.generate2FATempToken(user.id, user.email, twoFactorAuth.method || 'totp');
+
+            // Send OTP if method is email or sms
+            if (twoFactorAuth.method === 'email') {
+                await this.twoFactorAuthService.sendEmailOtp(user.id);
+            } else if (twoFactorAuth.method === 'sms') {
+                await this.twoFactorAuthService.sendSmsOtp(user.id);
+            }
+
+            return {
+                requiresTwoFactor: true,
+                twoFactorMethod: twoFactorAuth.method as 'totp' | 'email' | 'sms',
+                tempToken,
+            };
+        }
+
+        // No 2FA - proceed with normal login
+        const accessToken = await this.jwtTokenProvider.generateToken({
+            sub: user.id,
+            role: user.role as UserRole,
+        });
+
+        return {
+            requiresTwoFactor: false,
+            user: {
+                id: user.id,
+                email: user.email,
+                displayName: user.displayName,
+                role: user.role,
+                status: user.status,
+                emailVerified: user.status === UserStatus.ACTIVE,
+                createdAt: user.createdAt,
+                updatedAt: user.updatedAt,
+            } as UserResponseDTO,
+            accessToken,
+        };
+    }
+
+    /**
+     * Generate temporary token for 2FA verification
+     * Valid for 5 minutes
+     */
+    private async generate2FATempToken(userId: string, email: string, method: string): Promise<string> {
+        const jwt = await import('jsonwebtoken');
+        const tempTokenExpiry = parseInt(process.env.TWO_FACTOR_TEMP_TOKEN_EXPIRY || '300'); // 5 minutes
+
+        const payload = {
+            userId,
+            email,
+            method,
+            type: '2fa-temp',
+        };
+
+        // Generate token with JWT directly
+        const token = jwt.sign(payload, process.env.JWT_SECRET!, {
+            expiresIn: tempTokenExpiry,
+        });
+
+        // Store in Redis with expiry
+        await this.redis.set(`2fa:temp:${userId}`, token, 'EX', tempTokenExpiry);
+
+        return token;
+    }
+
+    /**
+     * Verify 2FA code and complete login
+     */
+    async verify2FA(tempToken: string, code: string, isBackupCode: boolean = false): Promise<AuthResponse> {
+        // Verify temp token
+        let payload: any;
+        try {
+            payload = await this.jwtTokenProvider.verifyToken(tempToken);
+        } catch (error) {
+            throw new UnauthorizedException('Invalid or expired temporary token');
+        }
+
+        if (payload.type !== '2fa-temp') {
+            throw new UnauthorizedException('Invalid token type');
+        }
+
+        const userId = payload.userId;
+
+        // Check if temp token exists in Redis
+        const storedToken = await this.redis.get(`2fa:temp:${userId}`);
+        if (!storedToken || storedToken !== tempToken) {
+            throw new UnauthorizedException('Temporary token expired or already used');
+        }
+
+        // Verify 2FA code
+        let isValid = false;
+        if (isBackupCode) {
+            isValid = await this.twoFactorAuthService.verifyBackupCode(userId, code);
+        } else {
+            const twoFactorAuth = await this.prisma.twoFactorAuth.findUnique({
+                where: { userId },
+            });
+
+            if (!twoFactorAuth) {
+                throw new BadRequestException('2FA not configured');
+            }
+
+            if (twoFactorAuth.method === 'totp') {
+                isValid = await this.twoFactorAuthService.verifyTotp(userId, code);
+            } else if (twoFactorAuth.method === 'email') {
+                isValid = await this.twoFactorAuthService.verifyOtp(userId, code, '2fa-email');
+            } else if (twoFactorAuth.method === 'sms') {
+                isValid = await this.twoFactorAuthService.verifyOtp(userId, code, '2fa-sms');
+            }
+        }
+
+        if (!isValid) {
+            throw new UnauthorizedException('Invalid 2FA code');
+        }
+
+        // Delete temp token
+        await this.redis.del(`2fa:temp:${userId}`);
+
+        // Get user
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+        });
+
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        // Generate access token
         const accessToken = await this.jwtTokenProvider.generateToken({
             sub: user.id,
             role: user.role as UserRole,

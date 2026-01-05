@@ -178,7 +178,7 @@ export class AuthController {
      * Login user
      * POST /auth/login
      * 
-     * Sets both access_token (15m) and refresh_token (7d) cookies
+     * Now supports 2FA - returns requiresTwoFactor if 2FA is enabled
      */
     @Post('login')
     @HttpCode(HttpStatus.OK)
@@ -188,7 +188,102 @@ export class AuthController {
         @Res({ passthrough: true }) res: Response
     ) {
         try {
-            const { user, accessToken } = await this.authService.login(dto);
+            const result = await this.authService.login(dto);
+
+            // Check if 2FA is required
+            if (result.requiresTwoFactor) {
+                return {
+                    success: true,
+                    requiresTwoFactor: true,
+                    twoFactorMethod: result.twoFactorMethod,
+                    tempToken: result.tempToken,
+                    message: result.twoFactorMethod === 'totp'
+                        ? 'Enter code from your authenticator app'
+                        : `Verification code sent to your ${result.twoFactorMethod}`,
+                };
+            }
+
+            // No 2FA - proceed with normal login
+            const { user, accessToken } = result;
+
+            // Generate refresh token
+            const refreshToken = await this.refreshTokenService.createRefreshToken(user!.id);
+
+            // Check Platform
+            const platform = req.headers['x-platform'];
+
+            if (platform === 'mobile') {
+                // Mobile: Return tokens in body
+                return {
+                    success: true,
+                    data: {
+                        access_token: accessToken,
+                        refresh_token: refreshToken,
+                        user: {
+                            id: user!.id,
+                            email: user!.email,
+                            displayName: user!.displayName,
+                            role: user!.role,
+                            status: user!.status,
+                        }
+                    }
+                };
+            } else {
+                // Web: Set httpOnly cookies
+                res.cookie('access_token', accessToken, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: 'lax',
+                    maxAge: 15 * 60 * 1000 // 15 minutes
+                });
+
+                res.cookie('refresh_token', refreshToken, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: 'lax',
+                    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+                });
+
+                return {
+                    success: true,
+                    data: {
+                        user: {
+                            id: user!.id,
+                            email: user!.email,
+                            displayName: user!.displayName,
+                            role: user!.role,
+                            status: user!.status,
+                        }
+                    }
+                };
+            }
+        } catch (error: any) {
+            return {
+                success: false,
+                message: error.message || 'Login failed'
+            };
+        }
+    }
+
+    /**
+     * Verify 2FA code and complete login
+     * POST /auth/login/verify-2fa
+     */
+    @Post('login/verify-2fa')
+    @HttpCode(HttpStatus.OK)
+    async verify2FA(
+        @Body('tempToken') tempToken: string,
+        @Body('code') code: string,
+        @Body('backupCode') backupCode: boolean = false,
+        @Request() req,
+        @Res({ passthrough: true }) res: Response
+    ) {
+        if (!tempToken || !code) {
+            throw new BadRequestException('Temporary token and code are required');
+        }
+
+        try {
+            const { user, accessToken } = await this.authService.verify2FA(tempToken, code, backupCode);
 
             // Generate refresh token
             const refreshToken = await this.refreshTokenService.createRefreshToken(user.id);
@@ -244,7 +339,7 @@ export class AuthController {
         } catch (error: any) {
             return {
                 success: false,
-                message: error.message || 'Login failed'
+                message: error.message || '2FA verification failed'
             };
         }
     }

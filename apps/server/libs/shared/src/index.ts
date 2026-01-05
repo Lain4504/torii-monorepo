@@ -106,4 +106,6 @@ export * from './redis/redis.provider';
 // Audit logging
 export * from './audit';
 
+// Encryption
+export * from './encryption';
 

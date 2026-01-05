@@ -1,0 +1,219 @@
+import {
+    Controller,
+    Post,
+    Get,
+    Body,
+    Request,
+    UseGuards,
+    HttpCode,
+    HttpStatus,
+    BadRequestException,
+} from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { TwoFactorAuthService } from './two-factor-auth.service';
+import { JwtAuthGuard } from '@server/shared';
+import type { ReqWithRequester } from '@workspace/schemas';
+import {
+    EnableTotpDto,
+    Disable2FADto,
+    EnableSmsDto,
+    VerifyPhoneDto,
+} from './dto/two-factor-auth.dto';
+import * as argon2 from 'argon2';
+import { PrismaService } from '@server/shared';
+
+/**
+ * Two-Factor Authentication Controller
+ * Handles 2FA setup and management endpoints
+ */
+@ApiTags('Two-Factor Authentication')
+@Controller('auth/2fa')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
+export class TwoFactorAuthController {
+    constructor(
+        private readonly twoFactorAuthService: TwoFactorAuthService,
+        private readonly prisma: PrismaService,
+    ) { }
+
+    // ========================================
+    // TOTP Endpoints
+    // ========================================
+
+    @Post('totp/generate')
+    @ApiOperation({ summary: 'Generate TOTP secret and QR code' })
+    @ApiResponse({
+        status: 200,
+        description: 'TOTP secret and QR code generated successfully',
+    })
+    async generateTotpSecret(@Request() req: ReqWithRequester) {
+        return this.twoFactorAuthService.generateTotpSecret(req.requester.sub);
+    }
+
+    @Post('totp/enable')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Enable TOTP 2FA' })
+    @ApiResponse({
+        status: 200,
+        description: 'TOTP 2FA enabled successfully. Returns backup codes.',
+    })
+    @ApiResponse({
+        status: 400,
+        description: 'Invalid verification code',
+    })
+    async enableTotp(
+        @Request() req: ReqWithRequester,
+        @Body() dto: EnableTotpDto,
+    ) {
+        return this.twoFactorAuthService.enableTotp(
+            req.requester.sub,
+            dto.secret,
+            dto.code,
+        );
+    }
+
+    @Post('totp/disable')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Disable TOTP 2FA' })
+    @ApiResponse({
+        status: 200,
+        description: '2FA disabled successfully',
+    })
+    @ApiResponse({
+        status: 400,
+        description: 'Invalid password',
+    })
+    async disableTotp(
+        @Request() req: ReqWithRequester,
+        @Body() dto: Disable2FADto,
+    ) {
+        // Verify password
+        const user = await this.prisma.user.findUnique({
+            where: { id: req.requester.sub },
+            select: { password: true },
+        });
+
+        if (!user || !user.password) {
+            throw new BadRequestException('Invalid password');
+        }
+
+        const isValid = await argon2.verify(user.password, dto.password);
+        if (!isValid) {
+            throw new BadRequestException('Invalid password');
+        }
+
+        // Disable 2FA
+        await this.twoFactorAuthService.disable2FA(req.requester.sub);
+
+        return {
+            success: true,
+            message: '2FA disabled successfully',
+        };
+    }
+
+    // ========================================
+    // Email 2FA Endpoints
+    // ========================================
+
+    @Post('email/enable')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Enable Email OTP 2FA' })
+    @ApiResponse({
+        status: 200,
+        description: 'Email 2FA enabled successfully',
+    })
+    async enableEmailOtp(@Request() req: ReqWithRequester) {
+        await this.twoFactorAuthService.enableEmailOtp(req.requester.sub);
+
+        return {
+            success: true,
+            message: 'Email 2FA enabled successfully',
+        };
+    }
+
+    // ========================================
+    // SMS 2FA Endpoints
+    // ========================================
+
+    @Post('sms/enable')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Enable SMS OTP 2FA (sends verification code)' })
+    @ApiResponse({
+        status: 200,
+        description: 'Verification code sent to phone number',
+    })
+    async enableSmsOtp(
+        @Request() req: ReqWithRequester,
+        @Body() dto: EnableSmsDto,
+    ) {
+        await this.twoFactorAuthService.enableSmsOtp(
+            req.requester.sub,
+            dto.phoneNumber,
+        );
+
+        return {
+            success: true,
+            message: 'Verification code sent to your phone number',
+        };
+    }
+
+    @Post('sms/verify-phone')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Verify phone number and enable SMS 2FA' })
+    @ApiResponse({
+        status: 200,
+        description: 'Phone verified and SMS 2FA enabled',
+    })
+    @ApiResponse({
+        status: 400,
+        description: 'Invalid verification code',
+    })
+    async verifyPhone(
+        @Request() req: ReqWithRequester,
+        @Body() dto: VerifyPhoneDto,
+    ) {
+        await this.twoFactorAuthService.verifyPhone(req.requester.sub, dto.code);
+
+        return {
+            success: true,
+            message: 'Phone verified and SMS 2FA enabled successfully',
+        };
+    }
+
+    // ========================================
+    // Backup Codes Endpoints
+    // ========================================
+
+    @Post('backup-codes/regenerate')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Regenerate backup codes' })
+    @ApiResponse({
+        status: 200,
+        description: 'Backup codes regenerated successfully',
+    })
+    async regenerateBackupCodes(@Request() req: ReqWithRequester) {
+        const backupCodes = await this.twoFactorAuthService.regenerateBackupCodes(
+            req.requester.sub,
+        );
+
+        return {
+            success: true,
+            backupCodes,
+            message: 'Backup codes regenerated. Please save them in a safe place.',
+        };
+    }
+
+    // ========================================
+    // Status Endpoint
+    // ========================================
+
+    @Get('status')
+    @ApiOperation({ summary: 'Get 2FA status' })
+    @ApiResponse({
+        status: 200,
+        description: 'Returns 2FA configuration status',
+    })
+    async get2FAStatus(@Request() req: ReqWithRequester) {
+        return this.twoFactorAuthService.get2FAStatus(req.requester.sub);
+    }
+}
