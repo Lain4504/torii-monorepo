@@ -5,9 +5,10 @@ import 'dotenv/config';
 
 // Initialize Gemini AI
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
 // Simple rate limiter (in-memory, for demo purposes)
+// TODO: Replace with Redis-based rate limiter for production use
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT = 10; // requests per minute
 const RESET_TIME = 60 * 1000; // 1 minute

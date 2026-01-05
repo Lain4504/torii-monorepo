@@ -1,23 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
-// Initialize Gemini AI
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-
-// Helper function for AI calls with error handling
-async function callGemini(prompt: string): Promise<string> {
-  try {
-    const result = await model.generateContent(prompt);
-    return result.response.text();
-  } catch (error) {
-    console.error('Gemini API error:', error);
-    return `Error: Unable to process request. ${error.message}`;
-  }
-}
+import { AiService } from '../shared/ai.service';
 
 @Injectable()
 export class AssessmentAgentService {
+  constructor(private readonly aiService: AiService) {}
+
   async generateJlptTest(level: string, type: string, questionCount: number): Promise<any> {
     const prompt = `Generate ${questionCount} JLPT ${level} level ${type} questions in valid JSON format. 
 For vocabulary: each question should have "question" (the word in Japanese), "options" (array of 4 strings: the correct meaning and 3 distractors), "correctAnswer" (index 0-3 of the correct option).
@@ -27,7 +14,7 @@ For listening: describe the audio scenario, then questions.
 Return only valid JSON with structure: {"questions": [{"id": "q1", "question": "...", "options": ["A","B","C","D"], "correctAnswer": 0}]}.
 Ensure questions are appropriate for JLPT ${level} level.`;
 
-    const response = await callGemini(prompt);
+    const response = await this.aiService.callGemini(prompt);
     
     // Strip markdown code blocks if present
     let cleanResponse = response.trim();
@@ -47,7 +34,7 @@ Ensure questions are appropriate for JLPT ${level} level.`;
           id: q.id || `q${index + 1}`,
           question: q.question,
           options: q.options,
-          correctAnswer: q.correctAnswer, // Keep for evaluation
+          // correctAnswer removed for security
         })),
       };
     } catch (error) {
@@ -67,7 +54,7 @@ Ensure questions are appropriate for JLPT ${level} level.`;
 Analyze the answers and provide constructive feedback for Japanese language learning.
 Return JSON with: {"totalQuestions": number, "feedback": "detailed feedback", "analysis": "performance analysis", "recommendations": "study recommendations"}.`;
 
-    const response = await callGemini(prompt);
+    const response = await this.aiService.callGemini(prompt);
     
     try {
       const parsed = JSON.parse(response);
@@ -90,7 +77,7 @@ Return JSON with: {"totalQuestions": number, "feedback": "detailed feedback", "a
 Compare against JLPT passing thresholds and provide readiness assessment.
 Format as JSON: {"userId": "...", "level": "...", "vocabularyReadiness": "percentage", "grammarReadiness": "...", "readingReadiness": "...", "listeningReadiness": "...", "overallReadiness": "...", "recommendations": "..."}`;
 
-    const response = await callGemini(prompt);
+    const response = await this.aiService.callGemini(prompt);
     let cleanResponse = response.trim();
     if (cleanResponse.startsWith('```json')) {
       cleanResponse = cleanResponse.replace(/^```json\s*/, '').replace(/\s*```$/, '');

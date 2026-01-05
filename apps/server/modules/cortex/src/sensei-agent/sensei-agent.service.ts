@@ -1,23 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
-// Initialize Gemini AI
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-
-// Helper function for AI calls with error handling
-async function callGemini(prompt: string): Promise<string> {
-  try {
-    const result = await model.generateContent(prompt);
-    return result.response.text();
-  } catch (error) {
-    console.error('Gemini API error:', error);
-    return `Error: Unable to process request. ${error.message}`;
-  }
-}
+import { AiService } from '../shared/ai.service';
 
 @Injectable()
 export class SenseiAgentService {
+  constructor(private readonly aiService: AiService) {}
+
   async checkGrammar(text: string): Promise<string> {
     const prompt = `Analyze the following Japanese text for grammar correctness: "${text}".
 Provide detailed feedback on:
@@ -26,14 +13,14 @@ Provide detailed feedback on:
 3. Overall assessment (correct, minor issues, needs work)
 Be specific and helpful for language learners.`;
 
-    return await callGemini(prompt);
+    return await this.aiService.callGemini(prompt);
   }
 
   async translate(text: string, from: string, to: string): Promise<string> {
     const prompt = `Translate the following text from ${from} to ${to}: "${text}".
 Provide a natural, accurate translation. If translating to Japanese, include furigana for kanji.`;
 
-    return await callGemini(prompt);
+    return await this.aiService.callGemini(prompt);
   }
 
   async createFlashcard(word: string, meaning: string, example?: string): Promise<any> {
@@ -41,7 +28,7 @@ Provide a natural, accurate translation. If translating to Japanese, include fur
 ${example ? `Include this example sentence: "${example}"` : 'Create a relevant example sentence.'}
 Format as JSON with: {"word": "...", "reading": "...", "meaning": "...", "partOfSpeech": "...", "example": "...", "exampleTranslation": "...", "jlptLevel": "..."}`;
 
-    const response = await callGemini(prompt);
+    const response = await this.aiService.callGemini(prompt);
     
     // Strip markdown code blocks if present
     let cleanResponse = response.trim();
@@ -78,7 +65,7 @@ For sentence building: provide words, ask to build sentence.
 For multiple-choice: provide question and options.
 Format as JSON: {"drillType": "...", "level": "...", "exercises": [{"question": "...", "options": [...], "correctAnswer": "...", "explanation": "..."}]}`;
 
-    const response = await callGemini(prompt);
+    const response = await this.aiService.callGemini(prompt);
     let cleanResponse = response.trim();
     if (cleanResponse.startsWith('```json')) {
       cleanResponse = cleanResponse.replace(/^```json\s*/, '').replace(/\s*```$/, '');
@@ -95,7 +82,7 @@ Format as JSON: {"drillType": "...", "level": "...", "exercises": [{"question": 
 Provide a dialogue with 4-6 exchanges, including English translations.
 Format as JSON: {"topic": "...", "level": "...", "dialogue": [{"speaker": "A", "japanese": "...", "english": "..."}]}`;
 
-    const response = await callGemini(prompt);
+    const response = await this.aiService.callGemini(prompt);
     let cleanResponse = response.trim();
     if (cleanResponse.startsWith('```json')) {
       cleanResponse = cleanResponse.replace(/^```json\s*/, '').replace(/\s*```$/, '');
@@ -112,7 +99,7 @@ Format as JSON: {"topic": "...", "level": "...", "dialogue": [{"speaker": "A", "
 Suggest videos, articles, exercises from JLPT-aligned resources.
 Format as JSON: {"concept": "...", "level": "...", "recommendations": [{"type": "video/article/exercise", "title": "...", "description": "...", "url": "..."}]}`;
 
-    const response = await callGemini(prompt);
+    const response = await this.aiService.callGemini(prompt);
     let cleanResponse = response.trim();
     if (cleanResponse.startsWith('```json')) {
       cleanResponse = cleanResponse.replace(/^```json\s*/, '').replace(/\s*```$/, '');

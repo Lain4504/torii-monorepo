@@ -12,7 +12,6 @@
     "@modelcontextprotocol/sdk": "^1.25.1",
     "@workspace/eslint-config": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
-    "nats": "^2.29.3",
     "prettier": "^3.7.4",
     "turbo": "^2.6.3",
     "typescript": "5.7.3"
@@ -25,9 +24,6 @@
     "@aws-sdk/client-s3": "^3.956.0",
     "@aws-sdk/s3-request-presigner": "^3.956.0",
     "@google/generative-ai": "^0.24.1",
-    "@radix-ui/react-dialog": "^1.1.4",
-    "@radix-ui/react-select": "^2.1.4",
-    "dotenv": "^17.2.3",
     "fastmcp": "^3.26.7",
     "zod": "^3.25.76"
   }
