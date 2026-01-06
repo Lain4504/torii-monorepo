@@ -6,8 +6,8 @@ import { Button } from "@workspace/ui/components/button"
 import { Filter } from "lucide-react"
 
 interface FilterSidebarProps {
-    selectedLevel?: string
-    onLevelChange: (level: string | undefined) => void
+    selectedLevels?: string[]
+    onLevelChange: (levels: string[]) => void
     priceFilter: "all" | "free" | "paid"
     onPriceChange: (price: "all" | "free" | "paid") => void
 }
@@ -20,12 +20,12 @@ const JLPT_LEVELS = [
     { label: 'N1 - Thượng cấp', value: 'N1' },
 ]
 
-export function FilterSidebar({ selectedLevel, onLevelChange, priceFilter, onPriceChange }: FilterSidebarProps) {
+export function FilterSidebar({ selectedLevels = [], onLevelChange, priceFilter, onPriceChange }: FilterSidebarProps) {
     const handleLevelChange = (value: string, checked: boolean) => {
         if (checked) {
-            onLevelChange(value)
+            onLevelChange([...selectedLevels, value])
         } else {
-            onLevelChange(undefined)
+            onLevelChange(selectedLevels.filter(level => level !== value))
         }
     }
 
@@ -38,7 +38,7 @@ export function FilterSidebar({ selectedLevel, onLevelChange, priceFilter, onPri
     }
 
     const handleClearFilters = () => {
-        onLevelChange(undefined)
+        onLevelChange([])
         onPriceChange("all")
     }
 
@@ -57,7 +57,7 @@ export function FilterSidebar({ selectedLevel, onLevelChange, priceFilter, onPri
                         <div key={value} className="flex items-center space-x-2">
                             <Checkbox 
                                 id={`level-${value}`}
-                                checked={selectedLevel === value}
+                                checked={selectedLevels.includes(value)}
                                 onCheckedChange={(checked) => handleLevelChange(value, checked as boolean)}
                             />
                             <Label 
@@ -138,7 +138,7 @@ export function FilterSidebar({ selectedLevel, onLevelChange, priceFilter, onPri
                 variant="outline" 
                 className="w-full"
                 onClick={handleClearFilters}
-                disabled={!selectedLevel && priceFilter === "all"}
+                disabled={selectedLevels.length === 0 && priceFilter === "all"}
             >
                 Xóa bộ lọc
             </Button>
