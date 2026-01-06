@@ -8,15 +8,26 @@ export function CourseGrid() {
     // Example: lấy filter từ URL hoặc props, ở đây hardcode cho demo
     const { data, isLoading, error } = useCourses({ page: 1, limit: 12 });
 
+    console.log('CourseGrid - data:', data);
+    console.log('CourseGrid - isLoading:', isLoading);
+    console.log('CourseGrid - error:', error);
+
+    const courses = data?.data || [];
+    const isEmpty = !isLoading && courses.length === 0;
+
     return (
         <div className="space-y-12">
             {isLoading ? (
                 <div className="text-center py-12">Đang tải khoá học...</div>
             ) : error ? (
-                <div className="text-center py-12 text-red-500">Lỗi tải khoá học</div>
+                <div className="text-center py-12 text-red-500">
+                    Lỗi tải khoá học: {error?.message || 'Unknown error'}
+                </div>
+            ) : isEmpty ? (
+                <div className="text-center py-12 text-gray-500">Không có khoá học nào</div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {data?.data.map((course) => (
+                    {courses.map((course) => (
                         <CourseCard key={course.id} {...course} />
                     ))}
                 </div>
