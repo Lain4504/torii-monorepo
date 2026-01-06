@@ -4,7 +4,19 @@ import { Search } from "lucide-react"
 import { Input } from "@workspace/ui/components/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select"
 
-export function SearchHeader() {
+interface SearchHeaderProps {
+    searchQuery: string
+    onSearchChange: (query: string) => void
+    sortBy: string
+    onSortChange: (sort: string) => void
+}
+
+export function SearchHeader({ 
+    searchQuery, 
+    onSearchChange, 
+    sortBy, 
+    onSortChange 
+}: SearchHeaderProps) {
     return (
         <div className="space-y-6 mb-8">
             <div>
@@ -19,11 +31,13 @@ export function SearchHeader() {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <Input
                         placeholder="Tìm kiếm khóa học theo tên, kỹ năng..."
-                        className="pl-9 h-11 bg-white dark:bg-slate-900"
+                        value={searchQuery}
+                        onChange={(e) => onSearchChange(e.target.value)}
+                        className="pl-9 h-11 bg-white dark:bg-slate-900 text-black dark:text-white placeholder:text-slate-500"
                     />
                 </div>
                 <div className="w-full md:w-[200px]">
-                    <Select defaultValue="popular">
+                    <Select value={sortBy} onValueChange={onSortChange}>
                         <SelectTrigger className="h-11 bg-white dark:bg-slate-900">
                             <SelectValue placeholder="Sắp xếp" />
                         </SelectTrigger>
