@@ -25,6 +25,7 @@ export interface CoursesResponse {
   total: number;
   page: number;
   limit: number;
+  totalPages: number;
 }
 
 interface CourseAPIResponse {
@@ -110,6 +111,7 @@ export function useCourses(params: {
         total: jsonData.total,
         page: jsonData.page,
         limit: jsonData.limit,
+        totalPages: jsonData.totalPages,
       };
       
       console.log('Mapped response:', response);
