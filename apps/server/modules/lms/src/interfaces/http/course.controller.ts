@@ -11,7 +11,6 @@ import { GatewayAuthGuard } from '@server/shared';
 import { UserRole } from '@workspace/schemas';
 
 @Controller('courses')
-@UseGuards(GatewayAuthGuard)
 export class CourseController {
   private readonly logger = new Logger(CourseController.name);
 
