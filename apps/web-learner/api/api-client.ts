@@ -91,6 +91,13 @@ apiClient.interceptors.response.use(
                 return Promise.reject(error);
             }
 
+            // Skip refresh logic for profile/checkAuth endpoints when user is not authenticated
+            // These endpoints are expected to fail with 401 when user is not logged in
+            if (originalRequest.url?.includes('/auth/profile') || originalRequest.url?.includes('/checkAuth')) {
+                console.log('Profile/checkAuth failed - user not authenticated');
+                return Promise.reject(error);
+            }
+
             // If a refresh is already in progress, queue this request
             if (isRefreshing) {
                 return new Promise((resolve, reject) => {
