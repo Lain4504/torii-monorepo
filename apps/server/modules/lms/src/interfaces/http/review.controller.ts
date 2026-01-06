@@ -26,6 +26,23 @@ export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}
 
   /**
+   * Delete a review
+   * DELETE /api/courses/reviews/:id
+   * 
+   * IMPORTANT: This route must be placed BEFORE routes with :courseId parameter
+   * to avoid route matching conflicts in NestJS
+   */
+  @Delete('reviews/:id')
+  @UseGuards(GatewayAuthGuard)
+  async deleteReview(@Param('id') id: string, @Req() req: any) {
+    const userId = req.user?.uid || req.user?.sub;
+    if (!userId) {
+      throw new Error('User ID not found in request');
+    }
+    return await this.reviewService.delete(id, userId);
+  }
+
+  /**
    * Get reviews by course ID
    * GET /api/courses/:courseId/reviews
    */
@@ -68,27 +85,4 @@ export class ReviewController {
     }
     return await this.reviewService.create(userId, courseId, input);
   }
-
 }
-
-@Controller('reviews')
-export class ReviewDeleteController {
-  private readonly logger = new Logger(ReviewDeleteController.name);
-
-  constructor(private readonly reviewService: ReviewService) {}
-
-  /**
-   * Delete a review
-   * DELETE /api/reviews/:id
-   */
-  @Delete(':id')
-  @UseGuards(GatewayAuthGuard)
-  async deleteReview(@Param('id') id: string, @Req() req: any) {
-    const userId = req.user?.uid || req.user?.sub;
-    if (!userId) {
-      throw new Error('User ID not found in request');
-    }
-    return await this.reviewService.delete(id, userId);
-  }
-}
-

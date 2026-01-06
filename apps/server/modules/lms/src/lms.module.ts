@@ -12,7 +12,7 @@ import { LessonController } from './interfaces/http/lesson.controller';
 import { WishlistModule } from './modules/wishlist/wishlist.module';
 import { WishlistController } from './interfaces/http/wishlist.controller';
 import { ReviewModule } from './modules/review/review.module';
-import { ReviewController, ReviewDeleteController } from './interfaces/http/review.controller';
+import { ReviewController } from './interfaces/http/review.controller';
 
 @Module({
   imports: [
@@ -27,7 +27,7 @@ import { ReviewController, ReviewDeleteController } from './interfaces/http/revi
     WishlistModule,
     ReviewModule,
   ],
-  controllers: [CourseController, ModuleController, LessonController, WishlistController, ReviewController, ReviewDeleteController],
+  controllers: [CourseController, ModuleController, LessonController, WishlistController, ReviewController],
 })
 export class LmsModule { }
 

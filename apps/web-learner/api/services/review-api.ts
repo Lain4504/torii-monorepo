@@ -87,7 +87,7 @@ export const reviewApi = {
    * Delete a review
    */
   deleteReview: async (reviewId: string): Promise<boolean> => {
-    await apiClient.delete(`/api/reviews/${reviewId}`);
+    await apiClient.delete(`/api/courses/reviews/${reviewId}`);
     return true;
   },
 };
