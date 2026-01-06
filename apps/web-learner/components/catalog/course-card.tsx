@@ -29,22 +29,32 @@ export function CourseCard({
     slug,
     thumbnail,
     level,
-    instructor,
-    rating,
-    reviewCount,
-    students,
-    price,
-    originalPrice,
-    totalLessons,
-    totalHours,
-    isLive,
+    instructor = { name: '', avatar: '' },
+    rating = 0,
+    reviewCount = 0,
+    students = 0,
+    price = 0,
+    originalPrice = 0,
+    totalLessons = 0,
+    totalHours = 0,
+    isLive = false,
 }: CourseCardProps) {
+    // Đảm bảo các trường có thể null luôn có giá trị mặc định
+    const safeThumbnail = thumbnail ?? "/default-thumbnail.jpg";
+    const safeInstructor = instructor ?? { name: '', avatar: '' };
+    const safeRating = typeof rating === 'number' ? rating : 0;
+    const safeReviewCount = typeof reviewCount === 'number' ? reviewCount : 0;
+    const safeStudents = typeof students === 'number' ? students : 0;
+    const safePrice = typeof price === 'number' ? price : 0;
+    const safeOriginalPrice = typeof originalPrice === 'number' ? originalPrice : 0;
+    const safeTotalLessons = typeof totalLessons === 'number' ? totalLessons : 0;
+    const safeTotalHours = typeof totalHours === 'number' ? totalHours : 0;
     return (
         <Link href={`/courses/${slug}`}>
             <Card className="h-full overflow-hidden hover:shadow-lg transition-shadow border-slate-200 dark:border-slate-800 flex flex-col group">
                 <div className="relative aspect-video overflow-hidden">
                     <img
-                        src={thumbnail}
+                        src={safeThumbnail}
                         alt={title}
                         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
@@ -64,36 +74,47 @@ export function CourseCard({
                     </h3>
 
                     <div className="flex items-center gap-2 text-sm text-slate-500">
-                        <div className="flex items-center gap-1 text-yellow-500">
-                            <span className="font-bold text-slate-900 dark:text-white">{rating}</span>
-                            <Star className="w-4 h-4 fill-current" />
+                        <div className="flex items-center gap-1">
+                            <span className="font-bold text-slate-900 dark:text-white">{safeRating}</span>
+                            {[...Array(5)].map((_, i) => {
+                                const isFull = i < Math.floor(safeRating);
+                                const isHalf = i === Math.floor(safeRating) && safeRating % 1 >= 0.5;
+                                return (
+                                    <Star
+                                        key={i}
+                                        className="w-4 h-4"
+                                        style={{ color: isFull || isHalf ? '#FFD700' : '#E5E7EB' }}
+                                        fill={isFull ? '#FFD700' : isHalf ? 'url(#half-star)' : 'none'}
+                                    />
+                                );
+                            })}
+                            <span>({safeReviewCount})</span>
                         </div>
-                        <span>({reviewCount})</span>
                         <span className="text-slate-300">•</span>
                         <div className="flex items-center gap-1">
                             <Users className="w-4 h-4" />
-                            <span>{students.toLocaleString()}</span>
+                            <span>{safeStudents.toLocaleString()}</span>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-4 text-xs text-slate-500 font-medium">
                         <div className="flex items-center gap-1.5">
                             <BookOpen className="w-3.5 h-3.5" />
-                            <span>{totalLessons} bài</span>
+                            <span>{safeTotalLessons} bài</span>
                         </div>
                         <div className="flex items-center gap-1.5">
                             <PlayCircle className="w-3.5 h-3.5" />
-                            <span>{totalHours} giờ</span>
+                            <span>{safeTotalHours} giờ</span>
                         </div>
                     </div>
 
                     <div className="pt-2 flex items-center gap-2">
                         <Avatar className="w-6 h-6">
-                            <AvatarImage src={instructor.avatar} />
-                            <AvatarFallback>{instructor.name[0]}</AvatarFallback>
+                            <AvatarImage src={safeInstructor.avatar} />
+                            <AvatarFallback>{safeInstructor.name?.[0] ?? ''}</AvatarFallback>
                         </Avatar>
                         <span className="text-sm text-slate-600 dark:text-slate-400 truncate">
-                            {instructor.name}
+                            {safeInstructor.name}
                         </span>
                     </div>
                 </CardContent>
@@ -102,11 +123,11 @@ export function CourseCard({
                     <div className="flex flex-col">
                         <div className="flex items-center gap-2">
                             <span className="font-bold text-lg text-teal-600">
-                                {price === 0 ? "Miễn phí" : price.toLocaleString() + "₫"}
+                                {safePrice === 0 ? "Miễn phí" : safePrice.toLocaleString() + "₫"}
                             </span>
-                            {originalPrice && originalPrice > price && (
+                            {safeOriginalPrice > safePrice && (
                                 <span className="text-xs text-slate-400 line-through">
-                                    {originalPrice.toLocaleString()}₫
+                                    {safeOriginalPrice.toLocaleString()}₫
                                 </span>
                             )}
                         </div>
