@@ -1,6 +1,5 @@
-import { Injectable, Logger, Inject } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
-import { PrismaService } from '@server/shared';
 import {
   type ReviewCreateDTO,
   type ReviewQueryDTO,
@@ -8,12 +7,13 @@ import {
   type PaginatedReviewResponseDTO,
   type RatingDistributionDTO,
 } from '@workspace/schemas';
+import { ReviewRepository } from './review.repository';
 
 @Injectable()
 export class ReviewService {
   private readonly logger = new Logger(ReviewService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly reviewRepository: ReviewRepository) {}
 
   /**
    * Map Review entity to ReviewResponseDTO with user info
@@ -49,23 +49,12 @@ export class ReviewService {
       const skip = (pageNum - 1) * limitNum;
 
       const [total, reviews] = await Promise.all([
-        this.prisma.review.count({
-          where: { courseId },
-        }),
-        this.prisma.review.findMany({
-          where: { courseId },
-          include: {
-            user: {
-              select: {
-                id: true,
-                displayName: true,
-                avatarUrl: true,
-              },
-            },
-          },
-          orderBy: { createdAt: 'desc' },
-          take: limitNum,
+        this.reviewRepository.countByCourseId(courseId),
+        this.reviewRepository.findManyByCourseId({
+          courseId,
           skip,
+          take: limitNum,
+          includeUser: true,
         }),
       ]);
 
@@ -97,10 +86,7 @@ export class ReviewService {
     courseId: string,
   ): Promise<RatingDistributionDTO> {
     try {
-      const reviews = await this.prisma.review.findMany({
-        where: { courseId },
-        select: { rating: true },
-      });
+      const reviews = await this.reviewRepository.findAllByCourseId(courseId);
 
       const totalReviews = reviews.length;
       const distribution = [1, 2, 3, 4, 5].map((stars) => {
@@ -145,9 +131,7 @@ export class ReviewService {
   ): Promise<ReviewResponseDTO> {
     try {
       // Check if course exists
-      const course = await this.prisma.course.findFirst({
-        where: { id: courseId, deletedAt: null },
-      });
+      const course = await this.reviewRepository.findCourse(courseId);
 
       if (!course) {
         throw new RpcException({
@@ -157,14 +141,10 @@ export class ReviewService {
       }
 
       // Check if user already reviewed this course
-      const existingReview = await this.prisma.review.findUnique({
-        where: {
-          userId_courseId: {
-            userId,
-            courseId,
-          },
-        },
-      });
+      const existingReview = await this.reviewRepository.findByUserAndCourse(
+        userId,
+        courseId,
+      );
 
       if (existingReview) {
         throw new RpcException({
@@ -174,22 +154,11 @@ export class ReviewService {
       }
 
       // Create review
-      const review = await this.prisma.review.create({
-        data: {
-          userId,
-          courseId,
-          rating: input.rating,
-          comment: input.comment || null,
-        },
-        include: {
-          user: {
-            select: {
-              id: true,
-              displayName: true,
-              avatarUrl: true,
-            },
-          },
-        },
+      const review = await this.reviewRepository.create({
+        userId,
+        courseId,
+        rating: input.rating,
+        comment: input.comment || null,
       });
 
       // Update course averageRating and totalReviews
@@ -213,10 +182,7 @@ export class ReviewService {
    */
   private async updateCourseRatingStats(courseId: string): Promise<void> {
     try {
-      const reviews = await this.prisma.review.findMany({
-        where: { courseId },
-        select: { rating: true },
-      });
+      const reviews = await this.reviewRepository.findAllByCourseId(courseId);
 
       const totalReviews = reviews.length;
       const averageRating =
@@ -224,13 +190,11 @@ export class ReviewService {
           ? reviews.reduce((sum, r) => sum + r.rating, 0) / totalReviews
           : 0;
 
-      await this.prisma.course.update({
-        where: { id: courseId },
-        data: {
-          averageRating: Math.round(averageRating * 100) / 100,
-          totalReviews,
-        },
-      });
+      await this.reviewRepository.updateCourseRatingStats(
+        courseId,
+        averageRating,
+        totalReviews,
+      );
     } catch (error: any) {
       this.logger.error('Failed to update course rating stats', error);
       // Don't throw - this is a background update
@@ -242,9 +206,7 @@ export class ReviewService {
    */
   async delete(reviewId: string, userId: string): Promise<boolean> {
     try {
-      const review = await this.prisma.review.findUnique({
-        where: { id: reviewId },
-      });
+      const review = await this.reviewRepository.findById(reviewId);
 
       if (!review) {
         throw new RpcException({
@@ -263,9 +225,7 @@ export class ReviewService {
 
       const courseId = review.courseId;
 
-      await this.prisma.review.delete({
-        where: { id: reviewId },
-      });
+      await this.reviewRepository.delete(reviewId);
 
       // Update course rating stats
       await this.updateCourseRatingStats(courseId);
@@ -283,7 +243,3 @@ export class ReviewService {
     }
   }
 }
-
-
-
-
