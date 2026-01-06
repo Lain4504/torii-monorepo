@@ -15,26 +15,12 @@ import type {
     UserRegistrationDTO,
     UserLoginDTO,
     UserResponseDTO,
+    AuthResponseDTO as AuthResponse,
+    LoginResponseDTO as LoginResponse,
+    AuthResultDTO as AuthResult,
 } from '@workspace/schemas';
 
-export interface AuthResponse {
-    user: UserResponseDTO;
-    accessToken: string;
-}
 
-export interface LoginResponse {
-    requiresTwoFactor: boolean;
-    twoFactorMethod?: 'totp';
-    tempToken?: string;
-    user?: UserResponseDTO;
-    accessToken?: string;
-}
-
-export interface AuthResult {
-    success: boolean;
-    data?: AuthResponse | { user: UserResponseDTO };
-    message?: string;
-}
 
 @Injectable()
 export class AuthService {

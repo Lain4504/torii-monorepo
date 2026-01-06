@@ -17,7 +17,7 @@ import type {
     UserResponseDTO,
     UserCreateDTO,
     UserAdminUpdateDTO,
-    PaginatedResponse,
+    PaginatedResponseDTO,
     ReqWithRequester,
 } from '@workspace/schemas';
 import { UsersService } from '../../modules/users/users.service';
@@ -40,7 +40,7 @@ export class UsersController {
         @Query('page') page: number = 1,
         @Query('limit') limit: number = 10,
         @Query('search') search: string = '',
-    ): Promise<PaginatedResponse<UserResponseDTO>> {
+    ): Promise<PaginatedResponseDTO<UserResponseDTO>> {
         return this.usersService.findAll({
             page: Number(page),
             limit: Number(limit),

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { blogCommentSchema } from '../models/blog-comment.model';
-import { paginatedResponseSchema } from '../interfaces/common.interface';
+import { paginatedResponseSchema } from './common.dto';
 
 export const blogCommentCreateDTOSchema = blogCommentSchema.pick({
     postId: true,

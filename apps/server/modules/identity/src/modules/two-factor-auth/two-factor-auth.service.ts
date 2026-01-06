@@ -18,7 +18,7 @@ import type {
     TotpSetupResponse,
     EnableTotpResponse,
     TwoFactorMethod,
-} from './interfaces/two-factor-auth.interface';
+} from '@workspace/schemas';
 
 /**
  * Two-Factor Authentication Service

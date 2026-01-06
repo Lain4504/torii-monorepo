@@ -1,19 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import { RBACConfigService } from './rbac-config.service';
-import {AuditLogService} from "../audit/audit-log.service";
+import { AuditLogService } from "../audit/audit-log.service";
+import type { AuditContextDTO } from '@workspace/schemas';
 
 export interface UserPermissions {
     permissions: string[];
 }
 
-export interface AuditContext {
-    actorId: string;
-    actorEmail: string;
-    actorRole: string;
-    ipAddress?: string;
-    userAgent?: string;
-}
+// Type alias for backward compatibility
+export type AuditContext = AuditContextDTO;
 
 @Injectable()
 export class RBACService {
@@ -92,7 +88,7 @@ export class RBACService {
     async setRolePermissions(
         roleCode: string,
         permissionCodes: string[],
-        context?: AuditContext,
+        context?: AuditContextDTO,
     ): Promise<void> {
         // Validate role exists in config
         const role = this.rbacConfig.getRoleByCode(roleCode);
@@ -185,7 +181,7 @@ export class RBACService {
     async grantPermissionToUser(
         userId: string,
         permissionCode: string,
-        context?: AuditContext,
+        context?: AuditContextDTO,
     ): Promise<void> {
         // Validate permission exists in config
         if (!this.rbacConfig.isValidPermission(permissionCode)) {
@@ -243,7 +239,7 @@ export class RBACService {
     async revokePermissionFromUser(
         userId: string,
         permissionCode: string,
-        context?: AuditContext,
+        context?: AuditContextDTO,
     ): Promise<void> {
         // Get user info for audit
         const user = await this.prisma.user.findUnique({

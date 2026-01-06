@@ -12,11 +12,11 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { TwoFactorAuthService } from './two-factor-auth.service';
 import { GatewayAuthGuard } from '@server/shared';
-import type { ReqWithRequester } from '@workspace/schemas';
-import {
-    EnableTotpDto,
-    Disable2FADto,
-} from './dto/two-factor-auth.dto';
+import type {
+    ReqWithRequester,
+    EnableTotpDTO,
+    Disable2FADTO,
+} from '@workspace/schemas';
 import * as argon2 from 'argon2';
 import { PrismaService } from '@server/shared';
 
@@ -61,7 +61,7 @@ export class TwoFactorAuthController {
     })
     async enableTotp(
         @Request() req: ReqWithRequester,
-        @Body() dto: EnableTotpDto,
+        @Body() dto: EnableTotpDTO,
     ) {
         return this.twoFactorAuthService.enableTotp(
             req.requester.sub,
@@ -83,7 +83,7 @@ export class TwoFactorAuthController {
     })
     async disableTotp(
         @Request() req: ReqWithRequester,
-        @Body() dto: Disable2FADto,
+        @Body() dto: Disable2FADTO,
     ) {
         // Verify password
         const user = await this.prisma.user.findUnique({

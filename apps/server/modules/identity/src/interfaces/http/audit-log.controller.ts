@@ -1,6 +1,7 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { GatewayAuthGuard } from '@server/shared';
-import {AuditLogFilters, AuditLogService} from "../../modules/audit/audit-log.service";
+import type { AuditLogFiltersDTO } from '@workspace/schemas';
+import { AuditLogService } from "../../modules/audit";
 
 @UseGuards(GatewayAuthGuard)
 @Controller('admin/audit-logs')
@@ -21,7 +22,7 @@ export class AuditLogController {
         @Query('page') page?: string,
         @Query('limit') limit?: string,
     ) {
-        const filters: AuditLogFilters = {
+        const filters: AuditLogFiltersDTO = {
             userId,
             action,
             entity,

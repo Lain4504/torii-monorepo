@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { NotificationType } from '../models/notification.model';
-import { paginatedResponseSchema } from '../interfaces/common.interface';
+import { paginatedResponseSchema } from './common.dto';
 
 export const notificationResponseDTOSchema = z.object({
     id: z.string().uuid(),

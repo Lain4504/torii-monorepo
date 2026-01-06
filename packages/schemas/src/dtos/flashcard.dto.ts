@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { FlashcardDifficulty, flashcardSchema } from '../models/flashcard.model';
-import { paginatedResponseSchema } from '../interfaces/common.interface';
+import { paginatedResponseSchema } from './common.dto';
 
 export const flashcardCreateDTOSchema = flashcardSchema.pick({
     deckId: true,
