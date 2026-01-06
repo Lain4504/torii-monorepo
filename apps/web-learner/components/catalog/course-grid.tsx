@@ -6,7 +6,7 @@ import { useCourses } from "./useCourses"
 
 interface CourseGridProps {
     searchQuery?: string
-    selectedLevel?: string
+    selectedLevels?: string[]
     priceFilter?: "all" | "free" | "paid"
     sortBy?: string
     currentPage?: number
@@ -15,34 +15,35 @@ interface CourseGridProps {
 
 export function CourseGrid({ 
     searchQuery = "", 
-    selectedLevel = undefined, 
+    selectedLevels = [], 
     priceFilter = "all",
     sortBy = "popular",
     currentPage = 1,
     onPageChange = () => {}
 }: CourseGridProps) {
+    const ITEMS_PER_PAGE = 12;
+    
     const { data, isLoading, error } = useCourses({ 
-        page: currentPage, 
-        limit: 12,
-        level: selectedLevel,
+        page: 1,
+        limit: 1000, // Fetch all data to filter client-side
         q: searchQuery
     });
 
-    console.log('CourseGrid - data:', data);
-    console.log('CourseGrid - isLoading:', isLoading);
-    console.log('CourseGrid - error:', error);
-    console.log('CourseGrid - searchQuery:', searchQuery);
-    console.log('CourseGrid - selectedLevel:', selectedLevel);
-    console.log('CourseGrid - priceFilter:', priceFilter);
-
     const courses = data?.data || [];
     
-    // Filter courses by price
+    // Filter courses by level (OR logic - show courses matching ANY selected level)
     let filteredCourses = courses;
+    if (selectedLevels.length > 0) {
+        filteredCourses = courses.filter(course => 
+            selectedLevels.includes(course.level)
+        );
+    }
+    
+    // Filter courses by price
     if (priceFilter === "free") {
-        filteredCourses = courses.filter(course => course.price === 0);
+        filteredCourses = filteredCourses.filter(course => course.price === 0);
     } else if (priceFilter === "paid") {
-        filteredCourses = courses.filter(course => course.price > 0);
+        filteredCourses = filteredCourses.filter(course => course.price > 0);
     }
     
     // Sort courses based on sortBy parameter
@@ -55,6 +56,12 @@ export function CourseGrid({
         sortedCourses.sort((a, b) => b.price - a.price);
     }
     // 'popular' is default, no sorting needed
+
+    // Calculate pagination based on filtered data
+    const totalPages = Math.ceil(sortedCourses.length / ITEMS_PER_PAGE);
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    const paginatedCourses = sortedCourses.slice(startIndex, endIndex);
 
     const isEmpty = !isLoading && sortedCourses.length === 0;
 
@@ -70,13 +77,13 @@ export function CourseGrid({
                 <div className="text-center py-12 text-gray-500">Không có khoá học nào phù hợp với tìm kiếm</div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {sortedCourses.map((course) => (
+                    {paginatedCourses.map((course) => (
                         <CourseCard key={course.id} {...course} />
                     ))}
                 </div>
             )}
 
-            {!isEmpty && data && (
+            {!isEmpty && (
                 <Pagination>
                     <PaginationContent>
                         <PaginationItem>
@@ -92,7 +99,7 @@ export function CourseGrid({
                             />
                         </PaginationItem>
                         
-                        {Array.from({ length: data.totalPages || 1 }, (_, i) => i + 1).map((page) => (
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                             <PaginationItem key={page}>
                                 <PaginationLink 
                                     href="#"
@@ -112,11 +119,11 @@ export function CourseGrid({
                                 href="#"
                                 onClick={(e) => {
                                     e.preventDefault()
-                                    if (currentPage < (data.totalPages || 1)) {
+                                    if (currentPage < totalPages) {
                                         onPageChange(currentPage + 1)
                                     }
                                 }}
-                                className={currentPage === (data.totalPages || 1) ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                                className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
                             />
                         </PaginationItem>
                     </PaginationContent>

@@ -7,7 +7,7 @@ import { CourseGrid } from "@/components/catalog/course-grid"
 
 export default function CourseCatalogPage() {
     const [searchQuery, setSearchQuery] = useState("")
-    const [selectedLevel, setSelectedLevel] = useState<string | undefined>(undefined)
+    const [selectedLevels, setSelectedLevels] = useState<string[]>([])
     const [priceFilter, setPriceFilter] = useState<"all" | "free" | "paid">("all")
     const [sortBy, setSortBy] = useState("popular")
     const [currentPage, setCurrentPage] = useState(1)
@@ -34,9 +34,9 @@ export default function CourseCatalogPage() {
                     <aside className="hidden lg:block lg:col-span-1">
                         <div className="sticky top-24">
                             <FilterSidebar 
-                                selectedLevel={selectedLevel}
-                                onLevelChange={(level) => {
-                                    setSelectedLevel(level)
+                                selectedLevels={selectedLevels}
+                                onLevelChange={(levels) => {
+                                    setSelectedLevels(levels)
                                     handleFilterChange()
                                 }}
                                 priceFilter={priceFilter}
@@ -52,7 +52,7 @@ export default function CourseCatalogPage() {
                     <main className="lg:col-span-3">
                         <CourseGrid 
                             searchQuery={searchQuery}
-                            selectedLevel={selectedLevel}
+                            selectedLevels={selectedLevels}
                             priceFilter={priceFilter}
                             sortBy={sortBy}
                             currentPage={currentPage}
