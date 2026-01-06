@@ -30,7 +30,14 @@ export class WishlistController {
         @Body() input: WishlistCreateDTO,
         @Req() req: any,
     ) {
-        if (!input.userId) input.userId = req.user.uid;
+        // Get userId from JWT payload (sub field)
+        const userId = req.user?.sub || req.user?.uid;
+        if (!userId) {
+            throw new Error('User ID not found in request');
+        }
+        if (!input.userId) {
+            input.userId = userId;
+        }
         return this.wishlistService.create(input);
     }
 

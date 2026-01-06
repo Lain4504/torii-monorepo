@@ -26,6 +26,7 @@ export class ProxyController {
         '/api/courses': process.env.LMS_SERVICE_URL || 'http://localhost:8082',
         '/api/modules': process.env.LMS_SERVICE_URL || 'http://localhost:8082',
         '/api/lessons': process.env.LMS_SERVICE_URL || 'http://localhost:8082',
+        '/api/wishlists': process.env.LMS_SERVICE_URL || 'http://localhost:8082',
 
         // Flashcards Service Routes
         '/api/flashcards': process.env.FLASHCARDS_SERVICE_URL || 'http://localhost:8083',
@@ -35,7 +36,6 @@ export class ProxyController {
         '/api/blogs': process.env.COMMUNITY_SERVICE_URL || 'http://localhost:8084',
         '/api/blog-comments': process.env.COMMUNITY_SERVICE_URL || 'http://localhost:8084',
         '/api/notifications': process.env.COMMUNITY_SERVICE_URL || 'http://localhost:8084',
-        '/api/wishlists': process.env.COMMUNITY_SERVICE_URL || 'http://localhost:8084',
 
         // Assessment Service Routes
         '/api/question-banks': process.env.ASSESSMENT_SERVICE_URL || 'http://localhost:8085',

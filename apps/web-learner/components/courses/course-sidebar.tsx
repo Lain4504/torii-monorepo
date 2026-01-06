@@ -1,16 +1,84 @@
 'use client'
 
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@workspace/ui/components/button'
 import { Card, CardContent } from '@workspace/ui/components/card'
 import { Badge } from '@workspace/ui/components/badge'
-import { PlayCircle, BookOpen, Clock, Globe, Award } from 'lucide-react'
+import { PlayCircle, BookOpen, Clock, Globe, Award, Heart } from 'lucide-react'
 import type { CourseResponseDTO } from '@workspace/schemas'
+import { wishlistApi, type WishlistItem } from '@/api/services/wishlist-api'
+import { useAppSelector } from '@/hooks/hooks'
+import { toast } from '@workspace/ui/components/sonner'
 
 interface CourseSidebarProps {
     course: CourseResponseDTO
 }
 
 export function CourseSidebar({ course }: CourseSidebarProps) {
+    const [isInWishlist, setIsInWishlist] = useState(false)
+    const [wishlistId, setWishlistId] = useState<string | null>(null)
+    const [isLoadingWishlist, setIsLoadingWishlist] = useState(false)
+    const [isToggling, setIsToggling] = useState(false)
+
+    const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated)
+    const user = useAppSelector((state) => state.auth.user)
+    const router = useRouter()
+
+    useEffect(() => {
+        if (isAuthenticated && user?.id) {
+            checkWishlistStatus()
+        }
+    }, [isAuthenticated, user?.id, course.id])
+
+    const checkWishlistStatus = async () => {
+        if (!user?.id) return
+
+        try {
+            setIsLoadingWishlist(true)
+            const item = await wishlistApi.checkCourseInWishlist(course.id, user.id)
+            if (item) {
+                setIsInWishlist(true)
+                setWishlistId(item.id)
+            } else {
+                setIsInWishlist(false)
+                setWishlistId(null)
+            }
+        } catch (error) {
+            console.error('Failed to check wishlist status:', error)
+        } finally {
+            setIsLoadingWishlist(false)
+        }
+    }
+
+    const handleToggleWishlist = async () => {
+        if (!isAuthenticated) {
+            toast.error('Vui lòng đăng nhập để thêm vào yêu thích')
+            router.push('/login')
+            return
+        }
+
+        try {
+            setIsToggling(true)
+            if (isInWishlist && wishlistId) {
+                await wishlistApi.removeFromWishlist(wishlistId)
+                setIsInWishlist(false)
+                setWishlistId(null)
+                toast.success('Đã xóa khỏi yêu thích')
+            } else {
+                const item = await wishlistApi.addToWishlist(course.id)
+                setIsInWishlist(true)
+                setWishlistId(item.id)
+                toast.success('Đã thêm vào yêu thích')
+            }
+        } catch (error: any) {
+            console.error('Failed to toggle wishlist:', error)
+            toast.error(error?.response?.data?.message || 'Không thể cập nhật yêu thích')
+        } finally {
+            setIsToggling(false)
+        }
+    }
+
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat('vi-VN', {
             style: 'currency',
@@ -75,9 +143,31 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
                             {course.isFree ? 'Học miễn phí' : 'Đăng ký ngay'}
                         </Button>
                         {!course.isFree && (
-                            <Button variant="outline" className="w-full h-12 text-base font-medium border-slate-200 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800">
-                                Thêm vào giỏ hàng
-                            </Button>
+                            <div className="flex gap-2">
+                                <Button 
+                                    variant="outline" 
+                                    className="flex-1 h-12 text-base font-medium border-slate-200 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"
+                                >
+                                    Thêm vào giỏ hàng
+                                </Button>
+                                {isAuthenticated && (
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        className="h-12 w-12 border-slate-200 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"
+                                        onClick={handleToggleWishlist}
+                                        disabled={isToggling || isLoadingWishlist}
+                                    >
+                                        <Heart
+                                            className={`w-5 h-5 ${
+                                                isInWishlist
+                                                    ? 'fill-red-500 text-red-500'
+                                                    : 'text-slate-500'
+                                            }`}
+                                        />
+                                    </Button>
+                                )}
+                            </div>
                         )}
                     </div>
 

@@ -209,22 +209,32 @@ export class CourseService {
     });
 
     return {
-      modules: modules.map(module => ({
-        id: module.id,
-        title: module.title,
-        description: module.description || undefined,
-        order: module.order,
-        durationMinutes: module.durationMinutes || undefined,
-        lessons: module.lessons.map(lesson => ({
-          id: lesson.id,
-          title: lesson.title,
-          contentType: lesson.contentType,
-          videoDuration: lesson.videoDuration || undefined,
-          order: lesson.order,
-          isPreview: lesson.isPreview,
-          isUnlocked: lesson.isUnlocked,
-        })),
-      })),
+      modules: modules.map(module => {
+        // Calculate total duration for module from lessons' videoDuration
+        const totalDurationSeconds = module.lessons.reduce((sum, lesson) => {
+          return sum + (lesson.videoDuration || 0);
+        }, 0);
+        const durationMinutes = totalDurationSeconds > 0 
+          ? Math.round(totalDurationSeconds / 60) 
+          : (module.durationMinutes || undefined);
+
+        return {
+          id: module.id,
+          title: module.title,
+          description: module.description || undefined,
+          order: module.order,
+          durationMinutes,
+          lessons: module.lessons.map(lesson => ({
+            id: lesson.id,
+            title: lesson.title,
+            contentType: lesson.contentType,
+            videoDuration: lesson.videoDuration || undefined,
+            order: lesson.order,
+            isPreview: lesson.isPreview,
+            isUnlocked: lesson.isUnlocked,
+          })),
+        };
+      }),
     };
   }
 

@@ -88,6 +88,14 @@ export class WishlistService {
   }
 
   async create(input: WishlistCreateDTO): Promise<WishlistResponseDTO> {
+    // Validate required fields
+    if (!input.userId) {
+      throw new Error('UserId is required');
+    }
+    if (!input.courseId) {
+      throw new Error('CourseId is required');
+    }
+
     try {
       const created = await this.prisma.wishlist.create({
         data: { userId: input.userId, courseId: input.courseId },
