@@ -71,7 +71,13 @@ export const getUsersColumns = ({ onView, onEdit, onDelete, page, limit }: Users
             );
         },
     }),
-    columnHelper.accessor('status', {
+    columnHelper.accessor(row => {
+        if (row.deletedAt) return 'deleted';
+        if (row.bannedUntil && new Date(row.bannedUntil) > new Date()) return 'banned';
+        if (!row.verifiedAt) return 'inactive';
+        return 'active';
+    }, {
+        id: 'status',
         header: 'Status',
         cell: (info) => {
             const status = info.getValue();
@@ -81,7 +87,7 @@ export const getUsersColumns = ({ onView, onEdit, onDelete, page, limit }: Users
                         ? 'bg-green-100 text-green-800'
                         : status === 'inactive'
                             ? 'bg-gray-100 text-gray-800'
-                            : 'bg-red-100 text-red-800'
+                            : 'bg-red-100 text-red-800' // Banned or Deleted
                         }`}
                 >
                     {status}

@@ -57,18 +57,27 @@ export function ViewUserDialog({
                         <div className="space-y-2">
                             <Label>Status</Label>
                             <div>
-                                <Badge
-                                    variant={
-                                        user.status === 'active'
-                                            ? 'default'
-                                            : user.status === 'inactive'
-                                                ? 'secondary'
-                                                : 'destructive'
-                                    }
-                                    className="capitalize"
-                                >
-                                    {user.status}
-                                </Badge>
+                                {(() => {
+                                    let status = 'active';
+                                    if (user.deletedAt) status = 'deleted';
+                                    else if (user.bannedUntil && new Date(user.bannedUntil) > new Date()) status = 'banned';
+                                    else if (!user.verifiedAt) status = 'inactive';
+
+                                    return (
+                                        <Badge
+                                            variant={
+                                                status === 'active'
+                                                    ? 'default'
+                                                    : status === 'inactive'
+                                                        ? 'secondary'
+                                                        : 'destructive'
+                                            }
+                                            className="capitalize"
+                                        >
+                                            {status}
+                                        </Badge>
+                                    );
+                                })()}
                             </div>
                         </div>
                     </div>

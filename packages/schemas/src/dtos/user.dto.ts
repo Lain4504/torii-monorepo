@@ -25,11 +25,9 @@ export const userCreateDTOSchema = userSchema
         displayName: true,
         password: true,
         role: true,
-        status: true,
     })
     .extend({
         role: userSchema.shape.role.optional(),
-        status: userSchema.shape.status.optional(),
     });
 
 export type UserCreateDTO = z.infer<typeof userCreateDTOSchema>;
@@ -44,11 +42,10 @@ export const userUpdateDTOSchema = userSchema
 
 export type UserUpdateDTO = z.infer<typeof userUpdateDTOSchema>;
 
-// Admin Update DTO (includes role/status/email)
+// Admin Update DTO (includes role/email)
 export const userAdminUpdateDTOSchema = userUpdateDTOSchema.extend({
     email: userSchema.shape.email.optional(),
     role: userSchema.shape.role.optional(),
-    status: userSchema.shape.status.optional(),
 }).partial();
 
 export type UserAdminUpdateDTO = z.infer<typeof userAdminUpdateDTOSchema>;
@@ -59,7 +56,6 @@ export const userCondDTOSchema = userSchema
         email: true,
         displayName: true,
         role: true,
-        status: true,
     })
     .partial();
 

@@ -50,7 +50,7 @@ export class ProxyController {
         '/api/billing': process.env.BILLING_SERVICE_URL || 'http://localhost:8089',
 
         // Cortex Service Routes
-        '/api/cortex': process.env.CORTEX_SERVICE_URL || 'http://localhost:8090',
+        '/api/ai': process.env.CORTEX_SERVICE_URL || 'http://localhost:8090',
 
         // Meet Service Routes
         '/webhook': process.env.MEET_SERVICE_URL || 'http://localhost:8091',

@@ -8,13 +8,11 @@ export enum UserRole {
     STAFF = 'staff',
 }
 
-export enum UserStatus {
-    ACTIVE = 'active',
-    PENDING = 'pending',
-    INACTIVE = 'inactive',
-    BANNED = 'banned',
-    DELETED = 'deleted',
-}
+// User status is now determined by timestamps:
+// - verifiedAt: null = pending verification
+// - bannedUntil: not null = banned until this time
+// - deletedAt: not null = soft deleted
+// - All null + verifiedAt set = active
 
 // Business Errors
 export const ErrFirstNameAtLeast2Chars = new Error('First name must be at least 2 characters');
@@ -35,8 +33,8 @@ export const userSchema = z.object({
     password: z.string().min(8, ErrPasswordAtLeast8Chars.message),
     salt: z.string().min(8),
     role: z.nativeEnum(UserRole),
-    status: z.nativeEnum(UserStatus),
-    emailVerified: z.boolean().default(false),
+    verifiedAt: z.date().optional().nullable(),
+    bannedUntil: z.date().optional().nullable(),
     lastLoginAt: z.date().optional().nullable(),
     createdAt: z.date(),
     updatedAt: z.date(),
@@ -44,3 +42,4 @@ export const userSchema = z.object({
 });
 
 export type User = z.infer<typeof userSchema>;
+

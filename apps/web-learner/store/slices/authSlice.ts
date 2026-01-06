@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { apiClient } from '../../api/api-client';
-import { UserStatus } from '@workspace/schemas';
 import type { UserResponseDTO, UserLoginDTO, UserRegistrationDTO } from '@workspace/schemas';
 
 // Define the auth state
@@ -36,8 +35,10 @@ export const login = createAsyncThunk(
         } catch (error: any) {
             // Return error message
             if (error.response && error.response.data.message) {
+                console.error('Login error:', error.response.data.message);
                 return rejectWithValue(error.response.data.message);
             }
+            console.error('Login error:', error.message);
             return rejectWithValue(error.message || 'Login failed');
         }
     }
@@ -153,10 +154,11 @@ export const authSlice = createSlice({
                 state.status = 'loading';
                 state.error = null;
             })
-            .addCase(register.fulfilled, (state, action) => {
+            .addCase(register.fulfilled, (state) => {
                 state.status = 'succeeded';
-                state.isAuthenticated = true;
-                state.user = action.payload;
+                // Do NOT set isAuthenticated = true here.
+                // The user must verify their email first.
+                // The component will handle the redirect to the verification page based on the 'succeeded' status.
             })
             .addCase(register.rejected, (state, action) => {
                 state.status = 'failed';
@@ -190,8 +192,7 @@ export const authSlice = createSlice({
             // Verify Email
             .addCase(verifyEmail.fulfilled, (state) => {
                 if (state.user) {
-                    state.user.emailVerified = true;
-                    state.user.status = UserStatus.ACTIVE;
+                    state.user.verifiedAt = new Date();
                 }
             })
 
