@@ -11,7 +11,6 @@ import { GatewayAuthGuard } from '@server/shared';
 import { UserRole } from '@workspace/schemas';
 
 @Controller('courses')
-@UseGuards(GatewayAuthGuard)
 export class CourseController {
   private readonly logger = new Logger(CourseController.name);
 
@@ -22,11 +21,22 @@ export class CourseController {
     return await this.courseService.findAll(query);
   }
 
+  @Get('slug/:slug')
+  async findBySlug(@Param('slug') slug: string): Promise<CourseResponseDTO | null> {
+    return await this.courseService.findBySlug(slug);
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<CourseResponseDTO | null> {
     return await this.courseService.findOne(id);
   }
 
+  @Get(':id/curriculum')
+  async getCurriculum(@Param('id') id: string) {
+    return await this.courseService.getCurriculum(id);
+  }
+
+  @UseGuards(GatewayAuthGuard)
   @Post()
   async create(@Body() input: CourseCreateDTO): Promise<CourseResponseDTO> {
     try {
@@ -38,6 +48,7 @@ export class CourseController {
     }
   }
 
+  @UseGuards(GatewayAuthGuard)
   @Patch(':id')
   async update(
     @Param('id') id: string,
@@ -52,11 +63,13 @@ export class CourseController {
     }
   }
 
+  @UseGuards(GatewayAuthGuard)
   @Delete(':id')
   delete(@Param('id') id: string): Promise<boolean> {
     return this.courseService.delete(id);
   }
 
+  @UseGuards(GatewayAuthGuard)
   @Post(':id/restore')
   async restore(@Param('id') id: string): Promise<CourseResponseDTO> {
     try {

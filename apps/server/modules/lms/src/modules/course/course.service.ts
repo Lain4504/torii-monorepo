@@ -159,6 +159,75 @@ export class CourseService {
     return course ? this.toCourseResponseDto(course) : null;
   }
 
+  async findBySlug(slug: string): Promise<CourseResponseDTO | null> {
+    const course = await this.prisma.course.findFirst({
+      where: {
+        slug,
+        deletedAt: null, // Exclude soft-deleted courses
+      },
+    });
+
+    return course ? this.toCourseResponseDto(course) : null;
+  }
+
+  async getCurriculum(courseId: string): Promise<{
+    modules: Array<{
+      id: string;
+      title: string;
+      description?: string;
+      order: number;
+      durationMinutes?: number;
+      lessons: Array<{
+        id: string;
+        title: string;
+        contentType: string;
+        videoDuration?: number;
+        order: number;
+        isPreview: boolean;
+        isUnlocked: boolean;
+      }>;
+    }>;
+  }> {
+    const modules = await this.prisma.module.findMany({
+      where: {
+        courseId,
+        deletedAt: null,
+      },
+      include: {
+        lessons: {
+          where: {
+            deletedAt: null,
+          },
+          orderBy: {
+            order: 'asc',
+          },
+        },
+      },
+      orderBy: {
+        order: 'asc',
+      },
+    });
+
+    return {
+      modules: modules.map(module => ({
+        id: module.id,
+        title: module.title,
+        description: module.description || undefined,
+        order: module.order,
+        durationMinutes: module.durationMinutes || undefined,
+        lessons: module.lessons.map(lesson => ({
+          id: lesson.id,
+          title: lesson.title,
+          contentType: lesson.contentType,
+          videoDuration: lesson.videoDuration || undefined,
+          order: lesson.order,
+          isPreview: lesson.isPreview,
+          isUnlocked: lesson.isUnlocked,
+        })),
+      })),
+    };
+  }
+
   async create(input: CourseCreateDTO): Promise<CourseResponseDTO> {
     try {
       // Generate slug from title
