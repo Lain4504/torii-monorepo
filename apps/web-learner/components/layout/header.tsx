@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { useAppSelector } from '@/hooks/hooks'
+import { useAppSelector, useAppDispatch } from '@/hooks/hooks'
+import { logout } from '@/store/slices/authSlice'
 import { Button } from '@workspace/ui/components/button'
 
 import {
@@ -20,12 +21,40 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { useTheme } from 'next-themes'
+import { useRouter } from 'next/navigation'
+import { toast } from '@workspace/ui/components/sonner'
 
 export function Header() {
+    const dispatch = useAppDispatch()
+    const router = useRouter()
     const { user, isAuthenticated } = useAppSelector((state) => state.auth)
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const [userMenuOpen, setUserMenuOpen] = useState(false)
+    const [isLoggingOut, setIsLoggingOut] = useState(false)
     const { theme, setTheme } = useTheme()
+
+    const handleLogout = async () => {
+        setIsLoggingOut(true)
+        try {
+            await dispatch(logout()).unwrap()
+
+            toast.success('Đăng xuất thành công', {
+                description: 'Hẹn gặp lại bạn!',
+            })
+
+            setUserMenuOpen(false)
+            setMobileMenuOpen(false)
+            router.push('/')
+            router.refresh()
+        } catch (error: any) {
+            console.error('Logout error:', error)
+            toast.error('Đăng xuất thất bại', {
+                description: error.message || 'Vui lòng thử lại',
+            })
+        } finally {
+            setIsLoggingOut(false)
+        }
+    }
 
     const navigation = [
         { name: 'Khóa học', href: '/courses', icon: BookOpen },
@@ -141,9 +170,13 @@ export function Header() {
                                                     <span>Cài đặt</span>
                                                 </Link>
                                                 <div className="border-t border-slate-200 dark:border-slate-700 my-2" />
-                                                <button className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                                                <button
+                                                    onClick={handleLogout}
+                                                    disabled={isLoggingOut}
+                                                    className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                >
                                                     <LogOut className="w-4 h-4" />
-                                                    <span>Đăng xuất</span>
+                                                    <span>{isLoggingOut ? 'Đang đăng xuất...' : 'Đăng xuất'}</span>
                                                 </button>
                                             </div>
                                         </>
@@ -213,9 +246,13 @@ export function Header() {
                                         <Settings className="w-5 h-5" />
                                         <span className="font-medium">Cài đặt</span>
                                     </Link>
-                                    <button className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                                    <button
+                                        onClick={handleLogout}
+                                        disabled={isLoggingOut}
+                                        className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
                                         <LogOut className="w-5 h-5" />
-                                        <span className="font-medium">Đăng xuất</span>
+                                        <span className="font-medium">{isLoggingOut ? 'Đang đăng xuất...' : 'Đăng xuất'}</span>
                                     </button>
                                 </div>
                             ) : (

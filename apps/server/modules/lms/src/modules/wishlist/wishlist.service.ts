@@ -4,7 +4,7 @@ import {
   type WishlistCreateDTO,
   type WishlistQueryDTO,
   type WishlistResponseDTO,
-  type PaginatedResponse,
+  type PaginatedResponseDTO,
 } from '@workspace/schemas';
 
 @Injectable()
@@ -24,7 +24,7 @@ export class WishlistService {
 
   async findAll(
     query: WishlistQueryDTO,
-  ): Promise<PaginatedResponse<WishlistResponseDTO>> {
+  ): Promise<PaginatedResponseDTO<WishlistResponseDTO>> {
     try {
       const { page = 1, limit = 10, userId, courseId } = query;
       const pageNum =

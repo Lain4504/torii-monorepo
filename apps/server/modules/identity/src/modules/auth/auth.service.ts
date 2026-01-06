@@ -15,26 +15,12 @@ import type {
     UserRegistrationDTO,
     UserLoginDTO,
     UserResponseDTO,
+    AuthResponseDTO as AuthResponse,
+    LoginResponseDTO as LoginResponse,
+    AuthResultDTO as AuthResult,
 } from '@workspace/schemas';
 
-export interface AuthResponse {
-    user: UserResponseDTO;
-    accessToken: string;
-}
 
-export interface LoginResponse {
-    requiresTwoFactor: boolean;
-    twoFactorMethod?: 'totp';
-    tempToken?: string;
-    user?: UserResponseDTO;
-    accessToken?: string;
-}
-
-export interface AuthResult {
-    success: boolean;
-    data?: AuthResponse | { user: UserResponseDTO };
-    message?: string;
-}
 
 @Injectable()
 export class AuthService {
@@ -166,7 +152,6 @@ export class AuthService {
      * Valid for 5 minutes
      */
     private async generate2FATempToken(userId: string, email: string, method: string): Promise<string> {
-        const jwt = await import('jsonwebtoken');
         const tempTokenExpiry = parseInt(process.env.TWO_FACTOR_TEMP_TOKEN_EXPIRY || '300'); // 5 minutes
 
         const payload = {
@@ -176,10 +161,11 @@ export class AuthService {
             type: '2fa-temp',
         };
 
-        // Generate token with JWT directly
-        const token = jwt.sign(payload, process.env.JWT_SECRET!, {
-            expiresIn: tempTokenExpiry,
-        });
+        // Generate token using JwtTokenProvider
+        const token = await this.jwtTokenProvider.generateToken(
+            payload as any,
+            `${tempTokenExpiry}s` // Convert to seconds format (e.g., "300s")
+        );
 
         // Store in Redis with expiry
         await this.redis.set(`2fa:temp:${userId}`, token, 'EX', tempTokenExpiry);
@@ -275,23 +261,6 @@ export class AuthService {
     }
 
     /**
-     * Generate 6-digit OTP and store in Redis (24h expiry)
-     */
-    private async generateAndSendOtp(email: string): Promise<void> {
-        // Generate 6 digit code
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-        // Store in Redis with 24 hours (86400 seconds) expiry
-        await this.redis.set(`otp:${email}`, otp, 'EX', 86400);
-
-        // Emit NATS event for notification service
-        this.natsClient.emit('auth.user.registered', {
-            email,
-            otp,
-        });
-    }
-
-    /**
      * Generate Magic Link token for email verification
      * Returns the token to be used in verification URL
      */
@@ -326,7 +295,7 @@ export class AuthService {
     }
 
     /**
-     * Resend verification OTP
+     * Resend verification email with magic link
      * Rate limited: 3 requests per hour per email
      */
     async resendVerification(email: string): Promise<void> {
@@ -373,24 +342,110 @@ export class AuthService {
         }
     }
 
-    /**
-     * Verify email with OTP
-     */
-    async verifyEmail(email: string, otp: string): Promise<boolean> {
-        const storedOtp = await this.redis.get(`otp:${email}`);
+    // ========================================
+    // Password Reset Methods
+    // ========================================
 
-        if (!storedOtp || storedOtp !== otp) {
-            return false;
+    /**
+     * Initiate password reset flow
+     * Generates a magic link token and sends reset email
+     * Rate limited: 3 requests per hour per email
+     */
+    async forgotPassword(email: string): Promise<void> {
+        const user = await this.usersRepository.findByEmail(email);
+
+        // Don't reveal if user exists or not (security best practice)
+        if (!user) {
+            return;
         }
 
-        // OTP valid - clear it
-        await this.redis.del(`otp:${email}`);
+        // Only allow password reset for users with password (not OAuth-only users)
+        if (!user.password) {
+            throw new BadRequestException('This account uses OAuth login. Password reset is not available.');
+        }
 
-        // Update user status to ACTIVE
-        // Update user status to ACTIVE
-        await this.usersRepository.updateByEmail(email, { verifiedAt: new Date() });
+        // Rate limiting: 3 requests per hour
+        const rateLimitKey = `reset-password:${email}`;
+        const attempts = await this.redis.get(rateLimitKey);
+        const attemptsCount = attempts ? parseInt(attempts) : 0;
 
-        return true;
+        if (attemptsCount >= 3) {
+            const ttl = await this.redis.ttl(rateLimitKey);
+            const minutesLeft = Math.ceil(ttl / 60);
+            throw new BadRequestException(
+                `Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau ${minutesLeft} phút.`
+            );
+        }
+
+        // Generate reset token (valid for 1 hour)
+        const crypto = await import('crypto');
+        const resetToken = crypto.randomBytes(32).toString('hex');
+
+        // Store email associated with reset token in Redis (1 hour expiry)
+        await this.redis.set(`reset-token:${resetToken}`, email, 'EX', 3600);
+
+        // Emit NATS event for notification service to send reset email
+        this.natsClient.emit('auth.password.reset-requested', {
+            email,
+            displayName: user.displayName,
+            resetToken,
+            resetUrl: `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`,
+        });
+
+        // Increment rate limit counter
+        if (attemptsCount === 0) {
+            await this.redis.set(rateLimitKey, '1', 'EX', 3600); // 1 hour
+        } else {
+            await this.redis.incr(rateLimitKey);
+        }
+    }
+
+    /**
+     * Verify reset password token
+     * Returns email if token is valid
+     */
+    async verifyResetToken(token: string): Promise<{ success: boolean; email?: string }> {
+        const email = await this.redis.get(`reset-token:${token}`);
+
+        if (!email) {
+            return { success: false };
+        }
+
+        return { success: true, email };
+    }
+
+    /**
+     * Reset password using valid reset token
+     */
+    async resetPassword(token: string, newPassword: string): Promise<void> {
+        const email = await this.redis.get(`reset-token:${token}`);
+
+        if (!email) {
+            throw new BadRequestException('Invalid or expired reset token');
+        }
+
+        const user = await this.usersRepository.findByEmail(email);
+
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        // Hash new password
+        const hashedPassword = await argon2.hash(newPassword);
+
+        // Update password
+        await this.usersRepository.update(user.id, {
+            password: hashedPassword,
+        });
+
+        // Delete reset token (one-time use)
+        await this.redis.del(`reset-token:${token}`);
+
+        // Emit NATS event for notification
+        this.natsClient.emit('auth.password.reset-completed', {
+            email,
+            displayName: user.displayName,
+        });
     }
 
     /**

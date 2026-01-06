@@ -1,12 +1,11 @@
 import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { PrismaService, generateSlug } from '@server/shared';
-import { BlogPostStatus } from '@workspace/schemas';
+import { BlogPostStatus, PaginatedResponseDTO } from '@workspace/schemas';
 import type {
   BlogPostCreateDTO,
   BlogPostUpdateDTO,
   BlogPostQueryDTO,
   BlogPostResponseDTO,
-  PaginatedResponse,
 } from '@workspace/schemas';
 
 @Injectable()
@@ -97,7 +96,7 @@ export class BlogService {
     return this.formatPostResponseWithAuthor(post);
   }
 
-  async findAllPosts(query: BlogPostQueryDTO): Promise<PaginatedResponse<BlogPostResponseDTO>> {
+  async findAllPosts(query: BlogPostQueryDTO): Promise<PaginatedResponseDTO<BlogPostResponseDTO>> {
     // Parse pagination params to numbers (query params are strings)
     const pageNum = parseInt(String(query.page || 1), 10);
     const limitNum = parseInt(String(query.limit || 10), 10);
@@ -282,4 +281,5 @@ export class BlogService {
     };
   }
 }
+
 

@@ -29,7 +29,7 @@ export function UsersPage() {
 
     // Derived Data (Client-side filtering/sorting)
     const processedUsers = useMemo(() => {
-        // useUsers hook returns PaginatedResponse = { data: UserResponseDTO[], total, page, limit, totalPages }
+        // useUsers hook returns PaginatedResponseDTO = { data: UserResponseDTO[], total, page, limit, totalPages }
         // So we access data.data to get the array of users
         let result = (data?.data || []) as UserResponseDTO[];
 

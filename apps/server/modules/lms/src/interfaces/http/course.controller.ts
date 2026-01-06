@@ -5,7 +5,7 @@ import {
   type CourseUpdateDTO,
   type CourseQueryDTO,
   type CourseResponseDTO,
-  type PaginatedResponse,
+  type PaginatedResponseDTO,
 } from '@workspace/schemas';
 import { GatewayAuthGuard } from '@server/shared';
 import { UserRole } from '@workspace/schemas';
@@ -18,7 +18,7 @@ export class CourseController {
   constructor(private readonly courseService: CourseService) { }
 
   @Get()
-  async findAll(@Query() query: CourseQueryDTO): Promise<PaginatedResponse<CourseResponseDTO>> {
+  async findAll(@Query() query: CourseQueryDTO): Promise<PaginatedResponseDTO<CourseResponseDTO>> {
     return await this.courseService.findAll(query);
   }
 

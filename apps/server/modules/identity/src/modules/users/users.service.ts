@@ -9,6 +9,9 @@ import { v4 as uuidv4 } from 'uuid';
 import type {
     UserUpdateDTO,
     Requester,
+    UserCreateDTO,
+    PaginationOptionsDTO,
+    PaginatedResponseDTO,
 } from '@workspace/schemas';
 import {
     userUpdateDTOSchema,
@@ -20,26 +23,6 @@ import {
 import { RBACService } from '../rbac/rbac.service';
 import { UsersRepository } from './users.repository';
 
-export interface CreateUserDTO {
-    email: string;
-    displayName: string;
-    role?: UserRole;
-}
-
-export interface PaginationOptions {
-    page: number;
-    limit: number;
-    search?: string;
-}
-
-export interface PaginatedResponse<T> {
-    data: T[];
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-}
-
 @Injectable()
 export class UsersService {
     constructor(
@@ -50,7 +33,7 @@ export class UsersService {
     /**
      * Find all users with pagination and search
      */
-    async findAll(options: PaginationOptions): Promise<PaginatedResponse<UserResponseDTO>> {
+    async findAll(options: PaginationOptionsDTO): Promise<PaginatedResponseDTO<UserResponseDTO>> {
         const { page = 1, limit = 10, search = '' } = options;
         const skip = (page - 1) * limit;
 
@@ -101,7 +84,7 @@ export class UsersService {
      * Create new user (admin only)
      * Note: Firebase handles authentication, no password stored in DB
      */
-    async create(dto: CreateUserDTO): Promise<UserResponseDTO> {
+    async create(dto: UserCreateDTO): Promise<UserResponseDTO> {
         // Check email exists
         const emailExists = await this.usersRepository.emailExists(dto.email);
         if (emailExists) {

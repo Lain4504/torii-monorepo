@@ -16,6 +16,18 @@ interface VerificationResendEvent {
     verificationUrl: string;
 }
 
+interface PasswordResetRequestedEvent {
+    email: string;
+    displayName: string;
+    resetToken: string;
+    resetUrl: string;
+}
+
+interface PasswordResetCompletedEvent {
+    email: string;
+    displayName: string;
+}
+
 @Controller()
 export class EmailEventController {
     private readonly logger = new Logger(EmailEventController.name);
@@ -49,6 +61,35 @@ export class EmailEventController {
             );
         } catch (error) {
             this.logger.error(`Failed to handle auth.verification.resend event: ${error}`);
+        }
+    }
+
+    @EventPattern('auth.password.reset-requested')
+    async handlePasswordResetRequested(@Payload() payload: PasswordResetRequestedEvent) {
+        this.logger.log(`Received auth.password.reset-requested event for ${payload.email}`);
+
+        try {
+            await this.emailService.sendPasswordResetEmail(
+                payload.email,
+                payload.displayName,
+                payload.resetUrl
+            );
+        } catch (error) {
+            this.logger.error(`Failed to handle auth.password.reset-requested event: ${error}`);
+        }
+    }
+
+    @EventPattern('auth.password.reset-completed')
+    async handlePasswordResetCompleted(@Payload() payload: PasswordResetCompletedEvent) {
+        this.logger.log(`Received auth.password.reset-completed event for ${payload.email}`);
+
+        try {
+            await this.emailService.sendPasswordResetConfirmationEmail(
+                payload.email,
+                payload.displayName
+            );
+        } catch (error) {
+            this.logger.error(`Failed to handle auth.password.reset-completed event: ${error}`);
         }
     }
 }

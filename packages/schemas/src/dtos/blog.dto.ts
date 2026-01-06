@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { BlogPostStatus, blogPostSchema } from '../models/blog.model';
-import { paginatedResponseSchema } from '../interfaces/common.interface';
+import { paginatedResponseSchema } from './common.dto';
 
 export const blogPostCreateDTOSchema = blogPostSchema
     .pick({

@@ -12,8 +12,13 @@ export * from './models/blog-comment.model';
 export * from './models/flashcard.model';
 export * from './models/flashcard-deck.model';
 
-// DTOs
+// DTOs (all types are now here with Zod schemas)
 export * from './dtos/user.dto';
+export * from './dtos/auth.dto';
+export * from './dtos/oauth.dto';
+export * from './dtos/two-factor-auth.dto';
+export * from './dtos/common.dto';
+export * from './dtos/audit.dto';
 export * from './dtos/course.dto';
 export * from './dtos/module.dto';
 export * from './dtos/lesson.dto';
@@ -26,6 +31,5 @@ export * from './dtos/blog-comment.dto';
 export * from './dtos/flashcard.dto';
 export * from './dtos/flashcard-deck.dto';
 
-// Interfaces
+// Interfaces (only internal/utility types)
 export * from './interfaces/auth.interface';
-export * from './interfaces/common.interface';

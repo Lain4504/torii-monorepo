@@ -68,49 +68,13 @@ export class AuthController {
         }
     }
 
-
     /**
-     * Verify email via OTP (Legacy - kept for backward compatibility)
+     * Verify email with magic link token
      * POST /auth/verify-email
      */
     @Post('verify-email')
-    async verifyEmail(
-        @Body('email') email: string,
-        @Body('otp') otp: string,
-    ) {
-        if (!email || !otp) {
-            throw new BadRequestException('Email and OTP are required');
-        }
-
-        try {
-            const isValid = await this.authService.verifyEmail(email, otp);
-
-            if (!isValid) {
-                return {
-                    success: false,
-                    message: 'Invalid or expired OTP'
-                };
-            }
-
-            return {
-                success: true,
-                message: 'Email verified successfully'
-            };
-        } catch (error: any) {
-            return {
-                success: false,
-                message: error.message || 'Verification failed'
-            };
-        }
-    }
-
-    /**
-     * Verify email via Magic Link token
-     * POST /auth/verify-magic-link
-     */
-    @Post('verify-magic-link')
     @HttpCode(HttpStatus.OK)
-    async verifyMagicLink(@Body('token') token: string) {
+    async verifyEmail(@Body('token') token: string) {
         if (!token) {
             throw new BadRequestException('Token is required');
         }
@@ -138,6 +102,101 @@ export class AuthController {
         }
     }
 
+    // ========================================
+    // Password Reset Endpoints
+    // ========================================
+
+    /**
+     * Request password reset
+     * POST /auth/forgot-password
+     */
+    @Post('forgot-password')
+    @HttpCode(HttpStatus.OK)
+    async forgotPassword(@Body('email') email: string) {
+        if (!email) {
+            throw new BadRequestException('Email is required');
+        }
+
+        try {
+            await this.authService.forgotPassword(email);
+            return {
+                success: true,
+                message: 'If an account exists with this email, a password reset link has been sent.'
+            };
+        } catch (error: any) {
+            return {
+                success: false,
+                message: error.message || 'Failed to process password reset request'
+            };
+        }
+    }
+
+    /**
+     * Verify reset password token
+     * POST /auth/verify-reset-token
+     */
+    @Post('verify-reset-token')
+    @HttpCode(HttpStatus.OK)
+    async verifyResetToken(@Body('token') token: string) {
+        if (!token) {
+            throw new BadRequestException('Token is required');
+        }
+
+        try {
+            const result = await this.authService.verifyResetToken(token);
+
+            if (!result.success) {
+                return {
+                    success: false,
+                    message: 'Invalid or expired reset token'
+                };
+            }
+
+            return {
+                success: true,
+                message: 'Reset token is valid',
+                data: { email: result.email }
+            };
+        } catch (error: any) {
+            return {
+                success: false,
+                message: error.message || 'Token verification failed'
+            };
+        }
+    }
+
+    /**
+     * Reset password with token
+     * POST /auth/reset-password
+     */
+    @Post('reset-password')
+    @HttpCode(HttpStatus.OK)
+    async resetPassword(
+        @Body('token') token: string,
+        @Body('password') password: string,
+    ) {
+        if (!token || !password) {
+            throw new BadRequestException('Token and new password are required');
+        }
+
+        // Validate password strength
+        if (password.length < 8) {
+            throw new BadRequestException('Password must be at least 8 characters long');
+        }
+
+        try {
+            await this.authService.resetPassword(token, password);
+            return {
+                success: true,
+                message: 'Password has been reset successfully. You can now login with your new password.'
+            };
+        } catch (error: any) {
+            return {
+                success: false,
+                message: error.message || 'Failed to reset password'
+            };
+        }
+    }
 
     /**
      * Login user

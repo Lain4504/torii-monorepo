@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/api/api-client.ts';
-import type { PaginatedResponse, CourseResponseDTO, CourseCreateDTO, CourseUpdateDTO, CourseQueryDTO } from '@workspace/schemas';
+import type { PaginatedResponseDTO, CourseResponseDTO, CourseCreateDTO, CourseUpdateDTO, CourseQueryDTO } from '@workspace/schemas';
 
 // ============================================================================
 // API Functions
@@ -8,8 +8,8 @@ import type { PaginatedResponse, CourseResponseDTO, CourseCreateDTO, CourseUpdat
 
 export const coursesApi = {
     // GET /api/admin/courses
-    async findAll(params: CourseQueryDTO): Promise<PaginatedResponse<CourseResponseDTO>> {
-        const response = await apiClient.get<PaginatedResponse<CourseResponseDTO>>('/api/courses', { params });
+    async findAll(params: CourseQueryDTO): Promise<PaginatedResponseDTO<CourseResponseDTO>> {
+        const response = await apiClient.get<PaginatedResponseDTO<CourseResponseDTO>>('/api/courses', { params });
         return response.data;
     },
 

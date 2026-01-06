@@ -1,39 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { AuditLogRepository } from "./audit-log.repository";
-
-export interface AuditLogEntry {
-    userId: string;
-    userEmail: string;
-    userRole: string;
-    action: string;
-    entity: string;
-    entityId?: string;
-    description: string;
-    metadata?: Record<string, any>;
-    oldValues?: Record<string, any>;
-    newValues?: Record<string, any>;
-    ipAddress?: string;
-    userAgent?: string;
-}
-
-export interface AuditLogFilters {
-    userId?: string;
-    action?: string;
-    entity?: string;
-    entityId?: string;
-    startDate?: Date;
-    endDate?: Date;
-    page?: number;
-    limit?: number;
-}
-
-export interface PaginatedAuditLogs {
-    data: any[];
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-}
+import type {
+    AuditLogEntryDTO,
+    AuditLogFiltersDTO,
+    PaginatedResponseDTO,
+} from '@workspace/schemas';
 
 @Injectable()
 export class AuditLogService {
@@ -46,7 +17,7 @@ export class AuditLogService {
     /**
      * Log an action to the audit log
      */
-    async log(entry: AuditLogEntry): Promise<void> {
+    async log(entry: AuditLogEntryDTO): Promise<void> {
         try {
             console.log('📝 AuditLog.log() called with entry:', {
                 userId: entry.userId,
@@ -84,7 +55,7 @@ export class AuditLogService {
     /**
      * Query audit logs with filters and pagination
      */
-    async query(filters: AuditLogFilters): Promise<PaginatedAuditLogs> {
+    async query(filters: AuditLogFiltersDTO): Promise<PaginatedResponseDTO<any>> {
         const { page = 1, limit = 50, startDate, endDate, ...where } = filters;
 
         const whereClause = {

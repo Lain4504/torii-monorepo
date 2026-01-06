@@ -20,6 +20,7 @@ import { toast } from '@workspace/ui/components/sonner'
 import { Spinner } from '@workspace/ui/components/spinner'
 import { Eye, EyeOff, Mail, Lock, LogIn } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 export function LoginForm() {
     const dispatch = useAppDispatch()
@@ -95,12 +96,12 @@ export function LoginForm() {
                             <FormItem className="space-y-1">
                                 <div className="flex items-center justify-between">
                                     <FormLabel className="text-slate-900 dark:text-slate-100">Mật khẩu</FormLabel>
-                                    <a
-                                        href="#"
+                                    <Link
+                                        href="/forgot-password"
                                         className="text-xs font-medium text-teal-600 dark:text-teal-400 hover:underline"
                                     >
                                         Quên mật khẩu?
-                                    </a>
+                                    </Link>
                                 </div>
                                 <FormControl>
                                     <div className="relative">
