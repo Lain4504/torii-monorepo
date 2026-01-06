@@ -1,6 +1,6 @@
-﻿import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/api/api-client.ts';
-import type { PaginatedResponse, ModuleResponseDTO, ModuleCreateDTO, ModuleUpdateDTO, ModuleQueryDTO } from '@workspace/schemas';
+import type { PaginatedResponseDTO, ModuleResponseDTO, ModuleCreateDTO, ModuleUpdateDTO, ModuleQueryDTO } from '@workspace/schemas';
 
 // ============================================================================
 // API Functions
@@ -8,8 +8,8 @@ import type { PaginatedResponse, ModuleResponseDTO, ModuleCreateDTO, ModuleUpdat
 
 export const modulesApi = {
     // GET /api/admin/modules
-    async findAll(params: ModuleQueryDTO): Promise<PaginatedResponse<ModuleResponseDTO>> {
-        const response = await apiClient.get<PaginatedResponse<ModuleResponseDTO>>('/api/modules', { params });
+    async findAll(params: ModuleQueryDTO): Promise<PaginatedResponseDTO<ModuleResponseDTO>> {
+        const response = await apiClient.get<PaginatedResponseDTO<ModuleResponseDTO>>('/api/modules', { params });
         return response.data;
     },
 

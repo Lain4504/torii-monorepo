@@ -5,7 +5,7 @@ import {
   type QuestionBankUpdateDTO,
   type QuestionBankQueryDTO,
   type QuestionBankResponseDTO,
-  type PaginatedResponse,
+  type PaginatedResponseDTO,
   QuestionStatus,
 } from '@workspace/schemas';
 
@@ -42,7 +42,7 @@ export class QuestionBankService {
   /**
    * Get all questions with filters
    */
-  async findAll(query: QuestionBankQueryDTO): Promise<PaginatedResponse<QuestionBankResponseDTO>> {
+  async findAll(query: QuestionBankQueryDTO): Promise<PaginatedResponseDTO<QuestionBankResponseDTO>> {
     try {
       const {
         page = 1,

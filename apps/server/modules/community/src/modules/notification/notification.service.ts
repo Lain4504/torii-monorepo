@@ -8,7 +8,7 @@ import {
   NotificationCreateDTO,
   NotificationPaginatedResponse,
   NotificationUnreadCountResponseDTO,
-  PaginatedResponse,
+  PaginatedResponseDTO,
 } from '@workspace/schemas';
 
 @Injectable()
@@ -43,7 +43,7 @@ export class NotificationService {
   async findAll(
     userId: string,
     query: NotificationQueryDTO,
-  ): Promise<PaginatedResponse<NotificationResponseDTO>> {
+  ): Promise<PaginatedResponseDTO<NotificationResponseDTO>> {
     try {
       const { page = 1, limit = 10, isRead } = query;
       const skip = (page - 1) * limit;
@@ -318,5 +318,6 @@ export class NotificationService {
     }
   }
 }
+
 
 

@@ -10,7 +10,7 @@ import {
   type CourseUpdateDTO,
   type CourseQueryDTO,
   type CourseResponseDTO,
-  type PaginatedResponse,
+  type PaginatedResponseDTO,
   CourseStatus,
 } from '@workspace/schemas';
 
@@ -82,7 +82,7 @@ export class CourseService {
 
   async findAll(
     query: CourseQueryDTO,
-  ): Promise<PaginatedResponse<CourseResponseDTO>> {
+  ): Promise<PaginatedResponseDTO<CourseResponseDTO>> {
     try {
       const { page, limit, jlptLevel, status, search, featured } = query;
 

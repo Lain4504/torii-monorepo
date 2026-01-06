@@ -6,7 +6,6 @@ import type {
   BlogCommentQueryDTO,
   BlogCommentResponseDTO,
   BlogCommentPaginatedResponse,
-  PaginatedResponse,
 } from '@workspace/schemas';
 
 @Injectable()
@@ -303,3 +302,4 @@ export class BlogCommentService {
     };
   }
 }
+

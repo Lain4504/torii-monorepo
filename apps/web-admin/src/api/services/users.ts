@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/api/api-client.ts';
-import type { PaginatedResponse, UserResponseDTO, UserCreateDTO, UserAdminUpdateDTO } from '@workspace/schemas';
+import type { PaginatedResponseDTO, UserResponseDTO, UserCreateDTO, UserAdminUpdateDTO } from '@workspace/schemas';
 
 export interface FindAllUsersParams {
     page?: number;
@@ -14,9 +14,9 @@ export interface FindAllUsersParams {
 
 export const usersApi = {
     // GET /api/admin/users
-    async findAll(params: FindAllUsersParams): Promise<PaginatedResponse<UserResponseDTO>> {
-        const response = await apiClient.get<PaginatedResponse<UserResponseDTO>>('/api/admin/users', { params });
-        // Backend returns PaginatedResponse directly
+    async findAll(params: FindAllUsersParams): Promise<PaginatedResponseDTO<UserResponseDTO>> {
+        const response = await apiClient.get<PaginatedResponseDTO<UserResponseDTO>>('/api/admin/users', { params });
+        // Backend returns PaginatedResponseDTO directly
         return response.data;
     },
 

@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/api/api-client.ts';
 import type {
-    PaginatedResponse,
+    PaginatedResponseDTO,
     QuestionBankResponseDTO,
     QuestionBankCreateDTO,
     QuestionBankUpdateDTO,
@@ -24,8 +24,8 @@ export interface QuestionBankFilters {
 
 export const questionBankApi = {
     // GET /api/question-banks
-    async findAll(params: QuestionBankQueryDTO): Promise<PaginatedResponse<QuestionBankResponseDTO>> {
-        const response = await apiClient.get<PaginatedResponse<QuestionBankResponseDTO>>('/api/question-banks', { params });
+    async findAll(params: QuestionBankQueryDTO): Promise<PaginatedResponseDTO<QuestionBankResponseDTO>> {
+        const response = await apiClient.get<PaginatedResponseDTO<QuestionBankResponseDTO>>('/api/question-banks', { params });
         return response.data;
     },
 

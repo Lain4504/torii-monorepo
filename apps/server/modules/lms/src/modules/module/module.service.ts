@@ -3,7 +3,7 @@ import { RpcException } from '@nestjs/microservices';
 import { PrismaService } from '@server/shared';
 import { Module as ModuleEntity } from '@prisma/generated';
 import {
-  type PaginatedResponse,
+  type PaginatedResponseDTO,
   type ModuleResponseDTO,
   type ModuleCreateDTO,
   type ModuleUpdateDTO,
@@ -31,7 +31,7 @@ export class ModuleService {
     };
   }
 
-  async findAll(query: ModuleQueryDTO): Promise<PaginatedResponse<ModuleResponseDTO>> {
+  async findAll(query: ModuleQueryDTO): Promise<PaginatedResponseDTO<ModuleResponseDTO>> {
     try {
       const { page = 1, limit = 10, courseId, search } = query;
       const skip = (Number(page) - 1) * Number(limit);

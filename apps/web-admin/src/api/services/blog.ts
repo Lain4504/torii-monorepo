@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/api/api-client.ts';
 import type {
-    PaginatedResponse,
+    PaginatedResponseDTO,
     BlogPostResponseDTO,
     BlogPostCreateDTO,
     BlogPostUpdateDTO,
@@ -14,8 +14,8 @@ import type {
 
 export const blogApi = {
     // GET /api/blogs
-    async findAll(params: BlogPostQueryDTO): Promise<PaginatedResponse<BlogPostResponseDTO>> {
-        const response = await apiClient.get<PaginatedResponse<BlogPostResponseDTO>>('/api/blogs', { params });
+    async findAll(params: BlogPostQueryDTO): Promise<PaginatedResponseDTO<BlogPostResponseDTO>> {
+        const response = await apiClient.get<PaginatedResponseDTO<BlogPostResponseDTO>>('/api/blogs', { params });
         return response.data;
     },
 

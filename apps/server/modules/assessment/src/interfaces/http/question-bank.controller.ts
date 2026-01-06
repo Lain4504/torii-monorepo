@@ -5,7 +5,7 @@ import {
     type QuestionBankUpdateDTO,
     type QuestionBankQueryDTO,
     type QuestionBankResponseDTO,
-    type PaginatedResponse,
+    type PaginatedResponseDTO,
 } from '@workspace/schemas';
 import { GatewayAuthGuard } from '@server/shared';
 
@@ -15,7 +15,7 @@ export class QuestionBankController {
     constructor(private readonly questionBankService: QuestionBankService) { }
 
     @Get()
-    async findAll(@Query() query: QuestionBankQueryDTO): Promise<PaginatedResponse<QuestionBankResponseDTO>> {
+    async findAll(@Query() query: QuestionBankQueryDTO): Promise<PaginatedResponseDTO<QuestionBankResponseDTO>> {
         return this.questionBankService.findAll(query);
     }
 
