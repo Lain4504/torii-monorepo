@@ -4,13 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(auth): refactor authentication DTOs and interfaces for improved structure and clarity">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/http/auth.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/http/auth.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/auth.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/auth.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/refresh-token.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(auth): sync database schema and Prisma models with session-based authentication&#10;&#10;- Replaced `refresh_tokens` table with `sessions` table in database schema.&#10;- Updated tables to include extended metadata (e.g., IP, user agent, device info).&#10;- Synced Prisma models with revised schema, optimizing for session management.&#10;- Removed legacy user role and permission tables, consolidating mappings with updated schemas.&#10;- Added tables for `user_identities`, `two_factor_auth`, and audit functionalities for improved security and logging." />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -258,63 +252,7 @@
       <workItem from="1767618667139" duration="1110000" />
       <workItem from="1767623108138" duration="3167000" />
       <workItem from="1767660570458" duration="7106000" />
-      <workItem from="1767759487749" duration="1520000" />
-    </task>
-    <task id="LOCAL-00420" summary="feat(auth): add Redux-based authentication flow to web-learner&#10;&#10;- Implemented `authSlice` with login, logout, register, and checkAuth functionality.&#10;- Added `AuthInitializer` component to manage authentication state.&#10;- Created `LoginForm` component integrated with Redux and Zod validation.&#10;- Updated login page to use `AuthInitializer` and `LoginForm`.&#10;- Created reusable UI components (Field, Item, Empty) for consistent styling.">
-      <option name="closed" value="true" />
-      <created>1767435108256</created>
-      <option name="number" value="00420" />
-      <option name="presentableId" value="LOCAL-00420" />
-      <option name="project" value="LOCAL" />
-      <updated>1767435108257</updated>
-    </task>
-    <task id="LOCAL-00421" summary="feat(auth): add Redux-based authentication flow to web-learner&#10;&#10;- Implemented `authSlice` with login, logout, register, and checkAuth functionality.&#10;- Added `AuthInitializer` component to manage authentication state.&#10;- Created `LoginForm` component integrated with Redux and Zod validation.&#10;- Updated login page to use `AuthInitializer` and `LoginForm`.&#10;- Created reusable UI components (Field, Item, Empty) for consistent styling.">
-      <option name="closed" value="true" />
-      <created>1767435177078</created>
-      <option name="number" value="00421" />
-      <option name="presentableId" value="LOCAL-00421" />
-      <option name="project" value="LOCAL" />
-      <updated>1767435177078</updated>
-    </task>
-    <task id="LOCAL-00422" summary="feat(auth): add Redux-based authentication flow to web-learner&#10;&#10;- Implemented `authSlice` with login, logout, register, and checkAuth functionality.&#10;- Added `AuthInitializer` component to manage authentication state.&#10;- Created `LoginForm` component integrated with Redux and Zod validation.&#10;- Updated login page to use `AuthInitializer` and `LoginForm`.&#10;- Created reusable UI components (Field, Item, Empty) for consistent styling.">
-      <option name="closed" value="true" />
-      <created>1767436125343</created>
-      <option name="number" value="00422" />
-      <option name="presentableId" value="LOCAL-00422" />
-      <option name="project" value="LOCAL" />
-      <updated>1767436125343</updated>
-    </task>
-    <task id="LOCAL-00423" summary="feat(auth): add Redux-based authentication flow to web-learner&#10;&#10;- Implemented `authSlice` with login, logout, register, and checkAuth functionality.&#10;- Added `AuthInitializer` component to manage authentication state.&#10;- Created `LoginForm` component integrated with Redux and Zod validation.&#10;- Updated login page to use `AuthInitializer` and `LoginForm`.&#10;- Created reusable UI components (Field, Item, Empty) for consistent styling.">
-      <option name="closed" value="true" />
-      <created>1767436357087</created>
-      <option name="number" value="00423" />
-      <option name="presentableId" value="LOCAL-00423" />
-      <option name="project" value="LOCAL" />
-      <updated>1767436357087</updated>
-    </task>
-    <task id="LOCAL-00424" summary="feat(auth): add Redux-based authentication flow to web-learner&#10;&#10;- Implemented `authSlice` with login, logout, register, and checkAuth functionality.&#10;- Added `AuthInitializer` component to manage authentication state.&#10;- Created `LoginForm` component integrated with Redux and Zod validation.&#10;- Updated login page to use `AuthInitializer` and `LoginForm`.&#10;- Created reusable UI components (Field, Item, Empty) for consistent styling.">
-      <option name="closed" value="true" />
-      <created>1767438421122</created>
-      <option name="number" value="00424" />
-      <option name="presentableId" value="LOCAL-00424" />
-      <option name="project" value="LOCAL" />
-      <updated>1767438421122</updated>
-    </task>
-    <task id="LOCAL-00425" summary="feat(auth): add email verification flow and update user naming conventions&#10;&#10;- Implemented email verification handling, including OTP validation and resend functionality for both the backend and web apps.&#10;- Replaced `fullName` with `displayName` across all services and components for user naming consistency.&#10;- Introduced `EmailService` for email-related operations and integrated it with event handling via `EmailEventController`.&#10;- Updated database schema to reflect `displayName` column and removed deprecated `fullName`, `email_verified`, and `salt` fields.&#10;- Added support for Redis in the backend using a shared module for configuration and client management.">
-      <option name="closed" value="true" />
-      <created>1767455091865</created>
-      <option name="number" value="00425" />
-      <option name="presentableId" value="LOCAL-00425" />
-      <option name="project" value="LOCAL" />
-      <updated>1767455091866</updated>
-    </task>
-    <task id="LOCAL-00426" summary="feat(auth): add email verification flow and update user naming conventions&#10;&#10;- Implemented email verification handling, including OTP validation and resend functionality for both the backend and web apps.&#10;- Replaced `fullName` with `displayName` across all services and components for user naming consistency.&#10;- Introduced `EmailService` for email-related operations and integrated it with event handling via `EmailEventController`.&#10;- Updated database schema to reflect `displayName` column and removed deprecated `fullName`, `email_verified`, and `salt` fields.&#10;- Added support for Redis in the backend using a shared module for configuration and client management.">
-      <option name="closed" value="true" />
-      <created>1767455234547</created>
-      <option name="number" value="00426" />
-      <option name="presentableId" value="LOCAL-00426" />
-      <option name="project" value="LOCAL" />
-      <updated>1767455234549</updated>
+      <workItem from="1767759487749" duration="6686000" />
     </task>
     <task id="LOCAL-00427" summary="chore(web-admin): remove unused features, components, and APIs&#10;&#10;- Deleted obsolete API modules for audit logs, blogs, and courses.&#10;- Removed unused components including AuthGuard, Can, DashboardHeader, DashboardLayout, and DashboardSidebar.&#10;- Streamlined codebase to remove dependencies on deprecated features.">
       <option name="closed" value="true" />
@@ -652,7 +590,63 @@
       <option name="project" value="LOCAL" />
       <updated>1767690410680</updated>
     </task>
-    <option name="localTasksCounter" value="469" />
+    <task id="LOCAL-00469" summary="feat(auth): replace refresh token mechanism with session-based implementation  &#10;&#10;- Renamed `RefreshTokenService` to `SessionService` and updated all references.  &#10;- Replaced `refresh_tokens` table with `sessions` table, adding metadata fields (IP, user agent, device info).  &#10;- Updated Prisma schema to reflect the new `Session` model.  &#10;- Refactored authentication flow to use sessions for token creation, verification, and revocation.  &#10;- Added support for session cleanup with metadata logging for improved traceability and security.">
+      <option name="closed" value="true" />
+      <created>1767761185917</created>
+      <option name="number" value="00469" />
+      <option name="presentableId" value="LOCAL-00469" />
+      <option name="project" value="LOCAL" />
+      <updated>1767761185917</updated>
+    </task>
+    <task id="LOCAL-00470" summary="feat(auth): sync database schema and Prisma models with session-based authentication&#10;&#10;- Replaced `refresh_tokens` table with `sessions` table in database schema.&#10;- Updated tables to include extended metadata (e.g., IP, user agent, device info).&#10;- Synced Prisma models with revised schema, optimizing for session management.&#10;- Removed legacy user role and permission tables, consolidating mappings with updated schemas.&#10;- Added tables for `user_identities`, `two_factor_auth`, and audit functionalities for improved security and logging.">
+      <option name="closed" value="true" />
+      <created>1767762050358</created>
+      <option name="number" value="00470" />
+      <option name="presentableId" value="LOCAL-00470" />
+      <option name="project" value="LOCAL" />
+      <updated>1767762050359</updated>
+    </task>
+    <task id="LOCAL-00471" summary="feat(auth): sync database schema and Prisma models with session-based authentication&#10;&#10;- Replaced `refresh_tokens` table with `sessions` table in database schema.&#10;- Updated tables to include extended metadata (e.g., IP, user agent, device info).&#10;- Synced Prisma models with revised schema, optimizing for session management.&#10;- Removed legacy user role and permission tables, consolidating mappings with updated schemas.&#10;- Added tables for `user_identities`, `two_factor_auth`, and audit functionalities for improved security and logging.">
+      <option name="closed" value="true" />
+      <created>1767763146831</created>
+      <option name="number" value="00471" />
+      <option name="presentableId" value="LOCAL-00471" />
+      <option name="project" value="LOCAL" />
+      <updated>1767763146832</updated>
+    </task>
+    <task id="LOCAL-00472" summary="feat(auth): sync database schema and Prisma models with session-based authentication&#10;&#10;- Replaced `refresh_tokens` table with `sessions` table in database schema.&#10;- Updated tables to include extended metadata (e.g., IP, user agent, device info).&#10;- Synced Prisma models with revised schema, optimizing for session management.&#10;- Removed legacy user role and permission tables, consolidating mappings with updated schemas.&#10;- Added tables for `user_identities`, `two_factor_auth`, and audit functionalities for improved security and logging.">
+      <option name="closed" value="true" />
+      <created>1767764431865</created>
+      <option name="number" value="00472" />
+      <option name="presentableId" value="LOCAL-00472" />
+      <option name="project" value="LOCAL" />
+      <updated>1767764431865</updated>
+    </task>
+    <task id="LOCAL-00473" summary="feat(auth): sync database schema and Prisma models with session-based authentication&#10;&#10;- Replaced `refresh_tokens` table with `sessions` table in database schema.&#10;- Updated tables to include extended metadata (e.g., IP, user agent, device info).&#10;- Synced Prisma models with revised schema, optimizing for session management.&#10;- Removed legacy user role and permission tables, consolidating mappings with updated schemas.&#10;- Added tables for `user_identities`, `two_factor_auth`, and audit functionalities for improved security and logging.">
+      <option name="closed" value="true" />
+      <created>1767764813522</created>
+      <option name="number" value="00473" />
+      <option name="presentableId" value="LOCAL-00473" />
+      <option name="project" value="LOCAL" />
+      <updated>1767764813528</updated>
+    </task>
+    <task id="LOCAL-00474" summary="feat(auth): sync database schema and Prisma models with session-based authentication&#10;&#10;- Replaced `refresh_tokens` table with `sessions` table in database schema.&#10;- Updated tables to include extended metadata (e.g., IP, user agent, device info).&#10;- Synced Prisma models with revised schema, optimizing for session management.&#10;- Removed legacy user role and permission tables, consolidating mappings with updated schemas.&#10;- Added tables for `user_identities`, `two_factor_auth`, and audit functionalities for improved security and logging.">
+      <option name="closed" value="true" />
+      <created>1767764973491</created>
+      <option name="number" value="00474" />
+      <option name="presentableId" value="LOCAL-00474" />
+      <option name="project" value="LOCAL" />
+      <updated>1767764973491</updated>
+    </task>
+    <task id="LOCAL-00475" summary="feat(auth): sync database schema and Prisma models with session-based authentication&#10;&#10;- Replaced `refresh_tokens` table with `sessions` table in database schema.&#10;- Updated tables to include extended metadata (e.g., IP, user agent, device info).&#10;- Synced Prisma models with revised schema, optimizing for session management.&#10;- Removed legacy user role and permission tables, consolidating mappings with updated schemas.&#10;- Added tables for `user_identities`, `two_factor_auth`, and audit functionalities for improved security and logging.">
+      <option name="closed" value="true" />
+      <created>1767766222989</created>
+      <option name="number" value="00475" />
+      <option name="presentableId" value="LOCAL-00475" />
+      <option name="project" value="LOCAL" />
+      <updated>1767766222989</updated>
+    </task>
+    <option name="localTasksCounter" value="476" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -682,8 +676,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="chore: migrate LMS and Flashcards modules to HTTP-based interfaces &#10;&#10;- Replaced NATS-based controllers (`course.controller`, `lesson.controller`, `module.controller`) with new HTTP controllers.&#10;- Added HTTP controllers for Flashcards (`flashcard.controller`, `flashcard-deck.controller`).&#10;- Updated `LmsModule` and `main.ts` to enable both HTTP and NATS-based communication.&#10;- Integrated CORS and global validation pipes for HTTP services.&#10;- Updated `ProxyController` to route LMS and Flashcards endpoints (`/courses`, `/lessons`, `/modules`, `/flashcards`, `/flash" />
-    <MESSAGE value="chore: migrate LMS and Flashcards modules to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`course.controller`, `lesson.controller`, `module.controller`) with new HTTP controllers.&#10;- Added HTTP controllers for Flashcards (`flashcard.controller`, `flashcard-deck.controller`).&#10;- Updated `LmsModule` and `main.ts` to enable both HTTP and NATS-based communication.&#10;- Integrated CORS and global validation pipes for HTTP services.&#10;- Updated `ProxyController` to route LMS and Flashcards endpoints (`/courses`, `/lessons`, `/modules`, `/flashcards`, `/flashcard-decks`)." />
     <MESSAGE value="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`)." />
     <MESSAGE value="chore: remove legacy gateway modules in preparation for migration to HTTP-based interfaces" />
     <MESSAGE value="chore: remove obsolete controllers for room, auth-room, and polls in preparation for HTTP-based migration" />
@@ -704,10 +696,12 @@
     <MESSAGE value="feat(web-learner): add exam management interface with card-based UI and history tracking&#10;&#10;- Introduced `ExamCard` component to display exam details and statuses (new, in-progress, completed).&#10;- Created `ExamHistory` component for displaying past exam attempts in a table format.&#10;- Added `ExamStats` component to showcase key statistics such as average score, total exams taken, and hours practiced.&#10;- Implemented `ExamPage` layout with tabs for available exams and exam history, including filtering and searching functionality.&#10;- Ensured responsive design and adherence to platform UI/UX guidelines." />
     <MESSAGE value="feat(auth): add two-factor authentication with TOTP, SMS, and email support&#10;&#10;- Implemented comprehensive 2FA support, including TOTP, SMS, and email-based authentication.&#10;- Added reusable encryption module with AES-256-GCM for securing TOTP secrets.&#10;- Created TwoFactorAuth module with service, controller, and repository for managing 2FA methods and statuses.&#10;- Introduced backup codes functionality for recovery.&#10;- Added Prisma migrations for storing 2FA configurations.&#10;- Integrated Redis and NATS for OTP storage and notifications." />
     <MESSAGE value="feat(auth): implement Google OAuth login and account linking functionality&#10;&#10;- Added endpoints for Google OAuth login and linking existing accounts.&#10;- Integrated Google authentication with user registration and login processes.&#10;- Updated user model to support OAuth identities and metadata.&#10;- Enhanced user service to manage linked providers and account unlinking.&#10;- Included necessary environment variables for Google OAuth in .env.example." />
-    <MESSAGE value="feat(auth): update user status handling and improve UI components" />
     <MESSAGE value="feat(auth): implement password reset flow with email verification and UI updates" />
     <MESSAGE value="feat(auth): refactor authentication DTOs and interfaces for improved structure and clarity" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(auth): refactor authentication DTOs and interfaces for improved structure and clarity" />
+    <MESSAGE value="feat(auth): update user status handling and improve UI components" />
+    <MESSAGE value="feat(auth): replace refresh token mechanism with session-based implementation  &#10;&#10;- Renamed `RefreshTokenService` to `SessionService` and updated all references.  &#10;- Replaced `refresh_tokens` table with `sessions` table, adding metadata fields (IP, user agent, device info).  &#10;- Updated Prisma schema to reflect the new `Session` model.  &#10;- Refactored authentication flow to use sessions for token creation, verification, and revocation.  &#10;- Added support for session cleanup with metadata logging for improved traceability and security." />
+    <MESSAGE value="feat(auth): sync database schema and Prisma models with session-based authentication&#10;&#10;- Replaced `refresh_tokens` table with `sessions` table in database schema.&#10;- Updated tables to include extended metadata (e.g., IP, user agent, device info).&#10;- Synced Prisma models with revised schema, optimizing for session management.&#10;- Removed legacy user role and permission tables, consolidating mappings with updated schemas.&#10;- Added tables for `user_identities`, `two_factor_auth`, and audit functionalities for improved security and logging." />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(auth): sync database schema and Prisma models with session-based authentication&#10;&#10;- Replaced `refresh_tokens` table with `sessions` table in database schema.&#10;- Updated tables to include extended metadata (e.g., IP, user agent, device info).&#10;- Synced Prisma models with revised schema, optimizing for session management.&#10;- Removed legacy user role and permission tables, consolidating mappings with updated schemas.&#10;- Added tables for `user_identities`, `two_factor_auth`, and audit functionalities for improved security and logging." />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
