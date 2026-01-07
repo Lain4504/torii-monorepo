@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { SharedModule, PrismaModule } from '@server/shared';
 import { QuestionBankModule } from './modules/question-bank/question-bank.module';
 import { QuestionBankController } from './interfaces/http/question-bank.controller';
+import { ExamModule } from './modules/exam/exam.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { QuestionBankController } from './interfaces/http/question-bank.controll
     SharedModule,
     PrismaModule,
     QuestionBankModule,
+    ExamModule,
   ],
   controllers: [QuestionBankController],
   providers: [],

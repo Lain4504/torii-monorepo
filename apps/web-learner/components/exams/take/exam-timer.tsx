@@ -6,11 +6,21 @@ import { Clock } from "lucide-react"
 
 interface ExamTimerProps {
     durationMinutes: number
+    initialSeconds?: number // For resume - start from this time instead
     onTimeUp: () => void
+    onTimeUpdate?: (seconds: number) => void // Callback to update parent with current time
 }
 
-export function ExamTimer({ durationMinutes, onTimeUp }: ExamTimerProps) {
-    const [timeLeft, setTimeLeft] = useState(durationMinutes * 60)
+export function ExamTimer({ durationMinutes, initialSeconds, onTimeUp, onTimeUpdate }: ExamTimerProps) {
+    const [timeLeft, setTimeLeft] = useState(initialSeconds ?? durationMinutes * 60)
+
+    // Sync timeLeft with initialSeconds when it changes (e.g., when resuming)
+    useEffect(() => {
+        if (initialSeconds !== undefined && initialSeconds !== timeLeft) {
+            setTimeLeft(initialSeconds)
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [initialSeconds]) // Only depend on initialSeconds, not timeLeft to avoid infinite loop
 
     useEffect(() => {
         if (timeLeft <= 0) {
@@ -19,11 +29,18 @@ export function ExamTimer({ durationMinutes, onTimeUp }: ExamTimerProps) {
         }
 
         const timer = setInterval(() => {
-            setTimeLeft((prev) => prev - 1)
+            setTimeLeft((prev) => {
+                const newTime = prev - 1
+                // Notify parent of time update (every second)
+                if (onTimeUpdate) {
+                    onTimeUpdate(newTime)
+                }
+                return newTime
+            })
         }, 1000)
 
         return () => clearInterval(timer)
-    }, [timeLeft, onTimeUp])
+    }, [timeLeft, onTimeUp, onTimeUpdate])
 
     const formatTime = (seconds: number) => {
         const m = Math.floor(seconds / 60)

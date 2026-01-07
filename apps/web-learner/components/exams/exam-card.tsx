@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardFooter } from "@workspace/ui/components/card"
 import { Button } from "@workspace/ui/components/button"
 import { Badge } from "@workspace/ui/components/badge"
@@ -19,6 +20,7 @@ interface ExamCardProps {
     maxScore?: number
     progress?: number // 0-100
     lastAttemptDate?: string
+    sessionId?: string // Session ID for review/retake
 }
 
 const LEVEL_COLORS = {
@@ -30,6 +32,7 @@ const LEVEL_COLORS = {
 }
 
 export function ExamCard({
+    id,
     title,
     level,
     type,
@@ -40,7 +43,26 @@ export function ExamCard({
     maxScore = 180,
     progress = 0,
     lastAttemptDate,
+    sessionId,
 }: ExamCardProps) {
+    const router = useRouter()
+
+    const handleStartExam = () => {
+        router.push(`/exams/${id}/take`)
+    }
+
+    const handleReview = () => {
+        // Navigate to review page with sessionId
+        if (sessionId) {
+            router.push(`/exams/${id}/review?sessionId=${sessionId}`)
+        }
+    }
+
+    const handleRetake = () => {
+        // Navigate to take page (will create new session)
+        router.push(`/exams/${id}/take`)
+    }
+
     return (
         <Card className="flex flex-col h-full border-slate-200 dark:border-slate-800 hover:shadow-md transition-shadow">
             <CardContent className="p-6 flex-1 space-y-4">
@@ -96,23 +118,34 @@ export function ExamCard({
 
             <CardFooter className="p-6 pt-0 mt-auto">
                 {status === 'new' && (
-                    <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white">
+                    <Button 
+                        className="w-full bg-teal-600 hover:bg-teal-700 text-white"
+                        onClick={handleStartExam}
+                    >
                         Bắt đầu thi
                         <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                 )}
                 {status === 'in-progress' && (
-                    <Button className="w-full" variant="secondary">
+                    <Button 
+                        className="w-full" 
+                        variant="secondary"
+                        onClick={handleStartExam}
+                    >
                         Tiếp tục thi
                         <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                 )}
                 {status === 'completed' && (
                     <div className="grid grid-cols-2 gap-3 w-full">
-                        <Button variant="outline" className="w-full">
+                        <Button variant="outline" className="w-full" onClick={handleReview}>
                             Xem lại
                         </Button>
-                        <Button variant="outline" className="w-full group">
+                        <Button 
+                            variant="outline" 
+                            className="w-full group"
+                            onClick={handleRetake}
+                        >
                             <RotateCcw className="w-4 h-4 mr-2 group-hover:rotate-180 transition-transform" />
                             Làm lại
                         </Button>

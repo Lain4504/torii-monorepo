@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
@@ -9,70 +9,106 @@ import { Search, Filter } from "lucide-react"
 import { ExamStats } from "@/components/exams/exam-stats"
 import { ExamCard } from "@/components/exams/exam-card"
 import { ExamHistory } from "@/components/exams/exam-history"
+import { getExams } from "@/api/services/exam-api"
+import type { ExamWithStatusResponseDTO, ExamQueryDTO, QuestionJlptLevel } from '@workspace/schemas'
+import { ExamType, ExamStatus } from '@workspace/schemas'
 
-// Mock Data
-const MOCK_EXAMS = [
-    {
-        id: "1",
-        title: "JLPT N5 Full Test 2024 - Đề số 1",
-        level: "N5" as const,
-        type: "Full Test" as const,
-        duration: 105,
-        totalQuestions: 100,
-        status: "new" as const,
-    },
-    {
-        id: "2",
-        title: "JLPT N4 Mock Test - Listening Special",
-        level: "N4" as const,
-        type: "Mini Test" as const,
-        duration: 45,
-        totalQuestions: 30,
-        status: "in-progress" as const,
-        progress: 65,
-    },
-    {
-        id: "3",
-        title: "JLPT N3 Grammar Challenge",
-        level: "N3" as const,
-        type: "Mini Test" as const,
-        duration: 30,
-        totalQuestions: 25,
-        status: "completed" as const,
-        score: 22,
-        maxScore: 25,
-    },
-    {
-        id: "4",
-        title: "JLPT N5 Official Practice Workbook",
-        level: "N5" as const,
-        type: "Full Test" as const,
-        duration: 100,
-        totalQuestions: 95,
-        status: "new" as const,
-    },
-    {
-        id: "5",
-        title: "JLPT N2 Reading Comprehension",
-        level: "N2" as const,
-        type: "Mini Test" as const,
-        duration: 60,
-        totalQuestions: 15,
-        status: "new" as const,
-    },
-    {
-        id: "6",
-        title: "JLPT N1 Advanced Vocabulary",
-        level: "N1" as const,
-        type: "Mini Test" as const,
-        duration: 40,
-        totalQuestions: 50,
-        status: "new" as const,
+// Transform API exam data to ExamCard props
+function transformExamToCardProps(exam: ExamWithStatusResponseDTO) {
+    const status = exam.sessionStatus === 'in-progress' ? 'in-progress' as const
+        : exam.sessionStatus === 'submitted' ? 'completed' as const
+        : 'new' as const
+
+    // Map examType: practice = Full Test, official = Mini Test (or could be reversed based on business logic)
+    // For now, assume practice = Full Test
+    const type = exam.examType === 'practice' ? 'Full Test' as const : 'Full Test' as const
+
+    return {
+        id: exam.id,
+        title: exam.title,
+        level: exam.jlptLevel as 'N5' | 'N4' | 'N3' | 'N2' | 'N1',
+        type,
+        duration: exam.totalTime,
+        totalQuestions: exam.totalQuestions,
+        status,
+        score: exam.score,
+        maxScore: exam.maxScore,
+        progress: exam.progress,
+        sessionId: exam.sessionId, // Add sessionId for review/retake
+        // lastAttemptDate is already a string from JSON serialization, or Date object
+        lastAttemptDate: exam.lastAttemptDate 
+            ? (typeof exam.lastAttemptDate === 'string' 
+                ? exam.lastAttemptDate 
+                : exam.lastAttemptDate.toISOString())
+            : undefined,
     }
-]
+}
 
 export default function ExamPage() {
     const [activeTab, setActiveTab] = useState("available")
+    const [exams, setExams] = useState<ExamWithStatusResponseDTO[]>([])
+    const [loading, setLoading] = useState(true)
+    const [searchQuery, setSearchQuery] = useState('')
+    const [selectedLevel, setSelectedLevel] = useState<string>('Tất cả')
+    const [selectedType, setSelectedType] = useState<string | null>(null)
+
+    useEffect(() => {
+        async function loadExams() {
+            try {
+                setLoading(true)
+                const query: ExamQueryDTO = {
+                    page: 1,
+                    limit: 100,
+                    // Try published first, but if no results, we can remove status filter
+                    status: ExamStatus.PUBLISHED,
+                }
+
+                if (selectedLevel !== 'Tất cả') {
+                    query.jlptLevel = selectedLevel as QuestionJlptLevel
+                }
+
+                if (selectedType) {
+                    query.examType = selectedType === 'Full Test' ? ExamType.PRACTICE : ExamType.PRACTICE
+                }
+
+                if (searchQuery.trim()) {
+                    query.search = searchQuery.trim()
+                }
+
+                const response = await getExams(query)
+                console.log('Exams API response:', response)
+                // Response is PaginatedResponse, data is directly in response
+                const exams = response.data || []
+                console.log('Exams count:', exams.length)
+                
+                // If no published exams, try without status filter
+                if (exams.length === 0 && query.status === ExamStatus.PUBLISHED) {
+                    console.log('No published exams found, trying without status filter...')
+                    const queryWithoutStatus = { ...query }
+                    delete queryWithoutStatus.status
+                    const fallbackResponse = await getExams(queryWithoutStatus)
+                    setExams(fallbackResponse.data || [])
+                } else {
+                    setExams(exams)
+                }
+            } catch (error) {
+                console.error('Error loading exams:', error)
+                console.error('Error details:', error)
+                setExams([])
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        loadExams()
+    }, [selectedLevel, selectedType, searchQuery])
+
+    const handleSearch = (value: string) => {
+        setSearchQuery(value)
+    }
+
+    const levels = ['Tất cả', 'N5', 'N4', 'N3', 'N2', 'N1']
+    const types = ['Full Test', 'Mini Test']
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-12">
@@ -110,6 +146,8 @@ export default function ExamPage() {
                                     <Input
                                         placeholder="Tìm kiếm đề thi..."
                                         className="pl-9 bg-white dark:bg-slate-900"
+                                        value={searchQuery}
+                                        onChange={(e) => handleSearch(e.target.value)}
                                     />
                                 </div>
                                 <Button variant="outline" size="icon" className="bg-white dark:bg-slate-900">
@@ -122,30 +160,53 @@ export default function ExamPage() {
                     <TabsContent value="available" className="space-y-8">
                         {/* Quick Filters */}
                         <div className="flex flex-wrap gap-2 pb-2">
-                            {['Tất cả', 'N5', 'N4', 'N3', 'N2', 'N1'].map((filter, i) => (
+                            {levels.map((level) => (
                                 <Button
-                                    key={filter}
-                                    variant={i === 0 ? "default" : "outline"}
+                                    key={level}
+                                    variant={selectedLevel === level ? "default" : "outline"}
                                     size="sm"
-                                    className={i === 0 ? "bg-slate-900 text-white" : "text-slate-600 bg-white"}
+                                    className={selectedLevel === level ? "bg-slate-900 text-white" : "text-slate-600 bg-white"}
+                                    onClick={() => setSelectedLevel(level)}
                                 >
-                                    {filter}
+                                    {level}
                                 </Button>
                             ))}
                             <div className="w-px h-8 bg-slate-200 mx-2 hidden md:block" />
-                            {['Full Test', 'Mini Test'].map((filter) => (
-                                <Button key={filter} variant="outline" size="sm" className="bg-white text-slate-600">
-                                    {filter}
+                            {types.map((type) => (
+                                <Button
+                                    key={type}
+                                    variant={selectedType === type ? "default" : "outline"}
+                                    size="sm"
+                                    className={selectedType === type ? "bg-slate-900 text-white" : "bg-white text-slate-600"}
+                                    onClick={() => setSelectedType(selectedType === type ? null : type)}
+                                >
+                                    {type}
                                 </Button>
                             ))}
                         </div>
 
                         {/* Exam Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {MOCK_EXAMS.map((exam) => (
-                                <ExamCard key={exam.id} {...exam} />
-                            ))}
-                        </div>
+                        {loading ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {[1, 2, 3, 4, 5, 6].map((i) => (
+                                    <div key={i} className="border border-slate-200 dark:border-slate-800 rounded-lg p-6 animate-pulse">
+                                        <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-16 mb-4"></div>
+                                        <div className="h-6 bg-slate-200 dark:bg-slate-800 rounded w-3/4 mb-4"></div>
+                                        <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-1/2"></div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : exams.length === 0 ? (
+                            <div className="text-center py-12">
+                                <p className="text-slate-500 dark:text-slate-400">Không tìm thấy đề thi nào</p>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {exams.map((exam) => (
+                                    <ExamCard key={exam.id} {...transformExamToCardProps(exam)} />
+                                ))}
+                            </div>
+                        )}
                     </TabsContent>
 
                     <TabsContent value="history">
