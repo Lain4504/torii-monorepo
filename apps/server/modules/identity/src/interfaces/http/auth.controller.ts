@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Patch, Post, Request, UseGuards, Res, Ht
 import type { Response } from 'express';
 import { GatewayAuthGuard, VerifiedOnly } from '@server/shared';
 import { AuthService } from '../../modules/auth/auth.service';
-import { RefreshTokenService } from '../../modules/auth/refresh-token.service';
+import { SessionService } from '../../modules/auth/session.service';
 import type { ReqWithRequester, UserRegistrationDTO, UserLoginDTO } from '@workspace/schemas';
 
 /**
@@ -13,7 +13,7 @@ import type { ReqWithRequester, UserRegistrationDTO, UserLoginDTO } from '@works
 export class AuthController {
     constructor(
         private readonly authService: AuthService,
-        private readonly refreshTokenService: RefreshTokenService,
+        private readonly sessionService: SessionService,
     ) { }
 
     /**
@@ -231,7 +231,10 @@ export class AuthController {
             const { user, accessToken } = result;
 
             // Generate refresh token
-            const refreshToken = await this.refreshTokenService.createRefreshToken(user!.id);
+            const refreshToken = await this.sessionService.createSession(user!.id, {
+                ipAddress: req.ip,
+                userAgent: req.headers['user-agent'],
+            });
 
             // Check Platform
             const platform = req.headers['x-platform'];
@@ -298,7 +301,10 @@ export class AuthController {
             const { user, accessToken } = await this.authService.verify2FA(tempToken, code, backupCode);
 
             // Generate refresh token
-            const refreshToken = await this.refreshTokenService.createRefreshToken(user.id);
+            const refreshToken = await this.sessionService.createSession(user.id, {
+                ipAddress: req.ip,
+                userAgent: req.headers['user-agent'],
+            });
 
             // Check Platform
             const platform = req.headers['x-platform'];
@@ -363,7 +369,10 @@ export class AuthController {
             const { user, accessToken } = await this.authService.registerWithGoogle(idToken);
 
             // Generate refresh token
-            const refreshToken = await this.refreshTokenService.createRefreshToken(user.id);
+            const refreshToken = await this.sessionService.createSession(user.id, {
+                ipAddress: req.ip,
+                userAgent: req.headers['user-agent'],
+            });
 
             // Check Platform
             const platform = req.headers['x-platform'];
@@ -506,7 +515,7 @@ export class AuthController {
         }
 
         // Verify refresh token
-        const payload = await this.refreshTokenService.verifyRefreshToken(oldRefreshToken);
+        const payload = await this.sessionService.verifySession(oldRefreshToken);
 
         if (!payload) {
             throw new UnauthorizedException('Invalid or expired refresh token');
@@ -520,15 +529,18 @@ export class AuthController {
         }
 
         // Revoke old refresh token (rotation)
-        const tokenHash = this.refreshTokenService.hashTokenPublic(oldRefreshToken);
-        await this.refreshTokenService.revokeRefreshToken(tokenHash);
+        const tokenHash = this.sessionService.hashTokenPublic(oldRefreshToken);
+        await this.sessionService.revokeSession(tokenHash);
 
         // Generate new tokens
         const newAccessToken = await this.authService['jwtTokenProvider'].generateToken({
             sub: user.id,
             role: user.role as any,
         });
-        const newRefreshToken = await this.refreshTokenService.createRefreshToken(user.id);
+        const newRefreshToken = await this.sessionService.createSession(user.id, {
+            ipAddress: req.ip,
+            userAgent: req.headers['user-agent'],
+        });
 
         // Check Platform
         const platform = req.headers['x-platform'];
@@ -565,8 +577,8 @@ export class AuthController {
         const refreshToken = req.cookies?.refresh_token;
 
         if (refreshToken) {
-            const tokenHash = this.refreshTokenService.hashTokenPublic(refreshToken);
-            await this.refreshTokenService.revokeRefreshToken(tokenHash);
+            const tokenHash = this.sessionService.hashTokenPublic(refreshToken);
+            await this.sessionService.revokeSession(tokenHash);
         }
 
         res.clearCookie('access_token');

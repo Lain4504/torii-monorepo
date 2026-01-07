@@ -3,9 +3,10 @@ import { PrismaService } from '@server/shared';
 import { JwtTokenProvider, type RefreshTokenPayload } from '@server/shared';
 import { createHash, randomUUID } from 'crypto';
 
+
 @Injectable()
-export class RefreshTokenService {
-    private readonly logger = new Logger(RefreshTokenService.name);
+export class SessionService {
+    private readonly logger = new Logger(SessionService.name);
 
     constructor(
         private readonly prisma: PrismaService,
@@ -13,10 +14,13 @@ export class RefreshTokenService {
     ) { }
 
     /**
-     * Create a new refresh token for a user
+     * Create a new session (refresh token) for a user
      * @returns The signed JWT refresh token
      */
-    async createRefreshToken(userId: string): Promise<string> {
+    async createSession(
+        userId: string,
+        metadata: { ipAddress?: string; userAgent?: string } = {}
+    ): Promise<string> {
         const tokenId = randomUUID();
 
         // Generate JWT
@@ -28,24 +32,33 @@ export class RefreshTokenService {
         // Hash token for storage
         const tokenHash = this.hashToken(refreshToken);
 
+        // Parse User Agent
+        let deviceInfo = 'Unknown Device';
+        if (metadata.userAgent) {
+            deviceInfo = metadata.userAgent.substring(0, 100); // Simple truncation for now
+        }
+
         // Store in database
-        await this.prisma.refreshToken.create({
+        await this.prisma.session.create({
             data: {
                 userId,
                 tokenHash,
                 expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+                ipAddress: metadata.ipAddress,
+                userAgent: metadata.userAgent,
+                deviceInfo,
             },
         });
 
-        this.logger.log(`Refresh token created for user ${userId}`);
+        this.logger.log(`Session created for user ${userId} on ${deviceInfo}`);
         return refreshToken;
     }
 
     /**
-     * Verify a refresh token
+     * Verify a refresh token and return session info
      * @returns Payload if valid, null if invalid/expired/revoked
      */
-    async verifyRefreshToken(token: string): Promise<RefreshTokenPayload | null> {
+    async verifySession(token: string): Promise<RefreshTokenPayload | null> {
         try {
             // 1. Verify JWT signature and expiration
             const payload = await this.jwtProvider.verifyRefreshToken(token);
@@ -53,9 +66,9 @@ export class RefreshTokenService {
                 return null;
             }
 
-            // 2. Check if token exists in database and is not revoked
+            // 2. Check if session exists in database and is not revoked
             const tokenHash = this.hashToken(token);
-            const storedToken = await this.prisma.refreshToken.findUnique({
+            const storedSession = await this.prisma.session.findUnique({
                 where: { tokenHash },
                 select: {
                     id: true,
@@ -65,36 +78,36 @@ export class RefreshTokenService {
                 },
             });
 
-            if (!storedToken) {
-                this.logger.warn(`Refresh token not found in database: ${payload.tokenId}`);
+            if (!storedSession) {
+                this.logger.warn(`Session not found in database: ${payload.tokenId}`);
                 return null;
             }
 
             // 3. Check if revoked
-            if (storedToken.revokedAt) {
-                this.logger.warn(`Attempted use of revoked token: ${payload.tokenId}`);
+            if (storedSession.revokedAt) {
+                this.logger.warn(`Attempted use of revoked session: ${payload.tokenId}`);
                 return null;
             }
 
             // 4. Check if expired (double-check in case JWT verification passed)
-            if (storedToken.expiresAt < new Date()) {
-                this.logger.warn(`Refresh token expired: ${payload.tokenId}`);
+            if (storedSession.expiresAt < new Date()) {
+                this.logger.warn(`Session expired: ${payload.tokenId}`);
                 return null;
             }
 
             return payload;
         } catch (error) {
-            this.logger.error(`Error verifying refresh token: ${error}`);
+            this.logger.error(`Error verifying session: ${error}`);
             return null;
         }
     }
 
     /**
-     * Revoke a single refresh token
+     * Revoke a single session
      */
-    async revokeRefreshToken(tokenHash: string): Promise<void> {
+    async revokeSession(tokenHash: string): Promise<void> {
         try {
-            await this.prisma.refreshToken.updateMany({
+            await this.prisma.session.updateMany({
                 where: {
                     tokenHash,
                     revokedAt: null, // Only update if not already revoked
@@ -103,19 +116,19 @@ export class RefreshTokenService {
                     revokedAt: new Date(),
                 },
             });
-            this.logger.log(`Refresh token revoked: ${tokenHash.substring(0, 8)}...`);
+            this.logger.log(`Session revoked: ${tokenHash.substring(0, 8)}...`);
         } catch (error) {
-            this.logger.error(`Error revoking refresh token: ${error}`);
+            this.logger.error(`Error revoking session: ${error}`);
         }
     }
 
     /**
-     * Revoke all refresh tokens for a user
+     * Revoke all sessions for a user
      * Useful for logout all devices or password change
      */
-    async revokeAllUserTokens(userId: string): Promise<void> {
+    async revokeAllUserSessions(userId: string): Promise<void> {
         try {
-            const result = await this.prisma.refreshToken.updateMany({
+            const result = await this.prisma.session.updateMany({
                 where: {
                     userId,
                     revokedAt: null,
@@ -124,19 +137,19 @@ export class RefreshTokenService {
                     revokedAt: new Date(),
                 },
             });
-            this.logger.log(`Revoked ${result.count} refresh tokens for user ${userId}`);
+            this.logger.log(`Revoked ${result.count} sessions for user ${userId}`);
         } catch (error) {
-            this.logger.error(`Error revoking all user tokens: ${error}`);
+            this.logger.error(`Error revoking all user sessions: ${error}`);
         }
     }
 
     /**
-     * Cleanup expired and revoked tokens
+     * Cleanup expired and revoked sessions
      * Should be called by a cron job periodically
      */
-    async cleanupExpiredTokens(): Promise<number> {
+    async cleanupExpiredSessions(): Promise<number> {
         try {
-            const result = await this.prisma.refreshToken.deleteMany({
+            const result = await this.prisma.session.deleteMany({
                 where: {
                     OR: [
                         { expiresAt: { lt: new Date() } },
@@ -149,10 +162,10 @@ export class RefreshTokenService {
                 },
             });
 
-            this.logger.log(`Cleaned up ${result.count} expired/old refresh tokens`);
+            this.logger.log(`Cleaned up ${result.count} expired/old sessions`);
             return result.count;
         } catch (error) {
-            this.logger.error(`Error cleaning up tokens: ${error}`);
+            this.logger.error(`Error cleaning up sessions: ${error}`);
             return 0;
         }
     }

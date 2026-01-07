@@ -6,25 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(auth): refactor authentication DTOs and interfaces for improved structure and clarity">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/assessment/src/interfaces/http/question-bank.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/assessment/src/interfaces/http/question-bank.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/assessment/src/modules/question-bank/question-bank.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/assessment/src/modules/question-bank/question-bank.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/community/src/modules/blog-comment/blog-comment.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/community/src/modules/blog-comment/blog-comment.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/community/src/modules/blog/blog.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/community/src/modules/blog/blog.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/community/src/modules/notification/notification.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/community/src/modules/notification/notification.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/flashcards/src/modules/flashcard/flashcard.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/flashcards/src/modules/flashcard/flashcard.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/lms/src/interfaces/http/course.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/lms/src/interfaces/http/course.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/lms/src/modules/course/course.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/lms/src/modules/course/course.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/lms/src/modules/lesson/lesson.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/lms/src/modules/lesson/lesson.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/lms/src/modules/module/module.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/lms/src/modules/module/module.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/lms/src/modules/wishlist/wishlist.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/lms/src/modules/wishlist/wishlist.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/services/blog.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/api/services/blog.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/services/courses.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/api/services/courses.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/services/lesson.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/api/services/lesson.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/services/modules.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/api/services/modules.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/services/question-bank.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/api/services/question-bank.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/services/users.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/api/services/users.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/users/users-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/users/users-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/http/auth.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/http/auth.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/auth.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/auth.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/refresh-token.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,7 +17,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="676" />
+    <option name="cachedIndexableFilesCount" value="718" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -136,7 +121,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "#53 on reset-password-auth",
+    "git-widget-placeholder": "database-update",
     "ignore.virus.scanning.warn.message": "true",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
@@ -273,6 +258,7 @@
       <workItem from="1767618667139" duration="1110000" />
       <workItem from="1767623108138" duration="3167000" />
       <workItem from="1767660570458" duration="7106000" />
+      <workItem from="1767759487749" duration="1520000" />
     </task>
     <task id="LOCAL-00420" summary="feat(auth): add Redux-based authentication flow to web-learner&#10;&#10;- Implemented `authSlice` with login, logout, register, and checkAuth functionality.&#10;- Added `AuthInitializer` component to manage authentication state.&#10;- Created `LoginForm` component integrated with Redux and Zod validation.&#10;- Updated login page to use `AuthInitializer` and `LoginForm`.&#10;- Created reusable UI components (Field, Item, Empty) for consistent styling.">
       <option name="closed" value="true" />

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { RefreshTokenService } from './refresh-token.service';
+import { SessionService } from './session.service';
 import { GoogleAuthService } from './google-auth.service';
 import { UserIdentityRepository } from './user-identity.repository';
 import { PrismaService, NatsClientModule, RedisModule } from '@server/shared';
@@ -22,14 +22,14 @@ import { UsersRepository } from '../users/users.repository';
     ],
     providers: [
         AuthService,
-        RefreshTokenService,
+        SessionService,
         GoogleAuthService,
         UserIdentityRepository,
         UsersRepository,
         PrismaService,
         JwtTokenProvider,
     ],
-    exports: [AuthService, RefreshTokenService],
+    exports: [AuthService, SessionService],
 })
 export class AuthModule { }
 
