@@ -10,7 +10,6 @@ import {
     BadRequestException,
     Inject,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import type { ITwoFactorAuthService } from '../interfaces/services';
 import { TWO_FACTOR_AUTH_SERVICE_TOKEN } from '../interfaces/services';
 import { GatewayAuthGuard } from '@server/shared';
@@ -26,10 +25,8 @@ import { PrismaService } from '@server/shared';
  * Two-Factor Authentication Controller
  * Handles 2FA setup and management endpoints
  */
-@ApiTags('Two-Factor Authentication')
 @Controller('auth/2fa')
 @UseGuards(GatewayAuthGuard)
-@ApiBearerAuth()
 export class TwoFactorAuthController {
     constructor(
         @Inject(TWO_FACTOR_AUTH_SERVICE_TOKEN) private readonly twoFactorAuthService: ITwoFactorAuthService,
@@ -41,26 +38,12 @@ export class TwoFactorAuthController {
     // ========================================
 
     @Post('totp/generate')
-    @ApiOperation({ summary: 'Generate TOTP secret and QR code' })
-    @ApiResponse({
-        status: 200,
-        description: 'TOTP secret and QR code generated successfully',
-    })
     async generateTotpSecret(@Request() req: ReqWithRequester) {
         return this.twoFactorAuthService.generateTotpSecret(req.requester.sub);
     }
 
     @Post('totp/enable')
     @HttpCode(HttpStatus.OK)
-    @ApiOperation({ summary: 'Enable TOTP 2FA' })
-    @ApiResponse({
-        status: 200,
-        description: 'TOTP 2FA enabled successfully. Returns backup codes.',
-    })
-    @ApiResponse({
-        status: 400,
-        description: 'Invalid verification code',
-    })
     async enableTotp(
         @Request() req: ReqWithRequester,
         @Body() dto: EnableTotpDTO,
@@ -74,15 +57,6 @@ export class TwoFactorAuthController {
 
     @Post('totp/disable')
     @HttpCode(HttpStatus.OK)
-    @ApiOperation({ summary: 'Disable TOTP 2FA' })
-    @ApiResponse({
-        status: 200,
-        description: '2FA disabled successfully',
-    })
-    @ApiResponse({
-        status: 400,
-        description: 'Invalid password',
-    })
     async disableTotp(
         @Request() req: ReqWithRequester,
         @Body() dto: Disable2FADTO,
@@ -117,11 +91,6 @@ export class TwoFactorAuthController {
 
     @Post('backup-codes/regenerate')
     @HttpCode(HttpStatus.OK)
-    @ApiOperation({ summary: 'Regenerate backup codes' })
-    @ApiResponse({
-        status: 200,
-        description: 'Backup codes regenerated successfully',
-    })
     async regenerateBackupCodes(@Request() req: ReqWithRequester) {
         const backupCodes = await this.twoFactorAuthService.regenerateBackupCodes(
             req.requester.sub,
@@ -140,11 +109,6 @@ export class TwoFactorAuthController {
     // ========================================
 
     @Get('status')
-    @ApiOperation({ summary: 'Get 2FA status' })
-    @ApiResponse({
-        status: 200,
-        description: 'Returns 2FA configuration status',
-    })
     async get2FAStatus(@Request() req: ReqWithRequester) {
         return this.twoFactorAuthService.get2FAStatus(req.requester.sub);
     }

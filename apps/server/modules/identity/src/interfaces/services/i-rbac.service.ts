@@ -13,8 +13,8 @@ export interface UserPermissions {
  */
 export interface IRBACService {
     /**
-     * Get all permissions for a user based on their role and custom permissions
-     * Reads from database (role_permissions + user_permissions)
+     * Get all permissions for a user based on their role
+     * Reads from database (role_permissions)
      * @param userId - The user's unique identifier
      * @param userRole - The user's role
      * @returns User permissions
@@ -63,29 +63,7 @@ export interface IRBACService {
      */
     removePermissionFromRole(roleCode: string, permissionCode: string): Promise<void>;
 
-    /**
-     * Add custom permission to a user (override) - ADMIN only
-     * @param userId - The user's unique identifier
-     * @param permissionCode - The permission code to grant
-     * @param context - Optional audit context
-     */
-    grantPermissionToUser(
-        userId: string,
-        permissionCode: string,
-        context?: AuditContextDTO,
-    ): Promise<void>;
 
-    /**
-     * Revoke permission from a user - ADMIN only
-     * @param userId - The user's unique identifier
-     * @param permissionCode - The permission code to revoke
-     * @param context - Optional audit context
-     */
-    revokePermissionFromUser(
-        userId: string,
-        permissionCode: string,
-        context?: AuditContextDTO,
-    ): Promise<void>;
 
     /**
      * Get all available roles from config (for admin UI)

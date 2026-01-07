@@ -35,19 +35,9 @@ export class RBACService implements IRBACService {
             where: { roleCode: userRole },
         });
 
-        // Get user-specific custom permissions from DATABASE
-        const userPerms = await this.prisma.userPermission.findMany({
-            where: {
-                userId: userId,
-                isGranted: true,
-            },
-        });
-
-        // Combine role permissions and custom permissions
-        const allPermissions = [
-            ...rolePerms.map((rp) => rp.permissionCode),
-            ...userPerms.map((up) => up.permissionCode),
-        ];
+        // Simplified: Strictly Role-Based Access Control
+        // No user-specific overrides
+        const allPermissions = rolePerms.map((rp) => rp.permissionCode);
 
         return {
             permissions: Array.from(new Set(allPermissions)), // Remove duplicates
@@ -176,106 +166,7 @@ export class RBACService implements IRBACService {
         });
     }
 
-    /**
-     * ADMIN: Add custom permission to a user (override)
-     */
-    async grantPermissionToUser(
-        userId: string,
-        permissionCode: string,
-        context?: AuditContextDTO,
-    ): Promise<void> {
-        // Validate permission exists in config
-        if (!this.rbacConfig.isValidPermission(permissionCode)) {
-            throw new Error(`Permission ${permissionCode} not found in RBAC config`);
-        }
 
-        // Get user info for audit
-        const user = await this.prisma.user.findUnique({
-            where: { id: userId },
-            select: { email: true, displayName: true },
-        });
-
-        await this.prisma.userPermission.upsert({
-            where: {
-                userId_permissionCode: {
-                    userId,
-                    permissionCode,
-                },
-            },
-            create: {
-                userId,
-                permissionCode,
-                isGranted: true,
-            },
-            update: {
-                isGranted: true,
-            },
-        });
-
-        // Audit log
-        if (context && user) {
-            await this.auditLog.log({
-                userId: context.actorId,
-                userEmail: context.actorEmail,
-                userRole: context.actorRole,
-                action: 'permission.grant_user',
-                entity: 'user_permission',
-                entityId: `${userId}:${permissionCode}`,
-                description: `Granted "${permissionCode}" permission to user ${user.displayName} (${user.email})`,
-                metadata: {
-                    targetUserId: userId,
-                    targetUserEmail: user.email,
-                    permissionCode,
-                },
-                newValues: { permissionCode, isGranted: true },
-                ipAddress: context.ipAddress,
-                userAgent: context.userAgent,
-            });
-        }
-    }
-
-    /**
-     * ADMIN: Revoke permission from a user
-     */
-    async revokePermissionFromUser(
-        userId: string,
-        permissionCode: string,
-        context?: AuditContextDTO,
-    ): Promise<void> {
-        // Get user info for audit
-        const user = await this.prisma.user.findUnique({
-            where: { id: userId },
-            select: { email: true, displayName: true },
-        });
-
-        await this.prisma.userPermission.deleteMany({
-            where: {
-                userId,
-                permissionCode,
-            },
-        });
-
-        // Audit log
-        if (context && user) {
-            await this.auditLog.log({
-                userId: context.actorId,
-                userEmail: context.actorEmail,
-                userRole: context.actorRole,
-                action: 'permission.revoke_user',
-                entity: 'user_permission',
-                entityId: `${userId}:${permissionCode}`,
-                description: `Revoked "${permissionCode}" permission from user ${user.displayName} (${user.email})`,
-                metadata: {
-                    targetUserId: userId,
-                    targetUserEmail: user.email,
-                    permissionCode,
-                },
-                oldValues: { permissionCode, isGranted: true },
-                ipAddress: context.ipAddress,
-                userAgent: context.userAgent,
-            });
-        }
-    }
 
     /**
      * Get all available roles from config (for admin UI)

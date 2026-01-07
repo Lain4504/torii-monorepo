@@ -195,22 +195,6 @@ model RolePermission {
   @@map("role_permissions")
 }
 
-// ============================================
-// User Permissions (Custom Overrides)
-// ============================================
-
-model UserPermission {
-  userId         String   @map("user_id") @db.Uuid
-  permissionCode String   @map("permission_code") @db.VarChar(100)
-  isGranted      Boolean  @default(true) @map("is_granted")
-  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamp()
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@id([userId, permissionCode])
-  @@map("user_permissions")
-}
 
 // ============================================
 // Audit Log (Generic System-Wide Logging)
@@ -287,7 +271,6 @@ model User {
 
   // Relations
   identities      UserIdentity[]   // OAuth providers (email, google, etc.)
-  userPermissions UserPermission[]
   sessions   Session[]
   twoFactorAuth   TwoFactorAuth?
   flashcardDecks  FlashcardDeck[]

@@ -4,13 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(database): add new modules for gamification, payments, and user management">
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/hooks/use-auth.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/hooks/use-auth.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/auth.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/auth.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/i-auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/i-auth.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/auth.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/store/slices/auth-slice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/store/slices/auth-slice.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/store/slices/authSlice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/store/slices/authSlice.ts" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(rbac): simplify permissions handling by removing user-specific overrides">
+      <change beforePath="$PROJECT_DIR$/scripts/database.sql" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/database.sql" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -265,30 +260,6 @@
       <workItem from="1767779643020" duration="455000" />
       <workItem from="1767780214679" duration="224000" />
       <workItem from="1767784611248" duration="3225000" />
-    </task>
-    <task id="LOCAL-00439" summary="feat(web-learner): add responsive home page sections with JLPT roadmap, features, and CTAs&#10;&#10;- Introduced `hero-section` to highlight platform's offerings and key metrics.&#10;- Added `course-categories-section` displaying JLPT levels N5-N1 with detailed descriptions.&#10;- Implemented `features-section` showcasing advanced platform features like AI Sensei and Gamification.&#10;- Created `cta-section` with promotional content and prominent call-to-action buttons.&#10;- Ensured responsive design and modern UI/UX principles across all sections.">
-      <option name="closed" value="true" />
-      <created>1767516170478</created>
-      <option name="number" value="00439" />
-      <option name="presentableId" value="LOCAL-00439" />
-      <option name="project" value="LOCAL" />
-      <updated>1767516170478</updated>
-    </task>
-    <task id="LOCAL-00440" summary="feat(web-learner): add responsive home page sections with JLPT roadmap, features, and CTAs&#10;&#10;- Introduced `hero-section` to highlight platform's offerings and key metrics.&#10;- Added `course-categories-section` displaying JLPT levels N5-N1 with detailed descriptions.&#10;- Implemented `features-section` showcasing advanced platform features like AI Sensei and Gamification.&#10;- Created `cta-section` with promotional content and prominent call-to-action buttons.&#10;- Ensured responsive design and modern UI/UX principles across all sections.">
-      <option name="closed" value="true" />
-      <created>1767516663053</created>
-      <option name="number" value="00440" />
-      <option name="presentableId" value="LOCAL-00440" />
-      <option name="project" value="LOCAL" />
-      <updated>1767516663053</updated>
-    </task>
-    <task id="LOCAL-00441" summary="feat(web-learner): add responsive home page sections with JLPT roadmap, features, and CTAs&#10;&#10;- Introduced `hero-section` to highlight platform's offerings and key metrics.&#10;- Added `course-categories-section` displaying JLPT levels N5-N1 with detailed descriptions.&#10;- Implemented `features-section` showcasing advanced platform features like AI Sensei and Gamification.&#10;- Created `cta-section` with promotional content and prominent call-to-action buttons.&#10;- Ensured responsive design and modern UI/UX principles across all sections.">
-      <option name="closed" value="true" />
-      <created>1767517030478</created>
-      <option name="number" value="00441" />
-      <option name="presentableId" value="LOCAL-00441" />
-      <option name="project" value="LOCAL" />
-      <updated>1767517030478</updated>
     </task>
     <task id="LOCAL-00442" summary="feat(web-learner): add responsive home page sections with JLPT roadmap, features, and CTAs&#10;&#10;- Introduced `hero-section` to highlight platform's offerings and key metrics.&#10;- Added `course-categories-section` displaying JLPT levels N5-N1 with detailed descriptions.&#10;- Implemented `features-section` showcasing advanced platform features like AI Sensei and Gamification.&#10;- Created `cta-section` with promotional content and prominent call-to-action buttons.&#10;- Ensured responsive design and modern UI/UX principles across all sections.">
       <option name="closed" value="true" />
@@ -658,7 +629,31 @@
       <option name="project" value="LOCAL" />
       <updated>1767790298115</updated>
     </task>
-    <option name="localTasksCounter" value="488" />
+    <task id="LOCAL-00488" summary="feat(auth): rename endpoints and update token generation for email verification">
+      <option name="closed" value="true" />
+      <created>1767791325124</created>
+      <option name="number" value="00488" />
+      <option name="presentableId" value="LOCAL-00488" />
+      <option name="project" value="LOCAL" />
+      <updated>1767791325124</updated>
+    </task>
+    <task id="LOCAL-00489" summary="feat(rbac): simplify permissions handling by removing user-specific overrides">
+      <option name="closed" value="true" />
+      <created>1767792013126</created>
+      <option name="number" value="00489" />
+      <option name="presentableId" value="LOCAL-00489" />
+      <option name="project" value="LOCAL" />
+      <updated>1767792013126</updated>
+    </task>
+    <task id="LOCAL-00490" summary="feat(rbac): simplify permissions handling by removing user-specific overrides">
+      <option name="closed" value="true" />
+      <created>1767792065001</created>
+      <option name="number" value="00490" />
+      <option name="presentableId" value="LOCAL-00490" />
+      <option name="project" value="LOCAL" />
+      <updated>1767792065001</updated>
+    </task>
+    <option name="localTasksCounter" value="491" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -688,8 +683,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="chore: remove obsolete controllers for room, auth-room, and polls in preparation for HTTP-based migration" />
-    <MESSAGE value="chore: update API routes and enable CORS configuration for HTTP-based migration  &#10;&#10;- Standardized API route prefixes across controllers (`AuthController`, `RBACController`, `AuditLogController`, etc.) by removing redundant `/api` prefix.  &#10;- Enabled CORS with dynamic origin support for development in `gateway/main.ts`.  &#10;- Updated web-admin API client to align with new API route structure.  &#10;- Integrated permission fetching in `AuthController` to streamline user role and permission data retrieval." />
     <MESSAGE value="chore: refactor API routes and enable CORS across services&#10;&#10;- Updated API route prefixes in multiple controllers (e.g., `@Controller('/api/...')` → `@Controller('/')`).&#10;- Adjusted corresponding client API calls to match updated backend routes.&#10;- Enabled CORS in gateway with dynamic origins and method support.&#10;- Enhanced `LoginPage` logic to integrate Firebase authentication and modified API endpoints accordingly.&#10;- Added permission fetching in the `AuthController`." />
     <MESSAGE value="chore: update API route prefixes for Meet module and configure body parser&#10;&#10;- Refactored API route prefixes in Meet controllers (e.g., `@Controller('api/...')` → `@Controller(...)`).&#10;- Added body parser configuration for JSON and protobuf request handling." />
     <MESSAGE value="return to manual jwt auth" />
@@ -713,7 +706,9 @@
     <MESSAGE value="feat(auth): sync database schema and Prisma models with session-based authentication&#10;&#10;- Replaced `refresh_tokens` table with `sessions` table in database schema.&#10;- Updated tables to include extended metadata (e.g., IP, user agent, device info).&#10;- Synced Prisma models with revised schema, optimizing for session management.&#10;- Removed legacy user role and permission tables, consolidating mappings with updated schemas.&#10;- Added tables for `user_identities`, `two_factor_auth`, and audit functionalities for improved security and logging." />
     <MESSAGE value="feat(database): update schema by removing obsolete tables and commenting out unused structures" />
     <MESSAGE value="feat(database): add new modules for gamification, payments, and user management" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(database): add new modules for gamification, payments, and user management" />
+    <MESSAGE value="feat(auth): rename endpoints and update token generation for email verification" />
+    <MESSAGE value="feat(rbac): simplify permissions handling by removing user-specific overrides" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(rbac): simplify permissions handling by removing user-specific overrides" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

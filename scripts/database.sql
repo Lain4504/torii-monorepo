@@ -27,16 +27,7 @@ CREATE TABLE role_permissions (
     PRIMARY KEY (role_code, permission_code)
 );
 
--- Bảng User Permissions (Override/Additional Permissions for specific users)
--- Allows fine-grained control (e.g., a Staff doing Sales vs Academic work)
--- Bảng User Permissions (Custom Overrides)
-CREATE TABLE user_permissions (
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    permission_code VARCHAR(100) NOT NULL,
-    is_granted BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (user_id, permission_code)
-);
+
 
 -- Bảng user_identities (OAuth)
 CREATE TABLE user_identities (

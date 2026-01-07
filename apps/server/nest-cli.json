@@ -8,15 +8,7 @@
     "deleteOutDir": true,
     "webpack": true,
     "tsConfigPath": "tsconfig.build.json",
-    "plugins": [
-      {
-        "name": "@nestjs/swagger",
-        "options": {
-          "classValidatorShim": true,
-          "introspectComments": true
-        }
-      }
-    ]
+    "plugins": []
   },
   "projects": {
     "gateway": {
