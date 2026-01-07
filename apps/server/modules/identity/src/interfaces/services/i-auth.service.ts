@@ -73,18 +73,18 @@ export interface IAuthService {
     // ===== Email Verification =====
 
     /**
-     * Generate Magic Link token for email verification
+     * Generate token for email verification
      * @param email - The user's email address
      * @returns Token to be used in verification URL
      */
-    generateMagicToken(email: string): Promise<string>;
+    generateVerificationToken(email: string): Promise<string>;
 
     /**
-     * Verify Magic Link token and activate user
-     * @param token - The magic link token
+     * Verify verification token and activate user
+     * @param token - The verification token
      * @returns Verification result
      */
-    verifyMagicToken(token: string): Promise<{ success: boolean; email?: string }>;
+    verifyVerificationToken(token: string): Promise<{ success: boolean; email?: string }>;
 
     /**
      * Resend verification email with magic link

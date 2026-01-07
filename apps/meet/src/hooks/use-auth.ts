@@ -11,7 +11,7 @@ export const useAuth = () => {
 
     const checkAuth = async () => {
         try {
-            await apiClient.get('/auth/profile');
+            await apiClient.get('/auth/me');
             setIsAuthenticated(true);
         } catch (error) {
             setIsAuthenticated(false);

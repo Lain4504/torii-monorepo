@@ -80,7 +80,7 @@ export class AuthController {
         }
 
         try {
-            const result = await this.authService.verifyMagicToken(token);
+            const result = await this.authService.verifyVerificationToken(token);
 
             if (!result.success) {
                 return {
@@ -591,12 +591,12 @@ export class AuthController {
     }
 
     /**
-     * Get authenticated user profile
-     * GET /auth/profile
+     * Get authenticated user
+     * GET /auth/me
      */
-    @Get('profile')
+    @Get('me')
     @UseGuards(GatewayAuthGuard)
-    async getProfile(@Request() req: ReqWithRequester) {
+    async getMe(@Request() req: ReqWithRequester) {
         try {
             const user = await this.authService.getCurrentUser(req.requester.sub);
             return {
@@ -606,18 +606,18 @@ export class AuthController {
         } catch (error: any) {
             return {
                 success: false,
-                message: error.message || 'Failed to get profile'
+                message: error.message || 'Failed to get user'
             };
         }
     }
 
     /**
-     * Update authenticated user profile
-     * PATCH /auth/profile
+     * Update authenticated user
+     * PATCH /auth/me
      */
-    @Patch('profile')
+    @Patch('me')
     @VerifiedOnly()
-    async updateProfile(
+    async updateMe(
         @Request() req: ReqWithRequester,
         @Body() dto: { displayName?: string },
     ) {
@@ -630,28 +630,28 @@ export class AuthController {
         } catch (error: any) {
             return {
                 success: false,
-                message: error.message || 'Failed to update profile'
+                message: error.message || 'Failed to update user'
             };
         }
     }
 
     /**
-     * Delete authenticated user profile
-     * DELETE /auth/profile
+     * Delete authenticated user
+     * DELETE /auth/me
      */
-    @Delete('profile')
+    @Delete('me')
     @UseGuards(GatewayAuthGuard)
-    async deleteProfile(@Request() req: ReqWithRequester) {
+    async deleteMe(@Request() req: ReqWithRequester) {
         try {
             await this.authService.deleteUser(req.requester.sub);
             return {
                 success: true,
-                message: 'Profile deleted successfully'
+                message: 'User deleted successfully'
             };
         } catch (error: any) {
             return {
                 success: false,
-                message: error.message || 'Failed to delete profile'
+                message: error.message || 'Failed to delete user'
             };
         }
     }

@@ -56,7 +56,7 @@ export const checkAuth = createAsyncThunk(
     'auth/check',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await apiClient.get('/api/auth/profile');
+            const response = await apiClient.get('/api/auth/me');
             return response.data.data.user;
         } catch (error) {
             return rejectWithValue('Not authenticated');

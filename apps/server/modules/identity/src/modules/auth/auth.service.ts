@@ -63,11 +63,11 @@ export class AuthService implements IAuthService {
         // Exclude password from response
         const { password, ...user } = fullUser;
 
-        // Generate Magic Link token
-        const magicToken = await this.generateMagicToken(user.email);
+        // Generate Verification token
+        const verificationToken = await this.generateVerificationToken(user.email);
 
         // Send verification email
-        const verificationUrl = `${process.env.FRONTEND_URL}/verify?token=${magicToken}`;
+        const verificationUrl = `${process.env.FRONTEND_URL}/verify?token=${verificationToken}`;
         await this.emailService.sendVerificationEmail(
             user.email,
             user.displayName,
@@ -259,25 +259,25 @@ export class AuthService implements IAuthService {
     }
 
     /**
-     * Generate Magic Link token for email verification
+     * Generate token for email verification
      * Returns the token to be used in verification URL
      */
-    async generateMagicToken(email: string): Promise<string> {
+    async generateVerificationToken(email: string): Promise<string> {
         // Generate secure random token (32 bytes = 64 hex chars)
         const crypto = await import('crypto');
         const token = crypto.randomBytes(32).toString('hex');
 
         // Store email associated with token in Redis (24h expiry)
-        await this.redis.set(`magic-link:${token}`, email, 'EX', 86400);
+        await this.redis.set(`verification-token:${token}`, email, 'EX', 86400);
 
         return token;
     }
 
     /**
-     * Verify Magic Link token and activate user
+     * Verify verification token and activate user
      */
-    async verifyMagicToken(token: string): Promise<{ success: boolean; email?: string }> {
-        const email = await this.redis.get(`magic-link:${token}`);
+    async verifyVerificationToken(token: string): Promise<{ success: boolean; email?: string }> {
+        const email = await this.redis.get(`verification-token:${token}`);
 
         if (!email) {
             return { success: false };
@@ -287,7 +287,7 @@ export class AuthService implements IAuthService {
         await this.usersRepository.updateByEmail(email, { verifiedAt: new Date() });
 
         // Delete token (one-time use)
-        await this.redis.del(`magic-link:${token}`);
+        await this.redis.del(`verification-token:${token}`);
 
         return { success: true, email };
     }
@@ -321,11 +321,11 @@ export class AuthService implements IAuthService {
             );
         }
 
-        // Generate new Magic Link token
-        const magicToken = await this.generateMagicToken(email);
+        // Generate new Verification token
+        const verificationToken = await this.generateVerificationToken(email);
 
         // Send verification email
-        const verificationUrl = `${process.env.FRONTEND_URL}/verify?token=${magicToken}`;
+        const verificationUrl = `${process.env.FRONTEND_URL}/verify?token=${verificationToken}`;
         await this.emailService.sendVerificationEmail(
             email,
             user.displayName,

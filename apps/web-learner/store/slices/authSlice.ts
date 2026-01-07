@@ -79,7 +79,7 @@ export const checkAuth = createAsyncThunk(
         try {
             // New endpoint needed: GET /auth/me or /users/profile/me
             // For now, assuming we might need to fetch profile using stored token/cookie
-            const response = await apiClient.get('/api/auth/profile');
+            const response = await apiClient.get('/api/auth/me');
             return response.data.data.user; // Extract user from { success: true, data: { user } }
         } catch (error) {
             return rejectWithValue('Not authenticated');
@@ -106,7 +106,7 @@ export const fetchProfile = createAsyncThunk(
     'auth/fetchProfile',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await apiClient.get('/api/auth/profile');
+            const response = await apiClient.get('/api/auth/me');
             return response.data.data.user;
         } catch (error: any) {
             if (error.response && error.response.data.message) {
