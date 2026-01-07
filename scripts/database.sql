@@ -38,10 +38,6 @@ CREATE TABLE user_permissions (
     PRIMARY KEY (user_id, permission_code)
 );
 
--- -- Bảng học viên (Removed - Use Users.user_metadata)
--- -- Bảng giảng viên (Removed - Use Users.user_metadata)
--- -- Bảng nhân viên (Removed - Use Users.app_metadata)
-
 -- Bảng user_identities (OAuth)
 CREATE TABLE user_identities (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -134,7 +130,6 @@ CREATE TABLE courses (
 );
 
 -- Bảng module khóa học
--- Bảng module (Updated map: modules)
 CREATE TABLE modules (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
@@ -153,7 +148,6 @@ CREATE TABLE modules (
     deleted_at TIMESTAMP
 );
 
--- Bảng bài học
 -- Bảng bài học
 CREATE TABLE lessons (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -211,61 +205,61 @@ CREATE TABLE file_assets (
 );
 
 -- Bảng room_info
-CREATE TABLE room_info (
-    id SERIAL PRIMARY KEY,
-    room_title VARCHAR(255) DEFAULT '',
-    room_id VARCHAR(64) NOT NULL,
-    sid VARCHAR(64) UNIQUE,
-    joined_participants INTEGER DEFAULT 0,
-    is_running INTEGER DEFAULT 0,
-    is_recording INTEGER DEFAULT 0,
-    recorder_id VARCHAR(36) DEFAULT '',
-    is_active_rtmp INTEGER DEFAULT 0,
-    rtmp_node_id VARCHAR(36) DEFAULT '',
-    webhook_url VARCHAR(255) DEFAULT '',
-    is_breakout_room INTEGER DEFAULT 0,
-    parent_room_id VARCHAR(64) DEFAULT '',
-    creation_time INTEGER DEFAULT 0,
-    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    ended TIMESTAMP,
-    modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Bảng room_files
-CREATE TABLE room_files (
-    id SERIAL PRIMARY KEY,
-    file_id VARCHAR(191) UNIQUE NOT NULL,
-    room_id VARCHAR(191) NOT NULL,
-    user_id VARCHAR(191) NOT NULL,
-    file_path VARCHAR(191) NOT NULL,
-    file_type VARCHAR(191) NOT NULL,
-    mime_type VARCHAR(191) NOT NULL,
-    file_size DOUBLE PRECISION DEFAULT 0,
-    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Bảng room_analytics
-CREATE TABLE room_analytics (
-    id SERIAL PRIMARY KEY,
-    room_table_id INTEGER NOT NULL REFERENCES room_info(id) ON UPDATE CASCADE,
-    room_id VARCHAR(64) NOT NULL,
-    file_id VARCHAR(255) NOT NULL,
-    file_name VARCHAR(255) NOT NULL,
-    file_size DOUBLE PRECISION NOT NULL,
-    room_creation_time INTEGER NOT NULL,
-    creation_time INTEGER NOT NULL
-);
-
--- Bảng room_artifacts
-CREATE TABLE room_artifacts (
-    id BIGSERIAL PRIMARY KEY,
-    artifact_id VARCHAR(64) UNIQUE NOT NULL,
-    room_table_id INTEGER NOT NULL REFERENCES room_info(id) ON UPDATE CASCADE,
-    room_id VARCHAR(255) NOT NULL,
-    type VARCHAR(100) NOT NULL,
-    metadata JSONB,
-    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- CREATE TABLE room_info (
+--     id SERIAL PRIMARY KEY,
+--     room_title VARCHAR(255) DEFAULT '',
+--     room_id VARCHAR(64) NOT NULL,
+--     sid VARCHAR(64) UNIQUE,
+--     joined_participants INTEGER DEFAULT 0,
+--     is_running INTEGER DEFAULT 0,
+--     is_recording INTEGER DEFAULT 0,
+--     recorder_id VARCHAR(36) DEFAULT '',
+--     is_active_rtmp INTEGER DEFAULT 0,
+--     rtmp_node_id VARCHAR(36) DEFAULT '',
+--     webhook_url VARCHAR(255) DEFAULT '',
+--     is_breakout_room INTEGER DEFAULT 0,
+--     parent_room_id VARCHAR(64) DEFAULT '',
+--     creation_time INTEGER DEFAULT 0,
+--     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     ended TIMESTAMP,
+--     modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- );
+--
+-- -- Bảng room_files
+-- CREATE TABLE room_files (
+--     id SERIAL PRIMARY KEY,
+--     file_id VARCHAR(191) UNIQUE NOT NULL,
+--     room_id VARCHAR(191) NOT NULL,
+--     user_id VARCHAR(191) NOT NULL,
+--     file_path VARCHAR(191) NOT NULL,
+--     file_type VARCHAR(191) NOT NULL,
+--     mime_type VARCHAR(191) NOT NULL,
+--     file_size DOUBLE PRECISION DEFAULT 0,
+--     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- );
+--
+-- -- Bảng room_analytics
+-- CREATE TABLE room_analytics (
+--     id SERIAL PRIMARY KEY,
+--     room_table_id INTEGER NOT NULL REFERENCES room_info(id) ON UPDATE CASCADE,
+--     room_id VARCHAR(64) NOT NULL,
+--     file_id VARCHAR(255) NOT NULL,
+--     file_name VARCHAR(255) NOT NULL,
+--     file_size DOUBLE PRECISION NOT NULL,
+--     room_creation_time INTEGER NOT NULL,
+--     creation_time INTEGER NOT NULL
+-- );
+--
+-- -- Bảng room_artifacts
+-- CREATE TABLE room_artifacts (
+--     id BIGSERIAL PRIMARY KEY,
+--     artifact_id VARCHAR(64) UNIQUE NOT NULL,
+--     room_table_id INTEGER NOT NULL REFERENCES room_info(id) ON UPDATE CASCADE,
+--     room_id VARCHAR(255) NOT NULL,
+--     type VARCHAR(100) NOT NULL,
+--     metadata JSONB,
+--     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- );
 
 -- Bảng đăng ký khóa học
 CREATE TABLE enrollments (
@@ -328,8 +322,6 @@ CREATE TABLE wishlist (
     added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(user_id, course_id)
 );
-
-
 
 
 -- -- 3. BẢNG LỚP HỌC TRỰC TUYẾN (Not in Prisma - Use RoomInfo)
@@ -400,24 +392,24 @@ CREATE TABLE wishlist (
 
 
 -- Bảng ngân hàng câu hỏi
-CREATE TABLE question_bank (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    question_text TEXT NOT NULL,
-    question_type VARCHAR(30) NOT NULL,
-    jlpt_level VARCHAR(5),
-    category VARCHAR(50),
-    subcategory VARCHAR(50),
-    difficulty VARCHAR(20),
-    options JSONB,
-    correct_answer TEXT,
-    explanation TEXT,
-    tags VARCHAR(50)[] DEFAULT '{}',
-    created_by UUID,
-    status VARCHAR(20) DEFAULT 'active',
-    usage_count INTEGER DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- CREATE TABLE question_bank (
+--     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--     question_text TEXT NOT NULL,
+--     question_type VARCHAR(30) NOT NULL,
+--     jlpt_level VARCHAR(5),
+--     category VARCHAR(50),
+--     subcategory VARCHAR(50),
+--     difficulty VARCHAR(20),
+--     options JSONB,
+--     correct_answer TEXT,
+--     explanation TEXT,
+--     tags VARCHAR(50)[] DEFAULT '{}',
+--     created_by UUID,
+--     status VARCHAR(20) DEFAULT 'active',
+--     usage_count INTEGER DEFAULT 0,
+--     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- );
 
 -- -- 4. QUIZ (Not in Prisma)
 --
@@ -483,195 +475,194 @@ CREATE TABLE question_bank (
 -- 5. BẢNG THANH TOÁN VÀ KHUYẾN MÃI (MINIMAL - 4 Tables)
 
 -- Bảng thanh toán
-CREATE TABLE payments (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    
-    -- Thông tin giao dịch
-    amount DECIMAL(10,2) NOT NULL,
-    currency VARCHAR(3) DEFAULT 'VND',
-    payment_method VARCHAR(50) NOT NULL,           -- 'credit_card', 'bank_transfer', 'momo', 'zalopay', 'vnpay'
-    payment_gateway VARCHAR(50),                   -- 'stripe', 'paypal', 'vnpay', 'momo'
-    
-    -- Transaction tracking
-    transaction_id VARCHAR(100) UNIQUE,
-    gateway_transaction_id VARCHAR(100),
-    
-    -- Status
-    status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'completed', 'failed', 'cancelled')),
-    
-    -- Payment purpose
-    payment_type VARCHAR(30) DEFAULT 'course_purchase' CHECK (payment_type IN ('course_purchase', 'subscription', 'top_up', 'gift')),
-    
-    -- References
-    enrollment_id UUID REFERENCES enrollments(id),
-    
-    description TEXT,
-    
-    -- Metadata (JSONB) - Chứa tất cả thông tin bổ sung:
-    -- {
-    --   "coupon_code": "SUMMER2024",
-    --   "discount_amount": 100000,
-    --   "original_price": 500000,
-    --   "final_price": 400000,
-    --   "gateway_response": {...},
-    --   "ip_address": "1.2.3.4",
-    --   "device": "mobile",
-    --   "invoice": {
-    --     "invoice_number": "INV-2024-001",
-    --     "billing_name": "Nguyen Van A",
-    --     "billing_address": "...",
-    --     "tax_id": "..."
-    --   }
-    -- }
-    metadata JSONB DEFAULT '{}',
-    
-    -- Timestamps
-    completed_at TIMESTAMP,
-    failed_at TIMESTAMP,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Bảng mã giảm giá
-CREATE TABLE coupons (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    code VARCHAR(50) UNIQUE NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    description TEXT,
-    
-    -- Discount config
-    discount_type VARCHAR(20) NOT NULL CHECK (discount_type IN ('percentage', 'fixed_amount')),
-    discount_value DECIMAL(10,2) NOT NULL,
-    
-    -- Conditions
-    min_order_amount DECIMAL(10,2),
-    max_discount_amount DECIMAL(10,2),
-    
-    -- Validity
-    valid_from TIMESTAMP NOT NULL,
-    valid_until TIMESTAMP NOT NULL,
-    
-    -- Usage limits
-    usage_limit INTEGER,                           -- Total uses across all users
-    usage_count INTEGER DEFAULT 0,                 -- Current usage count
-    user_usage_limit INTEGER DEFAULT 1,            -- Per user limit
-    
-    -- Applicability
-    applicable_course_ids UUID[] DEFAULT '{}',     -- Empty = all courses
-    excluded_course_ids UUID[] DEFAULT '{}',
-    
-    -- Status
-    status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'expired')),
-    
-    -- Ownership
-    created_by UUID REFERENCES users(id),
-    
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Bảng ví người dùng (User Wallet) - For credits/points
--- NOTE: Credits expiry được track ở wallet_transactions.metadata
--- Cần cronjob để tự động trừ credits hết hạn
-CREATE TABLE user_wallets (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    
-    balance DECIMAL(10,2) DEFAULT 0.00,
-    currency VARCHAR(3) DEFAULT 'VND',
-    
-    -- Points/Credits system
-    points INTEGER DEFAULT 0,
-    
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Bảng lịch sử giao dịch ví
--- Chứa cả REFUND logic (không cần bảng refunds riêng)
-CREATE TABLE wallet_transactions (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    wallet_id UUID NOT NULL REFERENCES user_wallets(id) ON DELETE CASCADE,
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    
-    -- Transaction type:
-    -- 'credit': Nạp tiền vào ví
-    -- 'debit': Trừ tiền từ ví (mua khóa học bằng credits)
-    -- 'refund': Hoàn tiền từ payment (chỉ credits, không hoàn tiền mặt)
-    -- 'reward': Thưởng từ hệ thống
-    -- 'expired': Trừ credits hết hạn
-    transaction_type VARCHAR(30) NOT NULL CHECK (transaction_type IN ('credit', 'debit', 'refund', 'reward', 'expired')),
-    
-    amount DECIMAL(10,2) NOT NULL,
-    points INTEGER DEFAULT 0,
-    
-    balance_before DECIMAL(10,2) NOT NULL,
-    balance_after DECIMAL(10,2) NOT NULL,
-    
-    -- Reference
-    reference_type VARCHAR(50),                    -- 'payment', 'enrollment', 'reward'
-    reference_id UUID,                             -- ID of related payment/enrollment
-    
-    description TEXT,
-    
-    -- Metadata (JSONB) - Chứa thông tin refund nếu là refund transaction:
-    -- For refund transactions:
-    -- {
-    --   "refund_reason": "not_satisfied",
-    --   "refund_detail": "Khóa học không phù hợp",
-    --   "original_payment_id": "payment-123",
-    --   "original_amount": 500000,
-    --   "bonus_percentage": 10,
-    --   "requested_at": "2024-01-01T10:00:00Z",
-    --   "approved_by": "staff-456",
-    --   "approved_at": "2024-01-02T10:00:00Z",
-    --   "expires_at": "2025-01-01"  // Credits expiry date
-    -- }
-    metadata JSONB DEFAULT '{}',
-    
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- CREATE TABLE payments (
+--     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+--
+--     -- Thông tin giao dịch
+--     amount DECIMAL(10,2) NOT NULL,
+--     currency VARCHAR(3) DEFAULT 'VND',
+--     payment_method VARCHAR(50) NOT NULL,           -- 'credit_card', 'bank_transfer', 'momo', 'zalopay', 'vnpay'
+--     payment_gateway VARCHAR(50),                   -- 'stripe', 'paypal', 'vnpay', 'momo'
+--
+--     -- Transaction tracking
+--     transaction_id VARCHAR(100) UNIQUE,
+--     gateway_transaction_id VARCHAR(100),
+--
+--     -- Status
+--     status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'completed', 'failed', 'cancelled')),
+--
+--     -- Payment purpose
+--     payment_type VARCHAR(30) DEFAULT 'course_purchase' CHECK (payment_type IN ('course_purchase', 'subscription', 'top_up', 'gift')),
+--
+--     -- References
+--     enrollment_id UUID REFERENCES enrollments(id),
+--
+--     description TEXT,
+--
+--     -- Metadata (JSONB) - Chứa tất cả thông tin bổ sung:
+--     -- {
+--     --   "coupon_code": "SUMMER2024",
+--     --   "discount_amount": 100000,
+--     --   "original_price": 500000,
+--     --   "final_price": 400000,
+--     --   "gateway_response": {...},
+--     --   "ip_address": "1.2.3.4",
+--     --   "device": "mobile",
+--     --   "invoice": {
+--     --     "invoice_number": "INV-2024-001",
+--     --     "billing_name": "Nguyen Van A",
+--     --     "billing_address": "...",
+--     --     "tax_id": "..."
+--     --   }
+--     -- }
+--     metadata JSONB DEFAULT '{}',
+--
+--     -- Timestamps
+--     completed_at TIMESTAMP,
+--     failed_at TIMESTAMP,
+--     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- );
+--
+-- -- Bảng mã giảm giá
+-- CREATE TABLE coupons (
+--     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--     code VARCHAR(50) UNIQUE NOT NULL,
+--     name VARCHAR(100) NOT NULL,
+--     description TEXT,
+--
+--     -- Discount config
+--     discount_type VARCHAR(20) NOT NULL CHECK (discount_type IN ('percentage', 'fixed_amount')),
+--     discount_value DECIMAL(10,2) NOT NULL,
+--
+--     -- Conditions
+--     min_order_amount DECIMAL(10,2),
+--     max_discount_amount DECIMAL(10,2),
+--
+--     -- Validity
+--     valid_from TIMESTAMP NOT NULL,
+--     valid_until TIMESTAMP NOT NULL,
+--
+--     -- Usage limits
+--     usage_limit INTEGER,                           -- Total uses across all users
+--     usage_count INTEGER DEFAULT 0,                 -- Current usage count
+--     user_usage_limit INTEGER DEFAULT 1,            -- Per user limit
+--
+--     -- Applicability
+--     applicable_course_ids UUID[] DEFAULT '{}',     -- Empty = all courses
+--     excluded_course_ids UUID[] DEFAULT '{}',
+--
+--     -- Status
+--     status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'expired')),
+--
+--     -- Ownership
+--     created_by UUID REFERENCES users(id),
+--
+--     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- );
+--
+-- -- Bảng ví người dùng (User Wallet) - For credits/points
+-- -- NOTE: Credits expiry được track ở wallet_transactions.metadata
+-- -- Cần cronjob để tự động trừ credits hết hạn
+-- CREATE TABLE user_wallets (
+--     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--     user_id UUID UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+--
+--     balance DECIMAL(10,2) DEFAULT 0.00,
+--     currency VARCHAR(3) DEFAULT 'VND',
+--
+--     -- Points/Credits system
+--     points INTEGER DEFAULT 0,
+--
+--     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- );
+--
+-- -- Bảng lịch sử giao dịch ví
+-- -- Chứa cả REFUND logic (không cần bảng refunds riêng)
+-- CREATE TABLE wallet_transactions (
+--     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--     wallet_id UUID NOT NULL REFERENCES user_wallets(id) ON DELETE CASCADE,
+--     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+--
+--     -- Transaction type:
+--     -- 'credit': Nạp tiền vào ví
+--     -- 'debit': Trừ tiền từ ví (mua khóa học bằng credits)
+--     -- 'refund': Hoàn tiền từ payment (chỉ credits, không hoàn tiền mặt)
+--     -- 'reward': Thưởng từ hệ thống
+--     -- 'expired': Trừ credits hết hạn
+--     transaction_type VARCHAR(30) NOT NULL CHECK (transaction_type IN ('credit', 'debit', 'refund', 'reward', 'expired')),
+--
+--     amount DECIMAL(10,2) NOT NULL,
+--     points INTEGER DEFAULT 0,
+--
+--     balance_before DECIMAL(10,2) NOT NULL,
+--     balance_after DECIMAL(10,2) NOT NULL,
+--
+--     -- Reference
+--     reference_type VARCHAR(50),                    -- 'payment', 'enrollment', 'reward'
+--     reference_id UUID,                             -- ID of related payment/enrollment
+--
+--     description TEXT,
+--
+--     -- Metadata (JSONB) - Chứa thông tin refund nếu là refund transaction:
+--     -- For refund transactions:
+--     -- {
+--     --   "refund_reason": "not_satisfied",
+--     --   "refund_detail": "Khóa học không phù hợp",
+--     --   "original_payment_id": "payment-123",
+--     --   "original_amount": 500000,
+--     --   "bonus_percentage": 10,
+--     --   "requested_at": "2024-01-01T10:00:00Z",
+--     --   "approved_by": "staff-456",
+--     --   "approved_at": "2024-01-02T10:00:00Z",
+--     --   "expires_at": "2025-01-01"  // Credits expiry date
+--     -- }
+--     metadata JSONB DEFAULT '{}',
+--
+--     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- );
 
 -- 6. BẢNG FLASHCARD VÀ HỌC TỪ VỰNG
 
 -- Bảng bộ flashcard
--- Bảng bộ flashcard
-CREATE TABLE flashcard_decks (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    name VARCHAR(255) NOT NULL,
-    description TEXT,
-    jlpt_level VARCHAR(5),
-    is_public BOOLEAN DEFAULT FALSE,
-    tags VARCHAR(50)[] DEFAULT '{}',
-    card_count INTEGER DEFAULT 0,
-    studied_count INTEGER DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Bảng flashcard
--- Bảng flashcard
-CREATE TABLE flashcards (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    deck_id UUID NOT NULL REFERENCES flashcard_decks(id) ON DELETE CASCADE,
-    front_text TEXT NOT NULL,
-    back_text TEXT NOT NULL,
-    example_sentence TEXT,
-    pronunciation TEXT,
-    image_url TEXT,
-    audio_url TEXT,
-    tags VARCHAR(50)[] DEFAULT '{}',
-    difficulty VARCHAR(20) DEFAULT 'medium',
-    next_review_date DATE,
-    interval_days INTEGER DEFAULT 1,
-    ease_factor DECIMAL(4,2) DEFAULT 2.50,
-    review_count INTEGER DEFAULT 0,
-    correct_count INTEGER DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- CREATE TABLE flashcard_decks (
+--     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+--     name VARCHAR(255) NOT NULL,
+--     description TEXT,
+--     jlpt_level VARCHAR(5),
+--     is_public BOOLEAN DEFAULT FALSE,
+--     tags VARCHAR(50)[] DEFAULT '{}',
+--     card_count INTEGER DEFAULT 0,
+--     studied_count INTEGER DEFAULT 0,
+--     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- );
+--
+-- -- Bảng flashcard
+-- -- Bảng flashcard
+-- CREATE TABLE flashcards (
+--     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--     deck_id UUID NOT NULL REFERENCES flashcard_decks(id) ON DELETE CASCADE,
+--     front_text TEXT NOT NULL,
+--     back_text TEXT NOT NULL,
+--     example_sentence TEXT,
+--     pronunciation TEXT,
+--     image_url TEXT,
+--     audio_url TEXT,
+--     tags VARCHAR(50)[] DEFAULT '{}',
+--     difficulty VARCHAR(20) DEFAULT 'medium',
+--     next_review_date DATE,
+--     interval_days INTEGER DEFAULT 1,
+--     ease_factor DECIMAL(4,2) DEFAULT 2.50,
+--     review_count INTEGER DEFAULT 0,
+--     correct_count INTEGER DEFAULT 0,
+--     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- );
 
 -- -- Bảng lịch sử ôn tập - Not in Prisma
 -- CREATE TABLE flashcard_reviews (
@@ -737,7 +728,57 @@ CREATE TABLE flashcards (
 
 -- 8. BẢNG BLOG VÀ NỘI DUNG
 
--- -- 9. ACHIEVEMENTS (Not in Prisma)
+-- Bảng bài viết blog
+CREATE TABLE blog_posts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) UNIQUE NOT NULL,
+    excerpt VARCHAR(500),
+    content TEXT NOT NULL,
+    cover_image_url TEXT,
+    author_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    status VARCHAR(20) DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'archived')),
+    published_at TIMESTAMP,
+    view_count INTEGER DEFAULT 0,
+    like_count INTEGER DEFAULT 0,
+    comment_count INTEGER DEFAULT 0,
+    tags VARCHAR(50)[] DEFAULT '{}',
+    seo_title VARCHAR(255),
+    seo_description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 9. BẢNG THÔNG BÁO
+
+-- Bảng thông báo người dùng
+CREATE TABLE notifications (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    notification_type VARCHAR(50),
+    data JSONB,
+    is_read BOOLEAN DEFAULT FALSE,
+    read_at TIMESTAMP,
+    sent_via VARCHAR(20)[] DEFAULT '{}',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Bảng bình luận blog
+CREATE TABLE blog_comments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    post_id UUID NOT NULL REFERENCES blog_posts(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    parent_comment_id UUID REFERENCES blog_comments(id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    status VARCHAR(20) DEFAULT 'approved' CHECK (status IN ('pending', 'approved', 'spam', 'deleted')),
+    likes INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- -- 10. ACHIEVEMENTS (Not in Prisma)
 --
 -- -- Bảng tags
 -- CREATE TABLE tags (
@@ -842,10 +883,17 @@ CREATE INDEX idx_file_assets_owner_id ON file_assets(owner_id);
 CREATE INDEX idx_file_assets_status ON file_assets(status);
 
 CREATE INDEX idx_blog_posts_status ON blog_posts(status);
+CREATE INDEX idx_blog_posts_published_at ON blog_posts(published_at DESC);
 CREATE INDEX idx_blog_posts_author ON blog_posts(author_id);
+
+CREATE INDEX idx_blog_comments_post_id ON blog_comments(post_id);
+CREATE INDEX idx_blog_comments_user_id ON blog_comments(user_id);
+CREATE INDEX idx_blog_comments_parent_id ON blog_comments(parent_comment_id);
+CREATE INDEX idx_blog_comments_created_at ON blog_comments(created_at DESC);
 
 CREATE INDEX idx_notifications_user_id ON notifications(user_id);
 CREATE INDEX idx_notifications_is_read ON notifications(is_read);
+CREATE INDEX idx_notifications_created_at ON notifications(created_at);
 
 -- Indexes for sessions
 CREATE INDEX idx_sessions_user_id ON sessions(user_id);
