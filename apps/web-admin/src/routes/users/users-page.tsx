@@ -9,6 +9,7 @@ import type { UserResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
 import { useUsers } from "@/api/services/users.ts";
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
+import { cn } from '@workspace/ui/lib/utils';
 import {
     Pagination,
     PaginationContent,
@@ -73,7 +74,15 @@ export function UsersPage() {
         if (startPage > 1) {
             items.push(
                 <PaginationItem key={1}>
-                    <PaginationLink onClick={() => setPage(1)}>1</PaginationLink>
+                    <PaginationLink
+                        onClick={(e) => {
+                            e.preventDefault();
+                            setPage(1);
+                        }}
+                        className="cursor-pointer hover:bg-muted/50 transition-colors"
+                    >
+                        1
+                    </PaginationLink>
                 </PaginationItem>
             );
             if (startPage > 2) items.push(<PaginationEllipsis key="start-ellipsis" />);
@@ -84,7 +93,14 @@ export function UsersPage() {
                 <PaginationItem key={i}>
                     <PaginationLink
                         isActive={page === i}
-                        onClick={() => setPage(i)}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            setPage(i);
+                        }}
+                        className={cn(
+                            "cursor-pointer transition-colors",
+                            page === i ? "bg-primary/10" : "hover:bg-muted/50"
+                        )}
                     >
                         {i}
                     </PaginationLink>
@@ -96,7 +112,15 @@ export function UsersPage() {
             if (endPage < totalPages - 1) items.push(<PaginationEllipsis key="end-ellipsis" />);
             items.push(
                 <PaginationItem key={totalPages}>
-                    <PaginationLink onClick={() => setPage(totalPages)}>{totalPages}</PaginationLink>
+                    <PaginationLink
+                        onClick={(e) => {
+                            e.preventDefault();
+                            setPage(totalPages);
+                        }}
+                        className="cursor-pointer hover:bg-muted/50 transition-colors"
+                    >
+                        {totalPages}
+                    </PaginationLink>
                 </PaginationItem>
             );
         }
@@ -144,33 +168,54 @@ export function UsersPage() {
                     </div>
 
                     {/* Pagination */}
-                    <div className="flex flex-col sm:flex-row shadow-sm rounded-xl items-center justify-between gap-4 py-6 border-t border-border/40 mt-6 px-2">
-                        <div className="text-sm zen-text-muted">
-                            Showing <span className="font-semibold text-foreground">{users.length}</span> of <span className="font-semibold text-foreground">{total}</span> users
+                    {(total > 0 || isLoading) && (
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6 border-t border-border/40 mt-6 px-2">
+                            <div className="text-sm text-muted-foreground">
+                                Showing <span className="font-semibold text-foreground">{users.length}</span> of <span className="font-semibold text-foreground">{total}</span> users
+                                {totalPages > 0 && (
+                                    <span className="ml-2">(Page {page} of {totalPages})</span>
+                                )}
+                            </div>
+
+                            {totalPages > 1 ? (
+                                <Pagination>
+                                    <PaginationContent>
+                                        <PaginationItem>
+                                            <PaginationPrevious
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    setPage(p => Math.max(1, p - 1));
+                                                }}
+                                                className={cn(
+                                                    page === 1 ? "pointer-events-none opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-muted/50",
+                                                    "transition-colors"
+                                                )}
+                                            />
+                                        </PaginationItem>
+
+                                        {renderPaginationItems()}
+
+                                        <PaginationItem>
+                                            <PaginationNext
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    setPage(p => Math.min(totalPages, p + 1));
+                                                }}
+                                                className={cn(
+                                                    page === totalPages ? "pointer-events-none opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-muted/50",
+                                                    "transition-colors"
+                                                )}
+                                            />
+                                        </PaginationItem>
+                                    </PaginationContent>
+                                </Pagination>
+                            ) : totalPages === 1 ? (
+                                <div className="text-sm text-muted-foreground">
+                                    All results on one page
+                                </div>
+                            ) : null}
                         </div>
-
-                        {totalPages > 1 && (
-                            <Pagination>
-                                <PaginationContent>
-                                    <PaginationItem>
-                                        <PaginationPrevious
-                                            onClick={() => setPage(p => Math.max(1, p - 1))}
-                                            className={page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                                        />
-                                    </PaginationItem>
-
-                                    {renderPaginationItems()}
-
-                                    <PaginationItem>
-                                        <PaginationNext
-                                            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                                            className={page === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                                        />
-                                    </PaginationItem>
-                                </PaginationContent>
-                            </Pagination>
-                        )}
-                    </div>
+                    )}
                 </div>
             </div>
 

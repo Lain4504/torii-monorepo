@@ -72,99 +72,109 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen w-full bg-background antialiased">
-      {/* Left Panel: Hero / Brand - Hidden on mobile */}
-      <div className="hidden lg:flex w-[55%] relative overflow-hidden bg-slate-950 flex-col justify-between p-16 text-white">
-        {/* Background Effects */}
+      {/* Left Panel: Hero / Brand - Hidden on mobile - Zen Style */}
+      <div className="hidden lg:flex w-[55%] relative overflow-hidden bg-gradient-to-br from-primary/5 via-primary/3 to-secondary/5 flex-col justify-between p-16">
+        {/* Background Effects - Soothing pastel gradients */}
         <div className="absolute inset-0 z-0">
-          <div className="absolute top-[-20%] left-[-10%] h-[800px] w-[800px] rounded-full bg-blue-600/10 blur-[120px] animate-pulse duration-[10000ms]" />
-          <div className="absolute bottom-[-20%] right-[-10%] h-[800px] w-[800px] rounded-full bg-indigo-600/10 blur-[120px] animate-pulse duration-[15000ms]" />
-          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-soft-light" />
+          <div className="absolute top-[-20%] left-[-10%] h-[800px] w-[800px] rounded-full bg-primary/8 blur-[120px] animate-pulse duration-[10000ms]" />
+          <div className="absolute bottom-[-20%] right-[-10%] h-[800px] w-[800px] rounded-full bg-accent/8 blur-[120px] animate-pulse duration-[15000ms]" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-secondary/6 blur-[100px]" />
         </div>
 
         {/* Content Layer */}
         <div className="relative z-10">
           <div className="flex items-center gap-4">
-            <div className="flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500/20 to-indigo-600/20 border border-white/10 shadow-2xl backdrop-blur-xl text-white font-bold text-2xl">T</div>
-            <span className="text-2xl font-bold tracking-tight text-white/90">Torii Admin</span>
+            <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/15 border border-primary/20 shadow-lg backdrop-blur-sm text-primary font-bold text-2xl transition-transform hover:scale-105">T</div>
+            <div>
+              <span className="text-2xl font-bold tracking-tight text-foreground">Torii Admin</span>
+              <p className="text-xs text-muted-foreground/70 mt-0.5 uppercase tracking-wider">Zen Workspace</p>
+            </div>
           </div>
         </div>
 
         <div className="relative z-10 max-w-xl space-y-10">
-          <h1 className="text-6xl font-bold tracking-tight leading-[1.1]">
-            Command Center<br />
-            for <span className="bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">Modern Education</span>
-          </h1>
-          <p className="text-xl text-slate-400 leading-relaxed max-w-lg">
-            Streamline operations, manage courses, and monitor learner progress from one centralized, powerful dashboard.
-          </p>
+          <div className="space-y-4">
+            <h1 className="text-5xl font-bold tracking-tight leading-[1.1] text-foreground">
+              Find Your Inner<br />
+              <span className="bg-gradient-to-r from-primary via-primary/80 to-accent bg-clip-text text-transparent">Peace Through Learning</span>
+            </h1>
+            <p className="text-lg text-muted-foreground/80 leading-relaxed max-w-lg">
+              A calming workspace to manage courses, monitor progress, and nurture the learning journey with clarity and focus.
+            </p>
+          </div>
 
-          {/* Feature Pills */}
+          {/* Feature Pills - Zen Style */}
           <div className="grid gap-4">
-            <div className="group flex items-center gap-5 rounded-2xl bg-white/5 p-5 border border-white/5 backdrop-blur-md shadow-sm transition-all hover:bg-white/10 hover:border-white/10">
-              <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-blue-500/10 text-blue-400 group-hover:scale-110 transition-transform">
+            <div className="group flex items-center gap-5 rounded-2xl bg-card/60 backdrop-blur-sm p-5 border border-border/50 shadow-sm transition-all duration-300 hover:bg-card/80 hover:shadow-md hover:border-primary/30 cursor-pointer">
+              <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary group-hover:scale-110 transition-transform duration-300">
                 <BarChart3 className="size-6" />
               </div>
               <div>
-                <h3 className="font-semibold text-lg text-white mb-1">Real-time Analytics</h3>
-                <p className="text-sm text-slate-400">Monitor engagement and financial growth live.</p>
+                <h3 className="font-semibold text-lg text-foreground mb-1">Real-time Analytics</h3>
+                <p className="text-sm text-muted-foreground/80">Monitor engagement and growth with clarity.</p>
               </div>
             </div>
 
-            <div className="group flex items-center gap-5 rounded-2xl bg-white/5 p-5 border border-white/5 backdrop-blur-md shadow-sm transition-all hover:bg-white/10 hover:border-white/10">
-              <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 group-hover:scale-110 transition-transform">
+            <div className="group flex items-center gap-5 rounded-2xl bg-card/60 backdrop-blur-sm p-5 border border-border/50 shadow-sm transition-all duration-300 hover:bg-card/80 hover:shadow-md hover:border-secondary/30 cursor-pointer">
+              <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-secondary/15 text-secondary-foreground group-hover:scale-110 transition-transform duration-300">
                 <Users className="size-6" />
               </div>
               <div>
-                <h3 className="font-semibold text-lg text-white mb-1">User Management</h3>
-                <p className="text-sm text-slate-400">Role-based access control for students and staff.</p>
+                <h3 className="font-semibold text-lg text-foreground mb-1">User Management</h3>
+                <p className="text-sm text-muted-foreground/80">Role-based access with mindful organization.</p>
               </div>
             </div>
 
-            <div className="group flex items-center gap-5 rounded-2xl bg-white/5 p-5 border border-white/5 backdrop-blur-md shadow-sm transition-all hover:bg-white/10 hover:border-white/10">
-              <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400 group-hover:scale-110 transition-transform">
+            <div className="group flex items-center gap-5 rounded-2xl bg-card/60 backdrop-blur-sm p-5 border border-border/50 shadow-sm transition-all duration-300 hover:bg-card/80 hover:shadow-md hover:border-accent/30 cursor-pointer">
+              <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent-foreground group-hover:scale-110 transition-transform duration-300">
                 <Globe2 className="size-6" />
               </div>
               <div>
-                <h3 className="font-semibold text-lg text-white mb-1">Global Reach</h3>
-                <p className="text-sm text-slate-400">Manage courses and live sessions globally.</p>
+                <h3 className="font-semibold text-lg text-foreground mb-1">Global Reach</h3>
+                <p className="text-sm text-muted-foreground/80">Connect learners worldwide seamlessly.</p>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="relative z-10 flex items-center gap-6 text-xs text-slate-500 font-medium tracking-widest uppercase opacity-60">
+        <div className="relative z-10 flex items-center gap-6 text-xs text-muted-foreground/60 font-medium tracking-widest uppercase">
           <span>© 2026 Torii System</span>
-          <span className="h-px w-12 bg-slate-700"></span>
-          <span>Secure Enterprise Login</span>
+          <span className="h-px w-12 bg-border/50"></span>
+          <span>Peaceful & Secure</span>
         </div>
       </div>
 
-      {/* Right Panel: Login Form */}
+      {/* Right Panel: Login Form - Zen Style */}
       <div className="flex flex-1 flex-col items-center justify-center p-8 lg:p-16 relative bg-background">
-        <div className="w-full max-w-[400px] space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+        <div className="w-full max-w-[420px] space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+          {/* Mobile Logo */}
+          <div className="lg:hidden flex items-center justify-center gap-3 mb-4">
+            <div className="flex size-10 items-center justify-center rounded-xl bg-primary/15 border border-primary/20 text-primary font-bold text-xl">T</div>
+            <span className="text-xl font-bold tracking-tight text-foreground">Torii Admin</span>
+          </div>
 
-          <div className="text-center space-y-3">
-            <h2 className="text-4xl font-bold tracking-tight text-foreground">Welcome back</h2>
-            <p className="text-base zen-text-muted">Enter your credentials to access the admin portal.</p>
+          <div className="text-center space-y-2">
+            <h2 className="text-3xl font-bold tracking-tight text-foreground">Welcome back</h2>
+            <p className="text-sm text-muted-foreground/80">Enter your credentials to continue your journey</p>
           </div>
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
               <FormField
                 control={form.control}
                 name="email"
                 render={({ field }) => (
-                  <FormItem className="space-y-1">
-                    <FormLabel className="zen-text-muted text-xs uppercase tracking-wider font-bold ml-1">Email</FormLabel>
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-medium text-foreground ml-1">Email address</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="name@company.com"
                         {...field}
-                        className="h-12 border-none bg-muted/40 hover:bg-muted/60 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all pl-4"
+                        className="h-12 border border-border/50 bg-muted/50 dark:bg-muted/70 hover:bg-muted/70 dark:hover:bg-muted/80 focus-visible:ring-2 focus-visible:ring-primary/30 dark:focus-visible:ring-primary/40 rounded-xl transition-all duration-200 pl-4"
                         autoComplete="email"
                       />
                     </FormControl>
-                    <FormMessage className="ml-1" />
+                    <FormMessage className="ml-1 text-xs" />
                   </FormItem>
                 )}
               />
@@ -173,25 +183,25 @@ export default function LoginPage() {
                 control={form.control}
                 name="password"
                 render={({ field }) => (
-                  <FormItem className="space-y-1">
+                  <FormItem className="space-y-2">
                     <div className="flex items-center justify-between ml-1">
-                      <FormLabel className="zen-text-muted text-xs uppercase tracking-wider font-bold">Password</FormLabel>
-                      <Button variant="link" className="p-0 h-auto font-medium text-xs text-primary/80 hover:text-primary" type="button">Forgot password?</Button>
+                      <FormLabel className="text-sm font-medium text-foreground">Password</FormLabel>
+                      <Button variant="link" className="p-0 h-auto font-medium text-xs text-primary/80 hover:text-primary transition-colors" type="button">Forgot password?</Button>
                     </div>
                     <FormControl>
                       <div className="relative">
                         <Input
                           type={showPassword ? "text" : "password"}
-                          placeholder="••••••••"
+                          placeholder="Enter your password"
                           {...field}
-                          className="h-12 pr-12 border-none bg-muted/40 hover:bg-muted/60 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all pl-4"
+                          className="h-12 pr-12 border border-border/50 bg-muted/50 dark:bg-muted/70 hover:bg-muted/70 dark:hover:bg-muted/80 focus-visible:ring-2 focus-visible:ring-primary/30 dark:focus-visible:ring-primary/40 rounded-xl transition-all duration-200 pl-4"
                           autoComplete="current-password"
                         />
                         <Button
                           type="button"
                           variant="ghost"
                           size="sm"
-                          className="absolute right-1 top-1 h-10 w-10 px-0 hover:bg-transparent text-muted-foreground/50 hover:text-foreground transition-colors"
+                          className="absolute right-1 top-1 h-10 w-10 px-0 hover:bg-muted/50 text-muted-foreground/60 hover:text-foreground transition-colors rounded-lg"
                           onClick={() => setShowPassword(!showPassword)}
                         >
                           {showPassword ? (
@@ -203,24 +213,28 @@ export default function LoginPage() {
                         </Button>
                       </div>
                     </FormControl>
-                    <FormMessage className="ml-1" />
+                    <FormMessage className="ml-1 text-xs" />
                   </FormItem>
                 )}
               />
 
-              <div className="flex items-center space-x-3 pt-2 ml-1">
-                <Checkbox id="remember" className="data-[state=checked]:bg-primary data-[state=checked]:border-primary border-muted-foreground/30 rounded-md size-5" />
-                <Label htmlFor="remember" className="text-sm font-medium leading-none text-muted-foreground cursor-pointer select-none">Remember for 30 days</Label>
+              <div className="flex items-center space-x-3 pt-1 ml-1">
+                <Checkbox id="remember" className="data-[state=checked]:bg-primary data-[state=checked]:border-primary border-border/50 rounded-md size-4" />
+                <Label htmlFor="remember" className="text-sm font-medium leading-none text-muted-foreground/80 cursor-pointer select-none hover:text-foreground transition-colors">Remember me for 30 days</Label>
               </div>
 
               {error && (
-                <div className="rounded-xl bg-destructive/10 border border-destructive/20 p-4 text-sm text-destructive font-medium flex items-center gap-3 animate-in fade-in zoom-in-95">
+                <div className="rounded-xl bg-destructive/10 dark:bg-destructive/15 border border-destructive/30 p-4 text-sm text-destructive font-medium flex items-center gap-3 animate-in fade-in zoom-in-95">
                   <ShieldCheck className="size-5 shrink-0" />
                   <span>{error}</span>
                 </div>
               )}
 
-              <Button type="submit" className="w-full h-12 rounded-xl shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all font-semibold text-base mt-4" disabled={loading}>
+              <Button 
+                type="submit" 
+                className="w-full h-12 rounded-xl shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 transition-all duration-200 font-semibold text-base mt-2" 
+                disabled={loading}
+              >
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 size-5 animate-spin" />
@@ -233,13 +247,13 @@ export default function LoginPage() {
             </form>
           </Form>
 
-          <p className="px-8 text-center text-xs text-muted-foreground/60 leading-relaxed">
-            By clicking continue, you agree to our{" "}
-            <a href="#" className="underline underline-offset-4 hover:text-primary transition-colors">
+          <p className="px-4 text-center text-xs text-muted-foreground/70 leading-relaxed">
+            By signing in, you agree to our{" "}
+            <a href="#" className="underline underline-offset-4 hover:text-primary transition-colors font-medium">
               Terms of Service
             </a>{" "}
             and{" "}
-            <a href="#" className="underline underline-offset-4 hover:text-primary transition-colors">
+            <a href="#" className="underline underline-offset-4 hover:text-primary transition-colors font-medium">
               Privacy Policy
             </a>
             .

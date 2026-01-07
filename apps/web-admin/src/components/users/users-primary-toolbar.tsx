@@ -36,12 +36,12 @@ export function UsersPrimaryToolbar({
     return (
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
             <div className="relative flex-1 max-w-md w-full">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 dark:text-muted-foreground/80" />
                 <Input
                     placeholder="Search users..."
                     value={search}
                     onChange={(e) => onSearchChange(e.target.value)}
-                    className="pl-9 border-none bg-muted/40 hover:bg-muted/60 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all"
+                    className="pl-9 border border-border/50 bg-muted/50 dark:bg-muted/70 hover:bg-muted/70 dark:hover:bg-muted/80 focus-visible:ring-2 focus-visible:ring-primary/30 dark:focus-visible:ring-primary/40 rounded-xl transition-all"
                 />
             </div>
 
@@ -51,7 +51,7 @@ export function UsersPrimaryToolbar({
                     value={filters.role || 'all'}
                     onValueChange={(value) => onFilterChange({ ...filters, role: value === 'all' ? undefined : value })}
                 >
-                    <SelectTrigger className="w-full md:w-[180px] border-none bg-muted/40 hover:bg-muted/60 rounded-xl transition-all focus:ring-1 focus:ring-primary/20">
+                    <SelectTrigger className="w-full md:w-[180px] border border-border/50 bg-muted/50 dark:bg-muted/70 hover:bg-muted/70 dark:hover:bg-muted/80 rounded-xl transition-all focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary/40">
                         <SelectValue placeholder="All Roles" />
                     </SelectTrigger>
                     <SelectContent className="border-none shadow-xl bg-background/90 backdrop-blur-xl rounded-xl">
@@ -65,7 +65,7 @@ export function UsersPrimaryToolbar({
                 {/* Sort Dropdown */}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="bg-muted/40 hover:bg-muted/60 border-none rounded-xl gap-2 font-normal">
+                        <Button variant="ghost" className="bg-muted/50 dark:bg-muted/70 hover:bg-muted/70 dark:hover:bg-muted/80 border border-border/50 rounded-xl gap-2 font-normal">
                             <ArrowUpDown className="h-4 w-4 opacity-50" />
                             Sort
                         </Button>

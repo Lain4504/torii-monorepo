@@ -10,16 +10,13 @@ body {
   @apply bg-background text-foreground antialiased;
 }
 
-/* Custom Scrollbar & Dark Mode Override for Admin */
+/* Dark Mode Enhancements */
 @layer base {
   .dark {
-    /* Lighter dark background for better visibility */
-    --background: oklch(0.12 0 0);
-    /* Distinct card color */
-    --card: oklch(0.18 0 0);
-    --popover: oklch(0.18 0 0);
-    --muted: oklch(0.25 0 0);
-    --border: oklch(0.30 0 0);
+    /* Improve input contrast */
+    input[data-slot="input"]::placeholder {
+      opacity: 0.7;
+    }
   }
 
   ::-webkit-scrollbar {
@@ -45,11 +42,10 @@ body {
 
 @layer utilities {
   .zen-card {
-    /* Use bg-card for better contrast in dark mode, keeps glass effect */
-    @apply border-none shadow-sm bg-card/50 backdrop-blur-md hover:bg-card/60 transition-all duration-300;
+    @apply border border-border shadow-sm bg-card backdrop-blur-sm hover:bg-card hover:shadow-md transition-all duration-300 rounded-xl;
   }
 
   .zen-text-muted {
-    @apply text-muted-foreground/80;
+    @apply text-muted-foreground;
   }
 }
