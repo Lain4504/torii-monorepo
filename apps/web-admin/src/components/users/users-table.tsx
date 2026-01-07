@@ -16,6 +16,7 @@ import {
 import { useState } from 'react';
 import type { UserResponseDTO } from '@workspace/schemas';
 import { getUsersColumns } from './users-columns.tsx';
+import { Skeleton } from '@workspace/ui/components/skeleton';
 
 interface UsersTableProps {
     data: UserResponseDTO[];
@@ -24,9 +25,10 @@ interface UsersTableProps {
     onDelete: (user: UserResponseDTO) => void;
     page: number;
     limit: number;
+    isLoading?: boolean;
 }
 
-export function UsersTable({ data, onView, onEdit, onDelete, page, limit }: UsersTableProps) {
+export function UsersTable({ data, onView, onEdit, onDelete, page, limit, isLoading }: UsersTableProps) {
     const [sorting, setSorting] = useState<SortingState>([]);
 
     // Memorize columns to prevent re-renders
@@ -65,7 +67,17 @@ export function UsersTable({ data, onView, onEdit, onDelete, page, limit }: User
                     ))}
                 </TableHeader>
                 <TableBody>
-                    {table.getRowModel().rows?.length ? (
+                    {isLoading ? (
+                        Array.from({ length: 5 }).map((_, index) => (
+                            <TableRow key={index} className="border-border/40">
+                                {columns.map((_, colIndex) => (
+                                    <TableCell key={colIndex} className="py-3">
+                                        <Skeleton className="h-6 w-full bg-muted/50 rounded-md" />
+                                    </TableCell>
+                                ))}
+                            </TableRow>
+                        ))
+                    ) : table.getRowModel().rows?.length ? (
                         table.getRowModel().rows.map((row) => (
                             <TableRow
                                 key={row.id}

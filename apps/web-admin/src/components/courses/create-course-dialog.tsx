@@ -12,10 +12,11 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
+import { Loader2 } from 'lucide-react';
 import { storageApi } from '@/api/services/storage-api.ts';
 import { JlptLevel, CourseStatus, courseCreateDTOSchema, type CourseCreateDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
-import {useCreateCourse} from "@/api/services/courses.ts";
+import { useCreateCourse } from "@/api/services/courses.ts";
 
 type CreateCourseFormData = z.input<typeof courseCreateDTOSchema>;
 
@@ -119,108 +120,134 @@ export function CreateCourseDialog({ open, onOpenChange }: CreateCourseDialogPro
 
     return (
         <Dialog open={open} onOpenChange={handleClose}>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Create New Course</DialogTitle>
+            <DialogContent className="max-w-2xl border-none shadow-2xl bg-background/95 backdrop-blur-xl rounded-2xl p-0 overflow-hidden">
+                <DialogHeader className="p-8 pb-4 bg-muted/30">
+                    <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">Create New Course</DialogTitle>
                 </DialogHeader>
-                <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Title</label>
-                        <Input
-                            {...register('title')}
-                            placeholder="Enter course title"
-                        />
-                        {errors.title && (
-                            <p className="text-sm text-red-500 mt-1">{errors.title.message}</p>
-                        )}
+                <form onSubmit={handleSubmit(onSubmitForm)} className="p-8 pt-4 space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <label className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Title</label>
+                            <Input
+                                {...register('title')}
+                                placeholder="Quantum Nihongo N5"
+                                className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all"
+                            />
+                            {errors.title && (
+                                <p className="text-[10px] font-medium text-destructive ml-1">{errors.title.message}</p>
+                            )}
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">JLPT Level</label>
+                            <Select
+                                value={watch('jlptLevel')}
+                                onValueChange={(value) => setValue('jlptLevel', value as JlptLevel)}
+                            >
+                                <SelectTrigger className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus:ring-1 focus:ring-primary/20 rounded-xl transition-all">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="border-none shadow-2xl bg-popover/95 backdrop-blur-xl rounded-xl">
+                                    <SelectItem value={JlptLevel.N5} className="rounded-lg focus:bg-primary/5">N5</SelectItem>
+                                    <SelectItem value={JlptLevel.N4} className="rounded-lg focus:bg-primary/5">N4</SelectItem>
+                                    <SelectItem value={JlptLevel.N3} className="rounded-lg focus:bg-primary/5">N3</SelectItem>
+                                    <SelectItem value={JlptLevel.N2} className="rounded-lg focus:bg-primary/5">N2</SelectItem>
+                                    <SelectItem value={JlptLevel.N1} className="rounded-lg focus:bg-primary/5">N1</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            {errors.jlptLevel && (
+                                <p className="text-[10px] font-medium text-destructive ml-1">{errors.jlptLevel.message}</p>
+                            )}
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Price (USD)</label>
+                            <Input
+                                type="number"
+                                {...register('price', { valueAsNumber: true })}
+                                placeholder="99.00"
+                                className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all"
+                            />
+                            {errors.price && (
+                                <p className="text-[10px] font-medium text-destructive ml-1">{errors.price.message}</p>
+                            )}
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Status</label>
+                            <Select
+                                value={watch('status')}
+                                onValueChange={(value) => setValue('status', value as CourseStatus)}
+                            >
+                                <SelectTrigger className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus:ring-1 focus:ring-primary/20 rounded-xl transition-all">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="border-none shadow-2xl bg-popover/95 backdrop-blur-xl rounded-xl">
+                                    <SelectItem value={CourseStatus.DRAFT} className="rounded-lg focus:bg-primary/5">Draft</SelectItem>
+                                    <SelectItem value={CourseStatus.PUBLISHED} className="rounded-lg focus:bg-primary/5">Published</SelectItem>
+                                    <SelectItem value={CourseStatus.ARCHIVED} className="rounded-lg focus:bg-primary/5">Archived</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            {errors.status && (
+                                <p className="text-[10px] font-medium text-destructive ml-1">{errors.status.message}</p>
+                            )}
+                        </div>
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium mb-1">JLPT Level</label>
-                        <Select
-                            value={watch('jlptLevel')}
-                            onValueChange={(value) => setValue('jlptLevel', value as JlptLevel)}
-                        >
-                            <SelectTrigger>
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value={JlptLevel.N5}>N5</SelectItem>
-                                <SelectItem value={JlptLevel.N4}>N4</SelectItem>
-                                <SelectItem value={JlptLevel.N3}>N3</SelectItem>
-                                <SelectItem value={JlptLevel.N2}>N2</SelectItem>
-                                <SelectItem value={JlptLevel.N1}>N1</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        {errors.jlptLevel && (
-                            <p className="text-sm text-red-500 mt-1">{errors.jlptLevel.message}</p>
-                        )}
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Price</label>
-                        <Input
-                            type="number"
-                            {...register('price', { valueAsNumber: true })}
-                            placeholder="Enter price"
-                        />
-                        {errors.price && (
-                            <p className="text-sm text-red-500 mt-1">{errors.price.message}</p>
-                        )}
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Description</label>
+                    <div className="space-y-2">
+                        <label className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Description</label>
                         <Input
                             {...register('description')}
-                            placeholder="Enter course description"
+                            placeholder="Briefly describe what students will learn..."
+                            className="h-12 border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all"
                         />
                         {errors.description && (
-                            <p className="text-sm text-red-500 mt-1">{errors.description.message}</p>
+                            <p className="text-[10px] font-medium text-destructive ml-1">{errors.description.message}</p>
                         )}
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Status</label>
-                        <Select
-                            value={watch('status')}
-                            onValueChange={(value) => setValue('status', value as CourseStatus)}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <label className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Thumbnail</label>
+                            <Input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)}
+                                className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all p-2.5"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Preview Video</label>
+                            <Input
+                                type="file"
+                                accept="video/*"
+                                onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+                                className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all p-2.5"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="flex justify-end gap-3 pt-4">
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={handleClose}
+                            className="rounded-xl h-11 px-6 hover:bg-primary/5"
                         >
-                            <SelectTrigger>
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value={CourseStatus.DRAFT}>Draft</SelectItem>
-                                <SelectItem value={CourseStatus.PUBLISHED}>Published</SelectItem>
-                                <SelectItem value={CourseStatus.ARCHIVED}>Archived</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        {errors.status && (
-                            <p className="text-sm text-red-500 mt-1">{errors.status.message}</p>
-                        )}
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Thumbnail</label>
-                        <Input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)}
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Preview Video</label>
-                        <Input
-                            type="file"
-                            accept="video/*"
-                            onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
-                        />
-                    </div>
-
-                    <div className="flex justify-end gap-2">
-                        <Button type="submit" disabled={uploading}>
-                            {uploading ? 'Uploading...' : 'Create Course'}
+                            Cancel
+                        </Button>
+                        <Button
+                            type="submit"
+                            disabled={uploading}
+                            className="rounded-xl h-11 px-8 bg-primary shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform"
+                        >
+                            {uploading ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Uploading...
+                                </>
+                            ) : 'Create Course'}
                         </Button>
                     </div>
                 </form>

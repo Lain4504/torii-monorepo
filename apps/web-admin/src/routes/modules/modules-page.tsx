@@ -80,14 +80,6 @@ export default function ModulesPage() {
     return map;
   }, [uniqueCourseIds, courseQueries]);
 
-  if (isLoading) {
-    return (
-      <div className="p-6">
-        <div className="text-center py-8">Loading modules...</div>
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className="p-6">
@@ -131,6 +123,7 @@ export default function ModulesPage() {
               page={page}
               limit={queryParams.limit || 10}
               courseTitleMap={courseTitleMap}
+              isLoading={isLoading}
             />
 
             {/* Pagination */}

@@ -53,16 +53,19 @@ export function BlogPage() {
     return (
         <div className="space-y-6 animate-in fade-in-50 duration-500">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Blog Posts</h1>
+                <div className="space-y-1">
+                    <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">Blog Posts</h1>
                     <p className="text-muted-foreground">Manage articles, news, and community updates.</p>
                 </div>
-                <Button onClick={() => setShowCreateDialog(true)}>
+                <Button
+                    onClick={() => setShowCreateDialog(true)}
+                    className="rounded-full shadow-lg shadow-primary/20"
+                >
                     Create New Post
                 </Button>
             </div>
 
-            <div className="rounded-xl border bg-card text-card-foreground shadow-sm">
+            <div className="zen-card rounded-2xl overflow-hidden">
                 <div className="p-6">
                     <BlogPrimaryToolbar
                         search={search}
@@ -76,7 +79,7 @@ export function BlogPage() {
                         onAddNew={() => setShowCreateDialog(true)}
                     />
 
-                    <div className="mt-6 rounded-md border">
+                    <div className="mt-6 rounded-xl border border-border/40 overflow-hidden bg-transparent">
                         <BlogTable
                             data={blogs}
                             onEdit={setEditingBlog}
@@ -84,32 +87,35 @@ export function BlogPage() {
                             onView={setViewingBlog}
                             page={page}
                             limit={queryParams.limit || 10}
+                            isLoading={isLoading}
                         />
                     </div>
 
                     {/* Pagination */}
                     {meta && (
-                        <div className="flex items-center justify-between space-x-2 py-4">
-                            <div className="flex-1 text-sm text-muted-foreground">
+                        <div className="flex items-center justify-between p-6 border-t border-border/40 mt-6 -mx-6 -mb-6">
+                            <div className="flex-1 text-sm zen-text-muted">
                                 Showing {blogs.length} of {meta.total} posts
                             </div>
                             <div className="flex items-center space-x-2">
                                 <Button
-                                    variant="outline"
+                                    variant="ghost"
                                     size="sm"
                                     disabled={page <= 1}
                                     onClick={() => setPage(page - 1)}
+                                    className="rounded-full hover:bg-primary/5 h-9 px-4"
                                 >
                                     Previous
                                 </Button>
-                                <div className="text-sm font-medium">
+                                <div className="text-sm font-medium px-4">
                                     Page {page} of {meta.totalPages}
                                 </div>
                                 <Button
-                                    variant="outline"
+                                    variant="ghost"
                                     size="sm"
                                     disabled={page >= meta.totalPages}
                                     onClick={() => setPage(page + 1)}
+                                    className="rounded-full hover:bg-primary/5 h-9 px-4"
                                 >
                                     Next
                                 </Button>

@@ -68,10 +68,6 @@ export function UsersPage() {
         return processedUsers.slice(start, start + limit);
     }, [processedUsers, page]);
 
-    if (isLoading) {
-        return <div className="p-6 text-center py-8">Loading users...</div>;
-    }
-
     if (error) {
         return <div className="p-6 text-center text-destructive py-8">Error: {error.message}</div>;
     }
@@ -116,6 +112,7 @@ export function UsersPage() {
                             onView={setViewingUser}
                             page={page}
                             limit={limit}
+                            isLoading={isLoading}
                         />
                     </div>
 

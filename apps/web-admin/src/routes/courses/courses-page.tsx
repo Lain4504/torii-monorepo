@@ -43,14 +43,6 @@ export default function CoursesPage() {
     limit: coursesData.limit
   } : null;
 
-  if (isLoading) {
-    return (
-      <div className="p-6">
-        <div className="text-center py-8">Loading courses...</div>
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className="p-6">
@@ -64,16 +56,18 @@ export default function CoursesPage() {
   return (
     <div className="space-y-6 animate-in fade-in-50 duration-500">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Courses</h1>
-          <p className="text-muted-foreground">Manage and publish learning content.</p>
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">Courses</h1>
+          <p className="text-muted-foreground">Manage and publish learning content for your students.</p>
         </div>
         <Can permission="course.create">
-          <Button onClick={() => setShowCreateDialog(true)}>Create Course</Button>
+          <Button onClick={() => setShowCreateDialog(true)} className="rounded-full shadow-lg shadow-primary/20">
+            Create Course
+          </Button>
         </Can>
       </div>
 
-      <div className="rounded-xl border bg-card text-card-foreground shadow-sm">
+      <div className="zen-card rounded-2xl">
         <div className="p-6">
           <CoursesPrimaryToolbar
             search={search}
@@ -84,7 +78,7 @@ export default function CoursesPage() {
             onJlptLevelFilterChange={setJlptLevelFilter}
           />
 
-          <div className="mt-6 rounded-md border">
+          <div className="mt-6 rounded-xl border border-border/40 overflow-hidden">
             <CoursesTable
               data={courses}
               onEdit={setEditingCourse}
@@ -93,32 +87,35 @@ export default function CoursesPage() {
               onModules={(course) => navigate(`/modules?courseId=${course.id}`)}
               page={page}
               limit={queryParams.limit || 10}
+              isLoading={isLoading}
             />
           </div>
 
           {/* Pagination */}
           {meta && (
-            <div className="flex items-center justify-between space-x-2 py-4">
-              <div className="flex-1 text-sm text-muted-foreground">
+            <div className="flex items-center justify-between space-x-2 py-6 border-t border-border/40 mt-6">
+              <div className="flex-1 text-sm zen-text-muted">
                 Showing {courses.length} of {meta.total} courses
               </div>
               <div className="flex items-center space-x-2">
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
                   disabled={page <= 1}
                   onClick={() => setPage(page - 1)}
+                  className="rounded-full hover:bg-primary/5"
                 >
                   Previous
                 </Button>
-                <div className="text-sm font-medium">
+                <div className="text-sm font-medium px-4">
                   Page {page} of {meta.totalPages}
                 </div>
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
                   disabled={page >= meta.totalPages}
                   onClick={() => setPage(page + 1)}
+                  className="rounded-full hover:bg-primary/5"
                 >
                   Next
                 </Button>

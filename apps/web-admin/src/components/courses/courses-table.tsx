@@ -13,6 +13,7 @@ import {
     TableHeader,
     TableRow,
 } from '@workspace/ui/components/table';
+import { Skeleton } from '@workspace/ui/components/skeleton';
 import { useState } from 'react';
 import type { CourseResponseDTO } from '@workspace/schemas';
 import { getCoursesColumns } from './courses-columns.tsx';
@@ -25,9 +26,10 @@ interface CoursesTableProps {
     onModules: (course: CourseResponseDTO) => void;
     page: number;
     limit: number;
+    isLoading?: boolean;
 }
 
-export function CoursesTable({ data, onView, onEdit, onDelete, onModules, page, limit }: CoursesTableProps) {
+export function CoursesTable({ data, onView, onEdit, onDelete, onModules, page, limit, isLoading }: CoursesTableProps) {
     const [sorting, setSorting] = useState<SortingState>([]);
 
     // Memorize columns to prevent re-renders, though lightweight here.
@@ -45,14 +47,14 @@ export function CoursesTable({ data, onView, onEdit, onDelete, onModules, page, 
     });
 
     return (
-        <div className="rounded-md border bg-card">
+        <div className="rounded-none border-none bg-transparent">
             <Table>
-                <TableHeader>
+                <TableHeader className="bg-muted/30">
                     {table.getHeaderGroups().map((headerGroup) => (
-                        <TableRow key={headerGroup.id}>
+                        <TableRow key={headerGroup.id} className="border-border/50 hover:bg-transparent">
                             {headerGroup.headers.map((header) => {
                                 return (
-                                    <TableHead key={header.id}>
+                                    <TableHead key={header.id} className="h-10 text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider">
                                         {header.isPlaceholder
                                             ? null
                                             : flexRender(
@@ -66,14 +68,25 @@ export function CoursesTable({ data, onView, onEdit, onDelete, onModules, page, 
                     ))}
                 </TableHeader>
                 <TableBody>
-                    {table.getRowModel().rows?.length ? (
+                    {isLoading ? (
+                        Array.from({ length: 5 }).map((_, index) => (
+                            <TableRow key={index} className="border-border/40">
+                                {columns.map((_, colIndex) => (
+                                    <TableCell key={colIndex} className="py-3">
+                                        <Skeleton className="h-6 w-full bg-muted/50 rounded-md" />
+                                    </TableCell>
+                                ))}
+                            </TableRow>
+                        ))
+                    ) : table.getRowModel().rows?.length ? (
                         table.getRowModel().rows.map((row) => (
                             <TableRow
                                 key={row.id}
                                 data-state={row.getIsSelected() && 'selected'}
+                                className="border-border/40 hover:bg-muted/30 transition-colors"
                             >
                                 {row.getVisibleCells().map((cell) => (
-                                    <TableCell key={cell.id}>
+                                    <TableCell key={cell.id} className="py-3 text-sm text-foreground/80">
                                         {flexRender(
                                             cell.column.columnDef.cell,
                                             cell.getContext()
@@ -83,10 +96,10 @@ export function CoursesTable({ data, onView, onEdit, onDelete, onModules, page, 
                             </TableRow>
                         ))
                     ) : (
-                        <TableRow>
+                        <TableRow className="hover:bg-transparent">
                             <TableCell
                                 colSpan={columns.length}
-                                className="h-24 text-center"
+                                className="h-24 text-center text-muted-foreground"
                             >
                                 No results.
                             </TableCell>

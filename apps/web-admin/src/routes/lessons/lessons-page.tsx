@@ -8,7 +8,7 @@ import { EditLessonDialog } from '@/components/lessons/edit-lesson-dialog.tsx';
 import { DeleteLessonDialog } from '@/components/lessons/delete-lesson-dialog.tsx';
 import { ViewLessonDialog } from '@/components/lessons/view-lesson-dialog.tsx';
 import type { LessonQueryDTO, LessonResponseDTO } from '@workspace/schemas';
-import {useLessons} from "@/api/services/lesson.ts";
+import { useLessons } from "@/api/services/lesson.ts";
 
 export default function LessonsPage() {
   const [page, setPage] = useState(1);
@@ -34,7 +34,7 @@ export default function LessonsPage() {
     ...(statusFilter && { status: statusFilter }),
   };
 
-  const { data: lessonsData, isLoading, error } = useLessons(queryParams);
+  const { data: lessonsData, isLoading } = useLessons(queryParams);
 
   const lessons = lessonsData?.data || [];
   const meta = lessonsData ? {
@@ -44,77 +44,77 @@ export default function LessonsPage() {
     limit: lessonsData.limit
   } : null;
 
-  if (isLoading) {
-    return (
-      <div className="p-6">
-        <div className="text-center py-8">Loading lessons...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="p-6">
-        <div className="text-center text-red-500 py-8">Error: {error.message}</div>
-      </div>
-    );
-  }
-
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Lessons</h1>
-          <p className="text-muted-foreground">Manage all lessons in the system</p>
+    <div className="space-y-6 animate-in fade-in-50 duration-500">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">Lessons</h1>
+          <p className="text-muted-foreground">Manage all lessons in the system.</p>
         </div>
-        <Button onClick={() => setShowCreateDialog(true)}>Create Lesson</Button>
+        <Button
+          onClick={() => setShowCreateDialog(true)}
+          className="rounded-full shadow-lg shadow-primary/20"
+        >
+          Create Lesson
+        </Button>
       </div>
 
-      <LessonsPrimaryToolbar
-        search={search}
-        onSearchChange={setSearch}
-        contentTypeFilter={contentTypeFilter}
-        onContentTypeFilterChange={setContentTypeFilter}
-        statusFilter={statusFilter}
-        onStatusFilterChange={setStatusFilter}
-      />
+      <div className="zen-card rounded-2xl overflow-hidden">
+        <div className="p-6">
+          <LessonsPrimaryToolbar
+            search={search}
+            onSearchChange={setSearch}
+            contentTypeFilter={contentTypeFilter}
+            onContentTypeFilterChange={setContentTypeFilter}
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+          />
 
-      <LessonsTable
-        data={lessons}
-        onEdit={setEditingLesson}
-        onDelete={setDeletingLesson}
-        onView={setViewingLesson}
-        page={page}
-        limit={queryParams.limit || 10}
-      />
+          <div className="mt-6 rounded-xl border border-border/40 overflow-hidden bg-transparent">
+            <LessonsTable
+              data={lessons}
+              onEdit={setEditingLesson}
+              onDelete={setDeletingLesson}
+              onView={setViewingLesson}
+              page={page}
+              limit={queryParams.limit || 10}
+              isLoading={isLoading}
+            />
+          </div>
 
-      {/* Pagination */}
-      {meta && (
-        <div className="flex justify-between items-center">
-          <div className="text-sm text-muted-foreground">
-            Showing {lessons.length} of {meta.total} lessons
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              disabled={page <= 1}
-              onClick={() => setPage(page - 1)}
-            >
-              Previous
-            </Button>
-            <span className="px-4 py-2 text-sm">
-              Page {page} of {meta.totalPages}
-            </span>
-            <Button
-              variant="outline"
-              disabled={page >= meta.totalPages}
-              onClick={() => setPage(page + 1)}
-            >
-              Next
-            </Button>
-          </div>
+          {/* Pagination */}
+          {meta && (
+            <div className="flex items-center justify-between p-6 border-t border-border/40 mt-6 -mx-6 -mb-6">
+              <div className="flex-1 text-sm zen-text-muted">
+                Showing {lessons.length} of {meta.total} lessons
+              </div>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={page <= 1}
+                  onClick={() => setPage(page - 1)}
+                  className="rounded-full hover:bg-primary/5 h-9 px-4"
+                >
+                  Previous
+                </Button>
+                <div className="text-sm font-medium px-4">
+                  Page {page} of {meta.totalPages}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={page >= meta.totalPages}
+                  onClick={() => setPage(page + 1)}
+                  className="rounded-full hover:bg-primary/5 h-9 px-4"
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      </div>
 
       {/* Dialogs */}
       <CreateLessonDialog open={showCreateDialog} onOpenChange={setShowCreateDialog} moduleId={moduleIdFilter} />

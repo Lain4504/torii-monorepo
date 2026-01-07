@@ -13,6 +13,7 @@ import {
     TableHeader,
     TableRow,
 } from '@workspace/ui/components/table';
+import { Skeleton } from '@workspace/ui/components/skeleton';
 import { useState } from 'react';
 import type { ModuleResponseDTO } from '@workspace/schemas';
 import { getModulesColumns } from './modules-columns.tsx';
@@ -25,9 +26,10 @@ interface ModulesTableProps {
     page: number;
     limit: number;
     courseTitleMap?: Map<string, string>;
+    isLoading?: boolean;
 }
 
-export function ModulesTable({ data, onView, onEdit, onDelete, page, limit, courseTitleMap }: ModulesTableProps) {
+export function ModulesTable({ data, onView, onEdit, onDelete, page, limit, courseTitleMap, isLoading }: ModulesTableProps) {
     const [sorting, setSorting] = useState<SortingState>([]);
 
     const columns = getModulesColumns({ onView, onEdit, onDelete, page, limit, courseTitleMap });
@@ -65,7 +67,17 @@ export function ModulesTable({ data, onView, onEdit, onDelete, page, limit, cour
                     ))}
                 </TableHeader>
                 <TableBody>
-                    {table.getRowModel().rows?.length ? (
+                    {isLoading ? (
+                        Array.from({ length: 5 }).map((_, index) => (
+                            <TableRow key={index} className="border-border/40">
+                                {columns.map((_, colIndex) => (
+                                    <TableCell key={colIndex} className="py-3">
+                                        <Skeleton className="h-6 w-full bg-muted/50 rounded-md" />
+                                    </TableCell>
+                                ))}
+                            </TableRow>
+                        ))
+                    ) : table.getRowModel().rows?.length ? (
                         table.getRowModel().rows.map((row) => (
                             <TableRow
                                 key={row.id}

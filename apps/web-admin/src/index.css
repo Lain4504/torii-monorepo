@@ -7,25 +7,46 @@
 
 body {
   font-family: "Inter", sans-serif;
-  @apply bg-muted/10 text-foreground antialiased;
+  @apply bg-background text-foreground antialiased;
+}
+
+/* Custom Scrollbar & Dark Mode Override for Admin */
+@layer base {
+  .dark {
+    /* Lighter dark background for better visibility */
+    --background: oklch(0.12 0 0);
+    /* Distinct card color */
+    --card: oklch(0.18 0 0);
+    --popover: oklch(0.18 0 0);
+    --muted: oklch(0.25 0 0);
+    --border: oklch(0.30 0 0);
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/40 transition-colors;
+  }
 }
 
 @layer base {
   :root {
     --radius: 1rem;
-    --border: oklch(0.95 0 0);
-    /* Softer border */
-  }
-
-  /* Soften dark mode borders too */
-  .dark {
-    --border: oklch(0.25 0 0);
+    --border: oklch(0.92 0 0);
   }
 }
 
 @layer utilities {
   .zen-card {
-    @apply border-none shadow-sm bg-background/50 backdrop-blur-sm hover:bg-background/80 transition-all duration-300;
+    /* Use bg-card for better contrast in dark mode, keeps glass effect */
+    @apply border-none shadow-sm bg-card/50 backdrop-blur-md hover:bg-card/60 transition-all duration-300;
   }
 
   .zen-text-muted {
