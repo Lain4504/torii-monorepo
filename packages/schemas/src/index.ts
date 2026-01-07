@@ -11,6 +11,7 @@ export * from './models/blog.model';
 export * from './models/blog-comment.model';
 export * from './models/flashcard.model';
 export * from './models/flashcard-deck.model';
+export * from './models/review.model';
 
 // DTOs (all types are now here with Zod schemas)
 export * from './dtos/user.dto';
@@ -30,6 +31,7 @@ export * from './dtos/blog.dto';
 export * from './dtos/blog-comment.dto';
 export * from './dtos/flashcard.dto';
 export * from './dtos/flashcard-deck.dto';
+export * from './dtos/review.dto';
 
 // Interfaces (only internal/utility types)
 export * from './interfaces/auth.interface';
