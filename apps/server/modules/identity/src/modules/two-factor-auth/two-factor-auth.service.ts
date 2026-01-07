@@ -12,26 +12,28 @@ import * as argon2 from 'argon2';
 import { randomBytes } from 'crypto';
 import Redis from 'ioredis';
 import { PrismaService, REDIS_CLIENT, EncryptionService } from '@server/shared';
-import { TwoFactorAuthRepository } from './two-factor-auth.repository';
+import type { ITwoFactorAuthRepository } from '../../interfaces/repositories';
+import { TWO_FACTOR_AUTH_REPOSITORY_TOKEN } from '../../interfaces/repositories';
 import type {
     TwoFactorAuthStatus,
     TotpSetupResponse,
     EnableTotpResponse,
     TwoFactorMethod,
 } from '@workspace/schemas';
+import type { ITwoFactorAuthService } from '../../interfaces/services';
 
 /**
  * Two-Factor Authentication Service
  * Handles TOTP (Google Authenticator) authentication only
  */
 @Injectable()
-export class TwoFactorAuthService {
+export class TwoFactorAuthService implements ITwoFactorAuthService {
     private readonly logger = new Logger(TwoFactorAuthService.name);
     private readonly issuer = process.env.TWO_FACTOR_ISSUER || 'Torii Nihongo';
 
     constructor(
         private readonly prisma: PrismaService, // Keep for user queries
-        private readonly twoFactorAuthRepository: TwoFactorAuthRepository,
+        @Inject(TWO_FACTOR_AUTH_REPOSITORY_TOKEN) private readonly twoFactorAuthRepository: ITwoFactorAuthRepository,
         private readonly encryptionService: EncryptionService,
         @Inject(REDIS_CLIENT) private readonly redis: Redis,
     ) {

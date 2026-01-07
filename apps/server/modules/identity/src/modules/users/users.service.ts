@@ -3,7 +3,8 @@ import {
     InternalServerErrorException,
     NotFoundException,
     BadRequestException,
-    ForbiddenException
+    ForbiddenException,
+    Inject,
 } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import type {
@@ -20,14 +21,16 @@ import {
     ErrEmailExisted,
     ErrUserNotFound,
 } from '@workspace/schemas';
-import { RBACService } from '../rbac/rbac.service';
-import { UsersRepository } from './users.repository';
+import type { IUsersRepository } from '../../interfaces/repositories';
+import type { IUsersService, IRBACService } from '../../interfaces/services';
+import { USERS_REPOSITORY_TOKEN } from '../../interfaces/repositories';
+import { RBAC_SERVICE_TOKEN } from '../../interfaces/services';
 
 @Injectable()
-export class UsersService {
+export class UsersService implements IUsersService {
     constructor(
-        private readonly usersRepository: UsersRepository,
-        private readonly rbacService: RBACService,
+        @Inject(USERS_REPOSITORY_TOKEN) private readonly usersRepository: IUsersRepository,
+        @Inject(RBAC_SERVICE_TOKEN) private readonly rbacService: IRBACService,
     ) { }
 
     /**

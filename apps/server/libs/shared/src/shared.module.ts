@@ -1,23 +1,35 @@
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { PrismaService } from './prisma.service';
+import { PrismaService } from './prisma/prisma.service';
+import { PrismaModule } from './prisma/prisma.module';
 import { JwtTokenProvider } from './providers/jwt-token.provider';
-import { AuditLogService } from '../../../modules/identity/src/modules/audit';
-import { AuditLogRepository } from '../../../modules/identity/src/modules/audit';
 
 import { RedisModule } from './redis/redis.module';
+import { EncryptionModule } from './encryption/encryption.module';
+import { SharedStorageModule } from './storage/shared-storage.module';
+import { SharedEmailModule } from './email/shared-email.module';
 
 @Global()
 @Module({
-    imports: [ConfigModule, RedisModule],
-    providers: [PrismaService, JwtTokenProvider, AuditLogService, AuditLogRepository],
+    imports: [
+        ConfigModule,
+        PrismaModule,
+        RedisModule,
+        EncryptionModule,
+        SharedStorageModule,
+        SharedEmailModule
+    ],
+    providers: [PrismaService, JwtTokenProvider],
     exports: [
         PrismaService,
+        PrismaModule,
         ConfigModule,
         JwtTokenProvider,
-        AuditLogService,
-        AuditLogRepository,
         RedisModule,
+        EncryptionModule,
+        SharedStorageModule,
+        SharedEmailModule
     ],
 })
 export class SharedModule { }
+

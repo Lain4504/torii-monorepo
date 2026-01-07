@@ -1,27 +1,30 @@
 import { Module } from '@nestjs/common';
+import { RedisModule } from '@server/shared';
 import { TwoFactorAuthService } from './two-factor-auth.service';
-import { TwoFactorAuthController } from './two-factor-auth.controller';
 import { TwoFactorAuthRepository } from './two-factor-auth.repository';
-import { PrismaService, NatsClientModule, RedisModule, EncryptionModule, JwtTokenProvider, GatewayAuthGuard } from '@server/shared';
+import {
+    TWO_FACTOR_AUTH_SERVICE_TOKEN,
+} from '../../interfaces/services';
+import {
+    TWO_FACTOR_AUTH_REPOSITORY_TOKEN,
+} from '../../interfaces/repositories';
 
 /**
- * Two-Factor Authentication Module
- * Provides 2FA services and endpoints
+ * Two-Factor Authentication Feature Module
+ * Handles TOTP setup, verification, and backup codes
  */
 @Module({
-    imports: [
-        NatsClientModule,
-        RedisModule,
-        EncryptionModule,
-    ],
-    controllers: [TwoFactorAuthController],
+    imports: [RedisModule],
     providers: [
-        TwoFactorAuthService,
-        TwoFactorAuthRepository,
-        PrismaService,
-        JwtTokenProvider,
-        GatewayAuthGuard,
+        {
+            provide: TWO_FACTOR_AUTH_SERVICE_TOKEN,
+            useClass: TwoFactorAuthService,
+        },
+        {
+            provide: TWO_FACTOR_AUTH_REPOSITORY_TOKEN,
+            useClass: TwoFactorAuthRepository,
+        },
     ],
-    exports: [TwoFactorAuthService],
+    exports: [TWO_FACTOR_AUTH_SERVICE_TOKEN],
 })
 export class TwoFactorAuthModule { }

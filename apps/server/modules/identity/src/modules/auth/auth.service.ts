@@ -1,14 +1,11 @@
 import { Injectable, UnauthorizedException, ConflictException, NotFoundException, Inject, BadRequestException } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
 import Redis from 'ioredis';
 import * as argon2 from 'argon2';
-import { REDIS_CLIENT } from '@server/shared';
-import { JwtTokenProvider } from '@server/shared';
-import { RBACService } from '../rbac/rbac.service';
-import { TwoFactorAuthService } from '../two-factor-auth/two-factor-auth.service';
-import { GoogleAuthService } from './google-auth.service';
-import { UserIdentityRepository } from './user-identity.repository';
-import { UsersRepository } from '../users/users.repository';
+import { JwtTokenProvider, REDIS_CLIENT } from '@server/shared';
+import type { IUsersRepository, IUserIdentityRepository } from '../../interfaces/repositories';
+import type { IAuthService, ISessionService, IGoogleAuthService, IRBACService, ITwoFactorAuthService, IEmailService } from '../../interfaces/services';
+import { USERS_REPOSITORY_TOKEN, USER_IDENTITY_REPOSITORY_TOKEN } from '../../interfaces/repositories';
+import { SESSION_SERVICE_TOKEN, GOOGLE_AUTH_SERVICE_TOKEN, RBAC_SERVICE_TOKEN, TWO_FACTOR_AUTH_SERVICE_TOKEN, EMAIL_SERVICE_TOKEN } from '../../interfaces/services';
 
 import { UserRole } from '@workspace/schemas';
 import type {
@@ -23,17 +20,18 @@ import type {
 
 
 @Injectable()
-export class AuthService {
+export class AuthService implements IAuthService {
     constructor(
-        private readonly usersRepository: UsersRepository,
+        @Inject(USERS_REPOSITORY_TOKEN) private readonly usersRepository: IUsersRepository,
 
         private readonly jwtTokenProvider: JwtTokenProvider,
-        private readonly rbacService: RBACService,
-        private readonly twoFactorAuthService: TwoFactorAuthService,
-        private readonly googleAuthService: GoogleAuthService,
-        private readonly userIdentityRepository: UserIdentityRepository,
+        @Inject(RBAC_SERVICE_TOKEN) private readonly rbacService: IRBACService,
+        @Inject(TWO_FACTOR_AUTH_SERVICE_TOKEN) private readonly twoFactorAuthService: ITwoFactorAuthService,
+        @Inject(SESSION_SERVICE_TOKEN) private readonly sessionService: ISessionService,
+        @Inject(GOOGLE_AUTH_SERVICE_TOKEN) private readonly googleAuthService: IGoogleAuthService,
+        @Inject(USER_IDENTITY_REPOSITORY_TOKEN) private readonly userIdentityRepository: IUserIdentityRepository,
         @Inject(REDIS_CLIENT) private readonly redis: Redis,
-        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
+        @Inject(EMAIL_SERVICE_TOKEN) private readonly emailService: IEmailService,
     ) { }
 
     /**
@@ -68,13 +66,13 @@ export class AuthService {
         // Generate Magic Link token
         const magicToken = await this.generateMagicToken(user.email);
 
-        // Emit NATS event for notification service to send email
-        this.natsClient.emit('auth.user.registered', {
-            email: user.email,
-            displayName: user.displayName,
-            magicToken, // Send token instead of OTP
-            verificationUrl: `${process.env.FRONTEND_URL}/verify?token=${magicToken}`,
-        });
+        // Send verification email
+        const verificationUrl = `${process.env.FRONTEND_URL}/verify?token=${magicToken}`;
+        await this.emailService.sendVerificationEmail(
+            user.email,
+            user.displayName,
+            verificationUrl
+        );
 
         return {
             ...user,
@@ -241,9 +239,9 @@ export class AuthService {
     }
 
     /**
-     * Get user profile with permissions
+     * Get current authenticated user with permissions
      */
-    async getProfile(userId: string): Promise<UserResponseDTO & { permissions: string[] }> {
+    async getCurrentUser(userId: string): Promise<UserResponseDTO & { permissions: string[] }> {
         const user = await this.usersRepository.getProfile(userId);
 
         if (!user) {
@@ -326,13 +324,13 @@ export class AuthService {
         // Generate new Magic Link token
         const magicToken = await this.generateMagicToken(email);
 
-        // Emit NATS event for notification service to send email
-        this.natsClient.emit('auth.verification.resend', {
+        // Send verification email
+        const verificationUrl = `${process.env.FRONTEND_URL}/verify?token=${magicToken}`;
+        await this.emailService.sendVerificationEmail(
             email,
-            displayName: user.displayName,
-            magicToken,
-            verificationUrl: `${process.env.FRONTEND_URL}/verify?token=${magicToken}`,
-        });
+            user.displayName,
+            verificationUrl
+        );
 
         // Increment rate limit counter
         if (attemptsCount === 0) {
@@ -384,13 +382,13 @@ export class AuthService {
         // Store email associated with reset token in Redis (1 hour expiry)
         await this.redis.set(`reset-token:${resetToken}`, email, 'EX', 3600);
 
-        // Emit NATS event for notification service to send reset email
-        this.natsClient.emit('auth.password.reset-requested', {
+        // Send password reset email
+        const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+        await this.emailService.sendPasswordResetEmail(
             email,
-            displayName: user.displayName,
-            resetToken,
-            resetUrl: `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`,
-        });
+            user.displayName,
+            resetUrl
+        );
 
         // Increment rate limit counter
         if (attemptsCount === 0) {
@@ -441,17 +439,17 @@ export class AuthService {
         // Delete reset token (one-time use)
         await this.redis.del(`reset-token:${token}`);
 
-        // Emit NATS event for notification
-        this.natsClient.emit('auth.password.reset-completed', {
+        // Send password reset confirmation email
+        await this.emailService.sendPasswordResetConfirmationEmail(
             email,
-            displayName: user.displayName,
-        });
+            user.displayName
+        );
     }
 
     /**
-     * Update user profile
+     * Update user information
      */
-    async updateProfile(
+    async updateUser(
         userId: string,
         dto: { displayName?: string },
     ): Promise<UserResponseDTO & { permissions: string[] }> {
@@ -473,9 +471,9 @@ export class AuthService {
     }
 
     /**
-     * Delete user profile (soft delete)
+     * Delete user account (soft delete)
      */
-    async deleteProfile(userId: string): Promise<void> {
+    async deleteUser(userId: string): Promise<void> {
         await this.usersRepository.softDelete(userId);
     }
 
@@ -705,12 +703,15 @@ export class AuthService {
      */
     async getLinkedProviders(userId: string) {
         const identities = await this.userIdentityRepository.findByUserId(userId);
+        const user = await this.usersRepository.findById(userId);
 
-        return identities.map(identity => ({
-            provider: identity.provider,
-            providerId: identity.providerId,
-            linkedAt: identity.createdAt,
-            lastSignInAt: identity.lastSignInAt,
-        }));
+        return {
+            providers: identities.map(identity => ({
+                provider: identity.provider,
+                email: (identity.providerData as any)?.email || '',
+                linkedAt: identity.createdAt,
+            })),
+            hasPassword: !!user?.password,
+        };
     }
 }

@@ -1,6 +1,6 @@
-export * from './prisma.service';
+export * from './prisma/prisma.service';
 export * from './shared.module';
-export * from './prisma.module';
+export * from './prisma/prisma.module';
 
 
 // NATS modules and configuration
@@ -99,13 +99,17 @@ export * from './pipes/zod-validation.pipe';
 export * from './providers/jwt-token.provider';
 
 // Audit logging
+// Storage - Shared S3/R2 storage for all modules
+export * from './storage';
+
+// Email - Shared email service for all modules
+export * from './email';
+
+// Encryption
+export * from './encryption';
+
 // Redis
 export * from './redis/redis.module';
 export * from './redis/redis.provider';
 
-// Audit logging
-export * from '../../../modules/identity/src/modules/audit';
-
-// Encryption
-export * from './encryption';
 

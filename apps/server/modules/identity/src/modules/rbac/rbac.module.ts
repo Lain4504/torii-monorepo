@@ -2,18 +2,25 @@ import { Module } from '@nestjs/common';
 import { RBACService } from './rbac.service';
 import { RBACConfigService } from './rbac-config.service';
 import { RBACSeederService } from './rbac-seeder.service';
-import { SharedModule } from '@server/shared';
+import { AuditModule } from '../audit/audit.module';
+import { RBAC_SERVICE_TOKEN } from '../../interfaces/services';
 
+/**
+ * RBAC (Role-Based Access Control) Feature Module
+ * Handles permissions, roles, and access control
+ */
 @Module({
-    imports: [SharedModule],
+    imports: [AuditModule],
     providers: [
-        RBACService,
+        {
+            provide: RBAC_SERVICE_TOKEN,
+            useClass: RBACService,
+        },
         RBACConfigService,
         RBACSeederService,
-        // AuditLogService // Uncomment if it exists
     ],
     exports: [
-        RBACService,
+        RBAC_SERVICE_TOKEN,
         RBACConfigService,
         RBACSeederService,
     ],

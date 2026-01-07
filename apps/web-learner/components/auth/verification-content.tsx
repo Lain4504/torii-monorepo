@@ -28,7 +28,7 @@ export function VerificationContent() {
         // Verify magic link token
         const verifyToken = async () => {
             try {
-                const response = await apiClient.post('/api/auth/verify-magic-link', { token });
+                const response = await apiClient.post('/api/auth/verify-email', { token });
                 const data = response.data;
 
                 if (data.success) {

@@ -2,10 +2,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import { JwtTokenProvider, type RefreshTokenPayload } from '@server/shared';
 import { createHash, randomUUID } from 'crypto';
+import type { ISessionService } from '../../interfaces/services';
 
 
 @Injectable()
-export class SessionService {
+export class SessionService implements ISessionService {
     private readonly logger = new Logger(SessionService.name);
 
     constructor(

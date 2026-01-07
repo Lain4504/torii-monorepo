@@ -1,17 +1,19 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { AuditLogRepository } from "./audit-log.repository";
+import { Injectable, Logger, Inject } from '@nestjs/common';
+import type { IAuditLogRepository } from '../../interfaces/repositories';
 import type {
     AuditLogEntryDTO,
     AuditLogFiltersDTO,
     PaginatedResponseDTO,
 } from '@workspace/schemas';
+import type { IAuditLogService } from '../../interfaces/services';
+import { AUDIT_LOG_REPOSITORY_TOKEN } from '../../interfaces/repositories';
 
 @Injectable()
-export class AuditLogService {
+export class AuditLogService implements IAuditLogService {
     private readonly logger = new Logger(AuditLogService.name);
 
     constructor(
-        private readonly auditLogRepository: AuditLogRepository,
+        @Inject(AUDIT_LOG_REPOSITORY_TOKEN) private readonly auditLogRepository: IAuditLogRepository,
     ) { }
 
     /**

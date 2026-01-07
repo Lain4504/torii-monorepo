@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import { RBACConfigService } from './rbac-config.service';
-import { AuditLogService } from "../audit/audit-log.service";
+import type { IAuditLogService, IRBACService } from '../../interfaces/services';
+import { AUDIT_LOG_SERVICE_TOKEN } from '../../interfaces/services';
 import type { AuditContextDTO } from '@workspace/schemas';
 
 export interface UserPermissions {
@@ -12,11 +13,11 @@ export interface UserPermissions {
 export type AuditContext = AuditContextDTO;
 
 @Injectable()
-export class RBACService {
+export class RBACService implements IRBACService {
     constructor(
         private readonly prisma: PrismaService,
         private readonly rbacConfig: RBACConfigService,
-        private readonly auditLog: AuditLogService,
+        @Inject(AUDIT_LOG_SERVICE_TOKEN) private readonly auditLog: IAuditLogService,
     ) { }
 
     /**

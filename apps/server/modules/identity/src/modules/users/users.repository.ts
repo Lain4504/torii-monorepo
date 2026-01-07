@@ -1,13 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import type { User, Prisma } from '@prisma/generated';
+import type { IUsersRepository } from '../../interfaces/repositories';
 
 /**
  * User Repository
  * Handles all database operations for User entity
  */
 @Injectable()
-export class UsersRepository {
+export class UsersRepository implements IUsersRepository {
     private readonly logger = new Logger(UsersRepository.name);
 
     constructor(private readonly prisma: PrismaService) { }

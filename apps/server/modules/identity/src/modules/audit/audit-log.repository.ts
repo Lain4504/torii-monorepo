@@ -1,13 +1,14 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@server/shared";
 import { Prisma, AuditLog } from "@prisma/generated";
+import type { IAuditLogRepository } from '../../interfaces/repositories';
 
 /**
  * Audit Log Repository
  * Handles all database operations for AuditLog entity
  */
 @Injectable()
-export class AuditLogRepository {
+export class AuditLogRepository implements IAuditLogRepository {
     constructor(private readonly prisma: PrismaService) { }
 
     /**
