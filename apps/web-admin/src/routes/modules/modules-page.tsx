@@ -108,19 +108,21 @@ export default function ModulesPage() {
         <Button onClick={() => setShowCreateDialog(true)}>Create Module</Button>
       </div>
 
-      <div className="rounded-xl border bg-card text-card-foreground shadow-sm">
-        <div className="p-6">
-          <ModulesPrimaryToolbar
-            search={search}
-            onSearchChange={setSearch}
-            courseIdFilter={courseIdFilter}
-            onCourseIdFilterChange={setCourseIdFilter}
-            courseTitleMap={courseTitleMap}
-            statusFilter={statusFilter}
-            onStatusFilterChange={setStatusFilter}
-          />
+      <div className="rounded-xl border border-border/40 overflow-hidden bg-transparent">
+        <div className="p-0">
+          <div className="p-6 zen-card mb-6">
+            <ModulesPrimaryToolbar
+              search={search}
+              onSearchChange={setSearch}
+              courseIdFilter={courseIdFilter}
+              onCourseIdFilterChange={setCourseIdFilter}
+              courseTitleMap={courseTitleMap}
+              statusFilter={statusFilter}
+              onStatusFilterChange={setStatusFilter}
+            />
+          </div>
 
-          <div className="mt-6 rounded-md border">
+          <div className="zen-card overflow-hidden">
             <ModulesTable
               data={modules}
               onEdit={setEditingModule}
@@ -130,37 +132,39 @@ export default function ModulesPage() {
               limit={queryParams.limit || 10}
               courseTitleMap={courseTitleMap}
             />
-          </div>
 
-          {/* Pagination */}
-          {meta && (
-            <div className="flex items-center justify-between space-x-2 py-4">
-              <div className="flex-1 text-sm text-muted-foreground">
-                Showing {modules.length} of {meta.total} modules
-              </div>
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={page <= 1}
-                  onClick={() => setPage(page - 1)}
-                >
-                  Previous
-                </Button>
-                <div className="text-sm font-medium">
-                  Page {page} of {meta.totalPages}
+            {/* Pagination */}
+            {meta && (
+              <div className="flex items-center justify-between space-x-2 p-4 border-t border-border/40">
+                <div className="flex-1 text-sm zen-text-muted">
+                  Showing {modules.length} of {meta.total} modules
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={page >= meta.totalPages}
-                  onClick={() => setPage(page + 1)}
-                >
-                  Next
-                </Button>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="rounded-full hover:bg-primary/5"
+                    disabled={page <= 1}
+                    onClick={() => setPage(page - 1)}
+                  >
+                    Previous
+                  </Button>
+                  <div className="text-sm font-medium">
+                    Page {page} of {meta.totalPages}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="rounded-full hover:bg-primary/5"
+                    disabled={page >= meta.totalPages}
+                    onClick={() => setPage(page + 1)}
+                  >
+                    Next
+                  </Button>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 

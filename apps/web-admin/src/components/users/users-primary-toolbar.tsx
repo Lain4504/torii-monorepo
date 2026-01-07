@@ -7,7 +7,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@workspace/ui/components/select';
-import { Plus, Search, ArrowUpDown } from 'lucide-react';
+import { Search, ArrowUpDown } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -15,7 +15,6 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu';
-import { Can } from "@/lib/guard/can";
 
 interface UsersPrimaryToolbarProps {
     search: string;
@@ -25,7 +24,6 @@ interface UsersPrimaryToolbarProps {
     sortBy: string;
     sortOrder: 'asc' | 'desc';
     onSortChange: (field: string, order: 'asc' | 'desc') => void;
-    onAddNew: () => void;
 }
 
 export function UsersPrimaryToolbar({
@@ -34,73 +32,56 @@ export function UsersPrimaryToolbar({
     filters,
     onFilterChange,
     onSortChange,
-    onAddNew,
 }: UsersPrimaryToolbarProps) {
     return (
-        <div className="space-y-4">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Users Management</h1>
-                    <p className="text-muted-foreground mt-1">
-                        Manage user accounts, roles, and permissions
-                    </p>
-                </div>
-                <Can permission="user.manage">
-                    <Button onClick={onAddNew}>
-                        <Plus className="mr-2 h-4 w-4" /> Add New User
-                    </Button>
-                </Can>
+        <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div className="relative flex-1 max-w-md w-full">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50" />
+                <Input
+                    placeholder="Search users..."
+                    value={search}
+                    onChange={(e) => onSearchChange(e.target.value)}
+                    className="pl-9 border-none bg-muted/40 hover:bg-muted/60 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all"
+                />
             </div>
 
-            <div className="flex flex-col md:flex-row gap-4">
-                <div className="relative flex-1 max-w-sm">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                        placeholder="Search users..."
-                        value={search}
-                        onChange={(e) => onSearchChange(e.target.value)}
-                        className="pl-9"
-                    />
-                </div>
-
+            <div className="flex items-center gap-3 w-full md:w-auto">
                 {/* Role Filter */}
                 <Select
                     value={filters.role || 'all'}
                     onValueChange={(value) => onFilterChange({ ...filters, role: value === 'all' ? undefined : value })}
                 >
-                    <SelectTrigger className="w-[150px]">
+                    <SelectTrigger className="w-full md:w-[180px] border-none bg-muted/40 hover:bg-muted/60 rounded-xl transition-all focus:ring-1 focus:ring-primary/20">
                         <SelectValue placeholder="All Roles" />
                     </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Roles</SelectItem>
-                        <SelectItem value="admin">Admin</SelectItem>
-                        <SelectItem value="learner">Learner</SelectItem>
-                        <SelectItem value="lecturer">Lecturer</SelectItem>
+                    <SelectContent className="border-none shadow-xl bg-background/90 backdrop-blur-xl rounded-xl">
+                        <SelectItem value="all" className="rounded-lg cursor-pointer">All Roles</SelectItem>
+                        <SelectItem value="admin" className="rounded-lg cursor-pointer">Admin</SelectItem>
+                        <SelectItem value="learner" className="rounded-lg cursor-pointer">Learner</SelectItem>
+                        <SelectItem value="lecturer" className="rounded-lg cursor-pointer">Lecturer</SelectItem>
                     </SelectContent>
                 </Select>
-
-
 
                 {/* Sort Dropdown */}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="outline">
-                            <ArrowUpDown className="mr-2 h-4 w-4" />
-                            Sort By
+                        <Button variant="ghost" className="bg-muted/40 hover:bg-muted/60 border-none rounded-xl gap-2 font-normal">
+                            <ArrowUpDown className="h-4 w-4 opacity-50" />
+                            Sort
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuContent align="end" className="w-48 border-none shadow-xl bg-background/90 backdrop-blur-xl rounded-xl p-1">
                         <DropdownMenuGroup>
-                            <DropdownMenuItem onClick={() => onSortChange('createdAt', 'desc')}>
-                                Newest First
+                            <DropdownMenuItem onClick={() => onSortChange('createdAt', 'desc')} className="rounded-lg cursor-pointer">
+                                Newest first
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onSortChange('createdAt', 'asc')}>
-                                Oldest First
+                            <DropdownMenuItem onClick={() => onSortChange('createdAt', 'asc')} className="rounded-lg cursor-pointer">
+                                Oldest first
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onSortChange('displayName', 'asc')}>
+                            <DropdownMenuItem onClick={() => onSortChange('displayName', 'asc')} className="rounded-lg cursor-pointer">
                                 Name (A-Z)
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onSortChange('email', 'asc')}>
+                            <DropdownMenuItem onClick={() => onSortChange('email', 'asc')} className="rounded-lg cursor-pointer">
                                 Email (A-Z)
                             </DropdownMenuItem>
                         </DropdownMenuGroup>

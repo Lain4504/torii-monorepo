@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(rbac): simplify permissions handling by removing user-specific overrides">
-      <change beforePath="$PROJECT_DIR$/packages/ui/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(ui): enhance dashboard layout and components for improved aesthetics and usability">
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/index.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/dashboard/analytics-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/dashboard/analytics-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/dashboard/dashboard-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/dashboard/dashboard-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/users/users-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/users/users-page.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -261,22 +263,6 @@
       <workItem from="1767779643020" duration="455000" />
       <workItem from="1767780214679" duration="224000" />
       <workItem from="1767784611248" duration="3225000" />
-    </task>
-    <task id="LOCAL-00443" summary="feat(web-learner): add modular course detail components&#10;&#10;- Introduced `CourseHeader`, `CourseCurriculum`, `CourseInstructor`, `CourseReviews`, and `CourseSidebar` components.&#10;- Implemented `CourseDetailPage` layout, combining the new components for a modular design.&#10;- Ensured responsive design and consistency with platform UI/UX standards.">
-      <option name="closed" value="true" />
-      <created>1767517891813</created>
-      <option name="number" value="00443" />
-      <option name="presentableId" value="LOCAL-00443" />
-      <option name="project" value="LOCAL" />
-      <updated>1767517891813</updated>
-    </task>
-    <task id="LOCAL-00444" summary="feat(web-learner): implement course catalog with filtering, search, and pagination&#10;&#10;- Added `CourseCard`, `CourseGrid`, `FilterSidebar`, and `SearchHeader` components.&#10;- Introduced a `CourseCatalogPage` layout featuring filters, search functionality, and a paginated grid of courses.&#10;- Ensured responsive design and adherence to UI/UX standards for browsing and discovery.">
-      <option name="closed" value="true" />
-      <created>1767518171880</created>
-      <option name="number" value="00444" />
-      <option name="presentableId" value="LOCAL-00444" />
-      <option name="project" value="LOCAL" />
-      <updated>1767518171880</updated>
     </task>
     <task id="LOCAL-00445" summary="feat(web-learner): add exam management interface with card-based UI and history tracking&#10;&#10;- Introduced `ExamCard` component to display exam details and statuses (new, in-progress, completed).&#10;- Created `ExamHistory` component for displaying past exam attempts in a table format.&#10;- Added `ExamStats` component to showcase key statistics such as average score, total exams taken, and hours practiced.&#10;- Implemented `ExamPage` layout with tabs for available exams and exam history, including filtering and searching functionality.&#10;- Ensured responsive design and adherence to platform UI/UX guidelines.">
       <option name="closed" value="true" />
@@ -654,7 +640,23 @@
       <option name="project" value="LOCAL" />
       <updated>1767792124685</updated>
     </task>
-    <option name="localTasksCounter" value="492" />
+    <task id="LOCAL-00492" summary="feat(database): add radix-ui dependency and update package lock">
+      <option name="closed" value="true" />
+      <created>1767792973017</created>
+      <option name="number" value="00492" />
+      <option name="presentableId" value="LOCAL-00492" />
+      <option name="project" value="LOCAL" />
+      <updated>1767792973017</updated>
+    </task>
+    <task id="LOCAL-00493" summary="feat(ui): enhance dashboard layout and components for improved aesthetics and usability">
+      <option name="closed" value="true" />
+      <created>1767793255234</created>
+      <option name="number" value="00493" />
+      <option name="presentableId" value="LOCAL-00493" />
+      <option name="project" value="LOCAL" />
+      <updated>1767793255235</updated>
+    </task>
+    <option name="localTasksCounter" value="494" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -684,8 +686,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="chore: refactor API routes and enable CORS across services&#10;&#10;- Updated API route prefixes in multiple controllers (e.g., `@Controller('/api/...')` → `@Controller('/')`).&#10;- Adjusted corresponding client API calls to match updated backend routes.&#10;- Enabled CORS in gateway with dynamic origins and method support.&#10;- Enhanced `LoginPage` logic to integrate Firebase authentication and modified API endpoints accordingly.&#10;- Added permission fetching in the `AuthController`." />
-    <MESSAGE value="chore: update API route prefixes for Meet module and configure body parser&#10;&#10;- Refactored API route prefixes in Meet controllers (e.g., `@Controller('api/...')` → `@Controller(...)`).&#10;- Added body parser configuration for JSON and protobuf request handling." />
     <MESSAGE value="return to manual jwt auth" />
     <MESSAGE value="chore: remove Firebase dependencies and restore JWT-based authentication system&#10;&#10;- Removed `firebase` and related packages from `web-admin` and lockfile.&#10;- Added `argon2` for password hashing and `JwtTokenProvider` to `AuthController`.&#10;- Introduced new guards for API key and role-based protection (`api-key.guard`, `roles.guard`, `roles.decorator`)." />
     <MESSAGE value="feat(auth): add Redux-based authentication flow to web-learner&#10;&#10;- Implemented `authSlice` with login, logout, register, and checkAuth functionality.&#10;- Added `AuthInitializer` component to manage authentication state.&#10;- Created `LoginForm` component integrated with Redux and Zod validation.&#10;- Updated login page to use `AuthInitializer` and `LoginForm`.&#10;- Created reusable UI components (Field, Item, Empty) for consistent styling." />
@@ -709,7 +709,9 @@
     <MESSAGE value="feat(database): add new modules for gamification, payments, and user management" />
     <MESSAGE value="feat(auth): rename endpoints and update token generation for email verification" />
     <MESSAGE value="feat(rbac): simplify permissions handling by removing user-specific overrides" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(rbac): simplify permissions handling by removing user-specific overrides" />
+    <MESSAGE value="feat(database): add radix-ui dependency and update package lock" />
+    <MESSAGE value="feat(ui): enhance dashboard layout and components for improved aesthetics and usability" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(ui): enhance dashboard layout and components for improved aesthetics and usability" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

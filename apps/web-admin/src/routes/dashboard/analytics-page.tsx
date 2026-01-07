@@ -1,15 +1,25 @@
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
+
 export default function AnalyticsPage() {
   return (
-    <div className="p-6">
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Analytics</h1>
-          <p className="text-muted-foreground">View platform analytics and insights</p>
-        </div>
-        
-        <div className="rounded-lg border bg-card p-6">
-          <p className="text-muted-foreground">Analytics dashboard interface</p>
-        </div>
+    <div className="space-y-8 animate-in fade-in-50 duration-500">
+      <div className="space-y-2">
+        <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">Analytics</h2>
+        <p className="text-muted-foreground">Detailed platform performance and utilization metrics.</p>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card className="zen-card col-span-2">
+          <CardHeader>
+            <CardTitle>Platform Traffic</CardTitle>
+            <CardDescription>Daily active users over the last 30 days</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px] flex items-center justify-center bg-muted/20 rounded-2xl border border-dashed border-muted text-muted-foreground">
+              [Traffic Chart Placeholder]
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )
