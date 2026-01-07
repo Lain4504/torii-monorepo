@@ -1,4 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
+import { courseApi, type CourseQueryParams } from '@/api/services/course-api';
+import type { CourseResponseDTO } from '@workspace/schemas';
 
 export interface Course {
   id: string;
@@ -28,32 +30,7 @@ export interface CoursesResponse {
   totalPages: number;
 }
 
-interface CourseAPIResponse {
-  id: string;
-  title: string;
-  slug: string;
-  thumbnailUrl?: string;
-  jlptLevel: string;
-  totalLessons: number;
-  durationWeeks?: number;
-  price: number;
-  discountPrice?: number;
-  averageRating: number;
-  totalReviews: number;
-  totalStudents: number;
-  createdBy?: string;
-  [key: string]: any;
-}
-
-interface APIPaginatedResponse {
-  data: CourseAPIResponse[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
-
-function mapApiCourseToCourse(apiCourse: CourseAPIResponse): Course {
+function mapApiCourseToCourse(apiCourse: CourseResponseDTO): Course {
   return {
     id: apiCourse.id,
     title: apiCourse.title,
@@ -85,37 +62,29 @@ export function useCourses(params: {
   return useQuery({
     queryKey: ['courses', params],
     queryFn: async () => {
-      const searchParams = new URLSearchParams();
-      if (params.page) searchParams.append('page', String(params.page));
-      if (params.limit) searchParams.append('limit', String(params.limit));
-      if (params.level) searchParams.append('jlptLevel', params.level);
-      if (params.type) searchParams.append('type', params.type);
-      if (params.q) searchParams.append('search', params.q);
-      
-      const url = `/api/courses?${searchParams.toString()}`;
-      console.log('Fetching courses from:', url);
-      
-      const res = await fetch(url);
-      if (!res.ok) {
-        throw new Error(`Failed to fetch courses: ${res.status} ${res.statusText}`);
-      }
-      
-      const jsonData = await res.json() as APIPaginatedResponse;
-      console.log('API Response:', jsonData);
-      
-      // Map API response to expected format
-      const mappedCourses = jsonData.data.map(mapApiCourseToCourse);
-      
-      const response: CoursesResponse = {
-        data: mappedCourses,
-        total: jsonData.total,
-        page: jsonData.page,
-        limit: jsonData.limit,
-        totalPages: jsonData.totalPages,
+      // Map params to backend API format
+      const queryParams: CourseQueryParams = {
+        page: params.page,
+        limit: params.limit,
+        jlptLevel: params.level,
+        search: params.q,
+        // Note: 'type' filter not yet supported by backend
       };
-      
-      console.log('Mapped response:', response);
-      return response;
+
+      const response = await courseApi.findAll(queryParams);
+
+      // Map API response to expected format
+      const mappedCourses = response.data.map(mapApiCourseToCourse);
+
+      const result: CoursesResponse = {
+        data: mappedCourses,
+        total: response.total,
+        page: response.page,
+        limit: response.limit,
+        totalPages: response.totalPages,
+      };
+
+      return result;
     },
   });
 }

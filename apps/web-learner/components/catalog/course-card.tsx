@@ -1,51 +1,53 @@
 import Link from 'next/link';
-import { Star, Users, BookOpen } from 'lucide-react';
+import Image from 'next/image';
+import { Star, Users, BookOpen, Clock } from 'lucide-react';
 import { Badge } from '@workspace/ui/components/badge';
 import { Card, CardContent, CardFooter } from '@workspace/ui/components/card';
-import { Course } from '@/api/services/courses-api';
+import type { CourseResponseDTO } from '@workspace/schemas';
 
-interface CourseCardProps extends Course {
+interface CourseCardProps extends CourseResponseDTO {
     isLive?: boolean;
 }
 
 /**
  * Course card component displaying course information
  */
-export function CourseCard({
-    id,
-    title,
-    slug,
-    thumbnail,
-    level,
-    instructor = { name: '', avatar: '' },
-    rating = 0,
-    reviewCount = 0,
-    students = 0,
-    price = 0,
-    originalPrice = 0,
-    totalLessons = 0,
-    totalHours = 0,
-    isLive = false,
-}: CourseCardProps) {
-    // Đảm bảo các trường có thể null luôn có giá trị mặc định
-    const safeThumbnail = thumbnail ?? "/default-thumbnail.jpg";
-    const safeInstructor = instructor ?? { name: '', avatar: '' };
-    const safeRating = typeof rating === 'number' ? rating : 0;
-    const safeReviewCount = typeof reviewCount === 'number' ? reviewCount : 0;
-    const safeStudents = typeof students === 'number' ? students : 0;
+export function CourseCard(props: CourseCardProps) {
+    const {
+        title,
+        slug,
+        thumbnailUrl,
+        jlptLevel,
+        averageRating = 0,
+        totalReviews = 0,
+        totalStudents = 0,
+        price = 0,
+        discountPrice = 0,
+        totalLessons = 0,
+        durationWeeks = 0,
+        isLive = false,
+    } = props;
+
+    // Safe value defaults
+    const safeThumbnail = thumbnailUrl ?? '/default-thumbnail.jpg';
+    const safeRating = typeof averageRating === 'number' ? averageRating : 0;
+    const safeReviewCount = typeof totalReviews === 'number' ? totalReviews : 0;
+    const safeStudents = typeof totalStudents === 'number' ? totalStudents : 0;
     const safePrice = typeof price === 'number' ? price : 0;
-    const safeOriginalPrice = typeof originalPrice === 'number' ? originalPrice : 0;
+    const safeDiscountPrice = typeof discountPrice === 'number' ? discountPrice : 0;
     const safeTotalLessons = typeof totalLessons === 'number' ? totalLessons : 0;
-    const safeTotalHours = typeof totalHours === 'number' ? totalHours : 0;
+    const safeDurationWeeks = typeof durationWeeks === 'number' ? durationWeeks : 0;
     return (
         <Link href={`/courses/${slug}`}>
             <Card className="h-full overflow-hidden hover:shadow-lg transition-shadow border-slate-200 dark:border-slate-800 flex flex-col group cursor-pointer">
                 {/* Thumbnail */}
                 <div className="relative aspect-video overflow-hidden bg-slate-100">
-                    <img
+                    <Image
                         src={safeThumbnail}
                         alt={title}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                     <Badge className="absolute top-3 left-3 bg-white/90 text-slate-900 hover:bg-white dark:bg-slate-900/90 dark:text-white backdrop-blur-sm shadow-sm">
                         {jlptLevel}
@@ -74,7 +76,9 @@ export function CourseCard({
                                     <Star
                                         key={i}
                                         className="w-4 h-4"
-                                        style={{ color: isFull || isHalf ? '#FFD700' : '#E5E7EB' }}
+                                        style={{
+                                            color: isFull || isHalf ? '#FFD700' : '#E5E7EB',
+                                        }}
                                         fill={isFull ? '#FFD700' : isHalf ? 'url(#half-star)' : 'none'}
                                     />
                                 );
@@ -88,40 +92,30 @@ export function CourseCard({
                         </div>
                     </div>
 
+                    {/* Duration & Lessons */}
                     <div className="flex items-center gap-4 text-xs text-slate-500 font-medium">
                         <div className="flex items-center gap-1.5">
                             <BookOpen className="w-3.5 h-3.5" />
                             <span>{safeTotalLessons} bài</span>
                         </div>
                         <div className="flex items-center gap-1.5">
-                            <PlayCircle className="w-3.5 h-3.5" />
-                            <span>{safeTotalHours} giờ</span>
+                            <Clock className="w-3.5 h-3.5" />
+                            <span>{safeDurationWeeks} tuần</span>
                         </div>
-                    </div>
-
-                    <div className="pt-2 flex items-center gap-2">
-                        <Avatar className="w-6 h-6">
-                            <AvatarImage src={safeInstructor.avatar} />
-                            <AvatarFallback>{safeInstructor.name?.[0] ?? ''}</AvatarFallback>
-                        </Avatar>
-                        <span className="text-sm text-slate-600 dark:text-slate-400 truncate">
-                            {safeInstructor.name}
-                        </span>
                     </div>
                 </CardContent>
 
+                {/* Footer - Price */}
                 <CardFooter className="p-5 pt-0 border-t border-slate-100 dark:border-slate-800 mt-auto flex items-center justify-between">
-                    <div className="flex flex-col">
-                        <div className="flex items-center gap-2">
-                            <span className="font-bold text-lg text-teal-600">
-                                {safePrice === 0 ? "Miễn phí" : safePrice.toLocaleString() + "₫"}
+                    <div className="flex items-center gap-2">
+                        <span className="font-bold text-lg text-teal-600">
+                            {safePrice === 0 ? 'Miễn phí' : `${safePrice.toLocaleString()}₫`}
+                        </span>
+                        {safeDiscountPrice > 0 && safeDiscountPrice < safePrice && (
+                            <span className="text-xs text-slate-400 line-through">
+                                {safePrice.toLocaleString()}₫
                             </span>
-                            {safeOriginalPrice > safePrice && (
-                                <span className="text-xs text-slate-400 line-through">
-                                    {safeOriginalPrice.toLocaleString()}₫
-                                </span>
-                            )}
-                        </div>
+                        )}
                     </div>
                 </CardFooter>
             </Card>

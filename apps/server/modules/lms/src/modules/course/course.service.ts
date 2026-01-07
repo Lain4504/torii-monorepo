@@ -86,6 +86,8 @@ export class CourseService {
     try {
       const { page, limit, jlptLevel, status, search, featured } = query;
 
+      this.logger.log(`findAll called with query: ${JSON.stringify(query)}`);
+
       // Parse pagination params to numbers (query params are strings)
       const pageNum = parseInt(String(page || 1), 10);
       const limitNum = parseInt(String(limit || 10), 10);
@@ -115,6 +117,8 @@ export class CourseService {
         ];
       }
 
+      this.logger.log(`Where clause: ${JSON.stringify(whereClause)}`);
+
       const [total, courses] = await Promise.all([
         this.prisma.course.count({ where: whereClause }),
         this.prisma.course.findMany({
@@ -124,6 +128,8 @@ export class CourseService {
           orderBy: { createdAt: 'desc' },
         }),
       ]);
+
+      this.logger.log(`Found ${total} total courses, returning ${courses.length} courses`);
 
       const totalPages = Math.ceil(total / limitNum);
 
@@ -136,6 +142,8 @@ export class CourseService {
       };
     } catch (error: any) {
       this.logger.error('Failed to retrieve courses', error);
+      this.logger.error(`Error stack: ${error?.stack}`);
+      this.logger.error(`Error message: ${error?.message}`);
       const pageNum = parseInt(String(query.page), 10) || 1;
       const limitNum = parseInt(String(query.limit), 10) || 10;
       return {
@@ -214,8 +222,8 @@ export class CourseService {
         const totalDurationSeconds = module.lessons.reduce((sum, lesson) => {
           return sum + (lesson.videoDuration || 0);
         }, 0);
-        const durationMinutes = totalDurationSeconds > 0 
-          ? Math.round(totalDurationSeconds / 60) 
+        const durationMinutes = totalDurationSeconds > 0
+          ? Math.round(totalDurationSeconds / 60)
           : (module.durationMinutes || undefined);
 
         return {
