@@ -26,10 +26,10 @@ const initialState: AuthState = {
 
 // Async Thunks
 export const login = createAsyncThunk(
-    'auth/login',
+    'auth/adminLogin',
     async (credentials: UserLoginDTO, { rejectWithValue }) => {
         try {
-            const response = await apiClient.post('/api/auth/login', credentials);
+            const response = await apiClient.post('/api/auth/admin/login', credentials);
             return response.data.data.user;
         } catch (error: any) {
             if (error.response && error.response.data.message) {

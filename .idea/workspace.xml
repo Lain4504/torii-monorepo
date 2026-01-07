@@ -4,16 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="cursor gen: update theme">
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/catalog/course-card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/catalog/course-card.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/home/course-categories-section.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/home/course-categories-section.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/home/cta-section.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/home/cta-section.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/home/features-section.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/home/features-section.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/home/hero-section.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/home/hero-section.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/home/how-it-works-section.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/home/how-it-works-section.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/home/testimonials-section.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/home/testimonials-section.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/layout/footer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/layout/footer.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/layout/header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/layout/header.tsx" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor(ui): align theme styles with tokenized color system&#10;&#10;- Updated theme-specific class names to use tokenized variables (e.g., `bg-primary`, `text-muted-foreground`) for consistency.&#10;- Replaced hardcoded values with reusable theme tokens across authentication pages, course components, and layouts.&#10;- Enhanced visual elements, accessibility, and responsiveness.">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/auth.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/auth.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/i-auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/i-auth.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/auth.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/store/slices/auth-slice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/store/slices/auth-slice.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -268,30 +264,6 @@
       <workItem from="1767779643020" duration="455000" />
       <workItem from="1767780214679" duration="224000" />
       <workItem from="1767784611248" duration="3225000" />
-    </task>
-    <task id="LOCAL-00455" summary="feat(auth): implement Google OAuth login and account linking functionality&#10;&#10;- Added endpoints for Google OAuth login and linking existing accounts.&#10;- Integrated Google authentication with user registration and login processes.&#10;- Updated user model to support OAuth identities and metadata.&#10;- Enhanced user service to manage linked providers and account unlinking.&#10;- Included necessary environment variables for Google OAuth in .env.example.">
-      <option name="closed" value="true" />
-      <created>1767613563436</created>
-      <option name="number" value="00455" />
-      <option name="presentableId" value="LOCAL-00455" />
-      <option name="project" value="LOCAL" />
-      <updated>1767613563436</updated>
-    </task>
-    <task id="LOCAL-00456" summary="feat(auth): implement Google OAuth login and account linking functionality&#10;&#10;- Added endpoints for Google OAuth login and linking existing accounts.&#10;- Integrated Google authentication with user registration and login processes.&#10;- Updated user model to support OAuth identities and metadata.&#10;- Enhanced user service to manage linked providers and account unlinking.&#10;- Included necessary environment variables for Google OAuth in .env.example.">
-      <option name="closed" value="true" />
-      <created>1767613657227</created>
-      <option name="number" value="00456" />
-      <option name="presentableId" value="LOCAL-00456" />
-      <option name="project" value="LOCAL" />
-      <updated>1767613657227</updated>
-    </task>
-    <task id="LOCAL-00457" summary="feat(auth): implement Google OAuth login and account linking functionality&#10;&#10;- Added endpoints for Google OAuth login and linking existing accounts.&#10;- Integrated Google authentication with user registration and login processes.&#10;- Updated user model to support OAuth identities and metadata.&#10;- Enhanced user service to manage linked providers and account unlinking.&#10;- Included necessary environment variables for Google OAuth in .env.example.">
-      <option name="closed" value="true" />
-      <created>1767614318498</created>
-      <option name="number" value="00457" />
-      <option name="presentableId" value="LOCAL-00457" />
-      <option name="project" value="LOCAL" />
-      <updated>1767614318498</updated>
     </task>
     <task id="LOCAL-00458" summary="feat(auth): implement Google OAuth login and account linking functionality&#10;&#10;- Added endpoints for Google OAuth login and linking existing accounts.&#10;- Integrated Google authentication with user registration and login processes.&#10;- Updated user model to support OAuth identities and metadata.&#10;- Enhanced user service to manage linked providers and account unlinking.&#10;- Included necessary environment variables for Google OAuth in .env.example.">
       <option name="closed" value="true" />
@@ -661,7 +633,31 @@
       <option name="project" value="LOCAL" />
       <updated>1767797013944</updated>
     </task>
-    <option name="localTasksCounter" value="504" />
+    <task id="LOCAL-00504" summary="refactor(ui): align theme styles with tokenized color system&#10;&#10;- Updated theme-specific class names to use tokenized variables (e.g., `bg-primary`, `text-muted-foreground`) for consistency.&#10;- Replaced hardcoded values with reusable theme tokens across authentication pages, course components, and layouts.&#10;- Enhanced visual elements, accessibility, and responsiveness.">
+      <option name="closed" value="true" />
+      <created>1767798311525</created>
+      <option name="number" value="00504" />
+      <option name="presentableId" value="LOCAL-00504" />
+      <option name="project" value="LOCAL" />
+      <updated>1767798311525</updated>
+    </task>
+    <task id="LOCAL-00505" summary="refactor(ui): align theme styles with tokenized color system&#10;&#10;- Updated theme-specific class names to use tokenized variables (e.g., `bg-primary`, `text-muted-foreground`) for consistency.&#10;- Replaced hardcoded values with reusable theme tokens across authentication pages, course components, and layouts.&#10;- Enhanced visual elements, accessibility, and responsiveness.">
+      <option name="closed" value="true" />
+      <created>1767798687966</created>
+      <option name="number" value="00505" />
+      <option name="presentableId" value="LOCAL-00505" />
+      <option name="project" value="LOCAL" />
+      <updated>1767798688164</updated>
+    </task>
+    <task id="LOCAL-00506" summary="refactor(ui): align theme styles with tokenized color system&#10;&#10;- Updated theme-specific class names to use tokenized variables (e.g., `bg-primary`, `text-muted-foreground`) for consistency.&#10;- Replaced hardcoded values with reusable theme tokens across authentication pages, course components, and layouts.&#10;- Enhanced visual elements, accessibility, and responsiveness.">
+      <option name="closed" value="true" />
+      <created>1767799112252</created>
+      <option name="number" value="00506" />
+      <option name="presentableId" value="LOCAL-00506" />
+      <option name="project" value="LOCAL" />
+      <updated>1767799112255</updated>
+    </task>
+    <option name="localTasksCounter" value="507" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -691,7 +687,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat(ui): introduce OTP input components and enhance email verification flow&#10;&#10;- Added reusable `InputOTP` components (`InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator`) to the `ui` package.&#10;- Integrated `InputOTP` into email verification for a more dynamic OTP entry experience.&#10;- Updated `pnpm-lock.yaml` and `package.json` to include `input-otp` dependency.&#10;- Enhanced email verification UI for better user feedback, including loading spinners and error/success messages." />
     <MESSAGE value="feat(auth): replace magic link with OTP-based email verification flow&#10;&#10;- Removed magic link email verification components and logic.&#10;- Implemented OTP verification via `OTPVerificationContent` component.&#10;- Updated backend services to handle OTP generation and email delivery.&#10;- Modified `register` flow to redirect users to OTP verification page upon success.&#10;- Adjusted email templates for OTP usage, replacing magic link-related text and formatting." />
     <MESSAGE value="feat(web-learner): add responsive home page sections with JLPT roadmap, features, and CTAs&#10;&#10;- Introduced `hero-section` to highlight platform's offerings and key metrics.&#10;- Added `course-categories-section` displaying JLPT levels N5-N1 with detailed descriptions.&#10;- Implemented `features-section` showcasing advanced platform features like AI Sensei and Gamification.&#10;- Created `cta-section` with promotional content and prominent" />
     <MESSAGE value="feat(web-learner): add responsive home page sections with JLPT roadmap, features, and CTAs&#10;&#10;- Introduced `hero-section` to highlight platform's offerings and key metrics.&#10;- Added `course-categories-section` displaying JLPT levels N5-N1 with detailed descriptions.&#10;- Implemented `features-section` showcasing advanced platform features like AI Sensei and Gamification.&#10;- Created `cta-section` with promotional content and prominent call-to-action buttons.&#10;- Ensured responsive design and modern UI/UX principles across all sections." />
@@ -716,7 +711,8 @@
     <MESSAGE value="feat(ui): add reusable hooks for dark mode and debounced state management&#10;&#10;- Implemented `useDarkMode` hook supporting OS preferences, localStorage, and dynamic theme class changes.&#10;- Added `useDebounceCallback` for controlled debounced function execution.&#10;- Introduced `useDebounceValue` for state synchronization with debounced updates.&#10;- Updated dependencies to include `lodash.debounce` for debounce functionality." />
     <MESSAGE value="cursor gen" />
     <MESSAGE value="cursor gen: update theme" />
-    <option name="LAST_COMMIT_MESSAGE" value="cursor gen: update theme" />
+    <MESSAGE value="refactor(ui): align theme styles with tokenized color system&#10;&#10;- Updated theme-specific class names to use tokenized variables (e.g., `bg-primary`, `text-muted-foreground`) for consistency.&#10;- Replaced hardcoded values with reusable theme tokens across authentication pages, course components, and layouts.&#10;- Enhanced visual elements, accessibility, and responsiveness." />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor(ui): align theme styles with tokenized color system&#10;&#10;- Updated theme-specific class names to use tokenized variables (e.g., `bg-primary`, `text-muted-foreground`) for consistency.&#10;- Replaced hardcoded values with reusable theme tokens across authentication pages, course components, and layouts.&#10;- Enhanced visual elements, accessibility, and responsiveness." />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

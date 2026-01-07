@@ -199,6 +199,34 @@ export class AuthController {
     }
 
     /**
+     * Specialized login for admin portals
+     * Validates that the user has administrative privileges (ADMIN, STAFF, LECTURER)
+     * Rejects users with LEARNER role.
+     * 
+     * POST /auth/admin/login
+     * @param dto Login credentials
+     * @param req Request object for metadata
+     * @param res Response object for cookie management
+     */
+    @Post('admin/login')
+    @HttpCode(HttpStatus.OK)
+    async adminLogin(
+        @Body() dto: UserLoginDTO,
+        @Request() req,
+        @Res({ passthrough: true }) res: Response
+    ) {
+        try {
+            const result = await this.authService.adminLogin(dto);
+            return await this.handleLoginResult(result, req, res);
+        } catch (error: any) {
+            return {
+                success: false,
+                message: error.message || 'Login failed'
+            };
+        }
+    }
+
+    /**
      * Login user
      * POST /auth/login
      * 
@@ -213,69 +241,72 @@ export class AuthController {
     ) {
         try {
             const result = await this.authService.login(dto);
-
-            // Check if 2FA is required
-            if (result.requiresTwoFactor) {
-                return {
-                    success: true,
-                    requiresTwoFactor: true,
-                    twoFactorMethod: result.twoFactorMethod,
-                    tempToken: result.tempToken,
-                    message: result.twoFactorMethod === 'totp'
-                        ? 'Enter code from your authenticator app'
-                        : `Verification code sent to your ${result.twoFactorMethod}`,
-                };
-            }
-
-            // No 2FA - proceed with normal login
-            const { user, accessToken } = result;
-
-            // Generate refresh token
-            const refreshToken = await this.sessionService.createSession(user!.id, {
-                ipAddress: req.ip,
-                userAgent: req.headers['user-agent'],
-            });
-
-            // Check Platform
-            const platform = req.headers['x-platform'];
-
-            if (platform === 'mobile') {
-                // Mobile: Return tokens in body
-                return {
-                    success: true,
-                    data: {
-                        access_token: accessToken,
-                        refresh_token: refreshToken,
-                        user: {
-                            id: user!.id,
-                            email: user!.email,
-                            displayName: user!.displayName,
-                            role: user!.role,
-                            verifiedAt: user!.verifiedAt,
-                        }
-                    }
-                };
-            } else {
-                // Web: Set httpOnly cookies
-                this.setAuthCookies(res, accessToken!, refreshToken);
-
-                return {
-                    success: true,
-                    data: {
-                        user: {
-                            id: user!.id,
-                            email: user!.email,
-                            displayName: user!.displayName,
-                            role: user!.role,
-                            verifiedAt: user!.verifiedAt,
-                        }
-                    }
-                };
-            }
+            return await this.handleLoginResult(result, req, res);
         } catch (error: any) {
             return {
                 success: false,
                 message: error.message || 'Login failed'
+            };
+        }
+    }
+
+    /**
+     * Core logic for handling login result (F1)
+     * Handles 2FA requirements and session generation
+     */
+    private async handleLoginResult(result: any, req: any, res: Response) {
+        // Check if 2FA is required
+        if (result.requiresTwoFactor) {
+            return {
+                success: true,
+                requiresTwoFactor: true,
+                twoFactorMethod: result.twoFactorMethod,
+                tempToken: result.tempToken,
+                message: result.twoFactorMethod === 'totp'
+                    ? 'Enter code from your authenticator app'
+                    : `Verification code sent to your ${result.twoFactorMethod}`,
+            };
+        }
+
+        // No 2FA - proceed with normal login
+        const { user, accessToken } = result;
+
+        // Generate refresh token
+        const refreshToken = await this.sessionService.createSession(user!.id, {
+            ipAddress: req.ip,
+            userAgent: req.headers['user-agent'],
+        });
+
+        // Check Platform
+        const platform = req.headers['x-platform'];
+
+        const userData = {
+            id: user!.id,
+            email: user!.email,
+            displayName: user!.displayName,
+            role: user!.role,
+            verifiedAt: user!.verifiedAt,
+        };
+
+        if (platform === 'mobile') {
+            // Mobile: Return tokens in body
+            return {
+                success: true,
+                data: {
+                    access_token: accessToken,
+                    refresh_token: refreshToken,
+                    user: userData
+                }
+            };
+        } else {
+            // Web: Set httpOnly cookies
+            this.setAuthCookies(res, accessToken!, refreshToken);
+
+            return {
+                success: true,
+                data: {
+                    user: userData
+                }
             };
         }
     }

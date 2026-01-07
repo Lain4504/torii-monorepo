@@ -85,9 +85,30 @@ export class AuthService implements IAuthService {
      * Now supports 2FA - returns requiresTwoFactor if 2FA is enabled
      */
     async login(dto: UserLoginDTO): Promise<LoginResponse> {
-        // Find user
+        const user = await this.usersRepository.findByEmail(dto.email);
+        return this.processLoginFlow(user, dto);
+    }
+
+    /**
+     * Specialized login for admin portals (ADMIN, STAFF, LECTURER)
+     * Rejects users with LEARNER role even with valid credentials
+     */
+    async adminLogin(dto: UserLoginDTO): Promise<LoginResponse> {
         const user = await this.usersRepository.findByEmail(dto.email);
 
+        if (user && user.role === UserRole.LEARNER) {
+            // Log security event for audit (F6)
+            console.warn(`[Security] Admin portal access denied for learner: ${dto.email}`);
+            throw new UnauthorizedException('Access denied: Admin portals are restricted');
+        }
+
+        return this.processLoginFlow(user, dto);
+    }
+
+    /**
+     * Shared logic for processing login after user is found (F1, F3, F4)
+     */
+    private async processLoginFlow(user: any, dto: UserLoginDTO): Promise<LoginResponse> {
         if (!user || !user.password) {
             throw new UnauthorizedException('Invalid credentials');
         }
@@ -114,7 +135,6 @@ export class AuthService implements IAuthService {
 
         if (twoFactorStatus.isEnabled) {
             // Generate temporary token (valid for 5 minutes)
-            // Defaulting to 'totp' since it's the only supported method now
             const tempToken = await this.generate2FATempToken(user.id, user.email, 'totp');
 
             return {

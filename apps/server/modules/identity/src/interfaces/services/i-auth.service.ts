@@ -30,6 +30,15 @@ export interface IAuthService {
      */
     login(dto: UserLoginDTO): Promise<LoginResponseDTO>;
 
+    /**
+     * Specialized login for admin portals (ADMIN, STAFF, LECTURER)
+     * Rejects users with LEARNER role even with valid credentials
+     * @param dto - User login credentials
+     * @returns Login response with tokens or 2FA requirement
+     * @throws UnauthorizedException if credentials invalid OR role is restricted
+     */
+    adminLogin(dto: UserLoginDTO): Promise<LoginResponseDTO>;
+
     // ===== Two-Factor Authentication =====
 
     /**
