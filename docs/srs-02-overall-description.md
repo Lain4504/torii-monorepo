@@ -367,3 +367,4 @@ Hệ thống cung cấp các chức năng chính sau:
 
 **Next Section:** [Section 3: System Architecture](srs-03-architecture.md)
 
+

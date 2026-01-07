@@ -186,3 +186,4 @@ Tài liệu SRS này được tổ chức thành các phần sau:
 
 **Next Section:** [Section 2: Overall Description](srs-02-overall-description.md)
 
+
