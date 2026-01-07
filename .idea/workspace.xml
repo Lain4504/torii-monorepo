@@ -5,12 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
-      <change beforePath="$PROJECT_DIR$/docs/srs-01-introduction.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/srs-01-introduction.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/srs-02-overall-description.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/srs-02-overall-description.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/srs-03-architecture.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/srs-03-architecture.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/srs-04-interfaces.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/srs-04-interfaces.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/srs-05-non-functional.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/srs-05-non-functional.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/srs-06-use-cases.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/srs-06-use-cases.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/users.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/users.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/infrastructure/email/email.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/infrastructure/email/email.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/i-email.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/i-email.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/i-users.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/i-users.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/users/users.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/users/users.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/services/users.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/api/services/users.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/users/create-user-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/users/create-user-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/srs-outline.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/srs-outline.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/user.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/user.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/ui/src/hooks/use-dark-mode.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/hooks/use-dark-mode.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -265,38 +270,6 @@
       <workItem from="1767779643020" duration="455000" />
       <workItem from="1767780214679" duration="224000" />
       <workItem from="1767784611248" duration="3225000" />
-    </task>
-    <task id="LOCAL-00466" summary="feat(auth): refactor authentication DTOs and interfaces for improved structure and clarity">
-      <option name="closed" value="true" />
-      <created>1767689240189</created>
-      <option name="number" value="00466" />
-      <option name="presentableId" value="LOCAL-00466" />
-      <option name="project" value="LOCAL" />
-      <updated>1767689240189</updated>
-    </task>
-    <task id="LOCAL-00467" summary="feat(auth): refactor authentication DTOs and interfaces for improved structure and clarity">
-      <option name="closed" value="true" />
-      <created>1767690144607</created>
-      <option name="number" value="00467" />
-      <option name="presentableId" value="LOCAL-00467" />
-      <option name="project" value="LOCAL" />
-      <updated>1767690144607</updated>
-    </task>
-    <task id="LOCAL-00468" summary="feat(auth): refactor authentication DTOs and interfaces for improved structure and clarity">
-      <option name="closed" value="true" />
-      <created>1767690410680</created>
-      <option name="number" value="00468" />
-      <option name="presentableId" value="LOCAL-00468" />
-      <option name="project" value="LOCAL" />
-      <updated>1767690410680</updated>
-    </task>
-    <task id="LOCAL-00469" summary="feat(auth): replace refresh token mechanism with session-based implementation  &#10;&#10;- Renamed `RefreshTokenService` to `SessionService` and updated all references.  &#10;- Replaced `refresh_tokens` table with `sessions` table, adding metadata fields (IP, user agent, device info).  &#10;- Updated Prisma schema to reflect the new `Session` model.  &#10;- Refactored authentication flow to use sessions for token creation, verification, and revocation.  &#10;- Added support for session cleanup with metadata logging for improved traceability and security.">
-      <option name="closed" value="true" />
-      <created>1767761185917</created>
-      <option name="number" value="00469" />
-      <option name="presentableId" value="LOCAL-00469" />
-      <option name="project" value="LOCAL" />
-      <updated>1767761185917</updated>
     </task>
     <task id="LOCAL-00470" summary="feat(auth): sync database schema and Prisma models with session-based authentication&#10;&#10;- Replaced `refresh_tokens` table with `sessions` table in database schema.&#10;- Updated tables to include extended metadata (e.g., IP, user agent, device info).&#10;- Synced Prisma models with revised schema, optimizing for session management.&#10;- Removed legacy user role and permission tables, consolidating mappings with updated schemas.&#10;- Added tables for `user_identities`, `two_factor_auth`, and audit functionalities for improved security and logging.">
       <option name="closed" value="true" />
@@ -658,7 +631,39 @@
       <option name="project" value="LOCAL" />
       <updated>1767802359922</updated>
     </task>
-    <option name="localTasksCounter" value="515" />
+    <task id="LOCAL-00515" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
+      <option name="closed" value="true" />
+      <created>1767802516312</created>
+      <option name="number" value="00515" />
+      <option name="presentableId" value="LOCAL-00515" />
+      <option name="project" value="LOCAL" />
+      <updated>1767802516313</updated>
+    </task>
+    <task id="LOCAL-00516" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
+      <option name="closed" value="true" />
+      <created>1767802634362</created>
+      <option name="number" value="00516" />
+      <option name="presentableId" value="LOCAL-00516" />
+      <option name="project" value="LOCAL" />
+      <updated>1767802634367</updated>
+    </task>
+    <task id="LOCAL-00517" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
+      <option name="closed" value="true" />
+      <created>1767802732757</created>
+      <option name="number" value="00517" />
+      <option name="presentableId" value="LOCAL-00517" />
+      <option name="project" value="LOCAL" />
+      <updated>1767802732759</updated>
+    </task>
+    <task id="LOCAL-00518" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
+      <option name="closed" value="true" />
+      <created>1767802756548</created>
+      <option name="number" value="00518" />
+      <option name="presentableId" value="LOCAL-00518" />
+      <option name="project" value="LOCAL" />
+      <updated>1767802756616</updated>
+    </task>
+    <option name="localTasksCounter" value="519" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

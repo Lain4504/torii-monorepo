@@ -79,7 +79,10 @@ export function RegisterForm() {
             // Remove confirmPassword before sending to API
             const { confirmPassword, ...registrationData } = data
 
-            const resultAction = await dispatch(registerAction(registrationData))
+            const resultAction = await dispatch(registerAction({
+                ...registrationData,
+                platform: 'web'
+            }))
 
             if (registerAction.fulfilled.match(resultAction)) {
                 form.reset()

@@ -5,6 +5,7 @@ import type {
     PaginationOptionsDTO,
     PaginatedResponseDTO,
     Requester,
+    AdminCreateInternalUserDTO,
 } from '@workspace/schemas';
 
 /**
@@ -34,6 +35,15 @@ export interface IUsersService {
      * @throws BadRequestException if email already exists
      */
     create(dto: UserCreateDTO): Promise<UserResponseDTO>;
+
+    /**
+     * Create internal user (LECTURE/STAFF) with invite email
+     * @param dto - Internal user creation data
+     * @param adminId - ID of admin creating the user
+     * @returns The created user
+     * @throws BadRequestException if email already exists
+     */
+    createInternalUser(dto: AdminCreateInternalUserDTO, adminId: string): Promise<UserResponseDTO>;
 
     /**
      * Get user profile

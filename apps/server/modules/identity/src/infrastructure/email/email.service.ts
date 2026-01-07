@@ -115,6 +115,19 @@ export class EmailService implements IEmailService {
         });
     }
 
+    /**
+     * Send invite email for internal users (LECTURE/STAFF)
+     */
+    async sendInviteEmail(email: string, displayName: string, inviteUrl: string): Promise<void> {
+        const htmlContent = this.generateInviteEmailHtml(displayName, inviteUrl);
+        await this.sharedEmailService.sendMail({
+            to: email,
+            subject: 'Lời mời tham gia Torii Nihongo',
+            html: htmlContent,
+            from: '"Torii Identity" <identity@torii.app>'
+        });
+    }
+
 
     // ============================================
     // HTML Generators (Private)
@@ -200,6 +213,28 @@ export class EmailService implements IEmailService {
             ${otp}
         </div>
         <p style="color: gray; font-size: 0.9em;">Mã này sẽ hết hạn trong 10 phút.</p>
+        <p style="color: gray; font-size: 0.8em;">Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này.</p>
+    </div>
+</body>
+</html>
+        `;
+    }
+
+    private generateInviteEmailHtml(displayName: string, inviteUrl: string): string {
+        return `
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Lời mời tham gia Torii Nihongo</title>
+</head>
+<body style="font-family: sans-serif; background-color: #f5f5f5; padding: 20px;">
+    <div style="max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px;">
+        <h2 style="color: #2563eb;">Xin chào ${displayName}!</h2>
+        <p>Bạn đã được mời tham gia hệ thống Torii Nihongo với tư cách là thành viên nội bộ.</p>
+        <p>Vui lòng click vào link dưới đây để thiết lập mật khẩu và kích hoạt tài khoản:</p>
+        <a href="${inviteUrl}" style="display: inline-block; background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; margin: 20px 0; font-weight: bold;">Thiết lập mật khẩu</a>
+        <p style="color: gray; font-size: 0.9em;">Link này sẽ hết hạn sau 7 ngày.</p>
         <p style="color: gray; font-size: 0.8em;">Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này.</p>
     </div>
 </body>

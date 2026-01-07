@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -10,31 +9,17 @@ import {
 } from '@workspace/ui/components/dialog';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
-import { Switch } from '@workspace/ui/components/switch';
-
-
 import {
-    GraduationCap,
     Wifi,
     Headphones,
-    Shield,
     Mail,
-    Upload,
-    Check,
-    Pencil,
     Loader2
 } from 'lucide-react';
-import { userCreateDTOSchema, type UserCreateDTO, UserRole } from '@workspace/schemas';
+import { UserRole, adminCreateInternalUserDTOSchema, type AdminCreateInternalUserDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
-import { useCreateUser } from "@/api/services/users.ts";
+import { useCreateInternalUser } from "@/api/services/users.ts";
 
-const roles = [
-    {
-        id: UserRole.LEARNER,
-        label: 'Learner',
-        icon: <GraduationCap className="h-5 w-5" />,
-        description: 'Access to courses and WebRTC classes.',
-    },
+const internalRoles = [
     {
         id: UserRole.LECTURER,
         label: 'Lecturer',
@@ -47,27 +32,13 @@ const roles = [
         icon: <Headphones className="h-5 w-5" />,
         description: 'Support tickets and general administration.',
     },
-    {
-        id: UserRole.ADMIN,
-        label: 'Admin',
-        icon: <Shield className="h-5 w-5" />,
-        description: 'Full access to all system settings.',
-    },
 ];
 
-const createUserSchema = userCreateDTOSchema.omit({
-    displayName: true,
-    role: true
-}).extend({
-    firstName: z.string().min(1, 'First name is required'),
-    lastName: z.string().min(1, 'Last name is required'),
-    password: z.string().min(6, 'Password must be at least 6 characters'),
-    role: z.nativeEnum(UserRole),
-    aiFeedback: z.boolean(),
-    webRtcAccess: z.boolean(),
+const createInternalUserSchema = adminCreateInternalUserDTOSchema.extend({
+    displayName: z.string().min(1, 'Full name is required'),
 });
 
-type CreateUserFormData = z.infer<typeof createUserSchema>;
+type CreateInternalUserFormData = z.infer<typeof createInternalUserSchema>;
 
 interface CreateUserDialogProps {
     open: boolean;
@@ -78,8 +49,6 @@ export function CreateUserDialog({
     open,
     onOpenChange,
 }: CreateUserDialogProps) {
-    const [hasProfilePhoto, setHasProfilePhoto] = useState(false);
-
     const {
         register,
         handleSubmit,
@@ -87,39 +56,31 @@ export function CreateUserDialog({
         setValue,
         watch,
         reset,
-    } = useForm<CreateUserFormData>({
-        resolver: zodResolver(createUserSchema),
+    } = useForm<CreateInternalUserFormData>({
+        resolver: zodResolver(createInternalUserSchema),
         defaultValues: {
-            firstName: '',
-            lastName: '',
+            displayName: '',
             email: '',
-            password: '',
-            role: UserRole.LEARNER,
-            aiFeedback: true,
-            webRtcAccess: true,
+            role: UserRole.LECTURER,
         },
     });
 
     const currentRole = watch('role');
-    const aiFeedback = watch('aiFeedback');
-    const webRtcAccess = watch('webRtcAccess');
 
-    const createUser = useCreateUser();
+    const createInternalUser = useCreateInternalUser();
 
-    const handleFormSubmit: SubmitHandler<CreateUserFormData> = async (data) => {
-        const dto: UserCreateDTO = {
+    const handleFormSubmit: SubmitHandler<CreateInternalUserFormData> = async (data) => {
+        const dto: AdminCreateInternalUserDTO = {
             email: data.email,
-            displayName: `${data.firstName} ${data.lastName}`,
-            password: data.password,
+            displayName: data.displayName,
             role: data.role,
         };
         try {
-            await createUser.mutateAsync(dto);
-            toast.success('User created successfully!', {
-                description: `${dto.displayName} has been added to the system.`,
+            await createInternalUser.mutateAsync(dto);
+            toast.success('Invitation email sent!', {
+                description: `An invitation has been sent to ${dto.email}.`,
             });
             reset();
-            setHasProfilePhoto(false);
             onOpenChange(false);
         } catch (error: any) {
             toast.error('Failed to create user', {
@@ -131,98 +92,38 @@ export function CreateUserDialog({
     const handleOpenChange = (newOpen: boolean) => {
         if (!newOpen) {
             reset();
-            setHasProfilePhoto(false);
         }
         onOpenChange(newOpen);
     };
 
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
-            <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto border-none shadow-2xl bg-background/95 backdrop-blur-xl rounded-2xl">
+            <DialogContent className="sm:max-w-[500px] border-none shadow-2xl bg-background/95 backdrop-blur-xl rounded-2xl">
                 <DialogHeader className="px-1">
-                    <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">Add New User</DialogTitle>
+                    <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">
+                        Create Internal User
+                    </DialogTitle>
                     <p className="text-sm zen-text-muted mt-1">
-                        Create a new account and assign roles for the Torii Nihongo platform.
+                        Create a new internal user (Lecturer or Staff) and send an invitation email.
                     </p>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-8 px-1">
-                    {/* Profile Photo Section */}
-                    <div className="space-y-3">
-                        <label className="text-sm font-medium zen-text-muted">Profile Photo</label>
-                        <div className="flex items-center gap-6">
-                            <div className="relative group cursor-pointer" onClick={() => !hasProfilePhoto && setHasProfilePhoto(true)}>
-                                <div className="w-24 h-24 rounded-full border-none bg-muted/30 flex items-center justify-center transition-all group-hover:bg-muted/50 overflow-hidden">
-                                    {hasProfilePhoto ? (
-                                        <div className="w-full h-full bg-emerald-100/50 flex items-center justify-center">
-                                            <Check className="h-10 w-10 text-emerald-600" />
-                                        </div>
-                                    ) : (
-                                        <Upload className="h-8 w-8 text-muted-foreground/40 group-hover:scale-110 transition-transform" />
-                                    )}
-                                </div>
-                                {hasProfilePhoto && (
-                                    <button
-                                        type="button"
-                                        className="absolute bottom-1 right-1 bg-emerald-500 rounded-full p-2 shadow-lg hover:scale-110 transition-transform"
-                                        onClick={(e) => { e.stopPropagation(); setHasProfilePhoto(false); }}
-                                    >
-                                        <Pencil className="h-3 w-3 text-white" />
-                                    </button>
-                                )}
-                            </div>
-                            <div className="flex-1 space-y-2">
-                                <p className="text-sm text-muted-foreground">
-                                    Supports JPG, PNG or GIF. Max 5MB.
-                                </p>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    className="rounded-full border-none bg-muted/50 hover:bg-muted"
-                                    onClick={() => setHasProfilePhoto(true)}
-                                >
-                                    Upload Image
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-
+                <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6 px-1">
                     {/* Personal Details Section */}
                     <div className="space-y-4">
-                        <h3 className="text-lg font-semibold flex items-center gap-2">
-                            Personal Details
-                            <span className="h-px flex-1 bg-border/50"></span>
-                        </h3>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <label htmlFor="firstName" className="text-sm font-medium zen-text-muted">
-                                    First Name
-                                </label>
-                                <Input
-                                    id="firstName"
-                                    className="border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl h-11 transition-all"
-                                    placeholder="e.g. Kenji"
-                                    {...register('firstName')}
-                                />
-                                {errors.firstName && (
-                                    <p className="text-sm text-destructive">{errors.firstName.message}</p>
-                                )}
-                            </div>
-                            <div className="space-y-2">
-                                <label htmlFor="lastName" className="text-sm font-medium zen-text-muted">
-                                    Last Name
-                                </label>
-                                <Input
-                                    id="lastName"
-                                    className="border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl h-11 transition-all"
-                                    placeholder="e.g. Sato"
-                                    {...register('lastName')}
-                                />
-                                {errors.lastName && (
-                                    <p className="text-sm text-destructive">{errors.lastName.message}</p>
-                                )}
-                            </div>
+                        <div className="space-y-2">
+                            <label htmlFor="displayName" className="text-sm font-medium zen-text-muted">
+                                Full Name
+                            </label>
+                            <Input
+                                id="displayName"
+                                className="border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl h-11 transition-all"
+                                placeholder="e.g. Kenji Sato"
+                                {...register('displayName')}
+                            />
+                            {errors.displayName && (
+                                <p className="text-sm text-destructive">{errors.displayName.message}</p>
+                            )}
                         </div>
                         <div className="space-y-2">
                             <label htmlFor="email" className="text-sm font-medium zen-text-muted">
@@ -242,45 +143,40 @@ export function CreateUserDialog({
                                 <p className="text-sm text-destructive">{errors.email.message}</p>
                             )}
                         </div>
-                        <div className="space-y-2">
-                            <label htmlFor="password" className="text-sm font-medium zen-text-muted">
-                                Password
-                            </label>
-                            <Input
-                                id="password"
-                                type="password"
-                                className="border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl h-11 transition-all"
-                                placeholder="••••••••"
-                                {...register('password')}
-                            />
-                            {errors.password && (
-                                <p className="text-sm text-destructive">{errors.password.message}</p>
-                            )}
-                        </div>
                     </div>
 
                     {/* Role Assignment Section */}
                     <div className="space-y-4">
                         <h3 className="text-lg font-semibold flex items-center gap-2">
-                            Role Assignment
+                            Role
                             <span className="h-px flex-1 bg-border/50"></span>
                         </h3>
                         <div className="grid grid-cols-2 gap-4">
-                            {roles.map((role) => (
+                            {internalRoles.map((role) => (
                                 <div
                                     key={role.id}
-                                    onClick={() => setValue('role', role.id)}
-                                    className={`cursor-pointer rounded-2xl p-4 transition-all duration-300 ${currentRole === role.id
+                                    onClick={() => setValue('role', role.id as UserRole.LECTURER | UserRole.STAFF)}
+                                    className={`cursor-pointer rounded-2xl p-4 transition-all duration-300 ${
+                                        currentRole === role.id
                                             ? 'bg-primary/10 shadow-inner'
                                             : 'bg-muted/20 hover:bg-muted/40'
-                                        }`}
+                                    }`}
                                 >
                                     <div className="flex items-center gap-3 mb-2">
-                                        <div className={`p-2.5 rounded-xl transition-colors ${currentRole === role.id ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' : 'bg-background'
-                                            }`}>
+                                        <div
+                                            className={`p-2.5 rounded-xl transition-colors ${
+                                                currentRole === role.id
+                                                    ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
+                                                    : 'bg-background'
+                                            }`}
+                                        >
                                             {role.icon}
                                         </div>
-                                        <div className={`font-semibold ${currentRole === role.id ? 'text-primary' : 'text-foreground'}`}>
+                                        <div
+                                            className={`font-semibold ${
+                                                currentRole === role.id ? 'text-primary' : 'text-foreground'
+                                            }`}
+                                        >
                                             {role.label}
                                         </div>
                                     </div>
@@ -290,44 +186,9 @@ export function CreateUserDialog({
                                 </div>
                             ))}
                         </div>
-                    </div>
-
-                    {/* Feature Permissions Section */}
-                    <div className="space-y-4">
-                        <h3 className="text-lg font-semibold flex items-center gap-2">
-                            Feature Permissions
-                            <span className="h-px flex-1 bg-border/50"></span>
-                        </h3>
-                        <div className="space-y-3">
-                            <div className="flex items-center justify-between p-4 rounded-2xl bg-muted/20 hover:bg-muted/30 transition-colors">
-                                <div className="flex-1">
-                                    <div className="font-medium text-sm mb-1">
-                                        Enable AI Feedback (FastMCP)
-                                    </div>
-                                    <div className="text-xs text-muted-foreground">
-                                        Allow this user to receive automated AI grading and suggestions.
-                                    </div>
-                                </div>
-                                <Switch
-                                    checked={aiFeedback}
-                                    onCheckedChange={(checked) => setValue('aiFeedback', checked)}
-                                />
-                            </div>
-                            <div className="flex items-center justify-between p-4 rounded-2xl bg-muted/20 hover:bg-muted/30 transition-colors">
-                                <div className="flex-1">
-                                    <div className="font-medium text-sm mb-1">
-                                        WebRTC Class Access
-                                    </div>
-                                    <div className="text-xs text-muted-foreground">
-                                        Allow joining live video sessions.
-                                    </div>
-                                </div>
-                                <Switch
-                                    checked={webRtcAccess}
-                                    onCheckedChange={(checked) => setValue('webRtcAccess', checked)}
-                                />
-                            </div>
-                        </div>
+                        {errors.role && (
+                            <p className="text-sm text-destructive">{errors.role.message}</p>
+                        )}
                     </div>
 
                     {/* Footer Actions */}
@@ -336,14 +197,18 @@ export function CreateUserDialog({
                             type="button"
                             variant="ghost"
                             onClick={() => handleOpenChange(false)}
-                            disabled={createUser.isPending}
+                            disabled={createInternalUser.isPending}
                             className="rounded-xl hover:bg-muted/50"
                         >
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={createUser.isPending} className="rounded-xl px-8 shadow-lg shadow-primary/20">
-                            {createUser.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            {createUser.isPending ? 'Creating...' : 'Create User'}
+                        <Button
+                            type="submit"
+                            disabled={createInternalUser.isPending}
+                            className="rounded-xl px-8 shadow-lg shadow-primary/20"
+                        >
+                            {createInternalUser.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            {createInternalUser.isPending ? 'Creating...' : 'Create & Send Invite'}
                         </Button>
                     </div>
                 </form>

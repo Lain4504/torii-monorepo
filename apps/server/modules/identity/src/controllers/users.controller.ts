@@ -13,13 +13,14 @@ import {
     Inject,
 } from '@nestjs/common';
 import { ZodValidationPipe } from '@server/shared';
-import { UserRole, userCreateDTOSchema, userAdminUpdateDTOSchema } from '@workspace/schemas';
+import { UserRole, userCreateDTOSchema, userAdminUpdateDTOSchema, adminCreateInternalUserDTOSchema } from '@workspace/schemas';
 import type {
     UserResponseDTO,
     UserCreateDTO,
     UserAdminUpdateDTO,
     PaginatedResponseDTO,
     ReqWithRequester,
+    AdminCreateInternalUserDTO,
 } from '@workspace/schemas';
 import type { IUsersService } from '../interfaces/services';
 import { USERS_SERVICE_TOKEN } from '../interfaces/services';
@@ -59,12 +60,24 @@ export class UsersController {
     }
 
     /**
-     * Create new user
+     * Create new user (external user with password)
      */
     @Post()
     @UsePipes(new ZodValidationPipe(userCreateDTOSchema))
     async create(@Body() dto: UserCreateDTO): Promise<UserResponseDTO> {
         return this.usersService.create(dto);
+    }
+
+    /**
+     * Create internal user (LECTURE/STAFF) with invite email
+     */
+    @Post('internal')
+    @UsePipes(new ZodValidationPipe(adminCreateInternalUserDTOSchema))
+    async createInternal(
+        @Request() req: ReqWithRequester,
+        @Body() dto: AdminCreateInternalUserDTO,
+    ): Promise<UserResponseDTO> {
+        return this.usersService.createInternalUser(dto, req.requester.sub);
     }
 
     /**

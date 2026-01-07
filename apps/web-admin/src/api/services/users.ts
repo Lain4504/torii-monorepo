@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/api/api-client.ts';
-import type { PaginatedResponseDTO, UserResponseDTO, UserCreateDTO, UserAdminUpdateDTO } from '@workspace/schemas';
+import type { PaginatedResponseDTO, UserResponseDTO, UserCreateDTO, UserAdminUpdateDTO, AdminCreateInternalUserDTO } from '@workspace/schemas';
 
 export interface FindAllUsersParams {
     page?: number;
@@ -29,6 +29,12 @@ export const usersApi = {
     // POST /api/admin/users
     async create(user: UserCreateDTO): Promise<UserResponseDTO> {
         const response = await apiClient.post<UserResponseDTO>('/api/admin/users', user);
+        return response.data;
+    },
+
+    // POST /api/admin/users/internal
+    async createInternal(user: AdminCreateInternalUserDTO): Promise<UserResponseDTO> {
+        const response = await apiClient.post<UserResponseDTO>('/api/admin/users/internal', user);
         return response.data;
     },
 
@@ -81,6 +87,20 @@ export function useCreateUser() {
 
     return useMutation({
         mutationFn: (user: UserCreateDTO) => usersApi.create(user),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['users'] });
+        },
+    });
+}
+
+/**
+ * Hook: Create internal user (LECTURE/STAFF) with invite email
+ */
+export function useCreateInternalUser() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (user: AdminCreateInternalUserDTO) => usersApi.createInternal(user),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['users'] });
         },

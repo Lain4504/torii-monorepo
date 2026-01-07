@@ -6,7 +6,8 @@ import type {
     ExamWithStatusResponseDTO,
     ExamSessionQueryDTO,
     ExamQueryDTO,
-    PaginatedResponse,
+    PaginatedResponseDTO,
+    ExamSessionWithExamResponseDTO,
 } from '@workspace/schemas';
 
 /**
@@ -46,7 +47,7 @@ export async function submitExam(sessionId: string): Promise<ExamSessionResponse
  * Get list of exams with user session status
  * GET /api/v1/exams
  */
-export async function getExams(query?: ExamQueryDTO): Promise<PaginatedResponse<ExamWithStatusResponseDTO>> {
+export async function getExams(query?: ExamQueryDTO): Promise<PaginatedResponseDTO<ExamWithStatusResponseDTO>> {
     const response = await apiClient.get('/api/v1/exams', { params: query });
     // NestJS returns PaginatedResponse directly: { data: [...], total, page, limit, totalPages }
     return response.data;
@@ -56,7 +57,7 @@ export async function getExams(query?: ExamQueryDTO): Promise<PaginatedResponse<
  * Get user's exam attempts (history)
  * GET /api/v1/exams/attempts
  */
-export async function getExamAttempts(query?: ExamSessionQueryDTO): Promise<PaginatedResponse<ExamSessionWithExamResponseDTO>> {
+export async function getExamAttempts(query?: ExamSessionQueryDTO): Promise<PaginatedResponseDTO<ExamSessionWithExamResponseDTO>> {
     const response = await apiClient.get('/api/v1/exams/attempts', { params: query });
     // NestJS returns PaginatedResponse directly, not wrapped
     return response.data;

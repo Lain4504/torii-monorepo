@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { userSchema } from '../models/user.model';
+import { userSchema, UserRole } from '../models/user.model';
 
 // Registration DTO
 export const userRegistrationDTOSchema = z.object({
@@ -19,7 +19,7 @@ export const userLoginDTOSchema = z.object({
 
 export type UserLoginDTO = z.infer<typeof userLoginDTOSchema>;
 
-// Admin Create User DTO
+// Admin Create User DTO (for external users - with password)
 export const userCreateDTOSchema = userSchema
     .pick({
         email: true,
@@ -32,6 +32,15 @@ export const userCreateDTOSchema = userSchema
     });
 
 export type UserCreateDTO = z.infer<typeof userCreateDTOSchema>;
+
+// Admin Create Internal User DTO (for LECTURE/STAFF - no password, invite email)
+export const adminCreateInternalUserDTOSchema = z.object({
+    email: userSchema.shape.email,
+    displayName: userSchema.shape.displayName,
+    role: z.enum([UserRole.LECTURER, UserRole.STAFF]),
+});
+
+export type AdminCreateInternalUserDTO = z.infer<typeof adminCreateInternalUserDTOSchema>;
 
 // Update DTO (minimal auth fields)
 export const userUpdateDTOSchema = userSchema

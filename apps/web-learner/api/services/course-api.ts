@@ -1,5 +1,5 @@
 import { apiClient } from '../api-client';
-import type { CourseResponseDTO, PaginatedResponse } from '@workspace/schemas';
+import type { CourseResponseDTO, PaginatedResponseDTO } from '@workspace/schemas';
 
 export interface CurriculumModule {
   id: string;
@@ -35,8 +35,8 @@ export const courseApi = {
   /**
    * Get all courses with pagination and filters
    */
-  findAll: async (params: CourseQueryParams = {}): Promise<PaginatedResponse<CourseResponseDTO>> => {
-    const response = await apiClient.get<PaginatedResponse<CourseResponseDTO>>('/api/courses', {
+  findAll: async (params: CourseQueryParams = {}): Promise<PaginatedResponseDTO<CourseResponseDTO>> => {
+    const response = await apiClient.get<PaginatedResponseDTO<CourseResponseDTO>>('/api/courses', {
       params,
     });
     return response.data;

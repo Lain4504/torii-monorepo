@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+// @ts-ignore
 import { Moon, Sun } from "lucide-react";
 
 // ============================================================================

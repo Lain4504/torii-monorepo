@@ -33,6 +33,11 @@ export interface IEmailService {
      * Send welcome email after registration
      */
     sendWelcomeEmail(email: string, displayName: string): Promise<void>;
+
+    /**
+     * Send invite email for internal users (LECTURE/STAFF)
+     */
+    sendInviteEmail(email: string, displayName: string, inviteUrl: string): Promise<void>;
 }
 
 /**

@@ -3,9 +3,9 @@ import Image from 'next/image';
 import { Star, Users, BookOpen, Clock } from 'lucide-react';
 import { Badge } from '@workspace/ui/components/badge';
 import { Card, CardContent, CardFooter } from '@workspace/ui/components/card';
-import type { CourseResponseDTO } from '@workspace/schemas';
+import type { Course } from './useCourses';
 
-interface CourseCardProps extends CourseResponseDTO {
+interface CourseCardProps extends Course {
     isLive?: boolean;
 }
 
@@ -16,27 +16,27 @@ export function CourseCard(props: CourseCardProps) {
     const {
         title,
         slug,
-        thumbnailUrl,
-        jlptLevel,
-        averageRating = 0,
-        totalReviews = 0,
-        totalStudents = 0,
+        thumbnail,
+        level,
+        rating = 0,
+        reviewCount = 0,
+        students = 0,
         price = 0,
-        discountPrice = 0,
+        originalPrice = 0,
         totalLessons = 0,
-        durationWeeks = 0,
+        totalHours = 0,
         isLive = false,
     } = props;
 
     // Safe value defaults
-    const safeThumbnail = thumbnailUrl ?? '/default-thumbnail.jpg';
-    const safeRating = typeof averageRating === 'number' ? averageRating : 0;
-    const safeReviewCount = typeof totalReviews === 'number' ? totalReviews : 0;
-    const safeStudents = typeof totalStudents === 'number' ? totalStudents : 0;
+    const safeThumbnail = thumbnail ?? '/default-thumbnail.jpg';
+    const safeRating = typeof rating === 'number' ? rating : 0;
+    const safeReviewCount = typeof reviewCount === 'number' ? reviewCount : 0;
+    const safeStudents = typeof students === 'number' ? students : 0;
     const safePrice = typeof price === 'number' ? price : 0;
-    const safeDiscountPrice = typeof discountPrice === 'number' ? discountPrice : 0;
+    const safeOriginalPrice = typeof originalPrice === 'number' ? originalPrice : 0;
     const safeTotalLessons = typeof totalLessons === 'number' ? totalLessons : 0;
-    const safeDurationWeeks = typeof durationWeeks === 'number' ? durationWeeks : 0;
+    const safeTotalHours = typeof totalHours === 'number' ? totalHours : 0;
     return (
         <Link href={`/courses/${slug}`}>
             <Card className="h-full overflow-hidden hover:shadow-md transition-shadow flex flex-col group cursor-pointer">
@@ -50,7 +50,7 @@ export function CourseCard(props: CourseCardProps) {
                         className="object-cover transition-opacity duration-300 group-hover:opacity-90"
                     />
                     <Badge className="absolute top-3 left-3 bg-background/90 text-foreground backdrop-blur-sm">
-                        {jlptLevel}
+                        {level}
                     </Badge>
                     {isLive && (
                         <Badge className="absolute top-3 right-3 bg-destructive text-destructive-foreground border-0">
@@ -100,7 +100,7 @@ export function CourseCard(props: CourseCardProps) {
                         </div>
                         <div className="flex items-center gap-1.5">
                             <Clock className="w-3.5 h-3.5" />
-                            <span>{safeDurationWeeks} tuần</span>
+                            <span>{safeTotalHours} giờ</span>
                         </div>
                     </div>
                 </CardContent>
@@ -111,9 +111,9 @@ export function CourseCard(props: CourseCardProps) {
                         <span className="font-bold text-lg text-primary">
                             {safePrice === 0 ? 'Miễn phí' : `${safePrice.toLocaleString()}₫`}
                         </span>
-                        {safeDiscountPrice > 0 && safeDiscountPrice < safePrice && (
+                        {safeOriginalPrice > 0 && safeOriginalPrice > safePrice && (
                             <span className="text-xs text-muted-foreground line-through">
-                                {safePrice.toLocaleString()}₫
+                                {safeOriginalPrice.toLocaleString()}₫
                             </span>
                         )}
                     </div>
