@@ -71,7 +71,6 @@ PR này implement hệ thống thi trắc nghiệm (Exam/Quiz) với các tính 
      - Resume functionality
      - Timer synchronization
      - Auto-submit khi hết giờ
-   - `app/(exam)/exams/[examId]/review/page.tsx` - Trang review (placeholder)
    - `app/(marketing)/exams/page.tsx` - Trang danh sách exams
 
 3. **Components**:
@@ -196,7 +195,7 @@ PR này implement hệ thống thi trắc nghiệm (Exam/Quiz) với các tính 
 
 ### Future Improvements:
 - [ ] Implement actual grading logic (currently placeholder)
-- [ ] Add exam review page with correct answers
+- [ ] Add exam review page with correct answers (review page removed, will be added in future PR)
 - [ ] Add exam statistics/analytics
 - [ ] Add exam creation/editing UI for admins
 - [ ] Add question bank integration for dynamic question generation
