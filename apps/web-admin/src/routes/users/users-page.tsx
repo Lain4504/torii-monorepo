@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { UsersPrimaryToolbar } from '@/components/users/users-primary-toolbar.tsx';
 import { UsersTable } from '@/components/users/users-table.tsx';
 import { CreateUserDialog } from '@/components/users/create-user-dialog.tsx';
@@ -8,10 +8,21 @@ import { ViewUserDialog } from '@/components/users/view-user-dialog.tsx';
 import type { UserResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
 import { useUsers } from "@/api/services/users.ts";
+import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@workspace/ui/components/pagination";
 
 export function UsersPage() {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
+    const [debouncedSearch] = useDebounceValue(search, 500);
     const [filters, setFilters] = useState<{ role?: string }>({});
     const [sortBy, setSortBy] = useState('updatedAt');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
@@ -22,60 +33,76 @@ export function UsersPage() {
     const [deletingUser, setDeletingUser] = useState<UserResponseDTO | null>(null);
     const [viewingUser, setViewingUser] = useState<UserResponseDTO | null>(null);
 
-    // API Hooks
-    // Fetch all for client-side filtering support as per legacy logic
-    // Note: Ideally sorting/filtering should be server-side, but keeping parity for now.
-    const { data, isLoading, error } = useUsers({ page: 1, limit: 1000, search });
+    const limit = 10;
 
-    // Derived Data (Client-side filtering/sorting)
-    const processedUsers = useMemo(() => {
-        // useUsers hook returns PaginatedResponseDTO = { data: UserResponseDTO[], total, page, limit, totalPages }
-        // So we access data.data to get the array of users
-        let result = (data?.data || []) as UserResponseDTO[];
+    // API Hooks - Proper server-side pagination
+    const { data, isLoading, error } = useUsers({
+        page,
+        limit,
+        search: debouncedSearch,
+        // Backend might need these as well if supported by findAll
+        // sortBy,
+        // sortOrder 
+    });
 
-        // Filter by role
-        if (filters.role) {
-            result = result.filter((user) => user.role === filters.role);
-        }
-
-
-        // Sort
-        return result.sort((a, b) => {
-            let aValue: any = a[sortBy as keyof UserResponseDTO];
-            let bValue: any = b[sortBy as keyof UserResponseDTO];
-
-            if (sortBy === 'createdAt' || sortBy === 'updatedAt') {
-                aValue = new Date(aValue).getTime();
-                bValue = new Date(bValue).getTime();
-            }
-
-            if (typeof aValue === 'string' && typeof bValue === 'string') {
-                aValue = aValue.toLowerCase();
-                bValue = bValue.toLowerCase();
-            }
-
-            if (sortOrder === 'asc') {
-                return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
-            } else {
-                return aValue < bValue ? 1 : aValue > bValue ? -1 : 0;
-            }
-        });
-    }, [data?.data, filters, sortBy, sortOrder]);
-
-    const paginatedUsers = useMemo(() => {
-        const limit = 10;
-        const start = (page - 1) * limit;
-        return processedUsers.slice(start, start + limit);
-    }, [processedUsers, page]);
+    // Reset page when search or filters change
+    useEffect(() => {
+        setPage(1);
+    }, [debouncedSearch, filters]);
 
     if (error) {
         return <div className="p-6 text-center text-destructive py-8">Error: {error.message}</div>;
     }
 
-    // Pagination Metadata (Client-side)
-    const limit = 10;
-    const total = processedUsers.length;
-    const totalPages = Math.ceil(total / limit);
+    const users = (data?.data || []) as UserResponseDTO[];
+    const total = data?.total || 0;
+    const totalPages = data?.totalPages || 0;
+
+    // Helper to render pagination items
+    const renderPaginationItems = () => {
+        const items = [];
+        const maxVisiblePages = 5;
+
+        let startPage = Math.max(1, page - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+        if (endPage - startPage + 1 < maxVisiblePages) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        if (startPage > 1) {
+            items.push(
+                <PaginationItem key={1}>
+                    <PaginationLink onClick={() => setPage(1)}>1</PaginationLink>
+                </PaginationItem>
+            );
+            if (startPage > 2) items.push(<PaginationEllipsis key="start-ellipsis" />);
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            items.push(
+                <PaginationItem key={i}>
+                    <PaginationLink
+                        isActive={page === i}
+                        onClick={() => setPage(i)}
+                    >
+                        {i}
+                    </PaginationLink>
+                </PaginationItem>
+            );
+        }
+
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) items.push(<PaginationEllipsis key="end-ellipsis" />);
+            items.push(
+                <PaginationItem key={totalPages}>
+                    <PaginationLink onClick={() => setPage(totalPages)}>{totalPages}</PaginationLink>
+                </PaginationItem>
+            );
+        }
+
+        return items;
+    };
 
     return (
         <div className="space-y-6 animate-in fade-in-50 duration-500">
@@ -84,7 +111,7 @@ export function UsersPage() {
                     <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">Users</h1>
                     <p className="text-muted-foreground">Manage system users, roles, and permissions.</p>
                 </div>
-                <Button onClick={() => setShowCreateDialog(true)} className="rounded-full shadow-lg shadow-primary/20">
+                <Button onClick={() => setShowCreateDialog(true)} className="rounded-full shadow-lg shadow-primary/20 bg-primary">
                     Add New User
                 </Button>
             </div>
@@ -106,7 +133,7 @@ export function UsersPage() {
 
                     <div className="mt-6 rounded-xl border border-border/40 overflow-hidden">
                         <UsersTable
-                            data={paginatedUsers}
+                            data={users}
                             onEdit={setEditingUser}
                             onDelete={setDeletingUser}
                             onView={setViewingUser}
@@ -117,33 +144,32 @@ export function UsersPage() {
                     </div>
 
                     {/* Pagination */}
-                    <div className="flex items-center justify-between space-x-2 py-6 border-t border-border/40 mt-6">
-                        <div className="flex-1 text-sm zen-text-muted">
-                            Showing {paginatedUsers.length} of {total} users
+                    <div className="flex flex-col sm:flex-row shadow-sm rounded-xl items-center justify-between gap-4 py-6 border-t border-border/40 mt-6 px-2">
+                        <div className="text-sm zen-text-muted">
+                            Showing <span className="font-semibold text-foreground">{users.length}</span> of <span className="font-semibold text-foreground">{total}</span> users
                         </div>
-                        <div className="flex items-center space-x-2">
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                disabled={page <= 1}
-                                onClick={() => setPage(page - 1)}
-                                className="rounded-full hover:bg-primary/5"
-                            >
-                                Previous
-                            </Button>
-                            <div className="text-sm font-medium px-4">
-                                Page {page} of {totalPages}
-                            </div>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                disabled={page >= totalPages}
-                                onClick={() => setPage(page + 1)}
-                                className="rounded-full hover:bg-primary/5"
-                            >
-                                Next
-                            </Button>
-                        </div>
+
+                        {totalPages > 1 && (
+                            <Pagination>
+                                <PaginationContent>
+                                    <PaginationItem>
+                                        <PaginationPrevious
+                                            onClick={() => setPage(p => Math.max(1, p - 1))}
+                                            className={page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                                        />
+                                    </PaginationItem>
+
+                                    {renderPaginationItems()}
+
+                                    <PaginationItem>
+                                        <PaginationNext
+                                            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                                            className={page === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                                        />
+                                    </PaginationItem>
+                                </PaginationContent>
+                            </Pagination>
+                        )}
                     </div>
                 </div>
             </div>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Button } from '@workspace/ui/components/button';
 import { LessonsTable } from '@/components/lessons/lessons-table.tsx';
@@ -9,14 +9,24 @@ import { DeleteLessonDialog } from '@/components/lessons/delete-lesson-dialog.ts
 import { ViewLessonDialog } from '@/components/lessons/view-lesson-dialog.tsx';
 import type { LessonQueryDTO, LessonResponseDTO } from '@workspace/schemas';
 import { useLessons } from "@/api/services/lesson.ts";
+import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@workspace/ui/components/pagination";
 
 export default function LessonsPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
+  const [debouncedSearch] = useDebounceValue(search, 500);
   const [contentTypeFilter, setContentTypeFilter] = useState<string>('');
   const location = useLocation();
-  // @ts-ignore
-  const [moduleIdFilter, setModuleIdFilter] = useState(() => new URLSearchParams(location.search).get('moduleId') || '');
+  const [moduleIdFilter] = useState(() => new URLSearchParams(location.search).get('moduleId') || '');
   const [statusFilter, setStatusFilter] = useState('');
 
   // Dialog States
@@ -28,13 +38,17 @@ export default function LessonsPage() {
   const queryParams: LessonQueryDTO = {
     page,
     limit: 10,
-    ...(search && { search }),
+    ...(debouncedSearch && { search: debouncedSearch }),
     ...(contentTypeFilter && { contentType: contentTypeFilter as any }),
     ...(moduleIdFilter && { moduleId: moduleIdFilter }),
     ...(statusFilter && { status: statusFilter }),
   };
 
   const { data: lessonsData, isLoading } = useLessons(queryParams);
+
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, contentTypeFilter, moduleIdFilter, statusFilter]);
 
   const lessons = lessonsData?.data || [];
   const meta = lessonsData ? {
@@ -43,6 +57,52 @@ export default function LessonsPage() {
     page: lessonsData.page,
     limit: lessonsData.limit
   } : null;
+
+  const renderPaginationItems = () => {
+    if (!meta) return null;
+    const items = [];
+    const maxVisiblePages = 5;
+
+    let startPage = Math.max(1, page - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(meta.totalPages, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    if (startPage > 1) {
+      items.push(
+        <PaginationItem key={1}>
+          <PaginationLink onClick={() => setPage(1)}>1</PaginationLink>
+        </PaginationItem>
+      );
+      if (startPage > 2) items.push(<PaginationEllipsis key="start-ellipsis" />);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      items.push(
+        <PaginationItem key={i}>
+          <PaginationLink
+            isActive={page === i}
+            onClick={() => setPage(i)}
+          >
+            {i}
+          </PaginationLink>
+        </PaginationItem>
+      );
+    }
+
+    if (endPage < meta.totalPages) {
+      if (endPage < meta.totalPages - 1) items.push(<PaginationEllipsis key="end-ellipsis" />);
+      items.push(
+        <PaginationItem key={meta.totalPages}>
+          <PaginationLink onClick={() => setPage(meta.totalPages)}>{meta.totalPages}</PaginationLink>
+        </PaginationItem>
+      );
+    }
+
+    return items;
+  };
 
   return (
     <div className="space-y-6 animate-in fade-in-50 duration-500">
@@ -53,14 +113,14 @@ export default function LessonsPage() {
         </div>
         <Button
           onClick={() => setShowCreateDialog(true)}
-          className="rounded-full shadow-lg shadow-primary/20"
+          className="rounded-full shadow-lg shadow-primary/20 bg-primary"
         >
           Create Lesson
         </Button>
       </div>
 
-      <div className="zen-card rounded-2xl overflow-hidden">
-        <div className="p-6">
+      <div className="zen-card rounded-2xl p-0 overflow-hidden">
+        <div className="p-6 pb-0">
           <LessonsPrimaryToolbar
             search={search}
             onSearchChange={setSearch}
@@ -69,48 +129,47 @@ export default function LessonsPage() {
             statusFilter={statusFilter}
             onStatusFilterChange={setStatusFilter}
           />
+        </div>
 
-          <div className="mt-6 rounded-xl border border-border/40 overflow-hidden bg-transparent">
-            <LessonsTable
-              data={lessons}
-              onEdit={setEditingLesson}
-              onDelete={setDeletingLesson}
-              onView={setViewingLesson}
-              page={page}
-              limit={queryParams.limit || 10}
-              isLoading={isLoading}
-            />
-          </div>
+        <div className="mt-6">
+          <LessonsTable
+            data={lessons}
+            onEdit={setEditingLesson}
+            onDelete={setDeletingLesson}
+            onView={setViewingLesson}
+            page={page}
+            limit={queryParams.limit || 10}
+            isLoading={isLoading}
+          />
 
           {/* Pagination */}
           {meta && (
-            <div className="flex items-center justify-between p-6 border-t border-border/40 mt-6 -mx-6 -mb-6">
-              <div className="flex-1 text-sm zen-text-muted">
-                Showing {lessons.length} of {meta.total} lessons
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6 border-t border-border/40 px-6">
+              <div className="text-sm zen-text-muted">
+                Showing <span className="font-semibold text-foreground">{lessons.length}</span> of <span className="font-semibold text-foreground">{meta.total}</span> lessons
               </div>
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  disabled={page <= 1}
-                  onClick={() => setPage(page - 1)}
-                  className="rounded-full hover:bg-primary/5 h-9 px-4"
-                >
-                  Previous
-                </Button>
-                <div className="text-sm font-medium px-4">
-                  Page {page} of {meta.totalPages}
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  disabled={page >= meta.totalPages}
-                  onClick={() => setPage(page + 1)}
-                  className="rounded-full hover:bg-primary/5 h-9 px-4"
-                >
-                  Next
-                </Button>
-              </div>
+
+              {meta.totalPages > 1 && (
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={() => setPage(p => Math.max(1, p - 1))}
+                        className={page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+
+                    {renderPaginationItems()}
+
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() => setPage(p => Math.min(meta.totalPages, p + 1))}
+                        className={page === meta.totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              )}
             </div>
           )}
         </div>
