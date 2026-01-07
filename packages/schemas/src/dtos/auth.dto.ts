@@ -40,3 +40,35 @@ export const authResultDTOSchema = z.object({
 });
 
 export type AuthResultDTO = z.infer<typeof authResultDTOSchema>;
+
+/**
+ * OTP Verification DTO
+ */
+export const verifyOTPDTOSchema = z.object({
+    email: z.string().email(),
+    otp: z.string().length(6),
+    type: z.enum(['registration', 'reset-password']),
+});
+
+export type VerifyOTPDTO = z.infer<typeof verifyOTPDTOSchema>;
+
+/**
+ * OTP Resend DTO
+ */
+export const resendOTPDTOSchema = z.object({
+    email: z.string().email(),
+    type: z.enum(['registration', 'reset-password']),
+});
+
+export type ResendOTPDTO = z.infer<typeof resendOTPDTOSchema>;
+
+/**
+ * Forgot Password DTO
+ */
+export const forgotPasswordDTOSchema = z.object({
+    email: z.string().email(),
+    platform: z.enum(['web', 'mobile']).optional().default('web'),
+});
+
+export type ForgotPasswordDTO = z.infer<typeof forgotPasswordDTOSchema>;
+

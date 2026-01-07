@@ -93,6 +93,29 @@ export class EmailService implements IEmailService {
         });
     }
 
+    /**
+     * Send OTP for mobile verification or password reset
+     */
+    async sendOTPEmail(
+        email: string,
+        displayName: string,
+        otp: string,
+        type: 'registration' | 'reset-password'
+    ): Promise<void> {
+        const subject = type === 'registration'
+            ? 'Mã xác thực đăng ký - Torii Nihongo'
+            : 'Mã xác thực đặt lại mật khẩu - Torii Nihongo';
+
+        const htmlContent = this.generateOTPEmailHtml(displayName, otp, type);
+
+        await this.sharedEmailService.sendMail({
+            to: email,
+            subject,
+            html: htmlContent,
+        });
+    }
+
+
     // ============================================
     // HTML Generators (Private)
     // ============================================
@@ -149,6 +172,35 @@ export class EmailService implements IEmailService {
         <h2 style="color: #059669;">Mật khẩu đã được đặt lại</h2>
         <p>Xin chào ${displayName},</p>
         <p>Mật khẩu của bạn đã được thay đổi thành công.</p>
+    </div>
+</body>
+</html>
+        `;
+    }
+
+    private generateOTPEmailHtml(displayName: string, otp: string, type: 'registration' | 'reset-password'): string {
+
+        const title = type === 'registration' ? 'Xác thực đăng ký' : 'Đặt lại mật khẩu';
+        const message = type === 'registration'
+            ? 'Cảm ơn bạn đã đăng ký. Vui lòng sử dụng mã dưới đây để xác thực tài khoản của bạn:'
+            : 'Chúng tôi nhận được yêu cầu đặt lại mật khẩu. Vui lòng sử dụng mã dưới đây để tiếp tục:';
+
+        return `
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>${title}</title>
+</head>
+<body style="font-family: sans-serif; background-color: #f5f5f5; padding: 20px;">
+    <div style="max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; text-align: center;">
+        <h2 style="color: #2563eb;">Xin chào ${displayName || 'bạn'}!</h2>
+        <p>${message}</p>
+        <div style="background: #f3f4f6; padding: 20px; margin: 20px 0; border-radius: 8px; font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #1e40af;">
+            ${otp}
+        </div>
+        <p style="color: gray; font-size: 0.9em;">Mã này sẽ hết hạn trong 10 phút.</p>
+        <p style="color: gray; font-size: 0.8em;">Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này.</p>
     </div>
 </body>
 </html>

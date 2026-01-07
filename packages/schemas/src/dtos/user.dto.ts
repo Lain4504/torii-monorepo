@@ -6,6 +6,7 @@ export const userRegistrationDTOSchema = z.object({
     email: userSchema.shape.email,
     password: userSchema.shape.password,
     displayName: userSchema.shape.displayName.optional(), // Optional for email+password only registration
+    platform: z.enum(['web', 'mobile']).optional().default('web'),
 });
 
 export type UserRegistrationDTO = z.infer<typeof userRegistrationDTOSchema>;

@@ -4,6 +4,9 @@ import type {
     UserResponseDTO,
     AuthResponseDTO,
     LoginResponseDTO,
+    VerifyOTPDTO,
+    ResendOTPDTO,
+    ForgotPasswordDTO,
 } from '@workspace/schemas';
 
 /**
@@ -108,12 +111,28 @@ export interface IAuthService {
 
     /**
      * Initiate password reset flow
-     * Generates a magic link token and sends reset email
+     * Generates a magic link (web) or OTP (mobile) and sends reset email
      * Rate limited: 3 requests per hour per email
-     * @param email - The user's email address
+     * @param dto - Forgot password data (email and platform)
      * @throws BadRequestException if rate limit exceeded
      */
-    forgotPassword(email: string): Promise<void>;
+    forgotPassword(dto: ForgotPasswordDTO): Promise<void>;
+
+    /**
+     * Verify OTP code (for mobile flow)
+     * @param dto - OTP verification data
+     * @returns Verification result (email if valid, and optional temp token for reset-password)
+     * @throws UnauthorizedException if OTP is invalid
+     */
+    verifyOTP(dto: VerifyOTPDTO): Promise<{ success: boolean; email?: string; tempToken?: string }>;
+
+    /**
+     * Resend OTP code
+     * @param dto - OTP resend data
+     * @throws BadRequestException if rate limit exceeded
+     */
+    resendOTP(dto: ResendOTPDTO): Promise<void>;
+
 
     /**
      * Verify reset password token

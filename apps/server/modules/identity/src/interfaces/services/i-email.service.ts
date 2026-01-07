@@ -24,6 +24,12 @@ export interface IEmailService {
     send2FACode(email: string, code: string): Promise<void>;
 
     /**
+     * Send OTP for mobile verification or password reset
+     */
+    sendOTPEmail(email: string, displayName: string, otp: string, type: 'registration' | 'reset-password'): Promise<void>;
+
+
+    /**
      * Send welcome email after registration
      */
     sendWelcomeEmail(email: string, displayName: string): Promise<void>;

@@ -4,12 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor(ui): align theme styles with tokenized color system&#10;&#10;- Updated theme-specific class names to use tokenized variables (e.g., `bg-primary`, `text-muted-foreground`) for consistency.&#10;- Replaced hardcoded values with reusable theme tokens across authentication pages, course components, and layouts.&#10;- Enhanced visual elements, accessibility, and responsiveness.">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(database): document database design and add admin login interface method&#10;&#10;- Added new documentation: `database-design-overview.md` and `database-design-schema.md` for system architecture clarity.&#10;- Extended `IAuthService` interface with `adminLogin` for specialized admin portal authentication.">
       <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/auth.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/auth.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/infrastructure/email/email.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/infrastructure/email/email.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/i-auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/i-auth.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/i-email.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/i-email.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/auth.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/store/slices/auth-slice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/store/slices/auth-slice.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/auth.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/auth.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/user.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/user.dto.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -264,22 +266,6 @@
       <workItem from="1767779643020" duration="455000" />
       <workItem from="1767780214679" duration="224000" />
       <workItem from="1767784611248" duration="3225000" />
-    </task>
-    <task id="LOCAL-00458" summary="feat(auth): implement Google OAuth login and account linking functionality&#10;&#10;- Added endpoints for Google OAuth login and linking existing accounts.&#10;- Integrated Google authentication with user registration and login processes.&#10;- Updated user model to support OAuth identities and metadata.&#10;- Enhanced user service to manage linked providers and account unlinking.&#10;- Included necessary environment variables for Google OAuth in .env.example.">
-      <option name="closed" value="true" />
-      <created>1767614560600</created>
-      <option name="number" value="00458" />
-      <option name="presentableId" value="LOCAL-00458" />
-      <option name="project" value="LOCAL" />
-      <updated>1767614560600</updated>
-    </task>
-    <task id="LOCAL-00459" summary="feat(auth): implement Google OAuth login and account linking functionality&#10;&#10;- Added endpoints for Google OAuth login and linking existing accounts.&#10;- Integrated Google authentication with user registration and login processes.&#10;- Updated user model to support OAuth identities and metadata.&#10;- Enhanced user service to manage linked providers and account unlinking.&#10;- Included necessary environment variables for Google OAuth in .env.example.">
-      <option name="closed" value="true" />
-      <created>1767614647892</created>
-      <option name="number" value="00459" />
-      <option name="presentableId" value="LOCAL-00459" />
-      <option name="project" value="LOCAL" />
-      <updated>1767614647892</updated>
     </task>
     <task id="LOCAL-00460" summary="feat(auth): update user status handling and improve UI components">
       <option name="closed" value="true" />
@@ -657,7 +643,23 @@
       <option name="project" value="LOCAL" />
       <updated>1767799112255</updated>
     </task>
-    <option name="localTasksCounter" value="507" />
+    <task id="LOCAL-00507" summary="feat(database): document database design and add admin login interface method&#10;&#10;- Added new documentation: `database-design-overview.md` and `database-design-schema.md` for system architecture clarity.&#10;- Extended `IAuthService` interface with `adminLogin` for specialized admin portal authentication.">
+      <option name="closed" value="true" />
+      <created>1767800670317</created>
+      <option name="number" value="00507" />
+      <option name="presentableId" value="LOCAL-00507" />
+      <option name="project" value="LOCAL" />
+      <updated>1767800670318</updated>
+    </task>
+    <task id="LOCAL-00508" summary="feat(database): document database design and add admin login interface method&#10;&#10;- Added new documentation: `database-design-overview.md` and `database-design-schema.md` for system architecture clarity.&#10;- Extended `IAuthService` interface with `adminLogin` for specialized admin portal authentication.">
+      <option name="closed" value="true" />
+      <created>1767800964207</created>
+      <option name="number" value="00508" />
+      <option name="presentableId" value="LOCAL-00508" />
+      <option name="project" value="LOCAL" />
+      <updated>1767800964208</updated>
+    </task>
+    <option name="localTasksCounter" value="509" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -687,7 +689,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat(auth): replace magic link with OTP-based email verification flow&#10;&#10;- Removed magic link email verification components and logic.&#10;- Implemented OTP verification via `OTPVerificationContent` component.&#10;- Updated backend services to handle OTP generation and email delivery.&#10;- Modified `register` flow to redirect users to OTP verification page upon success.&#10;- Adjusted email templates for OTP usage, replacing magic link-related text and formatting." />
     <MESSAGE value="feat(web-learner): add responsive home page sections with JLPT roadmap, features, and CTAs&#10;&#10;- Introduced `hero-section` to highlight platform's offerings and key metrics.&#10;- Added `course-categories-section` displaying JLPT levels N5-N1 with detailed descriptions.&#10;- Implemented `features-section` showcasing advanced platform features like AI Sensei and Gamification.&#10;- Created `cta-section` with promotional content and prominent" />
     <MESSAGE value="feat(web-learner): add responsive home page sections with JLPT roadmap, features, and CTAs&#10;&#10;- Introduced `hero-section` to highlight platform's offerings and key metrics.&#10;- Added `course-categories-section` displaying JLPT levels N5-N1 with detailed descriptions.&#10;- Implemented `features-section` showcasing advanced platform features like AI Sensei and Gamification.&#10;- Created `cta-section` with promotional content and prominent call-to-action buttons.&#10;- Ensured responsive design and modern UI/UX principles across all sections." />
     <MESSAGE value="feat(web-learner): add modular course detail components&#10;&#10;- Introduced `CourseHeader`, `CourseCurriculum`, `CourseInstructor`, `CourseReviews`, and `CourseSidebar` components.&#10;- Implemented `CourseDetailPage` layout, combining the new components for a modular design.&#10;- Ensured responsive design and consistency with platform UI/UX standards." />
@@ -712,7 +713,8 @@
     <MESSAGE value="cursor gen" />
     <MESSAGE value="cursor gen: update theme" />
     <MESSAGE value="refactor(ui): align theme styles with tokenized color system&#10;&#10;- Updated theme-specific class names to use tokenized variables (e.g., `bg-primary`, `text-muted-foreground`) for consistency.&#10;- Replaced hardcoded values with reusable theme tokens across authentication pages, course components, and layouts.&#10;- Enhanced visual elements, accessibility, and responsiveness." />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor(ui): align theme styles with tokenized color system&#10;&#10;- Updated theme-specific class names to use tokenized variables (e.g., `bg-primary`, `text-muted-foreground`) for consistency.&#10;- Replaced hardcoded values with reusable theme tokens across authentication pages, course components, and layouts.&#10;- Enhanced visual elements, accessibility, and responsiveness." />
+    <MESSAGE value="feat(database): document database design and add admin login interface method&#10;&#10;- Added new documentation: `database-design-overview.md` and `database-design-schema.md` for system architecture clarity.&#10;- Extended `IAuthService` interface with `adminLogin` for specialized admin portal authentication." />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(database): document database design and add admin login interface method&#10;&#10;- Added new documentation: `database-design-overview.md` and `database-design-schema.md` for system architecture clarity.&#10;- Extended `IAuthService` interface with `adminLogin` for specialized admin portal authentication." />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

@@ -15,6 +15,9 @@ import type {
     AuthResponseDTO as AuthResponse,
     LoginResponseDTO as LoginResponse,
     AuthResultDTO as AuthResult,
+    VerifyOTPDTO,
+    ResendOTPDTO,
+    ForgotPasswordDTO,
 } from '@workspace/schemas';
 
 
@@ -63,16 +66,24 @@ export class AuthService implements IAuthService {
         // Exclude password from response
         const { password, ...user } = fullUser;
 
-        // Generate Verification token
-        const verificationToken = await this.generateVerificationToken(user.email);
-
-        // Send verification email
-        const verificationUrl = `${process.env.FRONTEND_URL}/verify?token=${verificationToken}`;
-        await this.emailService.sendVerificationEmail(
-            user.email,
-            user.displayName,
-            verificationUrl
-        );
+        // Generate Verification token or OTP
+        if (dto.platform === 'mobile') {
+            const otp = await this.generateOTP(user.email, 'registration');
+            await this.emailService.sendOTPEmail(
+                user.email,
+                user.displayName,
+                otp,
+                'registration'
+            );
+        } else {
+            const verificationToken = await this.generateVerificationToken(user.email);
+            const verificationUrl = `${process.env.FRONTEND_URL}/verify?token=${verificationToken}`;
+            await this.emailService.sendVerificationEmail(
+                user.email,
+                user.displayName,
+                verificationUrl
+            );
+        }
 
         return {
             ...user,
@@ -337,7 +348,7 @@ export class AuthService implements IAuthService {
             const ttl = await this.redis.ttl(rateLimitKey);
             const minutesLeft = Math.ceil(ttl / 60);
             throw new BadRequestException(
-                `Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau ${minutesLeft} phút.`
+                `Too many requests. Please try again in ${minutesLeft} minutes.`
             );
         }
 
@@ -366,10 +377,11 @@ export class AuthService implements IAuthService {
 
     /**
      * Initiate password reset flow
-     * Generates a magic link token and sends reset email
+     * Generates a magic link token (web) or OTP (mobile) and sends reset email
      * Rate limited: 3 requests per hour per email
      */
-    async forgotPassword(email: string): Promise<void> {
+    async forgotPassword(dto: ForgotPasswordDTO): Promise<void> {
+        const { email, platform } = dto;
         const user = await this.usersRepository.findByEmail(email);
 
         // Don't reveal if user exists or not (security best practice)
@@ -391,30 +403,69 @@ export class AuthService implements IAuthService {
             const ttl = await this.redis.ttl(rateLimitKey);
             const minutesLeft = Math.ceil(ttl / 60);
             throw new BadRequestException(
-                `Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau ${minutesLeft} phút.`
+                `Too many requests. Please try again in ${minutesLeft} minutes.`
             );
         }
 
-        // Generate reset token (valid for 1 hour)
-        const crypto = await import('crypto');
-        const resetToken = crypto.randomBytes(32).toString('hex');
+        if (platform === 'mobile') {
+            const otp = await this.generateOTP(email, 'reset-password');
+            await this.emailService.sendOTPEmail(
+                email,
+                user.displayName,
+                otp,
+                'reset-password'
+            );
+        } else {
+            // Generate reset token (valid for 1 hour)
+            const crypto = await import('crypto');
+            const resetToken = crypto.randomBytes(32).toString('hex');
 
-        // Store email associated with reset token in Redis (1 hour expiry)
-        await this.redis.set(`reset-token:${resetToken}`, email, 'EX', 3600);
+            // Store email associated with reset token in Redis (1 hour expiry)
+            await this.redis.set(`reset-token:${resetToken}`, email, 'EX', 3600);
 
-        // Send password reset email
-        const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
-        await this.emailService.sendPasswordResetEmail(
-            email,
-            user.displayName,
-            resetUrl
-        );
+            // Send password reset email
+            const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+            await this.emailService.sendPasswordResetEmail(
+                email,
+                user.displayName,
+                resetUrl
+            );
+        }
 
         // Increment rate limit counter
         if (attemptsCount === 0) {
             await this.redis.set(rateLimitKey, '1', 'EX', 3600); // 1 hour
         } else {
             await this.redis.incr(rateLimitKey);
+        }
+    }
+
+    /**
+     * Verify OTP code (for mobile flow)
+     */
+    async verifyOTP(dto: VerifyOTPDTO): Promise<{ success: boolean; email?: string; tempToken?: string }> {
+        const { email, otp, type } = dto;
+        const otpKey = `otp:${type}:${email}`;
+
+        const storedOtp = await this.redis.get(otpKey);
+
+        if (!storedOtp || storedOtp !== otp) {
+            throw new UnauthorizedException('Invalid or expired verification code');
+        }
+
+        // Delete OTP (one-time use)
+        await this.redis.del(otpKey);
+
+        if (type === 'registration') {
+            // Update user status to ACTIVE
+            await this.usersRepository.updateByEmail(email, { verifiedAt: new Date() });
+            return { success: true, email };
+        } else {
+            // For reset-password, generate a temporary reset token
+            const crypto = await import('crypto');
+            const resetToken = crypto.randomBytes(32).toString('hex');
+            await this.redis.set(`reset-token:${resetToken}`, email, 'EX', 3600);
+            return { success: true, email, tempToken: resetToken };
         }
     }
 
@@ -431,6 +482,67 @@ export class AuthService implements IAuthService {
 
         return { success: true, email };
     }
+
+    /**
+     * Resend OTP code
+     * Rate limited: 3 requests per hour
+     */
+    async resendOTP(dto: ResendOTPDTO): Promise<void> {
+        const { email, type } = dto;
+        const user = await this.usersRepository.findByEmail(email);
+
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        if (type === 'registration' && user.verifiedAt) {
+            throw new BadRequestException('Email already verified');
+        }
+
+        // Rate limiting: 3 requests per hour
+        const rateLimitKey = `resend-otp:${email}:${type}`;
+        const attempts = await this.redis.get(rateLimitKey);
+        const attemptsCount = attempts ? parseInt(attempts) : 0;
+
+        if (attemptsCount >= 3) {
+            const ttl = await this.redis.ttl(rateLimitKey);
+            const minutesLeft = Math.ceil(ttl / 60);
+            throw new BadRequestException(
+                `Too many requests. Please try again in ${minutesLeft} minutes.`
+            );
+        }
+
+        const otp = await this.generateOTP(email, type);
+        await this.emailService.sendOTPEmail(
+            email,
+            user.displayName,
+            otp,
+            type
+        );
+
+        // Increment rate limit counter
+        if (attemptsCount === 0) {
+            await this.redis.set(rateLimitKey, '1', 'EX', 3600); // 1 hour
+        } else {
+            await this.redis.incr(rateLimitKey);
+        }
+    }
+
+    /**
+     * Generate 6-digit OTP and store in Redis
+     * Valid for 10 minutes
+     */
+    private async generateOTP(email: string, type: 'registration' | 'reset-password'): Promise<string> {
+        // Generate 6-digit numeric OTP securely
+        const crypto = await import('crypto');
+        const otp = crypto.randomInt(100000, 999999).toString();
+
+        // Store in Redis with 10-minute expiry
+        await this.redis.set(`otp:${type}:${email}`, otp, 'EX', 600);
+
+        return otp;
+    }
+
 
     /**
      * Reset password using valid reset token
@@ -455,6 +567,9 @@ export class AuthService implements IAuthService {
         await this.usersRepository.update(user.id, {
             password: hashedPassword,
         });
+
+        // Revoke all existing sessions (F4)
+        await this.sessionService.revokeAllUserSessions(user.id);
 
         // Delete reset token (one-time use)
         await this.redis.del(`reset-token:${token}`);

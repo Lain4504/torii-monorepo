@@ -3,7 +3,7 @@ import type { Response } from 'express';
 import { GatewayAuthGuard, VerifiedOnly } from '@server/shared';
 import type { IAuthService, ISessionService } from '../interfaces/services';
 import { AUTH_SERVICE_TOKEN, SESSION_SERVICE_TOKEN } from '../interfaces/services';
-import type { ReqWithRequester, UserRegistrationDTO, UserLoginDTO } from '@workspace/schemas';
+import type { ReqWithRequester, UserRegistrationDTO, UserLoginDTO, VerifyOTPDTO, ResendOTPDTO, ForgotPasswordDTO } from '@workspace/schemas';
 
 /**
  * Auth HTTP Controller
@@ -112,16 +112,20 @@ export class AuthController {
      */
     @Post('forgot-password')
     @HttpCode(HttpStatus.OK)
-    async forgotPassword(@Body('email') email: string) {
-        if (!email) {
-            throw new BadRequestException('Email is required');
-        }
+    async forgotPassword(
+        @Body() dto: ForgotPasswordDTO,
+        @Request() req
+    ) {
+        // Fallback for platform if not in DTO but in header
+        const platform = dto.platform || req.headers['x-platform'] || 'web';
 
         try {
-            await this.authService.forgotPassword(email);
+            await this.authService.forgotPassword({ ...dto, platform });
             return {
                 success: true,
-                message: 'If an account exists with this email, a password reset link has been sent.'
+                message: platform === 'mobile'
+                    ? 'If an account exists, a 6-digit OTP has been sent.'
+                    : 'If an account exists, a password reset link has been sent.'
             };
         } catch (error: any) {
             return {
@@ -130,6 +134,61 @@ export class AuthController {
             };
         }
     }
+
+    /**
+     * Verify OTP code (Mobile)
+     * POST /auth/verify-otp
+     */
+    @Post('verify-otp')
+    @HttpCode(HttpStatus.OK)
+    async verifyOTP(@Body() dto: VerifyOTPDTO) {
+        try {
+            const result = await this.authService.verifyOTP(dto);
+
+            if (!result.success) {
+                return {
+                    success: false,
+                    message: 'Invalid or expired verification code'
+                };
+            }
+
+            return {
+                success: true,
+                message: 'OTP verified successfully',
+                data: {
+                    email: result.email,
+                    tempToken: result.tempToken
+                }
+            };
+        } catch (error: any) {
+            return {
+                success: false,
+                message: error.message || 'Verification failed'
+            };
+        }
+    }
+
+    /**
+     * Resend OTP code (Mobile)
+     * POST /auth/resend-otp
+     */
+    @Post('resend-otp')
+    @HttpCode(HttpStatus.OK)
+    async resendOTP(@Body() dto: ResendOTPDTO) {
+        try {
+            await this.authService.resendOTP(dto);
+            return {
+                success: true,
+                message: 'New verification code has been sent'
+            };
+        } catch (error: any) {
+            return {
+                success: false,
+                message: error.message || 'Failed to resend code'
+            };
+        }
+    }
+
 
     /**
      * Verify reset password token
