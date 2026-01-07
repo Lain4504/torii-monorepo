@@ -1,134 +1,134 @@
-'use client'
+'use client';
 
 import { CourseCard } from "./course-card"
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@workspace/ui/components/pagination"
+import { useCourses } from "./useCourses"
 
-const MOCK_COURSES = [
-    {
-        id: '1',
-        title: 'Tiếng Nhật Sơ Cấp N5: Khởi đầu vững chắc',
-        slug: 'n5-basic',
-        thumbnail: 'https://images.unsplash.com/photo-1528164344705-47542687000d?q=80&w=2992&auto=format&fit=crop',
-        level: 'N5',
-        instructor: { name: 'Yamada Yuki', avatar: 'https://i.pravatar.cc/150?u=yamada' },
-        rating: 4.9,
-        reviewCount: 2543,
-        students: 15234,
-        price: 1299000,
-        originalPrice: 2500000,
-        totalLessons: 150,
-        totalHours: 45,
-        isLive: false
-    },
-    {
-        id: '2',
-        title: 'Lớp Live N4: Giao tiếp & Kaiwa thực chiến',
-        slug: 'n4-live-kaiwa',
-        thumbnail: 'https://images.unsplash.com/photo-1542051841857-5f90071e7989?q=80&w=2940&auto=format&fit=crop',
-        level: 'N4',
-        instructor: { name: 'Tanaka Ken', avatar: 'https://i.pravatar.cc/150?u=tanaka' },
-        rating: 4.8,
-        reviewCount: 890,
-        students: 3400,
-        price: 3500000,
-        originalPrice: 5000000,
-        totalLessons: 24,
-        totalHours: 36,
-        isLive: true
-    },
-    {
-        id: '3',
-        title: 'Luyện thi JLPT N3: Chiến thuật Dokkai & Choukai',
-        slug: 'n3-jlpt-prep',
-        thumbnail: 'https://images.unsplash.com/photo-1492538368677-f6e0afe31dcc?q=80&w=2940&auto=format&fit=crop',
-        level: 'N3',
-        instructor: { name: 'Nguyễn Minh', avatar: 'https://i.pravatar.cc/150?u=minh' },
-        rating: 4.7,
-        reviewCount: 1200,
-        students: 8500,
-        price: 1890000,
-        originalPrice: 2800000,
-        totalLessons: 120,
-        totalHours: 40,
-        isLive: false
-    },
-    {
-        id: '4',
-        title: 'Kanji Master N2: 1000 Hán tự trong 30 ngày',
-        slug: 'n2-kanji-master',
-        thumbnail: 'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?q=80&w=2940&auto=format&fit=crop',
-        level: 'N2',
-        instructor: { name: 'Sato Haruto', avatar: 'https://i.pravatar.cc/150?u=sato' },
-        rating: 4.9,
-        reviewCount: 560,
-        students: 4200,
-        price: 990000,
-        originalPrice: 1500000,
-        totalLessons: 30,
-        totalHours: 15,
-        isLive: false
-    },
-    {
-        id: '5',
-        title: 'Chinh phục N1: Đọc hiểu chuyên sâu',
-        slug: 'n1-dokkai',
-        thumbnail: 'https://images.unsplash.com/photo-1516979187457-637abb4f9353?q=80&w=2940&auto=format&fit=crop',
-        level: 'N1',
-        instructor: { name: 'Dr. Fujimoto', avatar: 'https://i.pravatar.cc/150?u=fujimoto' },
-        rating: 4.9,
-        reviewCount: 230,
-        students: 1500,
-        price: 2100000,
-        originalPrice: 3000000,
-        totalLessons: 50,
-        totalHours: 25,
-        isLive: false
-    },
-    {
-        id: '6',
-        title: 'Bộ đề thi thử JLPT N5 Full Test (2025)',
-        slug: 'n5-mock-test-2025',
-        thumbnail: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=2873&auto=format&fit=crop',
-        level: 'N5',
-        instructor: { name: 'Torii Team', avatar: 'https://i.pravatar.cc/150?u=torii' },
-        rating: 4.6,
-        reviewCount: 340,
-        students: 12000,
-        price: 199000,
-        totalLessons: 10,
-        totalHours: 5,
-        isLive: false
+interface CourseGridProps {
+    searchQuery?: string
+    selectedLevels?: string[]
+    priceFilter?: "all" | "free" | "paid"
+    sortBy?: string
+    currentPage?: number
+    onPageChange?: (page: number) => void
+}
+
+export function CourseGrid({ 
+    searchQuery = "", 
+    selectedLevels = [], 
+    priceFilter = "all",
+    sortBy = "popular",
+    currentPage = 1,
+    onPageChange = () => {}
+}: CourseGridProps) {
+    const ITEMS_PER_PAGE = 12;
+    
+    const { data, isLoading, error } = useCourses({ 
+        page: 1,
+        limit: 1000, // Fetch all data to filter client-side
+        q: searchQuery
+    });
+
+    const courses = data?.data || [];
+    
+    // Filter courses by level (OR logic - show courses matching ANY selected level)
+    let filteredCourses = courses;
+    if (selectedLevels.length > 0) {
+        filteredCourses = courses.filter(course => 
+            selectedLevels.includes(course.level)
+        );
     }
-]
+    
+    // Filter courses by price
+    if (priceFilter === "free") {
+        filteredCourses = filteredCourses.filter(course => course.price === 0);
+    } else if (priceFilter === "paid") {
+        filteredCourses = filteredCourses.filter(course => course.price > 0);
+    }
+    
+    // Sort courses based on sortBy parameter
+    let sortedCourses = [...filteredCourses];
+    if (sortBy === 'newest') {
+        sortedCourses.sort((a, b) => new Date(b.id).getTime() - new Date(a.id).getTime());
+    } else if (sortBy === 'price-asc') {
+        sortedCourses.sort((a, b) => a.price - b.price);
+    } else if (sortBy === 'price-desc') {
+        sortedCourses.sort((a, b) => b.price - a.price);
+    }
+    // 'popular' is default, no sorting needed
 
-export function CourseGrid() {
+    // Calculate pagination based on filtered data
+    const totalPages = Math.ceil(sortedCourses.length / ITEMS_PER_PAGE);
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    const paginatedCourses = sortedCourses.slice(startIndex, endIndex);
+
+    const isEmpty = !isLoading && sortedCourses.length === 0;
+
     return (
         <div className="space-y-12">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {MOCK_COURSES.map((course) => (
-                    <CourseCard key={course.id} {...course} />
-                ))}
-            </div>
+            {isLoading ? (
+                <div className="text-center py-12">Đang tải khoá học...</div>
+            ) : error ? (
+                <div className="text-center py-12 text-red-500">
+                    Lỗi tải khoá học: {error?.message || 'Unknown error'}
+                </div>
+            ) : isEmpty ? (
+                <div className="text-center py-12 text-gray-500">Không có khoá học nào phù hợp với tìm kiếm</div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {paginatedCourses.map((course) => (
+                        <CourseCard key={course.id} {...course} />
+                    ))}
+                </div>
+            )}
 
-            <Pagination>
-                <PaginationContent>
-                    <PaginationItem>
-                        <PaginationPrevious href="#" />
-                    </PaginationItem>
-                    <PaginationItem>
-                        <PaginationLink href="#">1</PaginationLink>
-                    </PaginationItem>
-                    <PaginationItem>
-                        <PaginationLink href="#" isActive>2</PaginationLink>
-                    </PaginationItem>
-                    <PaginationItem>
-                        <PaginationLink href="#">3</PaginationLink>
-                    </PaginationItem>
-                    <PaginationItem>
-                        <PaginationNext href="#" />
-                    </PaginationItem>
-                </PaginationContent>
-            </Pagination>
+            {!isEmpty && (
+                <Pagination>
+                    <PaginationContent>
+                        <PaginationItem>
+                            <PaginationPrevious 
+                                href="#"
+                                onClick={(e) => {
+                                    e.preventDefault()
+                                    if (currentPage > 1) {
+                                        onPageChange(currentPage - 1)
+                                    }
+                                }}
+                                className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                            />
+                        </PaginationItem>
+                        
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                            <PaginationItem key={page}>
+                                <PaginationLink 
+                                    href="#"
+                                    isActive={currentPage === page}
+                                    onClick={(e) => {
+                                        e.preventDefault()
+                                        onPageChange(page)
+                                    }}
+                                >
+                                    {page}
+                                </PaginationLink>
+                            </PaginationItem>
+                        ))}
+                        
+                        <PaginationItem>
+                            <PaginationNext 
+                                href="#"
+                                onClick={(e) => {
+                                    e.preventDefault()
+                                    if (currentPage < totalPages) {
+                                        onPageChange(currentPage + 1)
+                                    }
+                                }}
+                                className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                            />
+                        </PaginationItem>
+                    </PaginationContent>
+                </Pagination>
+            )}
         </div>
-    )
+    );
 }

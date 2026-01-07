@@ -5,7 +5,43 @@ import { Label } from "@workspace/ui/components/label"
 import { Button } from "@workspace/ui/components/button"
 import { Filter } from "lucide-react"
 
-export function FilterSidebar() {
+interface FilterSidebarProps {
+    selectedLevels?: string[]
+    onLevelChange: (levels: string[]) => void
+    priceFilter: "all" | "free" | "paid"
+    onPriceChange: (price: "all" | "free" | "paid") => void
+}
+
+const JLPT_LEVELS = [
+    { label: 'N5 - Sơ cấp', value: 'N5' },
+    { label: 'N4 - Sơ trung cấp', value: 'N4' },
+    { label: 'N3 - Trung cấp', value: 'N3' },
+    { label: 'N2 - Cao cấp', value: 'N2' },
+    { label: 'N1 - Thượng cấp', value: 'N1' },
+]
+
+export function FilterSidebar({ selectedLevels = [], onLevelChange, priceFilter, onPriceChange }: FilterSidebarProps) {
+    const handleLevelChange = (value: string, checked: boolean) => {
+        if (checked) {
+            onLevelChange([...selectedLevels, value])
+        } else {
+            onLevelChange(selectedLevels.filter(level => level !== value))
+        }
+    }
+
+    const handlePriceChange = (value: "free" | "paid", checked: boolean) => {
+        if (checked) {
+            onPriceChange(value)
+        } else {
+            onPriceChange("all")
+        }
+    }
+
+    const handleClearFilters = () => {
+        onLevelChange([])
+        onPriceChange("all")
+    }
+
     return (
         <div className="space-y-8">
             <div className="flex items-center gap-2 font-bold text-lg pb-4 border-b border-slate-200 dark:border-slate-800">
@@ -17,11 +53,18 @@ export function FilterSidebar() {
             <div className="space-y-4">
                 <h3 className="font-semibold text-slate-900 dark:text-white">Trình độ JLPT</h3>
                 <div className="space-y-3">
-                    {['N5 - Sơ cấp', 'N4 - Sơ trung cấp', 'N3 - Trung cấp', 'N2 - Cao cấp', 'N1 - Thượng cấp'].map((level) => (
-                        <div key={level} className="flex items-center space-x-2">
-                            <Checkbox id={`level-${level}`} />
-                            <Label htmlFor={`level-${level}`} className="text-sm font-normal text-slate-600 dark:text-slate-300 cursor-pointer">
-                                {level}
+                    {JLPT_LEVELS.map(({ label, value }) => (
+                        <div key={value} className="flex items-center space-x-2">
+                            <Checkbox 
+                                id={`level-${value}`}
+                                checked={selectedLevels.includes(value)}
+                                onCheckedChange={(checked) => handleLevelChange(value, checked as boolean)}
+                            />
+                            <Label 
+                                htmlFor={`level-${value}`} 
+                                className="text-sm font-normal text-slate-600 dark:text-slate-300 cursor-pointer"
+                            >
+                                {label}
                             </Label>
                         </div>
                     ))}
@@ -34,8 +77,8 @@ export function FilterSidebar() {
                 <div className="space-y-3">
                     {['Video (VOD)', 'Lớp Live (WebRTC)', 'Luyện thi Mock Test'].map((format) => (
                         <div key={format} className="flex items-center space-x-2">
-                            <Checkbox id={`format-${format}`} />
-                            <Label htmlFor={`format-${format}`} className="text-sm font-normal text-slate-600 dark:text-slate-300 cursor-pointer">
+                            <Checkbox id={`format-${format}`} disabled />
+                            <Label htmlFor={`format-${format}`} className="text-sm font-normal text-slate-600 dark:text-slate-300 cursor-pointer opacity-50">
                                 {format}
                             </Label>
                         </div>
@@ -49,8 +92,8 @@ export function FilterSidebar() {
                 <div className="space-y-3">
                     {['Ngữ pháp (Bunpou)', 'Từ vựng (Goi)', 'Hán tự (Kanji)', 'Nghe hiểu (Choukai)', 'Đọc hiểu (Dokkai)'].map((topic) => (
                         <div key={topic} className="flex items-center space-x-2">
-                            <Checkbox id={`topic-${topic}`} />
-                            <Label htmlFor={`topic-${topic}`} className="text-sm font-normal text-slate-600 dark:text-slate-300 cursor-pointer">
+                            <Checkbox id={`topic-${topic}`} disabled />
+                            <Label htmlFor={`topic-${topic}`} className="text-sm font-normal text-slate-600 dark:text-slate-300 cursor-pointer opacity-50">
                                 {topic}
                             </Label>
                         </div>
@@ -62,18 +105,41 @@ export function FilterSidebar() {
             <div className="space-y-4">
                 <h3 className="font-semibold text-slate-900 dark:text-white">Học phí</h3>
                 <div className="space-y-3">
-                    {['Miễn phí', 'Trả phí'].map((price) => (
-                        <div key={price} className="flex items-center space-x-2">
-                            <Checkbox id={`price-${price}`} />
-                            <Label htmlFor={`price-${price}`} className="text-sm font-normal text-slate-600 dark:text-slate-300 cursor-pointer">
-                                {price}
-                            </Label>
-                        </div>
-                    ))}
+                    <div className="flex items-center space-x-2">
+                        <Checkbox 
+                            id="price-free"
+                            checked={priceFilter === "free"}
+                            onCheckedChange={(checked) => handlePriceChange("free", checked as boolean)}
+                        />
+                        <Label 
+                            htmlFor="price-free"
+                            className="text-sm font-normal text-slate-600 dark:text-slate-300 cursor-pointer"
+                        >
+                            Miễn phí
+                        </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <Checkbox 
+                            id="price-paid"
+                            checked={priceFilter === "paid"}
+                            onCheckedChange={(checked) => handlePriceChange("paid", checked as boolean)}
+                        />
+                        <Label 
+                            htmlFor="price-paid"
+                            className="text-sm font-normal text-slate-600 dark:text-slate-300 cursor-pointer"
+                        >
+                            Trả phí
+                        </Label>
+                    </div>
                 </div>
             </div>
 
-            <Button variant="outline" className="w-full">
+            <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={handleClearFilters}
+                disabled={selectedLevels.length === 0 && priceFilter === "all"}
+            >
                 Xóa bộ lọc
             </Button>
         </div>
