@@ -48,6 +48,7 @@ model Course {
   modules Module[]
   wishlists Wishlist[]
   reviews Review[]
+  quizzes Quiz[]
 
   @@index([jlptLevel])
   @@index([status])
@@ -93,6 +94,7 @@ model Lesson {
   deletedAt      DateTime? @map("deleted_at")
 
   module Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  quizzes Quiz[]
 
   @@index([moduleId])
   @@map("lessons")
@@ -520,11 +522,121 @@ model QuestionBank {
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @default(now()) @updatedAt @map("updated_at")
 
+  // Relations
+  quizQuestions QuizQuestion[]
+  quizAttemptDetails QuizAttemptDetail[]
+
   @@index([questionType])
   @@index([jlptLevel])
   @@index([difficulty])
   @@index([status])
   @@map("question_bank")
+}
+
+// Quiz - Practice quiz template with sections
+model Quiz {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title             String   @db.VarChar(255)
+  description       String?  @db.Text
+  quizType          String   @default("practice") @map("quiz_type") @db.VarChar(30) // lesson, module, course, practice, jlpt_mock
+  jlptLevel         String?  @map("jlpt_level") @db.VarChar(5)
+  courseId          String?  @map("course_id") @db.Uuid
+  lessonId          String?  @map("lesson_id") @db.Uuid
+  sections          Json?    @db.JsonB // Array of section configs: [{ type: "vocab", timeLimit: 30, questionCount: 15 }, ...]
+  totalTime         Int?     @map("time_limit_minutes") // Total time in minutes
+  totalQuestions    Int      @default(0) @map("total_questions")
+  passingScore      Decimal? @map("passing_score") @db.Decimal(5, 2) // Minimum score to pass (percentage)
+  maxAttempts       Int      @default(1) @map("max_attempts")
+  shuffleQuestions  Boolean  @default(true) @map("shuffle_questions")
+  showExplanation   Boolean  @default(false) @map("show_explanation")
+  status            String   @default("draft") @db.VarChar(20) // draft, published, archived
+  createdBy         String?  @map("created_by") @db.Uuid
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  course            Course?  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lesson            Lesson?  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  quizQuestions     QuizQuestion[]
+  attempts          QuizAttempt[]
+
+  @@index([jlptLevel])
+  @@index([status])
+  @@index([courseId])
+  @@index([lessonId])
+  @@map("quizzes")
+}
+
+// Quiz Questions - Links quiz to question bank
+model QuizQuestion {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  quizId      String   @map("quiz_id") @db.Uuid
+  questionId  String   @map("question_id") @db.Uuid
+  orderIndex  Int      @map("order_index")
+  points      Decimal  @default(1.00) @db.Decimal(5, 2)
+  sectionType String?  @map("section_type") @db.VarChar(50) // vocab, grammar, reading, listening
+
+  quiz     Quiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  question QuestionBank @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([quizId, orderIndex])
+  @@index([quizId])
+  @@index([questionId])
+  @@map("quiz_questions")
+}
+
+// Quiz Attempt - User's attempt at a quiz
+model QuizAttempt {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  quizId            String   @map("quiz_id") @db.Uuid
+  userId            String   @map("user_id") @db.Uuid
+  status            String   @default("in-progress") @db.VarChar(20) // in-progress, completed, submitted, abandoned
+  startedAt         DateTime @default(now()) @map("started_at")
+  submittedAt       DateTime? @map("submitted_at")
+  completedAt       DateTime? @map("completed_at")
+  score             Decimal? @db.Decimal(5, 2)
+  maxScore          Decimal? @map("max_score") @db.Decimal(5, 2)
+  percentage        Decimal? @db.Decimal(5, 2)
+  isPassed          Boolean? @map("is_passed")
+  timeTakenSeconds  Int?     @map("time_taken_seconds")
+  attemptNumber     Int      @default(1) @map("attempt_number")
+  timeRemaining     Int?     @map("time_remaining") // Seconds remaining
+  answers           Json     @default("{}") @db.JsonB // { questionId: "answer", ... }
+  flaggedQuestions  String[] @default([]) @map("flagged_questions") @db.Uuid
+  currentSection    String?  @map("current_section") @db.VarChar(50)
+  currentQuestion   Int?     @default(1) @map("current_question")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  quiz              Quiz                @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  details           QuizAttemptDetail[]
+
+  @@index([quizId])
+  @@index([userId])
+  @@index([status])
+  @@index([startedAt])
+  @@map("quiz_attempts")
+}
+
+// Quiz Attempt Detail - Details for each question in the attempt
+model QuizAttemptDetail {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  attemptId         String   @map("attempt_id") @db.Uuid
+  questionId        String   @map("question_id") @db.Uuid
+  userAnswer        String?  @map("user_answer") @db.Text
+  isCorrect         Boolean? @map("is_correct")
+  pointsEarned      Decimal? @map("points_earned") @db.Decimal(5, 2)
+  timeSpentSeconds  Int?     @map("time_spent_seconds")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  // Relations
+  attempt           QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question          QuestionBank @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([attemptId])
+  @@index([questionId])
+  @@map("quiz_attempt_details")
 }
 
 // Notification model - matches database.sql schema

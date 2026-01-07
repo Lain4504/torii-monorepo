@@ -39,6 +39,9 @@ export class ProxyController {
 
         // Assessment Service Routes
         '/api/question-banks': process.env.ASSESSMENT_SERVICE_URL || 'http://localhost:8085',
+        '/api/v1/exams': process.env.ASSESSMENT_SERVICE_URL || 'http://localhost:8085',
+        '/api/v1/exams/attempts': process.env.ASSESSMENT_SERVICE_URL || 'http://localhost:8085',
+        '/api/v1/exams/sessions': process.env.ASSESSMENT_SERVICE_URL || 'http://localhost:8085',
 
         // Storage Service Routes
         '/api/storage': process.env.STORAGE_SERVICE_URL || 'http://localhost:8086',
