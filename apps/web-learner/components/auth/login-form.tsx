@@ -74,13 +74,13 @@ export function LoginForm() {
                         name="email"
                         render={({ field }) => (
                             <FormItem className="space-y-1">
-                                <FormLabel className="text-slate-900 dark:text-slate-100">Email</FormLabel>
+                                <FormLabel>Email</FormLabel>
                                 <FormControl>
                                     <div className="relative">
-                                        <Mail className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
+                                        <Mail className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
                                         <Input
                                             placeholder="hoctiennhat@example.com"
-                                            className="pl-10 h-11 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-teal-500 transition-all rounded-lg"
+                                            className="pl-10 h-11"
                                             {...field}
                                         />
                                     </div>
@@ -95,28 +95,28 @@ export function LoginForm() {
                         render={({ field }) => (
                             <FormItem className="space-y-1">
                                 <div className="flex items-center justify-between">
-                                    <FormLabel className="text-slate-900 dark:text-slate-100">Mật khẩu</FormLabel>
+                                    <FormLabel>Mật khẩu</FormLabel>
                                     <Link
                                         href="/forgot-password"
-                                        className="text-xs font-medium text-teal-600 dark:text-teal-400 hover:underline"
+                                        className="text-xs font-medium text-primary hover:opacity-80 transition-opacity cursor-pointer"
                                     >
                                         Quên mật khẩu?
                                     </Link>
                                 </div>
                                 <FormControl>
                                     <div className="relative">
-                                        <Lock className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
+                                        <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
                                         <Input
                                             type={showPassword ? 'text' : 'password'}
                                             placeholder="••••••••"
-                                            className="pl-10 pr-10 h-11 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-teal-500 transition-all rounded-lg"
+                                            className="pl-10 pr-10 h-11"
                                             {...field}
                                         />
                                         <Button
                                             type="button"
                                             variant="ghost"
                                             size="icon"
-                                            className="absolute right-0 top-0 h-full px-3 hover:bg-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                                            className="absolute right-0 top-0 h-full px-3 hover:bg-transparent text-muted-foreground hover:text-foreground cursor-pointer"
                                             onClick={() => setShowPassword(!showPassword)}
                                         >
                                             {showPassword ? (
@@ -133,7 +133,7 @@ export function LoginForm() {
                     />
 
                     {error && (
-                        <div className="flex items-center gap-2 text-sm font-medium text-red-600 bg-red-50 dark:bg-red-900/10 p-4 rounded-lg border border-red-100 dark:border-red-900/20">
+                        <div className="flex items-center gap-2 text-sm font-medium text-destructive bg-destructive/10 p-4 rounded-lg border border-destructive/20">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 24 24"
@@ -154,11 +154,11 @@ export function LoginForm() {
 
                     <Button
                         type="submit"
-                        className="w-full h-12 bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-semibold text-base shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] rounded-lg"
+                        className="w-full h-12 font-semibold text-base"
                         disabled={isLoading}
                     >
                         {isLoading ? (
-                            <Spinner className="mr-2 text-white" />
+                            <Spinner className="mr-2" />
                         ) : (
                             <LogIn className="mr-2 h-5 w-5" />
                         )}

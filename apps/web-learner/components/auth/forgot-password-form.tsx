@@ -66,25 +66,25 @@ export function ForgotPasswordForm() {
     if (emailSent) {
         return (
             <div className="space-y-6">
-                <div className="flex flex-col items-center text-center space-y-4 p-6 bg-green-50 dark:bg-green-900/10 rounded-xl border border-green-100 dark:border-green-900/20">
-                    <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
-                        <CheckCircle2 className="w-8 h-8 text-green-600 dark:text-green-400" />
+                <div className="flex flex-col items-center text-center space-y-4 p-6 bg-card rounded-lg border">
+                    <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                        <CheckCircle2 className="w-8 h-8 text-primary" />
                     </div>
                     <div className="space-y-2">
-                        <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                        <h3 className="text-lg font-semibold text-card-foreground">
                             Email đã được gửi!
                         </h3>
-                        <p className="text-sm text-slate-600 dark:text-slate-400">
+                        <p className="text-sm text-muted-foreground">
                             Chúng tôi đã gửi link đặt lại mật khẩu đến email{' '}
-                            <strong className="text-slate-900 dark:text-white">
+                            <strong className="text-card-foreground">
                                 {form.getValues('email')}
                             </strong>
                         </p>
-                        <p className="text-xs text-slate-500 dark:text-slate-500 mt-2">
+                        <p className="text-xs text-muted-foreground mt-2">
                             Không nhận được email? Kiểm tra thư mục spam hoặc{' '}
                             <button
                                 onClick={() => setEmailSent(false)}
-                                className="text-red-600 dark:text-red-400 hover:underline font-medium"
+                                className="text-primary hover:opacity-80 underline font-medium cursor-pointer"
                             >
                                 gửi lại
                             </button>
@@ -92,9 +92,9 @@ export function ForgotPasswordForm() {
                     </div>
                 </div>
 
-                <div className="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-lg border border-amber-100 dark:border-amber-900/20">
-                    <p className="text-sm text-amber-800 dark:text-amber-200">
-                        <strong>⏰ Lưu ý:</strong> Link đặt lại mật khẩu sẽ hết hạn sau 1 giờ
+                <div className="p-4 bg-accent rounded-lg border">
+                    <p className="text-sm text-muted-foreground">
+                        <strong>Lưu ý:</strong> Link đặt lại mật khẩu sẽ hết hạn sau 1 giờ
                     </p>
                 </div>
             </div>
@@ -110,15 +110,15 @@ export function ForgotPasswordForm() {
                         name="email"
                         render={({ field }) => (
                             <FormItem className="space-y-1">
-                                <FormLabel className="text-slate-900 dark:text-slate-100">
+                                <FormLabel>
                                     Địa chỉ Email
                                 </FormLabel>
                                 <FormControl>
                                     <div className="relative">
-                                        <Mail className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
+                                        <Mail className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
                                         <Input
                                             placeholder="hoctiennhat@example.com"
-                                            className="pl-10 h-11 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:border-red-500 focus:ring-red-500 transition-all rounded-lg"
+                                            className="pl-10 h-11"
                                             {...field}
                                         />
                                     </div>
@@ -128,19 +128,19 @@ export function ForgotPasswordForm() {
                         )}
                     />
 
-                    <div className="p-4 bg-blue-50 dark:bg-blue-900/10 rounded-lg border border-blue-100 dark:border-blue-900/20">
-                        <p className="text-sm text-blue-800 dark:text-blue-200">
-                            💡 Nhập email bạn đã dùng để đăng ký. Chúng tôi sẽ gửi link đặt lại mật khẩu đến email này.
+                    <div className="p-4 bg-accent rounded-lg border">
+                        <p className="text-sm text-muted-foreground">
+                            Nhập email bạn đã dùng để đăng ký. Chúng tôi sẽ gửi link đặt lại mật khẩu đến email này.
                         </p>
                     </div>
 
                     <Button
                         type="submit"
-                        className="w-full h-12 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold text-base shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] rounded-lg"
+                        className="w-full h-12 font-semibold text-base"
                         disabled={isLoading}
                     >
                         {isLoading ? (
-                            <Spinner className="mr-2 text-white" />
+                            <Spinner className="mr-2" />
                         ) : (
                             <Send className="mr-2 h-5 w-5" />
                         )}

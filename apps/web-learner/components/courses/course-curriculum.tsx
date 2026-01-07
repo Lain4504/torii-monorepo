@@ -66,14 +66,14 @@ export function CourseCurriculum({ curriculum }: CourseCurriculumProps) {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Nội dung khóa học</h2>
-                    <div className="flex items-center gap-4 text-sm text-slate-600 dark:text-slate-400">
+                    <h2 className="text-2xl font-bold text-foreground mb-2">Nội dung khóa học</h2>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         <span>{curriculum.modules.length} phần</span>
-                        <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700" />
+                        <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
                         <span>{totalLessons} bài giảng</span>
                         {getTotalDuration() && (
                             <>
-                                <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700" />
+                                <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
                                 <span>{getTotalDuration()} tổng thời lượng</span>
                             </>
                         )}
@@ -82,34 +82,34 @@ export function CourseCurriculum({ curriculum }: CourseCurriculumProps) {
                 {curriculum.modules.length > 1 && (
                     <button
                         onClick={toggleAllSections}
-                        className="text-sm font-medium text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 transition-colors"
+                        className="text-sm font-medium text-primary hover:opacity-80 transition-opacity cursor-pointer"
                     >
                         {allExpanded ? 'Thu gọn tất cả' : 'Mở rộng tất cả các phần'}
                     </button>
                 )}
             </div>
 
-            <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900">
+            <div className="border rounded-lg overflow-hidden bg-card">
                 {curriculum.modules.map((module, index) => (
-                    <div key={module.id} className="border-b border-slate-200 dark:border-slate-800 last:border-0">
+                    <div key={module.id} className="border-b last:border-0">
                         <button
                             onClick={() => toggleChapter(index)}
-                            className="w-full flex items-center justify-between p-4 bg-slate-50/50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            className="w-full flex items-center justify-between p-4 bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
                         >
-                            <div className="flex items-center gap-3 font-semibold text-slate-900 dark:text-white">
+                            <div className="flex items-center gap-3 font-semibold text-foreground">
                                 <ChevronDown
                                     className={cn(
-                                        "w-5 h-5 text-slate-500 transition-transform duration-200",
+                                        "w-5 h-5 text-muted-foreground transition-transform duration-200",
                                         openChapters.includes(index) ? "rotate-180" : ""
                                     )}
                                 />
                                 {module.title}
                             </div>
-                            <div className="flex items-center gap-3 text-sm text-slate-500 font-medium">
+                            <div className="flex items-center gap-3 text-sm text-muted-foreground font-medium">
                                 <span>{module.lessons.length} bài giảng</span>
                                 {module.durationMinutes && (
                                     <>
-                                        <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700" />
+                                        <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
                                         <span>{formatDurationMinutes(module.durationMinutes)}</span>
                                     </>
                                 )}
@@ -117,29 +117,29 @@ export function CourseCurriculum({ curriculum }: CourseCurriculumProps) {
                         </button>
 
                         {openChapters.includes(index) && (
-                            <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                            <div className="divide-y divide-border">
                                 {module.lessons.map((lesson) => (
-                                    <div key={lesson.id} className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-colors group">
+                                    <div key={lesson.id} className="p-4 flex items-center justify-between hover:bg-accent transition-colors group cursor-pointer">
                                         <div className="flex items-center gap-3 flex-1">
                                             {lesson.contentType === 'video' ? (
-                                                <PlayCircle className="w-4 h-4 text-slate-400 group-hover:text-teal-600 transition-colors flex-shrink-0" />
+                                                <PlayCircle className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
                                             ) : (
-                                                <FileText className="w-4 h-4 text-slate-400 group-hover:text-teal-600 transition-colors flex-shrink-0" />
+                                                <FileText className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
                                             )}
                                             <span className={cn(
                                                 "text-sm font-medium transition-colors",
-                                                lesson.isPreview ? "text-teal-600 dark:text-teal-400" : "text-slate-700 dark:text-slate-300"
+                                                lesson.isPreview ? "text-primary" : "text-foreground"
                                             )}>
                                                 {lesson.title}
                                             </span>
                                         </div>
                                         <div className="flex items-center gap-3">
                                             {lesson.isPreview && (
-                                                <button className="text-xs font-semibold px-2 py-1 rounded bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400 hover:bg-teal-200 dark:hover:bg-teal-900/50 transition-colors">
+                                                <button className="text-xs font-semibold px-2 py-1 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer">
                                                     Xem trước
                                                 </button>
                                             )}
-                                            <span className="text-xs text-slate-500 min-w-[40px] text-right">
+                                            <span className="text-xs text-muted-foreground min-w-[40px] text-right">
                                                 {lesson.isPreview && lesson.videoDuration ? formatDuration(lesson.videoDuration) : <Lock className="w-3 h-3 inline" />}
                                             </span>
                                         </div>

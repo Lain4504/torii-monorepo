@@ -111,15 +111,15 @@ export default function ExamPage() {
     const types = ['Full Test', 'Mini Test']
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-12">
+        <div className="min-h-screen bg-background py-12">
             <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
                 {/* Header */}
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+                    <h1 className="text-3xl font-bold tracking-tight text-foreground">
                         Luyện thi JLPT
                     </h1>
-                    <p className="text-slate-500 dark:text-slate-400 mt-2">
+                    <p className="text-muted-foreground mt-2">
                         Kho đề thi thử và bài tập luyện tập từ N5 đến N1
                     </p>
                 </div>
@@ -130,11 +130,11 @@ export default function ExamPage() {
                 {/* Main Content Area */}
                 <Tabs defaultValue="available" className="space-y-8" onValueChange={setActiveTab}>
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                        <TabsList className="bg-white dark:bg-slate-900 p-1 border border-slate-200 dark:border-slate-800">
-                            <TabsTrigger value="available" className="data-[state=active]:bg-teal-100 data-[state=active]:text-teal-700 dark:data-[state=active]:bg-teal-900/30 dark:data-[state=active]:text-teal-400">
+                        <TabsList className="p-1 border">
+                            <TabsTrigger value="available">
                                 Đề thi có sẵn
                             </TabsTrigger>
-                            <TabsTrigger value="history" className="data-[state=active]:bg-teal-100 data-[state=active]:text-teal-700 dark:data-[state=active]:bg-teal-900/30 dark:data-[state=active]:text-teal-400">
+                            <TabsTrigger value="history">
                                 Lịch sử thi
                             </TabsTrigger>
                         </TabsList>
@@ -142,16 +142,16 @@ export default function ExamPage() {
                         {activeTab === 'available' && (
                             <div className="flex w-full md:w-auto gap-2">
                                 <div className="relative flex-1 md:w-[300px]">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                     <Input
                                         placeholder="Tìm kiếm đề thi..."
-                                        className="pl-9 bg-white dark:bg-slate-900"
+                                        className="pl-9"
                                         value={searchQuery}
                                         onChange={(e) => handleSearch(e.target.value)}
                                     />
                                 </div>
-                                <Button variant="outline" size="icon" className="bg-white dark:bg-slate-900">
-                                    <Filter className="w-4 h-4 text-slate-500" />
+                                <Button variant="outline" size="icon">
+                                    <Filter className="w-4 h-4 text-muted-foreground" />
                                 </Button>
                             </div>
                         )}
@@ -165,20 +165,20 @@ export default function ExamPage() {
                                     key={level}
                                     variant={selectedLevel === level ? "default" : "outline"}
                                     size="sm"
-                                    className={selectedLevel === level ? "bg-slate-900 text-white" : "text-slate-600 bg-white"}
                                     onClick={() => setSelectedLevel(level)}
+                                    className="cursor-pointer"
                                 >
                                     {level}
                                 </Button>
                             ))}
-                            <div className="w-px h-8 bg-slate-200 mx-2 hidden md:block" />
+                            <div className="w-px h-8 bg-border mx-2 hidden md:block" />
                             {types.map((type) => (
                                 <Button
                                     key={type}
                                     variant={selectedType === type ? "default" : "outline"}
                                     size="sm"
-                                    className={selectedType === type ? "bg-slate-900 text-white" : "bg-white text-slate-600"}
                                     onClick={() => setSelectedType(selectedType === type ? null : type)}
+                                    className="cursor-pointer"
                                 >
                                     {type}
                                 </Button>
@@ -189,16 +189,16 @@ export default function ExamPage() {
                         {loading ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {[1, 2, 3, 4, 5, 6].map((i) => (
-                                    <div key={i} className="border border-slate-200 dark:border-slate-800 rounded-lg p-6 animate-pulse">
-                                        <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-16 mb-4"></div>
-                                        <div className="h-6 bg-slate-200 dark:bg-slate-800 rounded w-3/4 mb-4"></div>
-                                        <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-1/2"></div>
+                                    <div key={i} className="border rounded-lg p-6 animate-pulse">
+                                        <div className="h-4 bg-muted rounded w-16 mb-4"></div>
+                                        <div className="h-6 bg-muted rounded w-3/4 mb-4"></div>
+                                        <div className="h-4 bg-muted rounded w-1/2"></div>
                                     </div>
                                 ))}
                             </div>
                         ) : exams.length === 0 ? (
                             <div className="text-center py-12">
-                                <p className="text-slate-500 dark:text-slate-400">Không tìm thấy đề thi nào</p>
+                                <p className="text-muted-foreground">Không tìm thấy đề thi nào</p>
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

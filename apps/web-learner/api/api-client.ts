@@ -78,15 +78,39 @@ apiClient.interceptors.response.use(
         // Check if error is 401 and we haven't already retried this request
         if (error.response?.status === 401 && !originalRequest._retry) {
 
-            // Avoid infinite loop: don't retry refresh endpoint itself or login endpoint
-            if (originalRequest.url?.includes('/auth/refresh') || originalRequest.url?.includes('/auth/login')) {
-                // If it's a login failure, just return the error so the UI can handle it
-                if (originalRequest.url?.includes('/auth/login')) {
+            // Check if we're on a public page - don't try to refresh tokens on public pages
+            const publicPages = ['/login', '/register', '/forgot-password', '/reset-password', '/verify', '/verify-request'];
+            const isPublicPage = typeof window !== 'undefined' && publicPages.some(page => window.location.pathname.includes(page));
+
+            // Don't attempt refresh on public auth endpoints or public pages
+            const isPublicEndpoint = originalRequest.url?.includes('/auth/refresh') || 
+                                   originalRequest.url?.includes('/auth/login') ||
+                                   originalRequest.url?.includes('/auth/register') ||
+                                   originalRequest.url?.includes('/auth/forgot-password') ||
+                                   originalRequest.url?.includes('/auth/reset-password') ||
+                                   originalRequest.url?.includes('/auth/verify');
+
+            if (isPublicEndpoint || isPublicPage) {
+                // If it's a login/register failure, just return the error so the UI can handle it
+                if (originalRequest.url?.includes('/auth/login') || originalRequest.url?.includes('/auth/register')) {
                     return Promise.reject(error);
                 }
-                console.warn('Token refresh failed');
+                // For other public endpoints or pages, just reject without redirect
+                if (isPublicPage) {
+                    return Promise.reject(error);
+                }
+                console.warn('Token refresh failed on public endpoint');
                 isRefreshing = false;
                 processQueue(error);
+                return Promise.reject(error);
+            }
+
+            // Check if there's actually a refresh token cookie before attempting refresh
+            // Only attempt refresh if we're not on a public page and have a refresh token
+            const hasRefreshToken = typeof document !== 'undefined' && document.cookie.includes('refresh_token');
+            if (!hasRefreshToken) {
+                // No refresh token means user hasn't logged in - just reject
+                console.log('No refresh token found, skipping token refresh');
                 redirectToLogin();
                 return Promise.reject(error);
             }

@@ -43,17 +43,17 @@ const features = [
 
 export function FeaturesSection() {
     return (
-        <section className="py-24 bg-white dark:bg-slate-900 border-t border-teal-200 dark:border-teal-800">
+        <section className="py-24 bg-background border-t">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Section Header */}
                 <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-                    <h2 className="text-4xl sm:text-5xl font-bold text-slate-900 dark:text-white">
+                    <h2 className="text-4xl sm:text-5xl font-bold text-foreground">
                         Tính năng{' '}
-                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-teal-600 to-cyan-500 dark:from-teal-400 dark:to-cyan-400">
+                        <span className="text-primary">
                             Vượt trội
                         </span>
                     </h2>
-                    <p className="text-xl text-slate-600 dark:text-slate-300">
+                    <p className="text-xl text-muted-foreground">
                         Nền tảng học tiếng Nhật toàn diện với công nghệ WebRTC và AI hiện đại
                     </p>
                 </div>
@@ -65,23 +65,20 @@ export function FeaturesSection() {
                         return (
                             <div
                                 key={index}
-                                className="group relative bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-8 border border-teal-200 dark:border-teal-700 hover:border-teal-300 dark:hover:border-teal-600 transition-all hover:shadow-xl hover:-translate-y-1 cursor-pointer"
+                                className="group relative bg-card rounded-lg p-8 border hover:shadow-md transition-shadow cursor-pointer"
                             >
                                 {/* Icon */}
-                                <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
-                                    <Icon className="w-7 h-7 text-white" />
+                                <div className="w-14 h-14 rounded-lg bg-primary flex items-center justify-center mb-6">
+                                    <Icon className="w-7 h-7 text-primary-foreground" />
                                 </div>
 
                                 {/* Content */}
-                                <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-3">
+                                <h3 className="text-xl font-semibold text-card-foreground mb-3">
                                     {feature.title}
                                 </h3>
-                                <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                                <p className="text-muted-foreground leading-relaxed">
                                     {feature.description}
                                 </p>
-
-                                {/* Hover effect gradient */}
-                                <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-5 transition-opacity`} />
                             </div>
                         )
                     })}

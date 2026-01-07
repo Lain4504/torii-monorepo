@@ -71,10 +71,10 @@ export function ExamHistory() {
 
     if (loading) {
         return (
-            <div className="rounded-md border border-slate-200 dark:border-slate-800 overflow-hidden">
+            <div className="rounded-lg border overflow-hidden">
                 <Table>
                     <TableHeader>
-                        <TableRow className="bg-slate-50 dark:bg-slate-900">
+                        <TableRow className="bg-muted">
                             <TableHead>Ngày thi</TableHead>
                             <TableHead>Đề thi</TableHead>
                             <TableHead className="text-center">Trình độ</TableHead>
@@ -88,7 +88,7 @@ export function ExamHistory() {
                         {[1, 2, 3].map((i) => (
                             <TableRow key={i}>
                                 <TableCell colSpan={7}>
-                                    <div className="animate-pulse h-8 bg-slate-200 dark:bg-slate-800 rounded"></div>
+                                    <div className="animate-pulse h-8 bg-muted rounded"></div>
                                 </TableCell>
                             </TableRow>
                         ))}
@@ -100,17 +100,17 @@ export function ExamHistory() {
 
     if (sessions.length === 0) {
         return (
-            <div className="rounded-md border border-slate-200 dark:border-slate-800 p-12 text-center">
-                <p className="text-slate-500 dark:text-slate-400">Chưa có lịch sử thi nào</p>
+            <div className="rounded-lg border p-12 text-center">
+                <p className="text-muted-foreground">Chưa có lịch sử thi nào</p>
             </div>
         )
     }
 
     return (
-        <div className="rounded-md border border-slate-200 dark:border-slate-800 overflow-hidden">
+        <div className="rounded-lg border overflow-hidden">
             <Table>
                 <TableHeader>
-                    <TableRow className="bg-slate-50 dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-900">
+                    <TableRow className="bg-muted">
                         <TableHead>Ngày thi</TableHead>
                         <TableHead>Đề thi</TableHead>
                         <TableHead className="text-center">Trình độ</TableHead>
@@ -129,14 +129,14 @@ export function ExamHistory() {
 
                         return (
                             <TableRow key={session.id}>
-                                <TableCell className="font-medium text-slate-600 dark:text-slate-400">
+                                <TableCell className="font-medium text-muted-foreground">
                                     {formatDate(date)}
                                 </TableCell>
-                                <TableCell className="font-semibold text-slate-900 dark:text-white">
+                                <TableCell className="font-semibold text-foreground">
                                     {exam?.title || 'N/A'}
                                 </TableCell>
                                 <TableCell className="text-center">
-                                    <Badge variant="outline" className="border-slate-200 dark:border-slate-700">
+                                    <Badge variant="outline">
                                         {exam?.jlptLevel || 'N/A'}
                                     </Badge>
                                 </TableCell>
@@ -145,30 +145,30 @@ export function ExamHistory() {
                                         ? `${session.score}/${session.maxScore}`
                                         : '-'}
                                 </TableCell>
-                                <TableCell className="text-center text-slate-500">
+                                <TableCell className="text-center text-muted-foreground">
                                     {formatTime(timeSpent)}
                                 </TableCell>
                                 <TableCell className="text-center">
                                     {session.score !== undefined && session.maxScore !== undefined ? (
                                         <Badge
                                             className={passed
-                                                ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-0"
-                                                : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-0"}
+                                                ? "bg-primary/10 text-primary border-0"
+                                                : "bg-destructive/10 text-destructive border-0"}
                                         >
                                             {passed ? 'Đỗ' : 'Trượt'}
                                         </Badge>
                                     ) : (
-                                        <span className="text-slate-400">-</span>
+                                        <span className="text-muted-foreground">-</span>
                                     )}
                                 </TableCell>
                                 <TableCell className="text-right">
                                     <Button
                                         variant="ghost"
                                         size="sm"
-                                        className="h-8 w-8 p-0"
+                                        className="h-8 w-8 p-0 cursor-pointer"
                                         onClick={() => handleViewDetails(session)}
                                     >
-                                        <Eye className="w-4 h-4 text-slate-500 hover:text-teal-600" />
+                                        <Eye className="w-4 h-4 text-muted-foreground hover:text-primary transition-colors" />
                                         <span className="sr-only">Xem chi tiết</span>
                                     </Button>
                                 </TableCell>
