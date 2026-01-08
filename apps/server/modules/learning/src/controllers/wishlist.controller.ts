@@ -1,36 +1,46 @@
-import { Controller, Get, Post, Delete, Body, Param, Query, Logger, UseGuards, Req } from '@nestjs/common';
-import { WishlistService } from '../../modules/wishlist/wishlist.service';
+import { Controller, Get, Post, Delete, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
 import {
     type WishlistCreateDTO,
     type WishlistQueryDTO,
 } from '@workspace/schemas';
 import { GatewayAuthGuard } from '@server/shared';
+import { WishlistService } from '../modules/wishlist/wishlist.service';
 
+/**
+ * Wishlist HTTP Controller
+ * Handles wishlist operations
+ */
 @Controller('wishlists')
 @UseGuards(GatewayAuthGuard)
 export class WishlistController {
-    constructor(private readonly wishlistService: WishlistService) { }
+    constructor(
+        private readonly wishlistService: WishlistService,
+    ) { }
 
+    /**
+     * Get all wishlists with pagination
+     */
     @Get()
-    async findAll(
-        @Query() query: WishlistQueryDTO,
-    ) {
-        // Wishlist is usually personal, query typically contains userId or we filter by req.user.uid
-        // Inspecting NATS controller: it took WishlistQueryDTO directly.
+    async findAll(@Query() query: WishlistQueryDTO) {
         return this.wishlistService.findAll(query);
     }
 
+    /**
+     * Get wishlist by ID
+     */
     @Get(':id')
     async findOne(@Param('id') id: string) {
         return this.wishlistService.findOne(id);
     }
 
+    /**
+     * Create new wishlist
+     */
     @Post()
     async create(
         @Body() input: WishlistCreateDTO,
         @Req() req: any,
     ) {
-        // Get userId from JWT payload (sub field)
         const userId = req.user?.sub || req.user?.uid;
         if (!userId) {
             throw new Error('User ID not found in request');
@@ -41,8 +51,12 @@ export class WishlistController {
         return this.wishlistService.create(input);
     }
 
+    /**
+     * Delete wishlist by ID
+     */
     @Delete(':id')
     async delete(@Param('id') id: string) {
         return this.wishlistService.delete(id);
     }
 }
+

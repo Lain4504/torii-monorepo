@@ -29,7 +29,7 @@ import { GamificationModule } from './modules/gamification/gamification.module';
 import { CourseController } from './interfaces/http/course.controller';
 import { ModuleController } from './interfaces/http/module.controller';
 import { LessonController } from './interfaces/http/lesson.controller';
-import { WishlistController } from './interfaces/http/wishlist.controller';
+import { WishlistController } from './controllers/wishlist.controller';
 import { ReviewController } from './controllers/review.controller';
 import { BlogController } from './interfaces/http/blog.controller';
 import { BlogCommentController } from './interfaces/http/blog-comment.controller';

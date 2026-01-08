@@ -1,17 +1,25 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '@server/shared';
 import {
   type WishlistCreateDTO,
   type WishlistQueryDTO,
   type WishlistResponseDTO,
   type PaginatedResponseDTO,
 } from '@workspace/schemas';
+import type { IWishlistService } from '../../interfaces/services';
+import { WishlistRepository } from './wishlist.repository';
+import type { Prisma } from '@prisma/generated';
 
+/**
+ * Wishlist Service
+ * Handles wishlist business logic operations
+ */
 @Injectable()
-export class WishlistService {
+export class WishlistService implements IWishlistService {
   private readonly logger = new Logger(WishlistService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly wishlistRepository: WishlistRepository,
+  ) { }
 
   private toWishlistDto(w: any): WishlistResponseDTO {
     return {
@@ -22,6 +30,9 @@ export class WishlistService {
     };
   }
 
+  /**
+   * Find all wishlists with pagination and filters
+   */
   async findAll(
     query: WishlistQueryDTO,
   ): Promise<PaginatedResponseDTO<WishlistResponseDTO>> {
@@ -35,13 +46,13 @@ export class WishlistService {
       const validLimit = limitNum > 0 ? limitNum : 10;
       const skip = (validPage - 1) * validLimit;
 
-      const whereClause: Record<string, any> = {};
+      const whereClause: Prisma.WishlistWhereInput = {};
       if (userId) whereClause.userId = userId;
       if (courseId) whereClause.courseId = courseId;
 
       const [total, items] = await Promise.all([
-        this.prisma.wishlist.count({ where: whereClause }),
-        this.prisma.wishlist.findMany({
+        this.wishlistRepository.count(whereClause),
+        this.wishlistRepository.findMany({
           where: whereClause,
           take: validLimit,
           skip,
@@ -73,9 +84,12 @@ export class WishlistService {
     }
   }
 
+  /**
+   * Find wishlist by ID
+   */
   async findOne(id: string): Promise<WishlistResponseDTO | null> {
     try {
-      const item = await this.prisma.wishlist.findUnique({ where: { id } });
+      const item = await this.wishlistRepository.findById(id);
       if (!item) return null;
       return this.toWishlistDto(item);
     } catch (error: any) {
@@ -87,8 +101,10 @@ export class WishlistService {
     }
   }
 
+  /**
+   * Create a new wishlist
+   */
   async create(input: WishlistCreateDTO): Promise<WishlistResponseDTO> {
-    // Validate required fields
     if (!input.userId) {
       throw new Error('UserId is required');
     }
@@ -97,16 +113,18 @@ export class WishlistService {
     }
 
     try {
-      const created = await this.prisma.wishlist.create({
-        data: { userId: input.userId, courseId: input.courseId },
+      const created = await this.wishlistRepository.create({
+        user: { connect: { id: input.userId } },
+        course: { connect: { id: input.courseId } },
       });
       return this.toWishlistDto(created);
     } catch (error: any) {
       // Handle unique constraint (userId + courseId) -> return existing
       if (error?.code === 'P2002') {
-        const existing = await this.prisma.wishlist.findFirst({
-          where: { userId: input.userId, courseId: input.courseId },
-        });
+        const existing = await this.wishlistRepository.findByUserAndCourse(
+          input.userId,
+          input.courseId,
+        );
         if (existing) return this.toWishlistDto(existing);
       }
       this.logger.error(
@@ -117,11 +135,14 @@ export class WishlistService {
     }
   }
 
+  /**
+   * Delete wishlist by ID
+   */
   async delete(id: string): Promise<boolean> {
     try {
-      const existing = await this.prisma.wishlist.findUnique({ where: { id } });
+      const existing = await this.wishlistRepository.findById(id);
       if (!existing) return false;
-      await this.prisma.wishlist.delete({ where: { id } });
+      await this.wishlistRepository.delete(id);
       return true;
     } catch (error: any) {
       this.logger.error(
