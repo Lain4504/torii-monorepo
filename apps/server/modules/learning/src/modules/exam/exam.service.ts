@@ -404,7 +404,7 @@ export class ExamService {
 
         for (const section of sections) {
             // Get questions from question bank based on section criteria
-            const sectionQuestions = await this.prisma.questionBank.findMany({
+            const sectionQuestions = await this.prisma.question.findMany({
                 where: {
                     jlptLevel: quiz.jlptLevel,
                     category: section.type,

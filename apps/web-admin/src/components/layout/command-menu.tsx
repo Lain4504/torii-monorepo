@@ -7,6 +7,7 @@ import {
     Layers, // modules
     FileText, // lessons
     Database, // question bank
+    FileQuestion, // questions
     Video, // rooms
     FileEdit, // blogs
     DollarSign, // payments
@@ -96,9 +97,13 @@ export function CommandMenu() {
                             <FileText className="mr-2 h-4 w-4" />
                             <span>Lessons</span>
                         </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => navigate("/question-bank"))}>
+                        <CommandItem onSelect={() => runCommand(() => navigate("/questions"))}>
+                            <FileQuestion className="mr-2 h-4 w-4" />
+                            <span>Questions</span>
+                        </CommandItem>
+                        <CommandItem onSelect={() => runCommand(() => navigate("/question-pools"))}>
                             <Database className="mr-2 h-4 w-4" />
-                            <span>Question Bank</span>
+                            <span>Question Pools</span>
                         </CommandItem>
                         <CommandItem onSelect={() => runCommand(() => navigate("/rooms"))}>
                             <Video className="mr-2 h-4 w-4" />

@@ -66,7 +66,7 @@ export function EditModuleDialog({ module, open, onOpenChange, existingModules =
                 title: module.title,
                 courseId: module.courseId,
                 description: module.description,
-                order: module.order,
+                orderIndex: module.orderIndex,
                 durationMinutes: module.durationMinutes,
             });
         }
@@ -92,14 +92,18 @@ export function EditModuleDialog({ module, open, onOpenChange, existingModules =
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Edit Module</DialogTitle>
+            <DialogContent className="max-w-md border-none shadow-2xl bg-background/95 backdrop-blur-xl rounded-2xl p-0 overflow-hidden">
+                <DialogHeader className="p-6 pb-4 bg-muted/30">
+                    <DialogTitle className="text-xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">Edit Module</DialogTitle>
                 </DialogHeader>
-                <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4" noValidate>
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Course Title</label>
-                        <Input value={courseTitle} readOnly />
+                <form onSubmit={handleSubmit(onSubmitForm)} className="p-6 pt-4 space-y-5" noValidate>
+                    <div className="space-y-2">
+                        <label className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Course Title</label>
+                        <Input
+                            value={courseTitle}
+                            readOnly
+                            className="h-11 border-none bg-muted/50 text-muted-foreground rounded-xl"
+                        />
                         <input type="hidden" {...register('courseId')} />
                     </div>
 
@@ -108,14 +112,15 @@ export function EditModuleDialog({ module, open, onOpenChange, existingModules =
                         name="title"
                         render={({ field, fieldState }) => (
                             <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor={field.name}>Title</FieldLabel>
+                                <FieldLabel htmlFor={field.name} className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Title</FieldLabel>
                                 <Input
                                     id={field.name}
                                     {...field}
                                     placeholder="Enter module title"
+                                    className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all"
                                     aria-invalid={fieldState.invalid}
                                 />
-                                <FieldError errors={[fieldState.error]} />
+                                <FieldError errors={[fieldState.error]} className="text-[10px] font-medium text-destructive ml-1" />
                             </Field>
                         )}
                     />
@@ -125,61 +130,77 @@ export function EditModuleDialog({ module, open, onOpenChange, existingModules =
                         name="description"
                         render={({ field, fieldState }) => (
                             <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor={field.name}>Description</FieldLabel>
+                                <FieldLabel htmlFor={field.name} className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Description</FieldLabel>
                                 <Input
                                     id={field.name}
                                     {...field}
+                                    value={field.value || ''}
                                     placeholder="Enter description"
+                                    className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all"
                                     aria-invalid={fieldState.invalid}
                                 />
-                                <FieldError errors={[fieldState.error]} />
+                                <FieldError errors={[fieldState.error]} className="text-[10px] font-medium text-destructive ml-1" />
                             </Field>
                         )}
                     />
 
-                    <Controller
-                        control={control}
-                        name="order"
-                        render={({ field, fieldState }) => (
-                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor={field.name}>Order</FieldLabel>
-                                <Input
-                                    id={field.name}
-                                    type="number"
-                                    {...field}
-                                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                                    placeholder="Enter order"
-                                    aria-invalid={fieldState.invalid}
-                                />
-                                <FieldError errors={[fieldState.error]} />
-                            </Field>
-                        )}
-                    />
+                    <div className="grid grid-cols-2 gap-4">
+                        <Controller
+                            control={control}
+                            name="orderIndex"
+                            render={({ field, fieldState }) => (
+                                <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor={field.name} className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Order</FieldLabel>
+                                    <Input
+                                        id={field.name}
+                                        type="number"
+                                        {...field}
+                                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                        placeholder="1"
+                                        className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all"
+                                        aria-invalid={fieldState.invalid}
+                                    />
+                                    <FieldError errors={[fieldState.error]} className="text-[10px] font-medium text-destructive ml-1" />
+                                </Field>
+                            )}
+                        />
 
-                    <Controller
-                        control={control}
-                        name="durationMinutes"
-                        render={({ field, fieldState }) => (
-                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor={field.name}>Duration (minutes)</FieldLabel>
-                                <Input
-                                    id={field.name}
-                                    type="number"
-                                    {...field}
-                                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                                    placeholder="Duration in minutes"
-                                    aria-invalid={fieldState.invalid}
-                                />
-                                <FieldError errors={[fieldState.error]} />
-                            </Field>
-                        )}
-                    />
+                        <Controller
+                            control={control}
+                            name="durationMinutes"
+                            render={({ field, fieldState }) => (
+                                <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor={field.name} className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Duration (mins)</FieldLabel>
+                                    <Input
+                                        id={field.name}
+                                        type="number"
+                                        {...field}
+                                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                        placeholder="60"
+                                        className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all"
+                                        aria-invalid={fieldState.invalid}
+                                    />
+                                    <FieldError errors={[fieldState.error]} className="text-[10px] font-medium text-destructive ml-1" />
+                                </Field>
+                            )}
+                        />
+                    </div>
 
-                    <div className="flex justify-end gap-2">
-                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                    <div className="flex justify-end gap-3 pt-2">
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={() => onOpenChange(false)}
+                            className="rounded-xl h-11 px-6 hover:bg-primary/5"
+                        >
                             Cancel
                         </Button>
-                        <Button type="submit">Update Module</Button>
+                        <Button
+                            type="submit"
+                            className="rounded-xl h-11 px-8 bg-primary shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform"
+                        >
+                            Update Module
+                        </Button>
                     </div>
                 </form>
             </DialogContent>

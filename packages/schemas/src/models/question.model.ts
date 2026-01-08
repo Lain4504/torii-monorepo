@@ -16,6 +16,7 @@ export enum QuestionDifficultyLevel {
 
 export enum QuestionStatus {
     ACTIVE = 'active',
+    INACTIVE = 'inactive',
     REVIEW = 'review',
     ARCHIVED = 'archived',
 }
@@ -28,17 +29,26 @@ export enum QuestionJlptLevel {
     N1 = 'N1',
 }
 
-export const questionBankSchema = z.object({
+export enum QuestionCategory {
+    VOCAB = 'vocab',
+    GRAMMAR = 'grammar',
+    READING = 'reading',
+    LISTENING = 'listening',
+}
+
+export const questionSchema = z.object({
     id: z.string().uuid(),
+    poolId: z.string().uuid().optional(),
     questionText: z.string().min(1),
     questionType: z.nativeEnum(QuestionType),
     jlptLevel: z.nativeEnum(QuestionJlptLevel).optional(),
-    category: z.string().optional(),
+    category: z.nativeEnum(QuestionCategory).optional(),
     subcategory: z.string().optional(),
     difficulty: z.nativeEnum(QuestionDifficultyLevel).optional(),
     options: z.record(z.string(), z.string()).optional(), // JSONB
     correctAnswer: z.string().optional(),
     explanation: z.string().optional(),
+    metadata: z.record(z.any()).optional(), // JSONB - Rich content
     tags: z.array(z.string()).default([]),
     createdBy: z.string().uuid().optional(),
     status: z.nativeEnum(QuestionStatus).default(QuestionStatus.ACTIVE),
@@ -47,4 +57,5 @@ export const questionBankSchema = z.object({
     updatedAt: z.date(),
 });
 
-export type QuestionBank = z.infer<typeof questionBankSchema>;
+export type Question = z.infer<typeof questionSchema>;
+

@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import { QuestionJlptLevel } from './question-bank.model';
+import { QuestionJlptLevel } from './question.model';
 
 // Re-export QuestionJlptLevel for convenience
-export { QuestionJlptLevel } from './question-bank.model';
+export { QuestionJlptLevel } from './question.model';
 
 export enum ExamType {
     PRACTICE = 'practice',

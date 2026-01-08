@@ -39,6 +39,9 @@ export class ProxyController {
         '/api/wishlists': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
         '/api/reviews': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
 
+        // Storage Domain
+        '/api/storage': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
+
         // Flashcards Domain
         '/api/flashcards': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
         '/api/flashcard-decks': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
@@ -49,7 +52,8 @@ export class ProxyController {
         '/api/notifications': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
 
         // Assessment Domain
-        '/api/question-banks': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
+        '/api/questions': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
+        '/api/question-pools': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
         '/api/v1/exams': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
         '/api/v1/exams/attempts': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
         '/api/v1/exams/sessions': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',

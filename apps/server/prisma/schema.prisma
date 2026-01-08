@@ -539,9 +539,31 @@ model BlogComment {
   @@map("blog_comments")
 }
 
-// Question Bank - Bank of questions for quizzes and assessments
-model QuestionBank {
+// Question Pools - Nhóm câu hỏi theo course/lesson
+model QuestionPool {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String    @db.VarChar(255)
+  description String?   @db.Text
+  courseId    String?   @map("course_id") @db.Uuid
+  lessonId    String?   @map("lesson_id") @db.Uuid
+  jlptLevel   String?   @map("jlpt_level") @db.VarChar(5)
+  createdBy   String?   @map("created_by") @db.Uuid
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  questions Question[]
+
+  @@index([courseId])
+  @@index([lessonId])
+  @@index([jlptLevel])
+  @@map("question_pools")
+}
+
+// Question - Questions for quizzes and assessments
+model Question {
   id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  poolId        String?  @map("pool_id") @db.Uuid
   questionText  String   @map("question_text") @db.Text
   questionType  String   @map("question_type") @db.VarChar(30)
   jlptLevel     String?  @map("jlpt_level") @db.VarChar(5)
@@ -551,6 +573,7 @@ model QuestionBank {
   options       Json?    @db.JsonB // { "A": "text", "B": "text", ... }
   correctAnswer String?  @map("correct_answer") @db.Text
   explanation   String?  @db.Text
+  metadata      Json?    @default("{}") @db.JsonB // Rich content: audio, images, reading passages
   tags          String[] @default([]) @db.VarChar(50)
   createdBy     String?  @map("created_by") @db.Uuid
   status        String   @default("active") @db.VarChar(20)
@@ -559,14 +582,18 @@ model QuestionBank {
   updatedAt     DateTime @default(now()) @updatedAt @map("updated_at")
 
   // Relations
-  quizQuestions QuizQuestion[]
-  quizAttemptDetails QuizAttemptDetail[]
+  pool                QuestionPool?           @relation(fields: [poolId], references: [id], onDelete: SetNull)
+  quizQuestions       QuizQuestion[]
+  quizAttemptDetails  QuizAttemptDetail[]
 
   @@index([questionType])
   @@index([jlptLevel])
   @@index([difficulty])
   @@index([status])
-  @@map("question_bank")
+  @@index([category])
+  @@index([createdBy])
+  @@index([poolId])
+  @@map("questions")
 }
 
 // Quiz - Practice quiz template with sections
@@ -613,7 +640,7 @@ model QuizQuestion {
   sectionType String?  @map("section_type") @db.VarChar(50) // vocab, grammar, reading, listening
 
   quiz     Quiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  question QuestionBank @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  question Question     @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
   @@unique([quizId, orderIndex])
   @@index([quizId])
@@ -668,7 +695,7 @@ model QuizAttemptDetail {
 
   // Relations
   attempt           QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
-  question          QuestionBank @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  question          Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
   @@index([attemptId])
   @@index([questionId])

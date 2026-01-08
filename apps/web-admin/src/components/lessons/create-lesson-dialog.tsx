@@ -49,9 +49,10 @@ export function CreateLessonDialog({ open, onOpenChange, moduleId }: CreateLesso
             moduleId: moduleId || '',
             title: '',
             contentType: LessonContentType.VIDEO,
-            order: 0,
+            orderIndex: 0,
             isPreview: false,
             isUnlocked: false,
+            aiMetadata: {},
         },
     });
 
@@ -115,24 +116,25 @@ export function CreateLessonDialog({ open, onOpenChange, moduleId }: CreateLesso
 
     return (
         <Dialog open={open} onOpenChange={handleClose}>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Create New Lesson</DialogTitle>
+            <DialogContent className="max-w-lg border-none shadow-2xl bg-background/95 backdrop-blur-xl rounded-2xl p-0 overflow-hidden">
+                <DialogHeader className="p-6 pb-4 bg-muted/30">
+                    <DialogTitle className="text-xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">Create New Lesson</DialogTitle>
                 </DialogHeader>
-                <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4" noValidate>
+                <form onSubmit={handleSubmit(onSubmitForm)} className="p-6 pt-4 space-y-5" noValidate>
                     <Controller
                         control={control}
                         name="title"
                         render={({ field, fieldState }) => (
                             <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor={field.name}>Title</FieldLabel>
+                                <FieldLabel htmlFor={field.name} className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Title</FieldLabel>
                                 <Input
                                     id={field.name}
                                     {...field}
                                     placeholder="Enter lesson title"
+                                    className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all"
                                     aria-invalid={fieldState.invalid}
                                 />
-                                <FieldError errors={[fieldState.error]} />
+                                <FieldError errors={[fieldState.error]} className="text-[10px] font-medium text-destructive ml-1" />
                             </Field>
                         )}
                     />
@@ -142,33 +144,34 @@ export function CreateLessonDialog({ open, onOpenChange, moduleId }: CreateLesso
                         name="contentType"
                         render={({ field, fieldState }) => (
                             <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor={field.name}>Content Type</FieldLabel>
+                                <FieldLabel htmlFor={field.name} className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Content Type</FieldLabel>
                                 <Select
                                     value={field.value}
                                     onValueChange={(value) => field.onChange(value as LessonContentType)}
                                 >
-                                    <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
+                                    <SelectTrigger id={field.name} aria-invalid={fieldState.invalid} className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus:ring-1 focus:ring-primary/20 rounded-xl transition-all">
                                         <SelectValue />
                                     </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value={LessonContentType.VIDEO}>Video</SelectItem>
-                                        <SelectItem value={LessonContentType.ARTICLE}>Article</SelectItem>
-                                        <SelectItem value={LessonContentType.QUIZ}>Quiz</SelectItem>
-                                        <SelectItem value={LessonContentType.ASSIGNMENT}>Assignment</SelectItem>
+                                    <SelectContent className="border-none shadow-xl bg-card rounded-xl">
+                                        <SelectItem value={LessonContentType.VIDEO} className="rounded-lg cursor-pointer focus:bg-primary/10 focus:text-primary">Video</SelectItem>
+                                        <SelectItem value={LessonContentType.ARTICLE} className="rounded-lg cursor-pointer focus:bg-primary/10 focus:text-primary">Article</SelectItem>
+                                        <SelectItem value={LessonContentType.QUIZ} className="rounded-lg cursor-pointer focus:bg-primary/10 focus:text-primary">Quiz</SelectItem>
+                                        <SelectItem value={LessonContentType.ASSIGNMENT} className="rounded-lg cursor-pointer focus:bg-primary/10 focus:text-primary">Assignment</SelectItem>
                                     </SelectContent>
                                 </Select>
-                                <FieldError errors={[fieldState.error]} />
+                                <FieldError errors={[fieldState.error]} className="text-[10px] font-medium text-destructive ml-1" />
                             </Field>
                         )}
                     />
 
                     {watch('contentType') === LessonContentType.VIDEO && (
                         <div>
-                            <label className="block text-sm font-medium mb-1">Video File</label>
+                            <label className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1 mb-2 block">Video File</label>
                             <Input
                                 type="file"
                                 accept="video/*"
                                 onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+                                className="h-11 border-none bg-muted/30 hover:bg-muted/50 file:bg-primary/10 file:text-primary file:border-0 file:rounded-lg file:mr-4 file:px-4 file:h-full cursor-pointer rounded-xl transition-all pt-1.5"
                             />
                         </div>
                     )}
@@ -179,14 +182,15 @@ export function CreateLessonDialog({ open, onOpenChange, moduleId }: CreateLesso
                             name="articleContent"
                             render={({ field, fieldState }) => (
                                 <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                    <FieldLabel htmlFor={field.name}>Article Content</FieldLabel>
+                                    <FieldLabel htmlFor={field.name} className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Article Content</FieldLabel>
                                     <Textarea
                                         id={field.name}
                                         {...field}
                                         placeholder="Enter article content"
+                                        className="min-h-[120px] border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all resize-none p-4"
                                         aria-invalid={fieldState.invalid}
                                     />
-                                    <FieldError errors={[fieldState.error]} />
+                                    <FieldError errors={[fieldState.error]} className="text-[10px] font-medium text-destructive ml-1" />
                                 </Field>
                             )}
                         />
@@ -194,34 +198,36 @@ export function CreateLessonDialog({ open, onOpenChange, moduleId }: CreateLesso
 
                     <Controller
                         control={control}
-                        name="order"
+                        name="orderIndex"
                         render={({ field, fieldState }) => (
                             <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor={field.name}>Order</FieldLabel>
+                                <FieldLabel htmlFor={field.name} className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Order</FieldLabel>
                                 <Input
                                     id={field.name}
                                     type="number"
                                     {...field}
                                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                    className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all"
                                     aria-invalid={fieldState.invalid}
                                 />
-                                <FieldError errors={[fieldState.error]} />
+                                <FieldError errors={[fieldState.error]} className="text-[10px] font-medium text-destructive ml-1" />
                             </Field>
                         )}
                     />
 
-                    <div className="flex gap-4">
+                    <div className="flex gap-6 pt-1">
                         <Controller
                             control={control}
                             name="isPreview"
                             render={({ field }) => (
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2.5">
                                     <Checkbox
                                         id={field.name}
                                         checked={field.value}
                                         onCheckedChange={field.onChange}
+                                        className="border-muted-foreground/40 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                                     />
-                                    <label htmlFor={field.name} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer">
+                                    <label htmlFor={field.name} className="text-sm font-medium text-muted-foreground cursor-pointer select-none">
                                         Is Preview
                                     </label>
                                 </div>
@@ -232,13 +238,14 @@ export function CreateLessonDialog({ open, onOpenChange, moduleId }: CreateLesso
                             control={control}
                             name="isUnlocked"
                             render={({ field }) => (
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2.5">
                                     <Checkbox
                                         id={field.name}
                                         checked={field.value}
                                         onCheckedChange={field.onChange}
+                                        className="border-muted-foreground/40 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                                     />
-                                    <label htmlFor={field.name} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer">
+                                    <label htmlFor={field.name} className="text-sm font-medium text-muted-foreground cursor-pointer select-none">
                                         Is Unlocked
                                     </label>
                                 </div>
@@ -246,8 +253,22 @@ export function CreateLessonDialog({ open, onOpenChange, moduleId }: CreateLesso
                         />
                     </div>
 
-                    <div className="flex justify-end gap-2">
-                        <Button type="submit" disabled={uploading}>{uploading ? 'Uploading...' : 'Create Lesson'}</Button>
+                    <div className="flex justify-end gap-3 pt-2">
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={handleClose}
+                            className="rounded-xl h-11 px-6 hover:bg-primary/5"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="submit"
+                            disabled={uploading}
+                            className="rounded-xl h-11 px-8 bg-primary shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform"
+                        >
+                            {uploading ? 'Uploading...' : 'Create Lesson'}
+                        </Button>
                     </div>
                 </form>
             </DialogContent>

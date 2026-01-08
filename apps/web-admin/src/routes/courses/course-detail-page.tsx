@@ -20,7 +20,14 @@ import { useCourse } from '@/api/services/courses';
 import { useModules, useDeleteModule } from '@/api/services/modules';
 import { useLessons, useDeleteLesson } from '@/api/services/lesson';
 import { toast } from '@workspace/ui/components/sonner';
-import { Empty } from '@workspace/ui/components/empty';
+import {
+    Empty,
+    EmptyContent,
+    EmptyDescription,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from '@workspace/ui/components/empty';
 import type { ModuleResponseDTO, LessonResponseDTO } from '@workspace/schemas';
 
 import { CreateModuleDialog } from '@/components/modules/create-module-dialog';
@@ -39,23 +46,23 @@ function LessonRow({
     onDelete: (lesson: LessonResponseDTO) => void;
 }) {
     return (
-        <div className="group flex items-center justify-between py-2.5 sm:py-3 px-3 sm:px-4 min-h-[56px] hover:bg-muted/30 rounded-lg transition-colors duration-200 border border-border/20 hover:border-border/50 bg-card/30 backdrop-blur-sm">
-            <div className="flex items-center gap-3 flex-1 min-w-0">
-                <div className="flex-shrink-0 p-2 rounded-md bg-muted/50 text-muted-foreground">
+        <div className="group flex items-center justify-between py-3 px-4 min-h-[56px] hover:bg-muted/40 rounded-lg transition-all duration-200 border border-transparent hover:border-border/40 bg-transparent">
+            <div className="flex items-center gap-3.5 flex-1 min-w-0">
+                <div className="flex-shrink-0 p-2 rounded-md bg-muted/30 text-muted-foreground group-hover:text-primary group-hover:bg-primary/10 transition-colors">
                     <FileText className="h-4 w-4" />
                 </div>
                 <div className="flex-1 min-w-0">
-                    <span className="text-sm font-medium text-foreground block truncate pr-2">{lesson.title}</span>
+                    <span className="text-sm font-medium text-foreground block truncate pr-2 group-hover:text-primary transition-colors">{lesson.title}</span>
                     <div className="flex items-center gap-2 mt-0.5">
                         <span className="text-xs text-muted-foreground capitalize">{lesson.contentType}</span>
                     </div>
                 </div>
             </div>
-            <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+            <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="h-9 w-9 sm:h-8 sm:w-8 hover:bg-background hover:text-primary transition-colors"
+                    className="h-8 w-8 hover:bg-background hover:text-primary transition-colors"
                     onClick={() => onEdit(lesson)}
                     title="Edit Lesson"
                 >
@@ -64,7 +71,7 @@ function LessonRow({
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="h-9 w-9 sm:h-8 sm:w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                    className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
                     onClick={() => onDelete(lesson)}
                     title="Delete Lesson"
                 >
@@ -104,34 +111,34 @@ function ModuleItem({
     return (
         <AccordionItem
             value={module.id}
-            className="border border-border/40 rounded-xl shadow-sm overflow-hidden bg-gradient-to-br from-card via-card to-card/90 hover:shadow-md transition-shadow"
+            className="border border-border/40 rounded-xl shadow-sm overflow-hidden bg-card transition-all hover:shadow-md hover:border-border/60"
         >
-            <div className="flex items-stretch group bg-card/50 hover:bg-accent/5 transition-colors min-h-[60px]">
+            <div className="flex items-stretch group transition-colors min-h-[64px]">
                 {/* Drag Handle - Hidden on mobile */}
-                <div className="hidden sm:flex items-center pl-3 pr-2 text-muted-foreground/30 group-hover:text-muted-foreground/60 cursor-grab active:cursor-grabbing transition-colors">
+                <div className="hidden sm:flex items-center pl-3 pr-2 text-muted-foreground/20 group-hover:text-muted-foreground/50 cursor-grab active:cursor-grabbing transition-colors">
                     <GripVertical className="h-5 w-5" />
                 </div>
 
                 {/* Main Trigger Area */}
-                <AccordionTrigger className="flex-1 hover:no-underline py-3 sm:py-4 px-4 sm:pr-3 [&[data-state=open]>div>svg]:rotate-180">
-                    <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
-                        <div className="flex-shrink-0 h-10 w-10 sm:h-11 sm:w-11 rounded-lg bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+                <AccordionTrigger className="flex-1 hover:no-underline py-3 px-4 sm:pr-3 [&[data-state=open]>div>svg]:rotate-180">
+                    <div className="flex items-center gap-4 flex-1 min-w-0">
+                        <div className="flex-shrink-0 h-10 w-10 sm:h-11 sm:w-11 rounded-full bg-secondary/50 flex items-center justify-center text-primary border border-border/50 group-hover:scale-105 transition-transform">
                             <Layers className="h-5 w-5" />
                         </div>
                         <div className="flex flex-col items-start gap-1 flex-1 min-w-0 text-left">
-                            <span className="font-semibold text-sm sm:text-base text-foreground leading-tight truncate w-full pr-2">
+                            <span className="font-semibold text-base text-foreground/90 leading-tight truncate w-full pr-2 group-hover:text-primary transition-colors">
                                 {module.title}
                             </span>
-                            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                                <span className="flex items-center gap-1">
-                                    <BookOpen className="h-3 w-3" />
+                            <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                                <span className="flex items-center gap-1.5">
+                                    <BookOpen className="h-3.5 w-3.5" />
                                     {lessons.length} {lessons.length === 1 ? 'Lesson' : 'Lessons'}
                                 </span>
                                 {module.durationMinutes != null && module.durationMinutes > 0 && (
                                     <>
-                                        <span className="hidden sm:inline">•</span>
-                                        <span className="hidden sm:flex items-center gap-1">
-                                            <Clock className="h-3 w-3" />
+                                        <span className="hidden sm:inline w-1 h-1 rounded-full bg-border" />
+                                        <span className="hidden sm:flex items-center gap-1.5">
+                                            <Clock className="h-3.5 w-3.5" />
                                             {module.durationMinutes} mins
                                         </span>
                                     </>
@@ -142,11 +149,11 @@ function ModuleItem({
                 </AccordionTrigger>
 
                 {/* Action Buttons */}
-                <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 flex-shrink-0">
+                <div className="flex items-center gap-1 sm:gap-2 px-3 flex-shrink-0">
                     <Button
-                        variant="outline"
+                        variant="ghost"
                         size="sm"
-                        className="h-8 sm:h-9 gap-2 text-xs bg-background/50 hover:bg-background border-border/60 hidden sm:inline-flex sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
+                        className="h-8 gap-2 text-xs font-medium text-muted-foreground hover:text-primary hover:bg-primary/5 hidden sm:inline-flex opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0"
                         onClick={(e) => {
                             e.stopPropagation();
                             onAddLesson(module.id);
@@ -160,7 +167,7 @@ function ModuleItem({
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-9 w-9 hover:bg-background/80 transition-colors"
+                                className="h-8 w-8 hover:bg-muted transition-colors opacity-0 group-hover:opacity-100"
                                 onClick={(e) => e.stopPropagation()}
                             >
                                 <MoreVertical className="h-4 w-4 text-muted-foreground" />
@@ -175,7 +182,7 @@ function ModuleItem({
                             </DropdownMenuItem>
                             <DropdownMenuItem
                                 onClick={() => onDeleteModule(module)}
-                                className="text-destructive focus:text-destructive"
+                                className="text-destructive focus:text-destructive focus:bg-destructive/5"
                             >
                                 <Trash className="mr-2 h-4 w-4" /> Delete Module
                             </DropdownMenuItem>
@@ -184,38 +191,38 @@ function ModuleItem({
                 </div>
             </div>
 
-            <AccordionContent className="pt-0 pb-4 px-3 sm:px-4 bg-muted/5">
-                <div className="pt-4 border-t border-border/30 sm:ml-[3.25rem]">
+            <AccordionContent className="pt-0 pb-4 px-3 sm:px-4">
+                <div className="pt-4 border-t border-border/40 sm:ml-[3.5rem]">
                     {isLoading ? (
                         <div className="py-6 text-center text-sm text-muted-foreground">
                             <div className="inline-flex items-center gap-2">
-                                <div className="h-4 w-4 rounded-full border-2 border-muted-foreground/20 border-t-muted-foreground animate-spin" />
+                                <div className="h-4 w-4 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
                                 Loading lessons...
                             </div>
                         </div>
                     ) : lessons.length === 0 ? (
-                        <div className="py-8 sm:py-10 text-center bg-background/50 rounded-lg border border-dashed border-border/60 flex flex-col items-center justify-center gap-3">
-                            <div className="p-3 rounded-full bg-muted/30">
+                        <div className="py-8 text-center bg-muted/20 rounded-lg border border-dashed border-border/50 flex flex-col items-center justify-center gap-3">
+                            <div className="p-3 rounded-full bg-background shadow-sm">
                                 <FileText className="h-5 w-5 text-muted-foreground/50" />
                             </div>
-                            <div className="space-y-2">
-                                <p className="text-sm font-medium text-muted-foreground">No lessons yet</p>
-                                <p className="text-xs text-muted-foreground/70 max-w-xs mx-auto">
+                            <div className="space-y-1">
+                                <p className="text-sm font-medium text-foreground">No lessons yet</p>
+                                <p className="text-xs text-muted-foreground max-w-xs mx-auto">
                                     Add lessons to build out this module's content
                                 </p>
                             </div>
                             <Button
-                                variant="link"
+                                variant="outline"
                                 size="sm"
-                                className="min-h-[40px]"
+                                className="mt-2 h-8 text-xs"
                                 onClick={() => onAddLesson(module.id)}
                             >
                                 <Plus className="h-3.5 w-3.5 mr-1.5" />
-                                Add your first lesson
+                                Add Lesson
                             </Button>
                         </div>
                     ) : (
-                        <div className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-1">
                             {lessons.map((lesson) => (
                                 <LessonRow
                                     key={lesson.id}
@@ -332,7 +339,7 @@ export default function CourseDetailPage() {
                 {/* Course Header - Mobile optimized */}
                 <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
                     <div className="space-y-4 flex-1 min-w-0">
-                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground break-words">
+                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent break-words">
                             {course.title}
                         </h1>
 
@@ -401,24 +408,24 @@ export default function CourseDetailPage() {
                 <div className="min-h-[400px]">
                     {modules.length === 0 ? (
                         <Empty>
-                            <div className="text-center py-12 sm:py-20 px-4">
-                                <div className="mx-auto h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-muted/20 flex items-center justify-center mb-6">
-                                    <Layers className="h-8 w-8 sm:h-10 sm:w-10 text-muted-foreground/40" />
-                                </div>
-                                <h3 className="text-base sm:text-lg font-semibold text-foreground mb-2">
-                                    No modules yet
-                                </h3>
-                                <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-6 leading-relaxed">
+                            <EmptyHeader>
+                                <EmptyMedia variant="icon" className="text-muted-foreground/40 mb-2">
+                                    <Layers className="h-6 w-6" />
+                                </EmptyMedia>
+                                <EmptyTitle>No modules yet</EmptyTitle>
+                                <EmptyDescription>
                                     Start building your course curriculum by creating your first module.
-                                </p>
+                                </EmptyDescription>
+                            </EmptyHeader>
+                            <EmptyContent>
                                 <Button
                                     onClick={() => setCreateModuleOpen(true)}
-                                    className="min-h-[44px] px-6"
+                                    className="min-h-[44px] px-6 rounded-full"
                                 >
                                     <Plus className="h-4 w-4 mr-2" />
                                     Create First Module
                                 </Button>
-                            </div>
+                            </EmptyContent>
                         </Empty>
                     ) : (
                         <Accordion type="multiple" className="w-full space-y-3 sm:space-y-4">

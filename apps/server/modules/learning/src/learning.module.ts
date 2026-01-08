@@ -17,7 +17,8 @@ import { BlogCommentModule } from './modules/blog-comment/blog-comment.module';
 import { NotificationModule } from './modules/notification/notification.module';
 
 // Assessment Modules
-import { QuestionBankModule } from './modules/question-bank/question-bank.module';
+import { QuestionModule } from './modules/question/question.module';
+import { QuestionPoolModule } from './modules/question-pool/question-pool.module';
 import { ExamModule } from './modules/exam/exam.module';
 
 // Flashcard Modules
@@ -26,6 +27,9 @@ import { FlashcardModule } from './modules/flashcard/flashcard.module';
 
 // Gamification Module
 import { GamificationModule } from './modules/gamification/gamification.module';
+
+// Storage Module
+import { StorageModule } from './modules/storage/storage.module';
 
 // Controllers (new structure - following identity pattern)
 import { CourseController } from './controllers/course.controller';
@@ -41,7 +45,8 @@ import { ReviewController } from './controllers/review.controller';
 import { BlogController } from './interfaces/http/blog.controller';
 import { BlogCommentController } from './interfaces/http/blog-comment.controller';
 import { NotificationController } from './interfaces/http/notification.controller';
-import { QuestionBankController } from './interfaces/http/question-bank.controller';
+import { QuestionController } from './interfaces/http/question.controller';
+import { QuestionPoolController } from './interfaces/http/question-pool.controller';
 import { FlashcardDeckController } from './interfaces/http/flashcard-deck.controller';
 import { FlashcardController } from './interfaces/http/flashcard.controller';
 
@@ -68,7 +73,8 @@ import { FlashcardController } from './interfaces/http/flashcard.controller';
     NotificationModule,
 
     // Assessment Domain
-    QuestionBankModule,
+    QuestionModule,
+    QuestionPoolModule,
     ExamModule,
 
     // Flashcard Domain
@@ -77,6 +83,9 @@ import { FlashcardController } from './interfaces/http/flashcard.controller';
 
     // Gamification Domain
     GamificationModule,
+
+    // Storage Domain
+    StorageModule,
   ],
   controllers: [
     CourseController,
@@ -90,7 +99,8 @@ import { FlashcardController } from './interfaces/http/flashcard.controller';
     BlogController,
     BlogCommentController,
     NotificationController,
-    QuestionBankController,
+    QuestionController,
+    QuestionPoolController,
     FlashcardDeckController,
     FlashcardController,
   ],

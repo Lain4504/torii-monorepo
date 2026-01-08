@@ -16,7 +16,7 @@ export const storageApi = {
     // POST /api/storage/confirm
     // POST /api/storage/confirm
     async confirmUpload(data: StorageConfirmUploadRequestDTO): Promise<StorageConfirmUploadResponseDTO> {
-        const response = await apiClient.post<StorageConfirmUploadResponseDTO>('/api/storage/confirm', data);
+        const response = await apiClient.post<StorageConfirmUploadResponseDTO>('/api/storage/confirm-upload', data);
         return response.data;
     },
 };

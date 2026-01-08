@@ -6,50 +6,52 @@ import {
     BadRequestException,
     ForbiddenException,
 } from '@nestjs/common';
-import type { QuestionBank } from '@prisma/generated';
+import type { Question } from '@prisma/generated';
 import { UserRole } from '@workspace/schemas';
 import type {
-    QuestionBankCreateDTO,
-    QuestionBankUpdateDTO,
-    QuestionBankQueryDTO,
-    QuestionBankResponseDTO,
+    QuestionCreateDTO,
+    QuestionUpdateDTO,
+    QuestionQueryDTO,
+    QuestionResponseDTO,
     PaginatedResponseDTO,
     Requester,
     QuestionStatus,
     QuestionType,
 } from '@workspace/schemas';
-import type { IQuestionBankService } from '../../interfaces/services/i-question-bank.service';
-import type { IQuestionBankRepository } from '../../interfaces/repositories/i-question-bank.repository';
-import { QUESTION_BANK_REPOSITORY_TOKEN } from '../../interfaces/repositories/i-question-bank.repository';
+import type { IQuestionService } from '../../interfaces/services/i-question.service';
+import type { IQuestionRepository } from '../../interfaces/repositories/i-question.repository';
+import { QUESTION_REPOSITORY_TOKEN } from '../../interfaces/repositories/i-question.repository';
 
 /**
- * Question Bank Service
- * Handles question bank business logic operations
+ * Question Service
+ * Handles question business logic operations
  */
 @Injectable()
-export class QuestionBankService implements IQuestionBankService {
-    private readonly logger = new Logger(QuestionBankService.name);
+export class QuestionService implements IQuestionService {
+    private readonly logger = new Logger(QuestionService.name);
 
     constructor(
-        @Inject(QUESTION_BANK_REPOSITORY_TOKEN)
-        private readonly questionBankRepository: IQuestionBankRepository,
+        @Inject(QUESTION_REPOSITORY_TOKEN)
+        private readonly questionRepository: IQuestionRepository,
     ) { }
 
     /**
-     * Map QuestionBank entity to QuestionBankResponseDTO
+     * Map Question entity to QuestionResponseDTO
      */
-    private toQuestionBankDto(question: QuestionBank): QuestionBankResponseDTO {
+    private toQuestionDto(question: Question): QuestionResponseDTO {
         return {
             id: question.id,
+            poolId: question.poolId || undefined,
             questionText: question.questionText,
             questionType: question.questionType as QuestionType,
             jlptLevel: question.jlptLevel as any,
-            category: question.category || undefined,
+            category: question.category as any,
             subcategory: question.subcategory || undefined,
             difficulty: question.difficulty as any,
             options: question.options as any,
             correctAnswer: question.correctAnswer || undefined,
             explanation: question.explanation || undefined,
+            metadata: question.metadata as any,
             tags: question.tags || [],
             createdBy: question.createdBy || undefined,
             status: question.status as QuestionStatus,
@@ -62,7 +64,7 @@ export class QuestionBankService implements IQuestionBankService {
     /**
      * Validate question data
      */
-    private validateQuestion(dto: QuestionBankCreateDTO | QuestionBankUpdateDTO): void {
+    private validateQuestion(dto: QuestionCreateDTO | QuestionUpdateDTO): void {
         // Validate multiple choice questions have options
         if (dto.questionType === QuestionType.MULTIPLE_CHOICE) {
             if (!dto.options || Object.keys(dto.options).length < 2) {
@@ -97,14 +99,14 @@ export class QuestionBankService implements IQuestionBankService {
      * Check if question is in use (has usage count > 0)
      */
     private async checkQuestionInUse(questionId: string): Promise<boolean> {
-        const question = await this.questionBankRepository.findById(questionId);
+        const question = await this.questionRepository.findById(questionId);
         return question ? question.usageCount > 0 : false;
     }
 
     /**
      * Find all questions with pagination and filters
      */
-    async findAll(query: QuestionBankQueryDTO): Promise<PaginatedResponseDTO<QuestionBankResponseDTO>> {
+    async findAll(query: QuestionQueryDTO): Promise<PaginatedResponseDTO<QuestionResponseDTO>> {
         try {
             const {
                 page = 1,
@@ -113,6 +115,7 @@ export class QuestionBankService implements IQuestionBankService {
                 jlptLevel,
                 difficulty,
                 category,
+                poolId,
                 search,
                 status,
                 tags,
@@ -122,7 +125,7 @@ export class QuestionBankService implements IQuestionBankService {
             const limitNum = typeof limit === 'string' ? parseInt(limit, 10) : Number(limit) || 10;
 
             const validPage = pageNum > 0 ? pageNum : 1;
-            const validLimit = limitNum > 0 && limitNum <= 100 ? limitNum : 10; // Max 100 per page
+            const validLimit = limitNum > 0 && limitNum <= 100 ? limitNum : 10;
 
             const skip = (validPage - 1) * validLimit;
 
@@ -144,6 +147,10 @@ export class QuestionBankService implements IQuestionBankService {
                 whereClause.category = category;
             }
 
+            if (poolId) {
+                whereClause.poolId = poolId;
+            }
+
             if (status) {
                 whereClause.status = status;
             }
@@ -160,8 +167,8 @@ export class QuestionBankService implements IQuestionBankService {
             }
 
             const [total, questions] = await Promise.all([
-                this.questionBankRepository.count(whereClause),
-                this.questionBankRepository.findMany({
+                this.questionRepository.count(whereClause),
+                this.questionRepository.findMany({
                     skip,
                     take: validLimit,
                     where: whereClause,
@@ -172,7 +179,7 @@ export class QuestionBankService implements IQuestionBankService {
             const totalPages = Math.ceil(total / validLimit);
 
             return {
-                data: questions.map((q) => this.toQuestionBankDto(q)),
+                data: questions.map((q) => this.toQuestionDto(q)),
                 total,
                 page: validPage,
                 limit: validLimit,
@@ -187,29 +194,30 @@ export class QuestionBankService implements IQuestionBankService {
     /**
      * Find one question by ID
      */
-    async findOne(questionId: string): Promise<QuestionBankResponseDTO> {
-        const question = await this.questionBankRepository.findById(questionId);
+    async findOne(questionId: string): Promise<QuestionResponseDTO> {
+        const question = await this.questionRepository.findById(questionId);
 
         if (!question) {
             throw new NotFoundException(`Question with id ${questionId} not found`);
         }
 
-        return this.toQuestionBankDto(question);
+        return this.toQuestionDto(question);
     }
 
     /**
      * Create a new question
      */
-    async create(requester: Requester, dto: QuestionBankCreateDTO): Promise<QuestionBankResponseDTO> {
+    async create(requester: Requester, dto: QuestionCreateDTO): Promise<QuestionResponseDTO> {
         this.checkPermission(requester, 'create');
 
         // Validate question data
         this.validateQuestion(dto);
 
         try {
-            const question = await this.questionBankRepository.create({
+            const question = await this.questionRepository.create({
                 questionText: dto.questionText,
                 questionType: dto.questionType,
+                poolId: dto.poolId || null,
                 jlptLevel: dto.jlptLevel || null,
                 category: dto.category || null,
                 subcategory: dto.subcategory || null,
@@ -217,14 +225,15 @@ export class QuestionBankService implements IQuestionBankService {
                 options: dto.options || null,
                 correctAnswer: dto.correctAnswer || null,
                 explanation: dto.explanation || null,
+                metadata: dto.metadata || null,
                 tags: dto.tags || [],
                 createdBy: requester.sub,
-                status: QuestionStatus.ACTIVE, // Default to active, can be changed to review if needed
+                status: QuestionStatus.ACTIVE,
                 usageCount: 0,
             });
 
             this.logger.log(`Question ${question.id} created by ${requester.sub}`);
-            return this.toQuestionBankDto(question);
+            return this.toQuestionDto(question);
         } catch (error: any) {
             this.logger.error(`Error creating question: ${error.message}`, error.stack);
             throw new BadRequestException(`Failed to create question: ${error?.message || 'Unknown error'}`);
@@ -234,7 +243,7 @@ export class QuestionBankService implements IQuestionBankService {
     /**
      * Create multiple questions (bulk)
      */
-    async createMany(requester: Requester, dtos: QuestionBankCreateDTO[]): Promise<{ count: number; created: QuestionBankResponseDTO[] }> {
+    async createMany(requester: Requester, dtos: QuestionCreateDTO[]): Promise<{ count: number; created: QuestionResponseDTO[] }> {
         this.checkPermission(requester, 'create');
 
         if (!dtos || dtos.length === 0) {
@@ -258,6 +267,7 @@ export class QuestionBankService implements IQuestionBankService {
             const data = dtos.map((dto) => ({
                 questionText: dto.questionText,
                 questionType: dto.questionType,
+                poolId: dto.poolId || null,
                 jlptLevel: dto.jlptLevel || null,
                 category: dto.category || null,
                 subcategory: dto.subcategory || null,
@@ -265,16 +275,17 @@ export class QuestionBankService implements IQuestionBankService {
                 options: dto.options || null,
                 correctAnswer: dto.correctAnswer || null,
                 explanation: dto.explanation || null,
+                metadata: dto.metadata || null,
                 tags: dto.tags || [],
                 createdBy: requester.sub,
                 status: QuestionStatus.ACTIVE,
                 usageCount: 0,
             }));
 
-            const result = await this.questionBankRepository.createMany(data);
+            const result = await this.questionRepository.createMany(data);
 
             // Fetch created questions to return
-            const createdQuestions = await this.questionBankRepository.findMany({
+            const createdQuestions = await this.questionRepository.findMany({
                 skip: 0,
                 take: result.count,
                 where: { createdBy: requester.sub },
@@ -284,7 +295,7 @@ export class QuestionBankService implements IQuestionBankService {
             this.logger.log(`${result.count} questions created by ${requester.sub}`);
             return {
                 count: result.count,
-                created: createdQuestions.slice(0, result.count).map((q) => this.toQuestionBankDto(q)),
+                created: createdQuestions.slice(0, result.count).map((q) => this.toQuestionDto(q)),
             };
         } catch (error: any) {
             this.logger.error(`Error creating questions: ${error.message}`, error.stack);
@@ -295,10 +306,10 @@ export class QuestionBankService implements IQuestionBankService {
     /**
      * Update question
      */
-    async update(requester: Requester, questionId: string, dto: QuestionBankUpdateDTO): Promise<QuestionBankResponseDTO> {
+    async update(requester: Requester, questionId: string, dto: QuestionUpdateDTO): Promise<QuestionResponseDTO> {
         this.checkPermission(requester, 'update');
 
-        const existing = await this.questionBankRepository.findById(questionId);
+        const existing = await this.questionRepository.findById(questionId);
 
         if (!existing) {
             throw new NotFoundException(`Question with id ${questionId} not found`);
@@ -310,7 +321,7 @@ export class QuestionBankService implements IQuestionBankService {
                 questionType: dto.questionType || existing.questionType,
                 options: dto.options !== undefined ? dto.options : existing.options,
                 correctAnswer: dto.correctAnswer !== undefined ? dto.correctAnswer : existing.correctAnswer,
-            } as QuestionBankCreateDTO;
+            } as QuestionCreateDTO;
             this.validateQuestion(validationDto);
         }
 
@@ -319,6 +330,7 @@ export class QuestionBankService implements IQuestionBankService {
 
             if (dto.questionText !== undefined) updateData.questionText = dto.questionText;
             if (dto.questionType !== undefined) updateData.questionType = dto.questionType;
+            if (dto.poolId !== undefined) updateData.poolId = dto.poolId;
             if (dto.jlptLevel !== undefined) updateData.jlptLevel = dto.jlptLevel;
             if (dto.category !== undefined) updateData.category = dto.category;
             if (dto.subcategory !== undefined) updateData.subcategory = dto.subcategory;
@@ -326,17 +338,18 @@ export class QuestionBankService implements IQuestionBankService {
             if (dto.options !== undefined) updateData.options = dto.options;
             if (dto.correctAnswer !== undefined) updateData.correctAnswer = dto.correctAnswer;
             if (dto.explanation !== undefined) updateData.explanation = dto.explanation;
+            if (dto.metadata !== undefined) updateData.metadata = dto.metadata;
             if (dto.tags !== undefined) updateData.tags = dto.tags;
             if (dto.status !== undefined) updateData.status = dto.status;
 
             if (Object.keys(updateData).length === 0) {
-                return this.toQuestionBankDto(existing);
+                return this.toQuestionDto(existing);
             }
 
-            const question = await this.questionBankRepository.update(questionId, updateData);
+            const question = await this.questionRepository.update(questionId, updateData);
             this.logger.log(`Question ${questionId} updated by ${requester.sub}`);
 
-            return this.toQuestionBankDto(question);
+            return this.toQuestionDto(question);
         } catch (error: any) {
             this.logger.error(`Error updating question ${questionId}: ${error.message}`, error.stack);
             throw new BadRequestException(`Failed to update question: ${error?.message || 'Unknown error'}`);
@@ -346,7 +359,7 @@ export class QuestionBankService implements IQuestionBankService {
     /**
      * Update multiple questions (bulk)
      */
-    async updateMany(requester: Requester, questionIds: string[], dto: QuestionBankUpdateDTO): Promise<{ count: number }> {
+    async updateMany(requester: Requester, questionIds: string[], dto: QuestionUpdateDTO): Promise<{ count: number }> {
         this.checkPermission(requester, 'update');
 
         if (!questionIds || questionIds.length === 0) {
@@ -365,13 +378,14 @@ export class QuestionBankService implements IQuestionBankService {
             if (dto.subcategory !== undefined) updateData.subcategory = dto.subcategory;
             if (dto.difficulty !== undefined) updateData.difficulty = dto.difficulty;
             if (dto.jlptLevel !== undefined) updateData.jlptLevel = dto.jlptLevel;
+            if (dto.poolId !== undefined) updateData.poolId = dto.poolId;
             if (dto.tags !== undefined) updateData.tags = dto.tags;
 
             if (Object.keys(updateData).length === 0) {
                 throw new BadRequestException('No update fields provided');
             }
 
-            const result = await this.questionBankRepository.updateMany(
+            const result = await this.questionRepository.updateMany(
                 { id: { in: questionIds } },
                 updateData,
             );
@@ -390,7 +404,7 @@ export class QuestionBankService implements IQuestionBankService {
     async delete(requester: Requester, questionId: string): Promise<{ message: string }> {
         this.checkPermission(requester, 'delete');
 
-        const existing = await this.questionBankRepository.findById(questionId);
+        const existing = await this.questionRepository.findById(questionId);
 
         if (!existing) {
             throw new NotFoundException(`Question with id ${questionId} not found`);
@@ -403,7 +417,7 @@ export class QuestionBankService implements IQuestionBankService {
         }
 
         try {
-            await this.questionBankRepository.delete(questionId);
+            await this.questionRepository.delete(questionId);
             this.logger.log(`Question ${questionId} deleted by ${requester.sub}`);
             return { message: 'Question deleted successfully' };
         } catch (error: any) {
@@ -435,7 +449,7 @@ export class QuestionBankService implements IQuestionBankService {
         }
 
         try {
-            const result = await this.questionBankRepository.deleteMany({
+            const result = await this.questionRepository.deleteMany({
                 id: { in: questionIds },
             });
 
@@ -450,22 +464,22 @@ export class QuestionBankService implements IQuestionBankService {
     /**
      * Approve question (change status to active)
      */
-    async approve(requester: Requester, questionId: string): Promise<QuestionBankResponseDTO> {
+    async approve(requester: Requester, questionId: string): Promise<QuestionResponseDTO> {
         this.checkPermission(requester, 'approve');
 
-        const existing = await this.questionBankRepository.findById(questionId);
+        const existing = await this.questionRepository.findById(questionId);
 
         if (!existing) {
             throw new NotFoundException(`Question with id ${questionId} not found`);
         }
 
         try {
-            const question = await this.questionBankRepository.update(questionId, {
+            const question = await this.questionRepository.update(questionId, {
                 status: QuestionStatus.ACTIVE,
             });
 
             this.logger.log(`Question ${questionId} approved by ${requester.sub}`);
-            return this.toQuestionBankDto(question);
+            return this.toQuestionDto(question);
         } catch (error: any) {
             this.logger.error(`Error approving question ${questionId}: ${error.message}`, error.stack);
             throw new BadRequestException(`Failed to approve question: ${error?.message || 'Unknown error'}`);
@@ -473,24 +487,49 @@ export class QuestionBankService implements IQuestionBankService {
     }
 
     /**
-     * Reject question (change status to archived)
+     * Deactivate question (change status to inactive)
      */
-    async reject(requester: Requester, questionId: string): Promise<QuestionBankResponseDTO> {
-        this.checkPermission(requester, 'reject');
+    async deactivate(requester: Requester, questionId: string): Promise<QuestionResponseDTO> {
+        this.checkPermission(requester, 'deactivate');
 
-        const existing = await this.questionBankRepository.findById(questionId);
+        const existing = await this.questionRepository.findById(questionId);
 
         if (!existing) {
             throw new NotFoundException(`Question with id ${questionId} not found`);
         }
 
         try {
-            const question = await this.questionBankRepository.update(questionId, {
+            const question = await this.questionRepository.update(questionId, {
+                status: QuestionStatus.INACTIVE,
+            });
+
+            this.logger.log(`Question ${questionId} deactivated by ${requester.sub}`);
+            return this.toQuestionDto(question);
+        } catch (error: any) {
+            this.logger.error(`Error deactivating question ${questionId}: ${error.message}`, error.stack);
+            throw new BadRequestException(`Failed to deactivate question: ${error?.message || 'Unknown error'}`);
+        }
+    }
+
+    /**
+     * Reject question (change status to archived)
+     */
+    async reject(requester: Requester, questionId: string): Promise<QuestionResponseDTO> {
+        this.checkPermission(requester, 'reject');
+
+        const existing = await this.questionRepository.findById(questionId);
+
+        if (!existing) {
+            throw new NotFoundException(`Question with id ${questionId} not found`);
+        }
+
+        try {
+            const question = await this.questionRepository.update(questionId, {
                 status: QuestionStatus.ARCHIVED,
             });
 
             this.logger.log(`Question ${questionId} rejected by ${requester.sub}`);
-            return this.toQuestionBankDto(question);
+            return this.toQuestionDto(question);
         } catch (error: any) {
             this.logger.error(`Error rejecting question ${questionId}: ${error.message}`, error.stack);
             throw new BadRequestException(`Failed to reject question: ${error?.message || 'Unknown error'}`);
@@ -500,20 +539,20 @@ export class QuestionBankService implements IQuestionBankService {
     /**
      * Send question for review (change status to review)
      */
-    async sendForReview(requester: Requester, questionId: string): Promise<QuestionBankResponseDTO> {
-        const existing = await this.questionBankRepository.findById(questionId);
+    async sendForReview(requester: Requester, questionId: string): Promise<QuestionResponseDTO> {
+        const existing = await this.questionRepository.findById(questionId);
 
         if (!existing) {
             throw new NotFoundException(`Question with id ${questionId} not found`);
         }
 
         try {
-            const question = await this.questionBankRepository.update(questionId, {
+            const question = await this.questionRepository.update(questionId, {
                 status: QuestionStatus.REVIEW,
             });
 
             this.logger.log(`Question ${questionId} sent for review by ${requester.sub}`);
-            return this.toQuestionBankDto(question);
+            return this.toQuestionDto(question);
         } catch (error: any) {
             this.logger.error(`Error sending question for review ${questionId}: ${error.message}`, error.stack);
             throw new BadRequestException(`Failed to send question for review: ${error?.message || 'Unknown error'}`);
@@ -523,24 +562,33 @@ export class QuestionBankService implements IQuestionBankService {
     /**
      * Get questions by category
      */
-    async getByCategory(category: string): Promise<QuestionBankResponseDTO[]> {
-        const questions = await this.questionBankRepository.findByCategory(category);
-        return questions.map((q) => this.toQuestionBankDto(q));
+    async getByCategory(category: string): Promise<QuestionResponseDTO[]> {
+        const questions = await this.questionRepository.findByCategory(category);
+        return questions.map((q) => this.toQuestionDto(q));
     }
 
     /**
      * Get questions by JLPT level
      */
-    async getByJlptLevel(jlptLevel: string): Promise<QuestionBankResponseDTO[]> {
-        const questions = await this.questionBankRepository.findByJlptLevel(jlptLevel);
-        return questions.map((q) => this.toQuestionBankDto(q));
+    async getByJlptLevel(jlptLevel: string): Promise<QuestionResponseDTO[]> {
+        const questions = await this.questionRepository.findByJlptLevel(jlptLevel);
+        return questions.map((q) => this.toQuestionDto(q));
     }
 
     /**
      * Get questions by status
      */
-    async getByStatus(status: string): Promise<QuestionBankResponseDTO[]> {
-        const questions = await this.questionBankRepository.findByStatus(status);
-        return questions.map((q) => this.toQuestionBankDto(q));
+    async getByStatus(status: string): Promise<QuestionResponseDTO[]> {
+        const questions = await this.questionRepository.findByStatus(status);
+        return questions.map((q) => this.toQuestionDto(q));
+    }
+
+    /**
+     * Get questions by pool
+     */
+    async getByPool(poolId: string): Promise<QuestionResponseDTO[]> {
+        const questions = await this.questionRepository.findByPool(poolId);
+        return questions.map((q) => this.toQuestionDto(q));
     }
 }
+

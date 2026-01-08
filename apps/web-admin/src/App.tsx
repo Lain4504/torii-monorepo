@@ -14,13 +14,14 @@ import { UsersPage } from '@/routes/users/users-page.tsx'
 import CoursesPage from '@/routes/courses/courses-page.tsx'
 import CourseDetailPage from '@/routes/courses/course-detail-page.tsx'
 
-import { QuestionBankPage } from '@/routes/question-bank/question-bank-page.tsx'
 import RoomsPage from '@/routes/rooms/rooms-page.tsx'
 import PaymentsPage from '@/routes/finance/payments-page.tsx'
 import AIServicePage from '@/routes/ai/ai-service-page.tsx'
 import NotificationsPage from '@/routes/settings/notifications-page.tsx'
 import SettingsPage from '@/routes/settings/settings-page.tsx'
 import { BlogPage } from '@/routes/blog/blog-page.tsx'
+import QuestionsPage from '@/routes/questions/questions-page.tsx'
+import QuestionPoolsPage from '@/routes/question-pools/question-pools-page.tsx'
 
 import LoginPage from '@/routes/auth/login-page.tsx'
 import { AuditLogsPage } from "@/routes/audit/audit-logs-page.tsx";
@@ -53,9 +54,10 @@ function App() {
                 <Route path="courses" element={<CoursesPage />} />
                 <Route path="courses/:id" element={<CourseDetailPage />} />
 
-                <Route path="question-bank" element={<QuestionBankPage />} />
                 <Route path="rooms" element={<RoomsPage />} />
                 <Route path="blogs" element={<BlogPage />} />
+                <Route path="questions" element={<QuestionsPage />} />
+                <Route path="question-pools" element={<QuestionPoolsPage />} />
                 <Route path="payments" element={<PaymentsPage />} />
                 <Route path="analytics" element={<AnalyticsPage />} />
                 <Route path="ai-service" element={<AIServicePage />} />
