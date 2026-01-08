@@ -1,13 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import type { Review, Prisma } from '@prisma/generated';
+import type { IReviewRepository } from '../../interfaces/repositories';
 
 /**
  * Review Repository
  * Handles all database operations for Review entity
  */
 @Injectable()
-export class ReviewRepository {
+export class ReviewRepository implements IReviewRepository {
   private readonly logger = new Logger(ReviewRepository.name);
 
   constructor(private readonly prisma: PrismaService) {}
@@ -22,7 +23,7 @@ export class ReviewRepository {
   }
 
   /**
-   * Find review by userId and courseId (unique constraint)
+   * Find review by userId and courseId
    */
   async findByUserAndCourse(
     userId: string,
@@ -77,7 +78,7 @@ export class ReviewRepository {
   }
 
   /**
-   * Find all reviews by course ID (for rating distribution)
+   * Find all reviews by course ID
    */
   async findAllByCourseId(courseId: string): Promise<Pick<Review, 'rating'>[]> {
     return this.prisma.review.findMany({
@@ -140,7 +141,7 @@ export class ReviewRepository {
   }
 
   /**
-   * Find course by ID (helper for validation)
+   * Find course by ID
    */
   async findCourse(courseId: string): Promise<{ id: string } | null> {
     return this.prisma.course.findFirst({

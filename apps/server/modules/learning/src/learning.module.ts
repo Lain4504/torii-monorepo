@@ -30,7 +30,7 @@ import { CourseController } from './interfaces/http/course.controller';
 import { ModuleController } from './interfaces/http/module.controller';
 import { LessonController } from './interfaces/http/lesson.controller';
 import { WishlistController } from './interfaces/http/wishlist.controller';
-import { ReviewController } from './interfaces/http/review.controller';
+import { ReviewController } from './controllers/review.controller';
 import { BlogController } from './interfaces/http/blog.controller';
 import { BlogCommentController } from './interfaces/http/blog-comment.controller';
 import { NotificationController } from './interfaces/http/notification.controller';
