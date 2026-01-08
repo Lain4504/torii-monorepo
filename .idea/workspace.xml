@@ -4,8 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="responsive admin ui">
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/users/users-columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/users/users-columns.tsx" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(admin, api): integrate course instructor management API and services&#10;&#10;Added API endpoints and query hooks to manage course instructors, including assignment, retrieval, updates, and unassignment.">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/course-info-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/course-info-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/courses-columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/courses-columns.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/courses-primary-toolbar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/courses-primary-toolbar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/courses-table.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/courses-table.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/edit-course-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/edit-course-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/view-course-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/view-course-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/course-detail-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/course-detail-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/courses-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/courses-page.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -274,86 +282,6 @@
       <workItem from="1767779643020" duration="455000" />
       <workItem from="1767780214679" duration="224000" />
       <workItem from="1767784611248" duration="3225000" />
-    </task>
-    <task id="LOCAL-00494" summary="feat(ui): enhance dashboard layout and components for improved aesthetics and usability">
-      <option name="closed" value="true" />
-      <created>1767793723662</created>
-      <option name="number" value="00494" />
-      <option name="presentableId" value="LOCAL-00494" />
-      <option name="project" value="LOCAL" />
-      <updated>1767793723662</updated>
-    </task>
-    <task id="LOCAL-00495" summary="feat(ui): enhance dashboard layout and components for improved aesthetics and usability">
-      <option name="closed" value="true" />
-      <created>1767794103829</created>
-      <option name="number" value="00495" />
-      <option name="presentableId" value="LOCAL-00495" />
-      <option name="project" value="LOCAL" />
-      <updated>1767794103829</updated>
-    </task>
-    <task id="LOCAL-00496" summary="feat(ui): enhance dashboard layout and components for improved aesthetics and usability">
-      <option name="closed" value="true" />
-      <created>1767795227907</created>
-      <option name="number" value="00496" />
-      <option name="presentableId" value="LOCAL-00496" />
-      <option name="project" value="LOCAL" />
-      <updated>1767795227907</updated>
-    </task>
-    <task id="LOCAL-00497" summary="feat(ui): add reusable hooks for dark mode and debounced state management&#10;&#10;- Implemented `useDarkMode` hook supporting OS preferences, localStorage, and dynamic theme class changes.&#10;- Added `useDebounceCallback` for controlled debounced function execution.&#10;- Introduced `useDebounceValue` for state synchronization with debounced updates.&#10;- Updated dependencies to include `lodash.debounce` for debounce functionality.">
-      <option name="closed" value="true" />
-      <created>1767795294620</created>
-      <option name="number" value="00497" />
-      <option name="presentableId" value="LOCAL-00497" />
-      <option name="project" value="LOCAL" />
-      <updated>1767795294622</updated>
-    </task>
-    <task id="LOCAL-00498" summary="feat(ui): add reusable hooks for dark mode and debounced state management&#10;&#10;- Implemented `useDarkMode` hook supporting OS preferences, localStorage, and dynamic theme class changes.&#10;- Added `useDebounceCallback` for controlled debounced function execution.&#10;- Introduced `useDebounceValue` for state synchronization with debounced updates.&#10;- Updated dependencies to include `lodash.debounce` for debounce functionality.">
-      <option name="closed" value="true" />
-      <created>1767795733225</created>
-      <option name="number" value="00498" />
-      <option name="presentableId" value="LOCAL-00498" />
-      <option name="project" value="LOCAL" />
-      <updated>1767795733225</updated>
-    </task>
-    <task id="LOCAL-00499" summary="cursor gen">
-      <option name="closed" value="true" />
-      <created>1767795983659</created>
-      <option name="number" value="00499" />
-      <option name="presentableId" value="LOCAL-00499" />
-      <option name="project" value="LOCAL" />
-      <updated>1767795983660</updated>
-    </task>
-    <task id="LOCAL-00500" summary="cursor gen: update theme">
-      <option name="closed" value="true" />
-      <created>1767796607352</created>
-      <option name="number" value="00500" />
-      <option name="presentableId" value="LOCAL-00500" />
-      <option name="project" value="LOCAL" />
-      <updated>1767796607352</updated>
-    </task>
-    <task id="LOCAL-00501" summary="cursor gen: update theme">
-      <option name="closed" value="true" />
-      <created>1767796788647</created>
-      <option name="number" value="00501" />
-      <option name="presentableId" value="LOCAL-00501" />
-      <option name="project" value="LOCAL" />
-      <updated>1767796788647</updated>
-    </task>
-    <task id="LOCAL-00502" summary="cursor gen: update theme">
-      <option name="closed" value="true" />
-      <created>1767796935423</created>
-      <option name="number" value="00502" />
-      <option name="presentableId" value="LOCAL-00502" />
-      <option name="project" value="LOCAL" />
-      <updated>1767796935423</updated>
-    </task>
-    <task id="LOCAL-00503" summary="cursor gen: update theme">
-      <option name="closed" value="true" />
-      <created>1767797013944</created>
-      <option name="number" value="00503" />
-      <option name="presentableId" value="LOCAL-00503" />
-      <option name="project" value="LOCAL" />
-      <updated>1767797013944</updated>
     </task>
     <task id="LOCAL-00504" summary="refactor(ui): align theme styles with tokenized color system&#10;&#10;- Updated theme-specific class names to use tokenized variables (e.g., `bg-primary`, `text-muted-foreground`) for consistency.&#10;- Replaced hardcoded values with reusable theme tokens across authentication pages, course components, and layouts.&#10;- Enhanced visual elements, accessibility, and responsiveness.">
       <option name="closed" value="true" />
@@ -667,7 +595,87 @@
       <option name="project" value="LOCAL" />
       <updated>1767880675598</updated>
     </task>
-    <option name="localTasksCounter" value="543" />
+    <task id="LOCAL-00543" summary="responsive admin ui">
+      <option name="closed" value="true" />
+      <created>1767881156688</created>
+      <option name="number" value="00543" />
+      <option name="presentableId" value="LOCAL-00543" />
+      <option name="project" value="LOCAL" />
+      <updated>1767881156688</updated>
+    </task>
+    <task id="LOCAL-00544" summary="feat(admin, api): integrate course instructor management API and services&#10;&#10;Added API endpoints and query hooks to manage course instructors, including assignment, retrieval, updates, and unassignment.">
+      <option name="closed" value="true" />
+      <created>1767884847378</created>
+      <option name="number" value="00544" />
+      <option name="presentableId" value="LOCAL-00544" />
+      <option name="project" value="LOCAL" />
+      <updated>1767884847380</updated>
+    </task>
+    <task id="LOCAL-00545" summary="feat(admin, api): integrate course instructor management API and services&#10;&#10;Added API endpoints and query hooks to manage course instructors, including assignment, retrieval, updates, and unassignment.">
+      <option name="closed" value="true" />
+      <created>1767885332514</created>
+      <option name="number" value="00545" />
+      <option name="presentableId" value="LOCAL-00545" />
+      <option name="project" value="LOCAL" />
+      <updated>1767885332514</updated>
+    </task>
+    <task id="LOCAL-00546" summary="feat(admin, api): integrate course instructor management API and services&#10;&#10;Added API endpoints and query hooks to manage course instructors, including assignment, retrieval, updates, and unassignment.">
+      <option name="closed" value="true" />
+      <created>1767885402653</created>
+      <option name="number" value="00546" />
+      <option name="presentableId" value="LOCAL-00546" />
+      <option name="project" value="LOCAL" />
+      <updated>1767885402653</updated>
+    </task>
+    <task id="LOCAL-00547" summary="feat(admin, api): integrate course instructor management API and services&#10;&#10;Added API endpoints and query hooks to manage course instructors, including assignment, retrieval, updates, and unassignment.">
+      <option name="closed" value="true" />
+      <created>1767885857287</created>
+      <option name="number" value="00547" />
+      <option name="presentableId" value="LOCAL-00547" />
+      <option name="project" value="LOCAL" />
+      <updated>1767885857287</updated>
+    </task>
+    <task id="LOCAL-00548" summary="feat(admin, api): integrate course instructor management API and services&#10;&#10;Added API endpoints and query hooks to manage course instructors, including assignment, retrieval, updates, and unassignment.">
+      <option name="closed" value="true" />
+      <created>1767886294929</created>
+      <option name="number" value="00548" />
+      <option name="presentableId" value="LOCAL-00548" />
+      <option name="project" value="LOCAL" />
+      <updated>1767886294929</updated>
+    </task>
+    <task id="LOCAL-00549" summary="feat(admin, api): integrate course instructor management API and services&#10;&#10;Added API endpoints and query hooks to manage course instructors, including assignment, retrieval, updates, and unassignment.">
+      <option name="closed" value="true" />
+      <created>1767886401739</created>
+      <option name="number" value="00549" />
+      <option name="presentableId" value="LOCAL-00549" />
+      <option name="project" value="LOCAL" />
+      <updated>1767886401739</updated>
+    </task>
+    <task id="LOCAL-00550" summary="feat(admin, api): integrate course instructor management API and services&#10;&#10;Added API endpoints and query hooks to manage course instructors, including assignment, retrieval, updates, and unassignment.">
+      <option name="closed" value="true" />
+      <created>1767886535038</created>
+      <option name="number" value="00550" />
+      <option name="presentableId" value="LOCAL-00550" />
+      <option name="project" value="LOCAL" />
+      <updated>1767886535038</updated>
+    </task>
+    <task id="LOCAL-00551" summary="feat(admin, api): integrate course instructor management API and services&#10;&#10;Added API endpoints and query hooks to manage course instructors, including assignment, retrieval, updates, and unassignment.">
+      <option name="closed" value="true" />
+      <created>1767886577661</created>
+      <option name="number" value="00551" />
+      <option name="presentableId" value="LOCAL-00551" />
+      <option name="project" value="LOCAL" />
+      <updated>1767886577661</updated>
+    </task>
+    <task id="LOCAL-00552" summary="feat(admin, api): integrate course instructor management API and services&#10;&#10;Added API endpoints and query hooks to manage course instructors, including assignment, retrieval, updates, and unassignment.">
+      <option name="closed" value="true" />
+      <created>1767886733801</created>
+      <option name="number" value="00552" />
+      <option name="presentableId" value="LOCAL-00552" />
+      <option name="project" value="LOCAL" />
+      <updated>1767886733801</updated>
+    </task>
+    <option name="localTasksCounter" value="553" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -697,8 +705,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat(auth): refactor authentication DTOs and interfaces for improved structure and clarity" />
-    <MESSAGE value="feat(auth): update user status handling and improve UI components" />
     <MESSAGE value="feat(auth): replace refresh token mechanism with session-based implementation  &#10;&#10;- Renamed `RefreshTokenService` to `SessionService` and updated all references.  &#10;- Replaced `refresh_tokens` table with `sessions` table, adding metadata fields (IP, user agent, device info).  &#10;- Updated Prisma schema to reflect the new `Session` model.  &#10;- Refactored authentication flow to use sessions for token creation, verification, and revocation.  &#10;- Added support for session cleanup with metadata logging for improved traceability and security." />
     <MESSAGE value="feat(auth): sync database schema and Prisma models with session-based authentication&#10;&#10;- Replaced `refresh_tokens` table with `sessions` table in database schema.&#10;- Updated tables to include extended metadata (e.g., IP, user agent, device info).&#10;- Synced Prisma models with revised schema, optimizing for session management.&#10;- Removed legacy user role and permission tables, consolidating mappings with updated schemas.&#10;- Added tables for `user_identities`, `two_factor_auth`, and audit functionalities for improved security and logging." />
     <MESSAGE value="feat(database): update schema by removing obsolete tables and commenting out unused structures" />
@@ -722,7 +728,9 @@
     <MESSAGE value="jwt logout" />
     <MESSAGE value="update web-admin" />
     <MESSAGE value="responsive admin ui" />
-    <option name="LAST_COMMIT_MESSAGE" value="responsive admin ui" />
+    <MESSAGE value="feat(admin, api): integrate course instructor management API and services&#10;&#10;Added API endpoints and query hooks to manage course instructors, including assignment, retrieval, updates" />
+    <MESSAGE value="feat(admin, api): integrate course instructor management API and services&#10;&#10;Added API endpoints and query hooks to manage course instructors, including assignment, retrieval, updates, and unassignment." />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(admin, api): integrate course instructor management API and services&#10;&#10;Added API endpoints and query hooks to manage course instructors, including assignment, retrieval, updates, and unassignment." />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

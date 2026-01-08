@@ -7,45 +7,5 @@
 
 body {
   font-family: "Inter", sans-serif;
-  @apply bg-background text-foreground antialiased;
-}
-
-/* Dark Mode Enhancements */
-@layer base {
-  .dark {
-    /* Improve input contrast */
-    input[data-slot="input"]::placeholder {
-      opacity: 0.7;
-    }
-  }
-
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/40 transition-colors;
-  }
-}
-
-@layer base {
-  :root {
-    --radius: 1rem;
-    --border: oklch(0.92 0 0);
-  }
-}
-
-@layer utilities {
-  .zen-card {
-    @apply border border-border shadow-sm bg-card backdrop-blur-sm hover:bg-card hover:shadow-md transition-all duration-300 rounded-xl;
-  }
-
-  .zen-text-muted {
-    @apply text-muted-foreground;
-  }
+  @apply antialiased;
 }

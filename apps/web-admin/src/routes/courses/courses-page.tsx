@@ -3,13 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@workspace/ui/components/button';
 import type { CourseQueryDTO, CourseResponseDTO } from '@workspace/schemas';
 import { Can } from "@/lib/guard/can";
-import { useCourses } from "@/api/services/courses.ts";
+import { useCourses, useUnpublishCourse } from "@/api/services/courses.ts";
 import { CoursesPrimaryToolbar } from "@/components/courses/courses-primary-toolbar.tsx";
 import { CoursesTable } from "@/components/courses/courses-table.tsx";
 import { CreateCourseDialog } from "@/components/courses/create-course-dialog.tsx";
 import { EditCourseDialog } from "@/components/courses/edit-course-dialog.tsx";
 import { DeleteCourseDialog } from "@/components/courses/delete-course-dialog.tsx";
 import { ViewCourseDialog } from "@/components/courses/view-course-dialog.tsx";
+import { ManageInstructorsDialog } from "@/components/courses/manage-instructors-dialog.tsx";
+import { PublishCourseDialog } from "@/components/courses/publish-course-dialog.tsx";
+import { CourseInfoSheet } from "@/components/courses/course-info-sheet.tsx";
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import {
   Pagination,
@@ -20,8 +23,10 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@workspace/ui/components/pagination";
+import { toast } from '@workspace/ui/components/sonner';
 
 export default function CoursesPage() {
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounceValue(search, 500);
@@ -33,6 +38,9 @@ export default function CoursesPage() {
   const [editingCourse, setEditingCourse] = useState<CourseResponseDTO | null>(null);
   const [deletingCourse, setDeletingCourse] = useState<CourseResponseDTO | null>(null);
   const [viewingCourse, setViewingCourse] = useState<CourseResponseDTO | null>(null);
+  const [managingInstructorsCourse, setManagingInstructorsCourse] = useState<CourseResponseDTO | null>(null);
+  const [publishingCourse, setPublishingCourse] = useState<CourseResponseDTO | null>(null);
+  const [hierarchyCourse, setHierarchyCourse] = useState<CourseResponseDTO | null>(null);
 
   const queryParams: CourseQueryDTO = {
     page,
@@ -43,8 +51,7 @@ export default function CoursesPage() {
   };
 
   const { data: coursesData, isLoading, error } = useCourses(queryParams);
-
-  const navigate = useNavigate();
+  const unpublishMutation = useUnpublishCourse();
 
   useEffect(() => {
     setPage(1);
@@ -57,6 +64,15 @@ export default function CoursesPage() {
     page: coursesData.page,
     limit: coursesData.limit
   } : null;
+
+  const handleUnpublish = async (course: CourseResponseDTO) => {
+    try {
+      await unpublishMutation.mutateAsync(course.id);
+      toast.success('Course unpublished successfully');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to unpublish course');
+    }
+  };
 
   if (error) {
     return (
@@ -115,20 +131,27 @@ export default function CoursesPage() {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in-50 duration-500">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">Courses</h1>
-          <p className="text-muted-foreground">Manage and publish learning content for your students.</p>
+    <div className="space-y-6 sm:space-y-8 animate-in fade-in-50 duration-300">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
+        <div className="space-y-1 sm:space-y-1.5 flex-1">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+            Courses
+          </h1>
+          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+            Manage and publish learning content for your students.
+          </p>
         </div>
         <Can permission="course.create">
-          <Button onClick={() => setShowCreateDialog(true)} className="rounded-full shadow-lg shadow-primary/20 bg-primary">
+          <Button
+            onClick={() => setShowCreateDialog(true)}
+            className="w-full sm:w-auto rounded-full shadow-sm hover:shadow-md transition-all bg-primary min-h-[44px] px-6"
+          >
             Create Course
           </Button>
         </Can>
       </div>
 
-      <div className="zen-card rounded-2xl p-0 overflow-hidden">
+      <div className="border border-border/40 shadow-sm bg-card hover:shadow-md transition-shadow duration-300 rounded-xl p-0 overflow-hidden">
         <div className="p-6 pb-0">
           <CoursesPrimaryToolbar
             search={search}
@@ -146,7 +169,11 @@ export default function CoursesPage() {
             onEdit={setEditingCourse}
             onDelete={setDeletingCourse}
             onView={setViewingCourse}
-            onModules={(course) => navigate(`/modules?courseId=${course.id}`)}
+            onTitleClick={(course) => navigate(`/courses/${course.id}`)}
+            onModules={(course) => setHierarchyCourse(course)}
+            onManageInstructors={setManagingInstructorsCourse}
+            onPublish={setPublishingCourse}
+            onUnpublish={handleUnpublish}
             page={page}
             limit={queryParams.limit || 10}
             isLoading={isLoading}
@@ -154,8 +181,8 @@ export default function CoursesPage() {
 
           {/* Pagination */}
           {meta && (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6 border-t border-border/40 px-6">
-              <div className="text-sm zen-text-muted">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 py-4 sm:py-6 border-t border-border/30 px-4 sm:px-6">
+              <div className="text-xs sm:text-sm text-muted-foreground">
                 Showing <span className="font-semibold text-foreground">{courses.length}</span> of <span className="font-semibold text-foreground">{meta.total}</span> courses
               </div>
 
@@ -165,7 +192,7 @@ export default function CoursesPage() {
                     <PaginationItem>
                       <PaginationPrevious
                         onClick={() => setPage(p => Math.max(1, p - 1))}
-                        className={page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                        className={page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer hover:bg-muted/50 transition-colors"}
                       />
                     </PaginationItem>
 
@@ -174,7 +201,7 @@ export default function CoursesPage() {
                     <PaginationItem>
                       <PaginationNext
                         onClick={() => setPage(p => Math.min(meta.totalPages, p + 1))}
-                        className={page === meta.totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                        className={page === meta.totalPages ? "pointer-events-none opacity-50" : "cursor-pointer hover:bg-muted/50 transition-colors"}
                       />
                     </PaginationItem>
                   </PaginationContent>
@@ -207,6 +234,24 @@ export default function CoursesPage() {
         open={!!viewingCourse}
         onOpenChange={(open) => !open && setViewingCourse(null)}
         course={viewingCourse}
+      />
+
+      <ManageInstructorsDialog
+        open={!!managingInstructorsCourse}
+        onOpenChange={(open) => !open && setManagingInstructorsCourse(null)}
+        course={managingInstructorsCourse}
+      />
+
+      <PublishCourseDialog
+        open={!!publishingCourse}
+        onOpenChange={(open) => !open && setPublishingCourse(null)}
+        course={publishingCourse}
+      />
+
+      <CourseInfoSheet
+        open={!!hierarchyCourse}
+        onOpenChange={(open) => !open && setHierarchyCourse(null)}
+        course={hierarchyCourse}
       />
     </div>
   );

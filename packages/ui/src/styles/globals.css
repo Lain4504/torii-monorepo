@@ -9,31 +9,45 @@
 
 :root {
   /* Zen UI Light Mode - Clean, professional colors */
-  --background: oklch(1 0 0); /* Pure white */
-  --foreground: oklch(0.15 0 0); /* Near black */
-  --card: oklch(1 0 0); /* White */
+  --background: oklch(1 0 0);
+  /* Pure white */
+  --foreground: oklch(0.15 0 0);
+  /* Near black */
+  --card: oklch(1 0 0);
+  /* White */
   --card-foreground: oklch(0.15 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.15 0 0);
-  --primary: oklch(0.45 0.20 250); /* Professional blue */
+  --primary: oklch(0.45 0.20 250);
+  /* Professional blue */
   --primary-foreground: oklch(0.98 0 0);
-  --secondary: oklch(0.96 0.01 0); /* Light gray */
+  --secondary: oklch(0.96 0.01 0);
+  /* Light gray */
   --secondary-foreground: oklch(0.25 0 0);
-  --muted: oklch(0.96 0.01 0); /* Light gray */
+  --muted: oklch(0.96 0.01 0);
+  /* Light gray */
   --muted-foreground: oklch(0.50 0 0);
-  --accent: oklch(0.96 0.015 250); /* Subtle blue-tinted gray */
+  --accent: oklch(0.96 0.015 250);
+  /* Subtle blue-tinted gray */
   --accent-foreground: oklch(0.25 0 0);
-  --destructive: oklch(0.55 0.22 25); /* Professional red */
+  --destructive: oklch(0.55 0.22 25);
+  /* Professional red */
   --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.90 0 0); /* Light gray border */
+  --border: oklch(0.90 0 0);
+  /* Light gray border */
   --input: oklch(0.96 0 0);
   --ring: oklch(0.45 0.20 250);
-  --chart-1: oklch(0.55 0.20 250); /* Blue */
-  --chart-2: oklch(0.55 0.18 180); /* Teal */
-  --chart-3: oklch(0.60 0.15 140); /* Green */
-  --chart-4: oklch(0.60 0.18 320); /* Purple */
-  --chart-5: oklch(0.58 0.16 220); /* Indigo */
-  --radius: 0.75rem;
+  --chart-1: oklch(0.55 0.20 250);
+  /* Blue */
+  --chart-2: oklch(0.55 0.18 180);
+  /* Teal */
+  --chart-3: oklch(0.60 0.15 140);
+  /* Green */
+  --chart-4: oklch(0.60 0.18 320);
+  /* Purple */
+  --chart-5: oklch(0.58 0.16 220);
+  /* Indigo */
+  --radius: 0.5rem;
   --sidebar: oklch(0.98 0 0);
   --sidebar-foreground: oklch(0.15 0 0);
   --sidebar-primary: oklch(0.45 0.20 250);
@@ -46,23 +60,31 @@
 
 .dark {
   /* Zen UI Dark Mode - Enhanced contrast for better visibility */
-  --background: oklch(0.12 0 0); /* Darker background */
-  --foreground: oklch(0.98 0 0); /* Brighter text */
-  --card: oklch(0.20 0 0); /* More contrast from background */
+  --background: oklch(0.12 0 0);
+  /* Darker background */
+  --foreground: oklch(0.98 0 0);
+  /* Brighter text */
+  --card: oklch(0.20 0 0);
+  /* More contrast from background */
   --card-foreground: oklch(0.98 0 0);
   --popover: oklch(0.22 0 0);
   --popover-foreground: oklch(0.98 0 0);
-  --primary: oklch(0.65 0.22 250); /* Brighter blue */
+  --primary: oklch(0.65 0.22 250);
+  /* Brighter blue */
   --primary-foreground: oklch(0.12 0 0);
-  --secondary: oklch(0.26 0 0); /* Lighter secondary */
+  --secondary: oklch(0.26 0 0);
+  /* Lighter secondary */
   --secondary-foreground: oklch(0.95 0 0);
-  --muted: oklch(0.24 0 0); /* More visible muted */
-  --muted-foreground: oklch(0.70 0 0); /* Brighter muted text */
+  --muted: oklch(0.24 0 0);
+  /* More visible muted */
+  --muted-foreground: oklch(0.70 0 0);
+  /* Brighter muted text */
   --accent: oklch(0.30 0.02 250);
   --accent-foreground: oklch(0.95 0 0);
   --destructive: oklch(0.65 0.24 25);
   --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.35 0 0); /* Much more visible borders */
+  --border: oklch(0.35 0 0);
+  /* Much more visible borders */
   --input: oklch(0.24 0 0);
   --ring: oklch(0.65 0.22 250);
   --chart-1: oklch(0.65 0.22 250);
@@ -142,12 +164,5 @@
     @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/40 transition-colors duration-200;
   }
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-family: var(--font-heading), sans-serif;
-  }
+
 }

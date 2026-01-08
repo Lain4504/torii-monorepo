@@ -10,7 +10,7 @@ export default function ForbiddenPage() {
             </div>
 
             <div className="relative z-10 text-center p-8 max-w-md w-full">
-                <div className="zen-card p-10 flex flex-col items-center gap-6">
+                <div className="border border-border shadow-sm bg-card backdrop-blur-sm hover:bg-card hover:shadow-md transition-all duration-300 rounded-xl p-10 flex flex-col items-center gap-6">
                     <div className="h-24 w-24 rounded-full bg-destructive/10 flex items-center justify-center mb-2">
                         <span className="text-4xl font-bold text-destructive">403</span>
                     </div>

@@ -129,115 +129,133 @@ export function EditCourseDialog({ course, open, onOpenChange }: EditCourseDialo
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Edit Course</DialogTitle>
+            <DialogContent className="max-w-2xl border-none shadow-2xl bg-background/95 backdrop-blur-xl rounded-2xl p-0 overflow-hidden">
+                <DialogHeader className="p-8 pb-4 bg-muted/30">
+                    <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">Edit Course</DialogTitle>
                 </DialogHeader>
-                <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4" noValidate>
-                    <Controller
-                        control={control}
-                        name="title"
-                        render={({ field, fieldState }) => (
-                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor={field.name}>Title</FieldLabel>
-                                <Input
-                                    id={field.name}
-                                    {...field}
-                                    placeholder="Enter course title"
-                                    aria-invalid={fieldState.invalid}
-                                />
-                                <FieldError errors={[fieldState.error]} />
-                            </Field>
-                        )}
-                    />
+                <form onSubmit={handleSubmit(onSubmitForm)} className="p-8 pt-4 space-y-6" noValidate>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Controller
+                            control={control}
+                            name="title"
+                            render={({ field, fieldState }) => (
+                                <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor={field.name} className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Title</FieldLabel>
+                                    <Input
+                                        id={field.name}
+                                        {...field}
+                                        placeholder="Enter course title"
+                                        className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all"
+                                        aria-invalid={fieldState.invalid}
+                                    />
+                                    <FieldError errors={[fieldState.error]} className="text-[10px] font-medium text-destructive ml-1" />
+                                </Field>
+                            )}
+                        />
+
+                        <Controller
+                            control={control}
+                            name="price"
+                            render={({ field, fieldState }) => (
+                                <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor={field.name} className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Price</FieldLabel>
+                                    <Input
+                                        id={field.name}
+                                        type="number"
+                                        {...field}
+                                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                        placeholder="Enter price"
+                                        className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all"
+                                        aria-invalid={fieldState.invalid}
+                                    />
+                                    <FieldError errors={[fieldState.error]} className="text-[10px] font-medium text-destructive ml-1" />
+                                </Field>
+                            )}
+                        />
+
+                        <Controller
+                            control={control}
+                            name="status"
+                            render={({ field, fieldState }) => (
+                                <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor={field.name} className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Status</FieldLabel>
+                                    <Select
+                                        value={field.value}
+                                        onValueChange={(value) => field.onChange(value as CourseStatus)}
+                                    >
+                                        <SelectTrigger id={field.name} className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus:ring-1 focus:ring-primary/20 rounded-xl transition-all" aria-invalid={fieldState.invalid}>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent className="border-none shadow-2xl bg-popover/95 backdrop-blur-xl rounded-xl">
+                                            <SelectItem value={CourseStatus.DRAFT} className="rounded-lg focus:bg-primary/5">Draft</SelectItem>
+                                            <SelectItem value={CourseStatus.PUBLISHED} className="rounded-lg focus:bg-primary/5">Published</SelectItem>
+                                            <SelectItem value={CourseStatus.ARCHIVED} className="rounded-lg focus:bg-primary/5">Archived</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FieldError errors={[fieldState.error]} className="text-[10px] font-medium text-destructive ml-1" />
+                                </Field>
+                            )}
+                        />
+                    </div>
 
                     <Controller
                         control={control}
                         name="description"
                         render={({ field, fieldState }) => (
                             <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor={field.name}>Description</FieldLabel>
+                                <FieldLabel htmlFor={field.name} className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Description</FieldLabel>
                                 <Input
                                     id={field.name}
                                     {...field}
                                     placeholder="Enter course description"
+                                    className="h-12 border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all"
                                     aria-invalid={fieldState.invalid}
                                 />
-                                <FieldError errors={[fieldState.error]} />
+                                <FieldError errors={[fieldState.error]} className="text-[10px] font-medium text-destructive ml-1" />
                             </Field>
                         )}
                     />
 
-                    <Controller
-                        control={control}
-                        name="price"
-                        render={({ field, fieldState }) => (
-                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor={field.name}>Price</FieldLabel>
-                                <Input
-                                    id={field.name}
-                                    type="number"
-                                    {...field}
-                                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                                    placeholder="Enter price"
-                                    aria-invalid={fieldState.invalid}
-                                />
-                                <FieldError errors={[fieldState.error]} />
-                            </Field>
-                        )}
-                    />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Field className="space-y-2">
+                            <FieldLabel htmlFor="thumbnail-upload" className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Thumbnail</FieldLabel>
+                            <Input
+                                id="thumbnail-upload"
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)}
+                                className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all p-2.5"
+                            />
+                            {course?.thumbnailUrl && <p className="text-[10px] text-muted-foreground truncate pl-1">Current: {course.thumbnailUrl}</p>}
+                        </Field>
 
-                    <Controller
-                        control={control}
-                        name="status"
-                        render={({ field, fieldState }) => (
-                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor={field.name}>Status</FieldLabel>
-                                <Select
-                                    value={field.value}
-                                    onValueChange={(value) => field.onChange(value as CourseStatus)}
-                                >
-                                    <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value={CourseStatus.DRAFT}>Draft</SelectItem>
-                                        <SelectItem value={CourseStatus.PUBLISHED}>Published</SelectItem>
-                                        <SelectItem value={CourseStatus.ARCHIVED}>Archived</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <FieldError errors={[fieldState.error]} />
-                            </Field>
-                        )}
-                    />
+                        <Field className="space-y-2">
+                            <FieldLabel htmlFor="video-upload" className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Preview Video</FieldLabel>
+                            <Input
+                                id="video-upload"
+                                type="file"
+                                accept="video/*"
+                                onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+                                className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all p-2.5"
+                            />
+                            {course?.previewVideoUrl && <p className="text-[10px] text-muted-foreground truncate pl-1">Current: {course.previewVideoUrl}</p>}
+                        </Field>
+                    </div>
 
-                    <Field className="space-y-2">
-                        <FieldLabel htmlFor="thumbnail-upload">Thumbnail</FieldLabel>
-                        <Input
-                            id="thumbnail-upload"
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)}
-                        />
-                        {course.thumbnailUrl && <p className="text-sm text-muted-foreground">Current: {course.thumbnailUrl}</p>}
-                    </Field>
-
-                    <Field className="space-y-2">
-                        <FieldLabel htmlFor="video-upload">Preview Video</FieldLabel>
-                        <Input
-                            id="video-upload"
-                            type="file"
-                            accept="video/*"
-                            onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
-                        />
-                        {course.previewVideoUrl && <p className="text-sm text-muted-foreground">Current: {course.previewVideoUrl}</p>}
-                    </Field>
-
-                    <div className="flex justify-end gap-2">
-                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                    <div className="flex justify-end gap-3 pt-4">
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={() => onOpenChange(false)}
+                            className="rounded-xl h-11 px-6 hover:bg-primary/5"
+                        >
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={uploading}>
+                        <Button
+                            type="submit"
+                            disabled={uploading}
+                            className="rounded-xl h-11 px-8 bg-primary shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform"
+                        >
                             {uploading ? 'Uploading...' : 'Update Course'}
                         </Button>
                     </div>

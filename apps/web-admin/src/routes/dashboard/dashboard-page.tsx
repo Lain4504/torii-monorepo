@@ -26,7 +26,7 @@ import {
 // Minimal Zen Stats Card with calming pastel design
 function StatsCard({ title, value, sub, icon: Icon }: any) {
   return (
-    <Card className="zen-card overflow-hidden relative group cursor-pointer transition-all duration-300 hover:shadow-md border-border/50">
+    <Card className="border border-border shadow-sm bg-card backdrop-blur-sm hover:bg-card hover:shadow-md transition-all duration-300 rounded-xl overflow-hidden relative group cursor-pointer transition-all duration-300 hover:shadow-md border-border/50">
       <div className="absolute right-0 top-0 h-20 w-20 bg-primary/5 rounded-bl-full transition-transform duration-300 group-hover:scale-125 group-hover:bg-primary/10" />
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 relative z-10">
         <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
@@ -56,7 +56,7 @@ function AdminDashboard() {
       {/* Main Content Area */}
       <div className="grid gap-6 md:grid-cols-7">
         {/* Big Chart Area */}
-        <Card className="col-span-4 zen-card border-border/50">
+        <Card className="col-span-4 border border-border shadow-sm bg-card backdrop-blur-sm hover:bg-card hover:shadow-md transition-all duration-300 rounded-xl border-border/50">
           <CardHeader className="pb-4">
             <CardTitle className="text-xl font-semibold">Overview</CardTitle>
             <CardDescription className="text-muted-foreground/80">Monthly revenue & enrollment trends</CardDescription>
@@ -69,7 +69,7 @@ function AdminDashboard() {
         </Card>
 
         {/* Recent Activity */}
-        <Card className="col-span-3 zen-card border-border/50">
+        <Card className="col-span-3 border border-border shadow-sm bg-card backdrop-blur-sm hover:bg-card hover:shadow-md transition-all duration-300 rounded-xl border-border/50">
           <CardHeader className="pb-4">
             <CardTitle className="text-xl font-semibold">Recent Sales</CardTitle>
             <CardDescription className="text-muted-foreground/80">Latest transactions</CardDescription>
@@ -91,7 +91,7 @@ function StaffDashboard() {
   return (
     <div className="space-y-8">
       <div className="grid gap-6 md:grid-cols-3">
-        <Card className="zen-card border-border/50 cursor-pointer transition-all duration-300 hover:shadow-md">
+        <Card className="border border-border shadow-sm bg-card backdrop-blur-sm hover:bg-card hover:shadow-md transition-all duration-300 rounded-xl border-border/50 cursor-pointer transition-all duration-300 hover:shadow-md">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">Pending Approvals</CardTitle>
           </CardHeader>
@@ -100,7 +100,7 @@ function StaffDashboard() {
             <p className="text-xs text-muted-foreground/80 mt-2">Courses waiting for review</p>
           </CardContent>
         </Card>
-        <Card className="zen-card border-border/50 cursor-pointer transition-all duration-300 hover:shadow-md">
+        <Card className="border border-border shadow-sm bg-card backdrop-blur-sm hover:bg-card hover:shadow-md transition-all duration-300 rounded-xl border-border/50 cursor-pointer transition-all duration-300 hover:shadow-md">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">Upcoming Exams</CardTitle>
           </CardHeader>
@@ -109,7 +109,7 @@ function StaffDashboard() {
             <p className="text-xs text-muted-foreground/80 mt-2">Scheduled for this week</p>
           </CardContent>
         </Card>
-        <Card className="zen-card border-border/50 cursor-pointer transition-all duration-300 hover:shadow-md">
+        <Card className="border border-border shadow-sm bg-card backdrop-blur-sm hover:bg-card hover:shadow-md transition-all duration-300 rounded-xl border-border/50 cursor-pointer transition-all duration-300 hover:shadow-md">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">Support Tickets</CardTitle>
           </CardHeader>
@@ -121,7 +121,7 @@ function StaffDashboard() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <Card className="zen-card border-border/50">
+        <Card className="border border-border shadow-sm bg-card backdrop-blur-sm hover:bg-card hover:shadow-md transition-all duration-300 rounded-xl border-border/50">
           <CardHeader className="pb-4">
             <CardTitle className="font-semibold">Tasks & To-Dos</CardTitle>
             <CardDescription className="text-muted-foreground/80">Daily operations management</CardDescription>
@@ -132,7 +132,7 @@ function StaffDashboard() {
             <TaskItem title="Update Question Bank for N3" status="success" />
           </CardContent>
         </Card>
-        <Card className="zen-card border-border/50">
+        <Card className="border border-border shadow-sm bg-card backdrop-blur-sm hover:bg-card hover:shadow-md transition-all duration-300 rounded-xl border-border/50">
           <CardHeader className="pb-4">
             <CardTitle className="font-semibold">Course Management</CardTitle>
             <CardDescription className="text-muted-foreground/80">Recent updates</CardDescription>
@@ -172,7 +172,7 @@ function LecturerDashboard() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <Card className="zen-card border-border/50">
+        <Card className="border border-border shadow-sm bg-card backdrop-blur-sm hover:bg-card hover:shadow-md transition-all duration-300 rounded-xl border-border/50">
           <CardHeader className="pb-4">
             <CardTitle className="font-semibold">Upcoming Schedule</CardTitle>
             <CardDescription className="text-muted-foreground/80">Your weekly teaching plan</CardDescription>
@@ -186,7 +186,7 @@ function LecturerDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="zen-card border-border/50">
+        <Card className="border border-border shadow-sm bg-card backdrop-blur-sm hover:bg-card hover:shadow-md transition-all duration-300 rounded-xl border-border/50">
           <CardHeader className="pb-4">
             <CardTitle className="font-semibold">Pending Assignments</CardTitle>
             <CardDescription className="text-muted-foreground/80">Requires your detailed feedback</CardDescription>

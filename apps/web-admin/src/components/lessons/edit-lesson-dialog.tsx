@@ -3,8 +3,6 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
-    Dialog,
-    DialogContent,
     DialogHeader,
     DialogTitle,
 } from '@workspace/ui/components/dialog';
@@ -12,6 +10,13 @@ import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Textarea } from '@workspace/ui/components/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
+import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+} from '@workspace/ui/components/sheet';
 import {
     Field,
     FieldLabel,
@@ -47,7 +52,7 @@ export function EditLessonDialog({ lesson, open, onOpenChange }: EditLessonDialo
         defaultValues: {
             title: '',
             contentType: LessonContentType.VIDEO,
-            order: 0,
+            orderIndex: 0,
             isPreview: false,
             isUnlocked: false,
         },
@@ -61,7 +66,7 @@ export function EditLessonDialog({ lesson, open, onOpenChange }: EditLessonDialo
                 contentType: lesson.contentType as LessonContentType,
                 videoUrl: lesson.videoUrl,
                 articleContent: lesson.articleContent,
-                order: lesson.order,
+                orderIndex: lesson.orderIndex,
                 isPreview: lesson.isPreview,
                 isUnlocked: lesson.isUnlocked,
             });
@@ -122,12 +127,13 @@ export function EditLessonDialog({ lesson, open, onOpenChange }: EditLessonDialo
     if (!lesson) return null;
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Edit Lesson</DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4" noValidate>
+        <Sheet open={open} onOpenChange={onOpenChange}>
+            <SheetContent className="w-[400px] sm:w-[600px] overflow-y-auto">
+                <SheetHeader className="mb-6">
+                    <SheetTitle>Edit Lesson</SheetTitle>
+                    <SheetDescription>Update lesson details and content.</SheetDescription>
+                </SheetHeader>
+                <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-6" noValidate>
                     <Controller
                         control={control}
                         name="title"
@@ -205,10 +211,10 @@ export function EditLessonDialog({ lesson, open, onOpenChange }: EditLessonDialo
 
                     <Controller
                         control={control}
-                        name="order"
+                        name="orderIndex"
                         render={({ field, fieldState }) => (
                             <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor={field.name}>Order</FieldLabel>
+                                <FieldLabel htmlFor={field.name}>Order Index</FieldLabel>
                                 <Input
                                     id={field.name}
                                     type="number"
@@ -265,7 +271,7 @@ export function EditLessonDialog({ lesson, open, onOpenChange }: EditLessonDialo
                         </Button>
                     </div>
                 </form>
-            </DialogContent>
-        </Dialog>
+            </SheetContent>
+        </Sheet>
     );
 }

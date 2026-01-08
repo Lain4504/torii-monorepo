@@ -74,7 +74,7 @@ export function EditUserDialog({
             <DialogContent className="sm:max-w-[500px] border-none shadow-2xl bg-background/95 backdrop-blur-xl rounded-2xl">
                 <DialogHeader className="px-1">
                     <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">Edit User</DialogTitle>
-                    <DialogDescription className="text-sm zen-text-muted mt-1">
+                    <DialogDescription className="text-sm text-muted-foreground mt-1">
                         Update user details and permissions.
                     </DialogDescription>
                 </DialogHeader>

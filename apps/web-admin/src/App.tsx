@@ -12,8 +12,8 @@ import DashboardPage from '@/routes/dashboard/dashboard-page.tsx'
 import AnalyticsPage from '@/routes/dashboard/analytics-page.tsx'
 import { UsersPage } from '@/routes/users/users-page.tsx'
 import CoursesPage from '@/routes/courses/courses-page.tsx'
-import ModulesPage from '@/routes/modules/modules-page.tsx'
-import LessonsPage from '@/routes/lessons/lessons-page.tsx'
+import CourseDetailPage from '@/routes/courses/course-detail-page.tsx'
+
 import { QuestionBankPage } from '@/routes/question-bank/question-bank-page.tsx'
 import RoomsPage from '@/routes/rooms/rooms-page.tsx'
 import PaymentsPage from '@/routes/finance/payments-page.tsx'
@@ -23,8 +23,8 @@ import SettingsPage from '@/routes/settings/settings-page.tsx'
 import { BlogPage } from '@/routes/blog/blog-page.tsx'
 
 import LoginPage from '@/routes/auth/login-page.tsx'
-import {AuditLogsPage} from "@/routes/audit/audit-logs-page.tsx";
-import {PermissionsPage} from "@/routes/permissions/permissions-page.tsx";
+import { AuditLogsPage } from "@/routes/audit/audit-logs-page.tsx";
+import { PermissionsPage } from "@/routes/permissions/permissions-page.tsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -51,8 +51,8 @@ function App() {
                 <Route index element={<DashboardPage />} />
                 <Route path="users" element={<UsersPage />} />
                 <Route path="courses" element={<CoursesPage />} />
-                <Route path="modules" element={<ModulesPage />} />
-                <Route path="lessons" element={<LessonsPage />} />
+                <Route path="courses/:id" element={<CourseDetailPage />} />
+
                 <Route path="question-bank" element={<QuestionBankPage />} />
                 <Route path="rooms" element={<RoomsPage />} />
                 <Route path="blogs" element={<BlogPage />} />
@@ -66,7 +66,7 @@ function App() {
               </Route>
             </Routes>
           </BrowserRouter>
-          <Toaster richColors position="top-right" />
+          <Toaster position="top-right" />
         </QueryClientProvider>
       </ThemeProvider>
     </ReduxProvider>

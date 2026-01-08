@@ -142,7 +142,7 @@ export function UsersPage() {
                 </Button>
             </div>
 
-            <div className="zen-card rounded-2xl">
+            <div className="border border-border shadow-sm bg-card backdrop-blur-sm hover:bg-card hover:shadow-md transition-all duration-300 rounded-xl rounded-2xl">
                 <div className="p-3 sm:p-6">
                     <UsersPrimaryToolbar
                         search={search}

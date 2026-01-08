@@ -46,7 +46,7 @@ function AuditLogDetailsDialog({ log }: { log: AuditLog }) {
                     <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">
                         Audit Log Details
                     </DialogTitle>
-                    <DialogDescription className="text-sm zen-text-muted mt-1">
+                    <DialogDescription className="text-sm text-muted-foreground mt-1">
                         Action performed on {format(new Date(log.createdAt), 'PPpp')}
                     </DialogDescription>
                 </DialogHeader>
@@ -231,7 +231,7 @@ export function AuditLogsPage() {
             </div>
 
             {/* Filters */}
-            <div className="p-6 zen-card rounded-2xl">
+            <div className="p-6 border border-border shadow-sm bg-card backdrop-blur-sm hover:bg-card hover:shadow-md transition-all duration-300 rounded-xl rounded-2xl">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                     <div className="space-y-2">
                         <label className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Action</label>
@@ -273,7 +273,7 @@ export function AuditLogsPage() {
             </div>
 
             {/* Table */}
-            <div className="zen-card rounded-2xl p-0 overflow-hidden">
+            <div className="border border-border shadow-sm bg-card backdrop-blur-sm hover:bg-card hover:shadow-md transition-all duration-300 rounded-xl rounded-2xl p-0 overflow-hidden">
                 <Table>
                     <TableHeader className="bg-muted/30">
                         <TableRow className="border-border/50 hover:bg-transparent">
@@ -346,7 +346,7 @@ export function AuditLogsPage() {
                 {/* Pagination */}
                 {data && (
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6 border-t border-border/40 px-6">
-                        <div className="text-sm zen-text-muted">
+                        <div className="text-sm text-muted-foreground">
                             Showing <span className="font-semibold text-foreground">{(data.page - 1) * data.limit + 1}</span> to{' '}
                             <span className="font-semibold text-foreground">{Math.min(data.page * data.limit, data.total)}</span> of <span className="font-semibold text-foreground">{data.total}</span> logs
                         </div>
