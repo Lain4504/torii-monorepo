@@ -849,4 +849,80 @@ export class AuthService implements IAuthService {
             hasPassword: !!user?.password,
         };
     }
+
+    // ========================================
+    // Invite Token Methods (Internal Users)
+    // ========================================
+
+    /**
+     * Verify invite token for internal users (LECTURER/STAFF)
+     * Returns user email and role if token is valid
+     */
+    async verifyInviteToken(token: string): Promise<{ success: boolean; email?: string; role?: string }> {
+        const userId = await this.redis.get(`invite-token:${token}`);
+
+        if (!userId) {
+            return { success: false };
+        }
+
+        // Get user details
+        const user = await this.usersRepository.findById(userId);
+
+        if (!user) {
+            return { success: false };
+        }
+
+        // Check if user already has password set (already onboarded)
+        if (user.password) {
+            return { success: false };
+        }
+
+        return {
+            success: true,
+            email: user.email,
+            role: user.role,
+        };
+    }
+
+    /**
+     * Set password for invited internal user
+     * Completes the onboarding flow for LECTURER/STAFF
+     */
+    async setPassword(token: string, password: string): Promise<void> {
+        const userId = await this.redis.get(`invite-token:${token}`);
+
+        if (!userId) {
+            throw new UnauthorizedException('Invalid or expired invite token');
+        }
+
+        const user = await this.usersRepository.findById(userId);
+
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        // Check if user already has password set
+        if (user.password) {
+            throw new BadRequestException('Password already set for this account');
+        }
+
+        // Hash password
+        const hashedPassword = await argon2.hash(password);
+
+        // Update user: set password and verify email
+        await this.usersRepository.update(user.id, {
+            password: hashedPassword,
+            verifiedAt: new Date(), // Auto-verify email for invited users
+        });
+
+        // Delete invite token (one-time use)
+        await this.redis.del(`invite-token:${token}`);
+
+        // Send welcome email
+        await this.emailService.sendWelcomeEmail(
+            user.email,
+            user.displayName
+        );
+    }
 }
+

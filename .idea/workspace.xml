@@ -4,8 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(users): integrate EmailModule for user management enhancements">
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/auth.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/auth.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/i-auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/i-auth.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/auth.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/user.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/user.dto.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -260,14 +263,6 @@
       <workItem from="1767779643020" duration="455000" />
       <workItem from="1767780214679" duration="224000" />
       <workItem from="1767784611248" duration="3225000" />
-    </task>
-    <task id="LOCAL-00470" summary="feat(auth): sync database schema and Prisma models with session-based authentication&#10;&#10;- Replaced `refresh_tokens` table with `sessions` table in database schema.&#10;- Updated tables to include extended metadata (e.g., IP, user agent, device info).&#10;- Synced Prisma models with revised schema, optimizing for session management.&#10;- Removed legacy user role and permission tables, consolidating mappings with updated schemas.&#10;- Added tables for `user_identities`, `two_factor_auth`, and audit functionalities for improved security and logging.">
-      <option name="closed" value="true" />
-      <created>1767762050358</created>
-      <option name="number" value="00470" />
-      <option name="presentableId" value="LOCAL-00470" />
-      <option name="project" value="LOCAL" />
-      <updated>1767762050359</updated>
     </task>
     <task id="LOCAL-00471" summary="feat(auth): sync database schema and Prisma models with session-based authentication&#10;&#10;- Replaced `refresh_tokens` table with `sessions` table in database schema.&#10;- Updated tables to include extended metadata (e.g., IP, user agent, device info).&#10;- Synced Prisma models with revised schema, optimizing for session management.&#10;- Removed legacy user role and permission tables, consolidating mappings with updated schemas.&#10;- Added tables for `user_identities`, `two_factor_auth`, and audit functionalities for improved security and logging.">
       <option name="closed" value="true" />
@@ -653,7 +648,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767802756616</updated>
     </task>
-    <option name="localTasksCounter" value="519" />
+    <task id="LOCAL-00519" summary="feat(users): integrate EmailModule for user management enhancements">
+      <option name="closed" value="true" />
+      <created>1767832879775</created>
+      <option name="number" value="00519" />
+      <option name="presentableId" value="LOCAL-00519" />
+      <option name="project" value="LOCAL" />
+      <updated>1767832879775</updated>
+    </task>
+    <option name="localTasksCounter" value="520" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -683,7 +686,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat(web-learner): add modular course detail components&#10;&#10;- Introduced `CourseHeader`, `CourseCurriculum`, `CourseInstructor`, `CourseReviews`, and `CourseSidebar` components.&#10;- Implemented `CourseDetailPage` layout, combining the new components for a modular design.&#10;- Ensured responsive design and consistency with platform UI/UX standards." />
     <MESSAGE value="feat(web-learner): implement course catalog with filtering, search, and pagination&#10;&#10;- Added `CourseCard`, `CourseGrid`, `FilterSidebar`, and `SearchHeader` components.&#10;- Introduced a `CourseCatalogPage` layout featuring filters, search functionality, and a paginated grid of courses.&#10;- Ensured responsive design and adherence to UI/UX standards for browsing and discovery." />
     <MESSAGE value="feat(web-learner): add exam management interface with card-based UI and history tracking&#10;&#10;- Introduced `ExamCard` component to display exam details and statuses (new, in-progress, completed).&#10;- Created `ExamHistory` component for displaying past exam attempts in a table format.&#10;- Added `ExamStats` component to showcase key statistics such as average score, total exams taken, and hours practiced.&#10;- Implemented `ExamPage` layout with tabs for available exams and exam history, including filtering and searching functionality.&#10;- Ensured responsive design and adherence to platform UI/UX guidelines." />
     <MESSAGE value="feat(auth): add two-factor authentication with TOTP, SMS, and email support&#10;&#10;- Implemented comprehensive 2FA support, including TOTP, SMS, and email-based authentication.&#10;- Added reusable encryption module with AES-256-GCM for securing TOTP secrets.&#10;- Created TwoFactorAuth module with service, controller, and repository for managing 2FA methods and statuses.&#10;- Introduced backup codes functionality for recovery.&#10;- Added Prisma migrations for storing 2FA configurations.&#10;- Integrated Redis and NATS for OTP storage and notifications." />
@@ -708,7 +710,8 @@
     <MESSAGE value="feat(database): document database design and add admin login interface method&#10;&#10;- Added new documentation: `database-design-overview.md` and `database-design-schema.md` for system architecture clarity.&#10;- Extended `IAuthService` interface with `adminLogin` for specialized admin portal authentication." />
     <MESSAGE value="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`." />
     <MESSAGE value="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`," />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`," />
+    <MESSAGE value="feat(users): integrate EmailModule for user management enhancements" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(users): integrate EmailModule for user management enhancements" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

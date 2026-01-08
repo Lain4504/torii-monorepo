@@ -191,4 +191,23 @@ export interface IAuthService {
         }>;
         hasPassword: boolean;
     }>;
+
+    // ===== Invite Token (Internal Users) =====
+
+    /**
+     * Verify invite token for internal users (LECTURER/STAFF)
+     * @param token - The invite token
+     * @returns Verification result with user email and role if valid
+     */
+    verifyInviteToken(token: string): Promise<{ success: boolean; email?: string; role?: string }>;
+
+    /**
+     * Set password for invited internal user
+     * Completes the onboarding flow for LECTURER/STAFF
+     * @param token - The invite token
+     * @param password - The new password
+     * @throws UnauthorizedException if token is invalid
+     * @throws NotFoundException if user not found
+     */
+    setPassword(token: string, password: string): Promise<void>;
 }

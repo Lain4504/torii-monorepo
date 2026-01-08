@@ -37,7 +37,14 @@ export type UserCreateDTO = z.infer<typeof userCreateDTOSchema>;
 export const adminCreateInternalUserDTOSchema = z.object({
     email: userSchema.shape.email,
     displayName: userSchema.shape.displayName,
-    role: z.enum([UserRole.LECTURER, UserRole.STAFF]),
+    role: z.enum([
+        UserRole.LECTURER,
+        UserRole.STAFF,
+        // Staff variants (specific roles)
+        'staff-lms' as any,
+        'staff-support' as any,
+        'staff-sales' as any,
+    ]),
 });
 
 export type AdminCreateInternalUserDTO = z.infer<typeof adminCreateInternalUserDTOSchema>;
@@ -78,3 +85,23 @@ export const userResponseDTOSchema = userSchema.omit({
 });
 
 export type UserResponseDTO = z.infer<typeof userResponseDTOSchema>;
+
+// ========================================
+// Invite Token DTOs (for internal users)
+// ========================================
+
+// Verify invite token DTO
+export const verifyInviteTokenDTOSchema = z.object({
+    token: z.string().min(1, 'Token is required'),
+});
+
+export type VerifyInviteTokenDTO = z.infer<typeof verifyInviteTokenDTOSchema>;
+
+// Set password for invited user DTO
+export const setPasswordDTOSchema = z.object({
+    token: z.string().min(1, 'Token is required'),
+    password: userSchema.shape.password,
+});
+
+export type SetPasswordDTO = z.infer<typeof setPasswordDTOSchema>;
+

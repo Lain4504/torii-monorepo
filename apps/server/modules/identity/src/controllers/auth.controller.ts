@@ -745,6 +745,81 @@ export class AuthController {
             };
         }
     }
+
+    // ========================================
+    // Invite Token Endpoints (Internal Users)
+    // ========================================
+
+    /**
+     * Verify invite token for internal users
+     * POST /auth/verify-invite-token
+     */
+    @Post('verify-invite-token')
+    @HttpCode(HttpStatus.OK)
+    async verifyInviteToken(@Body('token') token: string) {
+        if (!token) {
+            throw new BadRequestException('Token is required');
+        }
+
+        try {
+            const result = await this.authService.verifyInviteToken(token);
+
+            if (!result.success) {
+                return {
+                    success: false,
+                    message: 'Invalid or expired invite link'
+                };
+            }
+
+            return {
+                success: true,
+                message: 'Invite token is valid',
+                data: {
+                    email: result.email,
+                    role: result.role
+                }
+            };
+        } catch (error: any) {
+            return {
+                success: false,
+                message: error.message || 'Token verification failed'
+            };
+        }
+    }
+
+    /**
+     * Set password for invited internal user
+     * POST /auth/set-password
+     */
+    @Post('set-password')
+    @HttpCode(HttpStatus.OK)
+    async setPassword(
+        @Body('token') token: string,
+        @Body('password') password: string,
+    ) {
+        if (!token || !password) {
+            throw new BadRequestException('Token and password are required');
+        }
+
+        // Validate password strength
+        if (password.length < 8) {
+            throw new BadRequestException('Password must be at least 8 characters long');
+        }
+
+        try {
+            await this.authService.setPassword(token, password);
+            return {
+                success: true,
+                message: 'Password set successfully. You can now login with your credentials.'
+            };
+        } catch (error: any) {
+            return {
+                success: false,
+                message: error.message || 'Failed to set password'
+            };
+        }
+    }
+
     /**
      * Helper to set auth cookies
      */
