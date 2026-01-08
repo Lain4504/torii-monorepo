@@ -27,6 +27,14 @@ out/
 build
 dist
 
+# TypeScript compiled files in source directories
+**/*.js
+**/*.d.ts
+**/*.d.ts.map
+!node_modules/**/*.js
+!**/node_modules/**/*.js
+!**/node_modules/**/*.d.ts
+
 # Debug
 npm-debug.log*
 
