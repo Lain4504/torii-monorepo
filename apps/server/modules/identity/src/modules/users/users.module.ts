@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UsersRepository } from './users.repository';
 import { RBACModule } from '../rbac/rbac.module';
+import { EmailModule } from '../../infrastructure/email/email.module';
 import { USERS_REPOSITORY_TOKEN } from '../../interfaces/repositories';
 import { USERS_SERVICE_TOKEN } from '../../interfaces/services';
 
@@ -10,7 +11,7 @@ import { USERS_SERVICE_TOKEN } from '../../interfaces/services';
  * Handles user management and profile operations
  */
 @Module({
-    imports: [RBACModule],
+    imports: [RBACModule, EmailModule],
     providers: [
         {
             provide: USERS_REPOSITORY_TOKEN,
