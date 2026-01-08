@@ -8,15 +8,16 @@ import {
   type RatingDistributionDTO,
 } from '@workspace/schemas';
 import { ReviewRepository } from './review.repository';
+import type { IReviewService } from '../../interfaces/services';
 
 @Injectable()
-export class ReviewService {
+export class ReviewService implements IReviewService {
   private readonly logger = new Logger(ReviewService.name);
 
   constructor(private readonly reviewRepository: ReviewRepository) {}
 
   /**
-   * Map Review entity to ReviewResponseDTO with user info
+   * Map Review entity to ReviewResponseDTO
    */
   private toReviewResponseDto(review: any): ReviewResponseDTO {
     return {

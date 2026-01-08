@@ -10,7 +10,7 @@ import {
   UseGuards,
   Req,
 } from '@nestjs/common';
-import { ReviewService } from '../../modules/review/review.service';
+import { ReviewService } from '../modules/review/review.service';
 import {
   type ReviewCreateDTO,
   type ReviewQueryDTO,
@@ -19,6 +19,10 @@ import {
 } from '@workspace/schemas';
 import { GatewayAuthGuard } from '@server/shared';
 
+/**
+ * Review HTTP Controller
+ * Handles review-related HTTP endpoints
+ */
 @Controller('courses')
 export class ReviewController {
   private readonly logger = new Logger(ReviewController.name);
