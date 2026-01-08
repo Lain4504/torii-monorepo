@@ -2,7 +2,7 @@ import { Controller, Post, Body, Logger } from '@nestjs/common';
 import { AssessmentAgentService } from '../../assessment-agent/assessment-agent.service';
 import { GenerateTestDto, EvaluateTestDto, GetBenchmarkDto, ScheduleTestDto } from '../../dtos/assessment.dto';
 
-@Controller('ai')
+@Controller('agents')
 export class AssessmentController {
   private readonly logger = new Logger(AssessmentController.name);
 

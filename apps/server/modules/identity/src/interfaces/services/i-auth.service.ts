@@ -210,4 +210,14 @@ export interface IAuthService {
      * @throws NotFoundException if user not found
      */
     setPassword(token: string, password: string): Promise<void>;
+
+    // ===== Token Generation =====
+
+    /**
+     * Generate access token for a user
+     * @param userId - The user's unique identifier
+     * @param role - The user's role
+     * @returns The generated JWT access token
+     */
+    generateAccessToken(userId: string, role: string): Promise<string>;
 }

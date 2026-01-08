@@ -2,7 +2,7 @@ import { Controller, Post, Body, Logger } from '@nestjs/common';
 import { AnalyticsAgentService } from '../../analytics-agent/analytics-agent.service';
 import { TrackProgressDto, SuggestPathDto, IdentifyWeaknessesDto, PredictReadinessDto, GenerateReportDto } from '../../dtos/analytics.dto';
 
-@Controller('ai')
+@Controller('agents')
 export class AnalyticsController {
   private readonly logger = new Logger(AnalyticsController.name);
 

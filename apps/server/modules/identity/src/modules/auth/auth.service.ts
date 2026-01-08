@@ -924,5 +924,15 @@ export class AuthService implements IAuthService {
             user.displayName
         );
     }
+
+    /**
+     * Generate access token for a user
+     */
+    async generateAccessToken(userId: string, role: string): Promise<string> {
+        return this.jwtTokenProvider.generateToken({
+            sub: userId,
+            role: role as UserRole,
+        });
+    }
 }
 

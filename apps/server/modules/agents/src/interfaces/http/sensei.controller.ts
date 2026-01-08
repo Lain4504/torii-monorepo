@@ -2,7 +2,7 @@ import { Controller, Post, Body, Logger } from '@nestjs/common';
 import { SenseiAgentService } from '../../sensei-agent/sensei-agent.service';
 import { GrammarCheckDto, TranslateDto, CreateFlashcardDto, GenerateDrillDto, SimulateConversationDto, RecommendResourcesDto } from '../../dtos/sensei.dto';
 
-@Controller('ai')
+@Controller('agents')
 export class SenseiController {
   private readonly logger = new Logger(SenseiController.name);
 

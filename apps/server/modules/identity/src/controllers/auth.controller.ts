@@ -623,10 +623,7 @@ export class AuthController {
         await this.sessionService.revokeSession(tokenHash);
 
         // Generate new tokens
-        const newAccessToken = await this.authService['jwtTokenProvider'].generateToken({
-            sub: user.id,
-            role: user.role as any,
-        });
+        const newAccessToken = await this.authService.generateAccessToken(user.id, user.role);
         const newRefreshToken = await this.sessionService.createSession(user.id, {
             ipAddress: req.ip,
             userAgent: req.headers['user-agent'],
