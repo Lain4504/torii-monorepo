@@ -1,6 +1,7 @@
 import { Injectable, Logger, Inject, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import type { Module as CourseModule } from '@prisma/generated';
 
+import { UserRole } from '@workspace/schemas';
 import type {
   ModuleCreateDTO,
   ModuleUpdateDTO,
@@ -36,7 +37,7 @@ export class ModuleService implements IModuleService {
       courseId: module.courseId,
       title: module.title,
       description: module.description || undefined,
-      aiMetadata: module.aiMetadata || undefined,
+      aiMetadata: (module.aiMetadata as any) || undefined,
       orderIndex: module.orderIndex,
       durationMinutes: module.durationMinutes || undefined,
       createdBy: module.createdBy || undefined,
@@ -116,7 +117,7 @@ export class ModuleService implements IModuleService {
    */
   async create(requester: Requester, dto: ModuleCreateDTO): Promise<ModuleResponseDTO> {
     // Check permissions
-    if (!['ADMIN', 'LECTURER'].includes(requester.role)) {
+    if (![UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
       throw new ForbiddenException('Only admins and lecturers can create modules');
     }
 
@@ -151,7 +152,7 @@ export class ModuleService implements IModuleService {
    */
   async update(requester: Requester, moduleId: string, dto: ModuleUpdateDTO): Promise<ModuleResponseDTO> {
     // Check permissions
-    if (!['ADMIN', 'LECTURER'].includes(requester.role)) {
+    if (![UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
       throw new ForbiddenException('Only admins and lecturers can update modules');
     }
 
@@ -186,7 +187,7 @@ export class ModuleService implements IModuleService {
    * Delete module
    */
   async delete(requester: Requester, moduleId: string, hardDelete = false): Promise<{ message: string }> {
-    if (requester.role !== 'ADMIN') {
+    if (requester.role !== UserRole.ADMIN) {
       throw new ForbiddenException('Only admins can delete modules');
     }
 
@@ -219,7 +220,7 @@ export class ModuleService implements IModuleService {
     courseId: string,
     moduleOrders: { id: string; orderIndex: number }[]
   ): Promise<{ message: string }> {
-    if (!['ADMIN', 'LECTURER'].includes(requester.role)) {
+    if (![UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
       throw new ForbiddenException('Only admins and lecturers can reorder modules');
     }
 

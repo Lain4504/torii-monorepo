@@ -4,13 +4,16 @@ import { courseSchema, JlptLevel, CourseStatus } from '../models/course.model';
 export const courseCreateDTOSchema = courseSchema
     .pick({
         title: true,
+        type: true,
         description: true,
         shortDescription: true,
         jlptLevel: true,
+        aiMetadata: true,
         thumbnailUrl: true,
         previewVideoUrl: true,
         price: true,
         discountPrice: true,
+        liveConfig: true,
         durationWeeks: true,
         status: true,
         featured: true,
@@ -31,13 +34,16 @@ export type CourseCreateDTO = z.infer<typeof courseCreateDTOSchema>;
 export const courseUpdateDTOSchema = courseSchema
     .pick({
         title: true,
+        type: true,
         description: true,
         shortDescription: true,
         jlptLevel: true,
+        aiMetadata: true,
         thumbnailUrl: true,
         previewVideoUrl: true,
         price: true,
         discountPrice: true,
+        liveConfig: true,
         durationWeeks: true,
         status: true,
         featured: true,

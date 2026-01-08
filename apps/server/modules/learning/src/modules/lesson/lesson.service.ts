@@ -1,6 +1,7 @@
 import { Injectable, Logger, Inject, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import type { Lesson } from '@prisma/generated';
 
+import { UserRole } from '@workspace/schemas';
 import type {
   LessonCreateDTO,
   LessonUpdateDTO,
@@ -39,7 +40,7 @@ export class LessonService implements ILessonService {
       videoUrl: lesson.videoUrl || undefined,
       videoDuration: lesson.videoDuration || undefined,
       articleContent: lesson.articleContent || undefined,
-      aiMetadata: lesson.aiMetadata || undefined,
+      aiMetadata: (lesson.aiMetadata as any) || undefined,
       orderIndex: lesson.orderIndex,
       isPreview: lesson.isPreview,
       isUnlocked: lesson.isUnlocked,
@@ -128,7 +129,7 @@ export class LessonService implements ILessonService {
    */
   async create(requester: Requester, dto: LessonCreateDTO): Promise<LessonResponseDTO> {
     // Check permissions
-    if (!['ADMIN', 'LECTURER'].includes(requester.role)) {
+    if (![UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
       throw new ForbiddenException('Only admins and lecturers can create lessons');
     }
 
@@ -167,7 +168,7 @@ export class LessonService implements ILessonService {
    */
   async update(requester: Requester, lessonId: string, dto: LessonUpdateDTO): Promise<LessonResponseDTO> {
     // Check permissions
-    if (!['ADMIN', 'LECTURER'].includes(requester.role)) {
+    if (![UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
       throw new ForbiddenException('Only admins and lecturers can update lessons');
     }
 
@@ -206,7 +207,7 @@ export class LessonService implements ILessonService {
    * Delete lesson
    */
   async delete(requester: Requester, lessonId: string, hardDelete = false): Promise<{ message: string }> {
-    if (requester.role !== 'ADMIN') {
+    if (requester.role !== UserRole.ADMIN) {
       throw new ForbiddenException('Only admins can delete lessons');
     }
 
@@ -239,7 +240,7 @@ export class LessonService implements ILessonService {
     moduleId: string,
     lessonOrders: { id: string; orderIndex: number }[]
   ): Promise<{ message: string }> {
-    if (!['ADMIN', 'LECTURER'].includes(requester.role)) {
+    if (![UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
       throw new ForbiddenException('Only admins and lecturers can reorder lessons');
     }
 

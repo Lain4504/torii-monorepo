@@ -5,7 +5,8 @@ export const moduleSchema = z.object({
     courseId: z.string().uuid(),
     title: z.string().min(1),
     description: z.string().optional(),
-    order: z.number().optional(),
+    aiMetadata: z.record(z.any()).default({}), // JSONB
+    orderIndex: z.number().default(0),
     durationMinutes: z.number().optional(),
     createdBy: z.string().uuid().optional(),
     createdAt: z.date(),

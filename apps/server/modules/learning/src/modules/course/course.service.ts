@@ -4,6 +4,7 @@ import { generateSlug } from '@server/shared';
 import type { Course } from '@prisma/generated';
 import { validate as uuidValidate } from 'uuid';
 
+import { UserRole } from '@workspace/schemas';
 import type {
   CourseCreateDTO,
   CourseUpdateDTO,
@@ -45,12 +46,12 @@ export class CourseService implements ICourseService {
       description: course.description || undefined,
       shortDescription: course.shortDescription || undefined,
       jlptLevel: course.jlptLevel as any,
-      aiMetadata: course.aiMetadata || undefined,
+      aiMetadata: (course.aiMetadata as any) || undefined,
       thumbnailUrl: course.thumbnailUrl || undefined,
       previewVideoUrl: course.previewVideoUrl || undefined,
       price: Number(course.price),
       discountPrice: course.discountPrice ? Number(course.discountPrice) : undefined,
-      liveConfig: course.liveConfig || undefined,
+      liveConfig: (course.liveConfig as any) || undefined,
       durationWeeks: course.durationWeeks || undefined,
       totalLessons: course.totalLessons,
       totalQuizzes: course.totalQuizzes,
@@ -167,7 +168,7 @@ export class CourseService implements ICourseService {
    */
   async create(requester: Requester, dto: CourseCreateDTO): Promise<CourseResponseDTO> {
     // Check permissions (only ADMIN and LECTURER can create courses)
-    if (!['ADMIN', 'LECTURER'].includes(requester.role)) {
+    if (![UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
       throw new ForbiddenException('Only admins and lecturers can create courses');
     }
 
@@ -213,7 +214,7 @@ export class CourseService implements ICourseService {
    */
   async update(requester: Requester, courseId: string, dto: CourseUpdateDTO): Promise<CourseResponseDTO> {
     // Check permissions
-    if (!['ADMIN', 'LECTURER'].includes(requester.role)) {
+    if (![UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
       throw new ForbiddenException('Only admins and lecturers can update courses');
     }
 
@@ -305,7 +306,7 @@ export class CourseService implements ICourseService {
    * Delete course
    */
   async delete(requester: Requester, courseId: string, hardDelete = false): Promise<{ message: string }> {
-    if (requester.role !== 'ADMIN') {
+    if (requester.role !== UserRole.ADMIN) {
       throw new ForbiddenException('Only admins can delete courses');
     }
 
@@ -350,7 +351,7 @@ export class CourseService implements ICourseService {
    * Publish a course
    */
   async publish(requester: Requester, courseId: string): Promise<CourseResponseDTO> {
-    if (!['ADMIN', 'LECTURER'].includes(requester.role)) {
+    if (![UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
       throw new ForbiddenException('Only admins and lecturers can publish courses');
     }
 
@@ -364,7 +365,7 @@ export class CourseService implements ICourseService {
    * Unpublish a course
    */
   async unpublish(requester: Requester, courseId: string): Promise<CourseResponseDTO> {
-    if (!['ADMIN', 'LECTURER'].includes(requester.role)) {
+    if (![UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
       throw new ForbiddenException('Only admins and lecturers can unpublish courses');
     }
 

@@ -18,13 +18,16 @@ model Course {
   id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   title            String    @db.VarChar(255)
   slug             String    @unique @db.VarChar(255)
+  type             String    @default("vod") @db.VarChar(20) // 'vod' | 'live'
   description      String?   @db.Text
   shortDescription String?   @map("short_description") @db.VarChar(500)
   jlptLevel        String    @map("jlpt_level") @db.VarChar(5)
+  aiMetadata       Json?     @default("{}") @map("ai_metadata")
   thumbnailUrl     String?   @map("thumbnail_url") @db.Text
   previewVideoUrl  String?   @map("preview_video_url") @db.Text
   price            Decimal   @default(0.00) @db.Decimal(10, 2)
   discountPrice    Decimal?  @map("discount_price") @db.Decimal(10, 2)
+  liveConfig       Json?     @map("live_config")
   durationWeeks    Int?      @map("duration_weeks")
   totalLessons     Int       @default(0) @map("total_lessons")
   totalQuizzes     Int       @default(0) @map("total_quizzes")
@@ -63,7 +66,8 @@ model Module {
   courseId        String    @map("course_id") @db.Uuid
   title           String    @db.VarChar(255)
   description     String?   @db.Text
-  order           Int       @default(0)
+  aiMetadata      Json?     @default("{}") @map("ai_metadata")
+  orderIndex      Int       @default(0) @map("order_index")
   durationMinutes Int?      @map("duration_minutes")
   createdBy       String?   @map("created_by") @db.Uuid
   createdAt       DateTime  @default(now()) @map("created_at")
@@ -86,7 +90,8 @@ model Lesson {
   videoUrl       String?   @map("video_url") @db.Text
   videoDuration  Int?      @map("video_duration")
   articleContent String?   @map("article_content") @db.Text
-  order          Int       @default(0) @map("order_index")
+  aiMetadata     Json?     @default("{}") @map("ai_metadata")
+  orderIndex     Int       @default(0) @map("order_index")
   isPreview      Boolean   @default(false) @map("is_preview")
   isUnlocked     Boolean   @default(true) @map("is_unlocked")
   createdBy      String?   @map("created_by") @db.Uuid

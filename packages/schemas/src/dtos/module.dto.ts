@@ -6,7 +6,8 @@ export const moduleCreateDTOSchema = moduleSchema
         courseId: true,
         title: true,
         description: true,
-        order: true,
+        aiMetadata: true,
+        orderIndex: true,
         durationMinutes: true,
         createdBy: true,
     });
@@ -18,7 +19,8 @@ export const moduleUpdateDTOSchema = moduleSchema
         courseId: true,
         title: true,
         description: true,
-        order: true,
+        aiMetadata: true,
+        orderIndex: true,
         durationMinutes: true,
     })
     .extend({

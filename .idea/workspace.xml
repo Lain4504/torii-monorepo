@@ -6,19 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update web-admin">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/users.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/users.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/http/flashcard.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/http/flashcard.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/blog-comment/blog-comment.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/blog-comment/blog-comment.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/flashcard-deck/flashcard-deck.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/flashcard-deck/flashcard-deck.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/flashcard/flashcard.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/flashcard/flashcard.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/notification/notification.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/notification/notification.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/services/users.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/api/services/users.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/blog-comment.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/blog-comment.dto.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/blog.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/blog.dto.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/common.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/common.dto.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/flashcard-deck.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/flashcard-deck.dto.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/flashcard.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/flashcard.dto.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/notification.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/notification.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/repositories/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/repositories/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/services/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/services/index.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -131,7 +120,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "lms-rebuild",
+    "git-widget-placeholder": "#59 on lms-rebuild",
     "ignore.virus.scanning.warn.message": "true",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
@@ -287,14 +276,6 @@
       <workItem from="1767779643020" duration="455000" />
       <workItem from="1767780214679" duration="224000" />
       <workItem from="1767784611248" duration="3225000" />
-    </task>
-    <task id="LOCAL-00488" summary="feat(auth): rename endpoints and update token generation for email verification">
-      <option name="closed" value="true" />
-      <created>1767791325124</created>
-      <option name="number" value="00488" />
-      <option name="presentableId" value="LOCAL-00488" />
-      <option name="project" value="LOCAL" />
-      <updated>1767791325124</updated>
     </task>
     <task id="LOCAL-00489" summary="feat(rbac): simplify permissions handling by removing user-specific overrides">
       <option name="closed" value="true" />
@@ -680,7 +661,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767872746855</updated>
     </task>
-    <option name="localTasksCounter" value="537" />
+    <task id="LOCAL-00537" summary="update web-admin">
+      <option name="closed" value="true" />
+      <created>1767874037150</created>
+      <option name="number" value="00537" />
+      <option name="presentableId" value="LOCAL-00537" />
+      <option name="project" value="LOCAL" />
+      <updated>1767874037150</updated>
+    </task>
+    <option name="localTasksCounter" value="538" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

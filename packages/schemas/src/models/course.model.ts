@@ -18,13 +18,16 @@ export const courseSchema = z.object({
     id: z.string().uuid(),
     title: z.string().min(1),
     slug: z.string(),
+    type: z.enum(['vod', 'live']).default('vod'),
     description: z.string().optional(),
     shortDescription: z.string().optional(),
     jlptLevel: z.nativeEnum(JlptLevel),
+    aiMetadata: z.record(z.any()).default({}), // JSONB
     thumbnailUrl: z.string().optional(),
     previewVideoUrl: z.string().optional(),
     price: z.number().min(0),
     discountPrice: z.number().min(0).optional(),
+    liveConfig: z.record(z.any()).optional().nullable(), // JSONB
     durationWeeks: z.number().min(0).optional(),
     totalLessons: z.number().default(0),
     totalQuizzes: z.number().default(0),
