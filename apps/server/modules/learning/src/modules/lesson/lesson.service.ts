@@ -151,7 +151,7 @@ export class LessonService implements ILessonService {
         orderIndex,
         isPreview: dto.isPreview ?? false,
         isUnlocked: dto.isUnlocked ?? true,
-        createdBy: requester.userId,
+        createdBy: requester.sub,
       };
 
       const lesson = await this.lessonRepository.create(data);
@@ -219,12 +219,14 @@ export class LessonService implements ILessonService {
     try {
       if (hardDelete) {
         await this.lessonRepository.delete(lessonId);
-      } else {
+      }
+      else {
         await this.lessonRepository.softDelete(lessonId);
       }
 
       return { message: 'Lesson deleted successfully' };
-    } catch (error: any) {
+    }
+    catch (error: any) {
       throw new BadRequestException(`Failed to delete lesson: ${error?.message || 'Unknown error'}`);
     }
   }
@@ -244,7 +246,8 @@ export class LessonService implements ILessonService {
     try {
       await this.lessonRepository.reorder(moduleId, lessonOrders);
       return { message: 'Lessons reordered successfully' };
-    } catch (error: any) {
+    }
+    catch (error: any) {
       this.logger.error('Error reordering lessons', error);
       throw new BadRequestException(`Failed to reorder lessons: ${error?.message || 'Unknown error'}`);
     }

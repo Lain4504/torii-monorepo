@@ -170,6 +170,15 @@ export interface IAuthService {
     linkGoogleAccount(userId: string, idToken: string): Promise<void>;
 
     /**
+     * Logout user
+     * Blacklists access token and revokes refresh token session
+     * Works with both valid and expired tokens
+     * @param accessToken - Access token to blacklist
+     * @param refreshToken - Refresh token to revoke (optional)
+     */
+    logout(accessToken: string | null, refreshToken?: string | null): Promise<void>;
+
+    /**
      * Unlink OAuth provider from user
      * @param userId - The user's unique identifier
      * @param provider - The provider to unlink (e.g., 'google')

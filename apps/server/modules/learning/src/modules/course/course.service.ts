@@ -197,7 +197,7 @@ export class CourseService implements ICourseService {
         tags: dto.tags || [],
         learningOutcomes: dto.learningOutcomes || [],
         requirements: dto.requirements || [],
-        createdBy: requester.userId,
+        createdBy: requester.sub,
       };
 
       const course = await this.courseRepository.create(data);
@@ -260,7 +260,7 @@ export class CourseService implements ICourseService {
           isPublishing = true;
           const validApprovedBy = dto.approvedBy && uuidValidate(dto.approvedBy)
             ? dto.approvedBy
-            : requester.userId;
+            : requester.sub;
           updateData.approvedBy = validApprovedBy;
           updateData.approvedAt = new Date();
         }
@@ -318,12 +318,14 @@ export class CourseService implements ICourseService {
     try {
       if (hardDelete) {
         await this.courseRepository.delete(courseId);
-      } else {
+      }
+      else {
         await this.courseRepository.softDelete(courseId);
       }
 
       return { message: 'Course deleted successfully' };
-    } catch (error: any) {
+    }
+    catch (error: any) {
       throw new BadRequestException(`Failed to delete course: ${error?.message || 'Unknown error'}`);
     }
   }
@@ -354,7 +356,7 @@ export class CourseService implements ICourseService {
 
     return this.update(requester, courseId, {
       status: 'published' as CourseStatus,
-      approvedBy: requester.userId,
+      approvedBy: requester.sub,
     });
   }
 

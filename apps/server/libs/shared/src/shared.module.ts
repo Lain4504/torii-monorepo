@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { PrismaService } from './prisma/prisma.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { JwtTokenProvider } from './providers/jwt-token.provider';
+import { BlacklistService } from './services/blacklist.service';
 
 import { RedisModule } from './redis/redis.module';
 import { EncryptionModule } from './encryption/encryption.module';
@@ -19,12 +20,13 @@ import { SharedEmailModule } from './email/shared-email.module';
         SharedStorageModule,
         SharedEmailModule
     ],
-    providers: [PrismaService, JwtTokenProvider],
+    providers: [PrismaService, JwtTokenProvider, BlacklistService],
     exports: [
         PrismaService,
         PrismaModule,
         ConfigModule,
         JwtTokenProvider,
+        BlacklistService,
         RedisModule,
         EncryptionModule,
         SharedStorageModule,
@@ -32,4 +34,3 @@ import { SharedEmailModule } from './email/shared-email.module';
     ],
 })
 export class SharedModule { }
-

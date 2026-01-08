@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException, ConflictException, NotFoundException, Inject, BadRequestException } from '@nestjs/common';
 import Redis from 'ioredis';
 import * as argon2 from 'argon2';
-import { JwtTokenProvider, REDIS_CLIENT } from '@server/shared';
+import { JwtTokenProvider, REDIS_CLIENT, BlacklistService } from '@server/shared';
 import type { IUsersRepository, IUserIdentityRepository } from '../../interfaces/repositories';
 import type { IAuthService, ISessionService, IGoogleAuthService, IAuthorizationService, ITwoFactorAuthService, IEmailService } from '../../interfaces/services';
 import { USERS_REPOSITORY_TOKEN, USER_IDENTITY_REPOSITORY_TOKEN } from '../../interfaces/repositories';
@@ -41,7 +41,45 @@ export class AuthService implements IAuthService {
         @Inject(USER_IDENTITY_REPOSITORY_TOKEN) private readonly userIdentityRepository: IUserIdentityRepository,
         @Inject(REDIS_CLIENT) private readonly redis: Redis,
         @Inject(EMAIL_SERVICE_TOKEN) private readonly emailService: IEmailService,
+        private readonly blacklistService: BlacklistService,
     ) { }
+
+    /**
+     * Logout user - Revoke tokens
+     * Blacklists access token and revokes refresh token session
+     * Works with both valid and expired tokens
+     */
+    async logout(accessToken: string | null, refreshToken?: string | null): Promise<void> {
+        // 1. Blacklist Access Token (decode without verification to handle expired tokens)
+        if (accessToken) {
+            try {
+                const jwt = await import('jsonwebtoken');
+                // Decode without verification to get payload (works even if expired)
+                const decoded = jwt.decode(accessToken) as { jti?: string; exp?: number } | null;
+                
+                if (decoded?.jti) {
+                    const now = Math.floor(Date.now() / 1000);
+                    const exp = decoded.exp;
+                    
+                    // Calculate TTL: if expired, blacklist for 1 minute; otherwise use remaining time
+                    const ttl = exp && exp > now ? exp - now : 60;
+                    await this.blacklistService.blacklist(decoded.jti, ttl);
+                }
+            } catch (error) {
+                // Ignore decode errors - token might be malformed
+            }
+        }
+
+        // 2. Revoke Refresh Token Session
+        if (refreshToken) {
+            try {
+                const tokenHash = this.sessionService.hashTokenPublic(refreshToken);
+                await this.sessionService.revokeSession(tokenHash);
+            } catch (error) {
+                // Ignore errors - token might be invalid
+            }
+        }
+    }
 
     /**
      * Register a new user

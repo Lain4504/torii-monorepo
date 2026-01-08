@@ -3,7 +3,9 @@ import type { Response } from 'express';
 import { GatewayAuthGuard, VerifiedOnly } from '@server/shared';
 import type { IAuthService, ISessionService } from '../interfaces/services';
 import { AUTH_SERVICE_TOKEN, SESSION_SERVICE_TOKEN } from '../interfaces/services';
-import type { ReqWithRequester, UserRegistrationDTO, UserLoginDTO, VerifyOTPDTO, ResendOTPDTO, ForgotPasswordDTO, LoginResponseDTO } from '@workspace/schemas';
+import type { ReqWithRequester, UserRegistrationDTO, UserLoginDTO, VerifyOTPDTO, ResendOTPDTO, ForgotPasswordDTO, LoginResponseDTO, LogoutDTO } from '@workspace/schemas';
+import { logoutDTOSchema } from '@workspace/schemas';
+import { ZodValidationPipe } from '@server/shared';
 
 /**
  * Auth HTTP Controller
@@ -656,20 +658,42 @@ export class AuthController {
      * Logout user
      * POST /auth/logout
      * 
-     * Revokes refresh token and clears cookies
+     * Blacklists access token and revokes refresh token session
+     * Works with both valid and expired tokens
+     * 
+     * Supports:
+     * - Web: Tokens from cookies
+     * - Mobile: Access token from Authorization header, refresh token from body
      */
     @Post('logout')
     @HttpCode(HttpStatus.OK)
-    async logout(@Request() req, @Res({ passthrough: true }) res: Response) {
-        const refreshToken = req.cookies?.refresh_token;
+    async logout(
+        @Body() dto: LogoutDTO,
+        @Request() req,
+        @Res({ passthrough: true }) res: Response
+    ) {
+        // Extract tokens: support both web (cookies) and mobile (header + body)
+        const authHeader = req.headers.authorization;
+        const accessToken = authHeader?.startsWith('Bearer ')
+            ? authHeader.split(' ')[1]
+            : req.cookies?.access_token || null;
+        
+        const refreshToken = req.cookies?.refresh_token || dto.refreshToken || null;
 
-        if (refreshToken) {
-            const tokenHash = this.sessionService.hashTokenPublic(refreshToken);
-            await this.sessionService.revokeSession(tokenHash);
-        }
+        // Revoke tokens (handles both valid and expired tokens)
+        await this.authService.logout(accessToken, refreshToken);
 
-        res.clearCookie('access_token');
-        res.clearCookie('refresh_token');
+        // Clear cookies regardless of token validity
+        res.clearCookie('access_token', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+        });
+        res.clearCookie('refresh_token', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+        });
 
         return {
             success: true,

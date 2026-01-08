@@ -244,10 +244,7 @@ LiveKit → NATS (auth.request)
 1.  Chỉnh sửa file `.proto` trong `packages/protocol/proto/`.
 2.  Generate code:
     ```bash
-    cd packages/protocol
-    pnpm run clean
-    pnpm run generate
-    pnpm run build
+    pnpm --filter @workspace/protocol run build
     ```
 
 ### 5. Shared Schemas & DTOs

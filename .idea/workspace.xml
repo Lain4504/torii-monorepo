@@ -5,12 +5,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(learning): refactor course, module, and lesson architecture with new repository and service layers">
+      <change beforePath="$PROJECT_DIR$/.env.example" beforeDir="false" afterPath="$PROJECT_DIR$/.env.example" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/repositories/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/repositories/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/services/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/services/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/learning.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/learning.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/guards/gateway-auth.guard.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/guards/gateway-auth.guard.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/providers/jwt-token.provider.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/providers/jwt-token.provider.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/shared.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/shared.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/auth.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/auth.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/i-auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/i-auth.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/auth.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/session.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/session.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/course/course.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/course/course.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/lesson/lesson.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/lesson/lesson.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/module/module.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/module/module.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/auth.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/auth.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/interfaces/auth.interface.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/interfaces/auth.interface.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -113,6 +123,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
+    "Jest.BlacklistService.executor": "Run",
     "RunOnceActivity.MCP Project settings loaded": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
@@ -131,6 +142,7 @@
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs.jest.jest_package": "E:/projectdev/bmap-capstone/torii-monorepo/apps/server/node_modules/jest",
     "nodejs_package_manager_path": "pnpm",
     "settings.editor.selected.configurable": "com.github.copilot.settings.mcp.McpConfigurable",
     "to.speed.mode.migration.done": "true",
@@ -161,7 +173,19 @@
       <recent name="E:\Ky8\bmap-capstone\torii-monorepo\apps\web-learner\lib\providers" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Jest.BlacklistService">
+    <configuration name="BlacklistService" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <jest-package value="$PROJECT_DIR$/apps/server/node_modules/jest" />
+      <working-dir value="$PROJECT_DIR$/apps/server" />
+      <envs />
+      <scope-kind value="SUITE" />
+      <test-file value="$PROJECT_DIR$/apps/server/libs/shared/src/services/blacklist.service.spec.ts" />
+      <test-names>
+        <test-name value="BlacklistService" />
+      </test-names>
+      <method v="2" />
+    </configuration>
     <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
       <deployment type="docker-compose.yml">
         <settings />
@@ -178,7 +202,7 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
+        <item itemvalue="Jest.BlacklistService" />
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
@@ -265,22 +289,6 @@
       <workItem from="1767779643020" duration="455000" />
       <workItem from="1767780214679" duration="224000" />
       <workItem from="1767784611248" duration="3225000" />
-    </task>
-    <task id="LOCAL-00480" summary="feat(database): add new modules for gamification, payments, and user management">
-      <option name="closed" value="true" />
-      <created>1767787272721</created>
-      <option name="number" value="00480" />
-      <option name="presentableId" value="LOCAL-00480" />
-      <option name="project" value="LOCAL" />
-      <updated>1767787272721</updated>
-    </task>
-    <task id="LOCAL-00481" summary="feat(database): add new modules for gamification, payments, and user management">
-      <option name="closed" value="true" />
-      <created>1767787383752</created>
-      <option name="number" value="00481" />
-      <option name="presentableId" value="LOCAL-00481" />
-      <option name="project" value="LOCAL" />
-      <updated>1767787383752</updated>
     </task>
     <task id="LOCAL-00482" summary="feat(database): add new modules for gamification, payments, and user management">
       <option name="closed" value="true" />
@@ -658,7 +666,23 @@
       <option name="project" value="LOCAL" />
       <updated>1767858503615</updated>
     </task>
-    <option name="localTasksCounter" value="529" />
+    <task id="LOCAL-00529" summary="feat(learning): refactor course, module, and lesson architecture with new repository and service layers">
+      <option name="closed" value="true" />
+      <created>1767865280476</created>
+      <option name="number" value="00529" />
+      <option name="presentableId" value="LOCAL-00529" />
+      <option name="project" value="LOCAL" />
+      <updated>1767865280476</updated>
+    </task>
+    <task id="LOCAL-00530" summary="feat(learning): refactor course, module, and lesson architecture with new repository and service layers">
+      <option name="closed" value="true" />
+      <created>1767865403668</created>
+      <option name="number" value="00530" />
+      <option name="presentableId" value="LOCAL-00530" />
+      <option name="project" value="LOCAL" />
+      <updated>1767865403669</updated>
+    </task>
+    <option name="localTasksCounter" value="531" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -714,17 +738,6 @@
     <MESSAGE value="feat(users): enhance create-user-dialog with multi-step flow and role selection&#10;&#10;- Added multi-step form flow for user creation (details &gt; role selection).&#10;- Introduced UI updates for better usability and visual consistency.&#10;- Implemented support for staff role variants with descriptive labels.&#10;- Improved form validation and error handling logic." />
     <MESSAGE value="feat(learning): refactor course, module, and lesson architecture with new repository and service layers" />
     <option name="LAST_COMMIT_MESSAGE" value="feat(learning): refactor course, module, and lesson architecture with new repository and service layers" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/apps/server/libs/shared/src/providers/jwt-token.provider.ts</url>
-          <line>25</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

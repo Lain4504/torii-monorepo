@@ -112,4 +112,7 @@ export * from './encryption';
 export * from './redis/redis.module';
 export * from './redis/redis.provider';
 
+// Services
+export * from './services/blacklist.service';
+
 

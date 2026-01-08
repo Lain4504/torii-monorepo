@@ -135,7 +135,7 @@ export class ModuleService implements IModuleService {
         aiMetadata: dto.aiMetadata || {},
         orderIndex,
         durationMinutes: dto.durationMinutes || null,
-        createdBy: requester.userId,
+        createdBy: requester.sub,
       };
 
       const module = await this.moduleRepository.create(data);
@@ -199,12 +199,14 @@ export class ModuleService implements IModuleService {
     try {
       if (hardDelete) {
         await this.moduleRepository.delete(moduleId);
-      } else {
+      }
+      else {
         await this.moduleRepository.softDelete(moduleId);
       }
 
       return { message: 'Module deleted successfully' };
-    } catch (error: any) {
+    }
+    catch (error: any) {
       throw new BadRequestException(`Failed to delete module: ${error?.message || 'Unknown error'}`);
     }
   }
@@ -224,7 +226,8 @@ export class ModuleService implements IModuleService {
     try {
       await this.moduleRepository.reorder(courseId, moduleOrders);
       return { message: 'Modules reordered successfully' };
-    } catch (error: any) {
+    }
+    catch (error: any) {
       this.logger.error('Error reordering modules', error);
       throw new BadRequestException(`Failed to reorder modules: ${error?.message || 'Unknown error'}`);
     }

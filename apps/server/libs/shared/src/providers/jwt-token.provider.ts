@@ -5,7 +5,7 @@ import { TokenPayload } from '@workspace/schemas';
 
 export interface RefreshTokenPayload {
     sub: string;      // userId
-    tokenId: string;  // UUID for token rotation tracking
+    sid: string;      // Session ID (replaces tokenId)
 }
 
 /**
@@ -37,8 +37,13 @@ export class JwtTokenProvider {
      * Generate access token (short-lived)
      */
     async generateToken(payload: TokenPayload, expiresIn?: string): Promise<string> {
+        const { v4: uuidv4 } = await import('uuid');
+
         return jwt.sign(payload, this.secretKey, {
-            expiresIn: expiresIn || this.accessTokenExpiry
+            expiresIn: expiresIn || this.accessTokenExpiry,
+            issuer: this.config.get<string>('JWT_ISSUER', 'auth.torii.edu'),
+            audience: this.config.get<string>('JWT_AUDIENCE', 'torii-client'),
+            jwtid: uuidv4(), // Unique ID for this token
         });
     }
 
@@ -46,8 +51,13 @@ export class JwtTokenProvider {
      * Generate refresh token (long-lived)
      */
     async generateRefreshToken(payload: RefreshTokenPayload): Promise<string> {
+        const { v4: uuidv4 } = await import('uuid');
+
         return jwt.sign(payload, this.secretKey, {
-            expiresIn: this.refreshTokenExpiry
+            expiresIn: this.refreshTokenExpiry,
+            issuer: this.config.get<string>('JWT_ISSUER', 'auth.torii.edu'),
+            audience: this.config.get<string>('JWT_AUDIENCE', 'torii-client'),
+            jwtid: uuidv4(),
         });
     }
 
@@ -56,7 +66,10 @@ export class JwtTokenProvider {
      */
     async verifyToken(token: string): Promise<TokenPayload | null> {
         try {
-            const decoded = jwt.verify(token, this.secretKey) as TokenPayload;
+            const decoded = jwt.verify(token, this.secretKey, {
+                issuer: this.config.get<string>('JWT_ISSUER', 'auth.torii.edu'),
+                audience: this.config.get<string>('JWT_AUDIENCE', 'torii-client'),
+            }) as TokenPayload;
             return decoded;
         } catch (error) {
             return null;
@@ -65,10 +78,14 @@ export class JwtTokenProvider {
 
     /**
      * Verify refresh token
+     * Validates issuer and audience for security
      */
     async verifyRefreshToken(token: string): Promise<RefreshTokenPayload | null> {
         try {
-            const decoded = jwt.verify(token, this.secretKey) as RefreshTokenPayload;
+            const decoded = jwt.verify(token, this.secretKey, {
+                issuer: this.config.get<string>('JWT_ISSUER', 'auth.torii.edu'),
+                audience: this.config.get<string>('JWT_AUDIENCE', 'torii-client'),
+            }) as RefreshTokenPayload;
             return decoded;
         } catch (error) {
             return null;

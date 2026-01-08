@@ -72,3 +72,12 @@ export const forgotPasswordDTOSchema = z.object({
 
 export type ForgotPasswordDTO = z.infer<typeof forgotPasswordDTOSchema>;
 
+
+/**
+ * Logout DTO
+ */
+export const logoutDTOSchema = z.object({
+    refreshToken: z.string().optional(),
+});
+
+export type LogoutDTO = z.infer<typeof logoutDTOSchema>;
