@@ -24,25 +24,25 @@ import {
 import { ModeToggle } from "@/components/layout/mode-toggle.tsx"
 import { CommandMenu } from "@/components/layout/command-menu.tsx"
 import { useAppSelector, useAppDispatch } from "@/hooks/hooks.ts"
-import { selectUser, clearUser, setAuthenticated } from "@/store/slices/auth-slice.ts"
-import { apiClient } from "@/api/api-client.ts"
+import { selectUser, logout } from "@/store/slices/auth-slice.ts"
 import { toast } from "@workspace/ui/components/sonner"
+import { useNavigate } from "react-router-dom"
 
 export function DashboardHeader() {
   const dispatch = useAppDispatch()
   const user = useAppSelector(selectUser)
   const location = useLocation()
+  const navigate = useNavigate()
 
   const handleLogout = async () => {
     try {
-      await apiClient.post('/api/auth/logout')
-    } catch (error) {
-      console.error('Logout error:', error)
-    } finally {
-      dispatch(clearUser())
-      dispatch(setAuthenticated({ isAuthenticated: false }))
+      await dispatch(logout()).unwrap()
       toast.success('Logged out successfully')
-      // Route change handled by AuthGuard or updates
+      navigate('/login', { replace: true })
+    } catch (error) {
+      // Even if logout fails, clear local state and redirect
+      toast.error('Failed to logout properly, but you have been signed out locally')
+      navigate('/login', { replace: true })
     }
   }
 

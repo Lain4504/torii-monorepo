@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/api/api-client.ts';
-import type { PaginatedResponseDTO, UserResponseDTO, UserCreateDTO, UserAdminUpdateDTO, AdminCreateInternalUserDTO } from '@workspace/schemas';
+import type { PaginatedApiResponse, UserResponseDTO, UserCreateDTO, UserAdminUpdateDTO, AdminCreateInternalUserDTO, StandardApiResponse } from '@workspace/schemas';
 
 export interface FindAllUsersParams {
     page?: number;
@@ -14,42 +14,59 @@ export interface FindAllUsersParams {
 
 export const usersApi = {
     // GET /api/admin/users
-    async findAll(params: FindAllUsersParams): Promise<PaginatedResponseDTO<UserResponseDTO>> {
-        const response = await apiClient.get<PaginatedResponseDTO<UserResponseDTO>>('/api/admin/users', { params });
-        // Backend returns PaginatedResponseDTO directly
+    async findAll(params: FindAllUsersParams): Promise<PaginatedApiResponse<UserResponseDTO>> {
+        const response = await apiClient.get<PaginatedApiResponse<UserResponseDTO>>('/api/admin/users', { params });
+        if (!response.data.success || !response.data.data) {
+            throw new Error(response.data.message || 'Failed to fetch users');
+        }
         return response.data;
     },
 
     // GET /api/admin/users/:id
     async findOne(id: string): Promise<UserResponseDTO> {
-        const response = await apiClient.get<UserResponseDTO>(`/api/admin/users/${id}`);
-        return response.data;
+        const response = await apiClient.get<StandardApiResponse<UserResponseDTO>>(`/api/admin/users/${id}`);
+        if (response.data.success && response.data.data) {
+            return response.data.data;
+        }
+        throw new Error(response.data.message || 'Failed to fetch user');
     },
 
     // POST /api/admin/users
     async create(user: UserCreateDTO): Promise<UserResponseDTO> {
-        const response = await apiClient.post<UserResponseDTO>('/api/admin/users', user);
-        return response.data;
+        const response = await apiClient.post<StandardApiResponse<UserResponseDTO>>('/api/admin/users', user);
+        if (response.data.success && response.data.data) {
+            return response.data.data;
+        }
+        throw new Error(response.data.message || 'Failed to create user');
     },
 
     // POST /api/admin/users/internal
     async createInternal(user: AdminCreateInternalUserDTO): Promise<UserResponseDTO> {
-        const response = await apiClient.post<UserResponseDTO>('/api/admin/users/internal', user);
-        return response.data;
+        const response = await apiClient.post<StandardApiResponse<UserResponseDTO>>('/api/admin/users/internal', user);
+        if (response.data.success && response.data.data) {
+            return response.data.data;
+        }
+        throw new Error(response.data.message || 'Failed to create user');
     },
 
     // PATCH /api/admin/users/:id
     async update(id: string, user: UserAdminUpdateDTO): Promise<UserResponseDTO> {
-        const response = await apiClient.patch<UserResponseDTO>(`/api/admin/users/${id}`, user);
-        return response.data;
+        const response = await apiClient.patch<StandardApiResponse<UserResponseDTO>>(`/api/admin/users/${id}`, user);
+        if (response.data.success && response.data.data) {
+            return response.data.data;
+        }
+        throw new Error(response.data.message || 'Failed to update user');
     },
 
     // DELETE /api/admin/users/:id
     async delete(params: { id: string; hardDelete?: boolean }): Promise<void> {
         const { id, hardDelete } = params;
-        await apiClient.delete(`/api/admin/users/${id}`, {
+        const response = await apiClient.delete<StandardApiResponse<void>>(`/api/admin/users/${id}`, {
             params: hardDelete !== undefined ? { hardDelete } : undefined,
         });
+        if (!response.data.success) {
+            throw new Error(response.data.message || 'Failed to delete user');
+        }
     },
 };
 

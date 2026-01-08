@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from '@/store';
-import { apiClient } from '@/api/api-client.ts';
+import { apiClient, extractErrorMessage } from '@/api/api-client.ts';
 import type { UserResponseDTO, UserLoginDTO } from '@workspace/schemas';
+import type { AxiosError } from 'axios';
 
 // Extended User type including permissions and profile fields
 export interface User extends UserResponseDTO {
@@ -30,24 +31,47 @@ export const login = createAsyncThunk(
     async (credentials: UserLoginDTO, { rejectWithValue }) => {
         try {
             const response = await apiClient.post('/api/auth/admin/login', credentials);
-            return response.data.data.user;
-        } catch (error: any) {
-            if (error.response && error.response.data.message) {
-                return rejectWithValue(error.response.data.message);
+            
+            // Check if response is successful
+            if (response.data.success && response.data.data?.user) {
+                return response.data.data.user;
             }
-            return rejectWithValue(error.message || 'Login failed');
+
+            // If response indicates 2FA required
+            if (response.data.data?.requiresTwoFactor) {
+                return rejectWithValue({
+                    requiresTwoFactor: true,
+                    twoFactorMethod: response.data.data.twoFactorMethod,
+                    tempToken: response.data.data.tempToken,
+                    message: response.data.message || 'Two-factor authentication required',
+                });
+            }
+
+            // Unexpected response structure
+            return rejectWithValue('Invalid response from server');
+        } catch (error: unknown) {
+            const axiosError = error as AxiosError;
+            const errorMessage = extractErrorMessage(axiosError);
+            return rejectWithValue(errorMessage);
         }
     }
 );
 
+// @ts-ignore
 export const logout = createAsyncThunk(
     'auth/logout',
     async (_, { rejectWithValue }) => {
         try {
             await apiClient.post('/api/auth/logout');
             return null;
-        } catch (error: any) {
-            return rejectWithValue(error.message || 'Logout failed');
+        } catch (error: unknown) {
+            // Even if logout fails, we should clear local state
+            // But log the error for debugging
+            const axiosError = error as AxiosError;
+            const errorMessage = extractErrorMessage(axiosError);
+            console.warn('Logout error:', errorMessage);
+            // Don't reject - logout should succeed even if server call fails
+            return null;
         }
     }
 );
@@ -57,14 +81,18 @@ export const checkAuth = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             const response = await apiClient.get('/api/auth/me');
-            return response.data.data.user;
-        } catch (error) {
+            
+            if (response.data.success && response.data.data?.user) {
+                return response.data.data.user;
+            }
+
+            return rejectWithValue('Not authenticated');
+        } catch (error: unknown) {
+            // Don't show error for auth check - it's expected to fail if not logged in
             return rejectWithValue('Not authenticated');
         }
     }
 );
-
-
 
 export const authSlice = createSlice({
     name: 'auth',
@@ -92,6 +120,7 @@ export const authSlice = createSlice({
         clearUser: (state) => {
             state.user = null;
             state.isAuthenticated = false;
+            state.error = null;
         }
     },
     extraReducers: (builder) => {
@@ -103,40 +132,48 @@ export const authSlice = createSlice({
         builder.addCase(login.fulfilled, (state, action) => {
             state.isLoading = false;
             state.isAuthenticated = true;
-            state.user = action.payload;
+            state.user = action.payload as User;
+            state.error = null;
         });
         builder.addCase(login.rejected, (state, action) => {
             state.isLoading = false;
-            state.error = action.payload as string;
+            // Handle 2FA case
+            if (action.payload && typeof action.payload === 'object' && 'requiresTwoFactor' in action.payload) {
+                // Don't set error for 2FA - it's not an error, just a different flow
+                state.error = null;
+            } else {
+                state.error = action.payload as string || 'Login failed';
+            }
         });
 
         // Logout
         builder.addCase(logout.fulfilled, (state) => {
             state.user = null;
             state.isAuthenticated = false;
+            state.error = null;
         });
         builder.addCase(logout.rejected, (state) => {
+            // Even if logout fails, clear local state
             state.user = null;
             state.isAuthenticated = false;
         });
 
         // Check Auth
         builder.addCase(checkAuth.pending, () => {
-            // state.isLoading = true; // Handled manually or by AuthGuard
+            // Don't set loading here - it's a background check
         });
         builder.addCase(checkAuth.fulfilled, (state, action) => {
             state.isLoading = false;
             state.isAuthenticated = true;
-            state.user = action.payload;
+            state.user = action.payload as User;
+            state.error = null;
         });
         builder.addCase(checkAuth.rejected, (state) => {
             state.isLoading = false;
             state.isAuthenticated = false;
-            state.isAuthenticated = false;
             state.user = null;
+            // Don't set error for auth check failures
         });
-
-
     }
 });
 
@@ -153,4 +190,3 @@ export const selectPermissions = (state: RootState) => state.auth.user?.permissi
 export const selectStaffTemplate = (state: RootState) => state.auth.user?.staffTemplate;
 
 export default authSlice.reducer;
-

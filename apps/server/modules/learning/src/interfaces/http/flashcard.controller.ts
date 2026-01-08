@@ -4,7 +4,8 @@ import type {
     FlashcardCreateDTO,
     FlashcardUpdateDTO,
     FlashcardQueryDTO,
-    FlashcardPaginatedResponse,
+    PaginatedResponseDTO,
+    FlashcardResponseDTO,
     BulkFlashcardOperationsDTO,
 } from "@workspace/schemas";
 import { GatewayAuthGuard } from '@server/shared';
@@ -25,7 +26,7 @@ export class FlashcardController {
     }
 
     @Get()
-    async getFlashcards(@Req() req: any, @Query() query: FlashcardQueryDTO): Promise<FlashcardPaginatedResponse> {
+    async getFlashcards(@Req() req: any, @Query() query: FlashcardQueryDTO): Promise<PaginatedResponseDTO<FlashcardResponseDTO>> {
         // Ensure query uses correct types if needed, but DTO should handle it
         // Pass userId if service needs it for filtering (likely yes for personal flashcards)
         // If service expects userId in query, we might need to inject it.

@@ -61,9 +61,10 @@ export function EditUserDialog({
                 description: `Changes to ${data.displayName} have been saved.`,
             });
             onOpenChange(false);
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to update user';
             toast.error('Failed to update user', {
-                description: error.response?.data?.error || error.message,
+                description: errorMessage,
             });
         }
     };

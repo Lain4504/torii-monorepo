@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Patch, Post, Request, UseGuards, Res, HttpCode, HttpStatus, UnauthorizedException, Query, BadRequestException, Inject } from '@nestjs/common';
 import type { Response } from 'express';
-import { GatewayAuthGuard, VerifiedOnly } from '@server/shared';
+import { GatewayAuthGuard, VerifiedOnly, successResponse, errorResponse } from '@server/shared';
 import type { IAuthService, ISessionService } from '../interfaces/services';
 import { AUTH_SERVICE_TOKEN, SESSION_SERVICE_TOKEN } from '../interfaces/services';
 import type { ReqWithRequester, UserRegistrationDTO, UserLoginDTO, VerifyOTPDTO, ResendOTPDTO, ForgotPasswordDTO, LoginResponseDTO, LogoutDTO } from '@workspace/schemas';
@@ -25,23 +25,17 @@ export class AuthController {
     @Post('register')
     @HttpCode(HttpStatus.CREATED)
     async register(
-        @Body() dto: UserRegistrationDTO,
-        @Request() req,
-        @Res({ passthrough: true }) res: Response
-    ) {
+        @Body() dto: UserRegistrationDTO    ) {
         try {
             const user = await this.authService.register(dto);
-
-            return {
-                success: true,
-                message: 'Registration successful. Please check your email to verify your account.',
-                data: { user }
-            };
+            return successResponse(
+                { user },
+                'Registration successful. Please check your email to verify your account.'
+            );
         } catch (error: unknown) {
-            return {
-                success: false,
-                message: (error instanceof Error ? error.message : 'Registration failed')
-            };
+            return errorResponse(
+                error instanceof Error ? error.message : 'Registration failed'
+            );
         }
     }
 
@@ -58,15 +52,11 @@ export class AuthController {
 
         try {
             await this.authService.resendVerification(email);
-            return {
-                success: true,
-                message: 'Verification email sent'
-            };
+            return successResponse(null, 'Verification email sent');
         } catch (error: unknown) {
-            return {
-                success: false,
-                message: (error instanceof Error ? error.message : 'Failed to resend verification email')
-            };
+            return errorResponse(
+                error instanceof Error ? error.message : 'Failed to resend verification email'
+            );
         }
     }
 
@@ -85,22 +75,17 @@ export class AuthController {
             const result = await this.authService.verifyVerificationToken(token);
 
             if (!result.success) {
-                return {
-                    success: false,
-                    message: 'Invalid or expired verification link'
-                };
+                return errorResponse('Invalid or expired verification link');
             }
 
-            return {
-                success: true,
-                message: 'Email verified successfully',
-                data: { email: result.email }
-            };
+            return successResponse(
+                { email: result.email },
+                'Email verified successfully'
+            );
         } catch (error: unknown) {
-            return {
-                success: false,
-                message: (error instanceof Error ? error.message : 'Verification failed')
-            };
+            return errorResponse(
+                error instanceof Error ? error.message : 'Verification failed'
+            );
         }
     }
 
@@ -123,17 +108,16 @@ export class AuthController {
 
         try {
             await this.authService.forgotPassword({ ...dto, platform });
-            return {
-                success: true,
-                message: platform === 'mobile'
+            return successResponse(
+                null,
+                platform === 'mobile'
                     ? 'If an account exists, a 6-digit OTP has been sent.'
                     : 'If an account exists, a password reset link has been sent.'
-            };
+            );
         } catch (error: unknown) {
-            return {
-                success: false,
-                message: (error instanceof Error ? error.message : 'Failed to process password reset request')
-            };
+            return errorResponse(
+                error instanceof Error ? error.message : 'Failed to process password reset request'
+            );
         }
     }
 
@@ -148,25 +132,20 @@ export class AuthController {
             const result = await this.authService.verifyOTP(dto);
 
             if (!result.success) {
-                return {
-                    success: false,
-                    message: 'Invalid or expired verification code'
-                };
+                return errorResponse('Invalid or expired verification code');
             }
 
-            return {
-                success: true,
-                message: 'OTP verified successfully',
-                data: {
+            return successResponse(
+                {
                     email: result.email,
                     tempToken: result.tempToken
-                }
-            };
+                },
+                'OTP verified successfully'
+            );
         } catch (error: unknown) {
-            return {
-                success: false,
-                message: (error instanceof Error ? error.message : 'Verification failed')
-            };
+            return errorResponse(
+                error instanceof Error ? error.message : 'Verification failed'
+            );
         }
     }
 
@@ -179,15 +158,11 @@ export class AuthController {
     async resendOTP(@Body() dto: ResendOTPDTO) {
         try {
             await this.authService.resendOTP(dto);
-            return {
-                success: true,
-                message: 'New verification code has been sent'
-            };
+            return successResponse(null, 'New verification code has been sent');
         } catch (error: unknown) {
-            return {
-                success: false,
-                message: (error instanceof Error ? error.message : 'Failed to resend code')
-            };
+            return errorResponse(
+                error instanceof Error ? error.message : 'Failed to resend code'
+            );
         }
     }
 
@@ -207,22 +182,17 @@ export class AuthController {
             const result = await this.authService.verifyResetToken(token);
 
             if (!result.success) {
-                return {
-                    success: false,
-                    message: 'Invalid or expired reset token'
-                };
+                return errorResponse('Invalid or expired reset token');
             }
 
-            return {
-                success: true,
-                message: 'Reset token is valid',
-                data: { email: result.email }
-            };
+            return successResponse(
+                { email: result.email },
+                'Reset token is valid'
+            );
         } catch (error: unknown) {
-            return {
-                success: false,
-                message: (error instanceof Error ? error.message : 'Token verification failed')
-            };
+            return errorResponse(
+                error instanceof Error ? error.message : 'Token verification failed'
+            );
         }
     }
 
@@ -247,15 +217,14 @@ export class AuthController {
 
         try {
             await this.authService.resetPassword(token, password);
-            return {
-                success: true,
-                message: 'Password has been reset successfully. You can now login with your new password.'
-            };
+            return successResponse(
+                null,
+                'Password has been reset successfully. You can now login with your new password.'
+            );
         } catch (error: unknown) {
-            return {
-                success: false,
-                message: (error instanceof Error ? error.message : 'Failed to reset password')
-            };
+            return errorResponse(
+                error instanceof Error ? error.message : 'Failed to reset password'
+            );
         }
     }
 
@@ -276,15 +245,8 @@ export class AuthController {
         @Request() req,
         @Res({ passthrough: true }) res: Response
     ) {
-        try {
-            const result = await this.authService.adminLogin(dto);
-            return await this.handleLoginResult(result, req, res);
-        } catch (error: unknown) {
-            return {
-                success: false,
-                message: (error instanceof Error ? error.message : 'Login failed')
-            };
-        }
+        const result = await this.authService.adminLogin(dto);
+        return await this.handleLoginResult(result, req, res);
     }
 
     /**
@@ -300,15 +262,8 @@ export class AuthController {
         @Request() req,
         @Res({ passthrough: true }) res: Response
     ) {
-        try {
-            const result = await this.authService.login(dto);
-            return await this.handleLoginResult(result, req, res);
-        } catch (error: unknown) {
-            return {
-                success: false,
-                message: (error instanceof Error ? error.message : 'Login failed')
-            };
-        }
+        const result = await this.authService.login(dto);
+        return await this.handleLoginResult(result, req, res);
     }
 
     /**
@@ -318,15 +273,16 @@ export class AuthController {
     private async handleLoginResult(result: LoginResponseDTO, req: { ip?: string; headers: Record<string, string | undefined> }, res: Response) {
         // Check if 2FA is required
         if (result.requiresTwoFactor) {
-            return {
-                success: true,
-                requiresTwoFactor: true,
-                twoFactorMethod: result.twoFactorMethod,
-                tempToken: result.tempToken,
-                message: result.twoFactorMethod === 'totp'
+            return successResponse(
+                {
+                    requiresTwoFactor: true,
+                    twoFactorMethod: result.twoFactorMethod,
+                    tempToken: result.tempToken,
+                },
+                result.twoFactorMethod === 'totp'
                     ? 'Enter code from your authenticator app'
-                    : `Verification code sent to your ${result.twoFactorMethod}`,
-            };
+                    : `Verification code sent to your ${result.twoFactorMethod}`
+            );
         }
 
         // No 2FA - proceed with normal login
@@ -351,24 +307,18 @@ export class AuthController {
 
         if (platform === 'mobile') {
             // Mobile: Return tokens in body
-            return {
-                success: true,
-                data: {
-                    access_token: accessToken,
-                    refresh_token: refreshToken,
-                    user: userData
-                }
-            };
+            return successResponse({
+                access_token: accessToken,
+                refresh_token: refreshToken,
+                user: userData
+            });
         } else {
             // Web: Set httpOnly cookies
             this.setAuthCookies(res, accessToken!, refreshToken);
 
-            return {
-                success: true,
-                data: {
-                    user: userData
-                }
-            };
+            return successResponse({
+                user: userData
+            });
         }
     }
 
@@ -403,42 +353,35 @@ export class AuthController {
 
             if (platform === 'mobile') {
                 // Mobile: Return tokens in body
-                return {
-                    success: true,
-                    data: {
-                        access_token: accessToken,
-                        refresh_token: refreshToken,
-                        user: {
-                            id: user.id,
-                            email: user.email,
-                            displayName: user.displayName,
-                            role: user.role,
-                            verifiedAt: user.verifiedAt,
-                        }
+                return successResponse({
+                    access_token: accessToken,
+                    refresh_token: refreshToken,
+                    user: {
+                        id: user.id,
+                        email: user.email,
+                        displayName: user.displayName,
+                        role: user.role,
+                        verifiedAt: user.verifiedAt,
                     }
-                };
+                });
             } else {
                 // Web: Set httpOnly cookies
                 this.setAuthCookies(res, accessToken, refreshToken);
 
-                return {
-                    success: true,
-                    data: {
-                        user: {
-                            id: user.id,
-                            email: user.email,
-                            displayName: user.displayName,
-                            role: user.role,
-                            verifiedAt: user.verifiedAt,
-                        }
+                return successResponse({
+                    user: {
+                        id: user.id,
+                        email: user.email,
+                        displayName: user.displayName,
+                        role: user.role,
+                        verifiedAt: user.verifiedAt,
                     }
-                };
+                });
             }
         } catch (error: unknown) {
-            return {
-                success: false,
-                message: (error instanceof Error ? error.message : '2FA verification failed')
-            };
+            return errorResponse(
+                error instanceof Error ? error.message : '2FA verification failed'
+            );
         }
     }
 
@@ -470,42 +413,35 @@ export class AuthController {
             const platform = req.headers['x-platform'];
 
             if (platform === 'mobile') {
-                return {
-                    success: true,
-                    data: {
-                        access_token: accessToken,
-                        refresh_token: refreshToken,
-                        user: {
-                            id: user.id,
-                            email: user.email,
-                            displayName: user.displayName,
-                            role: user.role,
-                            verifiedAt: user.verifiedAt,
-                        }
+                return successResponse({
+                    access_token: accessToken,
+                    refresh_token: refreshToken,
+                    user: {
+                        id: user.id,
+                        email: user.email,
+                        displayName: user.displayName,
+                        role: user.role,
+                        verifiedAt: user.verifiedAt,
                     }
-                };
+                });
             } else {
                 // Web: Set httpOnly cookies
                 this.setAuthCookies(res, accessToken, refreshToken);
 
-                return {
-                    success: true,
-                    data: {
-                        user: {
-                            id: user.id,
-                            email: user.email,
-                            displayName: user.displayName,
-                            role: user.role,
-                            verifiedAt: user.verifiedAt,
-                        }
+                return successResponse({
+                    user: {
+                        id: user.id,
+                        email: user.email,
+                        displayName: user.displayName,
+                        role: user.role,
+                        verifiedAt: user.verifiedAt,
                     }
-                };
+                });
             }
         } catch (error: unknown) {
-            return {
-                success: false,
-                message: (error instanceof Error ? error.message : 'Google authentication failed')
-            };
+            return errorResponse(
+                error instanceof Error ? error.message : 'Google authentication failed'
+            );
         }
     }
 
@@ -526,16 +462,14 @@ export class AuthController {
 
         try {
             await this.authService.linkGoogleAccount(req.requester.sub, idToken);
-            return {
-                success: true,
-                message: 'Google account linked successfully',
-                provider: 'google'
-            };
+            return successResponse(
+                { provider: 'google' },
+                'Google account linked successfully'
+            );
         } catch (error: unknown) {
-            return {
-                success: false,
-                message: (error instanceof Error ? error.message : 'Failed to link Google account')
-            };
+            return errorResponse(
+                error instanceof Error ? error.message : 'Failed to link Google account'
+            );
         }
     }
 
@@ -556,15 +490,14 @@ export class AuthController {
 
         try {
             await this.authService.unlinkProvider(req.requester.sub, provider);
-            return {
-                success: true,
-                message: `${provider} account unlinked successfully`
-            };
+            return successResponse(
+                null,
+                `${provider} account unlinked successfully`
+            );
         } catch (error: unknown) {
-            return {
-                success: false,
-                message: (error instanceof Error ? error.message : 'Failed to unlink provider')
-            };
+            return errorResponse(
+                error instanceof Error ? error.message : 'Failed to unlink provider'
+            );
         }
     }
 
@@ -577,15 +510,11 @@ export class AuthController {
     async getLinkedProviders(@Request() req: ReqWithRequester) {
         try {
             const providers = await this.authService.getLinkedProviders(req.requester.sub);
-            return {
-                success: true,
-                data: { providers }
-            };
+            return successResponse({ providers });
         } catch (error: unknown) {
-            return {
-                success: false,
-                message: (error instanceof Error ? error.message : 'Failed to get linked providers')
-            };
+            return errorResponse(
+                error instanceof Error ? error.message : 'Failed to get linked providers'
+            );
         }
     }
 
@@ -636,21 +565,15 @@ export class AuthController {
 
         if (platform === 'mobile') {
             // Mobile: Return tokens in body
-            return {
-                success: true,
-                data: {
-                    access_token: newAccessToken,
-                    refresh_token: newRefreshToken,
-                }
-            };
+            return successResponse({
+                access_token: newAccessToken,
+                refresh_token: newRefreshToken,
+            });
         } else {
             // Web: Set httpOnly cookies
             this.setAuthCookies(res, newAccessToken, newRefreshToken);
 
-            return {
-                success: true,
-                message: 'Token refreshed successfully'
-            };
+            return successResponse(null, 'Token refreshed successfully');
         }
     }
 
@@ -695,10 +618,7 @@ export class AuthController {
             sameSite: 'lax',
         });
 
-        return {
-            success: true,
-            message: 'Logged out successfully'
-        };
+        return successResponse(null, 'Logged out successfully');
     }
 
     /**
@@ -710,15 +630,11 @@ export class AuthController {
     async getMe(@Request() req: ReqWithRequester) {
         try {
             const user = await this.authService.getCurrentUser(req.requester.sub);
-            return {
-                success: true,
-                data: { user }
-            };
+            return successResponse({ user });
         } catch (error: unknown) {
-            return {
-                success: false,
-                message: (error instanceof Error ? error.message : 'Failed to get user')
-            };
+            return errorResponse(
+                error instanceof Error ? error.message : 'Failed to get user'
+            );
         }
     }
 
@@ -734,15 +650,11 @@ export class AuthController {
     ) {
         try {
             const user = await this.authService.updateUser(req.requester.sub, dto);
-            return {
-                success: true,
-                data: { user }
-            };
+            return successResponse({ user });
         } catch (error: unknown) {
-            return {
-                success: false,
-                message: (error instanceof Error ? error.message : 'Failed to update user')
-            };
+            return errorResponse(
+                error instanceof Error ? error.message : 'Failed to update user'
+            );
         }
     }
 
@@ -755,15 +667,11 @@ export class AuthController {
     async deleteMe(@Request() req: ReqWithRequester) {
         try {
             await this.authService.deleteUser(req.requester.sub);
-            return {
-                success: true,
-                message: 'User deleted successfully'
-            };
+            return successResponse(null, 'User deleted successfully');
         } catch (error: unknown) {
-            return {
-                success: false,
-                message: (error instanceof Error ? error.message : 'Failed to delete user')
-            };
+            return errorResponse(
+                error instanceof Error ? error.message : 'Failed to delete user'
+            );
         }
     }
 
@@ -786,25 +694,20 @@ export class AuthController {
             const result = await this.authService.verifyInviteToken(token);
 
             if (!result.success) {
-                return {
-                    success: false,
-                    message: 'Invalid or expired invite link'
-                };
+                return errorResponse('Invalid or expired invite link');
             }
 
-            return {
-                success: true,
-                message: 'Invite token is valid',
-                data: {
+            return successResponse(
+                {
                     email: result.email,
                     role: result.role
-                }
-            };
+                },
+                'Invite token is valid'
+            );
         } catch (error: unknown) {
-            return {
-                success: false,
-                message: (error instanceof Error ? error.message : 'Token verification failed')
-            };
+            return errorResponse(
+                error instanceof Error ? error.message : 'Token verification failed'
+            );
         }
     }
 
@@ -829,15 +732,14 @@ export class AuthController {
 
         try {
             await this.authService.setPassword(token, password);
-            return {
-                success: true,
-                message: 'Password set successfully. You can now login with your credentials.'
-            };
+            return successResponse(
+                null,
+                'Password set successfully. You can now login with your credentials.'
+            );
         } catch (error: unknown) {
-            return {
-                success: false,
-                message: (error instanceof Error ? error.message : 'Failed to set password')
-            };
+            return errorResponse(
+                error instanceof Error ? error.message : 'Failed to set password'
+            );
         }
     }
 

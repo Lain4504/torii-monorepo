@@ -4,23 +4,21 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(learning): refactor course, module, and lesson architecture with new repository and service layers">
-      <change beforePath="$PROJECT_DIR$/.env.example" beforeDir="false" afterPath="$PROJECT_DIR$/.env.example" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update web-admin">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/guards/gateway-auth.guard.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/guards/gateway-auth.guard.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/providers/jwt-token.provider.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/providers/jwt-token.provider.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/shared.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/shared.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/auth.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/auth.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/i-auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/i-auth.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/auth.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/session.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/session.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/course/course.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/course/course.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/lesson/lesson.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/lesson/lesson.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/module/module.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/module/module.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/auth.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/auth.dto.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/interfaces/auth.interface.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/interfaces/auth.interface.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/users.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/users.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/http/flashcard.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/http/flashcard.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/blog-comment/blog-comment.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/blog-comment/blog-comment.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/flashcard-deck/flashcard-deck.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/flashcard-deck/flashcard-deck.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/flashcard/flashcard.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/flashcard/flashcard.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/notification/notification.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/notification/notification.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/services/users.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/api/services/users.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/blog-comment.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/blog-comment.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/blog.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/blog.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/common.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/common.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/flashcard-deck.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/flashcard-deck.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/flashcard.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/flashcard.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/notification.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/notification.dto.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -289,54 +287,6 @@
       <workItem from="1767779643020" duration="455000" />
       <workItem from="1767780214679" duration="224000" />
       <workItem from="1767784611248" duration="3225000" />
-    </task>
-    <task id="LOCAL-00482" summary="feat(database): add new modules for gamification, payments, and user management">
-      <option name="closed" value="true" />
-      <created>1767787658923</created>
-      <option name="number" value="00482" />
-      <option name="presentableId" value="LOCAL-00482" />
-      <option name="project" value="LOCAL" />
-      <updated>1767787658923</updated>
-    </task>
-    <task id="LOCAL-00483" summary="feat(database): add new modules for gamification, payments, and user management">
-      <option name="closed" value="true" />
-      <created>1767788741578</created>
-      <option name="number" value="00483" />
-      <option name="presentableId" value="LOCAL-00483" />
-      <option name="project" value="LOCAL" />
-      <updated>1767788741580</updated>
-    </task>
-    <task id="LOCAL-00484" summary="feat(database): add new modules for gamification, payments, and user management">
-      <option name="closed" value="true" />
-      <created>1767789076711</created>
-      <option name="number" value="00484" />
-      <option name="presentableId" value="LOCAL-00484" />
-      <option name="project" value="LOCAL" />
-      <updated>1767789076728</updated>
-    </task>
-    <task id="LOCAL-00485" summary="feat(database): add new modules for gamification, payments, and user management">
-      <option name="closed" value="true" />
-      <created>1767789353865</created>
-      <option name="number" value="00485" />
-      <option name="presentableId" value="LOCAL-00485" />
-      <option name="project" value="LOCAL" />
-      <updated>1767789353865</updated>
-    </task>
-    <task id="LOCAL-00486" summary="feat(database): add new modules for gamification, payments, and user management">
-      <option name="closed" value="true" />
-      <created>1767789825260</created>
-      <option name="number" value="00486" />
-      <option name="presentableId" value="LOCAL-00486" />
-      <option name="project" value="LOCAL" />
-      <updated>1767789825260</updated>
-    </task>
-    <task id="LOCAL-00487" summary="feat(database): add new modules for gamification, payments, and user management">
-      <option name="closed" value="true" />
-      <created>1767790298114</created>
-      <option name="number" value="00487" />
-      <option name="presentableId" value="LOCAL-00487" />
-      <option name="project" value="LOCAL" />
-      <updated>1767790298115</updated>
     </task>
     <task id="LOCAL-00488" summary="feat(auth): rename endpoints and update token generation for email verification">
       <option name="closed" value="true" />
@@ -682,7 +632,55 @@
       <option name="project" value="LOCAL" />
       <updated>1767865403669</updated>
     </task>
-    <option name="localTasksCounter" value="531" />
+    <task id="LOCAL-00531" summary="jwt logout">
+      <option name="closed" value="true" />
+      <created>1767868775332</created>
+      <option name="number" value="00531" />
+      <option name="presentableId" value="LOCAL-00531" />
+      <option name="project" value="LOCAL" />
+      <updated>1767868775332</updated>
+    </task>
+    <task id="LOCAL-00532" summary="update web-admin">
+      <option name="closed" value="true" />
+      <created>1767870654626</created>
+      <option name="number" value="00532" />
+      <option name="presentableId" value="LOCAL-00532" />
+      <option name="project" value="LOCAL" />
+      <updated>1767870654626</updated>
+    </task>
+    <task id="LOCAL-00533" summary="update web-admin">
+      <option name="closed" value="true" />
+      <created>1767871245922</created>
+      <option name="number" value="00533" />
+      <option name="presentableId" value="LOCAL-00533" />
+      <option name="project" value="LOCAL" />
+      <updated>1767871245925</updated>
+    </task>
+    <task id="LOCAL-00534" summary="update web-admin">
+      <option name="closed" value="true" />
+      <created>1767871650432</created>
+      <option name="number" value="00534" />
+      <option name="presentableId" value="LOCAL-00534" />
+      <option name="project" value="LOCAL" />
+      <updated>1767871650433</updated>
+    </task>
+    <task id="LOCAL-00535" summary="update web-admin">
+      <option name="closed" value="true" />
+      <created>1767872227033</created>
+      <option name="number" value="00535" />
+      <option name="presentableId" value="LOCAL-00535" />
+      <option name="project" value="LOCAL" />
+      <updated>1767872227033</updated>
+    </task>
+    <task id="LOCAL-00536" summary="update web-admin">
+      <option name="closed" value="true" />
+      <created>1767872746855</created>
+      <option name="number" value="00536" />
+      <option name="presentableId" value="LOCAL-00536" />
+      <option name="project" value="LOCAL" />
+      <updated>1767872746855</updated>
+    </task>
+    <option name="localTasksCounter" value="537" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -712,8 +710,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat(auth): add two-factor authentication with TOTP, SMS, and email support&#10;&#10;- Implemented comprehensive 2FA support, including TOTP, SMS, and email-based authentication.&#10;- Added reusable encryption module with AES-256-GCM for securing TOTP secrets.&#10;- Created TwoFactorAuth module with service, controller, and repository for managing 2FA methods and statuses.&#10;- Introduced backup codes functionality for recovery.&#10;- Added Prisma migrations for storing 2FA configurations.&#10;- Integrated Redis and NATS for OTP storage and notifications." />
-    <MESSAGE value="feat(auth): implement Google OAuth login and account linking functionality&#10;&#10;- Added endpoints for Google OAuth login and linking existing accounts.&#10;- Integrated Google authentication with user registration and login processes.&#10;- Updated user model to support OAuth identities and metadata.&#10;- Enhanced user service to manage linked providers and account unlinking.&#10;- Included necessary environment variables for Google OAuth in .env.example." />
     <MESSAGE value="feat(auth): implement password reset flow with email verification and UI updates" />
     <MESSAGE value="feat(auth): refactor authentication DTOs and interfaces for improved structure and clarity" />
     <MESSAGE value="feat(auth): update user status handling and improve UI components" />
@@ -737,7 +733,9 @@
     <MESSAGE value="feat(users): integrate EmailModule for user management enhancements" />
     <MESSAGE value="feat(users): enhance create-user-dialog with multi-step flow and role selection&#10;&#10;- Added multi-step form flow for user creation (details &gt; role selection).&#10;- Introduced UI updates for better usability and visual consistency.&#10;- Implemented support for staff role variants with descriptive labels.&#10;- Improved form validation and error handling logic." />
     <MESSAGE value="feat(learning): refactor course, module, and lesson architecture with new repository and service layers" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(learning): refactor course, module, and lesson architecture with new repository and service layers" />
+    <MESSAGE value="jwt logout" />
+    <MESSAGE value="update web-admin" />
+    <option name="LAST_COMMIT_MESSAGE" value="update web-admin" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

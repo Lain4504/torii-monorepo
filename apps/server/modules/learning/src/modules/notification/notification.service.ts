@@ -6,7 +6,6 @@ import {
   NotificationResponseDTO,
   NotificationQueryDTO,
   NotificationCreateDTO,
-  NotificationPaginatedResponse,
   NotificationUnreadCountResponseDTO,
   PaginatedResponseDTO,
 } from '@workspace/schemas';

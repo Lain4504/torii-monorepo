@@ -41,25 +41,24 @@ export default function LoginPage() {
   });
 
   const onSubmit = async (data: UserLoginDTO) => {
+    dispatch(setError(null));
+    
     try {
-      const resultAction = await dispatch(login(data));
-
-      if (login.fulfilled.match(resultAction)) {
-        const user = resultAction.payload;
-        // Basic protection check on frontend
-        if (user.role === 'learner') {
-          dispatch(setError('Learners cannot access admin panel.'));
-          toast.error('Access denied: Admin portals are restricted.');
-          return;
-        }
-        toast.success(`Welcome back, ${user.displayName || 'Admin'}`);
-        navigate('/', { replace: true });
-      } else {
-        toast.error(typeof resultAction.payload === 'string' ? resultAction.payload : 'Authentication failed');
+      const user = await dispatch(login(data)).unwrap();
+      
+      // Block learner role
+      if (user.role === 'learner') {
+        dispatch(setError('Learners cannot access admin panel.'));
+        toast.error('Access denied: Admin portals are restricted.');
+        return;
       }
-    } catch (err) {
-      console.error(err);
-      toast.error("An unexpected error occurred");
+      
+      toast.success(`Welcome back, ${user.displayName || 'Admin'}`);
+      navigate('/', { replace: true });
+    } catch (err: unknown) {
+      // Error message already extracted by extractErrorMessage in auth-slice
+      const errorMessage = typeof err === 'string' ? err : 'Authentication failed';
+      toast.error(errorMessage);
     }
   };
 

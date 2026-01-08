@@ -112,10 +112,11 @@ export function CreateUserDialog({
             setShowStaffVariants(false);
             setStep('details');
             onOpenChange(false);
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('❌ Create user error:', error);
+            const errorMessage = error instanceof Error ? error.message : 'Failed to create user';
             toast.error('Failed to create user', {
-                description: error.response?.data?.error || error.message,
+                description: errorMessage,
             });
         }
     };

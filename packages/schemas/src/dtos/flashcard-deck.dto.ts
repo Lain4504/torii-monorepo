@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { flashcardDeckSchema } from '../models/flashcard-deck.model';
-import { paginatedResponseSchema } from './common.dto';
 
 export const flashcardDeckCreateDTOSchema = flashcardDeckSchema.pick({
     name: true,
@@ -34,6 +33,3 @@ export const flashcardDeckResponseDTOSchema = flashcardDeckSchema;
 
 export type FlashcardDeckResponseDTO = z.infer<typeof flashcardDeckResponseDTOSchema>;
 
-export const flashcardDeckPaginatedResponseSchema = paginatedResponseSchema(flashcardDeckResponseDTOSchema);
-
-export type FlashcardDeckPaginatedResponse = z.infer<typeof flashcardDeckPaginatedResponseSchema>;

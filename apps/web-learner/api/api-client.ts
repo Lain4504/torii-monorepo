@@ -1,4 +1,5 @@
 import axios from 'axios';
+import type { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 export const apiClient = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080',
@@ -17,8 +18,102 @@ let failedRequestsQueue: Array<{
 }> = [];
 
 /**
+ * Extract user-friendly error message from axios error
+ * 
+ * Standard Format:
+ * - Success: { success: true, data: any, message?: string }
+ * - Error: { success: false, message: string, errors?: any[] }
+ */
+const extractErrorMessage = (error: AxiosError): string => {
+    // 1. Standard format error (case chính)
+    if (error.response?.data) {
+        const data = error.response.data as any;
+        if (data?.success === false && data?.message) {
+            // Include validation errors if available
+            if (data.errors?.length > 0) {
+                const details = data.errors
+                    .map((e: any) => typeof e === 'string' ? e : e.message || e)
+                    .filter(Boolean)
+                    .join(', ');
+                return `${data.message} (${details})`;
+            }
+            return data.message;
+        }
+    }
+    
+    // 2. Network errors
+    if (error.code === 'ECONNABORTED') {
+        return 'Request timeout. Please try again.';
+    }
+    if (error.code === 'ERR_NETWORK' || !error.response) {
+        return 'Network error. Please check your connection and try again.';
+    }
+    
+    // 3. Infrastructure errors (Gateway/Load Balancer - may not have standard format)
+    const status = error.response?.status;
+    if (status === 502) return 'Bad gateway. Please try again later.';
+    if (status === 503) return 'Service unavailable. Please try again later.';
+    if (status === 504) return 'Gateway timeout. Please try again later.';
+    if (status === 500 && !error.response?.data) {
+        return 'Server error. Please try again later.';
+    }
+    
+    // 4. Final fallback
+    return error.message || 'An unexpected error occurred.';
+};
+
+/**
+ * Check if endpoint is public (doesn't require auth)
+ */
+const isPublicEndpoint = (url?: string): boolean => {
+    if (!url) return false;
+    
+    const publicEndpoints = [
+        '/auth/login',
+        '/auth/register',
+        '/auth/forgot-password',
+        '/auth/reset-password',
+        '/auth/verify',
+        '/auth/verify-email',
+        '/auth/resend-verification',
+        '/auth/verify-otp',
+        '/auth/resend-otp',
+        '/auth/verify-reset-token',
+        '/auth/verify-invite-token',
+        '/auth/set-password',
+    ];
+    
+    return publicEndpoints.some(endpoint => url.includes(endpoint));
+};
+
+/**
+ * Check if current page is public
+ */
+const isPublicPage = (): boolean => {
+    if (typeof window === 'undefined') return false;
+    
+    const publicPages = [
+        '/login',
+        '/register',
+        '/forgot-password',
+        '/reset-password',
+        '/verify',
+        '/verify-request',
+    ];
+    
+    return publicPages.some(page => window.location.pathname.includes(page));
+};
+
+/**
+ * Check if refresh token exists in cookies
+ */
+const hasRefreshToken = (): boolean => {
+    if (typeof document === 'undefined') return false;
+    return document.cookie.includes('refresh_token=');
+};
+
+/**
  * Process all queued requests after token refresh
- * @param error If provided, reject all queued requests
  */
 const processQueue = (error: unknown = null) => {
     failedRequestsQueue.forEach(prom => {
@@ -46,9 +141,8 @@ const redirectToLogin = async () => {
         return;
     }
 
-    // Don't redirect if already on login or register page
-    const publicPages = ['/login', '/register'];
-    if (publicPages.includes(window.location.pathname)) {
+    // Don't redirect if already on public auth page
+    if (isPublicPage()) {
         console.log('Already on public auth page, skipping redirect');
         return;
     }
@@ -58,7 +152,6 @@ const redirectToLogin = async () => {
 
     try {
         // Call logout to clear server-side cookies
-        // Web-learner uses ONLY cookies for auth (no localStorage)
         await apiClient.post('/api/auth/logout').catch(() => {
             // Ignore errors - we're logging out anyway
         });
@@ -69,49 +162,70 @@ const redirectToLogin = async () => {
     window.location.href = '/login';
 };
 
+// Request interceptor - Add platform header for web
+apiClient.interceptors.request.use(
+    (config: InternalAxiosRequestConfig) => {
+        // Add platform header to identify web client
+        if (typeof window !== 'undefined') {
+            config.headers['x-platform'] = 'web';
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
 // Response interceptor - Handle 401 errors with automatic token refresh
 apiClient.interceptors.response.use(
     (response) => response,
-    async (error) => {
-        const originalRequest = error.config;
+    async (error: AxiosError) => {
+        const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+        
+        // If no config, pass through
+        if (!originalRequest) {
+            return Promise.reject(error);
+        }
 
         // Check if error is 401 and we haven't already retried this request
         if (error.response?.status === 401 && !originalRequest._retry) {
+            const url = originalRequest.url || '';
 
-            // Check if we're on a public page - don't try to refresh tokens on public pages
-            const publicPages = ['/login', '/register', '/forgot-password', '/reset-password', '/verify', '/verify-request'];
-            const isPublicPage = typeof window !== 'undefined' && publicPages.some(page => window.location.pathname.includes(page));
-
-            // Don't attempt refresh on public auth endpoints or public pages
-            const isPublicEndpoint = originalRequest.url?.includes('/auth/refresh') || 
-                                   originalRequest.url?.includes('/auth/login') ||
-                                   originalRequest.url?.includes('/auth/register') ||
-                                   originalRequest.url?.includes('/auth/forgot-password') ||
-                                   originalRequest.url?.includes('/auth/reset-password') ||
-                                   originalRequest.url?.includes('/auth/verify');
-
-            if (isPublicEndpoint || isPublicPage) {
-                // If it's a login/register failure, just return the error so the UI can handle it
-                if (originalRequest.url?.includes('/auth/login') || originalRequest.url?.includes('/auth/register')) {
+            // Don't attempt refresh on public endpoints
+            if (isPublicEndpoint(url)) {
+                // For login/register, return error so UI can handle it
+                if (url.includes('/auth/login') || url.includes('/auth/register')) {
                     return Promise.reject(error);
                 }
-                // For other public endpoints or pages, just reject without redirect
-                if (isPublicPage) {
-                    return Promise.reject(error);
-                }
-                console.warn('Token refresh failed on public endpoint');
-                isRefreshing = false;
-                processQueue(error);
+                // For other public endpoints, just reject
                 return Promise.reject(error);
             }
 
-            // Check if there's actually a refresh token cookie before attempting refresh
-            // Only attempt refresh if we're not on a public page and have a refresh token
-            const hasRefreshToken = typeof document !== 'undefined' && document.cookie.includes('refresh_token');
-            if (!hasRefreshToken) {
-                // No refresh token means user hasn't logged in - just reject
+            // Don't attempt refresh on public pages
+            if (isPublicPage()) {
+                return Promise.reject(error);
+            }
+
+            // Don't retry refresh endpoint itself
+            if (url.includes('/auth/refresh')) {
+                console.warn('Token refresh failed');
+                isRefreshing = false;
+                processQueue(error);
+                
+                // Only redirect if we're not on a public page
+                if (!isPublicPage()) {
+                    redirectToLogin();
+                }
+                return Promise.reject(error);
+            }
+
+            // Check if refresh token exists before attempting refresh
+            if (!hasRefreshToken()) {
                 console.log('No refresh token found, skipping token refresh');
-                redirectToLogin();
+                // Only redirect if we're not on a public page
+                if (!isPublicPage()) {
+                    redirectToLogin();
+                }
                 return Promise.reject(error);
             }
 
@@ -150,12 +264,24 @@ apiClient.interceptors.response.use(
                 console.error('Token refresh failed:', refreshError);
                 processQueue(refreshError);
                 isRefreshing = false;
-                redirectToLogin();
+                
+                // Only redirect if we're not on a public page
+                if (!isPublicPage()) {
+                    redirectToLogin();
+                }
                 return Promise.reject(refreshError);
             }
         }
 
-        // For other status codes or if not 401, pass through
-        return Promise.reject(error);
+        // For other status codes, enhance error message and pass through
+        const enhancedError = error;
+        if (enhancedError.response) {
+            // Attach extracted message to error for easier access
+            (enhancedError as any).userMessage = extractErrorMessage(error);
+        }
+        return Promise.reject(enhancedError);
     }
 );
+
+// Export error extraction utility for use in components
+export { extractErrorMessage };

@@ -7,7 +7,7 @@ import type {
   FlashcardDeckUpdateDTO,
   FlashcardDeckQueryDTO,
   FlashcardDeckResponseDTO,
-  FlashcardDeckPaginatedResponse,
+  PaginatedResponseDTO,
 } from '@workspace/schemas';
 
 
@@ -115,7 +115,7 @@ export class FlashcardDeckService {
   async findAllDecks(
     userId: string,
     query: FlashcardDeckQueryDTO,
-  ): Promise<FlashcardDeckPaginatedResponse> {
+  ): Promise<PaginatedResponseDTO<FlashcardDeckResponseDTO>> {
     try {
       const { page = 1, limit = 10, search, jlptLevel } = query;
       const skip = (page - 1) * limit;

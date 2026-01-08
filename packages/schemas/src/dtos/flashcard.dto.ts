@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { FlashcardDifficulty, flashcardSchema } from '../models/flashcard.model';
-import { paginatedResponseSchema } from './common.dto';
 
 export const flashcardCreateDTOSchema = flashcardSchema.pick({
     deckId: true,
@@ -47,9 +46,6 @@ export const flashcardResponseDTOSchema = flashcardSchema;
 
 export type FlashcardResponseDTO = z.infer<typeof flashcardResponseDTOSchema>;
 
-export const flashcardPaginatedResponseSchema = paginatedResponseSchema(flashcardResponseDTOSchema);
-
-export type FlashcardPaginatedResponse = z.infer<typeof flashcardPaginatedResponseSchema>;
 
 export const bulkFlashcardOperationsDTOSchema = z.object({
     create: z.array(flashcardCreateDTOSchema).optional(),

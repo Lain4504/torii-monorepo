@@ -115,4 +115,7 @@ export * from './redis/redis.provider';
 // Services
 export * from './services/blacklist.service';
 
+// API Response Utilities
+export * from './utils/api-response.util';
+
 

@@ -13,25 +13,37 @@ export const paginationOptionsDTOSchema = z.object({
 export type PaginationOptionsDTO = z.infer<typeof paginationOptionsDTOSchema>;
 
 /**
- * Generic Paginated Response
- * Standard response structure for all paginated endpoints
+ * Standard API Response Format
+ * All API responses should follow this format for consistency
  */
-export const paginatedResponseDTOSchema = <T extends z.ZodTypeAny>(itemSchema: T) =>
-    z.object({
-        data: z.array(itemSchema),
-        total: z.number().int(),
-        page: z.number().int(),
-        limit: z.number().int(),
-        totalPages: z.number().int(),
-    });
+export interface StandardApiResponse<T = any> {
+    success: boolean;
+    data?: T;
+    message?: string;
+    errors?: any[];
+}
 
-// Alias for backward compatibility
-export const paginatedResponseSchema = paginatedResponseDTOSchema;
+/**
+ * Paginated API Response Format
+ * Standard response for paginated endpoints with flattened structure
+ * Combines StandardApiResponse with pagination metadata at top level
+ */
+export interface PaginatedApiResponse<T> extends StandardApiResponse<T[]> {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+}
 
-export type PaginatedResponseDTO<T> = {
+/**
+ * Paginated Response DTO (for service layer)
+ * Service returns data without success field, controller wraps it
+ * Data is required (not optional) for service layer
+ */
+export interface PaginatedResponseDTO<T> {
     data: T[];
     total: number;
     page: number;
     limit: number;
     totalPages: number;
-};
+}

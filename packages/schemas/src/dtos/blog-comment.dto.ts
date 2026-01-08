@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { blogCommentSchema } from '../models/blog-comment.model';
-import { paginatedResponseSchema } from './common.dto';
 
 export const blogCommentCreateDTOSchema = blogCommentSchema.pick({
     postId: true,
@@ -41,6 +40,3 @@ export const blogCommentResponseDTOSchema: z.ZodType<any> = blogCommentSchema.ex
 
 export type BlogCommentResponseDTO = z.infer<typeof blogCommentResponseDTOSchema>;
 
-export const blogCommentPaginatedResponseSchema = paginatedResponseSchema(blogCommentResponseDTOSchema);
-
-export type BlogCommentPaginatedResponse = z.infer<typeof blogCommentPaginatedResponseSchema>;
