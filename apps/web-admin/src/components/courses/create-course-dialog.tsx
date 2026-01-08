@@ -1,14 +1,21 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useContext } from 'react';
 import { z } from 'zod';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from '@workspace/ui/components/dialog';
+    DialogStack,
+    DialogStackBody,
+    DialogStackContent,
+    DialogStackHeader,
+    DialogStackTitle,
+    DialogStackDescription,
+    DialogStackFooter,
+    DialogStackOverlay,
+    DialogStackNext,
+    DialogStackPrevious,
+    DialogStackContext,
+} from '@workspace/ui/components/ui/shadcn-io/dialog-stack';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
@@ -17,7 +24,7 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { Loader2, X, Image as ImageIcon, Film } from 'lucide-react';
+import { Loader2, X, Image as ImageIcon, Film, ArrowRight, ArrowLeft, Check } from 'lucide-react';
 import { storageApi } from '@/api/services/storage-api.ts';
 import { JlptLevel, CourseStatus, courseCreateDTOSchema, type CourseCreateDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
@@ -37,6 +44,51 @@ interface MediaUploadProps {
     accept: string;
     label: string;
     icon: React.ReactNode;
+}
+
+function DialogStepReset({ isOpen }: { isOpen: boolean }) {
+    const context = useContext(DialogStackContext);
+    
+    useEffect(() => {
+        if (isOpen && context && context.activeIndex > 0) {
+            // Reset to first step when dialog opens
+            context.setActiveIndex(0);
+        }
+    }, [isOpen, context]);
+
+    return null;
+}
+
+function ValidatedNextButton({ trigger }: { trigger: (fields: string[]) => Promise<boolean> }) {
+    const context = useContext(DialogStackContext);
+    
+    if (!context) {
+        throw new Error('ValidatedNextButton must be used within a DialogStack');
+    }
+
+    const handleClick = async () => {
+        const isValid = await trigger(['title', 'jlptLevel', 'price', 'status', 'description']);
+        if (isValid) {
+            if (context.activeIndex < context.totalDialogs - 1) {
+                context.setActiveIndex(context.activeIndex + 1);
+            }
+        } else {
+            toast.error('Please fill in all required fields correctly', {
+                description: 'Check the form for validation errors.',
+            });
+        }
+    };
+
+    return (
+        <Button
+            type="button"
+            onClick={handleClick}
+            className="rounded-xl h-11 px-8 bg-primary shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all"
+        >
+            Next
+            <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
+    );
 }
 
 function MediaUpload({ file, onChange, accept, label, icon }: MediaUploadProps) {
@@ -137,6 +189,8 @@ export function CreateCourseDialog({ open, onOpenChange }: CreateCourseDialogPro
         control,
         handleSubmit,
         reset,
+        trigger,
+        formState: { errors },
     } = useForm<CreateCourseFormData>({
         resolver: zodResolver(courseCreateDTOSchema),
         defaultValues: {
@@ -221,14 +275,30 @@ export function CreateCourseDialog({ open, onOpenChange }: CreateCourseDialogPro
         }
     };
 
+    // Reset to first step when dialog closes
+    useEffect(() => {
+        if (!open) {
+            // Dialog is closed, step will reset when it opens again
+        }
+    }, [open]);
+
+
     return (
-        <Dialog open={open} onOpenChange={handleClose}>
-            <DialogContent className="max-w-3xl border-none shadow-2xl bg-background/95 backdrop-blur-xl rounded-2xl p-0 overflow-hidden max-h-[90vh] flex flex-col">
-                <DialogHeader className="p-8 pb-4 bg-muted/30 shrink-0">
-                    <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">Create New Course</DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleSubmit(onSubmitForm)} className="flex-1 overflow-y-auto p-8 pt-4 space-y-8" noValidate>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <DialogStack open={open} onOpenChange={handleClose}>
+            <DialogStackOverlay />
+            <DialogStackBody>
+                <DialogStepReset isOpen={open} />
+                {/* Step 1: Course Information */}
+                <DialogStackContent index={0} className="max-w-2xl border-none shadow-2xl bg-background/95 backdrop-blur-xl rounded-2xl p-0 overflow-hidden max-h-[90vh] flex flex-col">
+                    <DialogStackHeader className="p-8 pb-4 bg-muted/30 shrink-0">
+                        <DialogStackTitle className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">
+                            Course Information
+                        </DialogStackTitle>
+                        <DialogStackDescription className="text-sm text-muted-foreground mt-2">
+                            Step 1 of 2 - Fill in the basic course details
+                        </DialogStackDescription>
+                    </DialogStackHeader>
+                    <form className="flex-1 overflow-y-auto p-8 pt-4 space-y-6" noValidate>
                         <div className="space-y-6">
                             <Controller
                                 control={control}
@@ -337,6 +407,32 @@ export function CreateCourseDialog({ open, onOpenChange }: CreateCourseDialogPro
                             />
                         </div>
 
+                        <DialogStackFooter className="pt-6 border-t border-border/50">
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={handleClose}
+                                className="rounded-xl h-11 px-6 hover:bg-primary/5"
+                                disabled={uploading}
+                            >
+                                Cancel
+                            </Button>
+                            <ValidatedNextButton trigger={trigger} />
+                        </DialogStackFooter>
+                    </form>
+                </DialogStackContent>
+
+                {/* Step 2: Media Upload */}
+                <DialogStackContent index={1} className="max-w-2xl border-none shadow-2xl bg-background/95 backdrop-blur-xl rounded-2xl p-0 overflow-hidden max-h-[90vh] flex flex-col">
+                    <DialogStackHeader className="p-8 pb-4 bg-muted/30 shrink-0">
+                        <DialogStackTitle className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">
+                            Upload Media
+                        </DialogStackTitle>
+                        <DialogStackDescription className="text-sm text-muted-foreground mt-2">
+                            Step 2 of 2 - Upload course thumbnail and preview video
+                        </DialogStackDescription>
+                    </DialogStackHeader>
+                    <form onSubmit={handleSubmit(onSubmitForm)} className="flex-1 overflow-y-auto p-8 pt-4 space-y-6" noValidate>
                         <div className="space-y-6">
                             <MediaUpload
                                 label="Course Thumbnail"
@@ -354,36 +450,47 @@ export function CreateCourseDialog({ open, onOpenChange }: CreateCourseDialogPro
                                 icon={<Film className="w-6 h-6" />}
                             />
                         </div>
-                    </div>
 
-                    <div className="flex justify-end gap-3 pt-6 border-t border-border/50">
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            onClick={handleClose}
-                            className="rounded-xl h-11 px-6 hover:bg-primary/5"
-                            disabled={uploading}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            type="submit"
-                            disabled={uploading}
-                            className={cn(
-                                "rounded-xl h-11 px-8 bg-primary shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all",
-                                uploading && "opacity-80 cursor-not-allowed"
-                            )}
-                        >
-                            {uploading ? (
-                                <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Creating Course...
-                                </>
-                            ) : 'Create Course'}
-                        </Button>
-                    </div>
-                </form>
-            </DialogContent>
-        </Dialog>
+                        <DialogStackFooter className="pt-6 border-t border-border/50">
+                            <DialogStackPrevious
+                                className="rounded-xl h-11 px-6 hover:bg-primary/5"
+                            >
+                                <ArrowLeft className="mr-2 h-4 w-4" />
+                                Previous
+                            </DialogStackPrevious>
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={handleClose}
+                                className="rounded-xl h-11 px-6 hover:bg-primary/5"
+                                disabled={uploading}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="submit"
+                                disabled={uploading}
+                                className={cn(
+                                    "rounded-xl h-11 px-8 bg-primary shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all",
+                                    uploading && "opacity-80 cursor-not-allowed"
+                                )}
+                            >
+                                {uploading ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Creating Course...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Check className="mr-2 h-4 w-4" />
+                                        Create Course
+                                    </>
+                                )}
+                            </Button>
+                        </DialogStackFooter>
+                    </form>
+                </DialogStackContent>
+            </DialogStackBody>
+        </DialogStack>
     );
 }

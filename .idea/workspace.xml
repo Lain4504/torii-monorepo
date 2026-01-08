@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(question-bank): add deactivate functionality and update question model">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/tsconfig.app.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/tsconfig.app.json" afterDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update config" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -275,15 +272,7 @@
       <workItem from="1767779643020" duration="455000" />
       <workItem from="1767780214679" duration="224000" />
       <workItem from="1767784611248" duration="3225000" />
-      <workItem from="1767888786556" duration="2779000" />
-    </task>
-    <task id="LOCAL-00513" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
-      <option name="closed" value="true" />
-      <created>1767802260841</created>
-      <option name="number" value="00513" />
-      <option name="presentableId" value="LOCAL-00513" />
-      <option name="project" value="LOCAL" />
-      <updated>1767802260841</updated>
+      <workItem from="1767888786556" duration="3081000" />
     </task>
     <task id="LOCAL-00514" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
       <option name="closed" value="true" />
@@ -669,7 +658,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767891367796</updated>
     </task>
-    <option name="localTasksCounter" value="562" />
+    <task id="LOCAL-00562" summary="update config">
+      <option name="closed" value="true" />
+      <created>1767891663751</created>
+      <option name="number" value="00562" />
+      <option name="presentableId" value="LOCAL-00562" />
+      <option name="project" value="LOCAL" />
+      <updated>1767891663751</updated>
+    </task>
+    <option name="localTasksCounter" value="563" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -2422,7 +2419,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat(auth): sync database schema and Prisma models with session-based authentication&#10;&#10;- Replaced `refresh_tokens` table with `sessions` table in database schema.&#10;- Updated tables to include extended metadata (e.g., IP, user agent, device info).&#10;- Synced Prisma models with revised schema, optimizing for session management.&#10;- Removed legacy user role and permission tables, consolidating mappings with updated schemas.&#10;- Added tables for `user_identities`, `two_factor_auth`, and audit functionalities for improved security and logging." />
     <MESSAGE value="feat(database): update schema by removing obsolete tables and commenting out unused structures" />
     <MESSAGE value="feat(database): add new modules for gamification, payments, and user management" />
     <MESSAGE value="feat(auth): rename endpoints and update token generation for email verification" />
@@ -2447,7 +2443,8 @@
     <MESSAGE value="feat(admin, api): integrate course instructor management API and services&#10;&#10;Added API endpoints and query hooks to manage course instructors, including assignment, retrieval, updates" />
     <MESSAGE value="feat(admin, api): integrate course instructor management API and services&#10;&#10;Added API endpoints and query hooks to manage course instructors, including assignment, retrieval, updates, and unassignment." />
     <MESSAGE value="feat(question-bank): add deactivate functionality and update question model" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(question-bank): add deactivate functionality and update question model" />
+    <MESSAGE value="update config" />
+    <option name="LAST_COMMIT_MESSAGE" value="update config" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

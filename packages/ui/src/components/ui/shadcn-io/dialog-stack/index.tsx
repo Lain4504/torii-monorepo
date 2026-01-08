@@ -32,7 +32,7 @@ type DialogStackContextType = {
   clickable: boolean;
 };
 
-const DialogStackContext = createContext<DialogStackContextType>({
+export const DialogStackContext = createContext<DialogStackContextType>({
   activeIndex: 0,
   setActiveIndex: () => { },
   totalDialogs: 0,
