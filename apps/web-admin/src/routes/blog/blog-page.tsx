@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BlogPrimaryToolbar } from '@/components/blogs/blog-primary-toolbar.tsx';
 import { BlogTable } from '@/components/blogs/blog-table.tsx';
 import { CreateBlogDialog } from '@/components/blogs/create-blog-dialog.tsx';
@@ -8,10 +8,21 @@ import { ViewBlogDialog } from '@/components/blogs/view-blog-dialog.tsx';
 import type { BlogPostResponseDTO, BlogPostQueryDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
 import { useBlogs } from "@/api/services/blog.ts";
+import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@workspace/ui/components/pagination";
 
 export function BlogPage() {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
+    const [debouncedSearch] = useDebounceValue(search, 500);
     const [statusFilter, setStatusFilter] = useState<string>('');
     const [sortBy, setSortBy] = useState('publishedAt');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
@@ -26,7 +37,7 @@ export function BlogPage() {
     const queryParams: BlogPostQueryDTO = {
         page,
         limit: 10,
-        ...(search && { search }),
+        ...(debouncedSearch && { search: debouncedSearch }),
         ...(statusFilter && { status: statusFilter as any }),
         sortBy,
         sortOrder,
@@ -34,9 +45,9 @@ export function BlogPage() {
 
     const { data, isLoading, error } = useBlogs(queryParams);
 
-    if (isLoading) {
-        return <div className="p-6 text-center py-8">Loading blog posts...</div>;
-    }
+    useEffect(() => {
+        setPage(1);
+    }, [debouncedSearch, statusFilter]);
 
     if (error) {
         return <div className="p-6 text-center text-destructive py-8">Error: {error.message}</div>;
@@ -50,20 +61,69 @@ export function BlogPage() {
         limit: data.limit,
     } : null;
 
+    const renderPaginationItems = () => {
+        if (!meta) return null;
+        const items = [];
+        const maxVisiblePages = 5;
+
+        let startPage = Math.max(1, page - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(meta.totalPages, startPage + maxVisiblePages - 1);
+
+        if (endPage - startPage + 1 < maxVisiblePages) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        if (startPage > 1) {
+            items.push(
+                <PaginationItem key={1}>
+                    <PaginationLink onClick={() => setPage(1)}>1</PaginationLink>
+                </PaginationItem>
+            );
+            if (startPage > 2) items.push(<PaginationEllipsis key="start-ellipsis" />);
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            items.push(
+                <PaginationItem key={i}>
+                    <PaginationLink
+                        isActive={page === i}
+                        onClick={() => setPage(i)}
+                    >
+                        {i}
+                    </PaginationLink>
+                </PaginationItem>
+            );
+        }
+
+        if (endPage < meta.totalPages) {
+            if (endPage < meta.totalPages - 1) items.push(<PaginationEllipsis key="end-ellipsis" />);
+            items.push(
+                <PaginationItem key={meta.totalPages}>
+                    <PaginationLink onClick={() => setPage(meta.totalPages)}>{meta.totalPages}</PaginationLink>
+                </PaginationItem>
+            );
+        }
+
+        return items;
+    };
+
     return (
         <div className="space-y-6 animate-in fade-in-50 duration-500">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Blog Posts</h1>
+                <div className="space-y-1">
+                    <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">Blog Posts</h1>
                     <p className="text-muted-foreground">Manage articles, news, and community updates.</p>
                 </div>
-                <Button onClick={() => setShowCreateDialog(true)}>
+                <Button
+                    onClick={() => setShowCreateDialog(true)}
+                    className="rounded-full shadow-lg shadow-primary/20 bg-primary"
+                >
                     Create New Post
                 </Button>
             </div>
 
-            <div className="rounded-xl border bg-card text-card-foreground shadow-sm">
-                <div className="p-6">
+            <div className="zen-card rounded-2xl p-0 overflow-hidden">
+                <div className="p-6 pb-0">
                     <BlogPrimaryToolbar
                         search={search}
                         onSearchChange={setSearch}
@@ -75,45 +135,47 @@ export function BlogPage() {
                         }}
                         onAddNew={() => setShowCreateDialog(true)}
                     />
+                </div>
 
-                    <div className="mt-6 rounded-md border">
-                        <BlogTable
-                            data={blogs}
-                            onEdit={setEditingBlog}
-                            onDelete={setDeletingBlog}
-                            onView={setViewingBlog}
-                            page={page}
-                            limit={queryParams.limit || 10}
-                        />
-                    </div>
+                <div className="mt-6">
+                    <BlogTable
+                        data={blogs}
+                        onEdit={setEditingBlog}
+                        onDelete={setDeletingBlog}
+                        onView={setViewingBlog}
+                        page={page}
+                        limit={queryParams.limit || 10}
+                        isLoading={isLoading}
+                    />
 
                     {/* Pagination */}
                     {meta && (
-                        <div className="flex items-center justify-between space-x-2 py-4">
-                            <div className="flex-1 text-sm text-muted-foreground">
-                                Showing {blogs.length} of {meta.total} posts
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6 border-t border-border/40 px-6">
+                            <div className="text-sm zen-text-muted">
+                                Showing <span className="font-semibold text-foreground">{blogs.length}</span> of <span className="font-semibold text-foreground">{meta.total}</span> posts
                             </div>
-                            <div className="flex items-center space-x-2">
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    disabled={page <= 1}
-                                    onClick={() => setPage(page - 1)}
-                                >
-                                    Previous
-                                </Button>
-                                <div className="text-sm font-medium">
-                                    Page {page} of {meta.totalPages}
-                                </div>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    disabled={page >= meta.totalPages}
-                                    onClick={() => setPage(page + 1)}
-                                >
-                                    Next
-                                </Button>
-                            </div>
+
+                            {meta.totalPages > 1 && (
+                                <Pagination>
+                                    <PaginationContent>
+                                        <PaginationItem>
+                                            <PaginationPrevious
+                                                onClick={() => setPage(p => Math.max(1, p - 1))}
+                                                className={page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                                            />
+                                        </PaginationItem>
+
+                                        {renderPaginationItems()}
+
+                                        <PaginationItem>
+                                            <PaginationNext
+                                                onClick={() => setPage(p => Math.min(meta.totalPages, p + 1))}
+                                                className={page === meta.totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                                            />
+                                        </PaginationItem>
+                                    </PaginationContent>
+                                </Pagination>
+                            )}
                         </div>
                     )}
                 </div>

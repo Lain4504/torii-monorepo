@@ -53,12 +53,12 @@ export function ExamTimer({ durationMinutes, initialSeconds, onTimeUp, onTimeUpd
 
     return (
         <div className="flex items-center gap-4 min-w-[200px]">
-            <div className={`flex items-center gap-2 font-mono font-bold text-xl ${isUrgent ? "text-red-600 animate-pulse" : "text-slate-900 dark:text-white"}`}>
+            <div className={`flex items-center gap-2 font-mono font-bold text-xl ${isUrgent ? "text-destructive animate-pulse" : "text-foreground"}`}>
                 <Clock className="w-5 h-5" />
                 {formatTime(timeLeft)}
             </div>
             <div className="flex-1 w-32 hidden sm:block">
-                <Progress value={progress} className={`h-2 ${isUrgent ? "bg-red-100 dark:bg-red-900/30" : ""}`} />
+                <Progress value={progress} className={`h-2 ${isUrgent ? "bg-destructive/20" : ""}`} />
             </div>
         </div>
     )

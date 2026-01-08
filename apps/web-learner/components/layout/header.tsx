@@ -68,7 +68,7 @@ export function Header() {
 
 
             {/* Main Header */}
-            <header className="sticky top-0 z-50 w-full border-b border-teal-100 dark:border-teal-900 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md supports-[backdrop-filter]:bg-white/80 dark:supports-[backdrop-filter]:bg-slate-900/80 shadow-sm">
+            <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-sm supports-[backdrop-filter]:bg-background/80">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 items-center justify-between">
                         {/* Logo */}
@@ -76,7 +76,7 @@ export function Header() {
                             <Link href="/" className="flex items-center gap-2 group">
                                 {/* Torii Gate Icon */}
                                 <div className="relative">
-                                    <svg className="w-8 h-8 text-teal-600 dark:text-teal-400 group-hover:text-teal-700 dark:group-hover:text-teal-300 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <svg className="w-8 h-8 text-primary group-hover:opacity-80 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                         <path d="M3 10h18" strokeLinecap="round" />
                                         <path d="M5 10v8" strokeLinecap="round" />
                                         <path d="M19 10v8" strokeLinecap="round" />
@@ -84,10 +84,10 @@ export function Header() {
                                     </svg>
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="font-bold text-lg text-slate-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
+                                    <span className="font-bold text-lg text-foreground group-hover:text-primary/80 transition-colors">
                                         Torii Nihongo
                                     </span>
-                                    <span className="text-xs text-teal-600 dark:text-teal-400 font-medium">
+                                    <span className="text-xs text-muted-foreground font-medium">
                                         日本語センター
                                     </span>
                                 </div>
@@ -101,7 +101,7 @@ export function Header() {
                                         <Link
                                             key={item.name}
                                             href={item.href}
-                                            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/20 transition-all"
+                                            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors cursor-pointer"
                                         >
                                             <Icon className="w-4 h-4" />
                                             <span>{item.name}</span>
@@ -116,13 +116,13 @@ export function Header() {
                             {/* Theme Toggle */}
                             <button
                                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                                className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                className="p-2 rounded-lg hover:bg-accent transition-colors cursor-pointer"
                                 aria-label="Toggle theme"
                             >
                                 {theme === 'dark' ? (
-                                    <Sun className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+                                    <Sun className="w-5 h-5 text-muted-foreground" />
                                 ) : (
-                                    <Moon className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+                                    <Moon className="w-5 h-5 text-muted-foreground" />
                                 )}
                             </button>
 
@@ -131,12 +131,12 @@ export function Header() {
                                 <div className="relative hidden lg:block">
                                     <button
                                         onClick={() => setUserMenuOpen(!userMenuOpen)}
-                                        className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                        className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-accent transition-colors cursor-pointer"
                                     >
-                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center text-white font-semibold text-sm">
+                                        <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold text-sm">
                                             {user?.displayName?.charAt(0).toUpperCase() || 'U'}
                                         </div>
-                                        <span className="text-sm font-medium text-slate-900 dark:text-white hidden xl:block">
+                                        <span className="text-sm font-medium text-foreground hidden xl:block">
                                             {user?.displayName}
                                         </span>
                                     </button>
@@ -148,14 +148,14 @@ export function Header() {
                                                 className="fixed inset-0 z-40"
                                                 onClick={() => setUserMenuOpen(false)}
                                             />
-                                            <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 py-2 z-50">
-                                                <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700">
-                                                    <p className="text-sm font-medium text-slate-900 dark:text-white">{user?.displayName}</p>
-                                                    <p className="text-xs text-slate-600 dark:text-slate-400 truncate">{user?.email}</p>
+                                            <div className="absolute right-0 mt-2 w-56 bg-popover rounded-lg shadow-lg border py-2 z-50">
+                                                <div className="px-4 py-3 border-b">
+                                                    <p className="text-sm font-medium text-popover-foreground">{user?.displayName}</p>
+                                                    <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
                                                 </div>
                                                 <Link
                                                     href="/dashboard"
-                                                    className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                                                    className="flex items-center gap-3 px-4 py-2 text-sm text-popover-foreground hover:bg-accent transition-colors cursor-pointer"
                                                     onClick={() => setUserMenuOpen(false)}
                                                 >
                                                     <User className="w-4 h-4" />
@@ -163,17 +163,17 @@ export function Header() {
                                                 </Link>
                                                 <Link
                                                     href="/settings"
-                                                    className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                                                    className="flex items-center gap-3 px-4 py-2 text-sm text-popover-foreground hover:bg-accent transition-colors cursor-pointer"
                                                     onClick={() => setUserMenuOpen(false)}
                                                 >
                                                     <Settings className="w-4 h-4" />
                                                     <span>Cài đặt</span>
                                                 </Link>
-                                                <div className="border-t border-slate-200 dark:border-slate-700 my-2" />
+                                                <div className="border-t my-2" />
                                                 <button
                                                     onClick={handleLogout}
                                                     disabled={isLoggingOut}
-                                                    className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    className="flex items-center gap-3 w-full px-4 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                                                 >
                                                     <LogOut className="w-4 h-4" />
                                                     <span>{isLoggingOut ? 'Đang đăng xuất...' : 'Đăng xuất'}</span>
@@ -187,7 +187,7 @@ export function Header() {
                                     <Button variant="ghost" asChild>
                                         <Link href="/login">Đăng nhập</Link>
                                     </Button>
-                                    <Button asChild className="bg-teal-600 hover:bg-teal-700 text-white">
+                                    <Button asChild>
                                         <Link href="/register">Đăng ký miễn phí</Link>
                                     </Button>
                                 </div>
@@ -196,13 +196,13 @@ export function Header() {
                             {/* Mobile Menu Button */}
                             <button
                                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                                className="lg:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                className="lg:hidden p-2 rounded-lg hover:bg-accent transition-colors cursor-pointer"
                                 aria-label="Toggle menu"
                             >
                                 {mobileMenuOpen ? (
-                                    <X className="w-6 h-6 text-slate-600 dark:text-slate-400" />
+                                    <X className="w-6 h-6 text-muted-foreground" />
                                 ) : (
-                                    <Menu className="w-6 h-6 text-slate-600 dark:text-slate-400" />
+                                    <Menu className="w-6 h-6 text-muted-foreground" />
                                 )}
                             </button>
                         </div>
@@ -211,7 +211,7 @@ export function Header() {
 
                 {/* Mobile Menu */}
                 {mobileMenuOpen && (
-                    <div className="lg:hidden border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+                    <div className="lg:hidden border-t bg-background">
                         <div className="container mx-auto px-4 py-4 space-y-2">
                             {navigation.map((item) => {
                                 const Icon = item.icon
@@ -219,7 +219,7 @@ export function Header() {
                                     <Link
                                         key={item.name}
                                         href={item.href}
-                                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-colors cursor-pointer"
                                         onClick={() => setMobileMenuOpen(false)}
                                     >
                                         <Icon className="w-5 h-5" />
@@ -229,10 +229,10 @@ export function Header() {
                             })}
 
                             {isAuthenticated ? (
-                                <div className="pt-4 border-t border-slate-200 dark:border-slate-700 space-y-2">
+                                <div className="pt-4 border-t space-y-2">
                                     <Link
                                         href="/dashboard"
-                                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-colors cursor-pointer"
                                         onClick={() => setMobileMenuOpen(false)}
                                     >
                                         <User className="w-5 h-5" />
@@ -240,7 +240,7 @@ export function Header() {
                                     </Link>
                                     <Link
                                         href="/settings"
-                                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-colors cursor-pointer"
                                         onClick={() => setMobileMenuOpen(false)}
                                     >
                                         <Settings className="w-5 h-5" />
@@ -249,18 +249,18 @@ export function Header() {
                                     <button
                                         onClick={handleLogout}
                                         disabled={isLoggingOut}
-                                        className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-destructive hover:bg-destructive/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                                     >
                                         <LogOut className="w-5 h-5" />
                                         <span className="font-medium">{isLoggingOut ? 'Đang đăng xuất...' : 'Đăng xuất'}</span>
                                     </button>
                                 </div>
                             ) : (
-                                <div className="pt-4 border-t border-slate-200 dark:border-slate-700 space-y-2">
+                                <div className="pt-4 border-t space-y-2">
                                     <Button variant="outline" asChild className="w-full">
                                         <Link href="/login">Đăng nhập</Link>
                                     </Button>
-                                    <Button asChild className="w-full bg-teal-600 hover:bg-teal-700 text-white">
+                                    <Button asChild className="w-full">
                                         <Link href="/register">Đăng ký miễn phí</Link>
                                     </Button>
                                 </div>

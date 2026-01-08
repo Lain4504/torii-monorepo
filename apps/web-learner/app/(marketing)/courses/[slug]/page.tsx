@@ -30,7 +30,7 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
         : []
 
     return (
-        <div className="min-h-screen bg-white dark:bg-slate-950 pb-20">
+        <div className="min-h-screen bg-background pb-20">
             <CourseHeader course={course} />
 
             <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
@@ -40,13 +40,13 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
 
                         {/* What you'll learn */}
                         {learningOutcomes.length > 0 && (
-                            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-8 shadow-sm">
-                                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Bạn sẽ học được gì</h2>
+                            <div className="bg-card border rounded-lg p-8">
+                                <h2 className="text-2xl font-bold text-card-foreground mb-6">Bạn sẽ học được gì</h2>
                                 <div className="grid md:grid-cols-2 gap-4">
                                     {learningOutcomes.map((item, index) => (
                                         <div key={index} className="flex gap-3 items-start">
-                                            <Check className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" />
-                                            <span className="text-slate-700 dark:text-slate-300 text-sm">{item}</span>
+                                            <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                                            <span className="text-muted-foreground text-sm">{item}</span>
                                         </div>
                                     ))}
                                 </div>

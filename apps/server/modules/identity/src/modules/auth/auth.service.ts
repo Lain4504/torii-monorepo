@@ -1,14 +1,11 @@
 import { Injectable, UnauthorizedException, ConflictException, NotFoundException, Inject, BadRequestException } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
 import Redis from 'ioredis';
 import * as argon2 from 'argon2';
-import { REDIS_CLIENT } from '@server/shared';
-import { JwtTokenProvider } from '@server/shared';
-import { RBACService } from '../rbac/rbac.service';
-import { TwoFactorAuthService } from '../two-factor-auth/two-factor-auth.service';
-import { GoogleAuthService } from './google-auth.service';
-import { UserIdentityRepository } from './user-identity.repository';
-import { UsersRepository } from '../users/users.repository';
+import { JwtTokenProvider, REDIS_CLIENT } from '@server/shared';
+import type { IUsersRepository, IUserIdentityRepository } from '../../interfaces/repositories';
+import type { IAuthService, ISessionService, IGoogleAuthService, IAuthorizationService, ITwoFactorAuthService, IEmailService } from '../../interfaces/services';
+import { USERS_REPOSITORY_TOKEN, USER_IDENTITY_REPOSITORY_TOKEN } from '../../interfaces/repositories';
+import { SESSION_SERVICE_TOKEN, GOOGLE_AUTH_SERVICE_TOKEN, AUTHORIZATION_SERVICE_TOKEN, TWO_FACTOR_AUTH_SERVICE_TOKEN, EMAIL_SERVICE_TOKEN } from '../../interfaces/services';
 
 import { UserRole } from '@workspace/schemas';
 import type {
@@ -18,22 +15,32 @@ import type {
     AuthResponseDTO as AuthResponse,
     LoginResponseDTO as LoginResponse,
     AuthResultDTO as AuthResult,
+    VerifyOTPDTO,
+    ResendOTPDTO,
+    ForgotPasswordDTO,
+    GoogleUserInfo,
+    AppMetadata,
+    UserMetadata,
+    TokenPayload,
 } from '@workspace/schemas';
+import type { User, Prisma } from '@prisma/generated';
+import type { TwoFactorTempTokenPayload } from '@server/shared';
 
 
 
 @Injectable()
-export class AuthService {
+export class AuthService implements IAuthService {
     constructor(
-        private readonly usersRepository: UsersRepository,
+        @Inject(USERS_REPOSITORY_TOKEN) private readonly usersRepository: IUsersRepository,
 
         private readonly jwtTokenProvider: JwtTokenProvider,
-        private readonly rbacService: RBACService,
-        private readonly twoFactorAuthService: TwoFactorAuthService,
-        private readonly googleAuthService: GoogleAuthService,
-        private readonly userIdentityRepository: UserIdentityRepository,
+        @Inject(AUTHORIZATION_SERVICE_TOKEN) private readonly authorizationService: IAuthorizationService,
+        @Inject(TWO_FACTOR_AUTH_SERVICE_TOKEN) private readonly twoFactorAuthService: ITwoFactorAuthService,
+        @Inject(SESSION_SERVICE_TOKEN) private readonly sessionService: ISessionService,
+        @Inject(GOOGLE_AUTH_SERVICE_TOKEN) private readonly googleAuthService: IGoogleAuthService,
+        @Inject(USER_IDENTITY_REPOSITORY_TOKEN) private readonly userIdentityRepository: IUserIdentityRepository,
         @Inject(REDIS_CLIENT) private readonly redis: Redis,
-        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
+        @Inject(EMAIL_SERVICE_TOKEN) private readonly emailService: IEmailService,
     ) { }
 
     /**
@@ -65,16 +72,24 @@ export class AuthService {
         // Exclude password from response
         const { password, ...user } = fullUser;
 
-        // Generate Magic Link token
-        const magicToken = await this.generateMagicToken(user.email);
-
-        // Emit NATS event for notification service to send email
-        this.natsClient.emit('auth.user.registered', {
-            email: user.email,
-            displayName: user.displayName,
-            magicToken, // Send token instead of OTP
-            verificationUrl: `${process.env.FRONTEND_URL}/verify?token=${magicToken}`,
-        });
+        // Generate Verification token or OTP
+        if (dto.platform === 'mobile') {
+            const otp = await this.generateOTP(user.email, 'registration');
+            await this.emailService.sendOTPEmail(
+                user.email,
+                user.displayName,
+                otp,
+                'registration'
+            );
+        } else {
+            const verificationToken = await this.generateVerificationToken(user.email);
+            const verificationUrl = `${process.env.FRONTEND_URL}/verify?token=${verificationToken}`;
+            await this.emailService.sendVerificationEmail(
+                user.email,
+                user.displayName,
+                verificationUrl
+            );
+        }
 
         return {
             ...user,
@@ -87,9 +102,30 @@ export class AuthService {
      * Now supports 2FA - returns requiresTwoFactor if 2FA is enabled
      */
     async login(dto: UserLoginDTO): Promise<LoginResponse> {
-        // Find user
+        const user = await this.usersRepository.findByEmail(dto.email);
+        return this.processLoginFlow(user, dto);
+    }
+
+    /**
+     * Specialized login for admin portals (ADMIN, STAFF, LECTURER)
+     * Rejects users with LEARNER role even with valid credentials
+     */
+    async adminLogin(dto: UserLoginDTO): Promise<LoginResponse> {
         const user = await this.usersRepository.findByEmail(dto.email);
 
+        if (user && user.role === UserRole.LEARNER) {
+            // Log security event for audit (F6)
+            console.warn(`[Security] Admin portal access denied for learner: ${dto.email}`);
+            throw new UnauthorizedException('Access denied: Admin portals are restricted');
+        }
+
+        return this.processLoginFlow(user, dto);
+    }
+
+    /**
+     * Shared logic for processing login after user is found (F1, F3, F4)
+     */
+    private async processLoginFlow(user: User | null, dto: UserLoginDTO): Promise<LoginResponse> {
         if (!user || !user.password) {
             throw new UnauthorizedException('Invalid credentials');
         }
@@ -116,8 +152,7 @@ export class AuthService {
 
         if (twoFactorStatus.isEnabled) {
             // Generate temporary token (valid for 5 minutes)
-            // Defaulting to 'totp' since it's the only supported method now
-            const tempToken = await this.generate2FATempToken(user.id, user.email, 'totp');
+            const tempToken = await this.generate2FATempToken(user.id, user.email, 'totp', user.role as UserRole);
 
             return {
                 requiresTwoFactor: true,
@@ -149,21 +184,23 @@ export class AuthService {
 
     /**
      * Generate temporary token for 2FA verification
-     * Valid for 5 minutes
+     * Valid for 5 minutes (configurable via TWO_FACTOR_TEMP_TOKEN_EXPIRY)
      */
-    private async generate2FATempToken(userId: string, email: string, method: string): Promise<string> {
+    private async generate2FATempToken(userId: string, email: string, method: string, userRole: UserRole): Promise<string> {
         const tempTokenExpiry = parseInt(process.env.TWO_FACTOR_TEMP_TOKEN_EXPIRY || '300'); // 5 minutes
 
-        const payload = {
-            userId,
-            email,
-            method,
-            type: '2fa-temp',
+        const payload: TwoFactorTempTokenPayload = {
+            sub: userId,        // Standard JWT claim (subject)
+            role: userRole,     // User role for compatibility
+            userId,             // User ID (duplicate for clarity)
+            email,              // User email
+            method,             // 2FA method (e.g., 'totp')
+            type: '2fa-temp',   // Token type identifier
         };
 
-        // Generate token using JwtTokenProvider
-        const token = await this.jwtTokenProvider.generateToken(
-            payload as any,
+        // Generate token using dedicated 2FA method
+        const token = await this.jwtTokenProvider.generate2FATempToken(
+            payload,
             `${tempTokenExpiry}s` // Convert to seconds format (e.g., "300s")
         );
 
@@ -177,19 +214,17 @@ export class AuthService {
      * Verify 2FA code and complete login
      */
     async verify2FA(tempToken: string, code: string, isBackupCode: boolean = false): Promise<AuthResponse> {
-        // Verify temp token
-        let payload: any;
-        try {
-            payload = await this.jwtTokenProvider.verifyToken(tempToken);
-        } catch (error) {
+        // Verify temp token using dedicated 2FA verification method
+        const payload = await this.jwtTokenProvider.verify2FATempToken(tempToken);
+
+        if (!payload) {
             throw new UnauthorizedException('Invalid or expired temporary token');
         }
 
-        if (payload.type !== '2fa-temp') {
-            throw new UnauthorizedException('Invalid token type');
+        const userId = payload.userId || payload.sub;
+        if (!userId) {
+            throw new UnauthorizedException('Invalid token payload');
         }
-
-        const userId = payload.userId;
 
         // Check if temp token exists in Redis
         const storedToken = await this.redis.get(`2fa:temp:${userId}`);
@@ -241,17 +276,17 @@ export class AuthService {
     }
 
     /**
-     * Get user profile with permissions
+     * Get current authenticated user with permissions
      */
-    async getProfile(userId: string): Promise<UserResponseDTO & { permissions: string[] }> {
-        const user = await this.usersRepository.getProfile(userId);
+    async getCurrentUser(userId: string): Promise<UserResponseDTO & { permissions: string[] }> {
+        const user = await this.usersRepository.getUserBasicInfo(userId);
 
         if (!user) {
             throw new NotFoundException('User not found');
         }
 
         // Get permissions
-        const { permissions } = await this.rbacService.getUserPermissions(user.id, user.role);
+        const { permissions } = await this.authorizationService.getUserPermissions(user.id, user.role);
 
         return {
             ...user,
@@ -261,25 +296,25 @@ export class AuthService {
     }
 
     /**
-     * Generate Magic Link token for email verification
+     * Generate token for email verification
      * Returns the token to be used in verification URL
      */
-    async generateMagicToken(email: string): Promise<string> {
+    async generateVerificationToken(email: string): Promise<string> {
         // Generate secure random token (32 bytes = 64 hex chars)
         const crypto = await import('crypto');
         const token = crypto.randomBytes(32).toString('hex');
 
         // Store email associated with token in Redis (24h expiry)
-        await this.redis.set(`magic-link:${token}`, email, 'EX', 86400);
+        await this.redis.set(`verification-token:${token}`, email, 'EX', 86400);
 
         return token;
     }
 
     /**
-     * Verify Magic Link token and activate user
+     * Verify verification token and activate user
      */
-    async verifyMagicToken(token: string): Promise<{ success: boolean; email?: string }> {
-        const email = await this.redis.get(`magic-link:${token}`);
+    async verifyVerificationToken(token: string): Promise<{ success: boolean; email?: string }> {
+        const email = await this.redis.get(`verification-token:${token}`);
 
         if (!email) {
             return { success: false };
@@ -289,7 +324,7 @@ export class AuthService {
         await this.usersRepository.updateByEmail(email, { verifiedAt: new Date() });
 
         // Delete token (one-time use)
-        await this.redis.del(`magic-link:${token}`);
+        await this.redis.del(`verification-token:${token}`);
 
         return { success: true, email };
     }
@@ -319,20 +354,20 @@ export class AuthService {
             const ttl = await this.redis.ttl(rateLimitKey);
             const minutesLeft = Math.ceil(ttl / 60);
             throw new BadRequestException(
-                `Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau ${minutesLeft} phút.`
+                `Too many requests. Please try again in ${minutesLeft} minutes.`
             );
         }
 
-        // Generate new Magic Link token
-        const magicToken = await this.generateMagicToken(email);
+        // Generate new Verification token
+        const verificationToken = await this.generateVerificationToken(email);
 
-        // Emit NATS event for notification service to send email
-        this.natsClient.emit('auth.verification.resend', {
+        // Send verification email
+        const verificationUrl = `${process.env.FRONTEND_URL}/verify?token=${verificationToken}`;
+        await this.emailService.sendVerificationEmail(
             email,
-            displayName: user.displayName,
-            magicToken,
-            verificationUrl: `${process.env.FRONTEND_URL}/verify?token=${magicToken}`,
-        });
+            user.displayName,
+            verificationUrl
+        );
 
         // Increment rate limit counter
         if (attemptsCount === 0) {
@@ -348,10 +383,11 @@ export class AuthService {
 
     /**
      * Initiate password reset flow
-     * Generates a magic link token and sends reset email
+     * Generates a magic link token (web) or OTP (mobile) and sends reset email
      * Rate limited: 3 requests per hour per email
      */
-    async forgotPassword(email: string): Promise<void> {
+    async forgotPassword(dto: ForgotPasswordDTO): Promise<void> {
+        const { email, platform } = dto;
         const user = await this.usersRepository.findByEmail(email);
 
         // Don't reveal if user exists or not (security best practice)
@@ -373,30 +409,69 @@ export class AuthService {
             const ttl = await this.redis.ttl(rateLimitKey);
             const minutesLeft = Math.ceil(ttl / 60);
             throw new BadRequestException(
-                `Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau ${minutesLeft} phút.`
+                `Too many requests. Please try again in ${minutesLeft} minutes.`
             );
         }
 
-        // Generate reset token (valid for 1 hour)
-        const crypto = await import('crypto');
-        const resetToken = crypto.randomBytes(32).toString('hex');
+        if (platform === 'mobile') {
+            const otp = await this.generateOTP(email, 'reset-password');
+            await this.emailService.sendOTPEmail(
+                email,
+                user.displayName,
+                otp,
+                'reset-password'
+            );
+        } else {
+            // Generate reset token (valid for 1 hour)
+            const crypto = await import('crypto');
+            const resetToken = crypto.randomBytes(32).toString('hex');
 
-        // Store email associated with reset token in Redis (1 hour expiry)
-        await this.redis.set(`reset-token:${resetToken}`, email, 'EX', 3600);
+            // Store email associated with reset token in Redis (1 hour expiry)
+            await this.redis.set(`reset-token:${resetToken}`, email, 'EX', 3600);
 
-        // Emit NATS event for notification service to send reset email
-        this.natsClient.emit('auth.password.reset-requested', {
-            email,
-            displayName: user.displayName,
-            resetToken,
-            resetUrl: `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`,
-        });
+            // Send password reset email
+            const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+            await this.emailService.sendPasswordResetEmail(
+                email,
+                user.displayName,
+                resetUrl
+            );
+        }
 
         // Increment rate limit counter
         if (attemptsCount === 0) {
             await this.redis.set(rateLimitKey, '1', 'EX', 3600); // 1 hour
         } else {
             await this.redis.incr(rateLimitKey);
+        }
+    }
+
+    /**
+     * Verify OTP code (for mobile flow)
+     */
+    async verifyOTP(dto: VerifyOTPDTO): Promise<{ success: boolean; email?: string; tempToken?: string }> {
+        const { email, otp, type } = dto;
+        const otpKey = `otp:${type}:${email}`;
+
+        const storedOtp = await this.redis.get(otpKey);
+
+        if (!storedOtp || storedOtp !== otp) {
+            throw new UnauthorizedException('Invalid or expired verification code');
+        }
+
+        // Delete OTP (one-time use)
+        await this.redis.del(otpKey);
+
+        if (type === 'registration') {
+            // Update user status to ACTIVE
+            await this.usersRepository.updateByEmail(email, { verifiedAt: new Date() });
+            return { success: true, email };
+        } else {
+            // For reset-password, generate a temporary reset token
+            const crypto = await import('crypto');
+            const resetToken = crypto.randomBytes(32).toString('hex');
+            await this.redis.set(`reset-token:${resetToken}`, email, 'EX', 3600);
+            return { success: true, email, tempToken: resetToken };
         }
     }
 
@@ -413,6 +488,67 @@ export class AuthService {
 
         return { success: true, email };
     }
+
+    /**
+     * Resend OTP code
+     * Rate limited: 3 requests per hour
+     */
+    async resendOTP(dto: ResendOTPDTO): Promise<void> {
+        const { email, type } = dto;
+        const user = await this.usersRepository.findByEmail(email);
+
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        if (type === 'registration' && user.verifiedAt) {
+            throw new BadRequestException('Email already verified');
+        }
+
+        // Rate limiting: 3 requests per hour
+        const rateLimitKey = `resend-otp:${email}:${type}`;
+        const attempts = await this.redis.get(rateLimitKey);
+        const attemptsCount = attempts ? parseInt(attempts) : 0;
+
+        if (attemptsCount >= 3) {
+            const ttl = await this.redis.ttl(rateLimitKey);
+            const minutesLeft = Math.ceil(ttl / 60);
+            throw new BadRequestException(
+                `Too many requests. Please try again in ${minutesLeft} minutes.`
+            );
+        }
+
+        const otp = await this.generateOTP(email, type);
+        await this.emailService.sendOTPEmail(
+            email,
+            user.displayName,
+            otp,
+            type
+        );
+
+        // Increment rate limit counter
+        if (attemptsCount === 0) {
+            await this.redis.set(rateLimitKey, '1', 'EX', 3600); // 1 hour
+        } else {
+            await this.redis.incr(rateLimitKey);
+        }
+    }
+
+    /**
+     * Generate 6-digit OTP and store in Redis
+     * Valid for 10 minutes
+     */
+    private async generateOTP(email: string, type: 'registration' | 'reset-password'): Promise<string> {
+        // Generate 6-digit numeric OTP securely
+        const crypto = await import('crypto');
+        const otp = crypto.randomInt(100000, 999999).toString();
+
+        // Store in Redis with 10-minute expiry
+        await this.redis.set(`otp:${type}:${email}`, otp, 'EX', 600);
+
+        return otp;
+    }
+
 
     /**
      * Reset password using valid reset token
@@ -438,20 +574,23 @@ export class AuthService {
             password: hashedPassword,
         });
 
+        // Revoke all existing sessions (F4)
+        await this.sessionService.revokeAllUserSessions(user.id);
+
         // Delete reset token (one-time use)
         await this.redis.del(`reset-token:${token}`);
 
-        // Emit NATS event for notification
-        this.natsClient.emit('auth.password.reset-completed', {
+        // Send password reset confirmation email
+        await this.emailService.sendPasswordResetConfirmationEmail(
             email,
-            displayName: user.displayName,
-        });
+            user.displayName
+        );
     }
 
     /**
-     * Update user profile
+     * Update user information
      */
-    async updateProfile(
+    async updateUser(
         userId: string,
         dto: { displayName?: string },
     ): Promise<UserResponseDTO & { permissions: string[] }> {
@@ -463,7 +602,7 @@ export class AuthService {
         const { password, ...user } = fullUser;
 
         // Get permissions
-        const { permissions } = await this.rbacService.getUserPermissions(user.id, user.role);
+        const { permissions } = await this.authorizationService.getUserPermissions(user.id, user.role);
 
         return {
             ...user,
@@ -473,9 +612,9 @@ export class AuthService {
     }
 
     /**
-     * Delete user profile (soft delete)
+     * Delete user account (soft delete)
      */
-    async deleteProfile(userId: string): Promise<void> {
+    async deleteUser(userId: string): Promise<void> {
         await this.usersRepository.softDelete(userId);
     }
 
@@ -539,11 +678,11 @@ export class AuthService {
                 user: { connect: { id: existingUser.id } },
                 provider: 'google',
                 providerId: googleUser.sub,
-                providerData: googleUser as any,
+                providerData: googleUser as unknown as Prisma.InputJsonValue,
             });
 
             // Update user metadata
-            const currentMetadata = (existingUser.appMetadata as any) || {};
+            const currentMetadata = (existingUser.appMetadata as unknown as AppMetadata) || { provider: 'email', providers: ['email'] };
             const providers = currentMetadata.providers || ['email'];
 
             await this.usersRepository.update(existingUser.id, {
@@ -551,8 +690,8 @@ export class AuthService {
                 appMetadata: {
                     ...currentMetadata,
                     providers: [...new Set([...providers, 'google'])],
-                },
-                userMetadata: googleUser as any,
+                } as unknown as Prisma.InputJsonValue,
+                userMetadata: googleUser as unknown as UserMetadata as unknown as Prisma.InputJsonValue,
                 verifiedAt: googleUser.email_verified ? new Date() : existingUser.verifiedAt,
                 lastSignInAt: new Date(),
             });
@@ -588,8 +727,8 @@ export class AuthService {
             appMetadata: {
                 provider: 'google',
                 providers: ['google'],
-            },
-            userMetadata: googleUser as any,
+            } as unknown as Prisma.InputJsonValue,
+            userMetadata: googleUser as unknown as UserMetadata as unknown as Prisma.InputJsonValue,
         });
 
         // Create Google identity
@@ -597,7 +736,7 @@ export class AuthService {
             user: { connect: { id: newUser.id } },
             provider: 'google',
             providerId: googleUser.sub,
-            providerData: googleUser as any,
+            providerData: googleUser as unknown as Prisma.InputJsonValue,
         });
 
         const accessToken = await this.jwtTokenProvider.generateToken({
@@ -647,12 +786,12 @@ export class AuthService {
             user: { connect: { id: userId } },
             provider: 'google',
             providerId: googleUser.sub,
-            providerData: googleUser as any,
+            providerData: googleUser as unknown as Prisma.InputJsonValue,
         });
 
         // Update user metadata
         const user = await this.usersRepository.findById(userId);
-        const currentMetadata = (user?.appMetadata as any) || {};
+        const currentMetadata = (user?.appMetadata as unknown as AppMetadata) || { provider: 'email', providers: ['email'] };
         const providers = currentMetadata.providers || ['email'];
 
         await this.usersRepository.update(userId, {
@@ -660,8 +799,8 @@ export class AuthService {
             appMetadata: {
                 ...currentMetadata,
                 providers: [...new Set([...providers, 'google'])],
-            },
-            userMetadata: googleUser as any,
+            } as unknown as Prisma.InputJsonValue,
+            userMetadata: googleUser as unknown as UserMetadata as unknown as Prisma.InputJsonValue,
         });
     }
 
@@ -688,7 +827,7 @@ export class AuthService {
 
         // Update user metadata
         const user = await this.usersRepository.findById(userId);
-        const currentMetadata = (user?.appMetadata as any) || {};
+        const currentMetadata = (user?.appMetadata as unknown as AppMetadata) || { provider: 'email', providers: ['email'] };
         const providers = (currentMetadata.providers || []).filter((p: string) => p !== provider);
 
         await this.usersRepository.update(userId, {
@@ -696,7 +835,7 @@ export class AuthService {
                 ...currentMetadata,
                 provider: providers[0] || 'email',
                 providers,
-            },
+            } as unknown as Prisma.InputJsonValue,
         });
     }
 
@@ -705,12 +844,101 @@ export class AuthService {
      */
     async getLinkedProviders(userId: string) {
         const identities = await this.userIdentityRepository.findByUserId(userId);
+        const user = await this.usersRepository.findById(userId);
 
-        return identities.map(identity => ({
-            provider: identity.provider,
-            providerId: identity.providerId,
-            linkedAt: identity.createdAt,
-            lastSignInAt: identity.lastSignInAt,
-        }));
+        return {
+            providers: identities.map(identity => ({
+                provider: identity.provider,
+                email: ((identity.providerData as unknown as GoogleUserInfo)?.email) || '',
+                linkedAt: identity.createdAt,
+            })),
+            hasPassword: !!user?.password,
+        };
+    }
+
+    // ========================================
+    // Invite Token Methods (Internal Users)
+    // ========================================
+
+    /**
+     * Verify invite token for internal users (LECTURER/STAFF)
+     * Returns user email and role if token is valid
+     */
+    async verifyInviteToken(token: string): Promise<{ success: boolean; email?: string; role?: string }> {
+        const userId = await this.redis.get(`invite-token:${token}`);
+
+        if (!userId) {
+            return { success: false };
+        }
+
+        // Get user details
+        const user = await this.usersRepository.findById(userId);
+
+        if (!user) {
+            return { success: false };
+        }
+
+        // Check if user already has password set (already onboarded)
+        if (user.password) {
+            return { success: false };
+        }
+
+        return {
+            success: true,
+            email: user.email,
+            role: user.role,
+        };
+    }
+
+    /**
+     * Set password for invited internal user
+     * Completes the onboarding flow for LECTURER/STAFF
+     */
+    async setPassword(token: string, password: string): Promise<void> {
+        const userId = await this.redis.get(`invite-token:${token}`);
+
+        if (!userId) {
+            throw new UnauthorizedException('Invalid or expired invite token');
+        }
+
+        const user = await this.usersRepository.findById(userId);
+
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        // Check if user already has password set
+        if (user.password) {
+            throw new BadRequestException('Password already set for this account');
+        }
+
+        // Hash password
+        const hashedPassword = await argon2.hash(password);
+
+        // Update user: set password and verify email
+        await this.usersRepository.update(user.id, {
+            password: hashedPassword,
+            verifiedAt: new Date(), // Auto-verify email for invited users
+        });
+
+        // Delete invite token (one-time use)
+        await this.redis.del(`invite-token:${token}`);
+
+        // Send welcome email
+        await this.emailService.sendWelcomeEmail(
+            user.email,
+            user.displayName
+        );
+    }
+
+    /**
+     * Generate access token for a user
+     */
+    async generateAccessToken(userId: string, role: string): Promise<string> {
+        return this.jwtTokenProvider.generateToken({
+            sub: userId,
+            role: role as UserRole,
+        });
     }
 }
+

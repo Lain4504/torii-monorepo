@@ -4,27 +4,38 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(auth): refactor authentication DTOs and interfaces for improved structure and clarity">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(users): enhance create-user-dialog with multi-step flow and role selection&#10;&#10;- Added multi-step form flow for user creation (details &gt; role selection).&#10;- Introduced UI updates for better usability and visual consistency.&#10;- Implemented support for staff role variants with descriptive labels.&#10;- Improved form validation and error handling logic.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/assessment/src/interfaces/http/question-bank.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/assessment/src/interfaces/http/question-bank.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/assessment/src/modules/question-bank/question-bank.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/assessment/src/modules/question-bank/question-bank.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/community/src/modules/blog-comment/blog-comment.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/community/src/modules/blog-comment/blog-comment.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/community/src/modules/blog/blog.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/community/src/modules/blog/blog.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/community/src/modules/notification/notification.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/community/src/modules/notification/notification.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/flashcards/src/modules/flashcard/flashcard.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/flashcards/src/modules/flashcard/flashcard.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/lms/src/interfaces/http/course.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/lms/src/interfaces/http/course.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/lms/src/modules/course/course.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/lms/src/modules/course/course.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/lms/src/modules/lesson/lesson.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/lms/src/modules/lesson/lesson.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/lms/src/modules/module/module.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/lms/src/modules/module/module.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/lms/src/modules/wishlist/wishlist.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/lms/src/modules/wishlist/wishlist.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/services/blog.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/api/services/blog.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/services/courses.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/api/services/courses.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/services/lesson.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/api/services/lesson.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/services/modules.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/api/services/modules.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/services/question-bank.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/api/services/question-bank.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/services/users.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/api/services/users.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/users/users-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/users/users-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/providers/jwt-token.provider.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/providers/jwt-token.provider.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/auth.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/auth.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/rbac.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/users.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/users.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/identity.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/identity.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/repositories/i-audit-log.repository.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/repositories/i-audit-log.repository.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/repositories/i-users.repository.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/repositories/i-users.repository.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/i-audit-log.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/i-audit-log.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/i-rbac.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/i-users.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/i-users.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/messaging/auth.messaging.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/messaging/auth.messaging.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/messaging/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/messaging/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/messaging/rbac.messaging.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/messaging/users.messaging.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/messaging/users.messaging.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/audit/audit-log.repository.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/audit/audit-log.repository.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/audit/audit-log.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/audit/audit-log.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/auth.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/auth.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/auth.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/rbac/rbac-config.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/rbac/rbac-seeder.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/rbac/rbac.module.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/rbac/rbac.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/users/users.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/users/users.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/users/users.repository.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/users/users.repository.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/users/users.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/users/users.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/services/permissions.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/api/services/permissions.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/layout/command-menu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/layout/command-menu.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/audit.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/audit.dto.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,7 +43,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="676" />
+    <option name="cachedIndexableFilesCount" value="745" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -136,11 +147,11 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "#53 on reset-password-auth",
+    "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "E:/Ky8/bmap-capstone/torii-monorepo/apps/web-learner",
+    "last_opened_file_path": "E:/projectdev/bmap-capstone/torii-monorepo/packages/ui",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -273,400 +284,406 @@
       <workItem from="1767618667139" duration="1110000" />
       <workItem from="1767623108138" duration="3167000" />
       <workItem from="1767660570458" duration="7106000" />
+      <workItem from="1767759487749" duration="6686000" />
+      <workItem from="1767778404586" duration="2000" />
+      <workItem from="1767779186565" duration="43000" />
+      <workItem from="1767779643020" duration="455000" />
+      <workItem from="1767780214679" duration="224000" />
+      <workItem from="1767784611248" duration="3225000" />
     </task>
-    <task id="LOCAL-00420" summary="feat(auth): add Redux-based authentication flow to web-learner&#10;&#10;- Implemented `authSlice` with login, logout, register, and checkAuth functionality.&#10;- Added `AuthInitializer` component to manage authentication state.&#10;- Created `LoginForm` component integrated with Redux and Zod validation.&#10;- Updated login page to use `AuthInitializer` and `LoginForm`.&#10;- Created reusable UI components (Field, Item, Empty) for consistent styling.">
+    <task id="LOCAL-00479" summary="feat(database): add new modules for gamification, payments, and user management">
       <option name="closed" value="true" />
-      <created>1767435108256</created>
-      <option name="number" value="00420" />
-      <option name="presentableId" value="LOCAL-00420" />
+      <created>1767787153490</created>
+      <option name="number" value="00479" />
+      <option name="presentableId" value="LOCAL-00479" />
       <option name="project" value="LOCAL" />
-      <updated>1767435108257</updated>
+      <updated>1767787153490</updated>
     </task>
-    <task id="LOCAL-00421" summary="feat(auth): add Redux-based authentication flow to web-learner&#10;&#10;- Implemented `authSlice` with login, logout, register, and checkAuth functionality.&#10;- Added `AuthInitializer` component to manage authentication state.&#10;- Created `LoginForm` component integrated with Redux and Zod validation.&#10;- Updated login page to use `AuthInitializer` and `LoginForm`.&#10;- Created reusable UI components (Field, Item, Empty) for consistent styling.">
+    <task id="LOCAL-00480" summary="feat(database): add new modules for gamification, payments, and user management">
       <option name="closed" value="true" />
-      <created>1767435177078</created>
-      <option name="number" value="00421" />
-      <option name="presentableId" value="LOCAL-00421" />
+      <created>1767787272721</created>
+      <option name="number" value="00480" />
+      <option name="presentableId" value="LOCAL-00480" />
       <option name="project" value="LOCAL" />
-      <updated>1767435177078</updated>
+      <updated>1767787272721</updated>
     </task>
-    <task id="LOCAL-00422" summary="feat(auth): add Redux-based authentication flow to web-learner&#10;&#10;- Implemented `authSlice` with login, logout, register, and checkAuth functionality.&#10;- Added `AuthInitializer` component to manage authentication state.&#10;- Created `LoginForm` component integrated with Redux and Zod validation.&#10;- Updated login page to use `AuthInitializer` and `LoginForm`.&#10;- Created reusable UI components (Field, Item, Empty) for consistent styling.">
+    <task id="LOCAL-00481" summary="feat(database): add new modules for gamification, payments, and user management">
       <option name="closed" value="true" />
-      <created>1767436125343</created>
-      <option name="number" value="00422" />
-      <option name="presentableId" value="LOCAL-00422" />
+      <created>1767787383752</created>
+      <option name="number" value="00481" />
+      <option name="presentableId" value="LOCAL-00481" />
       <option name="project" value="LOCAL" />
-      <updated>1767436125343</updated>
+      <updated>1767787383752</updated>
     </task>
-    <task id="LOCAL-00423" summary="feat(auth): add Redux-based authentication flow to web-learner&#10;&#10;- Implemented `authSlice` with login, logout, register, and checkAuth functionality.&#10;- Added `AuthInitializer` component to manage authentication state.&#10;- Created `LoginForm` component integrated with Redux and Zod validation.&#10;- Updated login page to use `AuthInitializer` and `LoginForm`.&#10;- Created reusable UI components (Field, Item, Empty) for consistent styling.">
+    <task id="LOCAL-00482" summary="feat(database): add new modules for gamification, payments, and user management">
       <option name="closed" value="true" />
-      <created>1767436357087</created>
-      <option name="number" value="00423" />
-      <option name="presentableId" value="LOCAL-00423" />
+      <created>1767787658923</created>
+      <option name="number" value="00482" />
+      <option name="presentableId" value="LOCAL-00482" />
       <option name="project" value="LOCAL" />
-      <updated>1767436357087</updated>
+      <updated>1767787658923</updated>
     </task>
-    <task id="LOCAL-00424" summary="feat(auth): add Redux-based authentication flow to web-learner&#10;&#10;- Implemented `authSlice` with login, logout, register, and checkAuth functionality.&#10;- Added `AuthInitializer` component to manage authentication state.&#10;- Created `LoginForm` component integrated with Redux and Zod validation.&#10;- Updated login page to use `AuthInitializer` and `LoginForm`.&#10;- Created reusable UI components (Field, Item, Empty) for consistent styling.">
+    <task id="LOCAL-00483" summary="feat(database): add new modules for gamification, payments, and user management">
       <option name="closed" value="true" />
-      <created>1767438421122</created>
-      <option name="number" value="00424" />
-      <option name="presentableId" value="LOCAL-00424" />
+      <created>1767788741578</created>
+      <option name="number" value="00483" />
+      <option name="presentableId" value="LOCAL-00483" />
       <option name="project" value="LOCAL" />
-      <updated>1767438421122</updated>
+      <updated>1767788741580</updated>
     </task>
-    <task id="LOCAL-00425" summary="feat(auth): add email verification flow and update user naming conventions&#10;&#10;- Implemented email verification handling, including OTP validation and resend functionality for both the backend and web apps.&#10;- Replaced `fullName` with `displayName` across all services and components for user naming consistency.&#10;- Introduced `EmailService` for email-related operations and integrated it with event handling via `EmailEventController`.&#10;- Updated database schema to reflect `displayName` column and removed deprecated `fullName`, `email_verified`, and `salt` fields.&#10;- Added support for Redis in the backend using a shared module for configuration and client management.">
+    <task id="LOCAL-00484" summary="feat(database): add new modules for gamification, payments, and user management">
       <option name="closed" value="true" />
-      <created>1767455091865</created>
-      <option name="number" value="00425" />
-      <option name="presentableId" value="LOCAL-00425" />
+      <created>1767789076711</created>
+      <option name="number" value="00484" />
+      <option name="presentableId" value="LOCAL-00484" />
       <option name="project" value="LOCAL" />
-      <updated>1767455091866</updated>
+      <updated>1767789076728</updated>
     </task>
-    <task id="LOCAL-00426" summary="feat(auth): add email verification flow and update user naming conventions&#10;&#10;- Implemented email verification handling, including OTP validation and resend functionality for both the backend and web apps.&#10;- Replaced `fullName` with `displayName` across all services and components for user naming consistency.&#10;- Introduced `EmailService` for email-related operations and integrated it with event handling via `EmailEventController`.&#10;- Updated database schema to reflect `displayName` column and removed deprecated `fullName`, `email_verified`, and `salt` fields.&#10;- Added support for Redis in the backend using a shared module for configuration and client management.">
+    <task id="LOCAL-00485" summary="feat(database): add new modules for gamification, payments, and user management">
       <option name="closed" value="true" />
-      <created>1767455234547</created>
-      <option name="number" value="00426" />
-      <option name="presentableId" value="LOCAL-00426" />
+      <created>1767789353865</created>
+      <option name="number" value="00485" />
+      <option name="presentableId" value="LOCAL-00485" />
       <option name="project" value="LOCAL" />
-      <updated>1767455234549</updated>
+      <updated>1767789353865</updated>
     </task>
-    <task id="LOCAL-00427" summary="chore(web-admin): remove unused features, components, and APIs&#10;&#10;- Deleted obsolete API modules for audit logs, blogs, and courses.&#10;- Removed unused components including AuthGuard, Can, DashboardHeader, DashboardLayout, and DashboardSidebar.&#10;- Streamlined codebase to remove dependencies on deprecated features.">
+    <task id="LOCAL-00486" summary="feat(database): add new modules for gamification, payments, and user management">
       <option name="closed" value="true" />
-      <created>1767458566115</created>
-      <option name="number" value="00427" />
-      <option name="presentableId" value="LOCAL-00427" />
+      <created>1767789825260</created>
+      <option name="number" value="00486" />
+      <option name="presentableId" value="LOCAL-00486" />
       <option name="project" value="LOCAL" />
-      <updated>1767458566115</updated>
+      <updated>1767789825260</updated>
     </task>
-    <task id="LOCAL-00428" summary="chore(web-admin): remove unused features, components, and APIs&#10;&#10;- Deleted obsolete API modules for audit logs, blogs, and courses.&#10;- Removed unused components including AuthGuard, Can, DashboardHeader, DashboardLayout, and DashboardSidebar.&#10;- Streamlined codebase to remove dependencies on deprecated features.">
+    <task id="LOCAL-00487" summary="feat(database): add new modules for gamification, payments, and user management">
       <option name="closed" value="true" />
-      <created>1767459043127</created>
-      <option name="number" value="00428" />
-      <option name="presentableId" value="LOCAL-00428" />
+      <created>1767790298114</created>
+      <option name="number" value="00487" />
+      <option name="presentableId" value="LOCAL-00487" />
       <option name="project" value="LOCAL" />
-      <updated>1767459043127</updated>
+      <updated>1767790298115</updated>
     </task>
-    <task id="LOCAL-00429" summary="chore(web-admin): remove unused features, components, and APIs&#10;&#10;- Deleted obsolete API modules for audit logs, blogs, and courses.&#10;- Removed unused components including AuthGuard, Can, DashboardHeader, DashboardLayout, and DashboardSidebar.&#10;- Streamlined codebase to remove dependencies on deprecated features.">
+    <task id="LOCAL-00488" summary="feat(auth): rename endpoints and update token generation for email verification">
       <option name="closed" value="true" />
-      <created>1767459244973</created>
-      <option name="number" value="00429" />
-      <option name="presentableId" value="LOCAL-00429" />
+      <created>1767791325124</created>
+      <option name="number" value="00488" />
+      <option name="presentableId" value="LOCAL-00488" />
       <option name="project" value="LOCAL" />
-      <updated>1767459244973</updated>
+      <updated>1767791325124</updated>
     </task>
-    <task id="LOCAL-00430" summary="chore(web-admin): remove unused features, components, and APIs&#10;&#10;- Deleted obsolete API modules for audit logs, blogs, and courses.&#10;- Removed unused components including AuthGuard, Can, DashboardHeader, DashboardLayout, and DashboardSidebar.&#10;- Streamlined codebase to remove dependencies on deprecated features.">
+    <task id="LOCAL-00489" summary="feat(rbac): simplify permissions handling by removing user-specific overrides">
       <option name="closed" value="true" />
-      <created>1767459330607</created>
-      <option name="number" value="00430" />
-      <option name="presentableId" value="LOCAL-00430" />
+      <created>1767792013126</created>
+      <option name="number" value="00489" />
+      <option name="presentableId" value="LOCAL-00489" />
       <option name="project" value="LOCAL" />
-      <updated>1767459330607</updated>
+      <updated>1767792013126</updated>
     </task>
-    <task id="LOCAL-00431" summary="chore(web-admin): remove unused features, components, and APIs&#10;&#10;- Deleted obsolete API modules for audit logs, blogs, and courses.&#10;- Removed unused components including AuthGuard, Can, DashboardHeader, DashboardLayout, and DashboardSidebar.&#10;- Streamlined codebase to remove dependencies on deprecated features.">
+    <task id="LOCAL-00490" summary="feat(rbac): simplify permissions handling by removing user-specific overrides">
       <option name="closed" value="true" />
-      <created>1767459487064</created>
-      <option name="number" value="00431" />
-      <option name="presentableId" value="LOCAL-00431" />
+      <created>1767792065001</created>
+      <option name="number" value="00490" />
+      <option name="presentableId" value="LOCAL-00490" />
       <option name="project" value="LOCAL" />
-      <updated>1767459487064</updated>
+      <updated>1767792065001</updated>
     </task>
-    <task id="LOCAL-00432" summary="feat(ui): introduce OTP input components and enhance email verification flow&#10;&#10;- Added reusable `InputOTP` components (`InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator`) to the `ui` package.&#10;- Integrated `InputOTP` into email verification for a more dynamic OTP entry experience.&#10;- Updated `pnpm-lock.yaml` and `package.json` to include `input-otp` dependency.&#10;- Enhanced email verification UI for better user feedback, including loading spinners and error/success messages.">
+    <task id="LOCAL-00491" summary="feat(rbac): simplify permissions handling by removing user-specific overrides">
       <option name="closed" value="true" />
-      <created>1767488709108</created>
-      <option name="number" value="00432" />
-      <option name="presentableId" value="LOCAL-00432" />
+      <created>1767792124683</created>
+      <option name="number" value="00491" />
+      <option name="presentableId" value="LOCAL-00491" />
       <option name="project" value="LOCAL" />
-      <updated>1767488709108</updated>
+      <updated>1767792124685</updated>
     </task>
-    <task id="LOCAL-00433" summary="feat(ui): introduce OTP input components and enhance email verification flow&#10;&#10;- Added reusable `InputOTP` components (`InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator`) to the `ui` package.&#10;- Integrated `InputOTP` into email verification for a more dynamic OTP entry experience.&#10;- Updated `pnpm-lock.yaml` and `package.json` to include `input-otp` dependency.&#10;- Enhanced email verification UI for better user feedback, including loading spinners and error/success messages.">
+    <task id="LOCAL-00492" summary="feat(database): add radix-ui dependency and update package lock">
       <option name="closed" value="true" />
-      <created>1767489198854</created>
-      <option name="number" value="00433" />
-      <option name="presentableId" value="LOCAL-00433" />
+      <created>1767792973017</created>
+      <option name="number" value="00492" />
+      <option name="presentableId" value="LOCAL-00492" />
       <option name="project" value="LOCAL" />
-      <updated>1767489198855</updated>
+      <updated>1767792973017</updated>
     </task>
-    <task id="LOCAL-00434" summary="feat(ui): introduce OTP input components and enhance email verification flow&#10;&#10;- Added reusable `InputOTP` components (`InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator`) to the `ui` package.&#10;- Integrated `InputOTP` into email verification for a more dynamic OTP entry experience.&#10;- Updated `pnpm-lock.yaml` and `package.json` to include `input-otp` dependency.&#10;- Enhanced email verification UI for better user feedback, including loading spinners and error/success messages.">
+    <task id="LOCAL-00493" summary="feat(ui): enhance dashboard layout and components for improved aesthetics and usability">
       <option name="closed" value="true" />
-      <created>1767491337459</created>
-      <option name="number" value="00434" />
-      <option name="presentableId" value="LOCAL-00434" />
+      <created>1767793255234</created>
+      <option name="number" value="00493" />
+      <option name="presentableId" value="LOCAL-00493" />
       <option name="project" value="LOCAL" />
-      <updated>1767491337461</updated>
+      <updated>1767793255235</updated>
     </task>
-    <task id="LOCAL-00435" summary="feat(ui): introduce OTP input components and enhance email verification flow&#10;&#10;- Added reusable `InputOTP` components (`InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator`) to the `ui` package.&#10;- Integrated `InputOTP` into email verification for a more dynamic OTP entry experience.&#10;- Updated `pnpm-lock.yaml` and `package.json` to include `input-otp` dependency.&#10;- Enhanced email verification UI for better user feedback, including loading spinners and error/success messages.">
+    <task id="LOCAL-00494" summary="feat(ui): enhance dashboard layout and components for improved aesthetics and usability">
       <option name="closed" value="true" />
-      <created>1767492629105</created>
-      <option name="number" value="00435" />
-      <option name="presentableId" value="LOCAL-00435" />
+      <created>1767793723662</created>
+      <option name="number" value="00494" />
+      <option name="presentableId" value="LOCAL-00494" />
       <option name="project" value="LOCAL" />
-      <updated>1767492629105</updated>
+      <updated>1767793723662</updated>
     </task>
-    <task id="LOCAL-00436" summary="feat(ui): introduce OTP input components and enhance email verification flow&#10;&#10;- Added reusable `InputOTP` components (`InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator`) to the `ui` package.&#10;- Integrated `InputOTP` into email verification for a more dynamic OTP entry experience.&#10;- Updated `pnpm-lock.yaml` and `package.json` to include `input-otp` dependency.&#10;- Enhanced email verification UI for better user feedback, including loading spinners and error/success messages.">
+    <task id="LOCAL-00495" summary="feat(ui): enhance dashboard layout and components for improved aesthetics and usability">
       <option name="closed" value="true" />
-      <created>1767492830852</created>
-      <option name="number" value="00436" />
-      <option name="presentableId" value="LOCAL-00436" />
+      <created>1767794103829</created>
+      <option name="number" value="00495" />
+      <option name="presentableId" value="LOCAL-00495" />
       <option name="project" value="LOCAL" />
-      <updated>1767492830853</updated>
+      <updated>1767794103829</updated>
     </task>
-    <task id="LOCAL-00437" summary="feat(ui): introduce OTP input components and enhance email verification flow&#10;&#10;- Added reusable `InputOTP` components (`InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator`) to the `ui` package.&#10;- Integrated `InputOTP` into email verification for a more dynamic OTP entry experience.&#10;- Updated `pnpm-lock.yaml` and `package.json` to include `input-otp` dependency.&#10;- Enhanced email verification UI for better user feedback, including loading spinners and error/success messages.">
+    <task id="LOCAL-00496" summary="feat(ui): enhance dashboard layout and components for improved aesthetics and usability">
       <option name="closed" value="true" />
-      <created>1767493239437</created>
-      <option name="number" value="00437" />
-      <option name="presentableId" value="LOCAL-00437" />
+      <created>1767795227907</created>
+      <option name="number" value="00496" />
+      <option name="presentableId" value="LOCAL-00496" />
       <option name="project" value="LOCAL" />
-      <updated>1767493239438</updated>
+      <updated>1767795227907</updated>
     </task>
-    <task id="LOCAL-00438" summary="feat(ui): introduce OTP input components and enhance email verification flow&#10;&#10;- Added reusable `InputOTP` components (`InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator`) to the `ui` package.&#10;- Integrated `InputOTP` into email verification for a more dynamic OTP entry experience.&#10;- Updated `pnpm-lock.yaml` and `package.json` to include `input-otp` dependency.&#10;- Enhanced email verification UI for better user feedback, including loading spinners and error/success messages.">
+    <task id="LOCAL-00497" summary="feat(ui): add reusable hooks for dark mode and debounced state management&#10;&#10;- Implemented `useDarkMode` hook supporting OS preferences, localStorage, and dynamic theme class changes.&#10;- Added `useDebounceCallback` for controlled debounced function execution.&#10;- Introduced `useDebounceValue` for state synchronization with debounced updates.&#10;- Updated dependencies to include `lodash.debounce` for debounce functionality.">
       <option name="closed" value="true" />
-      <created>1767493360737</created>
-      <option name="number" value="00438" />
-      <option name="presentableId" value="LOCAL-00438" />
+      <created>1767795294620</created>
+      <option name="number" value="00497" />
+      <option name="presentableId" value="LOCAL-00497" />
       <option name="project" value="LOCAL" />
-      <updated>1767493360737</updated>
+      <updated>1767795294622</updated>
     </task>
-    <task id="LOCAL-00439" summary="feat(web-learner): add responsive home page sections with JLPT roadmap, features, and CTAs&#10;&#10;- Introduced `hero-section` to highlight platform's offerings and key metrics.&#10;- Added `course-categories-section` displaying JLPT levels N5-N1 with detailed descriptions.&#10;- Implemented `features-section` showcasing advanced platform features like AI Sensei and Gamification.&#10;- Created `cta-section` with promotional content and prominent call-to-action buttons.&#10;- Ensured responsive design and modern UI/UX principles across all sections.">
+    <task id="LOCAL-00498" summary="feat(ui): add reusable hooks for dark mode and debounced state management&#10;&#10;- Implemented `useDarkMode` hook supporting OS preferences, localStorage, and dynamic theme class changes.&#10;- Added `useDebounceCallback` for controlled debounced function execution.&#10;- Introduced `useDebounceValue` for state synchronization with debounced updates.&#10;- Updated dependencies to include `lodash.debounce` for debounce functionality.">
       <option name="closed" value="true" />
-      <created>1767516170478</created>
-      <option name="number" value="00439" />
-      <option name="presentableId" value="LOCAL-00439" />
+      <created>1767795733225</created>
+      <option name="number" value="00498" />
+      <option name="presentableId" value="LOCAL-00498" />
       <option name="project" value="LOCAL" />
-      <updated>1767516170478</updated>
+      <updated>1767795733225</updated>
     </task>
-    <task id="LOCAL-00440" summary="feat(web-learner): add responsive home page sections with JLPT roadmap, features, and CTAs&#10;&#10;- Introduced `hero-section` to highlight platform's offerings and key metrics.&#10;- Added `course-categories-section` displaying JLPT levels N5-N1 with detailed descriptions.&#10;- Implemented `features-section` showcasing advanced platform features like AI Sensei and Gamification.&#10;- Created `cta-section` with promotional content and prominent call-to-action buttons.&#10;- Ensured responsive design and modern UI/UX principles across all sections.">
+    <task id="LOCAL-00499" summary="cursor gen">
       <option name="closed" value="true" />
-      <created>1767516663053</created>
-      <option name="number" value="00440" />
-      <option name="presentableId" value="LOCAL-00440" />
+      <created>1767795983659</created>
+      <option name="number" value="00499" />
+      <option name="presentableId" value="LOCAL-00499" />
       <option name="project" value="LOCAL" />
-      <updated>1767516663053</updated>
+      <updated>1767795983660</updated>
     </task>
-    <task id="LOCAL-00441" summary="feat(web-learner): add responsive home page sections with JLPT roadmap, features, and CTAs&#10;&#10;- Introduced `hero-section` to highlight platform's offerings and key metrics.&#10;- Added `course-categories-section` displaying JLPT levels N5-N1 with detailed descriptions.&#10;- Implemented `features-section` showcasing advanced platform features like AI Sensei and Gamification.&#10;- Created `cta-section` with promotional content and prominent call-to-action buttons.&#10;- Ensured responsive design and modern UI/UX principles across all sections.">
+    <task id="LOCAL-00500" summary="cursor gen: update theme">
       <option name="closed" value="true" />
-      <created>1767517030478</created>
-      <option name="number" value="00441" />
-      <option name="presentableId" value="LOCAL-00441" />
+      <created>1767796607352</created>
+      <option name="number" value="00500" />
+      <option name="presentableId" value="LOCAL-00500" />
       <option name="project" value="LOCAL" />
-      <updated>1767517030478</updated>
+      <updated>1767796607352</updated>
     </task>
-    <task id="LOCAL-00442" summary="feat(web-learner): add responsive home page sections with JLPT roadmap, features, and CTAs&#10;&#10;- Introduced `hero-section` to highlight platform's offerings and key metrics.&#10;- Added `course-categories-section` displaying JLPT levels N5-N1 with detailed descriptions.&#10;- Implemented `features-section` showcasing advanced platform features like AI Sensei and Gamification.&#10;- Created `cta-section` with promotional content and prominent call-to-action buttons.&#10;- Ensured responsive design and modern UI/UX principles across all sections.">
+    <task id="LOCAL-00501" summary="cursor gen: update theme">
       <option name="closed" value="true" />
-      <created>1767517288441</created>
-      <option name="number" value="00442" />
-      <option name="presentableId" value="LOCAL-00442" />
+      <created>1767796788647</created>
+      <option name="number" value="00501" />
+      <option name="presentableId" value="LOCAL-00501" />
       <option name="project" value="LOCAL" />
-      <updated>1767517288441</updated>
+      <updated>1767796788647</updated>
     </task>
-    <task id="LOCAL-00443" summary="feat(web-learner): add modular course detail components&#10;&#10;- Introduced `CourseHeader`, `CourseCurriculum`, `CourseInstructor`, `CourseReviews`, and `CourseSidebar` components.&#10;- Implemented `CourseDetailPage` layout, combining the new components for a modular design.&#10;- Ensured responsive design and consistency with platform UI/UX standards.">
+    <task id="LOCAL-00502" summary="cursor gen: update theme">
       <option name="closed" value="true" />
-      <created>1767517891813</created>
-      <option name="number" value="00443" />
-      <option name="presentableId" value="LOCAL-00443" />
+      <created>1767796935423</created>
+      <option name="number" value="00502" />
+      <option name="presentableId" value="LOCAL-00502" />
       <option name="project" value="LOCAL" />
-      <updated>1767517891813</updated>
+      <updated>1767796935423</updated>
     </task>
-    <task id="LOCAL-00444" summary="feat(web-learner): implement course catalog with filtering, search, and pagination&#10;&#10;- Added `CourseCard`, `CourseGrid`, `FilterSidebar`, and `SearchHeader` components.&#10;- Introduced a `CourseCatalogPage` layout featuring filters, search functionality, and a paginated grid of courses.&#10;- Ensured responsive design and adherence to UI/UX standards for browsing and discovery.">
+    <task id="LOCAL-00503" summary="cursor gen: update theme">
       <option name="closed" value="true" />
-      <created>1767518171880</created>
-      <option name="number" value="00444" />
-      <option name="presentableId" value="LOCAL-00444" />
+      <created>1767797013944</created>
+      <option name="number" value="00503" />
+      <option name="presentableId" value="LOCAL-00503" />
       <option name="project" value="LOCAL" />
-      <updated>1767518171880</updated>
+      <updated>1767797013944</updated>
     </task>
-    <task id="LOCAL-00445" summary="feat(web-learner): add exam management interface with card-based UI and history tracking&#10;&#10;- Introduced `ExamCard` component to display exam details and statuses (new, in-progress, completed).&#10;- Created `ExamHistory` component for displaying past exam attempts in a table format.&#10;- Added `ExamStats` component to showcase key statistics such as average score, total exams taken, and hours practiced.&#10;- Implemented `ExamPage` layout with tabs for available exams and exam history, including filtering and searching functionality.&#10;- Ensured responsive design and adherence to platform UI/UX guidelines.">
+    <task id="LOCAL-00504" summary="refactor(ui): align theme styles with tokenized color system&#10;&#10;- Updated theme-specific class names to use tokenized variables (e.g., `bg-primary`, `text-muted-foreground`) for consistency.&#10;- Replaced hardcoded values with reusable theme tokens across authentication pages, course components, and layouts.&#10;- Enhanced visual elements, accessibility, and responsiveness.">
       <option name="closed" value="true" />
-      <created>1767518803927</created>
-      <option name="number" value="00445" />
-      <option name="presentableId" value="LOCAL-00445" />
+      <created>1767798311525</created>
+      <option name="number" value="00504" />
+      <option name="presentableId" value="LOCAL-00504" />
       <option name="project" value="LOCAL" />
-      <updated>1767518803927</updated>
+      <updated>1767798311525</updated>
     </task>
-    <task id="LOCAL-00446" summary="feat(web-learner): add exam management interface with card-based UI and history tracking&#10;&#10;- Introduced `ExamCard` component to display exam details and statuses (new, in-progress, completed).&#10;- Created `ExamHistory` component for displaying past exam attempts in a table format.&#10;- Added `ExamStats` component to showcase key statistics such as average score, total exams taken, and hours practiced.&#10;- Implemented `ExamPage` layout with tabs for available exams and exam history, including filtering and searching functionality.&#10;- Ensured responsive design and adherence to platform UI/UX guidelines.">
+    <task id="LOCAL-00505" summary="refactor(ui): align theme styles with tokenized color system&#10;&#10;- Updated theme-specific class names to use tokenized variables (e.g., `bg-primary`, `text-muted-foreground`) for consistency.&#10;- Replaced hardcoded values with reusable theme tokens across authentication pages, course components, and layouts.&#10;- Enhanced visual elements, accessibility, and responsiveness.">
       <option name="closed" value="true" />
-      <created>1767518811653</created>
-      <option name="number" value="00446" />
-      <option name="presentableId" value="LOCAL-00446" />
+      <created>1767798687966</created>
+      <option name="number" value="00505" />
+      <option name="presentableId" value="LOCAL-00505" />
       <option name="project" value="LOCAL" />
-      <updated>1767518811653</updated>
+      <updated>1767798688164</updated>
     </task>
-    <task id="LOCAL-00447" summary="feat(auth): add two-factor authentication with TOTP, SMS, and email support&#10;&#10;- Implemented comprehensive 2FA support, including TOTP, SMS, and email-based authentication.&#10;- Added reusable encryption module with AES-256-GCM for securing TOTP secrets.&#10;- Created TwoFactorAuth module with service, controller, and repository for managing 2FA methods and statuses.&#10;- Introduced backup codes functionality for recovery.&#10;- Added Prisma migrations for storing 2FA configurations.&#10;- Integrated Redis and NATS for OTP storage and notifications.">
+    <task id="LOCAL-00506" summary="refactor(ui): align theme styles with tokenized color system&#10;&#10;- Updated theme-specific class names to use tokenized variables (e.g., `bg-primary`, `text-muted-foreground`) for consistency.&#10;- Replaced hardcoded values with reusable theme tokens across authentication pages, course components, and layouts.&#10;- Enhanced visual elements, accessibility, and responsiveness.">
       <option name="closed" value="true" />
-      <created>1767604044028</created>
-      <option name="number" value="00447" />
-      <option name="presentableId" value="LOCAL-00447" />
+      <created>1767799112252</created>
+      <option name="number" value="00506" />
+      <option name="presentableId" value="LOCAL-00506" />
       <option name="project" value="LOCAL" />
-      <updated>1767604044028</updated>
+      <updated>1767799112255</updated>
     </task>
-    <task id="LOCAL-00448" summary="feat(auth): implement Google OAuth login and account linking functionality&#10;&#10;- Added endpoints for Google OAuth login and linking existing accounts.&#10;- Integrated Google authentication with user registration and login processes.&#10;- Updated user model to support OAuth identities and metadata.&#10;- Enhanced user service to manage linked providers and account unlinking.&#10;- Included necessary environment variables for Google OAuth in .env.example.">
+    <task id="LOCAL-00507" summary="feat(database): document database design and add admin login interface method&#10;&#10;- Added new documentation: `database-design-overview.md` and `database-design-schema.md` for system architecture clarity.&#10;- Extended `IAuthService` interface with `adminLogin` for specialized admin portal authentication.">
       <option name="closed" value="true" />
-      <created>1767606975649</created>
-      <option name="number" value="00448" />
-      <option name="presentableId" value="LOCAL-00448" />
+      <created>1767800670317</created>
+      <option name="number" value="00507" />
+      <option name="presentableId" value="LOCAL-00507" />
       <option name="project" value="LOCAL" />
-      <updated>1767606975649</updated>
+      <updated>1767800670318</updated>
     </task>
-    <task id="LOCAL-00449" summary="feat(auth): implement Google OAuth login and account linking functionality&#10;&#10;- Added endpoints for Google OAuth login and linking existing accounts.&#10;- Integrated Google authentication with user registration and login processes.&#10;- Updated user model to support OAuth identities and metadata.&#10;- Enhanced user service to manage linked providers and account unlinking.&#10;- Included necessary environment variables for Google OAuth in .env.example.">
+    <task id="LOCAL-00508" summary="feat(database): document database design and add admin login interface method&#10;&#10;- Added new documentation: `database-design-overview.md` and `database-design-schema.md` for system architecture clarity.&#10;- Extended `IAuthService` interface with `adminLogin` for specialized admin portal authentication.">
       <option name="closed" value="true" />
-      <created>1767607140929</created>
-      <option name="number" value="00449" />
-      <option name="presentableId" value="LOCAL-00449" />
+      <created>1767800964207</created>
+      <option name="number" value="00508" />
+      <option name="presentableId" value="LOCAL-00508" />
       <option name="project" value="LOCAL" />
-      <updated>1767607140929</updated>
+      <updated>1767800964208</updated>
     </task>
-    <task id="LOCAL-00450" summary="feat(auth): implement Google OAuth login and account linking functionality&#10;&#10;- Added endpoints for Google OAuth login and linking existing accounts.&#10;- Integrated Google authentication with user registration and login processes.&#10;- Updated user model to support OAuth identities and metadata.&#10;- Enhanced user service to manage linked providers and account unlinking.&#10;- Included necessary environment variables for Google OAuth in .env.example.">
+    <task id="LOCAL-00509" summary="feat(database): document database design and add admin login interface method&#10;&#10;- Added new documentation: `database-design-overview.md` and `database-design-schema.md` for system architecture clarity.&#10;- Extended `IAuthService` interface with `adminLogin` for specialized admin portal authentication.">
       <option name="closed" value="true" />
-      <created>1767607208348</created>
-      <option name="number" value="00450" />
-      <option name="presentableId" value="LOCAL-00450" />
+      <created>1767801374672</created>
+      <option name="number" value="00509" />
+      <option name="presentableId" value="LOCAL-00509" />
       <option name="project" value="LOCAL" />
-      <updated>1767607208348</updated>
+      <updated>1767801374672</updated>
     </task>
-    <task id="LOCAL-00451" summary="feat(auth): implement Google OAuth login and account linking functionality&#10;&#10;- Added endpoints for Google OAuth login and linking existing accounts.&#10;- Integrated Google authentication with user registration and login processes.&#10;- Updated user model to support OAuth identities and metadata.&#10;- Enhanced user service to manage linked providers and account unlinking.&#10;- Included necessary environment variables for Google OAuth in .env.example.">
+    <task id="LOCAL-00510" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`, and `ForgotPasswordDTO`.&#10;- Updated email service to support OTP delivery with platform-specific templates.">
       <option name="closed" value="true" />
-      <created>1767607626925</created>
-      <option name="number" value="00451" />
-      <option name="presentableId" value="LOCAL-00451" />
+      <created>1767801559299</created>
+      <option name="number" value="00510" />
+      <option name="presentableId" value="LOCAL-00510" />
       <option name="project" value="LOCAL" />
-      <updated>1767607626925</updated>
+      <updated>1767801559300</updated>
     </task>
-    <task id="LOCAL-00452" summary="feat(auth): implement Google OAuth login and account linking functionality&#10;&#10;- Added endpoints for Google OAuth login and linking existing accounts.&#10;- Integrated Google authentication with user registration and login processes.&#10;- Updated user model to support OAuth identities and metadata.&#10;- Enhanced user service to manage linked providers and account unlinking.&#10;- Included necessary environment variables for Google OAuth in .env.example.">
+    <task id="LOCAL-00511" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
       <option name="closed" value="true" />
-      <created>1767608719779</created>
-      <option name="number" value="00452" />
-      <option name="presentableId" value="LOCAL-00452" />
+      <created>1767801939777</created>
+      <option name="number" value="00511" />
+      <option name="presentableId" value="LOCAL-00511" />
       <option name="project" value="LOCAL" />
-      <updated>1767608719781</updated>
+      <updated>1767801939778</updated>
     </task>
-    <task id="LOCAL-00453" summary="feat(auth): implement Google OAuth login and account linking functionality&#10;&#10;- Added endpoints for Google OAuth login and linking existing accounts.&#10;- Integrated Google authentication with user registration and login processes.&#10;- Updated user model to support OAuth identities and metadata.&#10;- Enhanced user service to manage linked providers and account unlinking.&#10;- Included necessary environment variables for Google OAuth in .env.example.">
+    <task id="LOCAL-00512" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
       <option name="closed" value="true" />
-      <created>1767609200087</created>
-      <option name="number" value="00453" />
-      <option name="presentableId" value="LOCAL-00453" />
+      <created>1767802147671</created>
+      <option name="number" value="00512" />
+      <option name="presentableId" value="LOCAL-00512" />
       <option name="project" value="LOCAL" />
-      <updated>1767609200087</updated>
+      <updated>1767802147672</updated>
     </task>
-    <task id="LOCAL-00454" summary="feat(auth): implement Google OAuth login and account linking functionality&#10;&#10;- Added endpoints for Google OAuth login and linking existing accounts.&#10;- Integrated Google authentication with user registration and login processes.&#10;- Updated user model to support OAuth identities and metadata.&#10;- Enhanced user service to manage linked providers and account unlinking.&#10;- Included necessary environment variables for Google OAuth in .env.example.">
+    <task id="LOCAL-00513" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
       <option name="closed" value="true" />
-      <created>1767610180229</created>
-      <option name="number" value="00454" />
-      <option name="presentableId" value="LOCAL-00454" />
+      <created>1767802260841</created>
+      <option name="number" value="00513" />
+      <option name="presentableId" value="LOCAL-00513" />
       <option name="project" value="LOCAL" />
-      <updated>1767610180229</updated>
+      <updated>1767802260841</updated>
     </task>
-    <task id="LOCAL-00455" summary="feat(auth): implement Google OAuth login and account linking functionality&#10;&#10;- Added endpoints for Google OAuth login and linking existing accounts.&#10;- Integrated Google authentication with user registration and login processes.&#10;- Updated user model to support OAuth identities and metadata.&#10;- Enhanced user service to manage linked providers and account unlinking.&#10;- Included necessary environment variables for Google OAuth in .env.example.">
+    <task id="LOCAL-00514" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
       <option name="closed" value="true" />
-      <created>1767613563436</created>
-      <option name="number" value="00455" />
-      <option name="presentableId" value="LOCAL-00455" />
+      <created>1767802359922</created>
+      <option name="number" value="00514" />
+      <option name="presentableId" value="LOCAL-00514" />
       <option name="project" value="LOCAL" />
-      <updated>1767613563436</updated>
+      <updated>1767802359922</updated>
     </task>
-    <task id="LOCAL-00456" summary="feat(auth): implement Google OAuth login and account linking functionality&#10;&#10;- Added endpoints for Google OAuth login and linking existing accounts.&#10;- Integrated Google authentication with user registration and login processes.&#10;- Updated user model to support OAuth identities and metadata.&#10;- Enhanced user service to manage linked providers and account unlinking.&#10;- Included necessary environment variables for Google OAuth in .env.example.">
+    <task id="LOCAL-00515" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
       <option name="closed" value="true" />
-      <created>1767613657227</created>
-      <option name="number" value="00456" />
-      <option name="presentableId" value="LOCAL-00456" />
+      <created>1767802516312</created>
+      <option name="number" value="00515" />
+      <option name="presentableId" value="LOCAL-00515" />
       <option name="project" value="LOCAL" />
-      <updated>1767613657227</updated>
+      <updated>1767802516313</updated>
     </task>
-    <task id="LOCAL-00457" summary="feat(auth): implement Google OAuth login and account linking functionality&#10;&#10;- Added endpoints for Google OAuth login and linking existing accounts.&#10;- Integrated Google authentication with user registration and login processes.&#10;- Updated user model to support OAuth identities and metadata.&#10;- Enhanced user service to manage linked providers and account unlinking.&#10;- Included necessary environment variables for Google OAuth in .env.example.">
+    <task id="LOCAL-00516" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
       <option name="closed" value="true" />
-      <created>1767614318498</created>
-      <option name="number" value="00457" />
-      <option name="presentableId" value="LOCAL-00457" />
+      <created>1767802634362</created>
+      <option name="number" value="00516" />
+      <option name="presentableId" value="LOCAL-00516" />
       <option name="project" value="LOCAL" />
-      <updated>1767614318498</updated>
+      <updated>1767802634367</updated>
     </task>
-    <task id="LOCAL-00458" summary="feat(auth): implement Google OAuth login and account linking functionality&#10;&#10;- Added endpoints for Google OAuth login and linking existing accounts.&#10;- Integrated Google authentication with user registration and login processes.&#10;- Updated user model to support OAuth identities and metadata.&#10;- Enhanced user service to manage linked providers and account unlinking.&#10;- Included necessary environment variables for Google OAuth in .env.example.">
+    <task id="LOCAL-00517" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
       <option name="closed" value="true" />
-      <created>1767614560600</created>
-      <option name="number" value="00458" />
-      <option name="presentableId" value="LOCAL-00458" />
+      <created>1767802732757</created>
+      <option name="number" value="00517" />
+      <option name="presentableId" value="LOCAL-00517" />
       <option name="project" value="LOCAL" />
-      <updated>1767614560600</updated>
+      <updated>1767802732759</updated>
     </task>
-    <task id="LOCAL-00459" summary="feat(auth): implement Google OAuth login and account linking functionality&#10;&#10;- Added endpoints for Google OAuth login and linking existing accounts.&#10;- Integrated Google authentication with user registration and login processes.&#10;- Updated user model to support OAuth identities and metadata.&#10;- Enhanced user service to manage linked providers and account unlinking.&#10;- Included necessary environment variables for Google OAuth in .env.example.">
+    <task id="LOCAL-00518" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
       <option name="closed" value="true" />
-      <created>1767614647892</created>
-      <option name="number" value="00459" />
-      <option name="presentableId" value="LOCAL-00459" />
+      <created>1767802756548</created>
+      <option name="number" value="00518" />
+      <option name="presentableId" value="LOCAL-00518" />
       <option name="project" value="LOCAL" />
-      <updated>1767614647892</updated>
+      <updated>1767802756616</updated>
     </task>
-    <task id="LOCAL-00460" summary="feat(auth): update user status handling and improve UI components">
+    <task id="LOCAL-00519" summary="feat(users): integrate EmailModule for user management enhancements">
       <option name="closed" value="true" />
-      <created>1767615488058</created>
-      <option name="number" value="00460" />
-      <option name="presentableId" value="LOCAL-00460" />
+      <created>1767832879775</created>
+      <option name="number" value="00519" />
+      <option name="presentableId" value="LOCAL-00519" />
       <option name="project" value="LOCAL" />
-      <updated>1767615488060</updated>
+      <updated>1767832879775</updated>
     </task>
-    <task id="LOCAL-00461" summary="feat(auth): update user status handling and improve UI components">
+    <task id="LOCAL-00520" summary="feat(users): enhance create-user-dialog with multi-step flow and role selection&#10;&#10;- Added multi-step form flow for user creation (details &gt; role selection).&#10;- Introduced UI updates for better usability and visual consistency.&#10;- Implemented support for staff role variants with descriptive labels.&#10;- Improved form validation and error handling logic.">
       <option name="closed" value="true" />
-      <created>1767615634746</created>
-      <option name="number" value="00461" />
-      <option name="presentableId" value="LOCAL-00461" />
+      <created>1767846397654</created>
+      <option name="number" value="00520" />
+      <option name="presentableId" value="LOCAL-00520" />
       <option name="project" value="LOCAL" />
-      <updated>1767615634747</updated>
+      <updated>1767846397654</updated>
     </task>
-    <task id="LOCAL-00462" summary="feat(auth): update user status handling and improve UI components">
+    <task id="LOCAL-00521" summary="feat(users): enhance create-user-dialog with multi-step flow and role selection&#10;&#10;- Added multi-step form flow for user creation (details &gt; role selection).&#10;- Introduced UI updates for better usability and visual consistency.&#10;- Implemented support for staff role variants with descriptive labels.&#10;- Improved form validation and error handling logic.">
       <option name="closed" value="true" />
-      <created>1767617052650</created>
-      <option name="number" value="00462" />
-      <option name="presentableId" value="LOCAL-00462" />
+      <created>1767848496580</created>
+      <option name="number" value="00521" />
+      <option name="presentableId" value="LOCAL-00521" />
       <option name="project" value="LOCAL" />
-      <updated>1767617052651</updated>
+      <updated>1767848496580</updated>
     </task>
-    <task id="LOCAL-00463" summary="feat(auth): update user status handling and improve UI components">
+    <task id="LOCAL-00522" summary="feat(users): enhance create-user-dialog with multi-step flow and role selection&#10;&#10;- Added multi-step form flow for user creation (details &gt; role selection).&#10;- Introduced UI updates for better usability and visual consistency.&#10;- Implemented support for staff role variants with descriptive labels.&#10;- Improved form validation and error handling logic.">
       <option name="closed" value="true" />
-      <created>1767617713602</created>
-      <option name="number" value="00463" />
-      <option name="presentableId" value="LOCAL-00463" />
+      <created>1767848937008</created>
+      <option name="number" value="00522" />
+      <option name="presentableId" value="LOCAL-00522" />
       <option name="project" value="LOCAL" />
-      <updated>1767617713602</updated>
+      <updated>1767848937008</updated>
     </task>
-    <task id="LOCAL-00464" summary="feat(auth): update user status handling and improve UI components">
+    <task id="LOCAL-00523" summary="feat(users): enhance create-user-dialog with multi-step flow and role selection&#10;&#10;- Added multi-step form flow for user creation (details &gt; role selection).&#10;- Introduced UI updates for better usability and visual consistency.&#10;- Implemented support for staff role variants with descriptive labels.&#10;- Improved form validation and error handling logic.">
       <option name="closed" value="true" />
-      <created>1767618877985</created>
-      <option name="number" value="00464" />
-      <option name="presentableId" value="LOCAL-00464" />
+      <created>1767849473958</created>
+      <option name="number" value="00523" />
+      <option name="presentableId" value="LOCAL-00523" />
       <option name="project" value="LOCAL" />
-      <updated>1767618877986</updated>
+      <updated>1767849473958</updated>
     </task>
-    <task id="LOCAL-00465" summary="feat(auth): implement password reset flow with email verification and UI updates">
+    <task id="LOCAL-00524" summary="feat(users): enhance create-user-dialog with multi-step flow and role selection&#10;&#10;- Added multi-step form flow for user creation (details &gt; role selection).&#10;- Introduced UI updates for better usability and visual consistency.&#10;- Implemented support for staff role variants with descriptive labels.&#10;- Improved form validation and error handling logic.">
       <option name="closed" value="true" />
-      <created>1767671934757</created>
-      <option name="number" value="00465" />
-      <option name="presentableId" value="LOCAL-00465" />
+      <created>1767849601767</created>
+      <option name="number" value="00524" />
+      <option name="presentableId" value="LOCAL-00524" />
       <option name="project" value="LOCAL" />
-      <updated>1767671934759</updated>
+      <updated>1767849601768</updated>
     </task>
-    <task id="LOCAL-00466" summary="feat(auth): refactor authentication DTOs and interfaces for improved structure and clarity">
+    <task id="LOCAL-00525" summary="feat(users): enhance create-user-dialog with multi-step flow and role selection&#10;&#10;- Added multi-step form flow for user creation (details &gt; role selection).&#10;- Introduced UI updates for better usability and visual consistency.&#10;- Implemented support for staff role variants with descriptive labels.&#10;- Improved form validation and error handling logic.">
       <option name="closed" value="true" />
-      <created>1767689240189</created>
-      <option name="number" value="00466" />
-      <option name="presentableId" value="LOCAL-00466" />
+      <created>1767850018142</created>
+      <option name="number" value="00525" />
+      <option name="presentableId" value="LOCAL-00525" />
       <option name="project" value="LOCAL" />
-      <updated>1767689240189</updated>
+      <updated>1767850018143</updated>
     </task>
-    <task id="LOCAL-00467" summary="feat(auth): refactor authentication DTOs and interfaces for improved structure and clarity">
+    <task id="LOCAL-00526" summary="feat(users): enhance create-user-dialog with multi-step flow and role selection&#10;&#10;- Added multi-step form flow for user creation (details &gt; role selection).&#10;- Introduced UI updates for better usability and visual consistency.&#10;- Implemented support for staff role variants with descriptive labels.&#10;- Improved form validation and error handling logic.">
       <option name="closed" value="true" />
-      <created>1767690144607</created>
-      <option name="number" value="00467" />
-      <option name="presentableId" value="LOCAL-00467" />
+      <created>1767850666228</created>
+      <option name="number" value="00526" />
+      <option name="presentableId" value="LOCAL-00526" />
       <option name="project" value="LOCAL" />
-      <updated>1767690144607</updated>
+      <updated>1767850666228</updated>
     </task>
-    <task id="LOCAL-00468" summary="feat(auth): refactor authentication DTOs and interfaces for improved structure and clarity">
+    <task id="LOCAL-00527" summary="feat(users): enhance create-user-dialog with multi-step flow and role selection&#10;&#10;- Added multi-step form flow for user creation (details &gt; role selection).&#10;- Introduced UI updates for better usability and visual consistency.&#10;- Implemented support for staff role variants with descriptive labels.&#10;- Improved form validation and error handling logic.">
       <option name="closed" value="true" />
-      <created>1767690410680</created>
-      <option name="number" value="00468" />
-      <option name="presentableId" value="LOCAL-00468" />
+      <created>1767850861502</created>
+      <option name="number" value="00527" />
+      <option name="presentableId" value="LOCAL-00527" />
       <option name="project" value="LOCAL" />
-      <updated>1767690410680</updated>
+      <updated>1767850861502</updated>
     </task>
-    <option name="localTasksCounter" value="469" />
+    <option name="localTasksCounter" value="528" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -683,7 +700,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="verify-register" />
+                        <option value="database-update" />
                       </list>
                     </value>
                   </entry>
@@ -696,32 +713,44 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="chore: migrate LMS and Flashcards modules to HTTP-based interfaces &#10;&#10;- Replaced NATS-based controllers (`course.controller`, `lesson.controller`, `module.controller`) with new HTTP controllers.&#10;- Added HTTP controllers for Flashcards (`flashcard.controller`, `flashcard-deck.controller`).&#10;- Updated `LmsModule` and `main.ts` to enable both HTTP and NATS-based communication.&#10;- Integrated CORS and global validation pipes for HTTP services.&#10;- Updated `ProxyController` to route LMS and Flashcards endpoints (`/courses`, `/lessons`, `/modules`, `/flashcards`, `/flash" />
-    <MESSAGE value="chore: migrate LMS and Flashcards modules to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`course.controller`, `lesson.controller`, `module.controller`) with new HTTP controllers.&#10;- Added HTTP controllers for Flashcards (`flashcard.controller`, `flashcard-deck.controller`).&#10;- Updated `LmsModule` and `main.ts` to enable both HTTP and NATS-based communication.&#10;- Integrated CORS and global validation pipes for HTTP services.&#10;- Updated `ProxyController` to route LMS and Flashcards endpoints (`/courses`, `/lessons`, `/modules`, `/flashcards`, `/flashcard-decks`)." />
-    <MESSAGE value="chore: migrate Community module to HTTP-based interfaces&#10;&#10;- Replaced NATS-based controllers (`blog.controller`, `blog-comment.controller`, `notification.controller`, `wishlist.controller`) with new HTTP controllers.&#10;- Introduced `NotificationEventController` for event-driven NATS-based handling.&#10;- Updated `CommunityModule` to include HTTP and NATS controllers.&#10;- Updated `ProxyController` to route Community endpoints (`/blogs`, `/blog-comments`, `/notifications`, `/wishlists`)." />
-    <MESSAGE value="chore: remove legacy gateway modules in preparation for migration to HTTP-based interfaces" />
-    <MESSAGE value="chore: remove obsolete controllers for room, auth-room, and polls in preparation for HTTP-based migration" />
-    <MESSAGE value="chore: update API routes and enable CORS configuration for HTTP-based migration  &#10;&#10;- Standardized API route prefixes across controllers (`AuthController`, `RBACController`, `AuditLogController`, etc.) by removing redundant `/api` prefix.  &#10;- Enabled CORS with dynamic origin support for development in `gateway/main.ts`.  &#10;- Updated web-admin API client to align with new API route structure.  &#10;- Integrated permission fetching in `AuthController` to streamline user role and permission data retrieval." />
-    <MESSAGE value="chore: refactor API routes and enable CORS across services&#10;&#10;- Updated API route prefixes in multiple controllers (e.g., `@Controller('/api/...')` → `@Controller('/')`).&#10;- Adjusted corresponding client API calls to match updated backend routes.&#10;- Enabled CORS in gateway with dynamic origins and method support.&#10;- Enhanced `LoginPage` logic to integrate Firebase authentication and modified API endpoints accordingly.&#10;- Added permission fetching in the `AuthController`." />
-    <MESSAGE value="chore: update API route prefixes for Meet module and configure body parser&#10;&#10;- Refactored API route prefixes in Meet controllers (e.g., `@Controller('api/...')` → `@Controller(...)`).&#10;- Added body parser configuration for JSON and protobuf request handling." />
-    <MESSAGE value="return to manual jwt auth" />
-    <MESSAGE value="chore: remove Firebase dependencies and restore JWT-based authentication system&#10;&#10;- Removed `firebase` and related packages from `web-admin` and lockfile.&#10;- Added `argon2` for password hashing and `JwtTokenProvider` to `AuthController`.&#10;- Introduced new guards for API key and role-based protection (`api-key.guard`, `roles.guard`, `roles.decorator`)." />
-    <MESSAGE value="feat(auth): add Redux-based authentication flow to web-learner&#10;&#10;- Implemented `authSlice` with login, logout, register, and checkAuth functionality.&#10;- Added `AuthInitializer` component to manage authentication state.&#10;- Created `LoginForm` component integrated with Redux and Zod validation.&#10;- Updated login page to use `AuthInitializer` and `LoginForm`.&#10;- Created reusable UI components (Field, Item, Empty) for consistent styling." />
-    <MESSAGE value="feat(auth): add email verification flow and update user naming conventions&#10;&#10;- Implemented email verification handling, including OTP validation and resend functionality for both the backend and web apps.&#10;- Replaced `fullName` with `displayName` across all services and components for user naming consistency.&#10;- Introduced `EmailService` for email-related operations and integrated it with event handling via `EmailEventController`.&#10;- Updated database schema to reflect `displayName` column and removed deprecated `fullName`, `email_verified`, and `salt` fields.&#10;- Added support for Redis in the backend using a shared module for configuration and client management." />
-    <MESSAGE value="chore(web-admin): remove unused features, components, and APIs&#10;&#10;- Deleted obsolete API modules for audit logs, blogs, and courses.&#10;- Removed unused components including AuthGuard, Can, DashboardHeader, DashboardLayout, and DashboardSidebar.&#10;- Streamlined codebase to remove dependencies on deprecated features." />
-    <MESSAGE value="feat(ui): introduce OTP input components and enhance email verification flow&#10;&#10;- Added reusable `InputOTP` components (`InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator`) to the `ui` package.&#10;- Integrated `InputOTP` into email verification for a more dynamic OTP entry experience.&#10;- Updated `pnpm-lock.yaml` and `package.json` to include `input-otp` dependency.&#10;- Enhanced email verification UI for better user feedback, including loading spinners and error/success messages." />
-    <MESSAGE value="feat(auth): replace magic link with OTP-based email verification flow&#10;&#10;- Removed magic link email verification components and logic.&#10;- Implemented OTP verification via `OTPVerificationContent` component.&#10;- Updated backend services to handle OTP generation and email delivery.&#10;- Modified `register` flow to redirect users to OTP verification page upon success.&#10;- Adjusted email templates for OTP usage, replacing magic link-related text and formatting." />
-    <MESSAGE value="feat(web-learner): add responsive home page sections with JLPT roadmap, features, and CTAs&#10;&#10;- Introduced `hero-section` to highlight platform's offerings and key metrics.&#10;- Added `course-categories-section` displaying JLPT levels N5-N1 with detailed descriptions.&#10;- Implemented `features-section` showcasing advanced platform features like AI Sensei and Gamification.&#10;- Created `cta-section` with promotional content and prominent" />
-    <MESSAGE value="feat(web-learner): add responsive home page sections with JLPT roadmap, features, and CTAs&#10;&#10;- Introduced `hero-section` to highlight platform's offerings and key metrics.&#10;- Added `course-categories-section` displaying JLPT levels N5-N1 with detailed descriptions.&#10;- Implemented `features-section` showcasing advanced platform features like AI Sensei and Gamification.&#10;- Created `cta-section` with promotional content and prominent call-to-action buttons.&#10;- Ensured responsive design and modern UI/UX principles across all sections." />
-    <MESSAGE value="feat(web-learner): add modular course detail components&#10;&#10;- Introduced `CourseHeader`, `CourseCurriculum`, `CourseInstructor`, `CourseReviews`, and `CourseSidebar` components.&#10;- Implemented `CourseDetailPage` layout, combining the new components for a modular design.&#10;- Ensured responsive design and consistency with platform UI/UX standards." />
-    <MESSAGE value="feat(web-learner): implement course catalog with filtering, search, and pagination&#10;&#10;- Added `CourseCard`, `CourseGrid`, `FilterSidebar`, and `SearchHeader` components.&#10;- Introduced a `CourseCatalogPage` layout featuring filters, search functionality, and a paginated grid of courses.&#10;- Ensured responsive design and adherence to UI/UX standards for browsing and discovery." />
     <MESSAGE value="feat(web-learner): add exam management interface with card-based UI and history tracking&#10;&#10;- Introduced `ExamCard` component to display exam details and statuses (new, in-progress, completed).&#10;- Created `ExamHistory` component for displaying past exam attempts in a table format.&#10;- Added `ExamStats` component to showcase key statistics such as average score, total exams taken, and hours practiced.&#10;- Implemented `ExamPage` layout with tabs for available exams and exam history, including filtering and searching functionality.&#10;- Ensured responsive design and adherence to platform UI/UX guidelines." />
     <MESSAGE value="feat(auth): add two-factor authentication with TOTP, SMS, and email support&#10;&#10;- Implemented comprehensive 2FA support, including TOTP, SMS, and email-based authentication.&#10;- Added reusable encryption module with AES-256-GCM for securing TOTP secrets.&#10;- Created TwoFactorAuth module with service, controller, and repository for managing 2FA methods and statuses.&#10;- Introduced backup codes functionality for recovery.&#10;- Added Prisma migrations for storing 2FA configurations.&#10;- Integrated Redis and NATS for OTP storage and notifications." />
     <MESSAGE value="feat(auth): implement Google OAuth login and account linking functionality&#10;&#10;- Added endpoints for Google OAuth login and linking existing accounts.&#10;- Integrated Google authentication with user registration and login processes.&#10;- Updated user model to support OAuth identities and metadata.&#10;- Enhanced user service to manage linked providers and account unlinking.&#10;- Included necessary environment variables for Google OAuth in .env.example." />
-    <MESSAGE value="feat(auth): update user status handling and improve UI components" />
     <MESSAGE value="feat(auth): implement password reset flow with email verification and UI updates" />
     <MESSAGE value="feat(auth): refactor authentication DTOs and interfaces for improved structure and clarity" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(auth): refactor authentication DTOs and interfaces for improved structure and clarity" />
+    <MESSAGE value="feat(auth): update user status handling and improve UI components" />
+    <MESSAGE value="feat(auth): replace refresh token mechanism with session-based implementation  &#10;&#10;- Renamed `RefreshTokenService` to `SessionService` and updated all references.  &#10;- Replaced `refresh_tokens` table with `sessions` table, adding metadata fields (IP, user agent, device info).  &#10;- Updated Prisma schema to reflect the new `Session` model.  &#10;- Refactored authentication flow to use sessions for token creation, verification, and revocation.  &#10;- Added support for session cleanup with metadata logging for improved traceability and security." />
+    <MESSAGE value="feat(auth): sync database schema and Prisma models with session-based authentication&#10;&#10;- Replaced `refresh_tokens` table with `sessions` table in database schema.&#10;- Updated tables to include extended metadata (e.g., IP, user agent, device info).&#10;- Synced Prisma models with revised schema, optimizing for session management.&#10;- Removed legacy user role and permission tables, consolidating mappings with updated schemas.&#10;- Added tables for `user_identities`, `two_factor_auth`, and audit functionalities for improved security and logging." />
+    <MESSAGE value="feat(database): update schema by removing obsolete tables and commenting out unused structures" />
+    <MESSAGE value="feat(database): add new modules for gamification, payments, and user management" />
+    <MESSAGE value="feat(auth): rename endpoints and update token generation for email verification" />
+    <MESSAGE value="feat(rbac): simplify permissions handling by removing user-specific overrides" />
+    <MESSAGE value="feat(database): add radix-ui dependency and update package lock" />
+    <MESSAGE value="feat(ui): enhance dashboard layout and components for improved aesthetics and usability" />
+    <MESSAGE value="feat(ui): implement custom scrollbar styles and enhance loading states across various pages" />
+    <MESSAGE value="feat(ui): add reusable hooks for dark mode and debounced state management&#10;&#10;- Implemented `useDarkMode` hook supporting OS preferences, local" />
+    <MESSAGE value="feat(ui): add reusable hooks for dark mode and debounced state management&#10;&#10;- Implemented `useDarkMode` hook supporting OS preferences, localStorage, and dynamic theme class changes.&#10;- Added `useDebounceCallback` for controlled debounced function execution.&#10;- Introduced `useDebounceValue` for state synchronization with debounced updates.&#10;- Updated dependencies to include `lodash.debounce` for debounce functionality." />
+    <MESSAGE value="cursor gen" />
+    <MESSAGE value="cursor gen: update theme" />
+    <MESSAGE value="refactor(ui): align theme styles with tokenized color system&#10;&#10;- Updated theme-specific class names to use tokenized variables (e.g., `bg-primary`, `text-muted-foreground`) for consistency.&#10;- Replaced hardcoded values with reusable theme tokens across authentication pages, course components, and layouts.&#10;- Enhanced visual elements, accessibility, and responsiveness." />
+    <MESSAGE value="feat(database): document database design and add admin login interface method&#10;&#10;- Added new documentation: `database-design-overview.md` and `database-design-schema.md` for system architecture clarity.&#10;- Extended `IAuthService` interface with `adminLogin` for specialized admin portal authentication." />
+    <MESSAGE value="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`." />
+    <MESSAGE value="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`," />
+    <MESSAGE value="feat(users): integrate EmailModule for user management enhancements" />
+    <MESSAGE value="feat(users): enhance create-user-dialog with multi-step flow and role selection&#10;&#10;- Added multi-step form flow for user creation (details &gt; role selection).&#10;- Introduced UI updates for better usability and visual consistency.&#10;- Implemented support for staff role variants with descriptive labels.&#10;- Improved form validation and error handling logic." />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(users): enhance create-user-dialog with multi-step flow and role selection&#10;&#10;- Added multi-step form flow for user creation (details &gt; role selection).&#10;- Introduced UI updates for better usability and visual consistency.&#10;- Implemented support for staff role variants with descriptive labels.&#10;- Improved form validation and error handling logic." />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/apps/server/libs/shared/src/providers/jwt-token.provider.ts</url>
+          <line>25</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

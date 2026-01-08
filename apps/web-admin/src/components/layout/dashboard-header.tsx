@@ -60,16 +60,16 @@ export function DashboardHeader() {
 
   return (
     <div className="flex w-full items-center gap-4">
-      {/* Breadcrumbs */}
-      <div className="hidden md:flex items-center text-sm text-muted-foreground bg-muted/30 px-3 py-1 rounded-md">
+      {/* Breadcrumbs - Clean & Minimal */}
+      <div className="hidden md:flex items-center text-sm px-1">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link to="/">Dashboard</Link>
+                <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">Dashboard</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
-            {pathSegments.length > 0 && <BreadcrumbSeparator />}
+            {pathSegments.length > 0 && <BreadcrumbSeparator className="opacity-40" />}
             {pathSegments.map((segment, index) => {
               const isLast = index === pathSegments.length - 1
               const href = `/${pathSegments.slice(0, index + 1).join('/')}`
@@ -77,14 +77,14 @@ export function DashboardHeader() {
                 <React.Fragment key={href}>
                   <BreadcrumbItem>
                     {isLast ? (
-                      <BreadcrumbPage className="capitalize font-semibold text-foreground">{segment.replace('-', ' ')}</BreadcrumbPage>
+                      <BreadcrumbPage className="capitalize font-medium text-foreground">{segment.replace('-', ' ')}</BreadcrumbPage>
                     ) : (
                       <BreadcrumbLink asChild>
-                        <Link to={href} className="capitalize">{segment.replace('-', ' ')}</Link>
+                        <Link to={href} className="capitalize text-muted-foreground hover:text-foreground transition-colors">{segment.replace('-', ' ')}</Link>
                       </BreadcrumbLink>
                     )}
                   </BreadcrumbItem>
-                  {!isLast && <BreadcrumbSeparator />}
+                  {!isLast && <BreadcrumbSeparator className="opacity-40" />}
                 </React.Fragment>
               )
             })}
@@ -92,48 +92,48 @@ export function DashboardHeader() {
         </Breadcrumb>
       </div>
 
-      <div className="ml-auto flex items-center gap-2">
+      <div className="ml-auto flex items-center gap-3">
         <CommandMenu />
 
-        <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-foreground">
+        <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-xl">
           <Bell className="size-5" />
-          <span className="absolute top-2 right-2 size-2 bg-red-500 rounded-full animate-pulse ring-2 ring-background"></span>
+          <span className="absolute top-2.5 right-2.5 size-2 bg-rose-500 rounded-full ring-2 ring-background"></span>
         </Button>
 
         <ModeToggle />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-9 w-9 rounded-full border border-input shadow-sm hover:shadow-md transition-shadow">
-              <Avatar className="h-8 w-8">
+            <Button variant="ghost" className="relative h-9 w-9 rounded-full ring-2 ring-transparent hover:ring-primary/10 transition-all p-0 overflow-hidden">
+              <Avatar className="h-9 w-9">
                 <AvatarImage src={user?.avatarUrl || undefined} alt={user?.displayName || ''} />
-                <AvatarFallback>{user?.displayName?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
+                <AvatarFallback className="bg-muted hover:bg-muted/80 transition-colors">{user?.displayName?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56" align="end" forceMount>
-            <DropdownMenuLabel className="font-normal">
+          <DropdownMenuContent className="w-60 border-none shadow-xl bg-background/90 backdrop-blur-xl p-2 rounded-2xl" align="end" forceMount>
+            <DropdownMenuLabel className="font-normal p-2">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">{user?.displayName}</p>
+                <p className="text-sm font-semibold leading-none">{user?.displayName}</p>
                 <p className="text-xs leading-none text-muted-foreground">
                   {user?.email}
                 </p>
-                <div className="mt-1">
-                  <Badge variant={getRoleBadgeVariant(user?.role || null)} className="text-[10px] px-1.5 h-5">
-                    {user?.role?.toUpperCase() || 'USER'}
+                <div className="mt-2">
+                  <Badge variant={getRoleBadgeVariant(user?.role || null)} className="text-[10px] px-2 py-0.5 rounded-full capitalize">
+                    {user?.role || 'USER'}
                   </Badge>
                 </div>
               </div>
             </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
+            <DropdownMenuSeparator className="bg-muted/50" />
+            <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
               <Link to="/settings/profile">Profile</Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
+            <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
               <Link to="/settings">Settings</Link>
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
+            <DropdownMenuSeparator className="bg-muted/50" />
+            <DropdownMenuItem onClick={handleLogout} className="text-rose-500 focus:bg-rose-500/10 focus:text-rose-600 rounded-xl cursor-pointer">
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>

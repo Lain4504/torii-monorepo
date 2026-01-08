@@ -1,13 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import type { TwoFactorAuth, Prisma } from '@prisma/generated';
+import type { ITwoFactorAuthRepository } from '../../interfaces/repositories';
 
 /**
  * Two-Factor Authentication Repository
  * Handles all database operations for 2FA
  */
 @Injectable()
-export class TwoFactorAuthRepository {
+export class TwoFactorAuthRepository implements ITwoFactorAuthRepository {
     private readonly logger = new Logger(TwoFactorAuthRepository.name);
 
     constructor(private readonly prisma: PrismaService) { }

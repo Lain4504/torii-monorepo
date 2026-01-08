@@ -1,20 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAppDispatch, useAppSelector } from '@/hooks/hooks'
 import { register as registerAction, clearError } from '@/store/slices/authSlice'
 import { Button } from '@workspace/ui/components/button'
 import { Input } from '@workspace/ui/components/input'
-import {
-    Form,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormControl,
-    FormMessage,
-} from '@workspace/ui/components/form'
+import { Field, FieldLabel, FieldError } from '@workspace/ui/components/field'
 import { toast } from '@workspace/ui/components/sonner'
 import { Spinner } from '@workspace/ui/components/spinner'
 import { Eye, EyeOff, Mail, Lock, UserPlus, CheckCircle, XCircle } from 'lucide-react'
@@ -79,7 +72,10 @@ export function RegisterForm() {
             // Remove confirmPassword before sending to API
             const { confirmPassword, ...registrationData } = data
 
-            const resultAction = await dispatch(registerAction(registrationData))
+            const resultAction = await dispatch(registerAction({
+                ...registrationData,
+                platform: 'web'
+            }))
 
             if (registerAction.fulfilled.match(resultAction)) {
                 form.reset()
@@ -108,138 +104,136 @@ export function RegisterForm() {
 
     return (
         <div className="grid gap-6">
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                    <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                            <FormItem className="space-y-1">
-                                <FormLabel className="text-slate-900 dark:text-slate-100">Email</FormLabel>
-                                <FormControl>
-                                    <div className="relative">
-                                        <Mail className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
-                                        <Input
-                                            placeholder="hoctiennhat@example.com"
-                                            className="pl-10 h-11 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:ring-indigo-500 transition-all rounded-lg"
-                                            {...field}
-                                        />
-                                    </div>
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    <FormField
-                        control={form.control}
-                        name="password"
-                        render={({ field }) => (
-                            <FormItem className="space-y-1">
-                                <FormLabel className="text-slate-900 dark:text-slate-100">Mật khẩu</FormLabel>
-                                <FormControl>
-                                    <div className="relative">
-                                        <Lock className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
-                                        <Input
-                                            type={showPassword ? 'text' : 'password'}
-                                            placeholder="••••••••"
-                                            className="pl-10 pr-10 h-11 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:ring-indigo-500 transition-all rounded-lg"
-                                            {...field}
-                                        />
-                                        <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="icon"
-                                            className="absolute right-0 top-0 h-full px-3 hover:bg-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
-                                            onClick={() => setShowPassword(!showPassword)}
-                                        >
-                                            {showPassword ? (
-                                                <EyeOff className="h-4 w-4" />
-                                            ) : (
-                                                <Eye className="h-4 w-4" />
-                                            )}
-                                        </Button>
-                                    </div>
-                                </FormControl>
-                                {/* Password Strength Indicators */}
-                                {/* Only show when user starts typing */}
-                                {password && (
-                                    <div className="mt-3 grid grid-cols-2 gap-2">
-                                        {requirements.map((req, index) => (
-                                            <div key={index} className="flex items-center gap-2 text-xs">
-                                                {req.valid ? (
-                                                    <CheckCircle className="h-3 w-3 text-green-500" />
-                                                ) : (
-                                                    <div className="h-3 w-3 rounded-full border border-slate-300 dark:border-slate-600" />
-                                                )}
-                                                <span className={req.valid ? 'text-green-600 dark:text-green-400 font-medium' : 'text-slate-500 dark:text-slate-400'}>
-                                                    {req.label}
-                                                </span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    <FormField
-                        control={form.control}
-                        name="confirmPassword"
-                        render={({ field }) => (
-                            <FormItem className="space-y-1">
-                                <FormLabel className="text-slate-900 dark:text-slate-100">Xác nhận mật khẩu</FormLabel>
-                                <FormControl>
-                                    <div className="relative">
-                                        <Lock className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
-                                        <Input
-                                            type={showConfirmPassword ? 'text' : 'password'}
-                                            placeholder="••••••••"
-                                            className="pl-10 pr-10 h-11 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:ring-indigo-500 transition-all rounded-lg"
-                                            {...field}
-                                        />
-                                        <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="icon"
-                                            className="absolute right-0 top-0 h-full px-3 hover:bg-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
-                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                        >
-                                            {showConfirmPassword ? (
-                                                <EyeOff className="h-4 w-4" />
-                                            ) : (
-                                                <Eye className="h-4 w-4" />
-                                            )}
-                                        </Button>
-                                    </div>
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    {error && (
-                        <div className="flex items-center gap-2 text-sm font-medium text-red-600 bg-red-50 dark:bg-red-900/10 p-4 rounded-lg border border-red-100 dark:border-red-900/20">
-                            <XCircle className="h-4 w-4" />
-                            {error}
-                        </div>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
+                <Controller
+                    control={form.control}
+                    name="email"
+                    render={({ field, fieldState }) => (
+                        <Field data-invalid={fieldState.invalid}>
+                            <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+                            <div className="relative">
+                                <Mail className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                                <Input
+                                    {...field}
+                                    id={field.name}
+                                    placeholder="hoctiennhat@example.com"
+                                    className="pl-10 h-11"
+                                    aria-invalid={fieldState.invalid}
+                                />
+                            </div>
+                            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                        </Field>
                     )}
+                />
 
-                    <Button
-                        type="submit"
-                        className="w-full h-12 bg-gradient-to-r from-indigo-600 to-teal-600 hover:from-indigo-700 hover:to-teal-700 text-white font-semibold text-base shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] rounded-lg mt-2"
-                        disabled={isLoading}
-                    >
-                        {isLoading ? (
-                            <Spinner className="mr-2 text-white" />
-                        ) : (
-                            <UserPlus className="mr-2 h-5 w-5" />
-                        )}
-                        Tạo tài khoản
-                    </Button>
-                </form>
-            </Form>
+                <Controller
+                    control={form.control}
+                    name="password"
+                    render={({ field, fieldState }) => (
+                        <Field data-invalid={fieldState.invalid}>
+                            <FieldLabel htmlFor={field.name}>Mật khẩu</FieldLabel>
+                            <div className="relative">
+                                <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                                <Input
+                                    {...field}
+                                    id={field.name}
+                                    type={showPassword ? 'text' : 'password'}
+                                    placeholder="••••••••"
+                                    className="pl-10 pr-10 h-11"
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent text-muted-foreground hover:text-foreground cursor-pointer"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                >
+                                    {showPassword ? (
+                                        <EyeOff className="h-4 w-4" />
+                                    ) : (
+                                        <Eye className="h-4 w-4" />
+                                    )}
+                                </Button>
+                            </div>
+                            {/* Password Strength Indicators */}
+                            {/* Only show when user starts typing */}
+                            {password && (
+                                <div className="mt-3 grid grid-cols-2 gap-2">
+                                    {requirements.map((req, index) => (
+                                        <div key={index} className="flex items-center gap-2 text-xs">
+                                            {req.valid ? (
+                                                <CheckCircle className="h-3 w-3 text-primary" />
+                                            ) : (
+                                                <div className="h-3 w-3 rounded-full border border-muted-foreground/30" />
+                                            )}
+                                            <span className={req.valid ? 'text-primary font-medium' : 'text-muted-foreground'}>
+                                                {req.label}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                        </Field>
+                    )}
+                />
+
+                <Controller
+                    control={form.control}
+                    name="confirmPassword"
+                    render={({ field, fieldState }) => (
+                        <Field data-invalid={fieldState.invalid}>
+                            <FieldLabel htmlFor={field.name}>Xác nhận mật khẩu</FieldLabel>
+                            <div className="relative">
+                                <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                                <Input
+                                    {...field}
+                                    id={field.name}
+                                    type={showConfirmPassword ? 'text' : 'password'}
+                                    placeholder="••••••••"
+                                    className="pl-10 pr-10 h-11"
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent text-muted-foreground hover:text-foreground cursor-pointer"
+                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                >
+                                    {showConfirmPassword ? (
+                                        <EyeOff className="h-4 w-4" />
+                                    ) : (
+                                        <Eye className="h-4 w-4" />
+                                    )}
+                                </Button>
+                            </div>
+                            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                        </Field>
+                    )}
+                />
+
+                {error && (
+                    <div className="flex items-center gap-2 text-sm font-medium text-destructive bg-destructive/10 p-4 rounded-lg border border-destructive/20">
+                        <XCircle className="h-4 w-4" />
+                        {error}
+                    </div>
+                )}
+
+                <Button
+                    type="submit"
+                    className="w-full h-12 font-semibold text-base mt-2"
+                    disabled={isLoading}
+                >
+                    {isLoading ? (
+                        <Spinner className="mr-2" />
+                    ) : (
+                        <UserPlus className="mr-2 h-5 w-5" />
+                    )}
+                    Tạo tài khoản
+                </Button>
+            </form>
         </div>
     )
 }

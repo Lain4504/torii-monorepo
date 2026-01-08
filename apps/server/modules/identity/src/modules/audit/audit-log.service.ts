@@ -1,17 +1,22 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { AuditLogRepository } from "./audit-log.repository";
+import { Injectable, Logger, Inject } from '@nestjs/common';
+import type { IAuditLogRepository } from '../../interfaces/repositories';
 import type {
     AuditLogEntryDTO,
     AuditLogFiltersDTO,
     PaginatedResponseDTO,
+    AuditLogResponseDTO,
+    AuditLogActivityDTO,
 } from '@workspace/schemas';
+import type { IAuditLogService } from '../../interfaces/services';
+import { AUDIT_LOG_REPOSITORY_TOKEN } from '../../interfaces/repositories';
+import type { AuditLogWithUser } from '../audit/audit-log.repository';
 
 @Injectable()
-export class AuditLogService {
+export class AuditLogService implements IAuditLogService {
     private readonly logger = new Logger(AuditLogService.name);
 
     constructor(
-        private readonly auditLogRepository: AuditLogRepository,
+        @Inject(AUDIT_LOG_REPOSITORY_TOKEN) private readonly auditLogRepository: IAuditLogRepository,
     ) { }
 
     /**
@@ -55,7 +60,7 @@ export class AuditLogService {
     /**
      * Query audit logs with filters and pagination
      */
-    async query(filters: AuditLogFiltersDTO): Promise<PaginatedResponseDTO<any>> {
+    async query(filters: AuditLogFiltersDTO): Promise<PaginatedResponseDTO<AuditLogResponseDTO>> {
         const { page = 1, limit = 50, startDate, endDate, ...where } = filters;
 
         const whereClause = {
@@ -69,7 +74,7 @@ export class AuditLogService {
             },
         };
 
-        const [data, total] = await Promise.all([
+        const [rawData, total] = await Promise.all([
             this.auditLogRepository.findMany({
                 where: whereClause,
                 include: {
@@ -88,6 +93,30 @@ export class AuditLogService {
             this.auditLogRepository.count(whereClause),
         ]);
 
+        // Map Prisma AuditLog to AuditLogResponseDTO
+        const data: AuditLogResponseDTO[] = rawData.map((log: AuditLogWithUser) => ({
+            id: log.id,
+            userId: log.userId,
+            userEmail: log.userEmail,
+            userRole: log.userRole,
+            action: log.action,
+            entity: log.entity,
+            entityId: log.entityId,
+            description: log.description,
+            metadata: log.metadata as Record<string, unknown> | null,
+            oldValues: log.oldValues as Record<string, unknown> | null,
+            newValues: log.newValues as Record<string, unknown> | null,
+            ipAddress: log.ipAddress,
+            userAgent: log.userAgent,
+            createdAt: log.createdAt,
+            user: log.user ? {
+                id: log.user.id,
+                email: log.user.email,
+                displayName: log.user.displayName,
+                role: log.user.role,
+            } : undefined,
+        }));
+
         return {
             data,
             total,
@@ -100,14 +129,14 @@ export class AuditLogService {
     /**
      * Get recent activity for a user
      */
-    async getUserActivity(userId: string, limit = 20): Promise<any[]> {
+    async getUserActivity(userId: string, limit = 20): Promise<AuditLogActivityDTO[]> {
         return this.auditLogRepository.findByUserId(userId, limit);
     }
 
     /**
      * Get activity summary for entity
      */
-    async getEntityActivity(entity: string, entityId: string, limit = 20): Promise<any[]> {
+    async getEntityActivity(entity: string, entityId: string, limit = 20): Promise<AuditLogActivityDTO[]> {
         return this.auditLogRepository.findByEntity(entity, entityId, limit);
     }
 }

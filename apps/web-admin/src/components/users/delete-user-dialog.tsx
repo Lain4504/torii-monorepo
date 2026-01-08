@@ -10,7 +10,7 @@ import {
 } from '@workspace/ui/components/alert-dialog';
 import type { UserResponseDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
-import {useDeleteUser} from "@/api/services/users.ts";
+import { useDeleteUser } from "@/api/services/users.ts";
 
 interface DeleteUserDialogProps {
     user: UserResponseDTO | null;
@@ -42,21 +42,22 @@ export function DeleteUserDialog({
 
     return (
         <AlertDialog open={open} onOpenChange={onOpenChange}>
-            <AlertDialogContent>
+            <AlertDialogContent className="border-none shadow-2xl bg-background/95 backdrop-blur-xl rounded-2xl">
                 <AlertDialogHeader>
-                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
+                    <AlertDialogTitle className="text-xl font-bold text-destructive">Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription className="text-muted-foreground/80">
                         This action cannot be undone. This will permanently delete the user
-                        "{user?.displayName}" and remove their data from our servers.
+                        <span className="font-semibold text-foreground mx-1">"{user?.displayName}"</span>
+                        and remove their data from our servers.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogFooter className="mt-4">
+                    <AlertDialogCancel className="rounded-xl border-none bg-muted/30 hover:bg-muted/50">Cancel</AlertDialogCancel>
                     <AlertDialogAction
                         onClick={handleDelete}
-                        className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+                        className="rounded-xl bg-destructive hover:bg-destructive/90 focus:ring-destructive/30 shadow-lg shadow-destructive/20"
                     >
-                        Delete
+                        Delete User
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>

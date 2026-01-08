@@ -1,13 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import type { User, Prisma } from '@prisma/generated';
+import type { IUsersRepository } from '../../interfaces/repositories';
 
 /**
  * User Repository
  * Handles all database operations for User entity
  */
 @Injectable()
-export class UsersRepository {
+export class UsersRepository implements IUsersRepository {
     private readonly logger = new Logger(UsersRepository.name);
 
     constructor(private readonly prisma: PrismaService) { }
@@ -107,7 +108,7 @@ export class UsersRepository {
             data: {
                 deletedAt: new Date(),
                 updatedAt: new Date(),
-            } as any,
+            },
         });
     }
 
@@ -120,9 +121,9 @@ export class UsersRepository {
     }
 
     /**
-     * Get user profile with specific fields
+     * Get user basic info with specific fields
      */
-    async getProfile(userId: string): Promise<{
+    async getUserBasicInfo(userId: string): Promise<{
         id: string;
         email: string;
         displayName: string;

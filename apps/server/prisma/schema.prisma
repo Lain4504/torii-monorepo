@@ -195,22 +195,6 @@ model RolePermission {
   @@map("role_permissions")
 }
 
-// ============================================
-// User Permissions (Custom Overrides)
-// ============================================
-
-model UserPermission {
-  userId         String   @map("user_id") @db.Uuid
-  permissionCode String   @map("permission_code") @db.VarChar(100)
-  isGranted      Boolean  @default(true) @map("is_granted")
-  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamp()
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@id([userId, permissionCode])
-  @@map("user_permissions")
-}
 
 // ============================================
 // Audit Log (Generic System-Wide Logging)
@@ -287,8 +271,7 @@ model User {
 
   // Relations
   identities      UserIdentity[]   // OAuth providers (email, google, etc.)
-  userPermissions UserPermission[]
-  refreshTokens   RefreshToken[]
+  sessions   Session[]
   twoFactorAuth   TwoFactorAuth?
   flashcardDecks  FlashcardDeck[]
   blogComments    BlogComment[]
@@ -327,11 +310,17 @@ model UserIdentity {
   @@map("user_identities")
 }
 
-// Refresh Token Model - For JWT refresh token rotation
-model RefreshToken {
+// Session Model - For managing user sessions and refresh tokens
+model Session {
   id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId    String    @map("user_id") @db.Uuid
   tokenHash String    @unique @map("token_hash") @db.VarChar(64) // SHA-256 hash
+  
+  // Device & Metadata
+  ipAddress  String?   @map("ip_address") @db.VarChar(45)
+  userAgent  String?   @map("user_agent") @db.Text
+  deviceInfo String?   @map("device_info") @db.VarChar(100) // e.g., "iPhone 13, iOS 15" or "Chrome on Windows"
+  
   expiresAt DateTime  @map("expires_at") @db.Timestamp()
   revokedAt DateTime? @map("revoked_at") @db.Timestamp()
   createdAt DateTime  @default(now()) @map("created_at") @db.Timestamp()
@@ -342,7 +331,7 @@ model RefreshToken {
   @@index([userId])
   @@index([tokenHash])
   @@index([expiresAt])
-  @@map("refresh_tokens")
+  @@map("sessions")
 }
 
 // Two-Factor Authentication Model - For 2FA configuration

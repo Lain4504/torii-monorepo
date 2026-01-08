@@ -8,6 +8,19 @@ export interface RefreshTokenPayload {
     tokenId: string;  // UUID for token rotation tracking
 }
 
+/**
+ * 2FA Temporary Token Payload
+ * Used for temporary tokens during 2FA verification flow
+ */
+export interface TwoFactorTempTokenPayload {
+    sub: string;      // userId (for compatibility with TokenPayload)
+    role: string;     // user role (for compatibility with TokenPayload)
+    userId: string;   // user ID (duplicate of sub for clarity)
+    email: string;    // user email
+    method: string;   // 2FA method (e.g., 'totp')
+    type: '2fa-temp'; // token type identifier
+}
+
 @Injectable()
 export class JwtTokenProvider {
     private readonly secretKey: string;
@@ -56,6 +69,31 @@ export class JwtTokenProvider {
     async verifyRefreshToken(token: string): Promise<RefreshTokenPayload | null> {
         try {
             const decoded = jwt.verify(token, this.secretKey) as RefreshTokenPayload;
+            return decoded;
+        } catch (error) {
+            return null;
+        }
+    }
+
+    /**
+     * Generate 2FA temporary token (short-lived, for 2FA verification flow)
+     */
+    async generate2FATempToken(payload: TwoFactorTempTokenPayload, expiresIn?: string): Promise<string> {
+        return jwt.sign(payload, this.secretKey, {
+            expiresIn: expiresIn || '5m' // Default 5 minutes
+        });
+    }
+
+    /**
+     * Verify 2FA temporary token
+     */
+    async verify2FATempToken(token: string): Promise<TwoFactorTempTokenPayload | null> {
+        try {
+            const decoded = jwt.verify(token, this.secretKey) as TwoFactorTempTokenPayload;
+            // Validate token type
+            if (decoded.type !== '2fa-temp') {
+                return null;
+            }
             return decoded;
         } catch (error) {
             return null;

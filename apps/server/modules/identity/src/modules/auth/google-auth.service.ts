@@ -1,13 +1,14 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { OAuth2Client } from 'google-auth-library';
 import type { GoogleUserInfo } from '@workspace/schemas';
+import type { IGoogleAuthService } from '../../interfaces/services';
 
 /**
  * Google OAuth Service
  * Handles Google OAuth token verification and user info extraction
  */
 @Injectable()
-export class GoogleAuthService {
+export class GoogleAuthService implements IGoogleAuthService {
     private readonly logger = new Logger(GoogleAuthService.name);
     private readonly client: OAuth2Client;
 

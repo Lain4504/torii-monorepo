@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -12,10 +12,15 @@ import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Textarea } from '@workspace/ui/components/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
+import {
+    Field,
+    FieldLabel,
+    FieldError,
+} from '@workspace/ui/components/field';
 import { storageApi } from '@/api/services/storage-api.ts';
 import { LessonContentType, lessonUpdateDTOSchema, type LessonResponseDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
-import {useUpdateLesson} from "@/api/services/lesson.ts";
+import { useUpdateLesson } from "@/api/services/lesson.ts";
 
 const updateLessonSchema = lessonUpdateDTOSchema;
 
@@ -33,10 +38,8 @@ export function EditLessonDialog({ lesson, open, onOpenChange }: EditLessonDialo
     const [uploading, setUploading] = useState(false);
 
     const {
-        register,
+        control,
         handleSubmit,
-        formState: { errors },
-        setValue,
         watch,
         reset,
     } = useForm<UpdateLessonFormData>({
@@ -124,67 +127,133 @@ export function EditLessonDialog({ lesson, open, onOpenChange }: EditLessonDialo
                 <DialogHeader>
                     <DialogTitle>Edit Lesson</DialogTitle>
                 </DialogHeader>
-                <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Title</label>
-                        <Input {...register('title')} placeholder="Enter lesson title" />
-                        {errors.title && (
-                            <p className="text-sm text-red-500 mt-1">{errors.title.message}</p>
+                <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4" noValidate>
+                    <Controller
+                        control={control}
+                        name="title"
+                        render={({ field, fieldState }) => (
+                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Title</FieldLabel>
+                                <Input
+                                    id={field.name}
+                                    {...field}
+                                    placeholder="Enter lesson title"
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
                         )}
-                    </div>
+                    />
 
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Content Type</label>
-                        <Select
-                            value={watch('contentType')}
-                            onValueChange={(value) => setValue('contentType', value as LessonContentType)}
-                        >
-                            <SelectTrigger>
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value={LessonContentType.VIDEO}>Video</SelectItem>
-                                <SelectItem value={LessonContentType.ARTICLE}>Article</SelectItem>
-                                <SelectItem value={LessonContentType.QUIZ}>Quiz</SelectItem>
-                                <SelectItem value={LessonContentType.ASSIGNMENT}>Assignment</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
+                    <Controller
+                        control={control}
+                        name="contentType"
+                        render={({ field, fieldState }) => (
+                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Content Type</FieldLabel>
+                                <Select
+                                    value={field.value}
+                                    onValueChange={(value) => field.onChange(value as LessonContentType)}
+                                >
+                                    <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value={LessonContentType.VIDEO}>Video</SelectItem>
+                                        <SelectItem value={LessonContentType.ARTICLE}>Article</SelectItem>
+                                        <SelectItem value={LessonContentType.QUIZ}>Quiz</SelectItem>
+                                        <SelectItem value={LessonContentType.ASSIGNMENT}>Assignment</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
+                        )}
+                    />
 
                     {watch('contentType') === LessonContentType.VIDEO && (
-                        <div>
-                            <label className="block text-sm font-medium mb-1">Video File</label>
+                        <Field className="space-y-2">
+                            <FieldLabel htmlFor="video-file">Video File</FieldLabel>
                             <Input
+                                id="video-file"
                                 type="file"
                                 accept="video/*"
                                 onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
                             />
                             {lesson.videoUrl && <p className="text-sm text-muted-foreground">Current: {lesson.videoUrl}</p>}
-                        </div>
+                        </Field>
                     )}
 
                     {watch('contentType') === LessonContentType.ARTICLE && (
-                        <div>
-                            <label className="block text-sm font-medium mb-1">Article Content</label>
-                            <Textarea {...register('articleContent')} placeholder="Enter article content" />
-                        </div>
+                        <Controller
+                            control={control}
+                            name="articleContent"
+                            render={({ field, fieldState }) => (
+                                <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor={field.name}>Article Content</FieldLabel>
+                                    <Textarea
+                                        id={field.name}
+                                        {...field}
+                                        value={field.value || ''}
+                                        placeholder="Enter article content"
+                                        aria-invalid={fieldState.invalid}
+                                    />
+                                    <FieldError errors={[fieldState.error]} />
+                                </Field>
+                            )}
+                        />
                     )}
 
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Order</label>
-                        <Input type="number" {...register('order', { valueAsNumber: true })} />
-                    </div>
+                    <Controller
+                        control={control}
+                        name="order"
+                        render={({ field, fieldState }) => (
+                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Order</FieldLabel>
+                                <Input
+                                    id={field.name}
+                                    type="number"
+                                    {...field}
+                                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                    placeholder="Enter order"
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
+                        )}
+                    />
 
                     <div className="flex gap-4">
-                        <label className="flex items-center gap-2">
-                            <input type="checkbox" {...register('isPreview')} />
-                            <span className="text-sm">Is Preview</span>
-                        </label>
+                        <Controller
+                            control={control}
+                            name="isPreview"
+                            render={({ field }) => (
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={field.value}
+                                        onChange={field.onChange}
+                                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                    />
+                                    <span className="text-sm">Is Preview</span>
+                                </label>
+                            )}
+                        />
 
-                        <label className="flex items-center gap-2">
-                            <input type="checkbox" {...register('isUnlocked')} />
-                            <span className="text-sm">Is Unlocked</span>
-                        </label>
+                        <Controller
+                            control={control}
+                            name="isUnlocked"
+                            render={({ field }) => (
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={field.value}
+                                        onChange={field.onChange}
+                                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                    />
+                                    <span className="text-sm">Is Unlocked</span>
+                                </label>
+                            )}
+                        />
                     </div>
 
                     <div className="flex justify-end gap-2">

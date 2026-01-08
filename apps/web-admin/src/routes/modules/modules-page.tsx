@@ -1,4 +1,4 @@
-﻿import { useState, useMemo } from 'react';
+﻿import { useState, useMemo, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useQueries } from '@tanstack/react-query';
 import { Button } from '@workspace/ui/components/button';
@@ -11,10 +11,21 @@ import { ViewModuleDialog } from '@/components/modules/view-module-dialog.tsx';
 import type { ModuleQueryDTO, ModuleResponseDTO } from '@workspace/schemas';
 import { useModules } from "@/api/services/modules.ts";
 import { coursesApi } from "@/api/services/courses.ts";
+import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@workspace/ui/components/pagination";
 
 export default function ModulesPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
+  const [debouncedSearch] = useDebounceValue(search, 500);
   const location = useLocation();
   const [courseIdFilter, setCourseIdFilter] = useState(() => new URLSearchParams(location.search).get('courseId') || '');
   const [statusFilter, setStatusFilter] = useState('');
@@ -28,12 +39,16 @@ export default function ModulesPage() {
   const queryParams: ModuleQueryDTO = {
     page,
     limit: 10,
-    ...(search && { search }),
+    ...(debouncedSearch && { search: debouncedSearch }),
     ...(courseIdFilter && { courseId: courseIdFilter }),
     ...(statusFilter && { status: statusFilter }),
   };
 
   const { data: modulesData, isLoading, error } = useModules(queryParams);
+
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, courseIdFilter, statusFilter]);
 
   const modules = modulesData?.data || [];
   const meta = modulesData ? {
@@ -80,36 +95,74 @@ export default function ModulesPage() {
     return map;
   }, [uniqueCourseIds, courseQueries]);
 
-  if (isLoading) {
-    return (
-      <div className="p-6">
-        <div className="text-center py-8">Loading modules...</div>
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className="p-6">
-        <div className="text-center text-red-500 py-8">
+        <div className="text-center text-rose-500 py-8">
           Error: {error.message}
         </div>
       </div>
     );
   }
 
+  const renderPaginationItems = () => {
+    if (!meta) return null;
+    const items = [];
+    const maxVisiblePages = 5;
+
+    let startPage = Math.max(1, page - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(meta.totalPages, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    if (startPage > 1) {
+      items.push(
+        <PaginationItem key={1}>
+          <PaginationLink onClick={() => setPage(1)}>1</PaginationLink>
+        </PaginationItem>
+      );
+      if (startPage > 2) items.push(<PaginationEllipsis key="start-ellipsis" />);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      items.push(
+        <PaginationItem key={i}>
+          <PaginationLink
+            isActive={page === i}
+            onClick={() => setPage(i)}
+          >
+            {i}
+          </PaginationLink>
+        </PaginationItem>
+      );
+    }
+
+    if (endPage < meta.totalPages) {
+      if (endPage < meta.totalPages - 1) items.push(<PaginationEllipsis key="end-ellipsis" />);
+      items.push(
+        <PaginationItem key={meta.totalPages}>
+          <PaginationLink onClick={() => setPage(meta.totalPages)}>{meta.totalPages}</PaginationLink>
+        </PaginationItem>
+      );
+    }
+
+    return items;
+  };
+
   return (
     <div className="space-y-6 animate-in fade-in-50 duration-500">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Modules</h1>
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">Modules</h1>
           <p className="text-muted-foreground">Manage learning modules and curriculum content.</p>
         </div>
-        <Button onClick={() => setShowCreateDialog(true)}>Create Module</Button>
+        <Button onClick={() => setShowCreateDialog(true)} className="rounded-full shadow-lg shadow-primary/20 bg-primary">Create Module</Button>
       </div>
 
-      <div className="rounded-xl border bg-card text-card-foreground shadow-sm">
-        <div className="p-6">
+      <div className="zen-card rounded-2xl p-0 overflow-hidden">
+        <div className="p-6 pb-0">
           <ModulesPrimaryToolbar
             search={search}
             onSearchChange={setSearch}
@@ -119,46 +172,48 @@ export default function ModulesPage() {
             statusFilter={statusFilter}
             onStatusFilterChange={setStatusFilter}
           />
+        </div>
 
-          <div className="mt-6 rounded-md border">
-            <ModulesTable
-              data={modules}
-              onEdit={setEditingModule}
-              onDelete={setDeletingModule}
-              onView={setViewingModule}
-              page={page}
-              limit={queryParams.limit || 10}
-              courseTitleMap={courseTitleMap}
-            />
-          </div>
+        <div className="mt-6">
+          <ModulesTable
+            data={modules}
+            onEdit={setEditingModule}
+            onDelete={setDeletingModule}
+            onView={setViewingModule}
+            page={page}
+            limit={queryParams.limit || 10}
+            courseTitleMap={courseTitleMap}
+            isLoading={isLoading}
+          />
 
           {/* Pagination */}
           {meta && (
-            <div className="flex items-center justify-between space-x-2 py-4">
-              <div className="flex-1 text-sm text-muted-foreground">
-                Showing {modules.length} of {meta.total} modules
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6 border-t border-border/40 px-6">
+              <div className="text-sm zen-text-muted">
+                Showing <span className="font-semibold text-foreground">{modules.length}</span> of <span className="font-semibold text-foreground">{meta.total}</span> modules
               </div>
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={page <= 1}
-                  onClick={() => setPage(page - 1)}
-                >
-                  Previous
-                </Button>
-                <div className="text-sm font-medium">
-                  Page {page} of {meta.totalPages}
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={page >= meta.totalPages}
-                  onClick={() => setPage(page + 1)}
-                >
-                  Next
-                </Button>
-              </div>
+
+              {meta.totalPages > 1 && (
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={() => setPage(p => Math.max(1, p - 1))}
+                        className={page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+
+                    {renderPaginationItems()}
+
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() => setPage(p => Math.min(meta.totalPages, p + 1))}
+                        className={page === meta.totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              )}
             </div>
           )}
         </div>

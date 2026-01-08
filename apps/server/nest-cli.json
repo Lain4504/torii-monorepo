@@ -8,15 +8,7 @@
     "deleteOutDir": true,
     "webpack": true,
     "tsConfigPath": "tsconfig.build.json",
-    "plugins": [
-      {
-        "name": "@nestjs/swagger",
-        "options": {
-          "classValidatorShim": true,
-          "introspectComments": true
-        }
-      }
-    ]
+    "plugins": []
   },
   "projects": {
     "gateway": {
@@ -39,13 +31,13 @@
         "webpack": false
       }
     },
-    "lms": {
+    "learning": {
       "type": "application",
-      "root": "modules/lms",
+      "root": "modules/learning",
       "entryFile": "main",
-      "sourceRoot": "modules/lms/src",
+      "sourceRoot": "modules/learning/src",
       "compilerOptions": {
-        "tsConfigPath": "modules/lms/tsconfig.app.json",
+        "tsConfigPath": "modules/learning/tsconfig.app.json",
         "webpack": false
       }
     },
@@ -59,73 +51,13 @@
         "webpack": false
       }
     },
-    "assessment": {
+    "agents": {
       "type": "application",
-      "root": "modules/assessment",
+      "root": "modules/agents",
       "entryFile": "main",
-      "sourceRoot": "modules/assessment/src",
+      "sourceRoot": "modules/agents/src",
       "compilerOptions": {
-        "tsConfigPath": "modules/assessment/tsconfig.app.json",
-        "webpack": false
-      }
-    },
-    "billing": {
-      "type": "application",
-      "root": "modules/billing",
-      "entryFile": "main",
-      "sourceRoot": "modules/billing/src",
-      "compilerOptions": {
-        "tsConfigPath": "modules/billing/tsconfig.app.json",
-        "webpack": false
-      }
-    },
-    "flashcards": {
-      "type": "application",
-      "root": "modules/flashcards",
-      "entryFile": "main",
-      "sourceRoot": "modules/flashcards/src",
-      "compilerOptions": {
-        "tsConfigPath": "modules/flashcards/tsconfig.app.json",
-        "webpack": false
-      }
-    },
-    "cortex": {
-      "type": "application",
-      "root": "modules/cortex",
-      "entryFile": "main",
-      "sourceRoot": "modules/cortex/src",
-      "compilerOptions": {
-        "tsConfigPath": "modules/cortex/tsconfig.app.json",
-        "webpack": false
-      }
-    },
-    "gamification": {
-      "type": "application",
-      "root": "modules/gamification",
-      "entryFile": "main",
-      "sourceRoot": "modules/gamification/src",
-      "compilerOptions": {
-        "tsConfigPath": "modules/gamification/tsconfig.app.json",
-        "webpack": false
-      }
-    },
-    "community": {
-      "type": "application",
-      "root": "modules/community",
-      "entryFile": "main",
-      "sourceRoot": "modules/community/src",
-      "compilerOptions": {
-        "tsConfigPath": "modules/community/tsconfig.app.json",
-        "webpack": false
-      }
-    },
-    "storage": {
-      "type": "application",
-      "root": "modules/storage",
-      "entryFile": "main",
-      "sourceRoot": "modules/storage/src",
-      "compilerOptions": {
-        "tsConfigPath": "modules/storage/tsconfig.app.json",
+        "tsConfigPath": "modules/agents/tsconfig.app.json",
         "webpack": false
       }
     }

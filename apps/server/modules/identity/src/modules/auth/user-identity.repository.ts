@@ -1,13 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import type { UserIdentity, Prisma } from '@prisma/generated';
+import type { IUserIdentityRepository } from '../../interfaces/repositories';
 
 /**
  * User Identity Repository
  * Handles database operations for OAuth provider identities
  */
 @Injectable()
-export class UserIdentityRepository {
+export class UserIdentityRepository implements IUserIdentityRepository {
     private readonly logger = new Logger(UserIdentityRepository.name);
 
     constructor(private readonly prisma: PrismaService) { }

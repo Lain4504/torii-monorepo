@@ -51,3 +51,40 @@ export const auditContextDTOSchema = z.object({
 });
 
 export type AuditContextDTO = z.infer<typeof auditContextDTOSchema>;
+
+/**
+ * Audit Log Response DTO
+ * Used for query responses with user relation
+ */
+export const auditLogResponseDTOSchema = z.object({
+    id: z.string().uuid(),
+    userId: z.string().uuid(),
+    userEmail: z.string().email(),
+    userRole: z.string(),
+    action: z.string(),
+    entity: z.string(),
+    entityId: z.string().nullable(),
+    description: z.string(),
+    metadata: z.record(z.any()).nullable(),
+    oldValues: z.record(z.any()).nullable(),
+    newValues: z.record(z.any()).nullable(),
+    ipAddress: z.string().nullable(),
+    userAgent: z.string().nullable(),
+    createdAt: z.date(),
+    user: z.object({
+        id: z.string().uuid(),
+        email: z.string().email(),
+        displayName: z.string(),
+        role: z.string(),
+    }).optional(),
+});
+
+export type AuditLogResponseDTO = z.infer<typeof auditLogResponseDTOSchema>;
+
+/**
+ * Audit Log Activity DTO
+ * Used for user/entity activity queries
+ */
+export const auditLogActivityDTOSchema = auditLogResponseDTOSchema;
+
+export type AuditLogActivityDTO = z.infer<typeof auditLogActivityDTOSchema>;

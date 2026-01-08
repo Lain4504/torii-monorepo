@@ -52,17 +52,17 @@ const colorMap = {
 
 export function HowItWorksSection() {
     return (
-        <section className="py-24 bg-slate-50 dark:bg-slate-800/50">
+        <section className="py-24 bg-muted/50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Section Header */}
                 <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-                    <h2 className="text-4xl sm:text-5xl font-bold text-slate-900 dark:text-white">
+                    <h2 className="text-4xl sm:text-5xl font-bold text-foreground">
                         How It{' '}
-                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-orange-500 dark:from-blue-400 dark:to-orange-400">
+                        <span className="text-primary">
                             Works
                         </span>
                     </h2>
-                    <p className="text-xl text-slate-600 dark:text-slate-300">
+                    <p className="text-xl text-muted-foreground">
                         Start your learning journey in four simple steps
                     </p>
                 </div>
@@ -70,25 +70,24 @@ export function HowItWorksSection() {
                 {/* Steps */}
                 <div className="relative">
                     {/* Connection line (desktop only) */}
-                    <div className="hidden lg:block absolute top-20 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-200 via-purple-200 via-orange-200 to-green-200 dark:from-blue-900 dark:via-purple-900 dark:via-orange-900 dark:to-green-900" />
+                    <div className="hidden lg:block absolute top-20 left-0 right-0 h-0.5 bg-border" />
 
                     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 relative">
                         {steps.map((step, index) => {
-                            const colors = colorMap[step.color as keyof typeof colorMap]
                             return (
                                 <div key={index} className="relative">
                                     {/* Step card */}
-                                    <div className="bg-white dark:bg-slate-800 rounded-2xl p-8 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-all hover:shadow-xl hover:-translate-y-2 group cursor-pointer h-full">
+                                    <div className="bg-card rounded-lg p-8 border hover:shadow-md transition-shadow cursor-pointer h-full">
                                         {/* Number badge */}
-                                        <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br ${colors.gradient} text-white text-2xl font-bold mb-6 group-hover:scale-110 transition-transform shadow-lg`}>
+                                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground text-2xl font-bold mb-6">
                                             {step.number}
                                         </div>
 
                                         {/* Content */}
-                                        <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-3">
+                                        <h3 className="text-xl font-semibold text-card-foreground mb-3">
                                             {step.title}
                                         </h3>
-                                        <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                                        <p className="text-muted-foreground leading-relaxed">
                                             {step.description}
                                         </p>
                                     </div>
@@ -96,7 +95,7 @@ export function HowItWorksSection() {
                                     {/* Mobile connector arrow */}
                                     {index < steps.length - 1 && (
                                         <div className="lg:hidden flex justify-center my-4">
-                                            <svg className="w-6 h-6 text-slate-300 dark:text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <svg className="w-6 h-6 text-muted-foreground/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                                             </svg>
                                         </div>

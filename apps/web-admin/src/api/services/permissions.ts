@@ -24,29 +24,29 @@ export interface PermissionsResponse {
 // API calls
 const permissionsApi = {
     async getRoles() {
-        const res = await apiClient.get('/api/rbac/roles');
+        const res = await apiClient.get('/api/authorization/roles');
         return res.data.data as RoleDefinition[];
     },
 
     async getPermissions() {
-        const res = await apiClient.get('/api/rbac/permissions');
+        const res = await apiClient.get('/api/authorization/permissions');
         return res.data.data as PermissionsResponse;
     },
 
     async getRolePermissions(roleCode: string) {
-        const res = await apiClient.get(`/api/rbac/roles/${roleCode}/permissions`);
+        const res = await apiClient.get(`/api/authorization/roles/${roleCode}/permissions`);
         return res.data.data.permissions as string[];
     },
 
     async updateRolePermissions(roleCode: string, permissions: string[]) {
-        const res = await apiClient.put(`/api/rbac/roles/${roleCode}/permissions`, {
+        const res = await apiClient.put(`/api/authorization/roles/${roleCode}/permissions`, {
             permissions,
         });
         return res.data;
     },
 
     async reseed() {
-        const res = await apiClient.post('/api/rbac/reseed');
+        const res = await apiClient.post('/api/authorization/reseed');
         return res.data;
     },
 };
@@ -54,21 +54,21 @@ const permissionsApi = {
 // React Query hooks
 export function useRoles() {
     return useQuery({
-        queryKey: ['rbac', 'roles'],
+        queryKey: ['authorization', 'roles'],
         queryFn: () => permissionsApi.getRoles(),
     });
 }
 
 export function useFetchPermissions() {
     return useQuery({
-        queryKey: ['rbac', 'permissions'],
+        queryKey: ['authorization', 'permissions'],
         queryFn: () => permissionsApi.getPermissions(),
     });
 }
 
 export function useRolePermissions(roleCode: string | null) {
     return useQuery({
-        queryKey: ['rbac', 'role-permissions', roleCode],
+        queryKey: ['authorization', 'role-permissions', roleCode],
         queryFn: () => permissionsApi.getRolePermissions(roleCode!),
         enabled: !!roleCode,
     });
@@ -87,7 +87,7 @@ export function useUpdateRolePermissions() {
         }) => permissionsApi.updateRolePermissions(roleCode, permissions),
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({
-                queryKey: ['rbac', 'role-permissions', variables.roleCode],
+                queryKey: ['authorization', 'role-permissions', variables.roleCode],
             });
             toast.success('Permissions updated successfully');
         },
@@ -103,7 +103,7 @@ export function useReseedPermissions() {
     return useMutation({
         mutationFn: () => permissionsApi.reseed(),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['rbac'] });
+            queryClient.invalidateQueries({ queryKey: ['authorization'] });
             toast.success('Permissions re-seeded successfully');
         },
         onError: (error: any) => {

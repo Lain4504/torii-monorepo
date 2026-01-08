@@ -31,17 +31,17 @@ const testimonials = [
 
 export function TestimonialsSection() {
     return (
-        <section className="py-24 bg-slate-50 dark:bg-slate-800/50">
+        <section className="py-24 bg-muted/50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Section Header */}
                 <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-                    <h2 className="text-4xl sm:text-5xl font-bold text-slate-900 dark:text-white">
+                    <h2 className="text-4xl sm:text-5xl font-bold text-foreground">
                         Loved by{' '}
-                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-orange-500 dark:from-blue-400 dark:to-orange-400">
+                        <span className="text-primary">
                             Learners Worldwide
                         </span>
                     </h2>
-                    <p className="text-xl text-slate-600 dark:text-slate-300">
+                    <p className="text-xl text-muted-foreground">
                         Join thousands of successful students who transformed their careers
                     </p>
                 </div>
@@ -51,7 +51,7 @@ export function TestimonialsSection() {
                     {testimonials.map((testimonial, index) => (
                         <div
                             key={index}
-                            className="bg-white dark:bg-slate-800 rounded-2xl p-8 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-all hover:shadow-xl hover:-translate-y-2 cursor-pointer"
+                            className="bg-card rounded-lg p-8 border hover:shadow-md transition-shadow cursor-pointer"
                         >
                             {/* Rating */}
                             <div className="flex gap-1 mb-6">
@@ -61,20 +61,20 @@ export function TestimonialsSection() {
                             </div>
 
                             {/* Content */}
-                            <p className="text-slate-700 dark:text-slate-300 leading-relaxed mb-8 text-lg">
+                            <p className="text-card-foreground leading-relaxed mb-8 text-lg">
                                 "{testimonial.content}"
                             </p>
 
                             {/* Author */}
                             <div className="flex items-center gap-4">
-                                <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${testimonial.gradient} flex items-center justify-center text-white font-bold flex-shrink-0`}>
+                                <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold flex-shrink-0">
                                     {testimonial.avatar}
                                 </div>
                                 <div>
-                                    <div className="font-semibold text-slate-900 dark:text-white">
+                                    <div className="font-semibold text-card-foreground">
                                         {testimonial.name}
                                     </div>
-                                    <div className="text-sm text-slate-600 dark:text-slate-400">
+                                    <div className="text-sm text-muted-foreground">
                                         {testimonial.role}
                                     </div>
                                 </div>
@@ -86,20 +86,20 @@ export function TestimonialsSection() {
                 {/* Stats Row */}
                 <div className="mt-20 grid grid-cols-2 lg:grid-cols-4 gap-8">
                     <div className="text-center">
-                        <div className="text-4xl font-bold text-slate-900 dark:text-white mb-2">98%</div>
-                        <div className="text-slate-600 dark:text-slate-400">Satisfaction Rate</div>
+                        <div className="text-4xl font-bold text-foreground mb-2">98%</div>
+                        <div className="text-muted-foreground">Satisfaction Rate</div>
                     </div>
                     <div className="text-center">
-                        <div className="text-4xl font-bold text-slate-900 dark:text-white mb-2">50K+</div>
-                        <div className="text-slate-600 dark:text-slate-400">Course Completions</div>
+                        <div className="text-4xl font-bold text-foreground mb-2">50K+</div>
+                        <div className="text-muted-foreground">Course Completions</div>
                     </div>
                     <div className="text-center">
-                        <div className="text-4xl font-bold text-slate-900 dark:text-white mb-2">4.9/5</div>
-                        <div className="text-slate-600 dark:text-slate-400">Average Rating</div>
+                        <div className="text-4xl font-bold text-foreground mb-2">4.9/5</div>
+                        <div className="text-muted-foreground">Average Rating</div>
                     </div>
                     <div className="text-center">
-                        <div className="text-4xl font-bold text-slate-900 dark:text-white mb-2">24/7</div>
-                        <div className="text-slate-600 dark:text-slate-400">AI Support</div>
+                        <div className="text-4xl font-bold text-foreground mb-2">24/7</div>
+                        <div className="text-muted-foreground">AI Support</div>
                     </div>
                 </div>
             </div>

@@ -13,9 +13,12 @@ import {
     TableHeader,
     TableRow,
 } from '@workspace/ui/components/table';
+import { Skeleton } from '@workspace/ui/components/skeleton';
 import { useState } from 'react';
 import type { ModuleResponseDTO } from '@workspace/schemas';
 import { getModulesColumns } from './modules-columns.tsx';
+import { Inbox } from 'lucide-react';
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
 
 interface ModulesTableProps {
     data: ModuleResponseDTO[];
@@ -25,9 +28,10 @@ interface ModulesTableProps {
     page: number;
     limit: number;
     courseTitleMap?: Map<string, string>;
+    isLoading?: boolean;
 }
 
-export function ModulesTable({ data, onView, onEdit, onDelete, page, limit, courseTitleMap }: ModulesTableProps) {
+export function ModulesTable({ data, onView, onEdit, onDelete, page, limit, courseTitleMap, isLoading }: ModulesTableProps) {
     const [sorting, setSorting] = useState<SortingState>([]);
 
     const columns = getModulesColumns({ onView, onEdit, onDelete, page, limit, courseTitleMap });
@@ -44,14 +48,14 @@ export function ModulesTable({ data, onView, onEdit, onDelete, page, limit, cour
     });
 
     return (
-        <div className="rounded-md border bg-card">
+        <div className="rounded-none border-none bg-transparent">
             <Table>
-                <TableHeader>
+                <TableHeader className="bg-muted/30">
                     {table.getHeaderGroups().map((headerGroup) => (
-                        <TableRow key={headerGroup.id}>
+                        <TableRow key={headerGroup.id} className="border-border/50 hover:bg-transparent">
                             {headerGroup.headers.map((header) => {
                                 return (
-                                    <TableHead key={header.id}>
+                                    <TableHead key={header.id} className="h-10 text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider">
                                         {header.isPlaceholder
                                             ? null
                                             : flexRender(
@@ -65,14 +69,25 @@ export function ModulesTable({ data, onView, onEdit, onDelete, page, limit, cour
                     ))}
                 </TableHeader>
                 <TableBody>
-                    {table.getRowModel().rows?.length ? (
+                    {isLoading ? (
+                        Array.from({ length: 5 }).map((_, index) => (
+                            <TableRow key={index} className="border-border/40">
+                                {columns.map((_, colIndex) => (
+                                    <TableCell key={colIndex} className="py-3">
+                                        <Skeleton className="h-6 w-full bg-muted/50 rounded-md" />
+                                    </TableCell>
+                                ))}
+                            </TableRow>
+                        ))
+                    ) : table.getRowModel().rows?.length ? (
                         table.getRowModel().rows.map((row) => (
                             <TableRow
                                 key={row.id}
                                 data-state={row.getIsSelected() && 'selected'}
+                                className="border-border/40 hover:bg-muted/30 transition-colors"
                             >
                                 {row.getVisibleCells().map((cell) => (
-                                    <TableCell key={cell.id}>
+                                    <TableCell key={cell.id} className="py-3 text-sm text-foreground/80">
                                         {flexRender(
                                             cell.column.columnDef.cell,
                                             cell.getContext()
@@ -82,12 +97,22 @@ export function ModulesTable({ data, onView, onEdit, onDelete, page, limit, cour
                             </TableRow>
                         ))
                     ) : (
-                        <TableRow>
+                        <TableRow className="hover:bg-transparent">
                             <TableCell
                                 colSpan={columns.length}
-                                className="h-24 text-center"
+                                className="h-24 text-center text-muted-foreground"
                             >
-                                No results.
+                                <div className="flex h-full w-full items-center justify-center p-6">
+                                    <Empty>
+                                        <EmptyHeader>
+                                            <EmptyMedia variant="icon"><Inbox /></EmptyMedia>
+                                            <EmptyTitle>No modules found</EmptyTitle>
+                                            <EmptyDescription>
+                                                Try adjusting your search or create a new module.
+                                            </EmptyDescription>
+                                        </EmptyHeader>
+                                    </Empty>
+                                </div>
                             </TableCell>
                         </TableRow>
                     )}

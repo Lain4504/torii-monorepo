@@ -26,10 +26,10 @@ const initialState: AuthState = {
 
 // Async Thunks
 export const login = createAsyncThunk(
-    'auth/login',
+    'auth/adminLogin',
     async (credentials: UserLoginDTO, { rejectWithValue }) => {
         try {
-            const response = await apiClient.post('/api/auth/login', credentials);
+            const response = await apiClient.post('/api/auth/admin/login', credentials);
             return response.data.data.user;
         } catch (error: any) {
             if (error.response && error.response.data.message) {
@@ -56,7 +56,7 @@ export const checkAuth = createAsyncThunk(
     'auth/check',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await apiClient.get('/api/auth/profile');
+            const response = await apiClient.get('/api/auth/me');
             return response.data.data.user;
         } catch (error) {
             return rejectWithValue('Not authenticated');

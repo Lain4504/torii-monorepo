@@ -8,9 +8,9 @@ export default function VerifyPage() {
     return (
         <div className="container relative flex min-h-screen flex-col items-center justify-center grow bg-muted/30 px-4">
             <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[450px]">
-                <div className="rounded-2xl border bg-card p-8 shadow-xl">
+                <div className="rounded-lg border bg-card p-8">
                     <div className="flex flex-col space-y-2 text-center mb-8">
-                        <h1 className="text-3xl font-bold tracking-tight text-primary">
+                        <h1 className="text-3xl font-bold tracking-tight text-card-foreground">
                             Torii Nihongo
                         </h1>
                         <p className="text-sm text-muted-foreground">
@@ -32,9 +32,9 @@ export default function VerifyPage() {
 
                 <p className="px-8 text-center text-xs text-muted-foreground text-balance">
                     Bằng việc xác thực, bạn đồng ý với{' '}
-                    <a href="/terms" className="underline underline-offset-4 hover:text-primary">Điều khoản dịch vụ</a>
+                    <a href="/terms" className="underline underline-offset-4 hover:text-primary transition-colors cursor-pointer">Điều khoản dịch vụ</a>
                     {' '}và{' '}
-                    <a href="/privacy" className="underline underline-offset-4 hover:text-primary">Chính sách bảo mật</a>
+                    <a href="/privacy" className="underline underline-offset-4 hover:text-primary transition-colors cursor-pointer">Chính sách bảo mật</a>
                     .
                 </p>
             </div>

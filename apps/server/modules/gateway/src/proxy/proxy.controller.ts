@@ -16,47 +16,61 @@ export class ProxyController {
     constructor(private readonly httpService: HttpService) { }
 
     // Service mapping: route prefix → service URL
+    // Architecture: 4 main microservices (Identity, Learning, Agents, Meet)
     private readonly serviceMap: Record<string, string> = {
-        // Identity Service Routes
+        // ============================================
+        // Identity Service (Port 8081)
+        // Auth, Users, RBAC, Audit, 2FA, Billing/Payments
+        // ============================================
         '/api/auth': process.env.IDENTITY_SERVICE_URL || 'http://localhost:8081',
         '/api/admin/users': process.env.IDENTITY_SERVICE_URL || 'http://localhost:8081',
         '/api/admin/audit-logs': process.env.IDENTITY_SERVICE_URL || 'http://localhost:8081',
         '/api/rbac': process.env.IDENTITY_SERVICE_URL || 'http://localhost:8081',
-        // LMS Service Routes
-        '/api/courses': process.env.LMS_SERVICE_URL || 'http://localhost:8082',
-        '/api/modules': process.env.LMS_SERVICE_URL || 'http://localhost:8082',
-        '/api/lessons': process.env.LMS_SERVICE_URL || 'http://localhost:8082',
-        '/api/wishlists': process.env.LMS_SERVICE_URL || 'http://localhost:8082',
+        '/api/billing': process.env.IDENTITY_SERVICE_URL || 'http://localhost:8081',
 
-        // Flashcards Service Routes
-        '/api/flashcards': process.env.FLASHCARDS_SERVICE_URL || 'http://localhost:8083',
-        '/api/flashcard-decks': process.env.FLASHCARDS_SERVICE_URL || 'http://localhost:8083',
+        // ============================================
+        // Learning Service (Port 8082)
+        // LMS, Community, Assessment, Flashcards, Gamification
+        // ============================================
+        // LMS Domain
+        '/api/courses': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
+        '/api/modules': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
+        '/api/lessons': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
+        '/api/wishlists': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
+        '/api/reviews': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
 
-        // Community Service Routes
-        '/api/blogs': process.env.COMMUNITY_SERVICE_URL || 'http://localhost:8084',
-        '/api/blog-comments': process.env.COMMUNITY_SERVICE_URL || 'http://localhost:8084',
-        '/api/notifications': process.env.COMMUNITY_SERVICE_URL || 'http://localhost:8084',
+        // Flashcards Domain
+        '/api/flashcards': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
+        '/api/flashcard-decks': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
 
-        // Assessment Service Routes
-        '/api/question-banks': process.env.ASSESSMENT_SERVICE_URL || 'http://localhost:8085',
-        '/api/v1/exams': process.env.ASSESSMENT_SERVICE_URL || 'http://localhost:8085',
-        '/api/v1/exams/attempts': process.env.ASSESSMENT_SERVICE_URL || 'http://localhost:8085',
-        '/api/v1/exams/sessions': process.env.ASSESSMENT_SERVICE_URL || 'http://localhost:8085',
+        // Community Domain
+        '/api/blogs': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
+        '/api/blog-comments': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
+        '/api/notifications': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
 
-        // Storage Service Routes
-        '/api/storage': process.env.STORAGE_SERVICE_URL || 'http://localhost:8086',
+        // Assessment Domain
+        '/api/question-banks': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
+        '/api/v1/exams': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
+        '/api/v1/exams/attempts': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
+        '/api/v1/exams/sessions': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
 
-        // Gamification Service Routes
-        '/api/gamification': process.env.GAMIFICATION_SERVICE_URL || 'http://localhost:8088',
+        // Gamification Domain
+        '/api/gamification': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
 
-        // Billing Service Routes
-        '/api/billing': process.env.BILLING_SERVICE_URL || 'http://localhost:8089',
+        // ============================================
+        // Agents Service (Port 8090)
+        // AI Agents: Sensei, Assessment, Analytics
+        // ============================================
+        '/api/agents': process.env.AGENTS_SERVICE_URL || 'http://localhost:8090',
 
-        // Cortex Service Routes
-        '/api/ai': process.env.CORTEX_SERVICE_URL || 'http://localhost:8090',
-
-        // Meet Service Routes
+        // ============================================
+        // Meet Service (Port 8091)
+        // WebRTC, Live Classes, Rooms, Polls, Waiting Room
+        // ============================================
+        // LiveKit Webhook
         '/webhook': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
+
+        // Room Authentication
         '/auth/room': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
 
         // Room Management
@@ -68,7 +82,7 @@ export class ProxyController {
         // Waiting Room
         '/api/waitingRoom': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
 
-        // User/Participant Management
+        // Participant Management
         '/api/verifyToken': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
         '/api/updateLockSettings': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
         '/api/muteUnmuteTrack': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
@@ -77,6 +91,7 @@ export class ProxyController {
         '/api/endRoom': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
         '/api/changeVisibility': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
 
+        // Breakout Rooms
         '/api/breakoutRoom': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
     };
 

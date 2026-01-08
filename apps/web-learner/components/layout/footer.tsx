@@ -52,7 +52,7 @@ export function Footer() {
     }
 
     return (
-        <footer className="bg-slate-50 dark:bg-slate-900 border-t border-teal-200 dark:border-teal-800">
+        <footer className="bg-muted/50 border-t">
             {/* Main Footer Content */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-12">
@@ -61,7 +61,7 @@ export function Footer() {
                         {/* Logo */}
                         <Link href="/" className="flex items-center gap-2 group">
                             <div className="relative">
-                                <svg className="w-10 h-10 text-teal-600 dark:text-teal-400 group-hover:text-teal-700 dark:group-hover:text-teal-300 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <svg className="w-10 h-10 text-primary group-hover:opacity-80 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                     <path d="M3 10h18" strokeLinecap="round" />
                                     <path d="M5 10v8" strokeLinecap="round" />
                                     <path d="M19 10v8" strokeLinecap="round" />
@@ -69,17 +69,17 @@ export function Footer() {
                                 </svg>
                             </div>
                             <div className="flex flex-col">
-                                <span className="font-bold text-xl text-slate-900 dark:text-white">
+                                <span className="font-bold text-xl text-foreground">
                                     Torii Nihongo
                                 </span>
-                                <span className="text-xs text-teal-600 dark:text-teal-400 font-medium">
+                                <span className="text-xs text-muted-foreground font-medium">
                                     日本語センター
                                 </span>
                             </div>
                         </Link>
 
                         {/* Description */}
-                        <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                        <p className="text-muted-foreground leading-relaxed">
                             Nền tảng học tiếng Nhật trực tuyến hàng đầu Việt Nam.
                             Kết hợp lớp học WebRTC chất lượng cao và AI Sensei để mang đến
                             trải nghiệm học tập hiệu quả nhất.
@@ -87,20 +87,20 @@ export function Footer() {
 
                         {/* Contact Info */}
                         <div className="space-y-3">
-                            <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
-                                <Mail className="w-5 h-5 text-teal-600 dark:text-teal-400" />
-                                <a href="mailto:hello@torii-nihongo.vn" className="hover:text-teal-600 dark:hover:text-teal-400 transition-colors">
+                            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                                <Mail className="w-5 h-5 text-primary" />
+                                <a href="mailto:hello@torii-nihongo.vn" className="hover:text-primary transition-colors cursor-pointer">
                                     hello@torii-nihongo.vn
                                 </a>
                             </div>
-                            <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
-                                <Phone className="w-5 h-5 text-teal-600 dark:text-teal-400" />
-                                <a href="tel:+84123456789" className="hover:text-teal-600 dark:hover:text-teal-400 transition-colors">
+                            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                                <Phone className="w-5 h-5 text-primary" />
+                                <a href="tel:+84123456789" className="hover:text-primary transition-colors cursor-pointer">
                                     (+84) 123 456 789
                                 </a>
                             </div>
-                            <div className="flex items-start gap-3 text-sm text-slate-600 dark:text-slate-400">
-                                <MapPin className="w-5 h-5 text-teal-600 dark:text-teal-400 flex-shrink-0 mt-0.5" />
+                            <div className="flex items-start gap-3 text-sm text-muted-foreground">
+                                <MapPin className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                                 <span>Số 1, Võ Văn Ngân, Linh Chiểu, Thủ Đức, TP.HCM</span>
                             </div>
                         </div>
@@ -111,7 +111,7 @@ export function Footer() {
                                 href="https://facebook.com/torii-nihongo"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="w-10 h-10 rounded-lg bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-teal-600 hover:text-white dark:hover:bg-teal-600 transition-all hover:scale-110"
+                                className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer"
                                 aria-label="Facebook"
                             >
                                 <Facebook className="w-5 h-5" />
@@ -120,7 +120,7 @@ export function Footer() {
                                 href="https://youtube.com/@torii-nihongo"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="w-10 h-10 rounded-lg bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-red-600 hover:text-white dark:hover:bg-red-600 transition-all hover:scale-110"
+                                className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center text-muted-foreground hover:bg-destructive hover:text-destructive-foreground transition-colors cursor-pointer"
                                 aria-label="YouTube"
                             >
                                 <Youtube className="w-5 h-5" />
@@ -129,7 +129,7 @@ export function Footer() {
                                 href="https://instagram.com/torii.nihongo"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="w-10 h-10 rounded-lg bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-gradient-to-br hover:from-purple-600 hover:to-pink-600 hover:text-white transition-all hover:scale-110"
+                                className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer"
                                 aria-label="Instagram"
                             >
                                 <Instagram className="w-5 h-5" />
@@ -139,7 +139,7 @@ export function Footer() {
 
                     {/* Courses Column */}
                     <div className="space-y-4">
-                        <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                        <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
                             {footerSections.courses.title}
                         </h3>
                         <ul className="space-y-3">
@@ -147,7 +147,7 @@ export function Footer() {
                                 <li key={link.href}>
                                     <Link
                                         href={link.href}
-                                        className="text-sm text-slate-600 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
+                                        className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer"
                                     >
                                         {link.name}
                                     </Link>
@@ -158,7 +158,7 @@ export function Footer() {
 
                     {/* Features Column */}
                     <div className="space-y-4">
-                        <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                        <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
                             {footerSections.features.title}
                         </h3>
                         <ul className="space-y-3">
@@ -166,7 +166,7 @@ export function Footer() {
                                 <li key={link.href}>
                                     <Link
                                         href={link.href}
-                                        className="text-sm text-slate-600 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
+                                        className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer"
                                     >
                                         {link.name}
                                     </Link>
@@ -177,7 +177,7 @@ export function Footer() {
 
                     {/* Resources Column */}
                     <div className="space-y-4">
-                        <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                        <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
                             {footerSections.resources.title}
                         </h3>
                         <ul className="space-y-3">
@@ -185,7 +185,7 @@ export function Footer() {
                                 <li key={link.href}>
                                     <Link
                                         href={link.href}
-                                        className="text-sm text-slate-600 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
+                                        className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer"
                                     >
                                         {link.name}
                                     </Link>
@@ -196,7 +196,7 @@ export function Footer() {
 
                     {/* Company Column */}
                     <div className="space-y-4">
-                        <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                        <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
                             {footerSections.company.title}
                         </h3>
                         <ul className="space-y-3">
@@ -204,7 +204,7 @@ export function Footer() {
                                 <li key={link.href}>
                                     <Link
                                         href={link.href}
-                                        className="text-sm text-slate-600 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
+                                        className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer"
                                     >
                                         {link.name}
                                     </Link>
@@ -215,13 +215,13 @@ export function Footer() {
                 </div>
 
                 {/* Newsletter Section */}
-                <div className="mt-16 pt-12 border-t border-teal-200 dark:border-teal-800">
+                <div className="mt-16 pt-12 border-t">
                     <div className="max-w-2xl mx-auto text-center space-y-6">
                         <div className="space-y-2">
-                            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
+                            <h3 className="text-2xl font-bold text-foreground">
                                 Đăng ký nhận tin tức
                             </h3>
-                            <p className="text-slate-600 dark:text-slate-400">
+                            <p className="text-muted-foreground">
                                 Nhận mẹo học tiếng Nhật, đề thi JLPT mới và ưu đãi đặc biệt
                             </p>
                         </div>
@@ -229,9 +229,9 @@ export function Footer() {
                             <input
                                 type="email"
                                 placeholder="Email của bạn"
-                                className="flex-1 px-4 py-3 rounded-lg border border-teal-200 dark:border-teal-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                                className="flex-1 px-4 py-3 rounded-lg border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                             />
-                            <Button className="bg-teal-600 hover:bg-teal-700 text-white px-6">
+                            <Button className="px-6">
                                 Đăng ký
                             </Button>
                         </form>
@@ -240,20 +240,20 @@ export function Footer() {
             </div>
 
             {/* Bottom Bar */}
-            <div className="border-t border-teal-200 dark:border-teal-800">
+            <div className="border-t">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                        <p className="text-sm text-slate-600 dark:text-slate-400 text-center md:text-left">
+                        <p className="text-sm text-muted-foreground text-center md:text-left">
                             © {currentYear} Torii Nihongo. All rights reserved. | SP26SE005
                         </p>
-                        <div className="flex items-center gap-6 text-sm text-slate-600 dark:text-slate-400">
-                            <Link href="/privacy" className="hover:text-teal-600 dark:hover:text-teal-400 transition-colors">
+                        <div className="flex items-center gap-6 text-sm text-muted-foreground">
+                            <Link href="/privacy" className="hover:text-primary transition-colors cursor-pointer">
                                 Chính sách bảo mật
                             </Link>
-                            <Link href="/terms" className="hover:text-teal-600 dark:hover:text-teal-400 transition-colors">
+                            <Link href="/terms" className="hover:text-primary transition-colors cursor-pointer">
                                 Điều khoản sử dụng
                             </Link>
-                            <Link href="/cookies" className="hover:text-teal-600 dark:hover:text-teal-400 transition-colors">
+                            <Link href="/cookies" className="hover:text-primary transition-colors cursor-pointer">
                                 Cookie Policy
                             </Link>
                         </div>

@@ -13,7 +13,7 @@ import {
     BarChart, // analytics
     Bot, // ai-service
     Bell, // notifications
-    Shield, // rbac
+    Shield,
     FileSearch, // audit-logs
     Lock, // permissions
     Search,
@@ -119,11 +119,11 @@ export function CommandMenu() {
                     </CommandGroup>
                     <CommandSeparator />
                     <CommandGroup heading="Security & Audit">
-                        <CommandItem onSelect={() => runCommand(() => navigate("/rbac/permissions"))}>
+                        <CommandItem onSelect={() => runCommand(() => navigate("/authorization/permissions"))}>
                             <Shield className="mr-2 h-4 w-4" />
-                            <span>RBAC Permissions</span>
+                            <span>Authorization Permissions</span>
                         </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => navigate("/rbac/audit-logs"))}>
+                        <CommandItem onSelect={() => runCommand(() => navigate("/authorization/audit-logs"))}>
                             <FileSearch className="mr-2 h-4 w-4" />
                             <span>Audit Logs</span>
                         </CommandItem>

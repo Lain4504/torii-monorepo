@@ -1,13 +1,17 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@server/shared";
 import { Prisma, AuditLog } from "@prisma/generated";
+import type { AuditLogActivityDTO } from '@workspace/schemas';
+import type { IAuditLogRepository } from '../../interfaces/repositories';
+
+export type AuditLogWithUser = AuditLog & { user?: { id: string; email: string; displayName: string; role: string } };
 
 /**
  * Audit Log Repository
  * Handles all database operations for AuditLog entity
  */
 @Injectable()
-export class AuditLogRepository {
+export class AuditLogRepository implements IAuditLogRepository {
     constructor(private readonly prisma: PrismaService) { }
 
     /**
@@ -46,8 +50,8 @@ export class AuditLogRepository {
     /**
      * Get recent activity for a user
      */
-    async findByUserId(userId: string, limit: number = 20): Promise<any[]> {
-        return this.prisma.auditLog.findMany({
+    async findByUserId(userId: string, limit: number = 20): Promise<AuditLogActivityDTO[]> {
+        const logs = await this.prisma.auditLog.findMany({
             where: { userId },
             orderBy: { createdAt: 'desc' },
             take: limit,
@@ -57,17 +61,42 @@ export class AuditLogRepository {
                         id: true,
                         email: true,
                         displayName: true,
+                        role: true,
                     },
                 },
             },
         });
+
+        // Map Prisma AuditLog to AuditLogActivityDTO
+        return logs.map((log: AuditLogWithUser) => ({
+            id: log.id,
+            userId: log.userId,
+            userEmail: log.userEmail,
+            userRole: log.userRole,
+            action: log.action,
+            entity: log.entity,
+            entityId: log.entityId,
+            description: log.description,
+            metadata: log.metadata as Record<string, unknown> | null,
+            oldValues: log.oldValues as Record<string, unknown> | null,
+            newValues: log.newValues as Record<string, unknown> | null,
+            ipAddress: log.ipAddress,
+            userAgent: log.userAgent,
+            createdAt: log.createdAt,
+            user: log.user ? {
+                id: log.user.id,
+                email: log.user.email,
+                displayName: log.user.displayName,
+                role: log.user.role,
+            } : undefined,
+        }));
     }
 
     /**
      * Get activity for a specific entity
      */
-    async findByEntity(entity: string, entityId: string, limit: number = 20): Promise<any[]> {
-        return this.prisma.auditLog.findMany({
+    async findByEntity(entity: string, entityId: string, limit: number = 20): Promise<AuditLogActivityDTO[]> {
+        const logs = await this.prisma.auditLog.findMany({
             where: { entity, entityId },
             orderBy: { createdAt: 'desc' },
             take: limit,
@@ -77,10 +106,35 @@ export class AuditLogRepository {
                         id: true,
                         email: true,
                         displayName: true,
+                        role: true,
                     },
                 },
             },
         });
+
+        // Map Prisma AuditLog to AuditLogActivityDTO
+        return logs.map((log: AuditLogWithUser) => ({
+            id: log.id,
+            userId: log.userId,
+            userEmail: log.userEmail,
+            userRole: log.userRole,
+            action: log.action,
+            entity: log.entity,
+            entityId: log.entityId,
+            description: log.description,
+            metadata: log.metadata as Record<string, unknown> | null,
+            oldValues: log.oldValues as Record<string, unknown> | null,
+            newValues: log.newValues as Record<string, unknown> | null,
+            ipAddress: log.ipAddress,
+            userAgent: log.userAgent,
+            createdAt: log.createdAt,
+            user: log.user ? {
+                id: log.user.id,
+                email: log.user.email,
+                displayName: log.user.displayName,
+                role: log.user.role,
+            } : undefined,
+        }));
     }
 
     /**

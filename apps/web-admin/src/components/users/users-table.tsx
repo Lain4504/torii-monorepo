@@ -16,6 +16,9 @@ import {
 import { useState } from 'react';
 import type { UserResponseDTO } from '@workspace/schemas';
 import { getUsersColumns } from './users-columns.tsx';
+import { Inbox } from 'lucide-react';
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
+import { Skeleton } from '@workspace/ui/components/skeleton';
 
 interface UsersTableProps {
     data: UserResponseDTO[];
@@ -24,9 +27,10 @@ interface UsersTableProps {
     onDelete: (user: UserResponseDTO) => void;
     page: number;
     limit: number;
+    isLoading?: boolean;
 }
 
-export function UsersTable({ data, onView, onEdit, onDelete, page, limit }: UsersTableProps) {
+export function UsersTable({ data, onView, onEdit, onDelete, page, limit, isLoading }: UsersTableProps) {
     const [sorting, setSorting] = useState<SortingState>([]);
 
     // Memorize columns to prevent re-renders
@@ -44,14 +48,14 @@ export function UsersTable({ data, onView, onEdit, onDelete, page, limit }: User
     });
 
     return (
-        <div className="rounded-md border bg-card">
+        <div className="rounded-none border-none bg-transparent">
             <Table>
-                <TableHeader>
+                <TableHeader className="bg-muted/40 dark:bg-muted/60">
                     {table.getHeaderGroups().map((headerGroup) => (
-                        <TableRow key={headerGroup.id}>
+                        <TableRow key={headerGroup.id} className="border-border/50 hover:bg-transparent">
                             {headerGroup.headers.map((header) => {
                                 return (
-                                    <TableHead key={header.id}>
+                                    <TableHead key={header.id} className="h-10 text-xs font-semibold text-muted-foreground/80 dark:text-muted-foreground/90 uppercase tracking-wider">
                                         {header.isPlaceholder
                                             ? null
                                             : flexRender(
@@ -65,14 +69,25 @@ export function UsersTable({ data, onView, onEdit, onDelete, page, limit }: User
                     ))}
                 </TableHeader>
                 <TableBody>
-                    {table.getRowModel().rows?.length ? (
+                    {isLoading ? (
+                        Array.from({ length: 5 }).map((_, index) => (
+                            <TableRow key={index} className="border-border/40">
+                                {columns.map((_, colIndex) => (
+                                    <TableCell key={colIndex} className="py-3">
+                                        <Skeleton className="h-6 w-full bg-muted/50 rounded-md" />
+                                    </TableCell>
+                                ))}
+                            </TableRow>
+                        ))
+                    ) : table.getRowModel().rows?.length ? (
                         table.getRowModel().rows.map((row) => (
                             <TableRow
                                 key={row.id}
                                 data-state={row.getIsSelected() && 'selected'}
+                                className="border-border/40 hover:bg-muted/40 dark:hover:bg-muted/50 transition-colors"
                             >
                                 {row.getVisibleCells().map((cell) => (
-                                    <TableCell key={cell.id}>
+                                    <TableCell key={cell.id} className="py-3 text-sm text-foreground/80">
                                         {flexRender(
                                             cell.column.columnDef.cell,
                                             cell.getContext()
@@ -82,12 +97,22 @@ export function UsersTable({ data, onView, onEdit, onDelete, page, limit }: User
                             </TableRow>
                         ))
                     ) : (
-                        <TableRow>
+                        <TableRow className="hover:bg-transparent">
                             <TableCell
                                 colSpan={columns.length}
-                                className="h-24 text-center"
+                                className="h-24 text-center text-muted-foreground"
                             >
-                                No results.
+                                <div className="flex h-full w-full items-center justify-center p-6">
+                                    <Empty>
+                                        <EmptyHeader>
+                                            <EmptyMedia variant="icon"><Inbox /></EmptyMedia>
+                                            <EmptyTitle>No users found</EmptyTitle>
+                                            <EmptyDescription>
+                                                Try adjusting your search or filters.
+                                            </EmptyDescription>
+                                        </EmptyHeader>
+                                    </Empty>
+                                </div>
                             </TableCell>
                         </TableRow>
                     )}

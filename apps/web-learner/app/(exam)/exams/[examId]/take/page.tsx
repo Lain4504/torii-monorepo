@@ -278,10 +278,10 @@ export default function TakeExamPage() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-screen">
+            <div className="flex items-center justify-center h-screen bg-background">
                 <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
-                    <p className="text-slate-600 dark:text-slate-400">Đang tải bài thi...</p>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                    <p className="text-muted-foreground">Đang tải bài thi...</p>
                 </div>
             </div>
         )
@@ -289,9 +289,9 @@ export default function TakeExamPage() {
 
     if (error) {
         return (
-            <div className="flex items-center justify-center h-screen">
+            <div className="flex items-center justify-center h-screen bg-background">
                 <div className="text-center">
-                    <p className="text-red-600 mb-4">{error}</p>
+                    <p className="text-destructive mb-4">{error}</p>
                     <Button onClick={() => router.push('/exams')}>Quay lại</Button>
                 </div>
             </div>
@@ -300,9 +300,9 @@ export default function TakeExamPage() {
 
     if (questions.length === 0) {
         return (
-            <div className="flex items-center justify-center h-screen">
+            <div className="flex items-center justify-center h-screen bg-background">
                 <div className="text-center">
-                    <p className="text-slate-600 dark:text-slate-400 mb-4">Không có câu hỏi nào</p>
+                    <p className="text-muted-foreground mb-4">Không có câu hỏi nào</p>
                     <Button onClick={() => router.push('/exams')}>Quay lại</Button>
                 </div>
             </div>
@@ -314,12 +314,12 @@ export default function TakeExamPage() {
     return (
         <div className="flex flex-col h-screen overflow-hidden">
             {/* Header */}
-            <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 flex items-center justify-between px-4 sm:px-6 shrink-0 z-20">
+            <header className="h-16 border-b bg-background flex items-center justify-between px-4 sm:px-6 shrink-0 z-20">
                 <div className="flex items-center gap-4">
-                    <Link href="/exams" className="text-slate-500 hover:text-slate-900 dark:hover:text-white">
+                    <Link href="/exams" className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
                         <X className="w-6 h-6" />
                     </Link>
-                    <div className="hidden sm:block font-bold text-lg text-slate-900 dark:text-white">
+                    <div className="hidden sm:block font-bold text-lg text-foreground">
                         {examTitle}
                     </div>
                 </div>
@@ -336,7 +336,7 @@ export default function TakeExamPage() {
                 <Button
                     onClick={handleSubmit}
                     variant="outline"
-                    className="border-teal-600 text-teal-600 hover:bg-teal-50"
+                    className="border-primary text-primary hover:bg-primary/10"
                 >
                     Nộp bài
                 </Button>
@@ -348,11 +348,11 @@ export default function TakeExamPage() {
                 <div className="lg:hidden absolute bottom-4 right-4 z-50">
                     <Sheet>
                         <SheetTrigger asChild>
-                            <Button size="icon" className="h-12 w-12 rounded-full shadow-lg bg-slate-900 text-white">
+                            <Button size="icon" className="h-12 w-12 rounded-full shadow-lg bg-foreground text-background">
                                 <Menu className="w-6 h-6" />
                             </Button>
                         </SheetTrigger>
-                        <SheetContent side="right" className="p-0 border-l border-slate-200 dark:border-slate-800 w-80">
+                        <SheetContent side="right" className="p-0 border-l w-80">
                             <QuestionNavigator
                                 questions={questions}
                                 currentIndex={currentQuestionIndex}
@@ -365,7 +365,7 @@ export default function TakeExamPage() {
                 </div>
 
                 {/* Desktop Sidebar */}
-                <aside className="hidden lg:block w-80 border-r border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
+                <aside className="hidden lg:block w-80 border-r bg-muted/50">
                     <QuestionNavigator
                         questions={questions}
                         currentIndex={currentQuestionIndex}
@@ -376,7 +376,7 @@ export default function TakeExamPage() {
                 </aside>
 
                 {/* Content Area */}
-                <main className="flex-1 overflow-y-auto p-4 sm:p-8 md:p-12 pb-24 lg:pb-12 bg-white dark:bg-slate-950">
+                <main className="flex-1 overflow-y-auto p-4 sm:p-8 md:p-12 pb-24 lg:pb-12 bg-background">
                     {currentQuestion && (
                         <QuestionArea
                             question={currentQuestion}

@@ -60,7 +60,7 @@ function App() {
                 <Route path="analytics" element={<AnalyticsPage />} />
                 <Route path="ai-service" element={<AIServicePage />} />
                 <Route path="notifications" element={<NotificationsPage />} />
-                <Route path="rbac/audit-logs" element={<AuditLogsPage />} />
+                <Route path="authorization/audit-logs" element={<AuditLogsPage />} />
                 <Route path="permissions" element={<PermissionsPage />} />
                 <Route path="settings" element={<SettingsPage />} />
               </Route>

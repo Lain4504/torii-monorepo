@@ -1,5 +1,5 @@
 ﻿import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { moduleUpdateDTOSchema, type ModuleResponseDTO } from '@workspace/schemas';
@@ -11,9 +11,14 @@ import {
 } from '@workspace/ui/components/dialog';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
+import {
+    Field,
+    FieldLabel,
+    FieldError,
+} from '@workspace/ui/components/field';
 
 import { toast } from '@workspace/ui/components/sonner';
-import {useUpdateModule} from "@/api/services/modules.ts";
+import { useUpdateModule } from "@/api/services/modules.ts";
 
 const getUpdateModuleSchema = (existingTitles: string[] = []) =>
     moduleUpdateDTOSchema.extend({
@@ -44,8 +49,8 @@ export function EditModuleDialog({ module, open, onOpenChange, existingModules =
 
     const {
         register,
+        control,
         handleSubmit,
-        formState: { errors },
         reset,
     } = useForm<UpdateModuleFormData>({
         resolver: zodResolver(updateModuleSchema),
@@ -91,35 +96,84 @@ export function EditModuleDialog({ module, open, onOpenChange, existingModules =
                 <DialogHeader>
                     <DialogTitle>Edit Module</DialogTitle>
                 </DialogHeader>
-                <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4">
+                <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4" noValidate>
                     <div>
                         <label className="block text-sm font-medium mb-1">Course Title</label>
                         <Input value={courseTitle} readOnly />
                         <input type="hidden" {...register('courseId')} />
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Title</label>
-                        <Input {...register('title')} placeholder="Enter module title" />
-                        {errors.title && (
-                            <p className="text-sm text-red-500 mt-1">{errors.title.message}</p>
+                    <Controller
+                        control={control}
+                        name="title"
+                        render={({ field, fieldState }) => (
+                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Title</FieldLabel>
+                                <Input
+                                    id={field.name}
+                                    {...field}
+                                    placeholder="Enter module title"
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
                         )}
-                    </div>
+                    />
 
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Description</label>
-                        <Input {...register('description')} placeholder="Enter description" />
-                    </div>
+                    <Controller
+                        control={control}
+                        name="description"
+                        render={({ field, fieldState }) => (
+                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Description</FieldLabel>
+                                <Input
+                                    id={field.name}
+                                    {...field}
+                                    placeholder="Enter description"
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
+                        )}
+                    />
 
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Order</label>
-                        <Input type="number" {...register('order', { valueAsNumber: true })} placeholder="Enter order" />
-                    </div>
+                    <Controller
+                        control={control}
+                        name="order"
+                        render={({ field, fieldState }) => (
+                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Order</FieldLabel>
+                                <Input
+                                    id={field.name}
+                                    type="number"
+                                    {...field}
+                                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                    placeholder="Enter order"
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
+                        )}
+                    />
 
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Duration (minutes)</label>
-                        <Input type="number" {...register('durationMinutes', { valueAsNumber: true })} placeholder="Duration in minutes" />
-                    </div>
+                    <Controller
+                        control={control}
+                        name="durationMinutes"
+                        render={({ field, fieldState }) => (
+                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Duration (minutes)</FieldLabel>
+                                <Input
+                                    id={field.name}
+                                    type="number"
+                                    {...field}
+                                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                    placeholder="Duration in minutes"
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
+                        )}
+                    />
 
                     <div className="flex justify-end gap-2">
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>

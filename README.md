@@ -8,7 +8,7 @@ Dự án chuyên biệt đào tạo tiếng Nhật trực tuyến kết hợp We
 torii-monorepo/
 ├── apps/
 │   ├── server/               # NestJS Microservices Workspace
-│   │   ├── modules/          # 8 Microservices độc lập
+│   │   ├── modules/          # 4 Microservices độc lập (gateway, identity, learning, agents, meet)
 │   │   └── libs/             # Thư viện dùng chung (shared logic, nats, prisma)
 │   ├── web-admin/            # React Admin Dashboard (Vite)
 │   └── web-learner/          # Next.js Learning Platform
@@ -77,28 +77,17 @@ docker-compose down -v
 4.  **Environment Variables (Service URLs):**
     Đảm bảo `.env` có các biến sau cho microservices:
     ```bash
-    # Microservice Ports
+    # Microservice Ports (4 main services)
+    GATEWAY_PORT=8080
     IDENTITY_HTTP_PORT=8081
-    LMS_HTTP_PORT=8082
-    FLASHCARDS_HTTP_PORT=8083
-    COMMUNITY_HTTP_PORT=8084
-    ASSESSMENT_HTTP_PORT=8085
-    STORAGE_HTTP_PORT=8086
-    GAMIFICATION_HTTP_PORT=8088
-    BILLING_HTTP_PORT=8089
-    CORTEX_HTTP_PORT=8090
+    LEARNING_HTTP_PORT=8082
+    AGENTS_HTTP_PORT=8090
     MEET_HTTP_PORT=8091
     
     # Service URLs (for Gateway proxy)
     IDENTITY_SERVICE_URL=http://localhost:8081
-    LMS_SERVICE_URL=http://localhost:8082
-    FLASHCARDS_SERVICE_URL=http://localhost:8083
-    COMMUNITY_SERVICE_URL=http://localhost:8084
-    ASSESSMENT_SERVICE_URL=http://localhost:8085
-    STORAGE_SERVICE_URL=http://localhost:8086
-    GAMIFICATION_SERVICE_URL=http://localhost:8088
-    BILLING_SERVICE_URL=http://localhost:8089
-    CORTEX_SERVICE_URL=http://localhost:8090
+    LEARNING_SERVICE_URL=http://localhost:8082
+    AGENTS_SERVICE_URL=http://localhost:8090
     MEET_SERVICE_URL=http://localhost:8091
     ```
 
@@ -134,7 +123,7 @@ pnpm dlx shadcn@latest add [component-name]
 
 ## 🛰 Microservices Architecture (HTTP + NATS Hybrid)
 
-Hệ thống backend được chia thành các **Domain Services độc lập**, giao tiếp qua **HTTP REST API** (cho request/response) và **NATS Message Broker** (cho realtime events và async jobs). Kiến trúc này tập trung vào các nghiệp vụ lõi (Learning, Real-time Class, AI) thay vì chia theo chức năng kỹ thuật.
+Hệ thống backend được chia thành **4 Domain Services độc lập**, giao tiếp qua **HTTP REST API** (cho request/response) và **NATS Message Broker** (cho realtime events và async jobs). Kiến trúc này tập trung vào các nghiệp vụ lõi (Identity, Learning, AI, Real-time Class) với mô hình consolidated để dễ quản lý và triển khai.
 
 ### 🏛 System Architecture
 
@@ -146,16 +135,10 @@ graph TB
     
     subgraph ServiceLayer [Microservices Ecosystem]
         direction TB
-        Identity[<b>Identity</b> :8081<br>Auth & Users]
-        LMS[<b>LMS</b> :8082<br>Courses & Content]
-        Flashcards[<b>Flashcards</b> :8083<br>Spaced Repetition]
-        Community[<b>Community</b> :8084<br>Blog & Social]
-        Assessment[<b>Assessment</b> :8085<br>Exams & Tests]
-        Storage[<b>Storage</b> :8086<br>File Assets]
-        Gamification[<b>Gamification</b> :8088<br>Badges & Points]
-        Billing[<b>Billing</b> :8089<br>Payments]
-        Cortex[<b>Cortex</b> :8090<br>AI Agents]
-        Meet[<b>Meet</b> :8091<br>WebRTC & Classrooms]
+        Identity[<b>Identity</b> :8081<br>Auth, Users, RBAC, Audit, 2FA, Billing]
+        Learning[<b>Learning</b> :8082<br>LMS, Community, Assessment, Flashcards, Gamification]
+        Agents[<b>Agents</b> :8090<br>AI Agents: Sensei, Assessment, Analytics]
+        Meet[<b>Meet</b> :8091<br>WebRTC, Live Classes, Rooms]
     end
     
     ServiceLayer -.->|Realtime Events| NATS
@@ -180,24 +163,18 @@ graph TB
 | Service | Port | Protocol | Trách nhiệm chính (Bounded Context) |
 |:---|:---|:---|:---|
 | **Gateway** | `8080` | HTTP | Entry point duy nhất, HTTP proxy routing, Authentication guard (Auth Callout via NATS). |
-| **Identity** | `8081` | HTTP | **Core Auth**: Đăng ký, đăng nhập, Quản lý User, RBAC. **Tính năng mới**: Refresh Token Rotation, Dual-Mode Auth (Cookie/Web & JSON/Mobile), Secure Mobile Flow. |
-| **LMS** | `8082` | HTTP | **Learning Core**: Quản lý khóa học, bài học (Lessons), lộ trình học tập, tracking tiến độ học viên. |
-| **Flashcards** | `8083` | HTTP | **Study Tool**: Quản lý bộ thẻ (Decks), thuật toán Spaced Repetition (SRS) để ôn tập từ vựng. |
-| **Community** | `8084` | HTTP | **Social**: Blog, Bình luận, Profile xã hội và Hệ thống thông báo (Notification Center). |
-| **Assessment** | `8085` | HTTP | **Testing Engine**: Ngân hàng câu hỏi, bài kiểm tra (Quiz), tổ chức thi thử JLPT và chấm điểm tự động. |
-| **Storage** | `8086` | HTTP | **Assets**: Quản lý upload/download file tập trung, tích hợp S3/MinIO. |
-| **Gamification** | `8088` | HTTP | **Engagement**: Hệ thống điểm thưởng, huy hiệu (Badges), bảng xếp hạng (Leaderboards) và Streaks. |
-| **Billing** | `8089` | HTTP | **Finance**: Xử lý thanh toán, hóa đơn (Invoices), mã giảm giá (Coupons) và quản lý doanh thu. |
-| **Cortex** | `8090` | HTTP | **AI Brain**: Hệ thống Multi-Agent (Sensei, Analytics, Proctoring). Là "trung tâm trí tuệ" của nền tảng. |
-| **Meet** | `8091` | HTTP + NATS | **Live Class Engine**: Quản lý phóng học ảo, tích hợp LiveKit (WebRTC), Recording, Whiteboard. NATS cho realtime WebSocket và auth callout. |
+| **Identity** | `8081` | HTTP | **Core Auth & User Management**: Đăng ký, đăng nhập, Quản lý User, RBAC, Audit Logs, 2FA, **Billing & Payments** (Invoices, Transactions). |
+| **Learning** | `8082` | HTTP | **Unified Learning Platform**: <br>• **LMS**: Courses, Modules, Lessons, Wishlists, Reviews<br>• **Community**: Blogs, Comments, Notifications<br>• **Assessment**: Question Banks, Exams, Attempts, Sessions<br>• **Flashcards**: Decks, Cards, SRS Algorithm<br>• **Gamification**: Points, Badges, Leaderboards |
+| **Agents** | `8090` | HTTP | **AI Brain**: Multi-Agent System (Sensei Agent, Assessment Agent, Analytics Agent). Là "trung tâm trí tuệ" của nền tảng, hỗ trợ học tập thông minh. |
+| **Meet** | `8091` | HTTP + NATS | **Live Class Engine**: Quản lý phòng học ảo, tích hợp LiveKit (WebRTC), Recording, Polls, Waiting Room, Breakout Rooms. NATS cho realtime WebSocket và auth callout. |
 
 ### 🔌 Service Communication Examples
 
-**HTTP Request Flow (Room Creation):**
+**HTTP Request Flow (Course Creation):**
 ```
-Client → Gateway:8080/auth/room/create
-       → Meet:8091/auth/room/create
-       → RoomCreateService.createRoom()
+Client → Gateway:8080/api/courses
+       → Learning:8082/courses
+       → CourseService.createCourse()
        → PostgreSQL
        ← Response
 ```
@@ -218,6 +195,44 @@ LiveKit → NATS (auth.request)
         → Verify JWT token
         ← Auth response
 ```
+
+### 📂 Service Internal Modules
+
+#### **Identity Service** (`apps/server/modules/identity`)
+- **Auth Module**: Registration, Login, JWT/Firebase Auth, OAuth (Google)
+- **Users Module**: User management, profile updates
+- **RBAC Module**: Role-Based Access Control, permissions
+- **Audit Module**: Audit logs for security tracking
+- **Two-Factor Auth Module**: TOTP-based 2FA
+- **Payments Module**: Billing, invoices, transactions
+
+#### **Learning Service** (`apps/server/modules/learning`)
+- **Course Module**: Course CRUD, enrollment
+- **Module Module**: Course modules/chapters
+- **Lesson Module**: Lesson content, progress tracking
+- **Wishlist Module**: Course wishlists
+- **Review Module**: Course reviews and ratings
+- **Blog Module**: Community blog posts
+- **Blog Comment Module**: Comments on blog posts
+- **Notification Module**: User notifications
+- **Question Bank Module**: Question repository for exams
+- **Exam Module**: Exam creation, attempts, sessions
+- **Flashcard Deck Module**: Flashcard deck management
+- **Flashcard Module**: Individual flashcards, SRS algorithm
+- **Gamification Module**: Points, badges, leaderboards
+
+#### **Agents Service** (`apps/server/modules/agents`)
+- **Sensei Agent Module**: AI tutor for personalized learning
+- **Assessment Agent Module**: AI-powered assessment and grading
+- **Analytics Agent Module**: Learning analytics and insights
+- **FastMCP Module**: Fast Model Context Protocol integration
+
+#### **Meet Service** (`apps/server/modules/meet`)
+- **Room Module**: Virtual classroom management, LiveKit integration
+- **Polls Module**: Real-time polling in classes
+- **Waiting Room Module**: Pre-class waiting room
+- **User Room Settings Module**: Per-user room preferences
+- **Breakout Rooms**: Small group sessions
 
 ---
 

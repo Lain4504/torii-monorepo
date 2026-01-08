@@ -104,7 +104,7 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                         className={`w-5 h-5 ${
                             i <= rating
                                 ? 'fill-yellow-400 text-yellow-400'
-                                : 'text-slate-300'
+                                : 'text-muted-foreground/30'
                         } ${interactive ? 'cursor-pointer hover:scale-110 transition-transform' : ''}`}
                         onClick={() => interactive && setNewRating(i)}
                     />
@@ -128,8 +128,8 @@ export function CourseReviews({ course }: CourseReviewsProps) {
     if (loading && page === 1) {
         return (
             <div className="space-y-8">
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Đánh giá từ học viên</h2>
-                <div className="text-center py-12 text-slate-500">
+                <h2 className="text-2xl font-bold text-foreground">Đánh giá từ học viên</h2>
+                <div className="text-center py-12 text-muted-foreground">
                     <p>Đang tải đánh giá...</p>
                 </div>
             </div>
@@ -138,10 +138,10 @@ export function CourseReviews({ course }: CourseReviewsProps) {
 
     return (
         <div className="space-y-8">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Đánh giá từ học viên</h2>
+            <h2 className="text-2xl font-bold text-foreground">Đánh giá từ học viên</h2>
 
             {totalReviews === 0 ? (
-                <div className="text-center py-12 text-slate-500">
+                <div className="text-center py-12 text-muted-foreground">
                     <p>Chưa có đánh giá nào cho khóa học này.</p>
                     {isAuthenticated && !userReview && (
                         <Button
@@ -157,12 +157,12 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                 <>
                     {/* Review Summary */}
                     <div className="flex flex-col md:flex-row gap-8 items-start">
-                        <div className="flex flex-col items-center justify-center p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl min-w-[200px]">
-                            <span className="text-5xl font-bold text-slate-900 dark:text-white mb-2">
+                        <div className="flex flex-col items-center justify-center p-6 bg-card border rounded-lg min-w-[200px]">
+                            <span className="text-5xl font-bold text-card-foreground mb-2">
                                 {roundedRating}
                             </span>
                             {renderStars(averageRating)}
-                            <span className="text-sm text-slate-500 mt-2">
+                            <span className="text-sm text-muted-foreground mt-2">
                                 {totalReviews.toLocaleString()} đánh giá
                             </span>
                         </div>
@@ -171,9 +171,9 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                             {distribution.map((rating) => (
                                 <div key={rating.stars} className="flex items-center gap-3">
                                     <span className="text-sm font-medium w-3">{rating.stars}</span>
-                                    <Star className="w-4 h-4 text-slate-400" />
+                                    <Star className="w-4 h-4 text-muted-foreground" />
                                     <Progress value={rating.percent} className="h-2" />
-                                    <span className="text-sm text-slate-500 w-10 text-right">
+                                    <span className="text-sm text-muted-foreground w-10 text-right">
                                         {rating.percent}%
                                     </span>
                                 </div>
@@ -183,11 +183,11 @@ export function CourseReviews({ course }: CourseReviewsProps) {
 
                     {/* Write Review Form */}
                     {isAuthenticated && !userReview && !showReviewForm && (
-                        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6">
+                        <div className="bg-card border rounded-lg p-6">
                             <Button
                                 onClick={() => setShowReviewForm(true)}
                                 variant="outline"
-                                className="w-full"
+                                className="w-full cursor-pointer"
                             >
                                 Viết đánh giá
                             </Button>
@@ -195,25 +195,25 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                     )}
 
                     {showReviewForm && (
-                        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 space-y-4">
-                            <h3 className="font-semibold text-slate-900 dark:text-white">
+                        <div className="bg-card border rounded-lg p-6 space-y-4">
+                            <h3 className="font-semibold text-card-foreground">
                                 Đánh giá của bạn
                             </h3>
                             <div>
-                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">
+                                <label className="text-sm font-medium text-card-foreground mb-2 block">
                                     Đánh giá
                                 </label>
                                 {renderStars(newRating, true)}
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">
+                                <label className="text-sm font-medium text-card-foreground mb-2 block">
                                     Nhận xét (tùy chọn)
                                 </label>
                                 <textarea
                                     value={newComment}
                                     onChange={(e) => setNewComment(e.target.value)}
                                     placeholder="Chia sẻ trải nghiệm của bạn về khóa học này..."
-                                    className="w-full min-h-[100px] p-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                                    className="w-full min-h-[100px] p-3 border rounded-lg bg-background text-foreground"
                                 />
                             </div>
                             <div className="flex gap-2">
@@ -231,6 +231,7 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                                         setNewComment('')
                                     }}
                                     variant="outline"
+                                    className="cursor-pointer"
                                 >
                                     Hủy
                                 </Button>
@@ -243,7 +244,7 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                         {reviews.map((review) => (
                             <div
                                 key={review.id}
-                                className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6"
+                                className="bg-card border rounded-lg p-6"
                             >
                                 <div className="flex gap-4">
                                     <Avatar>
@@ -255,10 +256,10 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                                     <div className="flex-1 space-y-2">
                                         <div className="flex items-center justify-between">
                                             <div>
-                                                <h4 className="font-semibold text-slate-900 dark:text-white">
+                                                <h4 className="font-semibold text-card-foreground">
                                                     {review.user.displayName}
                                                 </h4>
-                                                <p className="text-xs text-slate-500">
+                                                <p className="text-xs text-muted-foreground">
                                                     {new Date(review.createdAt).toLocaleDateString('vi-VN', {
                                                         year: 'numeric',
                                                         month: 'long',
@@ -269,7 +270,7 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                                             {renderStars(review.rating)}
                                         </div>
                                         {review.comment && (
-                                            <p className="text-slate-700 dark:text-slate-300">
+                                            <p className="text-card-foreground">
                                                 {review.comment}
                                             </p>
                                         )}
@@ -283,7 +284,7 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                         <Button
                             onClick={() => setPage((prev) => prev + 1)}
                             variant="outline"
-                            className="w-full"
+                            className="w-full cursor-pointer"
                             disabled={loading}
                         >
                             {loading ? 'Đang tải...' : 'Xem thêm đánh giá'}

@@ -21,19 +21,19 @@ export function QuestionNavigator({
 }: QuestionNavigatorProps) {
     return (
         <div className="h-full flex flex-col">
-            <div className="p-4 border-b border-slate-200 dark:border-slate-800">
-                <h3 className="font-bold text-slate-900 dark:text-white">Danh sách câu hỏi</h3>
-                <div className="flex gap-4 text-xs mt-2 text-slate-500">
+            <div className="p-4 border-b">
+                <h3 className="font-bold text-foreground">Danh sách câu hỏi</h3>
+                <div className="flex gap-4 text-xs mt-2 text-muted-foreground">
                     <div className="flex items-center gap-1">
-                        <div className="w-3 h-3 rounded-full bg-teal-600" />
+                        <div className="w-3 h-3 rounded-full bg-primary" />
                         <span>Đã làm</span>
                     </div>
                     <div className="flex items-center gap-1">
-                        <div className="w-3 h-3 rounded-full border border-orange-400 bg-orange-50" />
+                        <div className="w-3 h-3 rounded-full border border-primary bg-primary/10" />
                         <span>Đánh dấu</span>
                     </div>
                     <div className="flex items-center gap-1">
-                        <div className="w-3 h-3 rounded-full border border-slate-300" />
+                        <div className="w-3 h-3 rounded-full border border-border" />
                         <span>Chưa làm</span>
                     </div>
                 </div>
@@ -51,20 +51,20 @@ export function QuestionNavigator({
                                 key={q.id}
                                 onClick={() => onSelect(index)}
                                 className={cn(
-                                    "relative h-10 w-10 text-sm font-medium rounded-lg transition-all border",
+                                    "relative h-10 w-10 text-sm font-medium rounded-lg transition-colors border cursor-pointer",
                                     isActive
-                                        ? "ring-2 ring-teal-600 border-teal-600 z-10"
-                                        : "border-slate-200 dark:border-slate-800 hover:border-teal-400",
+                                        ? "ring-2 ring-primary border-primary z-10"
+                                        : "border hover:border-primary/50",
                                     isAnswered
-                                        ? "bg-teal-600 text-white border-teal-600"
-                                        : "bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300",
-                                    isFlagged && !isAnswered && "bg-orange-50 border-orange-300 text-orange-700"
+                                        ? "bg-primary text-primary-foreground border-primary"
+                                        : "bg-card text-card-foreground",
+                                    isFlagged && !isAnswered && "bg-accent border-primary/30"
                                 )}
                             >
                                 {index + 1}
                                 {isFlagged && (
                                     <div className="absolute -top-1 -right-1">
-                                        <Flag className="w-3 h-3 fill-orange-500 text-orange-500" />
+                                        <Flag className="w-3 h-3 fill-primary text-primary" />
                                     </div>
                                 )}
                             </button>

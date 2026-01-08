@@ -3,15 +3,19 @@ import {
     InternalServerErrorException,
     NotFoundException,
     BadRequestException,
-    ForbiddenException
+    ForbiddenException,
+    Inject,
+    ConflictException,
 } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
+import Redis from 'ioredis';
 import type {
     UserUpdateDTO,
     Requester,
     UserCreateDTO,
     PaginationOptionsDTO,
     PaginatedResponseDTO,
+    AdminCreateInternalUserDTO,
 } from '@workspace/schemas';
 import {
     userUpdateDTOSchema,
@@ -20,14 +24,20 @@ import {
     ErrEmailExisted,
     ErrUserNotFound,
 } from '@workspace/schemas';
-import { RBACService } from '../rbac/rbac.service';
-import { UsersRepository } from './users.repository';
+import type { User, Prisma } from '@prisma/generated';
+import type { IUsersRepository } from '../../interfaces/repositories';
+import type { IUsersService, IAuthorizationService, IEmailService, UserWithPermissions } from '../../interfaces/services';
+import { USERS_REPOSITORY_TOKEN } from '../../interfaces/repositories';
+import { AUTHORIZATION_SERVICE_TOKEN, EMAIL_SERVICE_TOKEN } from '../../interfaces/services';
+import { REDIS_CLIENT } from '@server/shared';
 
 @Injectable()
-export class UsersService {
+export class UsersService implements IUsersService {
     constructor(
-        private readonly usersRepository: UsersRepository,
-        private readonly rbacService: RBACService,
+        @Inject(USERS_REPOSITORY_TOKEN) private readonly usersRepository: IUsersRepository,
+        @Inject(AUTHORIZATION_SERVICE_TOKEN) private readonly authorizationService: IAuthorizationService,
+        @Inject(EMAIL_SERVICE_TOKEN) private readonly emailService: IEmailService,
+        @Inject(REDIS_CLIENT) private readonly redis: Redis,
     ) { }
 
     /**
@@ -37,11 +47,11 @@ export class UsersService {
         const { page = 1, limit = 10, search = '' } = options;
         const skip = (page - 1) * limit;
 
-        const where = search
+        const where: Prisma.UserWhereInput = search
             ? {
                 OR: [
-                    { email: { contains: search, mode: 'insensitive' as any } },
-                    { displayName: { contains: search, mode: 'insensitive' as any } },
+                    { email: { contains: search, mode: 'insensitive' } },
+                    { displayName: { contains: search, mode: 'insensitive' } },
                 ],
             }
             : {};
@@ -55,8 +65,19 @@ export class UsersService {
             this.usersRepository.count(where),
         ]);
 
-        // No need to filter fields - password/salt removed from schema
-        const data = users.map(user => user as any);
+        // Map Prisma User to UserResponseDTO (exclude password/salt)
+        const data: UserResponseDTO[] = users.map(user => ({
+            id: user.id,
+            email: user.email,
+            displayName: user.displayName,
+            role: user.role as UserRole,
+            verifiedAt: user.verifiedAt,
+            bannedUntil: user.bannedUntil,
+            lastLoginAt: user.lastSignInAt,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt,
+            deletedAt: user.deletedAt,
+        }));
 
         return {
             data,
@@ -77,7 +98,18 @@ export class UsersService {
             throw new NotFoundException('User not found');
         }
 
-        return user as any;
+        return {
+            id: user.id,
+            email: user.email,
+            displayName: user.displayName,
+            role: user.role as UserRole,
+            verifiedAt: user.verifiedAt,
+            bannedUntil: user.bannedUntil,
+            lastLoginAt: user.lastSignInAt,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt,
+            deletedAt: user.deletedAt,
+        };
     }
 
     /**
@@ -98,36 +130,108 @@ export class UsersService {
             email: dto.email,
             displayName: dto.displayName,
             role: dto.role || UserRole.LEARNER,
-            // emailVerifiedAt: null (default) = pending
-        } as any);
+            password: dto.password || null,
+            // verifiedAt: null (default) = pending
+        });
 
-        return user as any;
+        return {
+            id: user.id,
+            email: user.email,
+            displayName: user.displayName,
+            role: user.role as UserRole,
+            verifiedAt: user.verifiedAt,
+            bannedUntil: user.bannedUntil,
+            lastLoginAt: user.lastSignInAt,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt,
+            deletedAt: user.deletedAt,
+        };
     }
 
     /**
-     * Get user profile
+     * Create internal user (LECTURE/STAFF) with invite email
+     * User is created in INVITED status (verifiedAt = null, password = null)
      */
-    async profile(userId: string): Promise<UserResponseDTO> {
+    async createInternalUser(dto: AdminCreateInternalUserDTO, adminId: string): Promise<UserResponseDTO> {
+        // Check email exists
+        const emailExists = await this.usersRepository.emailExists(dto.email);
+        if (emailExists) {
+            throw new ConflictException(ErrEmailExisted.message);
+        }
+
+        // Create user in INVITED status (no password, not verified)
+        const newId = uuidv4();
+        const user = await this.usersRepository.create({
+            id: newId,
+            email: dto.email,
+            displayName: dto.displayName,
+            role: dto.role,
+            password: null, // No password set - user will set it via invite link
+            verifiedAt: null, // INVITED status
+        });
+
+        // Generate invite token (valid for 7 days)
+        const cryptoModule = await import('crypto');
+        const inviteToken = cryptoModule.randomBytes(32).toString('hex');
+
+        // Store invite token in Redis (7 days expiry)
+        await this.redis.set(`invite-token:${inviteToken}`, user.id, 'EX', 604800); // 7 days
+
+        // Send invite email
+        const inviteUrl = `${process.env.FRONTEND_URL}/set-password?token=${inviteToken}`;
+        await this.emailService.sendInviteEmail(
+            user.email,
+            user.displayName,
+            inviteUrl
+        );
+
+        return {
+            id: user.id,
+            email: user.email,
+            displayName: user.displayName,
+            role: user.role as UserRole,
+            verifiedAt: user.verifiedAt,
+            bannedUntil: user.bannedUntil,
+            lastLoginAt: user.lastSignInAt,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt,
+            deletedAt: user.deletedAt,
+        };
+    }
+
+    /**
+     * Get user by ID (alias for findOne)
+     */
+    async getUser(userId: string): Promise<UserResponseDTO> {
         return this.findOne(userId);
     }
 
     /**
-   * Get user profile with RBAC data
-   * Returns user info along with computed role, permissions, and staff template
-   */
-    async getUserProfile(userId: string) {
-        const user = await this.usersRepository.getProfile(userId);
+     * Get user with authorization permissions
+     * Returns user info along with computed role, permissions, and staff template
+     */
+    async getUserWithPermissions(userId: string): Promise<UserWithPermissions> {
+        const user = await this.usersRepository.getUserBasicInfo(userId);
 
         if (!user) {
             throw new NotFoundException(ErrUserNotFound.message);
         }
 
-        // Get permissions from RBAC service
-        const rbacData = await this.rbacService.getUserPermissions(user.id, user.role);
+        // Get permissions from authorization service
+        const authorizationData = await this.authorizationService.getUserPermissions(user.id, user.role);
 
         return {
-            ...user,
-            permissions: rbacData.permissions,
+            id: user.id,
+            email: user.email,
+            displayName: user.displayName,
+            role: user.role as UserRole,
+            verifiedAt: user.verifiedAt,
+            bannedUntil: null,
+            lastLoginAt: null,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt,
+            deletedAt: null,
+            permissions: authorizationData.permissions,
         };
     }
 
@@ -148,13 +252,26 @@ export class UsersService {
         }
 
         // Update user data (password changes handled by Firebase)
-        const updateData: any = { ...data };
+        const updateData: Prisma.UserUpdateInput = { ...data };
         // Remove password field if present - Firebase handles auth
-        delete updateData.password;
+        if ('password' in updateData) {
+            delete (updateData as { password?: unknown }).password;
+        }
 
         const updatedUser = await this.usersRepository.update(userId, updateData);
 
-        return updatedUser as any;
+        return {
+            id: updatedUser.id,
+            email: updatedUser.email,
+            displayName: updatedUser.displayName,
+            role: updatedUser.role as UserRole,
+            verifiedAt: updatedUser.verifiedAt,
+            bannedUntil: updatedUser.bannedUntil,
+            lastLoginAt: updatedUser.lastSignInAt,
+            createdAt: updatedUser.createdAt,
+            updatedAt: updatedUser.updatedAt,
+            deletedAt: updatedUser.deletedAt,
+        };
     }
 
     /**

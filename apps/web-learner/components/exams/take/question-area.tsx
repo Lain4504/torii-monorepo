@@ -56,17 +56,17 @@ export function QuestionArea({
 
             {/* Listening Section */}
             {question.type === 'listening' && question.audioUrl && (
-                <div className="bg-slate-100 dark:bg-slate-900 p-4 rounded-xl flex items-center gap-4">
+                <div className="bg-muted p-4 rounded-lg flex items-center gap-4">
                     <Button
                         size="icon"
-                        className="h-12 w-12 rounded-full bg-teal-600 hover:bg-teal-700 text-white"
+                        className="h-12 w-12 rounded-full"
                         onClick={toggleAudio}
                     >
                         {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-1" />}
                     </Button>
                     <div className="flex-1">
-                        <div className="h-1 bg-slate-300 dark:bg-slate-700 rounded-full overflow-hidden">
-                            <div className="h-full bg-teal-500 w-1/3 animate-pulse" />
+                        <div className="h-1 bg-muted-foreground/20 rounded-full overflow-hidden">
+                            <div className="h-full bg-primary w-1/3 animate-pulse" />
                         </div>
                     </div>
                     <audio
@@ -80,9 +80,9 @@ export function QuestionArea({
 
             {/* Reading Passage */}
             {question.type === 'reading' && question.readingPassage && (
-                <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-xl prose dark:prose-invert max-w-none">
-                    <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">Đọc đoạn văn sau</h4>
-                    <p className="whitespace-pre-wrap leading-relaxed">
+                <div className="bg-card border p-6 rounded-lg prose max-w-none">
+                    <h4 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-2">Đọc đoạn văn sau</h4>
+                    <p className="whitespace-pre-wrap leading-relaxed text-card-foreground">
                         {question.readingPassage}
                     </p>
                 </div>
@@ -90,7 +90,7 @@ export function QuestionArea({
 
             {/* Question Content */}
             <div>
-                <h2 className="text-xl md:text-2xl font-semibold text-slate-900 dark:text-white leading-relaxed mb-6">
+                <h2 className="text-xl md:text-2xl font-semibold text-foreground leading-relaxed mb-6">
                     {question.content}
                 </h2>
 
@@ -102,14 +102,14 @@ export function QuestionArea({
                     {question.options.map((opt) => (
                         <div
                             key={opt.id}
-                            className={`flex items-center space-x-3 p-4 rounded-lg border cursor-pointer transition-all ${selectedOption === opt.id
-                                ? "border-teal-500 bg-teal-50 dark:bg-teal-900/20 ring-1 ring-teal-500"
-                                : "border-slate-200 dark:border-slate-800 hover:border-teal-200 dark:hover:border-teal-800 bg-white dark:bg-slate-900"
+                            className={`flex items-center space-x-3 p-4 rounded-lg border cursor-pointer transition-colors ${selectedOption === opt.id
+                                ? "border-primary bg-primary/10 ring-1 ring-primary"
+                                : "border hover:border-primary/50 bg-card"
                                 }`}
                             onClick={() => onAnswer(question.id, opt.id)}
                         >
-                            <RadioGroupItem value={opt.id} id={opt.id} className="text-teal-600 border-slate-400" />
-                            <Label htmlFor={opt.id} className="flex-1 cursor-pointer font-medium text-slate-700 dark:text-slate-300 text-base">
+                            <RadioGroupItem value={opt.id} id={opt.id} />
+                            <Label htmlFor={opt.id} className="flex-1 cursor-pointer font-medium text-card-foreground text-base">
                                 {opt.label}
                             </Label>
                         </div>
@@ -118,12 +118,12 @@ export function QuestionArea({
             </div>
 
             {/* Action Bar */}
-            <div className="flex items-center justify-between pt-8 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex items-center justify-between pt-8 border-t">
                 <Button
                     variant="ghost"
                     onClick={onPrev}
                     disabled={isFirst}
-                    className="text-slate-500"
+                    className="text-muted-foreground"
                 >
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Câu trước
@@ -131,7 +131,7 @@ export function QuestionArea({
 
                 <Button
                     variant={isFlagged ? "secondary" : "ghost"}
-                    className={isFlagged ? "bg-orange-100 text-orange-700 hover:bg-orange-200" : "text-slate-500 hover:text-orange-600 hover:bg-orange-50"}
+                    className={isFlagged ? "" : "text-muted-foreground hover:text-foreground"}
                     onClick={() => onFlag(question.id)}
                 >
                     <Flag className={`w-4 h-4 mr-2 ${isFlagged ? "fill-current" : ""}`} />
@@ -140,7 +140,7 @@ export function QuestionArea({
 
                 <Button
                     onClick={onNext}
-                    className="bg-teal-600 hover:bg-teal-700 text-white min-w-[120px]"
+                    className="min-w-[120px]"
                 >
                     {isLast ? "Nộp bài" : "Câu tiếp"}
                     {!isLast && <ArrowRight className="w-4 h-4 ml-2" />}

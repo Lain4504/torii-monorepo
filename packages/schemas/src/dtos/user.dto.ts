@@ -1,11 +1,12 @@
 import { z } from 'zod';
-import { userSchema } from '../models/user.model';
+import { userSchema, UserRole } from '../models/user.model';
 
 // Registration DTO
 export const userRegistrationDTOSchema = z.object({
     email: userSchema.shape.email,
     password: userSchema.shape.password,
     displayName: userSchema.shape.displayName.optional(), // Optional for email+password only registration
+    platform: z.enum(['web', 'mobile']).optional().default('web'),
 });
 
 export type UserRegistrationDTO = z.infer<typeof userRegistrationDTOSchema>;
@@ -18,7 +19,7 @@ export const userLoginDTOSchema = z.object({
 
 export type UserLoginDTO = z.infer<typeof userLoginDTOSchema>;
 
-// Admin Create User DTO
+// Admin Create User DTO (for external users - with password)
 export const userCreateDTOSchema = userSchema
     .pick({
         email: true,
@@ -31,6 +32,22 @@ export const userCreateDTOSchema = userSchema
     });
 
 export type UserCreateDTO = z.infer<typeof userCreateDTOSchema>;
+
+// Admin Create Internal User DTO (for LECTURE/STAFF - no password, invite email)
+export const adminCreateInternalUserDTOSchema = z.object({
+    email: userSchema.shape.email,
+    displayName: userSchema.shape.displayName,
+    role: z.enum([
+        UserRole.LECTURER,
+        UserRole.STAFF,
+        // Staff variants (specific roles)
+        'staff-lms' as any,
+        'staff-support' as any,
+        'staff-sales' as any,
+    ]),
+});
+
+export type AdminCreateInternalUserDTO = z.infer<typeof adminCreateInternalUserDTOSchema>;
 
 // Update DTO (minimal auth fields)
 export const userUpdateDTOSchema = userSchema
@@ -68,3 +85,23 @@ export const userResponseDTOSchema = userSchema.omit({
 });
 
 export type UserResponseDTO = z.infer<typeof userResponseDTOSchema>;
+
+// ========================================
+// Invite Token DTOs (for internal users)
+// ========================================
+
+// Verify invite token DTO
+export const verifyInviteTokenDTOSchema = z.object({
+    token: z.string().min(1, 'Token is required'),
+});
+
+export type VerifyInviteTokenDTO = z.infer<typeof verifyInviteTokenDTOSchema>;
+
+// Set password for invited user DTO
+export const setPasswordDTOSchema = z.object({
+    token: z.string().min(1, 'Token is required'),
+    password: userSchema.shape.password,
+});
+
+export type SetPasswordDTO = z.infer<typeof setPasswordDTOSchema>;
+
