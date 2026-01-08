@@ -49,6 +49,7 @@ model Course {
   wishlists Wishlist[]
   reviews Review[]
   quizzes Quiz[]
+  instructors CourseInstructor[]
 
   @@index([jlptLevel])
   @@index([status])
@@ -95,9 +96,47 @@ model Lesson {
 
   module Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   quizzes Quiz[]
+  materials LessonMaterial[]
 
   @@index([moduleId])
   @@map("lessons")
+}
+
+// Course Instructor - Junction table linking courses to lecturers
+model CourseInstructor {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courseId     String   @map("course_id") @db.Uuid
+  lecturerId   String   @map("lecturer_id") @db.Uuid
+  isPrimary    Boolean  @default(false) @map("is_primary")
+  assignedDate DateTime @default(now()) @map("assigned_date")
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, lecturerId])
+  @@index([courseId])
+  @@index([lecturerId])
+  @@map("course_instructors")
+}
+
+// Lesson Material - Junction table linking lessons to file assets for teaching materials
+model LessonMaterial {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  lessonId    String   @map("lesson_id") @db.Uuid
+  fileAssetId String   @map("file_asset_id") @db.Uuid
+  type        String   @db.VarChar(50) // 'slides' | 'video' | 'reading' | 'assignment'
+  title       String?  @db.VarChar(255)
+  orderIndex  Int      @default(0) @map("order_index")
+  createdBy   String   @map("created_by") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  lesson    Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  fileAsset FileAsset @relation(fields: [fileAssetId], references: [id], onDelete: Restrict)
+
+  @@unique([lessonId, fileAssetId])
+  @@index([lessonId])
+  @@index([fileAssetId])
+  @@map("lesson_materials")
 }
 
 model RoomInfo {
@@ -433,6 +472,9 @@ model FileAsset {
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  lessonMaterials LessonMaterial[]
 
   @@index([ownerId])
   @@index([fileUrl])

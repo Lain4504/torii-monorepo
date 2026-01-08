@@ -4,38 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(users): enhance create-user-dialog with multi-step flow and role selection&#10;&#10;- Added multi-step form flow for user creation (details &gt; role selection).&#10;- Introduced UI updates for better usability and visual consistency.&#10;- Implemented support for staff role variants with descriptive labels.&#10;- Improved form validation and error handling logic.">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(learning): refactor course, module, and lesson architecture with new repository and service layers">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/providers/jwt-token.provider.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/providers/jwt-token.provider.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/auth.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/auth.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/rbac.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/users.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/users.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/identity.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/identity.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/repositories/i-audit-log.repository.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/repositories/i-audit-log.repository.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/repositories/i-users.repository.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/repositories/i-users.repository.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/i-audit-log.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/i-audit-log.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/i-rbac.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/i-users.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/i-users.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/messaging/auth.messaging.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/messaging/auth.messaging.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/messaging/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/messaging/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/messaging/rbac.messaging.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/messaging/users.messaging.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/messaging/users.messaging.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/audit/audit-log.repository.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/audit/audit-log.repository.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/audit/audit-log.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/audit/audit-log.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/auth.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/auth.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/auth.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/rbac/rbac-config.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/rbac/rbac-seeder.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/rbac/rbac.module.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/rbac/rbac.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/users/users.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/users/users.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/users/users.repository.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/users/users.repository.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/users/users.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/users/users.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/services/permissions.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/api/services/permissions.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/layout/command-menu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/layout/command-menu.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/audit.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/audit.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/repositories/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/repositories/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/services/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/services/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/learning.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/learning.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/index.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -147,7 +122,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "lms-rebuild",
     "ignore.virus.scanning.warn.message": "true",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
@@ -290,14 +265,6 @@
       <workItem from="1767779643020" duration="455000" />
       <workItem from="1767780214679" duration="224000" />
       <workItem from="1767784611248" duration="3225000" />
-    </task>
-    <task id="LOCAL-00479" summary="feat(database): add new modules for gamification, payments, and user management">
-      <option name="closed" value="true" />
-      <created>1767787153490</created>
-      <option name="number" value="00479" />
-      <option name="presentableId" value="LOCAL-00479" />
-      <option name="project" value="LOCAL" />
-      <updated>1767787153490</updated>
     </task>
     <task id="LOCAL-00480" summary="feat(database): add new modules for gamification, payments, and user management">
       <option name="closed" value="true" />
@@ -683,7 +650,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767850861502</updated>
     </task>
-    <option name="localTasksCounter" value="528" />
+    <task id="LOCAL-00528" summary="feat(learning): refactor course, module, and lesson architecture with new repository and service layers">
+      <option name="closed" value="true" />
+      <created>1767858503615</created>
+      <option name="number" value="00528" />
+      <option name="presentableId" value="LOCAL-00528" />
+      <option name="project" value="LOCAL" />
+      <updated>1767858503615</updated>
+    </task>
+    <option name="localTasksCounter" value="529" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -713,7 +688,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat(web-learner): add exam management interface with card-based UI and history tracking&#10;&#10;- Introduced `ExamCard` component to display exam details and statuses (new, in-progress, completed).&#10;- Created `ExamHistory` component for displaying past exam attempts in a table format.&#10;- Added `ExamStats` component to showcase key statistics such as average score, total exams taken, and hours practiced.&#10;- Implemented `ExamPage` layout with tabs for available exams and exam history, including filtering and searching functionality.&#10;- Ensured responsive design and adherence to platform UI/UX guidelines." />
     <MESSAGE value="feat(auth): add two-factor authentication with TOTP, SMS, and email support&#10;&#10;- Implemented comprehensive 2FA support, including TOTP, SMS, and email-based authentication.&#10;- Added reusable encryption module with AES-256-GCM for securing TOTP secrets.&#10;- Created TwoFactorAuth module with service, controller, and repository for managing 2FA methods and statuses.&#10;- Introduced backup codes functionality for recovery.&#10;- Added Prisma migrations for storing 2FA configurations.&#10;- Integrated Redis and NATS for OTP storage and notifications." />
     <MESSAGE value="feat(auth): implement Google OAuth login and account linking functionality&#10;&#10;- Added endpoints for Google OAuth login and linking existing accounts.&#10;- Integrated Google authentication with user registration and login processes.&#10;- Updated user model to support OAuth identities and metadata.&#10;- Enhanced user service to manage linked providers and account unlinking.&#10;- Included necessary environment variables for Google OAuth in .env.example." />
     <MESSAGE value="feat(auth): implement password reset flow with email verification and UI updates" />
@@ -738,7 +712,8 @@
     <MESSAGE value="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`," />
     <MESSAGE value="feat(users): integrate EmailModule for user management enhancements" />
     <MESSAGE value="feat(users): enhance create-user-dialog with multi-step flow and role selection&#10;&#10;- Added multi-step form flow for user creation (details &gt; role selection).&#10;- Introduced UI updates for better usability and visual consistency.&#10;- Implemented support for staff role variants with descriptive labels.&#10;- Improved form validation and error handling logic." />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(users): enhance create-user-dialog with multi-step flow and role selection&#10;&#10;- Added multi-step form flow for user creation (details &gt; role selection).&#10;- Introduced UI updates for better usability and visual consistency.&#10;- Implemented support for staff role variants with descriptive labels.&#10;- Improved form validation and error handling logic." />
+    <MESSAGE value="feat(learning): refactor course, module, and lesson architecture with new repository and service layers" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(learning): refactor course, module, and lesson architecture with new repository and service layers" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -746,7 +721,6 @@
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/apps/server/libs/shared/src/providers/jwt-token.provider.ts</url>
           <line>25</line>
-          <properties lambdaOrdinal="-1" />
           <option name="timeStamp" value="1" />
         </line-breakpoint>
       </breakpoints>

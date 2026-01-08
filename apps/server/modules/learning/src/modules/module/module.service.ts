@@ -1,174 +1,232 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { RpcException } from '@nestjs/microservices';
-import { PrismaService } from '@server/shared';
-import { Module as ModuleEntity } from '@prisma/generated';
-import {
-  type PaginatedResponseDTO,
-  type ModuleResponseDTO,
-  type ModuleCreateDTO,
-  type ModuleUpdateDTO,
-  type ModuleQueryDTO,
+import { Injectable, Logger, Inject, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import type { Module as CourseModule } from '@prisma/generated';
+
+import type {
+  ModuleCreateDTO,
+  ModuleUpdateDTO,
+  ModuleResponseDTO,
+  PaginationOptionsDTO,
+  PaginatedResponseDTO,
+  Requester,
 } from '@workspace/schemas';
 
+import type { IModuleService } from '../../interfaces/services';
+import type { IModuleRepository } from '../../interfaces/repositories';
+import { MODULE_REPOSITORY_TOKEN } from '../../interfaces/repositories';
+
+/**
+ * Module Service
+ * Handles module business logic operations
+ */
 @Injectable()
-export class ModuleService {
+export class ModuleService implements IModuleService {
   private readonly logger = new Logger(ModuleService.name);
 
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(
+    @Inject(MODULE_REPOSITORY_TOKEN)
+    private readonly moduleRepository: IModuleRepository,
+  ) { }
 
-  private toModuleResponseDto(m: ModuleEntity): ModuleResponseDTO {
+  /**
+   * Map Module entity to ModuleResponseDTO
+   */
+  private toModuleResponseDTO(module: CourseModule): ModuleResponseDTO {
     return {
-      id: m.id,
-      courseId: m.courseId,
-      title: m.title,
-      description: m.description || undefined,
-      order: m.order,
-      durationMinutes: m.durationMinutes || undefined,
-      createdBy: m.createdBy || undefined,
-      createdAt: m.createdAt,
-      updatedAt: m.updatedAt,
-      deletedAt: m.deletedAt || undefined,
+      id: module.id,
+      courseId: module.courseId,
+      title: module.title,
+      description: module.description || undefined,
+      aiMetadata: module.aiMetadata || undefined,
+      orderIndex: module.orderIndex,
+      durationMinutes: module.durationMinutes || undefined,
+      createdBy: module.createdBy || undefined,
+      createdAt: module.createdAt,
+      updatedAt: module.updatedAt,
+      deletedAt: module.deletedAt || undefined,
     };
   }
 
-  async findAll(query: ModuleQueryDTO): Promise<PaginatedResponseDTO<ModuleResponseDTO>> {
+  /**
+   * Find all modules with pagination and search
+   */
+  async findAll(options: PaginationOptionsDTO): Promise<PaginatedResponseDTO<ModuleResponseDTO>> {
     try {
-      const { page = 1, limit = 10, courseId, search } = query;
-      const skip = (Number(page) - 1) * Number(limit);
+      const { page = 1, limit = 10, search } = options;
+      const skip = (page - 1) * limit;
 
-      const whereClause: Record<string, any> = { deletedAt: null };
-
-      if (courseId) whereClause.courseId = courseId;
+      const where: any = {
+        deletedAt: null,
+      };
 
       if (search) {
-        whereClause.OR = [
+        where.OR = [
           { title: { contains: search, mode: 'insensitive' } },
           { description: { contains: search, mode: 'insensitive' } },
         ];
       }
 
-      const [total, items] = await Promise.all([
-        this.prisma.module.count({ where: whereClause }),
-        this.prisma.module.findMany({
-          where: whereClause,
-          take: Number(limit),
+      const [total, modules] = await Promise.all([
+        this.moduleRepository.count(where),
+        this.moduleRepository.findMany({
           skip,
-          orderBy: { order: 'asc' },
+          take: limit,
+          where,
+          orderBy: { orderIndex: 'asc' },
         }),
       ]);
 
-      const totalPages = Math.ceil(total / Number(limit));
+      const totalPages = Math.ceil(total / limit);
 
       return {
-        data: items.map(m => this.toModuleResponseDto(m)),
+        data: modules.map(module => this.toModuleResponseDTO(module)),
         total,
-        page: Number(page),
-        limit: Number(limit),
+        page,
+        limit,
         totalPages,
       };
     } catch (error: any) {
       this.logger.error('Failed to retrieve modules', error);
-      return {
-        data: [],
-        total: 0,
-        page: query.page ? Number(query.page) : 1,
-        limit: query.limit ? Number(query.limit) : 10,
-        totalPages: 0,
-      };
+      throw new BadRequestException('Failed to retrieve modules');
     }
   }
 
-  async findOne(id: string): Promise<ModuleResponseDTO | null> {
-    const m = await this.prisma.module.findFirst({ where: { id, deletedAt: null } });
-    return m ? this.toModuleResponseDto(m) : null;
+  /**
+   * Find one module by ID
+   */
+  async findOne(moduleId: string): Promise<ModuleResponseDTO> {
+    const module = await this.moduleRepository.findById(moduleId);
+
+    if (!module || module.deletedAt) {
+      throw new NotFoundException(`Module with id ${moduleId} not found`);
+    }
+
+    return this.toModuleResponseDTO(module);
   }
 
-  async create(input: ModuleCreateDTO): Promise<ModuleResponseDTO> {
+  /**
+   * Find all modules for a specific course
+   */
+  async findByCourseId(courseId: string): Promise<ModuleResponseDTO[]> {
+    const modules = await this.moduleRepository.findByCourseId(courseId);
+    return modules.map(module => this.toModuleResponseDTO(module));
+  }
+
+  /**
+   * Create a new module
+   */
+  async create(requester: Requester, dto: ModuleCreateDTO): Promise<ModuleResponseDTO> {
+    // Check permissions
+    if (!['ADMIN', 'LECTURER'].includes(requester.role)) {
+      throw new ForbiddenException('Only admins and lecturers can create modules');
+    }
+
     try {
-      // Optionally set order to end of current modules in course if not provided
-      let order = input.order;
-      if (order === undefined) {
-        const count = await this.prisma.module.count({ where: { courseId: input.courseId, deletedAt: null } });
-        order = count + 1;
+      // Get next order index if not provided
+      let orderIndex = dto.orderIndex;
+      if (orderIndex === undefined) {
+        const maxOrder = await this.moduleRepository.getMaxOrderIndex(dto.courseId);
+        orderIndex = maxOrder + 1;
       }
 
-      const data = {
-        courseId: input.courseId,
-        title: input.title,
-        description: input.description || null,
-        order,
-        durationMinutes: input.durationMinutes || null,
-        createdBy: input.createdBy || null,
+      const data: any = {
+        course: { connect: { id: dto.courseId } },
+        title: dto.title,
+        description: dto.description || null,
+        aiMetadata: dto.aiMetadata || {},
+        orderIndex,
+        durationMinutes: dto.durationMinutes || null,
+        createdBy: requester.userId,
       };
 
-      const created = await this.prisma.module.create({ data });
-      return this.toModuleResponseDto(created);
+      const module = await this.moduleRepository.create(data);
+      return this.toModuleResponseDTO(module);
     } catch (error: any) {
       this.logger.error('Error creating module', error);
-      throw new RpcException({ status: 400, message: `Failed to create module: ${error?.message || 'Unknown'}` });
+      throw new BadRequestException(`Failed to create module: ${error?.message || 'Unknown error'}`);
     }
   }
 
-  async update(id: string, input: ModuleUpdateDTO): Promise<ModuleResponseDTO> {
-    const existing = await this.prisma.module.findFirst({ where: { id, deletedAt: null } });
-    if (!existing) {
-      throw new RpcException({ status: 404, message: `Module with id ${id} not found` });
+  /**
+   * Update module
+   */
+  async update(requester: Requester, moduleId: string, dto: ModuleUpdateDTO): Promise<ModuleResponseDTO> {
+    // Check permissions
+    if (!['ADMIN', 'LECTURER'].includes(requester.role)) {
+      throw new ForbiddenException('Only admins and lecturers can update modules');
+    }
+
+    const existing = await this.moduleRepository.findById(moduleId);
+
+    if (!existing || existing.deletedAt) {
+      throw new NotFoundException(`Module with id ${moduleId} not found`);
     }
 
     try {
-      const updateData: Record<string, any> = {};
+      const updateData: any = {};
 
-      if (input.title !== undefined && input.title !== existing.title) updateData.title = input.title;
-      if (input.description !== undefined) {
-        const existingDesc = existing.description || null;
-        const newDesc = input.description || null;
-        if (existingDesc !== newDesc) updateData.description = input.description;
-      }
-      if (input.order !== undefined && input.order !== existing.order) updateData.order = input.order;
-      if (input.durationMinutes !== undefined) {
-        const existingDur = existing.durationMinutes || null;
-        const newDur = input.durationMinutes || null;
-        if (existingDur !== newDur) updateData.durationMinutes = input.durationMinutes;
-      }
-      if (Object.keys(updateData).length === 0) return this.toModuleResponseDto(existing);
+      if (dto.title !== undefined) updateData.title = dto.title;
+      if (dto.description !== undefined) updateData.description = dto.description;
+      if (dto.aiMetadata !== undefined) updateData.aiMetadata = dto.aiMetadata;
+      if (dto.orderIndex !== undefined) updateData.orderIndex = dto.orderIndex;
+      if (dto.durationMinutes !== undefined) updateData.durationMinutes = dto.durationMinutes;
 
-      const updated = await this.prisma.module.update({ where: { id }, data: updateData });
-      return this.toModuleResponseDto(updated);
+      if (Object.keys(updateData).length === 0) {
+        return this.toModuleResponseDTO(existing);
+      }
+
+      const module = await this.moduleRepository.update(moduleId, updateData);
+      return this.toModuleResponseDTO(module);
     } catch (error: any) {
       this.logger.error('Error updating module', error);
-      throw new RpcException({ status: 400, message: `Failed to update module: ${error?.message || 'Unknown'}` });
+      throw new BadRequestException(`Failed to update module: ${error?.message || 'Unknown error'}`);
     }
   }
 
-  async delete(id: string): Promise<boolean> {
-    const existing = await this.prisma.module.findFirst({ where: { id, deletedAt: null } });
-    if (!existing) {
-      throw new RpcException({ status: 404, message: `Module with id ${id} not found` });
+  /**
+   * Delete module
+   */
+  async delete(requester: Requester, moduleId: string, hardDelete = false): Promise<{ message: string }> {
+    if (requester.role !== 'ADMIN') {
+      throw new ForbiddenException('Only admins can delete modules');
+    }
+
+    const existing = await this.moduleRepository.findById(moduleId);
+
+    if (!existing || existing.deletedAt) {
+      throw new NotFoundException(`Module with id ${moduleId} not found`);
     }
 
     try {
-      await this.prisma.module.update({ where: { id }, data: { deletedAt: new Date() } });
-      return true;
+      if (hardDelete) {
+        await this.moduleRepository.delete(moduleId);
+      } else {
+        await this.moduleRepository.softDelete(moduleId);
+      }
+
+      return { message: 'Module deleted successfully' };
     } catch (error: any) {
-      throw new RpcException({ status: 400, message: `Failed to delete module: ${error?.message || 'Unknown'}` });
+      throw new BadRequestException(`Failed to delete module: ${error?.message || 'Unknown error'}`);
     }
   }
 
-  async restore(id: string): Promise<ModuleResponseDTO> {
-    const existing = await this.prisma.module.findUnique({ where: { id } });
-    if (!existing) {
-      throw new RpcException({ status: 404, message: `Module with id ${id} not found` });
-    }
-    if (!existing.deletedAt) {
-      throw new RpcException({ status: 400, message: `Module with id ${id} is not deleted` });
+  /**
+   * Reorder modules within a course
+   */
+  async reorder(
+    requester: Requester,
+    courseId: string,
+    moduleOrders: { id: string; orderIndex: number }[]
+  ): Promise<{ message: string }> {
+    if (!['ADMIN', 'LECTURER'].includes(requester.role)) {
+      throw new ForbiddenException('Only admins and lecturers can reorder modules');
     }
 
     try {
-      const restored = await this.prisma.module.update({ where: { id }, data: { deletedAt: null } });
-      return this.toModuleResponseDto(restored);
+      await this.moduleRepository.reorder(courseId, moduleOrders);
+      return { message: 'Modules reordered successfully' };
     } catch (error: any) {
-      this.logger.error('Error restoring module', error);
-      throw new RpcException({ status: 400, message: `Failed to restore module: ${error?.message || 'Unknown'}` });
+      this.logger.error('Error reordering modules', error);
+      throw new BadRequestException(`Failed to reorder modules: ${error?.message || 'Unknown error'}`);
     }
   }
 }

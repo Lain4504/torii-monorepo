@@ -34,6 +34,9 @@ export * from './dtos/flashcard.dto';
 export * from './dtos/flashcard-deck.dto';
 export * from './dtos/review.dto';
 export * from './dtos/exam.dto';
+export * from './dtos/lesson-material.dto';
+export * from './dtos/course-instructor.dto';
+export * from './dtos/staff-dashboard.dto';
 
 // Interfaces (only internal/utility types)
 export * from './interfaces/auth.interface';

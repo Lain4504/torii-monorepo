@@ -8,6 +8,8 @@ import { ModuleModule } from './modules/module/module.module';
 import { LessonModule } from './modules/lesson/lesson.module';
 import { WishlistModule } from './modules/wishlist/wishlist.module';
 import { ReviewModule } from './modules/review/review.module';
+import { CourseInstructorModule } from './modules/course-instructor/course-instructor.module';
+import { LessonMaterialModule } from './modules/lesson-material/lesson-material.module';
 
 // Community Modules
 import { BlogModule } from './modules/blog/blog.module';
@@ -25,10 +27,15 @@ import { FlashcardModule } from './modules/flashcard/flashcard.module';
 // Gamification Module
 import { GamificationModule } from './modules/gamification/gamification.module';
 
-// Controllers
-import { CourseController } from './interfaces/http/course.controller';
-import { ModuleController } from './interfaces/http/module.controller';
-import { LessonController } from './interfaces/http/lesson.controller';
+// Controllers (new structure - following identity pattern)
+import { CourseController } from './controllers/course.controller';
+import { ModuleController } from './controllers/module.controller';
+import { LessonController } from './controllers/lesson.controller';
+import { CourseInstructorController } from './controllers/course-instructor.controller';
+import { LessonMaterialController } from './controllers/lesson-material.controller';
+import { StaffDashboardController } from './controllers/staff-dashboard.controller';
+
+// Controllers (keeping existing ones from interfaces/http for now)
 import { WishlistController } from './controllers/wishlist.controller';
 import { ReviewController } from './controllers/review.controller';
 import { BlogController } from './interfaces/http/blog.controller';
@@ -37,8 +44,6 @@ import { NotificationController } from './interfaces/http/notification.controlle
 import { QuestionBankController } from './interfaces/http/question-bank.controller';
 import { FlashcardDeckController } from './interfaces/http/flashcard-deck.controller';
 import { FlashcardController } from './interfaces/http/flashcard.controller';
-// Note: ExamController might need to be checked if it exists or was named differently
-// import { ExamController } from './interfaces/http/exam.controller';
 
 @Module({
   imports: [
@@ -54,6 +59,8 @@ import { FlashcardController } from './interfaces/http/flashcard.controller';
     LessonModule,
     WishlistModule,
     ReviewModule,
+    CourseInstructorModule,
+    LessonMaterialModule,
 
     // Community Domain
     BlogModule,
@@ -75,6 +82,9 @@ import { FlashcardController } from './interfaces/http/flashcard.controller';
     CourseController,
     ModuleController,
     LessonController,
+    CourseInstructorController,
+    LessonMaterialController,
+    StaffDashboardController,
     WishlistController,
     ReviewController,
     BlogController,
