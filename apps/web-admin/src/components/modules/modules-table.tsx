@@ -17,6 +17,8 @@ import { Skeleton } from '@workspace/ui/components/skeleton';
 import { useState } from 'react';
 import type { ModuleResponseDTO } from '@workspace/schemas';
 import { getModulesColumns } from './modules-columns.tsx';
+import { Inbox } from 'lucide-react';
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
 
 interface ModulesTableProps {
     data: ModuleResponseDTO[];
@@ -100,7 +102,17 @@ export function ModulesTable({ data, onView, onEdit, onDelete, page, limit, cour
                                 colSpan={columns.length}
                                 className="h-24 text-center text-muted-foreground"
                             >
-                                No results.
+                                <div className="flex h-full w-full items-center justify-center p-6">
+                                    <Empty>
+                                        <EmptyHeader>
+                                            <EmptyMedia variant="icon"><Inbox /></EmptyMedia>
+                                            <EmptyTitle>No modules found</EmptyTitle>
+                                            <EmptyDescription>
+                                                Try adjusting your search or create a new module.
+                                            </EmptyDescription>
+                                        </EmptyHeader>
+                                    </Empty>
+                                </div>
                             </TableCell>
                         </TableRow>
                     )}

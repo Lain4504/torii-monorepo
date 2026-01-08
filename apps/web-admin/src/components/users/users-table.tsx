@@ -16,6 +16,8 @@ import {
 import { useState } from 'react';
 import type { UserResponseDTO } from '@workspace/schemas';
 import { getUsersColumns } from './users-columns.tsx';
+import { Inbox } from 'lucide-react';
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 
 interface UsersTableProps {
@@ -100,7 +102,17 @@ export function UsersTable({ data, onView, onEdit, onDelete, page, limit, isLoad
                                 colSpan={columns.length}
                                 className="h-24 text-center text-muted-foreground"
                             >
-                                No results.
+                                <div className="flex h-full w-full items-center justify-center p-6">
+                                    <Empty>
+                                        <EmptyHeader>
+                                            <EmptyMedia variant="icon"><Inbox /></EmptyMedia>
+                                            <EmptyTitle>No users found</EmptyTitle>
+                                            <EmptyDescription>
+                                                Try adjusting your search or filters.
+                                            </EmptyDescription>
+                                        </EmptyHeader>
+                                    </Empty>
+                                </div>
                             </TableCell>
                         </TableRow>
                     )}

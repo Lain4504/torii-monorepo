@@ -16,6 +16,8 @@ import {
 import { useState } from 'react';
 import type { QuestionBankResponseDTO } from '@workspace/schemas';
 import { getQuestionBankColumns } from './question-bank-columns.tsx';
+import { Inbox } from 'lucide-react';
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
 
 interface QuestionBankTableProps {
     data: QuestionBankResponseDTO[];
@@ -86,7 +88,17 @@ export function QuestionBankTable({ data, onEdit, onView, onDelete, page, limit 
                                 colSpan={columns.length}
                                 className="h-24 text-center"
                             >
-                                No results.
+                                <div className="flex h-full w-full items-center justify-center p-6">
+                                    <Empty>
+                                        <EmptyHeader>
+                                            <EmptyMedia variant="icon"><Inbox /></EmptyMedia>
+                                            <EmptyTitle>No questions found</EmptyTitle>
+                                            <EmptyDescription>
+                                                Try adjusting your filters or create a new question bank.
+                                            </EmptyDescription>
+                                        </EmptyHeader>
+                                    </Empty>
+                                </div>
                             </TableCell>
                         </TableRow>
                     )}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -12,10 +12,16 @@ import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Textarea } from '@workspace/ui/components/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
+import { Checkbox } from '@workspace/ui/components/checkbox';
+import {
+    Field,
+    FieldLabel,
+    FieldError,
+} from '@workspace/ui/components/field';
 import { storageApi } from '@/api/services/storage-api.ts';
 import { LessonContentType, lessonCreateDTOSchema } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
-import {useCreateLesson} from "@/api/services/lesson.ts";
+import { useCreateLesson } from "@/api/services/lesson.ts";
 
 const createLessonSchema = lessonCreateDTOSchema;
 
@@ -33,10 +39,8 @@ export function CreateLessonDialog({ open, onOpenChange, moduleId }: CreateLesso
     const [uploading, setUploading] = useState(false);
 
     const {
-        register,
+        control,
         handleSubmit,
-        formState: { errors },
-        setValue,
         watch,
         reset,
     } = useForm<CreateLessonFormData>({
@@ -115,32 +119,48 @@ export function CreateLessonDialog({ open, onOpenChange, moduleId }: CreateLesso
                 <DialogHeader>
                     <DialogTitle>Create New Lesson</DialogTitle>
                 </DialogHeader>
-                <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Title</label>
-                        <Input {...register('title')} placeholder="Enter lesson title" />
-                        {errors.title && (
-                            <p className="text-sm text-red-500 mt-1">{errors.title.message}</p>
+                <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4" noValidate>
+                    <Controller
+                        control={control}
+                        name="title"
+                        render={({ field, fieldState }) => (
+                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Title</FieldLabel>
+                                <Input
+                                    id={field.name}
+                                    {...field}
+                                    placeholder="Enter lesson title"
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
                         )}
-                    </div>
+                    />
 
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Content Type</label>
-                        <Select
-                            value={watch('contentType')}
-                            onValueChange={(value) => setValue('contentType', value as LessonContentType)}
-                        >
-                            <SelectTrigger>
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value={LessonContentType.VIDEO}>Video</SelectItem>
-                                <SelectItem value={LessonContentType.ARTICLE}>Article</SelectItem>
-                                <SelectItem value={LessonContentType.QUIZ}>Quiz</SelectItem>
-                                <SelectItem value={LessonContentType.ASSIGNMENT}>Assignment</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
+                    <Controller
+                        control={control}
+                        name="contentType"
+                        render={({ field, fieldState }) => (
+                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Content Type</FieldLabel>
+                                <Select
+                                    value={field.value}
+                                    onValueChange={(value) => field.onChange(value as LessonContentType)}
+                                >
+                                    <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value={LessonContentType.VIDEO}>Video</SelectItem>
+                                        <SelectItem value={LessonContentType.ARTICLE}>Article</SelectItem>
+                                        <SelectItem value={LessonContentType.QUIZ}>Quiz</SelectItem>
+                                        <SelectItem value={LessonContentType.ASSIGNMENT}>Assignment</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
+                        )}
+                    />
 
                     {watch('contentType') === LessonContentType.VIDEO && (
                         <div>
@@ -154,27 +174,76 @@ export function CreateLessonDialog({ open, onOpenChange, moduleId }: CreateLesso
                     )}
 
                     {watch('contentType') === LessonContentType.ARTICLE && (
-                        <div>
-                            <label className="block text-sm font-medium mb-1">Article Content</label>
-                            <Textarea {...register('articleContent')} placeholder="Enter article content" />
-                        </div>
+                        <Controller
+                            control={control}
+                            name="articleContent"
+                            render={({ field, fieldState }) => (
+                                <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor={field.name}>Article Content</FieldLabel>
+                                    <Textarea
+                                        id={field.name}
+                                        {...field}
+                                        placeholder="Enter article content"
+                                        aria-invalid={fieldState.invalid}
+                                    />
+                                    <FieldError errors={[fieldState.error]} />
+                                </Field>
+                            )}
+                        />
                     )}
 
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Order</label>
-                        <Input type="number" {...register('order', { valueAsNumber: true })} />
-                    </div>
+                    <Controller
+                        control={control}
+                        name="order"
+                        render={({ field, fieldState }) => (
+                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Order</FieldLabel>
+                                <Input
+                                    id={field.name}
+                                    type="number"
+                                    {...field}
+                                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
+                        )}
+                    />
 
                     <div className="flex gap-4">
-                        <label className="flex items-center gap-2">
-                            <input type="checkbox" {...register('isPreview')} />
-                            <span className="text-sm">Is Preview</span>
-                        </label>
+                        <Controller
+                            control={control}
+                            name="isPreview"
+                            render={({ field }) => (
+                                <div className="flex items-center gap-2">
+                                    <Checkbox
+                                        id={field.name}
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                    />
+                                    <label htmlFor={field.name} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer">
+                                        Is Preview
+                                    </label>
+                                </div>
+                            )}
+                        />
 
-                        <label className="flex items-center gap-2">
-                            <input type="checkbox" {...register('isUnlocked')} />
-                            <span className="text-sm">Is Unlocked</span>
-                        </label>
+                        <Controller
+                            control={control}
+                            name="isUnlocked"
+                            render={({ field }) => (
+                                <div className="flex items-center gap-2">
+                                    <Checkbox
+                                        id={field.name}
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                    />
+                                    <label htmlFor={field.name} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer">
+                                        Is Unlocked
+                                    </label>
+                                </div>
+                            )}
+                        />
                     </div>
 
                     <div className="flex justify-end gap-2">

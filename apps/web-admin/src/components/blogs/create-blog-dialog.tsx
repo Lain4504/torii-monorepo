@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useForm, type SubmitHandler } from 'react-hook-form';
+import { useForm, type SubmitHandler, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -19,6 +19,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@workspace/ui/components/select';
+import {
+    Field,
+    FieldLabel,
+    FieldError,
+} from '@workspace/ui/components/field';
 import { Loader2, Upload, X } from 'lucide-react';
 import { BlogPostStatus, type BlogPostCreateDTO } from '@workspace/schemas';
 import { useCreateBlog } from '@/api/services/blog.ts';
@@ -55,11 +60,8 @@ export function CreateBlogDialog({
     const [uploading, setUploading] = useState(false);
 
     const {
-        register,
+        control,
         handleSubmit,
-        formState: { errors },
-        setValue,
-        watch,
         reset,
     } = useForm<CreateBlogFormData>({
         resolver: zodResolver(createBlogSchema),
@@ -75,7 +77,7 @@ export function CreateBlogDialog({
         },
     });
 
-    const status = watch('status');
+
 
     const createBlog = useCreateBlog();
 
@@ -200,7 +202,7 @@ export function CreateBlogDialog({
                     <DialogTitle className="text-2xl">Create New Blog Post</DialogTitle>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+                <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4" noValidate>
                     <div className="grid grid-cols-2 gap-4">
                         {/* Cover Image - Full width */}
                         <div className="col-span-2 space-y-2">
@@ -247,115 +249,188 @@ export function CreateBlogDialog({
                         </div>
 
                         {/* Title - Full width */}
-                        <div className="col-span-2 space-y-2">
-                            <Label htmlFor="title">Title *</Label>
-                            <Input
-                                id="title"
-                                placeholder="Enter blog post title"
-                                {...register('title')}
+                        <div className="col-span-2">
+                            <Controller
+                                control={control}
+                                name="title"
+                                render={({ field, fieldState }) => (
+                                    <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                        <FieldLabel htmlFor={field.name} className="flex">Title <span className="text-destructive ml-1">*</span></FieldLabel>
+                                        <Input
+                                            id={field.name}
+                                            placeholder="Enter blog post title"
+                                            {...field}
+                                            aria-invalid={fieldState.invalid}
+                                            onChange={(e) => {
+                                                field.onChange(e);
+                                                // Auto-generate slug from title if we had a slug field (skipped for now as per schema but good to preserve intent)
+                                                // Note: The schema doesn't seem to have a slug field explicitly in the form data shown above?
+                                                // Ah, checking lines 30-39: slug is NOT in createBlogSchema.
+                                                // Wait, looking at the previous file content from step 145, there WAS a slug field.
+                                                // Looking at Step 160 view_file: lines 30-39 DO NOT show a slug field.
+                                                // "title: z.string().min(1), content: z.string().min(1), excerpt..., status..., tags..., publishedAt..., seoTitle..., seoDescription..."
+                                                // So I should NOT add slug logic if it's not in the schema.
+                                            }}
+                                        />
+                                        <FieldError errors={[fieldState.error]} />
+                                    </Field>
+                                )}
                             />
-                            {errors.title && (
-                                <p className="text-sm text-destructive">{errors.title.message}</p>
-                            )}
                         </div>
 
                         {/* Excerpt - Full width */}
-                        <div className="col-span-2 space-y-2">
-                            <Label htmlFor="excerpt">Excerpt</Label>
-                            <Textarea
-                                id="excerpt"
-                                placeholder="Short description of the post"
-                                {...register('excerpt')}
-                                rows={3}
+                        <div className="col-span-2">
+                            <Controller
+                                control={control}
+                                name="excerpt"
+                                render={({ field, fieldState }) => (
+                                    <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                        <FieldLabel htmlFor={field.name}>Excerpt</FieldLabel>
+                                        <Textarea
+                                            id={field.name}
+                                            placeholder="Short description of the post"
+                                            {...field}
+                                            value={field.value || ''}
+                                            rows={3}
+                                            aria-invalid={fieldState.invalid}
+                                        />
+                                        <FieldError errors={[fieldState.error]} />
+                                    </Field>
+                                )}
                             />
-                            {errors.excerpt && (
-                                <p className="text-sm text-destructive">{errors.excerpt.message}</p>
-                            )}
                         </div>
 
                         {/* Content - Full width */}
-                        <div className="col-span-2 space-y-2">
-                            <Label htmlFor="content">Content *</Label>
-                            <Textarea
-                                id="content"
-                                placeholder="Write your blog post content here..."
-                                {...register('content')}
-                                rows={10}
+                        <div className="col-span-2">
+                            <Controller
+                                control={control}
+                                name="content"
+                                render={({ field, fieldState }) => (
+                                    <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                        <FieldLabel htmlFor={field.name} className="flex">Content <span className="text-destructive ml-1">*</span></FieldLabel>
+                                        <Textarea
+                                            id={field.name}
+                                            placeholder="Write your blog post content here..."
+                                            {...field}
+                                            rows={10}
+                                            aria-invalid={fieldState.invalid}
+                                        />
+                                        <FieldError errors={[fieldState.error]} />
+                                    </Field>
+                                )}
                             />
-                            {errors.content && (
-                                <p className="text-sm text-destructive">{errors.content.message}</p>
-                            )}
                         </div>
 
                         {/* Status - Column 1 */}
-                        <div className="space-y-2">
-                            <Label htmlFor="status">Status</Label>
-                            <Select
-                                value={status}
-                                onValueChange={(value) => setValue('status', value as BlogPostStatus)}
-                            >
-                                <SelectTrigger id="status">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value={BlogPostStatus.DRAFT}>Draft</SelectItem>
-                                    <SelectItem value={BlogPostStatus.PUBLISHED}>Published</SelectItem>
-                                    <SelectItem value={BlogPostStatus.ARCHIVED}>Archived</SelectItem>
-                                </SelectContent>
-                            </Select>
+                        <div>
+                            <Controller
+                                control={control}
+                                name="status"
+                                render={({ field, fieldState }) => (
+                                    <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                        <FieldLabel htmlFor={field.name}>Status</FieldLabel>
+                                        <Select
+                                            value={field.value}
+                                            onValueChange={(value) => field.onChange(value as BlogPostStatus)}
+                                        >
+                                            <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value={BlogPostStatus.DRAFT}>Draft</SelectItem>
+                                                <SelectItem value={BlogPostStatus.PUBLISHED}>Published</SelectItem>
+                                                <SelectItem value={BlogPostStatus.ARCHIVED}>Archived</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <FieldError errors={[fieldState.error]} />
+                                    </Field>
+                                )}
+                            />
                         </div>
 
                         {/* Tags - Column 2 */}
-                        <div className="space-y-2">
-                            <Label htmlFor="tags">Tags</Label>
-                            <Input
-                                id="tags"
-                                placeholder="Enter tags separated by commas"
-                                {...register('tags')}
+                        <div>
+                            <Controller
+                                control={control}
+                                name="tags"
+                                render={({ field, fieldState }) => (
+                                    <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                        <FieldLabel htmlFor={field.name}>Tags</FieldLabel>
+                                        <Input
+                                            id={field.name}
+                                            placeholder="Enter tags separated by commas"
+                                            {...field}
+                                            value={field.value || ''}
+                                            aria-invalid={fieldState.invalid}
+                                        />
+                                        <FieldError errors={[fieldState.error]} />
+                                    </Field>
+                                )}
                             />
-                            {errors.tags && (
-                                <p className="text-sm text-destructive">{errors.tags.message}</p>
-                            )}
                         </div>
 
                         {/* Published At - Column 1 */}
-                        <div className="space-y-2">
-                            <Label htmlFor="publishedAt">Published At</Label>
-                            <Input
-                                id="publishedAt"
-                                type="datetime-local"
-                                {...register('publishedAt')}
+                        <div>
+                            <Controller
+                                control={control}
+                                name="publishedAt"
+                                render={({ field, fieldState }) => (
+                                    <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                        <FieldLabel htmlFor={field.name}>Published At</FieldLabel>
+                                        <Input
+                                            id={field.name}
+                                            type="datetime-local"
+                                            {...field}
+                                            value={field.value || ''}
+                                            aria-invalid={fieldState.invalid}
+                                        />
+                                        <FieldError errors={[fieldState.error]} />
+                                    </Field>
+                                )}
                             />
-                            {errors.publishedAt && (
-                                <p className="text-sm text-destructive">{errors.publishedAt.message}</p>
-                            )}
                         </div>
 
                         {/* SEO Title - Column 2 */}
-                        <div className="space-y-2">
-                            <Label htmlFor="seoTitle">SEO Title</Label>
-                            <Input
-                                id="seoTitle"
-                                placeholder="Enter SEO title (optional)"
-                                {...register('seoTitle')}
+                        <div>
+                            <Controller
+                                control={control}
+                                name="seoTitle"
+                                render={({ field, fieldState }) => (
+                                    <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                        <FieldLabel htmlFor={field.name}>SEO Title</FieldLabel>
+                                        <Input
+                                            id={field.name}
+                                            placeholder="Enter SEO title (optional)"
+                                            {...field}
+                                            value={field.value || ''}
+                                            aria-invalid={fieldState.invalid}
+                                        />
+                                        <FieldError errors={[fieldState.error]} />
+                                    </Field>
+                                )}
                             />
-                            {errors.seoTitle && (
-                                <p className="text-sm text-destructive">{errors.seoTitle.message}</p>
-                            )}
                         </div>
 
                         {/* SEO Description - Full width */}
-                        <div className="col-span-2 space-y-2">
-                            <Label htmlFor="seoDescription">SEO Description</Label>
-                            <Textarea
-                                id="seoDescription"
-                                placeholder="Enter SEO description (optional)"
-                                {...register('seoDescription')}
-                                rows={3}
+                        <div className="col-span-2">
+                            <Controller
+                                control={control}
+                                name="seoDescription"
+                                render={({ field, fieldState }) => (
+                                    <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                        <FieldLabel htmlFor={field.name}>SEO Description</FieldLabel>
+                                        <Textarea
+                                            id={field.name}
+                                            placeholder="Enter SEO description (optional)"
+                                            {...field}
+                                            value={field.value || ''}
+                                            rows={3}
+                                            aria-invalid={fieldState.invalid}
+                                        />
+                                        <FieldError errors={[fieldState.error]} />
+                                    </Field>
+                                )}
                             />
-                            {errors.seoDescription && (
-                                <p className="text-sm text-destructive">{errors.seoDescription.message}</p>
-                            )}
                         </div>
                     </div>
 

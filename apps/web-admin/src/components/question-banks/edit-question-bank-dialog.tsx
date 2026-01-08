@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -12,7 +12,6 @@ import {
 } from '@workspace/ui/components/dialog';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
-import { Label } from '@workspace/ui/components/label';
 import { Textarea } from '@workspace/ui/components/textarea';
 import {
     Select,
@@ -21,6 +20,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@workspace/ui/components/select';
+import {
+    Field,
+    FieldLabel,
+    FieldError,
+} from '@workspace/ui/components/field';
 import {
     QuestionType,
     QuestionJlptLevel,
@@ -31,7 +35,7 @@ import {
     type QuestionBankResponseDTO,
 } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
-import {useUpdateQuestionBank} from "@/api/services/question-bank.ts";
+import { useUpdateQuestionBank } from "@/api/services/question-bank.ts";
 
 const updateQuestionSchema = questionBankUpdateDTOSchema.omit({
     tags: true,
@@ -59,10 +63,8 @@ export function EditQuestionBankDialog({
     const updateQuestionBank = useUpdateQuestionBank();
 
     const {
-        register,
+        control,
         handleSubmit,
-        formState: { errors },
-        setValue,
         watch,
         reset,
     } = useForm<UpdateQuestionFormData>({
@@ -167,166 +169,246 @@ export function EditQuestionBankDialog({
                     </DialogDescription>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="questionText">
-                            Question Text <span className="text-destructive">*</span>
-                        </Label>
-                        <Textarea
-                            id="questionText"
-                            {...register('questionText')}
-                            rows={3}
-                            placeholder="Enter the question text..."
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+                    <Controller
+                        control={control}
+                        name="questionText"
+                        render={({ field, fieldState }) => (
+                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name} className="flex">Question Text <span className="text-destructive ml-1">*</span></FieldLabel>
+                                <Textarea
+                                    id={field.name}
+                                    {...field}
+                                    rows={3}
+                                    placeholder="Enter the question text..."
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
+                        )}
+                    />
+
+                    <Controller
+                        control={control}
+                        name="questionType"
+                        render={({ field, fieldState }) => (
+                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name} className="flex">Question Type <span className="text-destructive ml-1">*</span></FieldLabel>
+                                <Select
+                                    value={field.value}
+                                    onValueChange={(value) => field.onChange(value as QuestionType)}
+                                >
+                                    <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
+                                        <SelectValue placeholder="Select question type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value={QuestionType.MULTIPLE_CHOICE}>Multiple Choice</SelectItem>
+                                        <SelectItem value={QuestionType.TRUE_FALSE}>True/False</SelectItem>
+                                        <SelectItem value={QuestionType.FILL_BLANK}>Fill Blank</SelectItem>
+                                        <SelectItem value={QuestionType.MATCHING}>Matching</SelectItem>
+                                        <SelectItem value={QuestionType.ESSAY}>Essay</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
+                        )}
+                    />
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <Controller
+                            control={control}
+                            name="jlptLevel"
+                            render={({ field, fieldState }) => (
+                                <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor={field.name}>JLPT Level</FieldLabel>
+                                    <Select
+                                        value={field.value || undefined}
+                                        onValueChange={(value) => field.onChange(value as QuestionJlptLevel)}
+                                    >
+                                        <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
+                                            <SelectValue placeholder="Select Level" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value={QuestionJlptLevel.N5}>N5</SelectItem>
+                                            <SelectItem value={QuestionJlptLevel.N4}>N4</SelectItem>
+                                            <SelectItem value={QuestionJlptLevel.N3}>N3</SelectItem>
+                                            <SelectItem value={QuestionJlptLevel.N2}>N2</SelectItem>
+                                            <SelectItem value={QuestionJlptLevel.N1}>N1</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FieldError errors={[fieldState.error]} />
+                                </Field>
+                            )}
                         />
-                        {errors.questionText && (
-                            <p className="text-sm text-destructive">{errors.questionText.message}</p>
-                        )}
-                    </div>
 
-                    <div className="space-y-2">
-                        <Label htmlFor="questionType">
-                            Question Type <span className="text-destructive">*</span>
-                        </Label>
-                        <Select
-                            value={watch('questionType')}
-                            onValueChange={(value) => setValue('questionType', value as QuestionType)}
-                        >
-                            <SelectTrigger id="questionType">
-                                <SelectValue placeholder="Select question type" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value={QuestionType.MULTIPLE_CHOICE}>Multiple Choice</SelectItem>
-                                <SelectItem value={QuestionType.TRUE_FALSE}>True/False</SelectItem>
-                                <SelectItem value={QuestionType.FILL_BLANK}>Fill Blank</SelectItem>
-                                <SelectItem value={QuestionType.MATCHING}>Matching</SelectItem>
-                                <SelectItem value={QuestionType.ESSAY}>Essay</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        {errors.questionType && (
-                            <p className="text-sm text-destructive">{errors.questionType.message}</p>
-                        )}
+                        <Controller
+                            control={control}
+                            name="difficulty"
+                            render={({ field, fieldState }) => (
+                                <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor={field.name}>Difficulty</FieldLabel>
+                                    <Select
+                                        value={field.value || undefined}
+                                        onValueChange={(value) => field.onChange(value as QuestionDifficultyLevel)}
+                                    >
+                                        <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
+                                            <SelectValue placeholder="Select Difficulty" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value={QuestionDifficultyLevel.EASY}>Easy</SelectItem>
+                                            <SelectItem value={QuestionDifficultyLevel.MEDIUM}>Medium</SelectItem>
+                                            <SelectItem value={QuestionDifficultyLevel.HARD}>Hard</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FieldError errors={[fieldState.error]} />
+                                </Field>
+                            )}
+                        />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="jlptLevel">JLPT Level</Label>
-                            <Select
-                                value={watch('jlptLevel') || undefined}
-                                onValueChange={(value) => setValue('jlptLevel', value as QuestionJlptLevel)}
-                            >
-                                <SelectTrigger id="jlptLevel">
-                                    <SelectValue placeholder="Select Level" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value={QuestionJlptLevel.N5}>N5</SelectItem>
-                                    <SelectItem value={QuestionJlptLevel.N4}>N4</SelectItem>
-                                    <SelectItem value={QuestionJlptLevel.N3}>N3</SelectItem>
-                                    <SelectItem value={QuestionJlptLevel.N2}>N2</SelectItem>
-                                    <SelectItem value={QuestionJlptLevel.N1}>N1</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
+                        <Controller
+                            control={control}
+                            name="category"
+                            render={({ field, fieldState }) => (
+                                <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor={field.name}>Category</FieldLabel>
+                                    <Input
+                                        id={field.name}
+                                        {...field}
+                                        value={field.value || ''}
+                                        placeholder="Enter category..."
+                                        aria-invalid={fieldState.invalid}
+                                    />
+                                    <FieldError errors={[fieldState.error]} />
+                                </Field>
+                            )}
+                        />
 
-                        <div className="space-y-2">
-                            <Label htmlFor="difficulty">Difficulty</Label>
-                            <Select
-                                value={watch('difficulty') || undefined}
-                                onValueChange={(value) => setValue('difficulty', value as QuestionDifficultyLevel)}
-                            >
-                                <SelectTrigger id="difficulty">
-                                    <SelectValue placeholder="Select Difficulty" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value={QuestionDifficultyLevel.EASY}>Easy</SelectItem>
-                                    <SelectItem value={QuestionDifficultyLevel.MEDIUM}>Medium</SelectItem>
-                                    <SelectItem value={QuestionDifficultyLevel.HARD}>Hard</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
+                        <Controller
+                            control={control}
+                            name="subcategory"
+                            render={({ field, fieldState }) => (
+                                <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor={field.name}>Subcategory</FieldLabel>
+                                    <Input
+                                        id={field.name}
+                                        {...field}
+                                        value={field.value || ''}
+                                        placeholder="Enter subcategory..."
+                                        aria-invalid={fieldState.invalid}
+                                    />
+                                    <FieldError errors={[fieldState.error]} />
+                                </Field>
+                            )}
+                        />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="category">Category</Label>
-                            <Input
-                                id="category"
-                                {...register('category')}
-                                placeholder="Enter category..."
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="subcategory">Subcategory</Label>
-                            <Input
-                                id="subcategory"
-                                {...register('subcategory')}
-                                placeholder="Enter subcategory..."
-                            />
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="status">Status</Label>
-                        <Select
-                            value={watch('status')}
-                            onValueChange={(value) => setValue('status', value as QuestionStatus)}
-                        >
-                            <SelectTrigger id="status">
-                                <SelectValue placeholder="Select Status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value={QuestionStatus.ACTIVE}>Active</SelectItem>
-                                <SelectItem value={QuestionStatus.REVIEW}>Review</SelectItem>
-                                <SelectItem value={QuestionStatus.ARCHIVED}>Archived</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
+                    <Controller
+                        control={control}
+                        name="status"
+                        render={({ field, fieldState }) => (
+                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Status</FieldLabel>
+                                <Select
+                                    value={field.value}
+                                    onValueChange={(value) => field.onChange(value as QuestionStatus)}
+                                >
+                                    <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
+                                        <SelectValue placeholder="Select Status" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value={QuestionStatus.ACTIVE}>Active</SelectItem>
+                                        <SelectItem value={QuestionStatus.REVIEW}>Review</SelectItem>
+                                        <SelectItem value={QuestionStatus.ARCHIVED}>Archived</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
+                        )}
+                    />
 
                     {questionType === QuestionType.MULTIPLE_CHOICE && (
-                        <div className="space-y-2">
-                            <Label htmlFor="options">
-                                Options (JSON format: {'{ "A": "option1", "B": "option2" }'})
-                            </Label>
-                            <Textarea
-                                id="options"
-                                {...register('options')}
-                                rows={3}
-                                className="font-mono text-sm"
-                                placeholder='{"A": "Option 1", "B": "Option 2", "C": "Option 3"}'
-                            />
-                        </div>
+                        <Controller
+                            control={control}
+                            name="options"
+                            render={({ field, fieldState }) => (
+                                <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor={field.name}>
+                                        Options (JSON format: {'{ "A": "option1", "B": "option2" }'})
+                                    </FieldLabel>
+                                    <Textarea
+                                        id={field.name}
+                                        {...field}
+                                        value={field.value || ''}
+                                        rows={3}
+                                        className="font-mono text-sm"
+                                        placeholder='{"A": "Option 1", "B": "Option 2", "C": "Option 3"}'
+                                        aria-invalid={fieldState.invalid}
+                                    />
+                                    <FieldError errors={[fieldState.error]} />
+                                </Field>
+                            )}
+                        />
                     )}
 
-                    <div className="space-y-2">
-                        <Label htmlFor="correctAnswer">Correct Answer</Label>
-                        <Input
-                            id="correctAnswer"
-                            {...register('correctAnswer')}
-                            placeholder="Enter correct answer..."
-                        />
-                    </div>
+                    <Controller
+                        control={control}
+                        name="correctAnswer"
+                        render={({ field, fieldState }) => (
+                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Correct Answer</FieldLabel>
+                                <Input
+                                    id={field.name}
+                                    {...field}
+                                    value={field.value || ''}
+                                    placeholder="Enter correct answer..."
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
+                        )}
+                    />
 
-                    <div className="space-y-2">
-                        <Label htmlFor="explanation">Explanation</Label>
-                        <Textarea
-                            id="explanation"
-                            {...register('explanation')}
-                            rows={3}
-                            placeholder="Enter explanation for the answer..."
-                        />
-                    </div>
+                    <Controller
+                        control={control}
+                        name="explanation"
+                        render={({ field, fieldState }) => (
+                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Explanation</FieldLabel>
+                                <Textarea
+                                    id={field.name}
+                                    {...field}
+                                    value={field.value || ''}
+                                    rows={3}
+                                    placeholder="Enter explanation for the answer..."
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
+                        )}
+                    />
 
-                    <div className="space-y-2">
-                        <Label htmlFor="tags">Tags</Label>
-                        <Input
-                            id="tags"
-                            {...register('tags')}
-                            placeholder="Enter tags separated by commas (e.g., grammar, vocabulary)"
-                        />
-                        <p className="text-xs text-muted-foreground">
-                            Separate multiple tags with commas
-                        </p>
-                    </div>
+                    <Controller
+                        control={control}
+                        name="tags"
+                        render={({ field, fieldState }) => (
+                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Tags</FieldLabel>
+                                <Input
+                                    id={field.name}
+                                    {...field}
+                                    value={field.value || ''}
+                                    placeholder="Enter tags separated by commas (e.g., grammar, vocabulary)"
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                    Separate multiple tags with commas
+                                </p>
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
+                        )}
+                    />
 
                     <DialogFooter>
                         <Button type="button" variant="outline" onClick={handleClose}>

@@ -3,6 +3,8 @@
 import { CourseCard } from "./course-card"
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@workspace/ui/components/pagination"
 import { useCourses } from "./useCourses"
+import { Inbox } from "lucide-react"
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
 
 interface CourseGridProps {
     searchQuery?: string
@@ -13,39 +15,39 @@ interface CourseGridProps {
     onPageChange?: (page: number) => void
 }
 
-export function CourseGrid({ 
-    searchQuery = "", 
-    selectedLevels = [], 
+export function CourseGrid({
+    searchQuery = "",
+    selectedLevels = [],
     priceFilter = "all",
     sortBy = "popular",
     currentPage = 1,
-    onPageChange = () => {}
+    onPageChange = () => { }
 }: CourseGridProps) {
     const ITEMS_PER_PAGE = 12;
-    
-    const { data, isLoading, error } = useCourses({ 
+
+    const { data, isLoading, error } = useCourses({
         page: 1,
         limit: 1000, // Fetch all data to filter client-side
         q: searchQuery
     });
 
     const courses = data?.data || [];
-    
+
     // Filter courses by level (OR logic - show courses matching ANY selected level)
     let filteredCourses = courses;
     if (selectedLevels.length > 0) {
-        filteredCourses = courses.filter(course => 
+        filteredCourses = courses.filter(course =>
             selectedLevels.includes(course.level)
         );
     }
-    
+
     // Filter courses by price
     if (priceFilter === "free") {
         filteredCourses = filteredCourses.filter(course => course.price === 0);
     } else if (priceFilter === "paid") {
         filteredCourses = filteredCourses.filter(course => course.price > 0);
     }
-    
+
     // Sort courses based on sortBy parameter
     let sortedCourses = [...filteredCourses];
     if (sortBy === 'newest') {
@@ -74,7 +76,17 @@ export function CourseGrid({
                     Lỗi tải khoá học: {error?.message || 'Unknown error'}
                 </div>
             ) : isEmpty ? (
-                <div className="text-center py-12 text-gray-500">Không có khoá học nào phù hợp với tìm kiếm</div>
+                <div className="flex justify-center py-12">
+                    <Empty>
+                        <EmptyHeader>
+                            <EmptyMedia variant="icon"><Inbox /></EmptyMedia>
+                            <EmptyTitle>Không có khoá học nào</EmptyTitle>
+                            <EmptyDescription>
+                                Không tìm thấy khoá học nào phù hợp với tìm kiếm của bạn.
+                            </EmptyDescription>
+                        </EmptyHeader>
+                    </Empty>
+                </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {paginatedCourses.map((course) => (
@@ -87,7 +99,7 @@ export function CourseGrid({
                 <Pagination>
                     <PaginationContent>
                         <PaginationItem>
-                            <PaginationPrevious 
+                            <PaginationPrevious
                                 href="#"
                                 onClick={(e) => {
                                     e.preventDefault()
@@ -98,10 +110,10 @@ export function CourseGrid({
                                 className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                             />
                         </PaginationItem>
-                        
+
                         {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                             <PaginationItem key={page}>
-                                <PaginationLink 
+                                <PaginationLink
                                     href="#"
                                     isActive={currentPage === page}
                                     onClick={(e) => {
@@ -113,9 +125,9 @@ export function CourseGrid({
                                 </PaginationLink>
                             </PaginationItem>
                         ))}
-                        
+
                         <PaginationItem>
-                            <PaginationNext 
+                            <PaginationNext
                                 href="#"
                                 onClick={(e) => {
                                     e.preventDefault()

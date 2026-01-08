@@ -15,6 +15,8 @@ import {
 } from '@workspace/ui/components/table';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { useState } from 'react';
+import { Inbox } from 'lucide-react';
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
 import type { CourseResponseDTO } from '@workspace/schemas';
 import { getCoursesColumns } from './courses-columns.tsx';
 
@@ -101,7 +103,17 @@ export function CoursesTable({ data, onView, onEdit, onDelete, onModules, page, 
                                 colSpan={columns.length}
                                 className="h-24 text-center text-muted-foreground"
                             >
-                                No results.
+                                <div className="flex h-full w-full items-center justify-center p-6">
+                                    <Empty>
+                                        <EmptyHeader>
+                                            <EmptyMedia variant="icon"><Inbox /></EmptyMedia>
+                                            <EmptyTitle>No courses found</EmptyTitle>
+                                            <EmptyDescription>
+                                                Try adjusting your search or create a new course.
+                                            </EmptyDescription>
+                                        </EmptyHeader>
+                                    </Empty>
+                                </div>
                             </TableCell>
                         </TableRow>
                     )}

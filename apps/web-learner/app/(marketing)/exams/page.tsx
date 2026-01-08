@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
-import { Search, Filter } from "lucide-react"
+import { Search, Filter, Inbox } from "lucide-react"
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
 
 import { ExamStats } from "@/components/exams/exam-stats"
 import { ExamCard } from "@/components/exams/exam-card"
@@ -17,7 +18,7 @@ import { ExamType, ExamStatus } from '@workspace/schemas'
 function transformExamToCardProps(exam: ExamWithStatusResponseDTO) {
     const status = exam.sessionStatus === 'in-progress' ? 'in-progress' as const
         : exam.sessionStatus === 'submitted' ? 'completed' as const
-        : 'new' as const
+            : 'new' as const
 
     // Map examType: practice = Full Test, official = Mini Test (or could be reversed based on business logic)
     // For now, assume practice = Full Test
@@ -36,9 +37,9 @@ function transformExamToCardProps(exam: ExamWithStatusResponseDTO) {
         progress: exam.progress,
         sessionId: exam.sessionId, // Add sessionId for review/retake
         // lastAttemptDate is already a string from JSON serialization, or Date object
-        lastAttemptDate: exam.lastAttemptDate 
-            ? (typeof exam.lastAttemptDate === 'string' 
-                ? exam.lastAttemptDate 
+        lastAttemptDate: exam.lastAttemptDate
+            ? (typeof exam.lastAttemptDate === 'string'
+                ? exam.lastAttemptDate
                 : exam.lastAttemptDate.toISOString())
             : undefined,
     }
@@ -80,7 +81,7 @@ export default function ExamPage() {
                 // Response is PaginatedResponse, data is directly in response
                 const exams = response.data || []
                 console.log('Exams count:', exams.length)
-                
+
                 // If no published exams, try without status filter
                 if (exams.length === 0 && query.status === ExamStatus.PUBLISHED) {
                     console.log('No published exams found, trying without status filter...')
@@ -197,8 +198,16 @@ export default function ExamPage() {
                                 ))}
                             </div>
                         ) : exams.length === 0 ? (
-                            <div className="text-center py-12">
-                                <p className="text-muted-foreground">Không tìm thấy đề thi nào</p>
+                            <div className="flex justify-center py-12">
+                                <Empty>
+                                    <EmptyHeader>
+                                        <EmptyMedia variant="icon"><Inbox /></EmptyMedia>
+                                        <EmptyTitle>Không tìm thấy đề thi nào</EmptyTitle>
+                                        <EmptyDescription>
+                                            Vui lòng thử lại với bộ lọc khác hoặc quay lại sau.
+                                        </EmptyDescription>
+                                    </EmptyHeader>
+                                </Empty>
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

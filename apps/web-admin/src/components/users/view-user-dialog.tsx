@@ -9,6 +9,7 @@ import { Badge } from '@workspace/ui/components/badge';
 import { Label } from '@workspace/ui/components/label';
 import type { UserResponseDTO } from '@workspace/schemas';
 import { Avatar, AvatarFallback } from '@workspace/ui/components/avatar';
+import { format } from 'date-fns';
 
 interface ViewUserDialogProps {
     open: boolean;
@@ -89,11 +90,11 @@ export function ViewUserDialog({
                     <div className="grid grid-cols-2 gap-6 p-4">
                         <div className="space-y-1">
                             <Label className="text-xs uppercase tracking-wider text-muted-foreground/50 font-bold">Created At</Label>
-                            <p className="font-medium text-foreground/80">{new Date(user.createdAt).toLocaleString()}</p>
+                            <p className="font-medium text-foreground/80">{format(new Date(user.createdAt), 'PPpp')}</p>
                         </div>
                         <div className="space-y-1">
                             <Label className="text-xs uppercase tracking-wider text-muted-foreground/50 font-bold">Updated At</Label>
-                            <p className="font-medium text-foreground/80">{new Date(user.updatedAt).toLocaleString()}</p>
+                            <p className="font-medium text-foreground/80">{format(new Date(user.updatedAt), 'PPpp')}</p>
                         </div>
                     </div>
                 </div>

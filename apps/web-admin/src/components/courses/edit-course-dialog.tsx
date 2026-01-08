@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import {
@@ -11,10 +11,15 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
+import {
+    Field,
+    FieldLabel,
+    FieldError,
+} from '@workspace/ui/components/field';
 import { storageApi } from '@/api/services/storage-api.ts';
 import { CourseStatus, type CourseResponseDTO, courseUpdateDTOSchema, type CourseUpdateDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
-import {useUpdateCourse} from "@/api/services/courses.ts";
+import { useUpdateCourse } from "@/api/services/courses.ts";
 
 type UpdateCourseFormData = CourseUpdateDTO;
 
@@ -31,11 +36,8 @@ export function EditCourseDialog({ course, open, onOpenChange }: EditCourseDialo
     const [uploading, setUploading] = useState(false);
 
     const {
-        register,
+        control,
         handleSubmit,
-        formState: { errors },
-        setValue,
-        watch,
         reset,
     } = useForm<UpdateCourseFormData>({
         resolver: zodResolver(courseUpdateDTOSchema),
@@ -131,80 +133,105 @@ export function EditCourseDialog({ course, open, onOpenChange }: EditCourseDialo
                 <DialogHeader>
                     <DialogTitle>Edit Course</DialogTitle>
                 </DialogHeader>
-                <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Title</label>
-                        <Input
-                            {...register('title')}
-                            placeholder="Enter course title"
-                        />
-                        {errors.title && (
-                            <p className="text-sm text-red-500 mt-1">{errors.title.message}</p>
+                <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4" noValidate>
+                    <Controller
+                        control={control}
+                        name="title"
+                        render={({ field, fieldState }) => (
+                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Title</FieldLabel>
+                                <Input
+                                    id={field.name}
+                                    {...field}
+                                    placeholder="Enter course title"
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
                         )}
-                    </div>
+                    />
 
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Description</label>
-                        <Input
-                            {...register('description')}
-                            placeholder="Enter course description"
-                        />
-                        {errors.description && (
-                            <p className="text-sm text-red-500 mt-1">{errors.description.message}</p>
+                    <Controller
+                        control={control}
+                        name="description"
+                        render={({ field, fieldState }) => (
+                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Description</FieldLabel>
+                                <Input
+                                    id={field.name}
+                                    {...field}
+                                    placeholder="Enter course description"
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
                         )}
-                    </div>
+                    />
 
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Price</label>
-                        <Input
-                            type="number"
-                            {...register('price', { valueAsNumber: true })}
-                            placeholder="Enter price"
-                        />
-                        {errors.price && (
-                            <p className="text-sm text-red-500 mt-1">{errors.price.message}</p>
+                    <Controller
+                        control={control}
+                        name="price"
+                        render={({ field, fieldState }) => (
+                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Price</FieldLabel>
+                                <Input
+                                    id={field.name}
+                                    type="number"
+                                    {...field}
+                                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                    placeholder="Enter price"
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
                         )}
-                    </div>
+                    />
 
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Status</label>
-                        <Select
-                            value={watch('status')}
-                            onValueChange={(value) => setValue('status', value as CourseStatus)}
-                        >
-                            <SelectTrigger>
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value={CourseStatus.DRAFT}>Draft</SelectItem>
-                                <SelectItem value={CourseStatus.PUBLISHED}>Published</SelectItem>
-                                <SelectItem value={CourseStatus.ARCHIVED}>Archived</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        {errors.status && (
-                            <p className="text-sm text-red-500 mt-1">{errors.status.message}</p>
+                    <Controller
+                        control={control}
+                        name="status"
+                        render={({ field, fieldState }) => (
+                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Status</FieldLabel>
+                                <Select
+                                    value={field.value}
+                                    onValueChange={(value) => field.onChange(value as CourseStatus)}
+                                >
+                                    <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value={CourseStatus.DRAFT}>Draft</SelectItem>
+                                        <SelectItem value={CourseStatus.PUBLISHED}>Published</SelectItem>
+                                        <SelectItem value={CourseStatus.ARCHIVED}>Archived</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
                         )}
-                    </div>
+                    />
 
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Thumbnail</label>
+                    <Field className="space-y-2">
+                        <FieldLabel htmlFor="thumbnail-upload">Thumbnail</FieldLabel>
                         <Input
+                            id="thumbnail-upload"
                             type="file"
                             accept="image/*"
                             onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)}
                         />
                         {course.thumbnailUrl && <p className="text-sm text-muted-foreground">Current: {course.thumbnailUrl}</p>}
-                    </div>
+                    </Field>
 
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Preview Video</label>
+                    <Field className="space-y-2">
+                        <FieldLabel htmlFor="video-upload">Preview Video</FieldLabel>
                         <Input
+                            id="video-upload"
                             type="file"
                             accept="video/*"
                             onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
                         />
                         {course.previewVideoUrl && <p className="text-sm text-muted-foreground">Current: {course.previewVideoUrl}</p>}
-                    </div>
+                    </Field>
 
                     <div className="flex justify-end gap-2">
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>

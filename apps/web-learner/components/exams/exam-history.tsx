@@ -16,6 +16,8 @@ import { Eye } from "lucide-react"
 import { getExamAttempts } from "@/api/services/exam-api"
 import type { ExamSessionWithExamResponseDTO } from '@workspace/schemas'
 import { ExamSessionStatus } from '@workspace/schemas'
+import { Inbox } from 'lucide-react'
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
 
 export function ExamHistory() {
     const router = useRouter()
@@ -100,8 +102,16 @@ export function ExamHistory() {
 
     if (sessions.length === 0) {
         return (
-            <div className="rounded-lg border p-12 text-center">
-                <p className="text-muted-foreground">Chưa có lịch sử thi nào</p>
+            <div className="flex justify-center rounded-lg border py-12">
+                <Empty>
+                    <EmptyHeader>
+                        <EmptyMedia variant="icon"><Inbox /></EmptyMedia>
+                        <EmptyTitle>Chưa có lịch sử thi nào</EmptyTitle>
+                        <EmptyDescription>
+                            Bạn chưa tham gia bất kỳ kỳ thi nào.
+                        </EmptyDescription>
+                    </EmptyHeader>
+                </Empty>
             </div>
         )
     }

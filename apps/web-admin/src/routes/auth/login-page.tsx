@@ -1,20 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { userLoginDTOSchema, type UserLoginDTO } from '@workspace/schemas';
 import { useAppDispatch, useAppSelector } from '@/hooks/hooks.ts';
 import { login, checkAuth, selectAuthError, selectAuthLoading, setError } from '@/store/slices/auth-slice.ts';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@workspace/ui/components/form';
+import { Field, FieldLabel, FieldError } from '@workspace/ui/components/field';
 import { toast } from '@workspace/ui/components/sonner';
 import { Eye, EyeOff, Loader2, ShieldCheck, BarChart3, Users, Globe2 } from 'lucide-react';
 import { Checkbox } from "@workspace/ui/components/checkbox";
@@ -158,94 +151,97 @@ export default function LoginPage() {
             <p className="text-sm text-muted-foreground/80">Enter your credentials to continue your journey</p>
           </div>
 
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem className="space-y-2">
-                    <FormLabel className="text-sm font-medium text-foreground ml-1">Email address</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="name@company.com"
-                        {...field}
-                        className="h-12 border border-border/50 bg-muted/50 dark:bg-muted/70 hover:bg-muted/70 dark:hover:bg-muted/80 focus-visible:ring-2 focus-visible:ring-primary/30 dark:focus-visible:ring-primary/40 rounded-xl transition-all duration-200 pl-4"
-                        autoComplete="email"
-                      />
-                    </FormControl>
-                    <FormMessage className="ml-1 text-xs" />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem className="space-y-2">
-                    <div className="flex items-center justify-between ml-1">
-                      <FormLabel className="text-sm font-medium text-foreground">Password</FormLabel>
-                      <Button variant="link" className="p-0 h-auto font-medium text-xs text-primary/80 hover:text-primary transition-colors" type="button">Forgot password?</Button>
-                    </div>
-                    <FormControl>
-                      <div className="relative">
-                        <Input
-                          type={showPassword ? "text" : "password"}
-                          placeholder="Enter your password"
-                          {...field}
-                          className="h-12 pr-12 border border-border/50 bg-muted/50 dark:bg-muted/70 hover:bg-muted/70 dark:hover:bg-muted/80 focus-visible:ring-2 focus-visible:ring-primary/30 dark:focus-visible:ring-primary/40 rounded-xl transition-all duration-200 pl-4"
-                          autoComplete="current-password"
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="absolute right-1 top-1 h-10 w-10 px-0 hover:bg-muted/50 text-muted-foreground/60 hover:text-foreground transition-colors rounded-lg"
-                          onClick={() => setShowPassword(!showPassword)}
-                        >
-                          {showPassword ? (
-                            <EyeOff className="size-4" />
-                          ) : (
-                            <Eye className="size-4" />
-                          )}
-                          <span className="sr-only">Toggle password visibility</span>
-                        </Button>
-                      </div>
-                    </FormControl>
-                    <FormMessage className="ml-1 text-xs" />
-                  </FormItem>
-                )}
-              />
-
-              <div className="flex items-center space-x-3 pt-1 ml-1">
-                <Checkbox id="remember" className="data-[state=checked]:bg-primary data-[state=checked]:border-primary border-border/50 rounded-md size-4" />
-                <Label htmlFor="remember" className="text-sm font-medium leading-none text-muted-foreground/80 cursor-pointer select-none hover:text-foreground transition-colors">Remember me for 30 days</Label>
-              </div>
-
-              {error && (
-                <div className="rounded-xl bg-destructive/10 dark:bg-destructive/15 border border-destructive/30 p-4 text-sm text-destructive font-medium flex items-center gap-3 animate-in fade-in zoom-in-95">
-                  <ShieldCheck className="size-5 shrink-0" />
-                  <span>{error}</span>
-                </div>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5" noValidate>
+            <Controller
+              name="email"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">
+                    Email address
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    id={field.name}
+                    aria-invalid={fieldState.invalid}
+                    placeholder="name@company.com"
+                    className="h-12 border border-border/50 bg-muted/50 dark:bg-muted/70 hover:bg-muted/70 dark:hover:bg-muted/80 focus-visible:ring-2 focus-visible:ring-primary/30 dark:focus-visible:ring-primary/40 rounded-xl transition-all duration-200 pl-4"
+                    autoComplete="email"
+                    type="email"
+                  />
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} className="ml-1 text-xs" />}
+                </Field>
               )}
+            />
 
-              <Button 
-                type="submit" 
-                className="w-full h-12 rounded-xl shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 transition-all duration-200 font-semibold text-base mt-2" 
-                disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 size-5 animate-spin" />
-                    Authenticating...
-                  </>
-                ) : (
-                  "Sign In"
-                )}
-              </Button>
-            </form>
-          </Form>
+            <Controller
+              name="password"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <div className="flex items-center justify-between ml-1">
+                    <FieldLabel htmlFor={field.name} className="text-sm font-medium text-foreground">
+                      Password
+                    </FieldLabel>
+                    <Button variant="link" className="p-0 h-auto font-medium text-xs text-primary/80 hover:text-primary transition-colors" type="button">Forgot password?</Button>
+                  </div>
+                  <div className="relative">
+                    <Input
+                      {...field}
+                      id={field.name}
+                      type={showPassword ? "text" : "password"}
+                      aria-invalid={fieldState.invalid}
+                      placeholder="Enter your password"
+                      className="h-12 pr-12 border border-border/50 bg-muted/50 dark:bg-muted/70 hover:bg-muted/70 dark:hover:bg-muted/80 focus-visible:ring-2 focus-visible:ring-primary/30 dark:focus-visible:ring-primary/40 rounded-xl transition-all duration-200 pl-4"
+                      autoComplete="current-password"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-1 top-1 h-10 w-10 px-0 hover:bg-muted/50 text-muted-foreground/60 hover:text-foreground transition-colors rounded-lg"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="size-4" />
+                      ) : (
+                        <Eye className="size-4" />
+                      )}
+                      <span className="sr-only">Toggle password visibility</span>
+                    </Button>
+                  </div>
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} className="ml-1 text-xs" />}
+                </Field>
+              )}
+            />
+
+            <div className="flex items-center space-x-3 pt-1 ml-1">
+              <Checkbox id="remember" className="data-[state=checked]:bg-primary data-[state=checked]:border-primary border-border/50 rounded-md size-4" />
+              <Label htmlFor="remember" className="text-sm font-medium leading-none text-muted-foreground/80 cursor-pointer select-none hover:text-foreground transition-colors">Remember me for 30 days</Label>
+            </div>
+
+            {error && (
+              <div className="rounded-xl bg-destructive/10 dark:bg-destructive/15 border border-destructive/30 p-4 text-sm text-destructive font-medium flex items-center gap-3 animate-in fade-in zoom-in-95">
+                <ShieldCheck className="size-5 shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              className="w-full h-12 rounded-xl shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 transition-all duration-200 font-semibold text-base mt-2"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 size-5 animate-spin" />
+                  Authenticating...
+                </>
+              ) : (
+                "Sign In"
+              )}
+            </Button>
+          </form>
 
           <p className="px-4 text-center text-xs text-muted-foreground/70 leading-relaxed">
             By signing in, you agree to our{" "}

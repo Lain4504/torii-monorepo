@@ -16,6 +16,8 @@ import {
 import { useState } from 'react';
 import type { LessonResponseDTO } from '@workspace/schemas';
 import { getLessonsColumns } from './lessons-columns.tsx';
+import { Inbox } from 'lucide-react';
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
 
 import { Skeleton } from '@workspace/ui/components/skeleton';
 
@@ -100,7 +102,17 @@ export function LessonsTable({ data, onView, onEdit, onDelete, page, limit, isLo
                                 colSpan={columns.length}
                                 className="h-24 text-center text-muted-foreground"
                             >
-                                No results.
+                                <div className="flex h-full w-full items-center justify-center p-6">
+                                    <Empty>
+                                        <EmptyHeader>
+                                            <EmptyMedia variant="icon"><Inbox /></EmptyMedia>
+                                            <EmptyTitle>No lessons found</EmptyTitle>
+                                            <EmptyDescription>
+                                                Try adjusting your search or create a new lesson.
+                                            </EmptyDescription>
+                                        </EmptyHeader>
+                                    </Empty>
+                                </div>
                             </TableCell>
                         </TableRow>
                     )}

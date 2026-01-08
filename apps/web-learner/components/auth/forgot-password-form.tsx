@@ -1,19 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from '@workspace/ui/components/button'
 import { Input } from '@workspace/ui/components/input'
-import {
-    Form,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormControl,
-    FormMessage,
-} from '@workspace/ui/components/form'
+import { Field, FieldLabel, FieldError } from '@workspace/ui/components/field'
 import { toast } from '@workspace/ui/components/sonner'
 import { Spinner } from '@workspace/ui/components/spinner'
 import { Mail, Send, CheckCircle2 } from 'lucide-react'
@@ -103,51 +96,49 @@ export function ForgotPasswordForm() {
 
     return (
         <div className="grid gap-6">
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-                    <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                            <FormItem className="space-y-1">
-                                <FormLabel>
-                                    Địa chỉ Email
-                                </FormLabel>
-                                <FormControl>
-                                    <div className="relative">
-                                        <Mail className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
-                                        <Input
-                                            placeholder="hoctiennhat@example.com"
-                                            className="pl-10 h-11"
-                                            {...field}
-                                        />
-                                    </div>
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5" noValidate>
+                <Controller
+                    control={form.control}
+                    name="email"
+                    render={({ field, fieldState }) => (
+                        <Field data-invalid={fieldState.invalid}>
+                            <FieldLabel htmlFor={field.name}>
+                                Địa chỉ Email
+                            </FieldLabel>
+                            <div className="relative">
+                                <Mail className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                                <Input
+                                    {...field}
+                                    id={field.name}
+                                    placeholder="hoctiennhat@example.com"
+                                    className="pl-10 h-11"
+                                    aria-invalid={fieldState.invalid}
+                                />
+                            </div>
+                            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                        </Field>
+                    )}
+                />
 
-                    <div className="p-4 bg-accent rounded-lg border">
-                        <p className="text-sm text-muted-foreground">
-                            Nhập email bạn đã dùng để đăng ký. Chúng tôi sẽ gửi link đặt lại mật khẩu đến email này.
-                        </p>
-                    </div>
+                <div className="p-4 bg-accent rounded-lg border">
+                    <p className="text-sm text-muted-foreground">
+                        Nhập email bạn đã dùng để đăng ký. Chúng tôi sẽ gửi link đặt lại mật khẩu đến email này.
+                    </p>
+                </div>
 
-                    <Button
-                        type="submit"
-                        className="w-full h-12 font-semibold text-base"
-                        disabled={isLoading}
-                    >
-                        {isLoading ? (
-                            <Spinner className="mr-2" />
-                        ) : (
-                            <Send className="mr-2 h-5 w-5" />
-                        )}
-                        Gửi link đặt lại mật khẩu
-                    </Button>
-                </form>
-            </Form>
+                <Button
+                    type="submit"
+                    className="w-full h-12 font-semibold text-base"
+                    disabled={isLoading}
+                >
+                    {isLoading ? (
+                        <Spinner className="mr-2" />
+                    ) : (
+                        <Send className="mr-2 h-5 w-5" />
+                    )}
+                    Gửi link đặt lại mật khẩu
+                </Button>
+            </form>
         </div>
     )
 }

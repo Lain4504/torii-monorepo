@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useForm, type SubmitHandler } from 'react-hook-form';
+import { useForm, Controller, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -10,7 +10,6 @@ import {
 } from '@workspace/ui/components/dialog';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
-import { Label } from '@workspace/ui/components/label';
 import { Textarea } from '@workspace/ui/components/textarea';
 import {
     Select,
@@ -19,11 +18,16 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@workspace/ui/components/select';
+import {
+    Field,
+    FieldLabel,
+    FieldError,
+} from '@workspace/ui/components/field';
 import { Loader2, Upload, X } from 'lucide-react';
 import { blogPostUpdateDTOSchema, BlogPostStatus, type BlogPostUpdateDTO, type BlogPostResponseDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
 import { storageApi } from '@/api/services/storage-api.ts';
-import {useUpdateBlog} from "@/api/services/blog.ts";
+import { useUpdateBlog } from "@/api/services/blog.ts";
 
 const editBlogSchema = blogPostUpdateDTOSchema.omit({
     tags: true,
@@ -52,17 +56,12 @@ export function EditBlogDialog({
     const [uploading, setUploading] = useState(false);
 
     const {
-        register,
+        control,
         handleSubmit,
-        formState: { errors },
-        setValue,
-        watch,
         reset,
     } = useForm<EditBlogFormData>({
         resolver: zodResolver(editBlogSchema),
     });
-
-    const status = watch('status');
 
     const updateBlog = useUpdateBlog();
 
@@ -144,7 +143,6 @@ export function EditBlogDialog({
     const removeCoverImage = () => {
         setCoverImageFile(null);
         setCoverImagePreview(null);
-        setValue('coverImageUrl', undefined);
     };
 
     const handleFormSubmit: SubmitHandler<EditBlogFormData> = async (data) => {
@@ -205,10 +203,10 @@ export function EditBlogDialog({
                     <DialogTitle className="text-2xl">Edit Blog Post</DialogTitle>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+                <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4" noValidate>
                     {/* Cover Image */}
-                    <div className="space-y-2">
-                        <Label>Cover Image</Label>
+                    <Field className="space-y-2">
+                        <FieldLabel>Cover Image</FieldLabel>
                         {coverImagePreview ? (
                             <div className="relative">
                                 <img
@@ -227,7 +225,7 @@ export function EditBlogDialog({
                                 </Button>
                                 {!coverImageFile && (
                                     <div className="absolute bottom-2 left-2">
-                                        <Label htmlFor="cover-image-edit" className="cursor-pointer">
+                                        <FieldLabel htmlFor="cover-image-edit" className="cursor-pointer">
                                             <Button
                                                 type="button"
                                                 variant="secondary"
@@ -243,7 +241,7 @@ export function EditBlogDialog({
                                                 className="hidden"
                                                 onChange={handleCoverImageChange}
                                             />
-                                        </Label>
+                                        </FieldLabel>
                                     </div>
                                 )}
                             </div>
@@ -251,7 +249,7 @@ export function EditBlogDialog({
                             <div className="border-2 border-dashed rounded-lg p-6">
                                 <div className="flex flex-col items-center justify-center gap-2">
                                     <Upload className="h-8 w-8 text-muted-foreground" />
-                                    <Label htmlFor="cover-image-edit" className="cursor-pointer">
+                                    <FieldLabel htmlFor="cover-image-edit" className="cursor-pointer">
                                         <span className="text-sm text-muted-foreground">
                                             Click to upload cover image
                                         </span>
@@ -262,126 +260,173 @@ export function EditBlogDialog({
                                             className="hidden"
                                             onChange={handleCoverImageChange}
                                         />
-                                    </Label>
+                                    </FieldLabel>
                                     <p className="text-xs text-muted-foreground">
                                         JPG, PNG or GIF. Max 5MB
                                     </p>
                                 </div>
                             </div>
                         )}
-                    </div>
+                    </Field>
 
                     {/* Title */}
-                    <div className="space-y-2">
-                        <Label htmlFor="title">Title *</Label>
-                        <Input
-                            id="title"
-                            placeholder="Enter blog post title"
-                            {...register('title')}
-                        />
-                        {errors.title && (
-                            <p className="text-sm text-destructive">{errors.title.message}</p>
+                    <Controller
+                        control={control}
+                        name="title"
+                        render={({ field, fieldState }) => (
+                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Title <span className="text-destructive">*</span></FieldLabel>
+                                <Input
+                                    id={field.name}
+                                    placeholder="Enter blog post title"
+                                    {...field}
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
                         )}
-                    </div>
+                    />
 
                     {/* Excerpt */}
-                    <div className="space-y-2">
-                        <Label htmlFor="excerpt">Excerpt</Label>
-                        <Textarea
-                            id="excerpt"
-                            placeholder="Short description of the post"
-                            {...register('excerpt')}
-                            rows={3}
-                        />
-                        {errors.excerpt && (
-                            <p className="text-sm text-destructive">{errors.excerpt.message}</p>
+                    <Controller
+                        control={control}
+                        name="excerpt"
+                        render={({ field, fieldState }) => (
+                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Excerpt</FieldLabel>
+                                <Textarea
+                                    id={field.name}
+                                    placeholder="Short description of the post"
+                                    {...field}
+                                    value={field.value || ''}
+                                    rows={3}
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
                         )}
-                    </div>
+                    />
 
                     {/* Content */}
-                    <div className="space-y-2">
-                        <Label htmlFor="content">Content *</Label>
-                        <Textarea
-                            id="content"
-                            placeholder="Write your blog post content here..."
-                            {...register('content')}
-                            rows={10}
-                        />
-                        {errors.content && (
-                            <p className="text-sm text-destructive">{errors.content.message}</p>
+                    <Controller
+                        control={control}
+                        name="content"
+                        render={({ field, fieldState }) => (
+                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Content <span className="text-destructive">*</span></FieldLabel>
+                                <Textarea
+                                    id={field.name}
+                                    placeholder="Write your blog post content here..."
+                                    {...field}
+                                    rows={10}
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
                         )}
-                    </div>
+                    />
 
                     {/* Status */}
-                    <div className="space-y-2">
-                        <Label htmlFor="status">Status</Label>
-                        <Select
-                            value={status || blog.status}
-                            onValueChange={(value) => setValue('status', value as BlogPostStatus)}
-                        >
-                            <SelectTrigger id="status">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value={BlogPostStatus.DRAFT}>Draft</SelectItem>
-                                <SelectItem value={BlogPostStatus.PUBLISHED}>Published</SelectItem>
-                                <SelectItem value={BlogPostStatus.ARCHIVED}>Archived</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
+                    <Controller
+                        control={control}
+                        name="status"
+                        render={({ field, fieldState }) => (
+                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Status</FieldLabel>
+                                <Select
+                                    value={field.value}
+                                    onValueChange={(value) => field.onChange(value as BlogPostStatus)}
+                                >
+                                    <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value={BlogPostStatus.DRAFT}>Draft</SelectItem>
+                                        <SelectItem value={BlogPostStatus.PUBLISHED}>Published</SelectItem>
+                                        <SelectItem value={BlogPostStatus.ARCHIVED}>Archived</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
+                        )}
+                    />
 
                     {/* Tags */}
-                    <div className="space-y-2">
-                        <Label htmlFor="tags">Tags</Label>
-                        <Input
-                            id="tags"
-                            placeholder="Enter tags separated by commas (e.g., tech, programming, tutorial)"
-                            {...register('tags')}
-                        />
-                        {errors.tags && (
-                            <p className="text-sm text-destructive">{errors.tags.message}</p>
+                    <Controller
+                        control={control}
+                        name="tags"
+                        render={({ field, fieldState }) => (
+                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Tags</FieldLabel>
+                                <Input
+                                    id={field.name}
+                                    placeholder="Enter tags separated by commas (e.g., tech, programming, tutorial)"
+                                    {...field}
+                                    value={field.value || ''}
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
                         )}
-                    </div>
+                    />
 
                     {/* Published At */}
-                    <div className="space-y-2">
-                        <Label htmlFor="publishedAt">Published At</Label>
-                        <Input
-                            id="publishedAt"
-                            type="datetime-local"
-                            {...register('publishedAt')}
-                        />
-                        {errors.publishedAt && (
-                            <p className="text-sm text-destructive">{errors.publishedAt.message}</p>
+                    <Controller
+                        control={control}
+                        name="publishedAt"
+                        render={({ field, fieldState }) => (
+                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Published At</FieldLabel>
+                                <Input
+                                    id={field.name}
+                                    type="datetime-local"
+                                    {...field}
+                                    value={field.value || ''}
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
                         )}
-                    </div>
+                    />
 
                     {/* SEO Title */}
-                    <div className="space-y-2">
-                        <Label htmlFor="seoTitle">SEO Title</Label>
-                        <Input
-                            id="seoTitle"
-                            placeholder="Enter SEO title (optional)"
-                            {...register('seoTitle')}
-                        />
-                        {errors.seoTitle && (
-                            <p className="text-sm text-destructive">{errors.seoTitle.message}</p>
+                    <Controller
+                        control={control}
+                        name="seoTitle"
+                        render={({ field, fieldState }) => (
+                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>SEO Title</FieldLabel>
+                                <Input
+                                    id={field.name}
+                                    placeholder="Enter SEO title (optional)"
+                                    {...field}
+                                    value={field.value || ''}
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
                         )}
-                    </div>
+                    />
 
                     {/* SEO Description */}
-                    <div className="space-y-2">
-                        <Label htmlFor="seoDescription">SEO Description</Label>
-                        <Textarea
-                            id="seoDescription"
-                            placeholder="Enter SEO description (optional)"
-                            {...register('seoDescription')}
-                            rows={3}
-                        />
-                        {errors.seoDescription && (
-                            <p className="text-sm text-destructive">{errors.seoDescription.message}</p>
+                    <Controller
+                        control={control}
+                        name="seoDescription"
+                        render={({ field, fieldState }) => (
+                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>SEO Description</FieldLabel>
+                                <Textarea
+                                    id={field.name}
+                                    placeholder="Enter SEO description (optional)"
+                                    {...field}
+                                    value={field.value || ''}
+                                    rows={3}
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
                         )}
-                    </div>
+                    />
 
                     {/* Footer Actions */}
                     <div className="flex justify-end gap-3 pt-4 border-t">

@@ -1,4 +1,4 @@
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import {
@@ -11,6 +11,11 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
+import {
+    Field,
+    FieldLabel,
+    FieldError,
+} from '@workspace/ui/components/field';
 import type { UserResponseDTO } from '@workspace/schemas';
 import { Loader2 } from 'lucide-react';
 
@@ -34,11 +39,8 @@ export function EditUserDialog({
 }: EditUserDialogProps) {
     const updateUser = useUpdateUser();
     const {
-        register,
+        control,
         handleSubmit,
-        formState: { errors },
-        setValue,
-        watch,
     } = useForm<UpdateUserFormData>({
         resolver: zodResolver(userAdminUpdateDTOSchema),
         values: user ? {
@@ -76,52 +78,72 @@ export function EditUserDialog({
                     </DialogDescription>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5 px-1">
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium zen-text-muted">Display Name</label>
-                        <Input
-                            {...register('displayName')}
-                            placeholder="Display Name"
-                            className="border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl h-11 transition-all"
-                        />
-                        {errors.displayName && (
-                            <p className="text-sm text-destructive">{errors.displayName.message}</p>
+                <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5 px-1" noValidate>
+                    <Controller
+                        control={control}
+                        name="displayName"
+                        render={({ field, fieldState }) => (
+                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Display Name</FieldLabel>
+                                <Input
+                                    id={field.name}
+                                    {...field}
+                                    placeholder="Display Name"
+                                    aria-invalid={fieldState.invalid}
+                                    className="border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl h-11 transition-all"
+                                />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
                         )}
-                    </div>
+                    />
 
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium zen-text-muted">Email</label>
-                        <Input
-                            {...register('email')}
-                            placeholder="Email"
-                            type="email"
-                            className="border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl h-11 transition-all"
-                        />
-                        {errors.email && (
-                            <p className="text-sm text-destructive">{errors.email.message}</p>
+                    <Controller
+                        control={control}
+                        name="email"
+                        render={({ field, fieldState }) => (
+                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+                                <Input
+                                    id={field.name}
+                                    {...field}
+                                    placeholder="Email"
+                                    type="email"
+                                    aria-invalid={fieldState.invalid}
+                                    className="border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl h-11 transition-all"
+                                />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
                         )}
-                    </div>
+                    />
 
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium zen-text-muted">Role</label>
-                        <Select
-                            value={watch('role')}
-                            onValueChange={(value) => setValue('role', value as any)}
-                        >
-                            <SelectTrigger className="border-none bg-muted/30 hover:bg-muted/50 focus:ring-1 focus:ring-primary/20 rounded-xl h-11 transition-all">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="border-none shadow-xl bg-background/90 backdrop-blur-xl rounded-xl">
-                                <SelectItem value="learner" className="rounded-lg cursor-pointer">Learner</SelectItem>
-                                <SelectItem value="lecturer" className="rounded-lg cursor-pointer">Lecturer</SelectItem>
-                                <SelectItem value="staff" className="rounded-lg cursor-pointer">Staff</SelectItem>
-                                <SelectItem value="admin" className="rounded-lg cursor-pointer">Admin</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        {errors.role && (
-                            <p className="text-sm text-destructive">{errors.role.message}</p>
+                    <Controller
+                        control={control}
+                        name="role"
+                        render={({ field, fieldState }) => (
+                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Role</FieldLabel>
+                                <Select
+                                    value={field.value}
+                                    onValueChange={field.onChange}
+                                >
+                                    <SelectTrigger
+                                        id={field.name}
+                                        aria-invalid={fieldState.invalid}
+                                        className="border-none bg-muted/30 hover:bg-muted/50 focus:ring-1 focus:ring-primary/20 rounded-xl h-11 transition-all"
+                                    >
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent className="border-none shadow-xl bg-background/90 backdrop-blur-xl rounded-xl">
+                                        <SelectItem value="learner" className="rounded-lg cursor-pointer">Learner</SelectItem>
+                                        <SelectItem value="lecturer" className="rounded-lg cursor-pointer">Lecturer</SelectItem>
+                                        <SelectItem value="staff" className="rounded-lg cursor-pointer">Staff</SelectItem>
+                                        <SelectItem value="admin" className="rounded-lg cursor-pointer">Admin</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
                         )}
-                    </div>
+                    />
 
                     <div className="flex justify-end gap-3 pt-6">
                         <Button
