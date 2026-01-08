@@ -1,7 +1,7 @@
 import { createColumnHelper } from '@tanstack/react-table';
 import type { UserResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
-import { ArrowUpDown, MoreHorizontal, Pencil, Trash, Eye } from 'lucide-react';
+import { ArrowUpDown, MoreHorizontal, Pencil, Trash, Eye, Check, Copy } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -11,6 +11,7 @@ import {
     DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu';
 import { Can } from "@/lib/guard/can";
+import { useCopyToClipboard } from "@workspace/ui/hooks/use-copy-to-clipboard";
 
 const columnHelper = createColumnHelper<UserResponseDTO>();
 
@@ -20,6 +21,45 @@ export type UsersColumnsProps = {
     onDelete: (user: UserResponseDTO) => void;
     page: number;
     limit: number;
+};
+
+const ActionsCell = ({ user, onView, onEdit, onDelete }: { user: UserResponseDTO } & Omit<UsersColumnsProps, 'page' | 'limit'>) => {
+    const [copy, isCopied] = useCopyToClipboard();
+    const [copyEmail, isEmailCopied] = useCopyToClipboard();
+
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Open menu</span>
+                    <MoreHorizontal className="h-4 w-4" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => copy(user.id)}>
+                    {isCopied ? <Check className="mr-2 h-4 w-4 text-green-500" /> : <Copy className="mr-2 h-4 w-4" />}
+                    Copy ID
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => copyEmail(user.email)}>
+                    {isEmailCopied ? <Check className="mr-2 h-4 w-4 text-green-500" /> : <Copy className="mr-2 h-4 w-4" />}
+                    Copy Email
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => onView(user)}>
+                    <Eye className="mr-2 h-4 w-4" /> View Details
+                </DropdownMenuItem>
+                <Can permission="user.manage">
+                    <DropdownMenuItem onClick={() => onEdit(user)}>
+                        <Pencil className="mr-2 h-4 w-4" /> Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onDelete(user)} className="text-red-600">
+                        <Trash className="mr-2 h-4 w-4" /> Delete
+                    </DropdownMenuItem>
+                </Can>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    );
 };
 
 export const getUsersColumns = ({ onView, onEdit, onDelete, page, limit }: UsersColumnsProps) => [
@@ -97,40 +137,6 @@ export const getUsersColumns = ({ onView, onEdit, onDelete, page, limit }: Users
     }),
     columnHelper.display({
         id: 'actions',
-        cell: ({ row }) => {
-            const user = row.original;
-
-            return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => navigator.clipboard.writeText(user.id)}>
-                            Copy ID
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => navigator.clipboard.writeText(user.email)}>
-                            Copy Email
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => onView(user)}>
-                            <Eye className="mr-2 h-4 w-4" /> View Details
-                        </DropdownMenuItem>
-                        <Can permission="user.manage">
-                            <DropdownMenuItem onClick={() => onEdit(user)}>
-                                <Pencil className="mr-2 h-4 w-4" /> Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onDelete(user)} className="text-red-600">
-                                <Trash className="mr-2 h-4 w-4" /> Delete
-                            </DropdownMenuItem>
-                        </Can>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            );
-        },
+        cell: ({ row }) => <ActionsCell user={row.original} onView={onView} onEdit={onEdit} onDelete={onDelete} />,
     }),
 ];

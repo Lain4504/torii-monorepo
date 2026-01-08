@@ -2,24 +2,18 @@ import { useState, useEffect } from "react"
 import { Outlet, useLocation } from "react-router-dom"
 import { Menu } from "lucide-react"
 
+import { useWindowSize } from "@workspace/ui/hooks/use-window-size"
+import { useLocalStorage } from "@workspace/ui/hooks/use-local-storage"
 import { DashboardSidebar } from "@/components/layout/dashboard-sidebar.tsx";
 import { DashboardHeader } from "@/components/layout/dashboard-header.tsx";
 import { Button } from "@workspace/ui/components/button"
 import { Sheet, SheetContent, SheetTrigger } from "@workspace/ui/components/sheet"
 
 export default function DashboardLayout() {
-  const [isCollapsed, setIsCollapsed] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
+  const [isCollapsed, setIsCollapsed] = useLocalStorage("sidebar-collapsed", false)
   const [mobileOpen, setMobileOpen] = useState(false)
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 1024)
-    }
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
+  const { width } = useWindowSize()
+  const isMobile = typeof width === "number" && width < 1024
 
   // Close mobile sidebar on route change
   const location = useLocation()
@@ -42,7 +36,7 @@ export default function DashboardLayout() {
 
       {/* Main Content Wrapper */}
       <div
-        className={`flex flex-col flex-1 transition-all duration-300 ease-in-out ${!isMobile
+        className={`flex flex-col flex-1 transition-all duration-300 ease-in-out min-w-0 ${!isMobile
           ? (isCollapsed ? "pl-[80px]" : "pl-[280px]")
           : "pl-0"
           }`}
@@ -74,8 +68,8 @@ export default function DashboardLayout() {
         </header>
 
         {/* Page Content - More breathing room */}
-        <main className="flex-1 p-6 lg:p-10 overflow-x-hidden">
-          <div className="mx-auto max-w-7xl animate-in fade-in-50 duration-700 slide-in-from-bottom-4">
+        <main className="flex-1 p-6 lg:p-10 min-w-0">
+          <div className="mx-auto max-w-7xl animate-in fade-in-50 duration-700 slide-in-from-bottom-4 w-full">
             <Outlet />
           </div>
         </main>

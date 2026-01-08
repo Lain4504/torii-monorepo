@@ -9,6 +9,7 @@ import type { UserResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
 import { useUsers } from "@/api/services/users.ts";
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
+import { useBoolean } from "@workspace/ui/hooks/use-boolean";
 import { cn } from '@workspace/ui/lib/utils';
 import {
     Pagination,
@@ -29,7 +30,7 @@ export function UsersPage() {
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
     // Dialog States
-    const [showCreateDialog, setShowCreateDialog] = useState(false);
+    const createDialog = useBoolean();
     const [editingUser, setEditingUser] = useState<UserResponseDTO | null>(null);
     const [deletingUser, setDeletingUser] = useState<UserResponseDTO | null>(null);
     const [viewingUser, setViewingUser] = useState<UserResponseDTO | null>(null);
@@ -41,9 +42,6 @@ export function UsersPage() {
         page,
         limit,
         search: debouncedSearch,
-        // Backend might need these as well if supported by findAll
-        // sortBy,
-        // sortOrder 
     });
 
     // Reset page when search or filters change
@@ -129,19 +127,23 @@ export function UsersPage() {
     };
 
     return (
-        <div className="space-y-6 animate-in fade-in-50 duration-500">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="space-y-4 sm:space-y-6 animate-in fade-in-50 duration-500">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
                 <div className="space-y-1">
-                    <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">Users</h1>
-                    <p className="text-muted-foreground">Manage system users, roles, and permissions.</p>
+                    <h1 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">Users</h1>
+                    <p className="text-sm sm:text-base text-muted-foreground">Manage system users, roles, and permissions.</p>
                 </div>
-                <Button onClick={() => setShowCreateDialog(true)} className="rounded-full shadow-lg shadow-primary/20 bg-primary">
+                <Button
+                    onClick={createDialog.setTrue}
+                    className="w-full sm:w-auto rounded-full shadow-lg shadow-primary/20 bg-primary text-sm sm:text-base"
+                    size="sm"
+                >
                     Add New User
                 </Button>
             </div>
 
             <div className="zen-card rounded-2xl">
-                <div className="p-6">
+                <div className="p-3 sm:p-6">
                     <UsersPrimaryToolbar
                         search={search}
                         onSearchChange={setSearch}
@@ -155,31 +157,37 @@ export function UsersPage() {
                         }}
                     />
 
-                    <div className="mt-6 rounded-xl border border-border/40 overflow-hidden">
-                        <UsersTable
-                            data={users}
-                            onEdit={setEditingUser}
-                            onDelete={setDeletingUser}
-                            onView={setViewingUser}
-                            page={page}
-                            limit={limit}
-                            isLoading={isLoading}
-                        />
+                    <div className="mt-4 sm:mt-6 rounded-xl border border-border/40 overflow-visible sm:overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <UsersTable
+                                data={users}
+                                onEdit={setEditingUser}
+                                onDelete={setDeletingUser}
+                                onView={setViewingUser}
+                                page={page}
+                                limit={limit}
+                                isLoading={isLoading}
+                            />
+                        </div>
                     </div>
 
                     {/* Pagination */}
                     {(total > 0 || isLoading) && (
-                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6 border-t border-border/40 mt-6 px-2">
-                            <div className="text-sm text-muted-foreground">
-                                Showing <span className="font-semibold text-foreground">{users.length}</span> of <span className="font-semibold text-foreground">{total}</span> users
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 py-4 sm:py-6 border-t border-border/40 mt-4 sm:mt-6 px-2">
+                            <div className="text-xs sm:text-sm text-muted-foreground text-center sm:text-left w-full sm:w-auto">
+                                <div>
+                                    Showing <span className="font-semibold text-foreground">{users.length}</span> of <span className="font-semibold text-foreground">{total}</span> users
+                                </div>
                                 {totalPages > 0 && (
-                                    <span className="ml-2">(Page {page} of {totalPages})</span>
+                                    <div className="mt-1 sm:mt-0 sm:inline sm:ml-2">
+                                        (Page {page} of {totalPages})
+                                    </div>
                                 )}
                             </div>
 
                             {totalPages > 1 ? (
                                 <Pagination>
-                                    <PaginationContent>
+                                    <PaginationContent className="flex-wrap justify-center">
                                         <PaginationItem>
                                             <PaginationPrevious
                                                 onClick={(e) => {
@@ -193,7 +201,12 @@ export function UsersPage() {
                                             />
                                         </PaginationItem>
 
-                                        {renderPaginationItems()}
+                                        <div className="hidden sm:flex">
+                                            {renderPaginationItems()}
+                                        </div>
+                                        <div className="sm:hidden text-sm font-medium px-2">
+                                            {page} / {totalPages}
+                                        </div>
 
                                         <PaginationItem>
                                             <PaginationNext
@@ -210,7 +223,7 @@ export function UsersPage() {
                                     </PaginationContent>
                                 </Pagination>
                             ) : totalPages === 1 ? (
-                                <div className="text-sm text-muted-foreground">
+                                <div className="text-xs sm:text-sm text-muted-foreground">
                                     All results on one page
                                 </div>
                             ) : null}
@@ -221,8 +234,8 @@ export function UsersPage() {
 
             {/* Dialogs */}
             <CreateUserDialog
-                open={showCreateDialog}
-                onOpenChange={setShowCreateDialog}
+                open={createDialog.value}
+                onOpenChange={createDialog.setValue}
             />
 
             <EditUserDialog

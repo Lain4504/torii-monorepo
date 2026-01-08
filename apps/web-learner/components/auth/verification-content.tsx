@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
+import { useTimeout } from '@workspace/ui/hooks/use-timeout';
 import { useAppDispatch } from '@/hooks/hooks';
 import { fetchProfile } from '@/store/slices/authSlice';
 
@@ -15,6 +16,11 @@ export function VerificationContent() {
     const dispatch = useAppDispatch();
     const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
     const [message, setMessage] = useState('');
+    const [redirectDelay, setRedirectDelay] = useState<number | null>(null);
+
+    useTimeout(() => {
+        router.push('/');
+    }, redirectDelay);
 
     useEffect(() => {
         const token = searchParams.get('token');
@@ -39,9 +45,7 @@ export function VerificationContent() {
                     await dispatch(fetchProfile());
 
                     // Redirect to home after 2 seconds
-                    setTimeout(() => {
-                        router.push('/');
-                    }, 2000);
+                    setRedirectDelay(2000);
                 } else {
                     setStatus('error');
                     setMessage(data.message || 'Link xác thực không hợp lệ hoặc đã hết hạn');
