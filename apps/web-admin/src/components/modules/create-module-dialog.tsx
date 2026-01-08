@@ -1,7 +1,6 @@
-﻿import { useForm, Controller } from 'react-hook-form';
+﻿import { useForm, Controller, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { moduleCreateDTOSchema, type ModuleResponseDTO } from '@workspace/schemas';
+import { moduleCreateDTOSchema, type ModuleResponseDTO, type ModuleCreateDTO } from '@workspace/schemas';
 import {
     Dialog,
     DialogContent,
@@ -27,7 +26,7 @@ const getCreateModuleSchema = (existingTitles: string[] = []) =>
         ),
     });
 
-type CreateModuleFormData = z.infer<ReturnType<typeof getCreateModuleSchema>>;
+type CreateModuleFormData = ModuleCreateDTO;
 
 interface CreateModuleDialogProps {
     open: boolean;
@@ -49,7 +48,8 @@ export function CreateModuleDialog({ open, onOpenChange, courseId, courseTitle, 
         handleSubmit,
         reset,
     } = useForm<CreateModuleFormData>({
-        resolver: zodResolver(createModuleSchema),
+        // The schema is compatible with ModuleCreateDTO, but we cast to satisfy React Hook Form's Resolver typing.
+        resolver: zodResolver(createModuleSchema) as any,
         defaultValues: {
             courseId: courseId || '',
             title: '',
@@ -59,7 +59,7 @@ export function CreateModuleDialog({ open, onOpenChange, courseId, courseTitle, 
         },
     });
 
-    const onSubmitForm = async (data: CreateModuleFormData) => {
+    const onSubmitForm: SubmitHandler<CreateModuleFormData> = async (data) => {
         try {
             await createModule.mutateAsync(data);
             toast.success('Module created successfully!', {

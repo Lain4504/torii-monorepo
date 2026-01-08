@@ -7,7 +7,11 @@ import {
     ForbiddenException,
 } from '@nestjs/common';
 import type { Question } from '@prisma/generated';
-import { UserRole } from '@workspace/schemas';
+import {
+    UserRole,
+    QuestionStatus,
+    QuestionType,
+} from '@workspace/schemas';
 import type {
     QuestionCreateDTO,
     QuestionUpdateDTO,
@@ -15,8 +19,6 @@ import type {
     QuestionResponseDTO,
     PaginatedResponseDTO,
     Requester,
-    QuestionStatus,
-    QuestionType,
 } from '@workspace/schemas';
 import type { IQuestionService } from '../../interfaces/services/i-question.service';
 import type { IQuestionRepository } from '../../interfaces/repositories/i-question.repository';
@@ -222,10 +224,10 @@ export class QuestionService implements IQuestionService {
                 category: dto.category || null,
                 subcategory: dto.subcategory || null,
                 difficulty: dto.difficulty || null,
-                options: dto.options || null,
+                options: dto.options,
                 correctAnswer: dto.correctAnswer || null,
                 explanation: dto.explanation || null,
-                metadata: dto.metadata || null,
+                metadata: dto.metadata,
                 tags: dto.tags || [],
                 createdBy: requester.sub,
                 status: QuestionStatus.ACTIVE,
@@ -272,10 +274,10 @@ export class QuestionService implements IQuestionService {
                 category: dto.category || null,
                 subcategory: dto.subcategory || null,
                 difficulty: dto.difficulty || null,
-                options: dto.options || null,
+                options: dto.options,
                 correctAnswer: dto.correctAnswer || null,
                 explanation: dto.explanation || null,
-                metadata: dto.metadata || null,
+                metadata: dto.metadata,
                 tags: dto.tags || [],
                 createdBy: requester.sub,
                 status: QuestionStatus.ACTIVE,

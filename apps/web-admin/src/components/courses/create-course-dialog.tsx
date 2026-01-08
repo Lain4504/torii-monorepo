@@ -3,19 +3,6 @@ import { z } from 'zod';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import {
-    DialogStack,
-    DialogStackBody,
-    DialogStackContent,
-    DialogStackHeader,
-    DialogStackTitle,
-    DialogStackDescription,
-    DialogStackFooter,
-    DialogStackOverlay,
-    DialogStackNext,
-    DialogStackPrevious,
-    DialogStackContext,
-} from '@workspace/ui/components/ui/shadcn-io/dialog-stack';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
@@ -30,6 +17,12 @@ import { JlptLevel, CourseStatus, courseCreateDTOSchema, type CourseCreateDTO } 
 import { toast } from '@workspace/ui/components/sonner';
 import { useCreateCourse } from "@/api/services/courses.ts";
 import { cn } from '@workspace/ui/lib/utils';
+import {
+    DialogStack,
+    DialogStackBody, DialogStackContent,
+    DialogStackContext, DialogStackDescription, DialogStackFooter, DialogStackHeader,
+    DialogStackOverlay, DialogStackPrevious, DialogStackTitle
+} from "@workspace/ui/components/ui/shadcn-io/dialog-stack";
 
 type CreateCourseFormData = z.input<typeof courseCreateDTOSchema>;
 
@@ -50,16 +43,17 @@ function DialogStepReset({ isOpen }: { isOpen: boolean }) {
     const context = useContext(DialogStackContext);
     
     useEffect(() => {
-        if (isOpen && context && context.activeIndex > 0) {
+        const stack = context as any;
+        if (isOpen && stack && stack.activeIndex > 0) {
             // Reset to first step when dialog opens
-            context.setActiveIndex(0);
+            stack.setActiveIndex(0);
         }
     }, [isOpen, context]);
 
     return null;
 }
 
-function ValidatedNextButton({ trigger }: { trigger: (fields: string[]) => Promise<boolean> }) {
+function ValidatedNextButton({ trigger }: { trigger: (fields: any) => Promise<boolean> }) {
     const context = useContext(DialogStackContext);
     
     if (!context) {
@@ -69,8 +63,9 @@ function ValidatedNextButton({ trigger }: { trigger: (fields: string[]) => Promi
     const handleClick = async () => {
         const isValid = await trigger(['title', 'jlptLevel', 'price', 'status', 'description']);
         if (isValid) {
-            if (context.activeIndex < context.totalDialogs - 1) {
-                context.setActiveIndex(context.activeIndex + 1);
+            const stack = context as any;
+            if (stack.activeIndex < stack.totalDialogs - 1) {
+                stack.setActiveIndex(stack.activeIndex + 1);
             }
         } else {
             toast.error('Please fill in all required fields correctly', {
@@ -190,7 +185,6 @@ export function CreateCourseDialog({ open, onOpenChange }: CreateCourseDialogPro
         handleSubmit,
         reset,
         trigger,
-        formState: { errors },
     } = useForm<CreateCourseFormData>({
         resolver: zodResolver(courseCreateDTOSchema),
         defaultValues: {

@@ -50,7 +50,7 @@ export const getLessonsColumns = ({ onView, onEdit, onDelete, page, limit }: Les
         header: 'Type',
         cell: (info) => info.getValue(),
     }),
-    columnHelper.accessor('order', {
+    columnHelper.accessor('orderIndex', {
         header: ({ column }) => {
             return (
                 <Button

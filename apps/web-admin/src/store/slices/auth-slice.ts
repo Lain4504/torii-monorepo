@@ -57,10 +57,9 @@ export const login = createAsyncThunk(
     }
 );
 
-// @ts-ignore
 export const logout = createAsyncThunk(
     'auth/logout',
-    async (_, { rejectWithValue }) => {
+    async () => {
         try {
             await apiClient.post('/api/auth/logout');
             return null;

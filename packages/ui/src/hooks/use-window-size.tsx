@@ -1,5 +1,4 @@
 import * as React from "react";
-import { Maximize, Monitor } from "lucide-react";
 import debounce from "lodash.debounce";
 
 // ============================================================================

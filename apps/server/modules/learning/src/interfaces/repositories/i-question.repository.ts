@@ -28,12 +28,12 @@ export interface IQuestionRepository {
     /**
      * Create new question
      */
-    create(data: Prisma.QuestionCreateInput): Promise<Question>;
+    create(data: Prisma.QuestionUncheckedCreateInput): Promise<Question>;
 
     /**
      * Create multiple questions (bulk)
      */
-    createMany(data: Prisma.QuestionCreateInput[]): Promise<{ count: number }>;
+    createMany(data: Prisma.QuestionCreateManyInput[]): Promise<{ count: number }>;
 
     /**
      * Update question by ID

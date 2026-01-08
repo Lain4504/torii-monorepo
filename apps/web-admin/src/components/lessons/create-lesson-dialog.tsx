@@ -87,6 +87,9 @@ export function CreateLessonDialog({ open, onOpenChange, moduleId }: CreateLesso
 
             const payload = {
                 ...data,
+                // Ensure required fields on LessonCreateDTO are always present
+                orderIndex: data.orderIndex ?? 0,
+                aiMetadata: data.aiMetadata ?? {},
                 isPreview: data.isPreview ?? false,
                 isUnlocked: data.isUnlocked ?? false,
                 videoUrl,

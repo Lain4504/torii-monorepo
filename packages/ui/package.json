@@ -66,6 +66,7 @@
     "./postcss.config": "./postcss.config.mjs",
     "./lib/*": "./src/lib/*.ts",
     "./components/*": "./src/components/*.tsx",
+    "./components/ui/shadcn-io/*": "./src/components/ui/shadcn-io/*/index.tsx",
     "./hooks/*": "./src/hooks/*.tsx"
   }
 }

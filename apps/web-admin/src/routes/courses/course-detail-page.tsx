@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@workspace/ui/components/button';
-import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import {
     Accordion,
     AccordionContent,
@@ -243,7 +242,7 @@ export default function CourseDetailPage() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const { data: course, isLoading: isLoadingCourse } = useCourse(id || '');
-    const { data: modulesData, isLoading: isLoadingModules } = useModules({
+    const { data: modulesData } = useModules({
         page: 1, limit: 100, courseId: id
     } as any);
 

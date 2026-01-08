@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@workspace/ui/components/button';
-import type { QuestionPoolQueryDTO, QuestionPoolResponseDTO } from '@workspace/schemas';
+import type { QuestionPoolQueryDTO } from '@workspace/schemas';
 import { Can } from "@/lib/guard/can";
 import { useQuestionPools } from "@/api/services/question-pools.ts";
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';

@@ -49,14 +49,14 @@ export class QuestionRepository implements IQuestionRepository {
     /**
      * Create new question
      */
-    async create(data: Prisma.QuestionCreateInput): Promise<Question> {
+    async create(data: Prisma.QuestionUncheckedCreateInput): Promise<Question> {
         return this.prisma.question.create({ data });
     }
 
     /**
      * Create multiple questions (bulk)
      */
-    async createMany(data: Prisma.QuestionCreateInput[]): Promise<{ count: number }> {
+    async createMany(data: Prisma.QuestionCreateManyInput[]): Promise<{ count: number }> {
         return this.prisma.question.createMany({
             data,
             skipDuplicates: true,

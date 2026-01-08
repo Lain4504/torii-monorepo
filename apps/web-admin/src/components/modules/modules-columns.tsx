@@ -55,7 +55,7 @@ export const getModulesColumns = ({ onView, onEdit, onDelete, page, limit, cours
             return <div className="ml-4">{courseTitle || courseId}</div>;
         },
     }),
-    columnHelper.accessor('order', {
+    columnHelper.accessor('orderIndex', {
         header: 'Order',
         cell: (info) => <div className="ml-4">{info.getValue()}</div>,
     }),

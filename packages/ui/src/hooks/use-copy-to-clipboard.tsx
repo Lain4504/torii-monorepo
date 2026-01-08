@@ -1,5 +1,4 @@
 import { useCallback, useState } from "react";
-import { ClipboardCheckIcon, ClipboardIcon } from "lucide-react";
 
 // ============================================================================
 

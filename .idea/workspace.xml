@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update config" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update 3">
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/create-course-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/create-course-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/course-detail-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/course-detail-page.tsx" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -103,43 +106,43 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Docker.docker-compose.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.BlacklistService.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;#59 on lms-rebuild&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;E:/projectdev/bmap-capstone/torii-monorepo/packages/ui&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs.jest.jest_package&quot;: &quot;E:/projectdev/bmap-capstone/torii-monorepo/apps/server/node_modules/jest&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.github.copilot.settings.mcp.McpConfigurable&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;E:\\projectdev\\bmap-capstone\\torii-monorepo\\node_modules\\typescript\\lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
+    "Jest.BlacklistService.executor": "Run",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "#59 on lms-rebuild",
+    "ignore.virus.scanning.warn.message": "true",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "E:/projectdev/bmap-capstone/torii-monorepo/packages/ui",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs.jest.jest_package": "E:/projectdev/bmap-capstone/torii-monorepo/apps/server/node_modules/jest",
+    "nodejs_package_manager_path": "pnpm",
+    "settings.editor.selected.configurable": "com.github.copilot.settings.mcp.McpConfigurable",
+    "to.speed.mode.migration.done": "true",
+    "ts.external.directory.path": "E:\\Ky8\\torii-monorepo\\node_modules\\typescript\\lib",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;redis&quot;,
-      &quot;mongo&quot;,
-      &quot;postgresql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "redis",
+      "mongo",
+      "postgresql"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="E:\Ky8\bmap-capstone\torii-monorepo\apps\web-learner\components\layout" />
@@ -273,38 +276,6 @@
       <workItem from="1767780214679" duration="224000" />
       <workItem from="1767784611248" duration="3225000" />
       <workItem from="1767888786556" duration="3081000" />
-    </task>
-    <task id="LOCAL-00514" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
-      <option name="closed" value="true" />
-      <created>1767802359922</created>
-      <option name="number" value="00514" />
-      <option name="presentableId" value="LOCAL-00514" />
-      <option name="project" value="LOCAL" />
-      <updated>1767802359922</updated>
-    </task>
-    <task id="LOCAL-00515" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
-      <option name="closed" value="true" />
-      <created>1767802516312</created>
-      <option name="number" value="00515" />
-      <option name="presentableId" value="LOCAL-00515" />
-      <option name="project" value="LOCAL" />
-      <updated>1767802516313</updated>
-    </task>
-    <task id="LOCAL-00516" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
-      <option name="closed" value="true" />
-      <created>1767802634362</created>
-      <option name="number" value="00516" />
-      <option name="presentableId" value="LOCAL-00516" />
-      <option name="project" value="LOCAL" />
-      <updated>1767802634367</updated>
-    </task>
-    <task id="LOCAL-00517" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
-      <option name="closed" value="true" />
-      <created>1767802732757</created>
-      <option name="number" value="00517" />
-      <option name="presentableId" value="LOCAL-00517" />
-      <option name="project" value="LOCAL" />
-      <updated>1767802732759</updated>
     </task>
     <task id="LOCAL-00518" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
       <option name="closed" value="true" />
@@ -666,7 +637,39 @@
       <option name="project" value="LOCAL" />
       <updated>1767891663751</updated>
     </task>
-    <option name="localTasksCounter" value="563" />
+    <task id="LOCAL-00563" summary="update 3">
+      <option name="closed" value="true" />
+      <created>1767892445839</created>
+      <option name="number" value="00563" />
+      <option name="presentableId" value="LOCAL-00563" />
+      <option name="project" value="LOCAL" />
+      <updated>1767892445839</updated>
+    </task>
+    <task id="LOCAL-00564" summary="update 3">
+      <option name="closed" value="true" />
+      <created>1767892748984</created>
+      <option name="number" value="00564" />
+      <option name="presentableId" value="LOCAL-00564" />
+      <option name="project" value="LOCAL" />
+      <updated>1767892748984</updated>
+    </task>
+    <task id="LOCAL-00565" summary="update 3">
+      <option name="closed" value="true" />
+      <created>1767892946002</created>
+      <option name="number" value="00565" />
+      <option name="presentableId" value="LOCAL-00565" />
+      <option name="project" value="LOCAL" />
+      <updated>1767892946002</updated>
+    </task>
+    <task id="LOCAL-00566" summary="update 3">
+      <option name="closed" value="true" />
+      <created>1767893153483</created>
+      <option name="number" value="00566" />
+      <option name="presentableId" value="LOCAL-00566" />
+      <option name="project" value="LOCAL" />
+      <updated>1767893153483</updated>
+    </task>
+    <option name="localTasksCounter" value="567" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -2419,8 +2422,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat(database): update schema by removing obsolete tables and commenting out unused structures" />
-    <MESSAGE value="feat(database): add new modules for gamification, payments, and user management" />
     <MESSAGE value="feat(auth): rename endpoints and update token generation for email verification" />
     <MESSAGE value="feat(rbac): simplify permissions handling by removing user-specific overrides" />
     <MESSAGE value="feat(database): add radix-ui dependency and update package lock" />
@@ -2435,7 +2436,6 @@
     <MESSAGE value="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`." />
     <MESSAGE value="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`," />
     <MESSAGE value="feat(users): integrate EmailModule for user management enhancements" />
-    <MESSAGE value="feat(users): enhance create-user-dialog with multi-step flow and role selection&#10;&#10;- Added multi-step form flow for user creation (details &gt; role selection).&#10;- Introduced UI updates for better usability and visual consistency.&#10;- Implemented support for staff role variants with descriptive labels.&#10;- Improved form validation and error handling logic." />
     <MESSAGE value="feat(learning): refactor course, module, and lesson architecture with new repository and service layers" />
     <MESSAGE value="jwt logout" />
     <MESSAGE value="update web-admin" />
@@ -2444,7 +2444,10 @@
     <MESSAGE value="feat(admin, api): integrate course instructor management API and services&#10;&#10;Added API endpoints and query hooks to manage course instructors, including assignment, retrieval, updates, and unassignment." />
     <MESSAGE value="feat(question-bank): add deactivate functionality and update question model" />
     <MESSAGE value="update config" />
-    <option name="LAST_COMMIT_MESSAGE" value="update config" />
+    <MESSAGE value="update config#2" />
+    <MESSAGE value="feat(users): enhance create-user-dialog with multi-step flow and role selection&#10;&#10;- Added multi-step form flow for user creation (details &gt; role selection).&#10;- Introduced UI updates for better usability and visual consistency.&#10;- Implemented support for staff role variants with descriptive labels.&#10;- Improved form validation and error handling logic." />
+    <MESSAGE value="update 3" />
+    <option name="LAST_COMMIT_MESSAGE" value="update 3" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
