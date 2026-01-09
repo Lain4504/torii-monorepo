@@ -4,14 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: remove unused fields and update indexes in course schema" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: remove unused fields and update indexes in course schema">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/exam/exam.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/exam/exam.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/models/exam.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/models/exam.model.ts" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="928" />
+    <option name="cachedIndexableFilesCount" value="917" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -275,15 +279,8 @@
       <workItem from="1767920675580" duration="109000" />
       <workItem from="1767920867700" duration="17000" />
       <workItem from="1767933733732" duration="482000" />
-      <workItem from="1767937314619" duration="6997000" />
-    </task>
-    <task id="LOCAL-00501" summary="cursor gen: update theme">
-      <option name="closed" value="true" />
-      <created>1767796788647</created>
-      <option name="number" value="00501" />
-      <option name="presentableId" value="LOCAL-00501" />
-      <option name="project" value="LOCAL" />
-      <updated>1767796788647</updated>
+      <workItem from="1767937314619" duration="7276000" />
+      <workItem from="1767954560047" duration="1564000" />
     </task>
     <task id="LOCAL-00502" summary="cursor gen: update theme">
       <option name="closed" value="true" />
@@ -669,7 +666,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767944409927</updated>
     </task>
-    <option name="localTasksCounter" value="550" />
+    <task id="LOCAL-00550" summary="refactor: remove unused fields and update indexes in course schema">
+      <option name="closed" value="true" />
+      <created>1767944760226</created>
+      <option name="number" value="00550" />
+      <option name="presentableId" value="LOCAL-00550" />
+      <option name="project" value="LOCAL" />
+      <updated>1767944760226</updated>
+    </task>
+    <option name="localTasksCounter" value="551" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

@@ -397,21 +397,57 @@ export class ExamService {
 
     /**
      * Generate questions for quiz based on sections
+     * Each section must have either questionIds (specific questions) or poolId (select from pool)
      */
     private async generateExamQuestions(quiz: any): Promise<any[]> {
         const sections = (quiz.sections as any[]) || [];
         const questions: any[] = [];
 
         for (const section of sections) {
-            // Get questions from question bank based on section criteria
-            const sectionQuestions = await this.prisma.question.findMany({
-                where: {
-                    jlptLevel: quiz.jlptLevel,
-                    category: section.type,
-                    status: 'active',
-                },
-                take: section.questionCount,
-            });
+            let sectionQuestions: any[] = [];
+
+            // Option 1: Use specific questionIds if provided
+            if (section.questionIds && section.questionIds.length > 0) {
+                sectionQuestions = await this.prisma.question.findMany({
+                    where: {
+                        id: { in: section.questionIds },
+                        status: 'active',
+                    },
+                    take: section.questionCount,
+                });
+
+                if (sectionQuestions.length < section.questionCount) {
+                    this.logger.warn(
+                        `Section ${section.type}: Requested ${section.questionCount} questions but only found ${sectionQuestions.length} from questionIds`
+                    );
+                }
+            }
+            // Option 2: Use poolId to select questions from pool
+            else if (section.poolId) {
+                sectionQuestions = await this.prisma.question.findMany({
+                    where: {
+                        poolId: section.poolId,
+                        status: 'active',
+                    },
+                    take: section.questionCount,
+                    orderBy: [
+                        { usageCount: 'asc' }, // Prefer less-used questions for better distribution
+                        { createdAt: 'desc' }, // Then by newest
+                    ],
+                });
+
+                if (sectionQuestions.length < section.questionCount) {
+                    this.logger.warn(
+                        `Section ${section.type}: Requested ${section.questionCount} questions but pool ${section.poolId} only has ${sectionQuestions.length} active questions`
+                    );
+                }
+            }
+            // Error: Section must have either questionIds or poolId
+            else {
+                throw new BadRequestException(
+                    `Section "${section.type}" must have either questionIds or poolId to generate questions`
+                );
+            }
 
             // Map to exam question format (without correctAnswer for security)
             questions.push(...sectionQuestions.map((q, idx) => {
