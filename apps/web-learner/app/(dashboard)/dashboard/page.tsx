@@ -29,6 +29,7 @@ export default function DashboardPage() {
     const recentCourses = [
         {
             id: 1,
+            slug: 'tieng-nhat-n5-co-ban',
             title: 'Tiếng Nhật N5 - Cơ bản',
             progress: 65,
             thumbnail: '/api/placeholder/300/200',
@@ -36,6 +37,7 @@ export default function DashboardPage() {
         },
         {
             id: 2,
+            slug: 'ngu-phap-n4',
             title: 'Ngữ pháp N4',
             progress: 30,
             thumbnail: '/api/placeholder/300/200',
@@ -43,6 +45,7 @@ export default function DashboardPage() {
         },
         {
             id: 3,
+            slug: 'tu-vung-n3',
             title: 'Từ vựng N3',
             progress: 80,
             thumbnail: '/api/placeholder/300/200',
@@ -173,7 +176,7 @@ export default function DashboardPage() {
                                                 </div>
                                                 <Progress value={course.progress} className="h-2" />
                                             </div>
-                                            <Link href={`/dashboard/learning/${course.id}`}>
+                                            <Link href={`/dashboard/learning/${course.slug}`}>
                                                 <Button size="sm" className="mt-3 w-full cursor-pointer">
                                                     <PlayCircle className="mr-2 w-4 h-4" />
                                                     Tiếp tục học

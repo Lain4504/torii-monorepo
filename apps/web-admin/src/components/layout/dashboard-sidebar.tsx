@@ -7,6 +7,7 @@ import {
   ChevronRight,
   MoreVertical
 } from "lucide-react"
+import { useTranslation } from "@workspace/i18n"
 
 import { cn } from "@workspace/ui/lib/utils"
 import { Button } from "@workspace/ui/components/button"
@@ -39,6 +40,7 @@ interface SidebarProps {
 }
 
 export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: SidebarProps) {
+  const { t } = useTranslation('common')
   const location = useLocation()
   const dispatch = useAppDispatch()
   const user = useAppSelector(selectUser)
@@ -48,11 +50,11 @@ export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: Sid
   const handleLogout = async () => {
     try {
       await dispatch(logout()).unwrap()
-      toast.success('Logged out successfully')
+      toast.success(t('messages.logoutSuccess'))
       navigate('/login', { replace: true })
     } catch (error) {
       // Even if logout fails, clear local state and redirect
-      toast.error('Failed to logout properly, but you have been signed out locally')
+      toast.error(t('messages.logoutError'))
       navigate('/login', { replace: true })
     }
   }
@@ -92,7 +94,7 @@ export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: Sid
         <item.icon className={cn("size-5 shrink-0 transition-transform duration-300", isActive && "scale-110", !isActive && "group-hover:scale-105")} />
         {!isCollapsed && (
           <span className="ml-3 truncate animate-in fade-in slide-in-from-left-1 duration-300">
-            {item.title}
+            {t(item.titleKey)}
           </span>
         )}
         {!isCollapsed && isActive && (
@@ -108,7 +110,7 @@ export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: Sid
             <TooltipTrigger asChild>{content}</TooltipTrigger>
           </PermissionWrapper>
           <TooltipContent side="right" className="flex items-center gap-2 font-medium z-50">
-            {item.title}
+            {t(item.titleKey)}
           </TooltipContent>
         </Tooltip>
       )
@@ -148,8 +150,8 @@ export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: Sid
             </div>
             {!isCollapsed && ( // Using css trick for smoother transition or just conditional
               <div className="flex flex-col whitespace-nowrap animate-in fade-in slide-in-from-left-2 duration-500 delay-100">
-                <span className="text-base font-semibold tracking-tight text-foreground">Torii Admin</span>
-                <span className="text-[10px] uppercase text-muted-foreground font-medium tracking-widest">Workspace</span>
+                <span className="text-base font-semibold tracking-tight text-foreground">{t('sidebar.appName')}</span>
+                <span className="text-[10px] uppercase text-muted-foreground font-medium tracking-widest">{t('sidebar.workspace')}</span>
               </div>
             )}
           </div>
@@ -157,10 +159,10 @@ export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: Sid
 
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto py-2 px-3 scrollbar-none [&::-webkit-scrollbar]:hidden space-y-6">
-          <NavGroup title="Overview" items={mainNavItems} />
+          <NavGroup title={t('sidebar.overview')} items={mainNavItems} />
           {/* Removed Separator for cleaner look, relying on spacing */}
-          <NavGroup title="Management" items={managementNavItems} />
-          <NavGroup title="System" items={systemNavItems} />
+          <NavGroup title={t('sidebar.management')} items={managementNavItems} />
+          <NavGroup title={t('sidebar.system')} items={systemNavItems} />
         </div>
 
         {/* User Footer */}
@@ -175,8 +177,8 @@ export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: Sid
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col truncate max-w-[100px]">
-                  <span className="truncate text-xs font-semibold">{user?.displayName || "Admin User"}</span>
-                  <span className="truncate text-[10px] text-muted-foreground capitalize">{user?.role || "Administrator"}</span>
+                  <span className="truncate text-xs font-semibold">{user?.displayName || t('sidebar.defaultUser')}</span>
+                  <span className="truncate text-[10px] text-muted-foreground capitalize">{user?.role || t('sidebar.defaultRole')}</span>
                 </div>
               </div>
             ) : (
@@ -196,11 +198,11 @@ export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: Sid
               <DropdownMenuContent align="end" className="w-56 border-none shadow-xl bg-background/80 backdrop-blur-xl">
                 <DropdownMenuItem onClick={toggleCollapse}>
                   {isCollapsed ? <PanelLeftOpen className="mr-2 size-4" /> : <PanelLeftClose className="mr-2 size-4" />}
-                  {isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+                  {isCollapsed ? t('sidebar.expandSidebar') : t('sidebar.collapseSidebar')}
                 </DropdownMenuItem>
                 <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive" onClick={handleLogout}>
                   <LogOut className="mr-2 size-4" />
-                  Log out
+                  {t('navigation.logout')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

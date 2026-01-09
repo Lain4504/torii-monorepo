@@ -1,0 +1,106 @@
+{
+    "app": {
+        "name": "Torii Nihongo",
+        "description": "Nền tảng học tiếng Nhật"
+    },
+    "navigation": {
+        "home": "Trang chủ",
+        "dashboard": "Bảng điều khiển",
+        "courses": "Khóa học",
+        "lessons": "Bài học",
+        "profile": "Hồ sơ",
+        "settings": "Cài đặt",
+        "logout": "Đăng xuất",
+        "users": "Người dùng",
+        "liveClasses": "Lớp trực tuyến",
+        "questionBank": "Ngân hàng câu hỏi",
+        "examsTests": "Bài kiểm tra",
+        "blog": "Tin tức",
+        "financials": "Tài chính",
+        "promotions": "Khuyến mãi",
+        "analytics": "Phân tích",
+        "aiService": "Dịch vụ AI",
+        "notifications": "Thông báo",
+        "permissions": "Quyền truy cập"
+    },
+    "navDescriptions": {
+        "dashboard": "Tổng quan hoạt động của bạn",
+        "users": "Quản lý người dùng hệ thống",
+        "courses": "Quản lý và phê duyệt khóa học",
+        "liveClasses": "Lớp học ảo và lịch trình",
+        "questionBank": "Quản lý câu hỏi và tổ chức thành bộ",
+        "examsTests": "Quản lý bài kiểm tra JLPT và thực hành",
+        "blog": "Quản lý tin tức và bài viết",
+        "financials": "Doanh thu và giao dịch",
+        "promotions": "Mã giảm giá và chính sách khuyến mãi",
+        "analytics": "Phân tích hệ thống chi tiết",
+        "aiService": "Tính năng AI",
+        "notifications": "Cảnh báo hệ thống",
+        "permissions": "Kiểm soát truy cập",
+        "settings": "Cấu hình hệ thống"
+    },
+    "actions": {
+        "save": "Lưu",
+        "cancel": "Hủy",
+        "delete": "Xóa",
+        "edit": "Sửa",
+        "create": "Tạo mới",
+        "update": "Cập nhật",
+        "confirm": "Xác nhận",
+        "back": "Quay lại",
+        "next": "Tiếp theo",
+        "submit": "Gửi",
+        "search": "Tìm kiếm",
+        "filter": "Lọc",
+        "export": "Xuất",
+        "import": "Nhập"
+    },
+    "forms": {
+        "required": "Trường này là bắt buộc",
+        "invalid": "Giá trị không hợp lệ",
+        "emailInvalid": "Địa chỉ email không hợp lệ",
+        "minLength": "Độ dài tối thiểu là {{min}} ký tự",
+        "maxLength": "Độ dài tối đa là {{max}} ký tự",
+        "password": {
+            "label": "Mật khẩu",
+            "placeholder": "Nhập mật khẩu của bạn",
+            "confirm": "Xác nhận mật khẩu",
+            "mismatch": "Mật khẩu không khớp"
+        },
+        "email": {
+            "label": "Email",
+            "placeholder": "Nhập email của bạn"
+        }
+    },
+    "status": {
+        "loading": "Đang tải...",
+        "error": "Lỗi",
+        "success": "Thành công",
+        "warning": "Cảnh báo",
+        "info": "Thông tin"
+    },
+    "messages": {
+        "saved": "Đã lưu thành công",
+        "deleted": "Đã xóa thành công",
+        "updated": "Đã cập nhật thành công",
+        "created": "Đã tạo thành công",
+        "error": "Đã xảy ra lỗi. Vui lòng thử lại.",
+        "logoutSuccess": "Đã đăng xuất thành công",
+        "logoutError": "Đăng xuất không thành công, nhưng bạn đã được đăng xuất cục bộ"
+    },
+    "language": {
+        "switch": "Đổi ngôn ngữ",
+        "current": "Ngôn ngữ hiện tại"
+    },
+    "sidebar": {
+        "appName": "Torii Admin",
+        "workspace": "Không gian làm việc",
+        "overview": "Tổng quan",
+        "management": "Quản lý",
+        "system": "Hệ thống",
+        "defaultUser": "Người quản trị",
+        "defaultRole": "Quản trị viên",
+        "expandSidebar": "Mở rộng thanh bên",
+        "collapseSidebar": "Thu gọn thanh bên"
+    }
+}

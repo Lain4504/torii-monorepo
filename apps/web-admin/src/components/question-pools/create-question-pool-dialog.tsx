@@ -1,4 +1,4 @@
-import { useState } from 'react';
+
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -23,7 +23,6 @@ import { useCourses } from '@/api/services/courses.ts';
 import {
     QuestionJlptLevel,
     questionPoolCreateDTOSchema,
-    type QuestionPoolCreateDTO,
 } from '@workspace/schemas';
 import type { z } from 'zod';
 

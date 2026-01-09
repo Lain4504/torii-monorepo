@@ -19,24 +19,42 @@ import {
     ChevronDown,
 } from 'lucide-react'
 import { cn } from '@workspace/ui/lib/utils'
+import { courseApi } from '@/api/services/course-api'
 
 export default function LearningPage() {
     const params = useParams()
-    const courseId = params.courseId as string
+    const slug = params.slug as string
     const [sidebarOpen, setSidebarOpen] = useState(true)
     const [selectedLesson, setSelectedLesson] = useState(1)
     const [expandedSections, setExpandedSections] = useState<number[]>([0, 1])
+    const [course, setCourse] = useState<any>(null)
+    const [curriculum, setCurriculum] = useState<any[]>([])
+    const [loading, setLoading] = useState(true)
 
-    // Mock data - replace with actual API calls
-    const course = {
-        id: courseId,
-        title: 'Tiếng Nhật N5 - Khóa học toàn diện',
-        instructor: 'Nguyễn Văn A',
-        progress: 45,
-        totalLessons: 120,
-        completedLessons: 54,
-    }
+    useEffect(() => {
+        const fetchCourse = async () => {
+            try {
+                setLoading(true)
+                const courseData = await courseApi.getCourseBySlug(slug)
+                if (courseData) {
+                    setCourse(courseData)
+                    // Fetch curriculum using course ID
+                    const curriculumData = await courseApi.getCurriculum(courseData.id)
+                    setCurriculum(curriculumData.modules || [])
+                }
+            } catch (error) {
+                console.error('Error fetching course:', error)
+            } finally {
+                setLoading(false)
+            }
+        }
 
+        if (slug) {
+            fetchCourse()
+        }
+    }, [slug])
+
+    // Mock data for current lesson - replace with actual data from curriculum
     const currentLesson = {
         id: selectedLesson,
         title: 'Bài 1: Bảng chữ cái Hiragana - Phần 1',
@@ -45,36 +63,6 @@ export default function LearningPage() {
         videoUrl: '/api/placeholder/video',
     }
 
-    const curriculum = [
-        {
-            id: 1,
-            title: 'Phần 1: Bảng chữ cái',
-            lessons: [
-                { id: 1, title: 'Bài 1: Bảng chữ cái Hiragana - Phần 1', duration: '15:30', completed: true },
-                { id: 2, title: 'Bài 2: Bảng chữ cái Hiragana - Phần 2', duration: '18:20', completed: true },
-                { id: 3, title: 'Bài 3: Bảng chữ cái Katakana - Phần 1', duration: '12:45', completed: false },
-                { id: 4, title: 'Bài 4: Bảng chữ cái Katakana - Phần 2', duration: '16:10', completed: false },
-            ],
-        },
-        {
-            id: 2,
-            title: 'Phần 2: Từ vựng cơ bản',
-            lessons: [
-                { id: 5, title: 'Bài 5: Số đếm', duration: '20:00', completed: false },
-                { id: 6, title: 'Bài 6: Màu sắc', duration: '14:30', completed: false },
-                { id: 7, title: 'Bài 7: Gia đình', duration: '17:15', completed: false },
-            ],
-        },
-        {
-            id: 3,
-            title: 'Phần 3: Ngữ pháp cơ bản',
-            lessons: [
-                { id: 8, title: 'Bài 8: Câu khẳng định', duration: '22:00', completed: false },
-                { id: 9, title: 'Bài 9: Câu phủ định', duration: '19:30', completed: false },
-            ],
-        },
-    ]
-
     const toggleSection = (sectionId: number) => {
         setExpandedSections((prev) =>
             prev.includes(sectionId)
@@ -82,6 +70,27 @@ export default function LearningPage() {
                 : [...prev, sectionId]
         )
     }
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-screen">
+                <p className="text-muted-foreground">Đang tải...</p>
+            </div>
+        )
+    }
+
+    if (!course) {
+        return (
+            <div className="flex items-center justify-center h-screen">
+                <p className="text-muted-foreground">Không tìm thấy khóa học</p>
+            </div>
+        )
+    }
+
+    // Calculate progress from curriculum
+    const totalLessons = curriculum.reduce((sum, module) => sum + (module.lessons?.length || 0), 0)
+    const completedLessons = 0 // TODO: Get from user progress
+    const progress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0
 
     return (
         <div className="flex h-[calc(100vh-4rem)] bg-background -mx-4 sm:-mx-6 lg:-mx-8 lg:-ml-64 lg:mr-0">
@@ -121,7 +130,7 @@ export default function LearningPage() {
                                 </div>
                                 <div className="flex items-center gap-1">
                                     <BookOpen className="w-4 h-4" />
-                                    <span>Bài {selectedLesson} / {course.totalLessons}</span>
+                                    <span>Bài {selectedLesson} / {totalLessons}</span>
                                 </div>
                             </div>
                         </div>
@@ -183,43 +192,43 @@ export default function LearningPage() {
                             <div className="flex items-center justify-between text-sm">
                                 <span className="text-muted-foreground">Tiến độ</span>
                                 <span className="font-medium text-foreground">
-                                    {course.completedLessons}/{course.totalLessons} bài
+                                    {completedLessons}/{totalLessons} bài
                                 </span>
                             </div>
-                            <Progress value={course.progress} className="h-2" />
+                            <Progress value={progress} className="h-2" />
                         </div>
                     </div>
 
                     <div className="p-2">
-                        {curriculum.map((section) => (
-                            <div key={section.id} className="mb-2">
+                        {curriculum.map((module, moduleIndex) => (
+                            <div key={module.id || moduleIndex} className="mb-2">
                                 <button
-                                    onClick={() => toggleSection(section.id)}
+                                    onClick={() => toggleSection(moduleIndex)}
                                     className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-accent transition-colors cursor-pointer"
                                 >
                                     <div className="flex items-center gap-2">
-                                        {expandedSections.includes(section.id) ? (
+                                        {expandedSections.includes(moduleIndex) ? (
                                             <ChevronDown className="w-4 h-4 text-muted-foreground" />
                                         ) : (
                                             <ChevronRight className="w-4 h-4 text-muted-foreground" />
                                         )}
                                         <span className="font-medium text-foreground text-sm">
-                                            {section.title}
+                                            {module.title}
                                         </span>
                                     </div>
                                     <span className="text-xs text-muted-foreground">
-                                        {section.lessons.length} bài
+                                        {module.lessons?.length || 0} bài
                                     </span>
                                 </button>
 
-                                {expandedSections.includes(section.id) && (
+                                {expandedSections.includes(moduleIndex) && module.lessons && (
                                     <div className="ml-6 mt-1 space-y-1">
-                                        {section.lessons.map((lesson) => {
-                                            const isActive = lesson.id === selectedLesson
+                                        {module.lessons.map((lesson: any, lessonIndex: number) => {
+                                            const isActive = lesson.id === selectedLesson || lessonIndex === selectedLesson - 1
                                             return (
                                                 <button
-                                                    key={lesson.id}
-                                                    onClick={() => setSelectedLesson(lesson.id)}
+                                                    key={lesson.id || lessonIndex}
+                                                    onClick={() => setSelectedLesson(lesson.id || lessonIndex + 1)}
                                                     className={cn(
                                                         'w-full flex items-center gap-3 p-2 rounded-lg text-left transition-colors cursor-pointer',
                                                         isActive
@@ -227,11 +236,7 @@ export default function LearningPage() {
                                                             : 'hover:bg-accent text-muted-foreground'
                                                     )}
                                                 >
-                                                    {lesson.completed ? (
-                                                        <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
-                                                    ) : (
-                                                        <Circle className="w-4 h-4 flex-shrink-0" />
-                                                    )}
+                                                    <Circle className="w-4 h-4 flex-shrink-0" />
                                                     <div className="flex-1 min-w-0">
                                                         <p
                                                             className={cn(
@@ -243,16 +248,18 @@ export default function LearningPage() {
                                                         >
                                                             {lesson.title}
                                                         </p>
-                                                        <p
-                                                            className={cn(
-                                                                'text-xs mt-0.5',
-                                                                isActive
-                                                                    ? 'text-primary-foreground/80'
-                                                                    : 'text-muted-foreground'
-                                                            )}
-                                                        >
-                                                            {lesson.duration}
-                                                        </p>
+                                                        {lesson.videoDuration && (
+                                                            <p
+                                                                className={cn(
+                                                                    'text-xs mt-0.5',
+                                                                    isActive
+                                                                        ? 'text-primary-foreground/80'
+                                                                        : 'text-muted-foreground'
+                                                                )}
+                                                            >
+                                                                {Math.floor(lesson.videoDuration / 60)}:{(lesson.videoDuration % 60).toString().padStart(2, '0')}
+                                                            </p>
+                                                        )}
                                                     </div>
                                                 </button>
                                             )
@@ -281,3 +288,4 @@ export default function LearningPage() {
         </div>
     )
 }
+

@@ -25,6 +25,7 @@ export default function MyCoursesPage() {
     const courses = [
         {
             id: 1,
+            slug: 'tieng-nhat-n5-khoa-hoc-toan-dien',
             title: 'Tiếng Nhật N5 - Khóa học toàn diện',
             instructor: 'Nguyễn Văn A',
             progress: 65,
@@ -36,6 +37,7 @@ export default function MyCoursesPage() {
         },
         {
             id: 2,
+            slug: 'ngu-phap-n4',
             title: 'Ngữ pháp N4',
             instructor: 'Trần Thị B',
             progress: 30,
@@ -47,6 +49,7 @@ export default function MyCoursesPage() {
         },
         {
             id: 3,
+            slug: 'tu-vung-n3',
             title: 'Từ vựng N3',
             instructor: 'Lê Văn C',
             progress: 100,
@@ -58,6 +61,7 @@ export default function MyCoursesPage() {
         },
         {
             id: 4,
+            slug: 'kanji-n2',
             title: 'Kanji N2',
             instructor: 'Phạm Thị D',
             progress: 0,
@@ -235,7 +239,7 @@ export default function MyCoursesPage() {
                                 </div>
                             </div>
 
-                            <Link href={`/dashboard/learning/${course.id}`}>
+                            <Link href={`/dashboard/learning/${course.slug}`}>
                                 <Button className="w-full cursor-pointer">
                                     {course.progress === 0 ? (
                                         <>

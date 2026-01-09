@@ -4,11 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(question-pools): add functionality to manage question pools with CRUD operations and filtering by course and JLPT level">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(notifications): add notifications dropdown component and update dashboard links to use slugs">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/question-bank/question-bank-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/question-bank/question-bank-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/question-pools/question-pools-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/question-pools/question-pools-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/questions/questions-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/questions/questions-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/layout/dashboard-header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/layout/dashboard-header.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/learning/[courseId]/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/my-courses/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/my-courses/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(learning)/courses/[courseId]/lessons/[lessonId]/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/dashboard/dashboard-sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/dashboard/dashboard-sidebar.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -283,79 +286,7 @@
       <workItem from="1767937314619" duration="7276000" />
       <workItem from="1767954560047" duration="1564000" />
       <workItem from="1767962792348" duration="6426000" />
-      <workItem from="1767970155935" duration="772000" />
-    </task>
-    <task id="LOCAL-00508" summary="feat(database): document database design and add admin login interface method&#10;&#10;- Added new documentation: `database-design-overview.md` and `database-design-schema.md` for system architecture clarity.&#10;- Extended `IAuthService` interface with `adminLogin` for specialized admin portal authentication.">
-      <option name="closed" value="true" />
-      <created>1767800964207</created>
-      <option name="number" value="00508" />
-      <option name="presentableId" value="LOCAL-00508" />
-      <option name="project" value="LOCAL" />
-      <updated>1767800964208</updated>
-    </task>
-    <task id="LOCAL-00509" summary="feat(database): document database design and add admin login interface method&#10;&#10;- Added new documentation: `database-design-overview.md` and `database-design-schema.md` for system architecture clarity.&#10;- Extended `IAuthService` interface with `adminLogin` for specialized admin portal authentication.">
-      <option name="closed" value="true" />
-      <created>1767801374672</created>
-      <option name="number" value="00509" />
-      <option name="presentableId" value="LOCAL-00509" />
-      <option name="project" value="LOCAL" />
-      <updated>1767801374672</updated>
-    </task>
-    <task id="LOCAL-00510" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`, and `ForgotPasswordDTO`.&#10;- Updated email service to support OTP delivery with platform-specific templates.">
-      <option name="closed" value="true" />
-      <created>1767801559299</created>
-      <option name="number" value="00510" />
-      <option name="presentableId" value="LOCAL-00510" />
-      <option name="project" value="LOCAL" />
-      <updated>1767801559300</updated>
-    </task>
-    <task id="LOCAL-00511" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
-      <option name="closed" value="true" />
-      <created>1767801939777</created>
-      <option name="number" value="00511" />
-      <option name="presentableId" value="LOCAL-00511" />
-      <option name="project" value="LOCAL" />
-      <updated>1767801939778</updated>
-    </task>
-    <task id="LOCAL-00512" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
-      <option name="closed" value="true" />
-      <created>1767802147671</created>
-      <option name="number" value="00512" />
-      <option name="presentableId" value="LOCAL-00512" />
-      <option name="project" value="LOCAL" />
-      <updated>1767802147672</updated>
-    </task>
-    <task id="LOCAL-00513" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
-      <option name="closed" value="true" />
-      <created>1767802260841</created>
-      <option name="number" value="00513" />
-      <option name="presentableId" value="LOCAL-00513" />
-      <option name="project" value="LOCAL" />
-      <updated>1767802260841</updated>
-    </task>
-    <task id="LOCAL-00514" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
-      <option name="closed" value="true" />
-      <created>1767802359922</created>
-      <option name="number" value="00514" />
-      <option name="presentableId" value="LOCAL-00514" />
-      <option name="project" value="LOCAL" />
-      <updated>1767802359922</updated>
-    </task>
-    <task id="LOCAL-00515" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
-      <option name="closed" value="true" />
-      <created>1767802516312</created>
-      <option name="number" value="00515" />
-      <option name="presentableId" value="LOCAL-00515" />
-      <option name="project" value="LOCAL" />
-      <updated>1767802516313</updated>
-    </task>
-    <task id="LOCAL-00516" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
-      <option name="closed" value="true" />
-      <created>1767802634362</created>
-      <option name="number" value="00516" />
-      <option name="presentableId" value="LOCAL-00516" />
-      <option name="project" value="LOCAL" />
-      <updated>1767802634367</updated>
+      <workItem from="1767970155935" duration="4593000" />
     </task>
     <task id="LOCAL-00517" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
       <option name="closed" value="true" />
@@ -677,7 +608,79 @@
       <option name="project" value="LOCAL" />
       <updated>1767968232281</updated>
     </task>
-    <option name="localTasksCounter" value="557" />
+    <task id="LOCAL-00557" summary="feat(question-pools): add functionality to manage question pools with CRUD operations and filtering by course and JLPT level">
+      <option name="closed" value="true" />
+      <created>1767970964381</created>
+      <option name="number" value="00557" />
+      <option name="presentableId" value="LOCAL-00557" />
+      <option name="project" value="LOCAL" />
+      <updated>1767970964383</updated>
+    </task>
+    <task id="LOCAL-00558" summary="feat(i18n): implement internationalization support with Vietnamese and English translations">
+      <option name="closed" value="true" />
+      <created>1767971599205</created>
+      <option name="number" value="00558" />
+      <option name="presentableId" value="LOCAL-00558" />
+      <option name="project" value="LOCAL" />
+      <updated>1767971599205</updated>
+    </task>
+    <task id="LOCAL-00559" summary="feat(i18n): implement internationalization support with Vietnamese and English translations">
+      <option name="closed" value="true" />
+      <created>1767971688062</created>
+      <option name="number" value="00559" />
+      <option name="presentableId" value="LOCAL-00559" />
+      <option name="project" value="LOCAL" />
+      <updated>1767971688063</updated>
+    </task>
+    <task id="LOCAL-00560" summary="feat(i18n): implement internationalization support with Vietnamese and English translations">
+      <option name="closed" value="true" />
+      <created>1767972648628</created>
+      <option name="number" value="00560" />
+      <option name="presentableId" value="LOCAL-00560" />
+      <option name="project" value="LOCAL" />
+      <updated>1767972648629</updated>
+    </task>
+    <task id="LOCAL-00561" summary="feat(i18n): implement internationalization support with Vietnamese and English translations">
+      <option name="closed" value="true" />
+      <created>1767973024854</created>
+      <option name="number" value="00561" />
+      <option name="presentableId" value="LOCAL-00561" />
+      <option name="project" value="LOCAL" />
+      <updated>1767973024854</updated>
+    </task>
+    <task id="LOCAL-00562" summary="feat(i18n): implement internationalization support with Vietnamese and English translations">
+      <option name="closed" value="true" />
+      <created>1767973814572</created>
+      <option name="number" value="00562" />
+      <option name="presentableId" value="LOCAL-00562" />
+      <option name="project" value="LOCAL" />
+      <updated>1767973814572</updated>
+    </task>
+    <task id="LOCAL-00563" summary="feat(i18n): implement internationalization support with Vietnamese and English translations">
+      <option name="closed" value="true" />
+      <created>1767973822343</created>
+      <option name="number" value="00563" />
+      <option name="presentableId" value="LOCAL-00563" />
+      <option name="project" value="LOCAL" />
+      <updated>1767973822343</updated>
+    </task>
+    <task id="LOCAL-00564" summary="feat(i18n): implement internationalization support with Vietnamese and English translations">
+      <option name="closed" value="true" />
+      <created>1767973990985</created>
+      <option name="number" value="00564" />
+      <option name="presentableId" value="LOCAL-00564" />
+      <option name="project" value="LOCAL" />
+      <updated>1767973990985</updated>
+    </task>
+    <task id="LOCAL-00565" summary="feat(i18n): implement internationalization support with Vietnamese and English translations">
+      <option name="closed" value="true" />
+      <created>1767974287875</created>
+      <option name="number" value="00565" />
+      <option name="presentableId" value="LOCAL-00565" />
+      <option name="project" value="LOCAL" />
+      <updated>1767974287876</updated>
+    </task>
+    <option name="localTasksCounter" value="566" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -707,7 +710,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat(auth): rename endpoints and update token generation for email verification" />
     <MESSAGE value="feat(rbac): simplify permissions handling by removing user-specific overrides" />
     <MESSAGE value="feat(database): add radix-ui dependency and update package lock" />
     <MESSAGE value="feat(ui): enhance dashboard layout and components for improved aesthetics and usability" />
@@ -732,7 +734,8 @@
     <MESSAGE value="feat(course): integrate AutoMapper for Course entity mapping and update module structureè" />
     <MESSAGE value="feat(user): integrate AutoMapper for User entity mapping and update module structureè" />
     <MESSAGE value="feat(question-pools): add functionality to manage question pools with CRUD operations and filtering by course and JLPT level" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(question-pools): add functionality to manage question pools with CRUD operations and filtering by course and JLPT level" />
+    <MESSAGE value="feat(i18n): implement internationalization support with Vietnamese and English translations" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(i18n): implement internationalization support with Vietnamese and English translations" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

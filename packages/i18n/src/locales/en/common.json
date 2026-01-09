@@ -1,0 +1,106 @@
+{
+    "app": {
+        "name": "Torii Nihongo",
+        "description": "Japanese Learning Platform"
+    },
+    "navigation": {
+        "home": "Home",
+        "dashboard": "Dashboard",
+        "courses": "Courses",
+        "lessons": "Lessons",
+        "profile": "Profile",
+        "settings": "Settings",
+        "logout": "Logout",
+        "users": "Users",
+        "liveClasses": "Live Classes",
+        "questionBank": "Question Bank",
+        "examsTests": "Exams & Tests",
+        "blog": "Blog",
+        "financials": "Financials",
+        "promotions": "Promotions",
+        "analytics": "Analytics",
+        "aiService": "AI Service",
+        "notifications": "Notifications",
+        "permissions": "Permissions"
+    },
+    "navDescriptions": {
+        "dashboard": "Overview of your activities",
+        "users": "Manage system users",
+        "courses": "Course management and approval",
+        "liveClasses": "Virtual classrooms and schedules",
+        "questionBank": "Manage questions and organize into pools",
+        "examsTests": "Manage JLPT and practice tests",
+        "blog": "Manage news and articles",
+        "financials": "Revenue and transactions",
+        "promotions": "Coupons and discount policies",
+        "analytics": "Detailed system analytics",
+        "aiService": "AI-powered features",
+        "notifications": "System alerts",
+        "permissions": "Access control",
+        "settings": "System configuration"
+    },
+    "actions": {
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "edit": "Edit",
+        "create": "Create",
+        "update": "Update",
+        "confirm": "Confirm",
+        "back": "Back",
+        "next": "Next",
+        "submit": "Submit",
+        "search": "Search",
+        "filter": "Filter",
+        "export": "Export",
+        "import": "Import"
+    },
+    "forms": {
+        "required": "This field is required",
+        "invalid": "Invalid value",
+        "emailInvalid": "Invalid email address",
+        "minLength": "Minimum length is {{min}} characters",
+        "maxLength": "Maximum length is {{max}} characters",
+        "password": {
+            "label": "Password",
+            "placeholder": "Enter your password",
+            "confirm": "Confirm password",
+            "mismatch": "Passwords do not match"
+        },
+        "email": {
+            "label": "Email",
+            "placeholder": "Enter your email"
+        }
+    },
+    "status": {
+        "loading": "Loading...",
+        "error": "Error",
+        "success": "Success",
+        "warning": "Warning",
+        "info": "Information"
+    },
+    "messages": {
+        "saved": "Saved successfully",
+        "deleted": "Deleted successfully",
+        "updated": "Updated successfully",
+        "created": "Created successfully",
+        "error": "An error occurred. Please try again.",
+        "logoutSuccess": "Logged out successfully",
+        "logoutError": "Failed to logout properly, but you have been signed out locally"
+    },
+    "language": {
+        "switch": "Switch Language",
+        "current": "Current Language"
+    },
+    "sidebar": {
+        "appName": "Torii Admin",
+        "workspace": "Workspace",
+        "overview": "Overview",
+        "management": "Management",
+        "system": "System",
+        "defaultUser": "Admin User",
+        "defaultRole": "Administrator",
+        "expandSidebar": "Expand Sidebar",
+        "collapseSidebar": "Collapse Sidebar"
+    }
+}

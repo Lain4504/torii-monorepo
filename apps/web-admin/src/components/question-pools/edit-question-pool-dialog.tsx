@@ -18,12 +18,11 @@ import {
 } from '@workspace/ui/components/field';
 import { Loader2 } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
-import { useUpdateQuestionPool, useQuestionPool } from '@/api/services/question-pools.ts';
+import { useUpdateQuestionPool } from '@/api/services/question-pools.ts';
 import { useCourses } from '@/api/services/courses.ts';
 import {
     QuestionJlptLevel,
     questionPoolUpdateDTOSchema,
-    type QuestionPoolUpdateDTO,
     type QuestionPoolResponseDTO,
 } from '@workspace/schemas';
 import type { z } from 'zod';

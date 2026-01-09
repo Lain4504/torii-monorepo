@@ -155,42 +155,42 @@ export default function QuestionPoolsPage() {
                         </Button>
                     </Can>
                 </div>
-                    <div className="space-y-4">
-                        <div className="flex flex-col sm:flex-row gap-4">
-                            <div className="relative flex-1">
-                                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60 peer-focus:text-foreground transition-colors" />
-                                <Input
-                                    placeholder="Search pools..."
-                                    value={search}
-                                    onChange={(e) => setSearch(e.target.value)}
-                                    className="pl-9 w-full bg-background/50 border-border/40 focus:bg-background transition-all hover:bg-background/80"
-                                />
-                            </div>
-                            <Select
-                                value={jlptLevelFilter || 'all'}
-                                onValueChange={(value) =>
-                                    setJlptLevelFilter(value === 'all' ? '' : value)
-                                }
-                            >
-                                <SelectTrigger className="flex-1 sm:w-[150px] bg-background/50 border-border/40 focus:bg-background transition-all hover:bg-background/80 cursor-pointer">
-                                    <SelectValue placeholder="JLPT Level" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">All Levels</SelectItem>
-                                    <SelectItem value={QuestionJlptLevel.N5}>N5</SelectItem>
-                                    <SelectItem value={QuestionJlptLevel.N4}>N4</SelectItem>
-                                    <SelectItem value={QuestionJlptLevel.N3}>N3</SelectItem>
-                                    <SelectItem value={QuestionJlptLevel.N2}>N2</SelectItem>
-                                    <SelectItem value={QuestionJlptLevel.N1}>N1</SelectItem>
-                                </SelectContent>
-                            </Select>
+
+                <div className="space-y-4">
+                    <div className="flex flex-col sm:flex-row gap-4">
+                        <div className="relative flex-1">
+                            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60 peer-focus:text-foreground transition-colors" />
+                            <Input
+                                placeholder="Search pools..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="pl-9 w-full bg-background/50 border-border/40 focus:bg-background transition-all hover:bg-background/80"
+                            />
                         </div>
+                        <Select
+                            value={jlptLevelFilter || 'all'}
+                            onValueChange={(value) =>
+                                setJlptLevelFilter(value === 'all' ? '' : value)
+                            }
+                        >
+                            <SelectTrigger className="flex-1 sm:w-[150px] bg-background/50 border-border/40 focus:bg-background transition-all hover:bg-background/80 cursor-pointer">
+                                <SelectValue placeholder="JLPT Level" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Levels</SelectItem>
+                                <SelectItem value={QuestionJlptLevel.N5}>N5</SelectItem>
+                                <SelectItem value={QuestionJlptLevel.N4}>N4</SelectItem>
+                                <SelectItem value={QuestionJlptLevel.N3}>N3</SelectItem>
+                                <SelectItem value={QuestionJlptLevel.N2}>N2</SelectItem>
+                                <SelectItem value={QuestionJlptLevel.N1}>N1</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
                 </div>
 
                 <div className="mt-4 sm:mt-6 rounded-xl border border-border/40 overflow-visible sm:overflow-hidden">
                     <div className="overflow-x-auto">
-                            <Table>
+                        <Table>
                                 <TableHeader className="bg-muted/20">
                                     <TableRow className="border-border/40 hover:bg-transparent">
                                         <TableHead className="h-11 text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap px-4">#</TableHead>
@@ -255,7 +255,7 @@ export default function QuestionPoolsPage() {
                                         </TableRow>
                                     )}
                                 </TableBody>
-                            </Table>
+                        </Table>
                     </div>
                 </div>
 

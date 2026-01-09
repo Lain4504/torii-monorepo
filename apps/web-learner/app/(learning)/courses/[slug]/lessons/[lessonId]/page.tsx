@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -18,7 +17,7 @@ import { useParams } from 'next/navigation';
 export default function LessonVideoPage() {
     const params = useParams();
     // Safe access to params, ensuring they are strings
-    const courseId = params?.courseId as string;
+    const slug = params?.slug as string;
     const lessonId = params?.lessonId as string;
 
     // Mock data - replace with actual data fetching logic in the future
@@ -36,7 +35,7 @@ export default function LessonVideoPage() {
                     <div className="flex items-center space-x-2 text-sm text-muted-foreground mb-4">
                         <span>Courses</span>
                         <span>/</span>
-                        <span>{courseId}</span>
+                        <span>{slug}</span>
                         <span>/</span>
                         <span className="text-foreground font-medium">Lessons</span>
                     </div>
@@ -74,3 +73,4 @@ export default function LessonVideoPage() {
         </div>
     );
 }
+

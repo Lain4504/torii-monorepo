@@ -2,10 +2,10 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useState } from 'react';
 import { Button } from '@workspace/ui/components/button';
 import { ArrowLeft, Plus, Database, FileQuestion } from 'lucide-react';
-import { useQuestionPool, useQuestionPools } from '@/api/services/question-pools.ts';
+import { useQuestionPool } from '@/api/services/question-pools.ts';
 import { useQuestionsByPool } from '@/api/services/questions.ts';
 import { Badge } from '@workspace/ui/components/badge';
-import { Separator } from '@workspace/ui/components/separator';
+
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
 import {
