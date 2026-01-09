@@ -19,7 +19,7 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { Loader2, Image as ImageIcon, Film, BookOpen, X } from 'lucide-react';
+import { Loader2, Image as ImageIcon, Film, BookOpen, X, Sparkles } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 import { storageApi } from '@/api/services/storage-api.ts';
 import { JlptLevel, CourseStatus, courseCreateDTOSchema, type CourseCreateDTO } from '@workspace/schemas';
@@ -44,15 +44,19 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
         formState: { errors, isDirty },
         reset,
     } = useForm<CourseCreateDTO>({
-        resolver: zodResolver(courseCreateDTOSchema),
+        resolver: zodResolver(courseCreateDTOSchema) as any,
         defaultValues: {
             title: '',
             description: '',
             price: 0,
             status: CourseStatus.DRAFT,
-            jlptLevel: undefined,
+            jlptLevel: undefined, // Will be set by user
             thumbnailUrl: undefined,
             previewVideoUrl: undefined,
+            type: 'vod', // Default to vod
+            featured: false,
+            isFree: false,
+            aiMetadata: {},
         },
     });
 
@@ -72,14 +76,14 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
             let thumbnailUrl = data.thumbnailUrl;
             if (thumbnailFile) {
                 const uploadedThumbnail = await storageApi.uploadFile(thumbnailFile);
-                thumbnailUrl = uploadedThumbnail.url;
+                thumbnailUrl = uploadedThumbnail.fileUrl;
             }
 
             // Upload video if provided
             let previewVideoUrl = data.previewVideoUrl;
             if (videoFile) {
                 const uploadedVideo = await storageApi.uploadFile(videoFile);
-                previewVideoUrl = uploadedVideo.url;
+                previewVideoUrl = uploadedVideo.fileUrl;
             }
 
             // Create course
@@ -324,6 +328,42 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                             </div>
                                         )}
                                     </div>
+                                </Field>
+                            </div>
+
+                            {/* AI & Metadata */}
+                            <div className="space-y-4 pt-4 border-t border-border/40">
+                                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/70 flex items-center gap-2">
+                                    <Sparkles className="h-3 w-3 text-primary" />
+                                    AI & Data
+                                </h3>
+
+                                <Field>
+                                    <FieldLabel htmlFor="aiSummary" className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">
+                                        AI Summary
+                                    </FieldLabel>
+                                    <Textarea
+                                        id="aiSummary"
+                                        {...register('aiMetadata.summary')}
+                                        placeholder="Summary for AI agents (optional)"
+                                        rows={3}
+                                        className="border-none bg-muted/30 hover:bg-muted/50 focus:ring-1 focus:ring-primary/20 rounded-xl transition-all resize-none"
+                                    />
+                                    <p className="text-[10px] text-muted-foreground ml-1 mt-1">
+                                        Used by AI agents to understand the course content without processing all lessons.
+                                    </p>
+                                </Field>
+
+                                <Field>
+                                    <FieldLabel htmlFor="aiKeywords" className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">
+                                        Keywords / Tags
+                                    </FieldLabel>
+                                    <Input
+                                        id="aiKeywords"
+                                        {...register('aiMetadata.keywords')}
+                                        placeholder="e.g. jlpt, grammar, n5, beginner (comma separated)"
+                                        className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus:ring-1 focus:ring-primary/20 rounded-xl transition-all"
+                                    />
                                 </Field>
                             </div>
                         </div>

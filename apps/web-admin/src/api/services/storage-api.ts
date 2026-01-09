@@ -19,4 +19,29 @@ export const storageApi = {
         const response = await apiClient.post<StorageConfirmUploadResponseDTO>('/api/storage/confirm-upload', data);
         return response.data;
     },
+    // Helper: Upload file (Get URL -> Upload -> Confirm)
+    async uploadFile(file: File, module: string = 'courses', metadata?: Record<string, any>, ownerId?: string): Promise<StorageConfirmUploadResponseDTO> {
+        // 1. Get presigned URL
+        const presignedData = await this.generateUploadUrl({
+            contentType: file.type,
+            filename: file.name,
+            module,
+            metadata,
+            ownerId,
+        });
+
+        // 2. Upload file to signed URL
+        await fetch(presignedData.uploadUrl, {
+            method: 'PUT',
+            body: file,
+            headers: {
+                'Content-Type': file.type,
+            },
+        });
+
+        // 3. Confirm upload
+        return this.confirmUpload({
+            fileId: presignedData.fileId,
+        });
+    },
 };

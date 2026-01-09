@@ -21,9 +21,9 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { BookOpen, Users, Calendar, DollarSign, Layers, Save, Image as ImageIcon } from 'lucide-react';
+import { BookOpen, Users, Calendar, DollarSign, Layers, Save, Image as ImageIcon, Sparkles } from 'lucide-react';
 import type { CourseResponseDTO } from '@workspace/schemas';
-import { CourseStatus, courseUpdateDTOSchema, type CourseUpdateDTO } from '@workspace/schemas';
+import { CourseStatus, courseUpdateDTOSchema, type CourseUpdateDTO, JlptLevel } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
 import { useUpdateCourse } from "@/api/services/courses.ts";
 import { storageApi } from '@/api/services/storage-api.ts';
@@ -46,6 +46,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
 
     const {
         control,
+        register,
         handleSubmit,
         reset,
         formState: { isDirty },
@@ -56,6 +57,9 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
             description: '',
             price: 0,
             status: CourseStatus.DRAFT,
+            jlptLevel: undefined,
+            aiMetadata: {},
+            tags: [],
         },
     });
 
@@ -64,9 +68,12 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
         if (course) {
             reset({
                 title: course.title,
-                description: course.description,
-                price: course.price,
+                description: course.description || '',
+                price: Number(course.price),
                 status: course.status as CourseStatus,
+                jlptLevel: course.jlptLevel as JlptLevel,
+                aiMetadata: course.aiMetadata || {},
+                tags: course.tags || [],
             });
             setThumbnailFile(null);
             setVideoFile(null);
@@ -289,6 +296,29 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                     />
                                 </div>
 
+                                <div className="grid grid-cols-2 gap-4">
+                                    <Controller
+                                        control={control}
+                                        name="jlptLevel"
+                                        render={({ field, fieldState }) => (
+                                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                                <FieldLabel htmlFor={field.name} className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">JLPT Level</FieldLabel>
+                                                <Select value={field.value || ''} onValueChange={field.onChange}>
+                                                    <SelectTrigger id={field.name} className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus:ring-1 focus:ring-primary/20 rounded-xl transition-all" aria-invalid={fieldState.invalid}>
+                                                        <SelectValue placeholder="Select level" />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="border-none shadow-2xl bg-popover/95 backdrop-blur-xl rounded-xl">
+                                                        {Object.values(JlptLevel).map((level) => (
+                                                            <SelectItem key={level} value={level} className="rounded-lg focus:bg-primary/5 cursor-pointer">{level}</SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                                <FieldError errors={[fieldState.error]} className="text-[10px] font-medium text-destructive ml-1" />
+                                            </Field>
+                                        )}
+                                    />
+                                </div>
+
                                 <Separator className="bg-border/40" />
 
                                 {/* Media Upload */}
@@ -326,6 +356,42 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                         {course.previewVideoUrl && !videoFile && (
                                             <p className="text-xs text-muted-foreground ml-1">Current video uploaded</p>
                                         )}
+                                    </Field>
+                                </div>
+
+                                {/* AI & Metadata */}
+                                <div className="space-y-4 pt-4 border-t border-border/40">
+                                    <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/70 flex items-center gap-2">
+                                        <Sparkles className="h-3 w-3 text-primary" />
+                                        AI & Data
+                                    </h3>
+
+                                    <Field>
+                                        <FieldLabel htmlFor="aiSummary" className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">
+                                            AI Summary
+                                        </FieldLabel>
+                                        <Textarea
+                                            id="aiSummary"
+                                            {...register('aiMetadata.summary')}
+                                            placeholder="Summary for AI agents (optional)"
+                                            rows={3}
+                                            className="border-none bg-muted/30 hover:bg-muted/50 focus:ring-1 focus:ring-primary/20 rounded-xl transition-all resize-none"
+                                        />
+                                        <p className="text-[10px] text-muted-foreground ml-1 mt-1">
+                                            Used by AI agents to understand the course content without processing all lessons.
+                                        </p>
+                                    </Field>
+
+                                    <Field>
+                                        <FieldLabel htmlFor="aiKeywords" className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">
+                                            Keywords / Tags
+                                        </FieldLabel>
+                                        <Input
+                                            id="aiKeywords"
+                                            {...register('aiMetadata.keywords')}
+                                            placeholder="e.g. jlpt, grammar, n5, beginner (comma separated)"
+                                            className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus:ring-1 focus:ring-primary/20 rounded-xl transition-all"
+                                        />
                                     </Field>
                                 </div>
                             </div>

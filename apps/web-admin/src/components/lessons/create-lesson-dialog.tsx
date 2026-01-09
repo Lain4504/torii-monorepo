@@ -25,7 +25,7 @@ import { storageApi } from '@/api/services/storage-api.ts';
 import { LessonContentType, lessonCreateDTOSchema } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
 import { useCreateLesson } from "@/api/services/lesson";
-import { Loader2, Plus, Video, FileText, ClipboardList, BookOpen } from 'lucide-react';
+import { Loader2, Plus, Video, FileText, ClipboardList, BookOpen, Sparkles } from 'lucide-react';
 
 const createLessonSchema = lessonCreateDTOSchema;
 
@@ -44,10 +44,11 @@ export function CreateLessonDialog({ open, onOpenChange, moduleId }: CreateLesso
 
     const {
         control,
+        register,
         handleSubmit,
         watch,
         reset,
-        formState: { isDirty, errors },
+        formState: { isDirty },
     } = useForm<CreateLessonFormData>({
         resolver: zodResolver(createLessonSchema),
         defaultValues: {
@@ -61,33 +62,14 @@ export function CreateLessonDialog({ open, onOpenChange, moduleId }: CreateLesso
         },
     });
 
-    const handleFileUpload = async (file: File, module: string) => {
-        const uploadData = {
-            filename: file.name,
-            contentType: file.type,
-            module,
-        };
-        const { uploadUrl, fileId } = await storageApi.generateUploadUrl(uploadData);
-
-        await fetch(uploadUrl, {
-            method: 'PUT',
-            body: file,
-            headers: {
-                'Content-Type': file.type,
-            },
-        });
-
-        const confirmResult = await storageApi.confirmUpload({ fileId });
-        return confirmResult.fileUrl;
-    };
-
     const onSubmitForm = async (data: CreateLessonFormData) => {
         setUploading(true);
         try {
             let videoUrl = data.videoUrl;
 
             if (videoFile) {
-                videoUrl = await handleFileUpload(videoFile, 'lesson-videos');
+                const uploadedVideo = await storageApi.uploadFile(videoFile, 'lesson-videos');
+                videoUrl = uploadedVideo.fileUrl;
             }
 
             const payload = {
@@ -311,6 +293,42 @@ export function CreateLessonDialog({ open, onOpenChange, moduleId }: CreateLesso
                                         )}
                                     />
                                 </div>
+                            </div>
+
+                            {/* AI & Metadata */}
+                            <div className="space-y-4 pt-4 border-t border-border/40">
+                                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/70 flex items-center gap-2">
+                                    <Sparkles className="h-3 w-3 text-primary" />
+                                    AI & Data
+                                </h3>
+
+                                <Field>
+                                    <FieldLabel htmlFor="aiSummary" className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">
+                                        AI Summary
+                                    </FieldLabel>
+                                    <Textarea
+                                        id="aiSummary"
+                                        {...register('aiMetadata.summary')}
+                                        placeholder="Summary for AI agents (optional)"
+                                        rows={3}
+                                        className="border-none bg-muted/30 hover:bg-muted/50 focus:ring-1 focus:ring-primary/20 rounded-xl transition-all resize-none"
+                                    />
+                                    <p className="text-[10px] text-muted-foreground ml-1 mt-1">
+                                        Used by AI agents to understand the lesson content.
+                                    </p>
+                                </Field>
+
+                                <Field>
+                                    <FieldLabel htmlFor="aiKeywords" className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">
+                                        Keywords / Tags
+                                    </FieldLabel>
+                                    <Input
+                                        id="aiKeywords"
+                                        {...register('aiMetadata.keywords')}
+                                        placeholder="e.g. grammar, syntax, particles (comma separated)"
+                                        className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus:ring-1 focus:ring-primary/20 rounded-xl transition-all"
+                                    />
+                                </Field>
                             </div>
                         </div>
                     </ScrollArea>

@@ -4,16 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add SQL functions and triggers for course aggregate fields">
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" afterDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add SQL functions and triggers for course aggregate fields" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="930" />
+    <option name="cachedIndexableFilesCount" value="928" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -276,15 +274,8 @@
       <workItem from="1767784611248" duration="3225000" />
       <workItem from="1767920675580" duration="109000" />
       <workItem from="1767920867700" duration="17000" />
-      <workItem from="1767933733732" duration="368000" />
-    </task>
-    <task id="LOCAL-00492" summary="feat(database): add radix-ui dependency and update package lock">
-      <option name="closed" value="true" />
-      <created>1767792973017</created>
-      <option name="number" value="00492" />
-      <option name="presentableId" value="LOCAL-00492" />
-      <option name="project" value="LOCAL" />
-      <updated>1767792973017</updated>
+      <workItem from="1767933733732" duration="482000" />
+      <workItem from="1767937314619" duration="446000" />
     </task>
     <task id="LOCAL-00493" summary="feat(ui): enhance dashboard layout and components for improved aesthetics and usability">
       <option name="closed" value="true" />
@@ -670,7 +661,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767933774538</updated>
     </task>
-    <option name="localTasksCounter" value="541" />
+    <task id="LOCAL-00541" summary="feat: add SQL functions and triggers for course aggregate fields">
+      <option name="closed" value="true" />
+      <created>1767934129887</created>
+      <option name="number" value="00541" />
+      <option name="presentableId" value="LOCAL-00541" />
+      <option name="project" value="LOCAL" />
+      <updated>1767934129887</updated>
+    </task>
+    <option name="localTasksCounter" value="542" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
