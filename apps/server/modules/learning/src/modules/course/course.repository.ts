@@ -128,15 +128,12 @@ export class CourseRepository implements ICourseRepository {
 
     /**
      * Find featured courses
+     * Note: Featured functionality removed. This method is kept for backward compatibility.
+     * TODO: Remove or implement via aiMetadata/tags filtering
      */
     async findFeatured(): Promise<Course[]> {
-        return this.prisma.course.findMany({
-            where: {
-                featured: true,
-                deletedAt: null,
-            },
-            orderBy: { createdAt: 'desc' },
-        });
+        // Featured courses removed - return empty array
+        return [];
     }
 
     /**

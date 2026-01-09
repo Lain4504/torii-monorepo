@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add SQL functions and triggers for course aggregate fields" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: remove unused fields and update indexes in course schema" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -275,71 +275,7 @@
       <workItem from="1767920675580" duration="109000" />
       <workItem from="1767920867700" duration="17000" />
       <workItem from="1767933733732" duration="482000" />
-      <workItem from="1767937314619" duration="446000" />
-    </task>
-    <task id="LOCAL-00493" summary="feat(ui): enhance dashboard layout and components for improved aesthetics and usability">
-      <option name="closed" value="true" />
-      <created>1767793255234</created>
-      <option name="number" value="00493" />
-      <option name="presentableId" value="LOCAL-00493" />
-      <option name="project" value="LOCAL" />
-      <updated>1767793255235</updated>
-    </task>
-    <task id="LOCAL-00494" summary="feat(ui): enhance dashboard layout and components for improved aesthetics and usability">
-      <option name="closed" value="true" />
-      <created>1767793723662</created>
-      <option name="number" value="00494" />
-      <option name="presentableId" value="LOCAL-00494" />
-      <option name="project" value="LOCAL" />
-      <updated>1767793723662</updated>
-    </task>
-    <task id="LOCAL-00495" summary="feat(ui): enhance dashboard layout and components for improved aesthetics and usability">
-      <option name="closed" value="true" />
-      <created>1767794103829</created>
-      <option name="number" value="00495" />
-      <option name="presentableId" value="LOCAL-00495" />
-      <option name="project" value="LOCAL" />
-      <updated>1767794103829</updated>
-    </task>
-    <task id="LOCAL-00496" summary="feat(ui): enhance dashboard layout and components for improved aesthetics and usability">
-      <option name="closed" value="true" />
-      <created>1767795227907</created>
-      <option name="number" value="00496" />
-      <option name="presentableId" value="LOCAL-00496" />
-      <option name="project" value="LOCAL" />
-      <updated>1767795227907</updated>
-    </task>
-    <task id="LOCAL-00497" summary="feat(ui): add reusable hooks for dark mode and debounced state management&#10;&#10;- Implemented `useDarkMode` hook supporting OS preferences, localStorage, and dynamic theme class changes.&#10;- Added `useDebounceCallback` for controlled debounced function execution.&#10;- Introduced `useDebounceValue` for state synchronization with debounced updates.&#10;- Updated dependencies to include `lodash.debounce` for debounce functionality.">
-      <option name="closed" value="true" />
-      <created>1767795294620</created>
-      <option name="number" value="00497" />
-      <option name="presentableId" value="LOCAL-00497" />
-      <option name="project" value="LOCAL" />
-      <updated>1767795294622</updated>
-    </task>
-    <task id="LOCAL-00498" summary="feat(ui): add reusable hooks for dark mode and debounced state management&#10;&#10;- Implemented `useDarkMode` hook supporting OS preferences, localStorage, and dynamic theme class changes.&#10;- Added `useDebounceCallback` for controlled debounced function execution.&#10;- Introduced `useDebounceValue` for state synchronization with debounced updates.&#10;- Updated dependencies to include `lodash.debounce` for debounce functionality.">
-      <option name="closed" value="true" />
-      <created>1767795733225</created>
-      <option name="number" value="00498" />
-      <option name="presentableId" value="LOCAL-00498" />
-      <option name="project" value="LOCAL" />
-      <updated>1767795733225</updated>
-    </task>
-    <task id="LOCAL-00499" summary="cursor gen">
-      <option name="closed" value="true" />
-      <created>1767795983659</created>
-      <option name="number" value="00499" />
-      <option name="presentableId" value="LOCAL-00499" />
-      <option name="project" value="LOCAL" />
-      <updated>1767795983660</updated>
-    </task>
-    <task id="LOCAL-00500" summary="cursor gen: update theme">
-      <option name="closed" value="true" />
-      <created>1767796607352</created>
-      <option name="number" value="00500" />
-      <option name="presentableId" value="LOCAL-00500" />
-      <option name="project" value="LOCAL" />
-      <updated>1767796607352</updated>
+      <workItem from="1767937314619" duration="6997000" />
     </task>
     <task id="LOCAL-00501" summary="cursor gen: update theme">
       <option name="closed" value="true" />
@@ -669,7 +605,71 @@
       <option name="project" value="LOCAL" />
       <updated>1767934129887</updated>
     </task>
-    <option name="localTasksCounter" value="542" />
+    <task id="LOCAL-00542" summary="vf">
+      <option name="closed" value="true" />
+      <created>1767937805488</created>
+      <option name="number" value="00542" />
+      <option name="presentableId" value="LOCAL-00542" />
+      <option name="project" value="LOCAL" />
+      <updated>1767937805488</updated>
+    </task>
+    <task id="LOCAL-00543" summary="refactor: remove unused fields and update indexes in course schema">
+      <option name="closed" value="true" />
+      <created>1767940721061</created>
+      <option name="number" value="00543" />
+      <option name="presentableId" value="LOCAL-00543" />
+      <option name="project" value="LOCAL" />
+      <updated>1767940721061</updated>
+    </task>
+    <task id="LOCAL-00544" summary="refactor: remove unused fields and update indexes in course schema">
+      <option name="closed" value="true" />
+      <created>1767940735835</created>
+      <option name="number" value="00544" />
+      <option name="presentableId" value="LOCAL-00544" />
+      <option name="project" value="LOCAL" />
+      <updated>1767940735836</updated>
+    </task>
+    <task id="LOCAL-00545" summary="refactor: remove unused fields and update indexes in course schema">
+      <option name="closed" value="true" />
+      <created>1767941816847</created>
+      <option name="number" value="00545" />
+      <option name="presentableId" value="LOCAL-00545" />
+      <option name="project" value="LOCAL" />
+      <updated>1767941816847</updated>
+    </task>
+    <task id="LOCAL-00546" summary="refactor: remove unused fields and update indexes in course schema">
+      <option name="closed" value="true" />
+      <created>1767942293462</created>
+      <option name="number" value="00546" />
+      <option name="presentableId" value="LOCAL-00546" />
+      <option name="project" value="LOCAL" />
+      <updated>1767942293462</updated>
+    </task>
+    <task id="LOCAL-00547" summary="refactor: remove unused fields and update indexes in course schema">
+      <option name="closed" value="true" />
+      <created>1767943281071</created>
+      <option name="number" value="00547" />
+      <option name="presentableId" value="LOCAL-00547" />
+      <option name="project" value="LOCAL" />
+      <updated>1767943281071</updated>
+    </task>
+    <task id="LOCAL-00548" summary="refactor: remove unused fields and update indexes in course schema">
+      <option name="closed" value="true" />
+      <created>1767943705735</created>
+      <option name="number" value="00548" />
+      <option name="presentableId" value="LOCAL-00548" />
+      <option name="project" value="LOCAL" />
+      <updated>1767943705736</updated>
+    </task>
+    <task id="LOCAL-00549" summary="refactor: remove unused fields and update indexes in course schema">
+      <option name="closed" value="true" />
+      <created>1767944409927</created>
+      <option name="number" value="00549" />
+      <option name="presentableId" value="LOCAL-00549" />
+      <option name="project" value="LOCAL" />
+      <updated>1767944409927</updated>
+    </task>
+    <option name="localTasksCounter" value="550" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -699,8 +699,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat(auth): implement password reset flow with email verification and UI updates" />
-    <MESSAGE value="feat(auth): refactor authentication DTOs and interfaces for improved structure and clarity" />
     <MESSAGE value="feat(auth): update user status handling and improve UI components" />
     <MESSAGE value="feat(auth): replace refresh token mechanism with session-based implementation  &#10;&#10;- Renamed `RefreshTokenService` to `SessionService` and updated all references.  &#10;- Replaced `refresh_tokens` table with `sessions` table, adding metadata fields (IP, user agent, device info).  &#10;- Updated Prisma schema to reflect the new `Session` model.  &#10;- Refactored authentication flow to use sessions for token creation, verification, and revocation.  &#10;- Added support for session cleanup with metadata logging for improved traceability and security." />
     <MESSAGE value="feat(auth): sync database schema and Prisma models with session-based authentication&#10;&#10;- Replaced `refresh_tokens` table with `sessions` table in database schema.&#10;- Updated tables to include extended metadata (e.g., IP, user agent, device info).&#10;- Synced Prisma models with revised schema, optimizing for session management.&#10;- Removed legacy user role and permission tables, consolidating mappings with updated schemas.&#10;- Added tables for `user_identities`, `two_factor_auth`, and audit functionalities for improved security and logging." />
@@ -724,7 +722,9 @@
     <MESSAGE value="style: update button styles and improve dialog handling" />
     <MESSAGE value="Merge branch 'web-leanrer-build-ui' into lms-rebuild&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml" />
     <MESSAGE value="feat: add SQL functions and triggers for course aggregate fields" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: add SQL functions and triggers for course aggregate fields" />
+    <MESSAGE value="vf" />
+    <MESSAGE value="refactor: remove unused fields and update indexes in course schema" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor: remove unused fields and update indexes in course schema" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

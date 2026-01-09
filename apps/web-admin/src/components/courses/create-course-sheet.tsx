@@ -22,7 +22,7 @@ import {
 import { Loader2, Image as ImageIcon, Film, BookOpen, X, Sparkles } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 import { storageApi } from '@/api/services/storage-api.ts';
-import { JlptLevel, CourseStatus, courseCreateDTOSchema, type CourseCreateDTO } from '@workspace/schemas';
+import { JlptLevel, courseCreateDTOSchema, type CourseCreateDTO } from '@workspace/schemas';
 import { useCreateCourse } from "@/api/services/courses.ts";
 
 interface CreateCourseSheetProps {
@@ -48,14 +48,18 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
         defaultValues: {
             title: '',
             description: '',
+            shortDescription: '',
             price: 0,
-            status: CourseStatus.DRAFT,
+            discountPrice: 0,
             jlptLevel: undefined, // Will be set by user
             thumbnailUrl: undefined,
             previewVideoUrl: undefined,
             type: 'vod', // Default to vod
-            featured: false,
             isFree: false,
+            durationWeeks: undefined,
+            tags: [],
+            learningOutcomes: [],
+            requirements: [],
             aiMetadata: {},
         },
     });
@@ -89,6 +93,12 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
             // Create course
             await createMutation.mutateAsync({
                 ...data,
+                // normalize optional numeric and array fields
+                discountPrice: data.discountPrice ?? 0,
+                durationWeeks: data.durationWeeks ?? undefined,
+                tags: data.tags && data.tags.length ? data.tags : undefined,
+                learningOutcomes: data.learningOutcomes && (data.learningOutcomes as any[]).length ? data.learningOutcomes : [],
+                requirements: data.requirements && (data.requirements as any[]).length ? data.requirements : [],
                 thumbnailUrl,
                 previewVideoUrl,
             });
@@ -228,30 +238,191 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                     </Field>
                                 </div>
 
-                                <Field>
-                                    <FieldLabel htmlFor="status" className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">
-                                        Status <span className="text-destructive">*</span>
-                                    </FieldLabel>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <Field>
+                                        <FieldLabel htmlFor="shortDescription" className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">
+                                            Short Description
+                                        </FieldLabel>
+                                        <Textarea
+                                            id="shortDescription"
+                                            {...register('shortDescription')}
+                                            placeholder="Brief summary shown in course cards"
+                                            rows={3}
+                                            className="border-none bg-muted/30 hover:bg-muted/50 focus:ring-1 focus:ring-primary/20 rounded-xl transition-all resize-none"
+                                        />
+                                        {errors.shortDescription && <FieldError>{errors.shortDescription.message}</FieldError>}
+                                    </Field>
+
+                                    <Field>
+                                        <FieldLabel htmlFor="type" className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">
+                                            Course Type
+                                        </FieldLabel>
+                                        <Controller
+                                            name="type"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Select value={field.value} onValueChange={field.onChange}>
+                                                    <SelectTrigger id="type" className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus:ring-1 focus:ring-primary/20 rounded-xl transition-all">
+                                                        <SelectValue placeholder="Select type" />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="border-none shadow-xl bg-popover/95 backdrop-blur-xl rounded-xl">
+                                                        <SelectItem value="vod" className="rounded-lg focus:bg-primary/5 cursor-pointer">
+                                                            Video on demand
+                                                        </SelectItem>
+                                                        <SelectItem value="live" className="rounded-lg focus:bg-primary/5 cursor-pointer">
+                                                            Live
+                                                        </SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            )}
+                                        />
+                                    </Field>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <Field>
+                                        <FieldLabel htmlFor="discountPrice" className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">
+                                            Discount Price (USD)
+                                        </FieldLabel>
+                                        <Input
+                                            id="discountPrice"
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                            {...register('discountPrice', { valueAsNumber: true })}
+                                            placeholder="0.00"
+                                            className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus:ring-1 focus:ring-primary/20 rounded-xl transition-all"
+                                        />
+                                        {errors.discountPrice && <FieldError>{errors.discountPrice.message}</FieldError>}
+                                    </Field>
+
+                                    <Field>
+                                        <FieldLabel htmlFor="durationWeeks" className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">
+                                            Duration (weeks)
+                                        </FieldLabel>
+                                        <Input
+                                            id="durationWeeks"
+                                            type="number"
+                                            min="0"
+                                            {...register('durationWeeks', { valueAsNumber: true })}
+                                            placeholder="e.g. 8"
+                                            className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus:ring-1 focus:ring-primary/20 rounded-xl transition-all"
+                                        />
+                                    </Field>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <Field>
+                                        <FieldLabel htmlFor="isFree" className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">
+                                            Free Course
+                                        </FieldLabel>
+                                        <Controller
+                                            name="isFree"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <input
+                                                        id="isFree"
+                                                        type="checkbox"
+                                                        checked={field.value}
+                                                        onChange={(e) => field.onChange(e.target.checked)}
+                                                        className="h-4 w-4 rounded border-border/60"
+                                                    />
+                                                    <span className="text-xs text-muted-foreground">
+                                                        Mark as free (price can still be shown as 0)
+                                                    </span>
+                                                </div>
+                                            )}
+                                        />
+                                    </Field>
+                                </div>
+
+                                <div className="space-y-4 pt-4 border-t border-border/40">
+                                    <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">
+                                        Curriculum Metadata
+                                    </h3>
+
                                     <Controller
-                                        name="status"
+                                        name="tags"
                                         control={control}
                                         render={({ field }) => (
-                                            <Select value={field.value} onValueChange={field.onChange}>
-                                                <SelectTrigger id="status" className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus:ring-1 focus:ring-primary/20 rounded-xl transition-all">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent className="border-none shadow-xl bg-popover/95 backdrop-blur-xl rounded-xl">
-                                                    {Object.values(CourseStatus).map((status) => (
-                                                        <SelectItem key={status} value={status} className="rounded-lg focus:bg-primary/5 cursor-pointer capitalize">
-                                                            {status}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
+                                            <Field>
+                                                <FieldLabel htmlFor="tags" className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">
+                                                    Tags
+                                                </FieldLabel>
+                                                <Input
+                                                    id="tags"
+                                                    value={(field.value || []).join(', ')}
+                                                    onChange={(e) =>
+                                                        field.onChange(
+                                                            e.target.value
+                                                                .split(',')
+                                                                .map((t) => t.trim())
+                                                                .filter(Boolean),
+                                                        )
+                                                    }
+                                                    placeholder="e.g. jlpt, grammar, beginner"
+                                                    className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus:ring-1 focus:ring-primary/20 rounded-xl transition-all"
+                                                />
+                                            </Field>
                                         )}
                                     />
-                                    {errors.status && <FieldError>{errors.status.message}</FieldError>}
-                                </Field>
+
+                                    <Controller
+                                        name="learningOutcomes"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Field>
+                                                <FieldLabel htmlFor="learningOutcomes" className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">
+                                                    Learning Outcomes
+                                                </FieldLabel>
+                                                <Textarea
+                                                    id="learningOutcomes"
+                                                    value={Array.isArray(field.value) ? field.value.join('\n') : ''}
+                                                    onChange={(e) =>
+                                                        field.onChange(
+                                                            e.target.value
+                                                                .split('\n')
+                                                                .map((line) => line.trim())
+                                                                .filter(Boolean),
+                                                        )
+                                                    }
+                                                    placeholder="One outcome per line"
+                                                    rows={4}
+                                                    className="border-none bg-muted/30 hover:bg-muted/50 focus:ring-1 focus:ring-primary/20 rounded-xl transition-all resize-none"
+                                                />
+                                            </Field>
+                                        )}
+                                    />
+
+                                    <Controller
+                                        name="requirements"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Field>
+                                                <FieldLabel htmlFor="requirements" className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">
+                                                    Requirements / Prerequisites
+                                                </FieldLabel>
+                                                <Textarea
+                                                    id="requirements"
+                                                    value={Array.isArray(field.value) ? field.value.join('\n') : ''}
+                                                    onChange={(e) =>
+                                                        field.onChange(
+                                                            e.target.value
+                                                                .split('\n')
+                                                                .map((line) => line.trim())
+                                                                .filter(Boolean),
+                                                        )
+                                                    }
+                                                    placeholder="One requirement per line"
+                                                    rows={4}
+                                                    className="border-none bg-muted/30 hover:bg-muted/50 focus:ring-1 focus:ring-primary/20 rounded-xl transition-all resize-none"
+                                                />
+                                            </Field>
+                                        )}
+                                    />
+                                </div>
+
                             </div>
 
                             {/* Media Files */}

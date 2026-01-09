@@ -11,7 +11,13 @@ export enum JlptLevel {
 export enum CourseStatus {
     DRAFT = 'draft',
     PUBLISHED = 'published',
-    ARCHIVED = 'archived',
+}
+
+/**
+ * Helper function to derive course status from approvedBy and approvedAt
+ */
+export function deriveCourseStatus(approvedBy: string | null | undefined, approvedAt: Date | null | undefined): CourseStatus {
+    return (approvedBy && approvedAt) ? CourseStatus.PUBLISHED : CourseStatus.DRAFT;
 }
 
 export const courseSchema = z.object({
@@ -34,8 +40,7 @@ export const courseSchema = z.object({
     totalStudents: z.number().default(0),
     averageRating: z.number().default(0),
     totalReviews: z.number().default(0),
-    status: z.nativeEnum(CourseStatus),
-    featured: z.boolean().default(false),
+    status: z.nativeEnum(CourseStatus), // Computed field derived from approvedBy/approvedAt
     isFree: z.boolean().default(false),
     tags: z.array(z.string()).optional(),
     learningOutcomes: z.any().optional(), // JSONB

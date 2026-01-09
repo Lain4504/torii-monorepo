@@ -66,7 +66,7 @@ export default function ProfilePage() {
                             <div className="flex items-center gap-6">
                                 <div className="relative">
                                     <Avatar className="w-24 h-24">
-                                        <AvatarImage src={user?.avatar} alt={user?.displayName} />
+                                        <AvatarImage src={''} alt={user?.displayName || 'Avatar'} />
                                         <AvatarFallback className="text-2xl">
                                             {user?.displayName?.charAt(0).toUpperCase() || 'U'}
                                         </AvatarFallback>

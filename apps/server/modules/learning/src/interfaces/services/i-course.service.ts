@@ -5,6 +5,7 @@ import type {
     PaginationOptionsDTO,
     PaginatedResponseDTO,
     Requester,
+    CourseStatus,
 } from '@workspace/schemas';
 
 /**
@@ -14,10 +15,10 @@ import type {
 export interface ICourseService {
     /**
      * Find all courses with pagination and search
-     * @param options - Pagination options including page, limit, and search
+     * @param options - Pagination options including page, limit, search, status, and jlptLevel
      * @returns Paginated response of courses
      */
-    findAll(options: PaginationOptionsDTO): Promise<PaginatedResponseDTO<CourseResponseDTO>>;
+    findAll(options: PaginationOptionsDTO & { status?: CourseStatus; jlptLevel?: string }): Promise<PaginatedResponseDTO<CourseResponseDTO>>;
 
     /**
      * Find one course by ID

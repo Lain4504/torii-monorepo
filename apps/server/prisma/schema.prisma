@@ -14,6 +14,11 @@ datasource db {
   provider = "postgresql"
 }
 
+enum CourseStatus {
+  draft
+  published
+}
+
 model Course {
   id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   title            String    @db.VarChar(255)
@@ -34,8 +39,7 @@ model Course {
   totalStudents    Int       @default(0) @map("total_students")
   averageRating    Decimal   @default(0.00) @map("average_rating") @db.Decimal(3, 2)
   totalReviews     Int       @default(0) @map("total_reviews")
-  status           String    @default("draft") @db.VarChar(20)
-  featured         Boolean   @default(false)
+  status           CourseStatus @default(draft)
   isFree           Boolean   @default(false) @map("is_free")
   tags             String[]  @default([]) @db.VarChar(50)
   learningOutcomes Json      @default("[]") @map("learning_outcomes")
@@ -55,8 +59,8 @@ model Course {
   instructors CourseInstructor[]
 
   @@index([jlptLevel])
-  @@index([status])
   @@index([createdBy])
+  @@index([approvedBy])
   @@map("courses")
 }
 

@@ -38,7 +38,7 @@ export function CoursesPrimaryToolbar({
             </div>
 
             <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-                {/* Status Filter */}
+                {/* Status Filter (draft/published - computed từ backend) */}
                 <Select
                     value={statusFilter || 'all'}
                     onValueChange={(value) =>

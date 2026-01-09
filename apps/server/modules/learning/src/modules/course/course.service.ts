@@ -4,7 +4,7 @@ import { generateSlug } from '@server/shared';
 import type { Course } from '@prisma/generated';
 import { validate as uuidValidate } from 'uuid';
 
-import { UserRole } from '@workspace/schemas';
+import { UserRole, CourseStatus } from '@workspace/schemas';
 import type {
   CourseCreateDTO,
   CourseUpdateDTO,
@@ -12,7 +12,6 @@ import type {
   PaginationOptionsDTO,
   PaginatedResponseDTO,
   Requester,
-  CourseStatus,
 } from '@workspace/schemas';
 
 import type { ICourseService } from '../../interfaces/services';
@@ -62,8 +61,9 @@ export class CourseService implements ICourseService {
       totalStudents: course.totalStudents,
       averageRating: Number(course.averageRating),
       totalReviews: course.totalReviews,
-      status: course.status as any,
-      featured: course.featured,
+      status: (course as any).status as CourseStatus,
+      // featured đã bị loại bỏ khỏi schema, giữ field ở DTO để tương thích nhưng luôn false
+      featured: false as any,
       isFree: course.isFree,
       tags: course.tags,
       learningOutcomes: course.learningOutcomes || undefined,
@@ -96,24 +96,37 @@ export class CourseService implements ICourseService {
     return `${baseSlug}-${dateStr}-${timestamp}`;
   }
 
-  /**
-   * Find all courses with pagination and search
-   */
-  async findAll(options: PaginationOptionsDTO): Promise<PaginatedResponseDTO<CourseResponseDTO>> {
+  async findAll(options: PaginationOptionsDTO & { status?: CourseStatus; jlptLevel?: string }): Promise<PaginatedResponseDTO<CourseResponseDTO>> {
     try {
-      const { page = 1, limit = 10, search } = options;
+      const { page = 1, limit = 10, search, status, jlptLevel } = options;
       const skip = (page - 1) * limit;
 
       const where: any = {
         deletedAt: null,
       };
 
+      // Filter by status column
+      if (status) {
+        if (status === CourseStatus.PUBLISHED) {
+          where.status = 'published';
+        } else if (status === CourseStatus.DRAFT) {
+          where.status = 'draft';
+        }
+      }
+
+      // Filter by JLPT level
+      if (jlptLevel) {
+        where.jlptLevel = jlptLevel;
+      }
+
       if (search) {
-        where.OR = [
+        const searchConditions = [
           { title: { contains: search, mode: 'insensitive' } },
           { description: { contains: search, mode: 'insensitive' } },
           { shortDescription: { contains: search, mode: 'insensitive' } },
         ];
+        
+        where.OR = searchConditions;
       }
 
       const [total, courses] = await Promise.all([
@@ -181,7 +194,6 @@ export class CourseService implements ICourseService {
       const baseSlug = generateSlug(dto.title);
       const slug = await this.ensureUniqueSlug(baseSlug);
 
-      // Prepare data for creation
       const data: any = {
         title: dto.title,
         slug,
@@ -196,13 +208,12 @@ export class CourseService implements ICourseService {
         discountPrice: dto.discountPrice || null,
         liveConfig: dto.liveConfig || null,
         durationWeeks: dto.durationWeeks || null,
-        status: dto.status || 'draft',
-        featured: dto.featured ?? false,
         isFree: dto.isFree ?? false,
         tags: dto.tags || [],
         learningOutcomes: dto.learningOutcomes || [],
         requirements: dto.requirements || [],
         createdBy: requester.sub,
+        status: 'draft',
       };
 
       const course = await this.courseRepository.create(data);
@@ -250,30 +261,22 @@ export class CourseService implements ICourseService {
       if (dto.discountPrice !== undefined) updateData.discountPrice = dto.discountPrice;
       if (dto.liveConfig !== undefined) updateData.liveConfig = dto.liveConfig;
       if (dto.durationWeeks !== undefined) updateData.durationWeeks = dto.durationWeeks;
-      if (dto.featured !== undefined) updateData.featured = dto.featured;
       if (dto.isFree !== undefined) updateData.isFree = dto.isFree;
       if (dto.tags !== undefined) updateData.tags = dto.tags;
       if (dto.learningOutcomes !== undefined) updateData.learningOutcomes = dto.learningOutcomes;
       if (dto.requirements !== undefined) updateData.requirements = dto.requirements;
 
-      // Handle status changes
       let isPublishing = false;
-      if (dto.status !== undefined && dto.status !== existing.status) {
-        updateData.status = dto.status;
 
-        if (dto.status === 'published') {
-          isPublishing = true;
-          const validApprovedBy = dto.approvedBy && uuidValidate(dto.approvedBy)
-            ? dto.approvedBy
-            : requester.sub;
-          updateData.approvedBy = validApprovedBy;
-          updateData.approvedAt = new Date();
-        }
-
-        if (existing.status === 'published' && dto.status !== 'published') {
-          updateData.approvedBy = null;
-          updateData.approvedAt = null;
-        }
+      if (dto.approvedBy !== undefined) {
+        // Explicit approval
+        const validApprovedBy = dto.approvedBy && uuidValidate(dto.approvedBy)
+          ? dto.approvedBy
+          : requester.sub;
+        updateData.approvedBy = validApprovedBy;
+        updateData.approvedAt = new Date();
+        updateData.status = 'published';
+        isPublishing = true;
       }
 
       if (Object.keys(updateData).length === 0) {
@@ -337,10 +340,14 @@ export class CourseService implements ICourseService {
 
   /**
    * Get featured courses
+   * Note: Featured functionality removed. Use aiMetadata.featured or tags instead.
+   * This method is kept for backward compatibility but returns empty array.
+   * TODO: Remove this method or implement via aiMetadata/tags filtering
    */
   async getFeatured(): Promise<CourseResponseDTO[]> {
-    const courses = await this.courseRepository.findFeatured();
-    return courses.map(course => this.toCourseResponseDTO(course));
+    // Featured courses removed - can be implemented via aiMetadata or tags if needed
+    this.logger.warn('getFeatured() called but featured field is removed. Consider using aiMetadata or tags.');
+    return [];
   }
 
   /**
@@ -352,28 +359,66 @@ export class CourseService implements ICourseService {
   }
 
   /**
-   * Publish a course
+   * Publish a course (set approvedBy and approvedAt)
    */
   async publish(requester: Requester, courseId: string): Promise<CourseResponseDTO> {
     if (![UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
       throw new ForbiddenException('Only admins and lecturers can publish courses');
     }
 
-    return this.update(requester, courseId, {
-      status: 'published' as CourseStatus,
+    const existing = await this.courseRepository.findById(courseId);
+    if (!existing || existing.deletedAt) {
+      throw new NotFoundException(`Course with id ${courseId} not found`);
+    }
+
+    const publishUpdateData: any = {
       approvedBy: requester.sub,
-    });
+      approvedAt: new Date(),
+      status: 'published',
+    };
+
+    const course = await this.courseRepository.update(courseId, publishUpdateData);
+
+    // Emit event
+    try {
+      this.logger.log(`Course ${course.id} published, emitting event`);
+      this.natsClient.emit(
+        { cmd: 'course.published' },
+        {
+          courseId: course.id,
+          courseTitle: course.title,
+          courseJlptLevel: course.jlptLevel,
+        },
+      );
+    } catch (error: any) {
+      this.logger.error(`Failed to emit course.published event: ${error?.message}`, error);
+    }
+
+    return this.toCourseResponseDTO(course);
   }
 
   /**
-   * Unpublish a course
+   * Unpublish a course (clear approvedBy and approvedAt)
    */
   async unpublish(requester: Requester, courseId: string): Promise<CourseResponseDTO> {
     if (![UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
       throw new ForbiddenException('Only admins and lecturers can unpublish courses');
     }
 
-    return this.update(requester, courseId, { status: 'draft' as CourseStatus });
+    const existing = await this.courseRepository.findById(courseId);
+    if (!existing || existing.deletedAt) {
+      throw new NotFoundException(`Course with id ${courseId} not found`);
+    }
+
+    const unpublishUpdateData: any = {
+      approvedBy: null,
+      approvedAt: null,
+      status: 'draft',
+    };
+
+    const course = await this.courseRepository.update(courseId, unpublishUpdateData);
+
+    return this.toCourseResponseDTO(course);
   }
 
   /**

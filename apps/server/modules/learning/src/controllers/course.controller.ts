@@ -13,13 +13,14 @@ import {
     Inject,
 } from '@nestjs/common';
 import { ZodValidationPipe, GatewayAuthGuard } from '@server/shared';
-import { courseCreateDTOSchema, courseUpdateDTOSchema } from '@workspace/schemas';
+import { courseCreateDTOSchema, courseUpdateDTOSchema, courseQueryDTOSchema, CourseStatus } from '@workspace/schemas';
 import type {
     CourseResponseDTO,
     CourseCreateDTO,
     CourseUpdateDTO,
     PaginatedResponseDTO,
     ReqWithRequester,
+    CourseQueryDTO,
 } from '@workspace/schemas';
 import type { ICourseService } from '../interfaces/services';
 import { COURSE_SERVICE_TOKEN } from '../interfaces/services';
@@ -33,27 +34,19 @@ export class CourseController {
     constructor(@Inject(COURSE_SERVICE_TOKEN) private readonly courseService: ICourseService) { }
 
     /**
-     * Get all courses with pagination
+     * Get all courses with pagination and filters
      */
     @Get()
     async findAll(
-        @Query('page') page: number = 1,
-        @Query('limit') limit: number = 10,
-        @Query('search') search: string = '',
+        @Query(new ZodValidationPipe(courseQueryDTOSchema)) query: CourseQueryDTO,
     ): Promise<PaginatedResponseDTO<CourseResponseDTO>> {
         return this.courseService.findAll({
-            page: Number(page),
-            limit: Number(limit),
-            search,
+            page: query.page,
+            limit: query.limit,
+            search: query.search,
+            status: query.status,
+            jlptLevel: query.jlptLevel,
         });
-    }
-
-    /**
-     * Get featured courses
-     */
-    @Get('featured')
-    async getFeatured(): Promise<CourseResponseDTO[]> {
-        return this.courseService.getFeatured();
     }
 
     /**
