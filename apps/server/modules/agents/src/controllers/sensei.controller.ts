@@ -1,12 +1,17 @@
-import { Controller, Post, Body, Logger } from '@nestjs/common';
-import { SenseiAgentService } from '../../sensei-agent/sensei-agent.service';
-import { GrammarCheckDto, TranslateDto, CreateFlashcardDto, GenerateDrillDto, SimulateConversationDto, RecommendResourcesDto } from '../../dtos/sensei.dto';
+import { Controller, Post, Body, Logger, Inject } from '@nestjs/common';
+import { SenseiAgentService } from '../sensei-agent/sensei-agent.service';
+import { GrammarCheckDto, TranslateDto, CreateFlashcardDto, GenerateDrillDto, SimulateConversationDto, RecommendResourcesDto } from '../dtos/sensei.dto';
+import type { ISenseiAgentService } from '../interfaces/services';
+import { SENSEI_AGENT_SERVICE_TOKEN } from '../interfaces/services';
 
 @Controller('agents')
 export class SenseiController {
   private readonly logger = new Logger(SenseiController.name);
 
-  constructor(private readonly senseiService: SenseiAgentService) {}
+  constructor(
+    @Inject(SENSEI_AGENT_SERVICE_TOKEN)
+    private readonly senseiService: ISenseiAgentService,
+  ) {}
 
   @Post('grammar-check')
   async checkGrammar(@Body() body: GrammarCheckDto) {

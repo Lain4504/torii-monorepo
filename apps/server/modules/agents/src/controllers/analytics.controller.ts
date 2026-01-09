@@ -1,12 +1,16 @@
-import { Controller, Post, Body, Logger } from '@nestjs/common';
-import { AnalyticsAgentService } from '../../analytics-agent/analytics-agent.service';
-import { TrackProgressDto, SuggestPathDto, IdentifyWeaknessesDto, PredictReadinessDto, GenerateReportDto } from '../../dtos/analytics.dto';
+import { Controller, Post, Body, Logger, Inject } from '@nestjs/common';
+import { TrackProgressDto, SuggestPathDto, IdentifyWeaknessesDto, PredictReadinessDto, GenerateReportDto } from '../dtos/analytics.dto';
+import type { IAnalyticsAgentService } from '../interfaces/services';
+import { ANALYTICS_AGENT_SERVICE_TOKEN } from '../interfaces/services';
 
 @Controller('agents')
 export class AnalyticsController {
   private readonly logger = new Logger(AnalyticsController.name);
 
-  constructor(private readonly analyticsService: AnalyticsAgentService) {}
+  constructor(
+    @Inject(ANALYTICS_AGENT_SERVICE_TOKEN)
+    private readonly analyticsService: IAnalyticsAgentService,
+  ) {}
 
   @Post('progress/track')
   async trackProgress(@Body() body: TrackProgressDto) {
