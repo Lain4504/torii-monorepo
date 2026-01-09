@@ -131,7 +131,7 @@ export function EditLessonDialog({ lesson, open, onOpenChange }: EditLessonDialo
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:w-[600px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/40 shadow-2xl bg-background/95 backdrop-blur-md overflow-hidden">
+            <SheetContent className="w-full sm:w-[900px] sm:max-w-[900px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/40 shadow-2xl bg-background/95 backdrop-blur-md overflow-hidden">
                 <SheetHeader className="px-6 py-6 border-b border-border/40 bg-muted/5 space-y-1">
                     <SheetTitle className="text-xl font-bold flex items-center gap-2">
                         <Pencil className="h-5 w-5 text-primary" />

@@ -16,8 +16,8 @@ import type {
 } from '@workspace/schemas';
 
 import type { ICourseService } from '../../interfaces/services';
-import type { ICourseRepository } from '../../interfaces/repositories';
-import { COURSE_REPOSITORY_TOKEN } from '../../interfaces/repositories';
+import type { ICourseRepository, IModuleRepository, ILessonRepository } from '../../interfaces/repositories';
+import { COURSE_REPOSITORY_TOKEN, MODULE_REPOSITORY_TOKEN, LESSON_REPOSITORY_TOKEN } from '../../interfaces/repositories';
 
 /**
  * Course Service
@@ -30,6 +30,10 @@ export class CourseService implements ICourseService {
   constructor(
     @Inject(COURSE_REPOSITORY_TOKEN)
     private readonly courseRepository: ICourseRepository,
+    @Inject(MODULE_REPOSITORY_TOKEN)
+    private readonly moduleRepository: IModuleRepository,
+    @Inject(LESSON_REPOSITORY_TOKEN)
+    private readonly lessonRepository: ILessonRepository,
     @Inject('NATS_SERVICE')
     private readonly natsClient: ClientProxy,
   ) { }
@@ -370,5 +374,64 @@ export class CourseService implements ICourseService {
     }
 
     return this.update(requester, courseId, { status: 'draft' as CourseStatus });
+  }
+
+  /**
+   * Get course curriculum (modules with lessons)
+   */
+  async getCurriculum(courseId: string): Promise<{
+    modules: Array<{
+      id: string;
+      title: string;
+      description?: string;
+      order: number;
+      durationMinutes?: number;
+      lessons: Array<{
+        id: string;
+        title: string;
+        contentType: string;
+        videoDuration?: number;
+        order: number;
+        isPreview: boolean;
+        isUnlocked: boolean;
+      }>;
+    }>;
+  }> {
+    // Verify course exists
+    const course = await this.courseRepository.findById(courseId);
+    if (!course || course.deletedAt) {
+      throw new NotFoundException(`Course with id ${courseId} not found`);
+    }
+
+    // Get all modules for the course
+    const modules = await this.moduleRepository.findByCourseId(courseId);
+
+    // Get lessons for each module
+    const modulesWithLessons = await Promise.all(
+      modules.map(async (module) => {
+        const lessons = await this.lessonRepository.findByModuleId(module.id);
+        
+        return {
+          id: module.id,
+          title: module.title,
+          description: module.description || undefined,
+          order: module.orderIndex,
+          durationMinutes: module.durationMinutes || undefined,
+          lessons: lessons.map((lesson) => ({
+            id: lesson.id,
+            title: lesson.title,
+            contentType: lesson.contentType,
+            videoDuration: lesson.videoDuration || undefined,
+            order: lesson.orderIndex,
+            isPreview: lesson.isPreview,
+            isUnlocked: lesson.isUnlocked,
+          })),
+        };
+      })
+    );
+
+    return {
+      modules: modulesWithLessons,
+    };
   }
 }

@@ -29,7 +29,6 @@ import { COURSE_SERVICE_TOKEN } from '../interfaces/services';
  * Handles course management operations
  */
 @Controller('courses')
-@UseGuards(GatewayAuthGuard)
 export class CourseController {
     constructor(@Inject(COURSE_SERVICE_TOKEN) private readonly courseService: ICourseService) { }
 
@@ -74,6 +73,14 @@ export class CourseController {
     }
 
     /**
+     * Get course curriculum (modules with lessons)
+     */
+    @Get(':id/curriculum')
+    async getCurriculum(@Param('id') id: string) {
+        return this.courseService.getCurriculum(id);
+    }
+
+    /**
      * Get course by ID
      */
     @Get(':id')
@@ -85,10 +92,10 @@ export class CourseController {
      * Create new course
      */
     @Post()
-    @UsePipes(new ZodValidationPipe(courseCreateDTOSchema))
+    @UseGuards(GatewayAuthGuard)
     async create(
         @Request() req: ReqWithRequester,
-        @Body() dto: CourseCreateDTO
+        @Body(new ZodValidationPipe(courseCreateDTOSchema)) dto: CourseCreateDTO
     ): Promise<CourseResponseDTO> {
         return this.courseService.create(req.requester, dto);
     }
@@ -97,11 +104,11 @@ export class CourseController {
      * Update course
      */
     @Patch(':id')
-    @UsePipes(new ZodValidationPipe(courseUpdateDTOSchema))
+    @UseGuards(GatewayAuthGuard)
     async update(
         @Request() req: ReqWithRequester,
         @Param('id') id: string,
-        @Body() dto: CourseUpdateDTO,
+        @Body(new ZodValidationPipe(courseUpdateDTOSchema)) dto: CourseUpdateDTO,
     ): Promise<CourseResponseDTO> {
         return this.courseService.update(req.requester, id, dto);
     }
@@ -110,6 +117,7 @@ export class CourseController {
      * Publish course
      */
     @Post(':id/publish')
+    @UseGuards(GatewayAuthGuard)
     async publish(
         @Request() req: ReqWithRequester,
         @Param('id') id: string,
@@ -121,6 +129,7 @@ export class CourseController {
      * Unpublish course
      */
     @Post(':id/unpublish')
+    @UseGuards(GatewayAuthGuard)
     async unpublish(
         @Request() req: ReqWithRequester,
         @Param('id') id: string,
@@ -132,6 +141,7 @@ export class CourseController {
      * Delete course
      */
     @Delete(':id')
+    @UseGuards(GatewayAuthGuard)
     async delete(
         @Request() req: ReqWithRequester,
         @Param('id') id: string,

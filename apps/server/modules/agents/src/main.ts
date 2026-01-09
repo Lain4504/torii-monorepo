@@ -6,9 +6,15 @@ import { createNatsServiceConfig } from '@server/shared';
 import { AgentsModule } from './agents.module';
 import cookieParser from 'cookie-parser';
 
+import * as bodyParser from 'body-parser';
+
 async function bootstrap() {
     // 1. Create HTTP application
     const httpApp = await NestFactory.create(AgentsModule);
+
+    // Configure body parser
+    httpApp.use(bodyParser.json({ limit: '10mb' }));
+    httpApp.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 
     // Configure cookie parser - REQUIRED for web auth with httpOnly cookies
     httpApp.use(cookieParser());

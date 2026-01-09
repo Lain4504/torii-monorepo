@@ -144,7 +144,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:w-[600px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/40 shadow-2xl bg-background/95 backdrop-blur-md overflow-hidden">
+            <SheetContent className="w-full sm:w-[900px] sm:max-w-[900px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/40 shadow-2xl bg-background/95 backdrop-blur-md overflow-hidden">
                 <SheetHeader className="px-6 py-6 border-b border-border/40 bg-muted/5 space-y-4">
                     <div className="flex items-center justify-between">
                         <Badge variant="outline" className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground border-border/60 bg-background/50">
@@ -344,7 +344,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                         </Button>
                         <Button
                             type="submit"
-                            disabled={uploading || !isDirty}
+                            disabled={uploading || (!isDirty && !thumbnailFile && !videoFile)}
                             className="flex-1 gap-2 shadow-lg hover:shadow-xl transition-all rounded-xl h-11 font-medium"
                         >
                             {uploading ? (

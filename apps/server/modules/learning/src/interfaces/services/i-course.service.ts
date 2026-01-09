@@ -99,4 +99,29 @@ export interface ICourseService {
      * @throws NotFoundException if course not found
      */
     unpublish(requester: Requester, courseId: string): Promise<CourseResponseDTO>;
+
+    /**
+     * Get course curriculum (modules with lessons)
+     * @param courseId - The course's unique identifier
+     * @returns The curriculum data with modules and lessons
+     * @throws NotFoundException if course not found
+     */
+    getCurriculum(courseId: string): Promise<{
+        modules: Array<{
+            id: string;
+            title: string;
+            description?: string;
+            order: number;
+            durationMinutes?: number;
+            lessons: Array<{
+                id: string;
+                title: string;
+                contentType: string;
+                videoDuration?: number;
+                order: number;
+                isPreview: boolean;
+                isUnlocked: boolean;
+            }>;
+        }>;
+    }>;
 }

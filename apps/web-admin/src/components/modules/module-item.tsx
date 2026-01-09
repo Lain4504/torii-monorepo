@@ -1,9 +1,9 @@
+
 import { Button } from '@workspace/ui/components/button';
 import {
-    Accordion,
     AccordionContent,
     AccordionItem,
-    AccordionTrigger,
+    AccordionPrimitive
 } from '@workspace/ui/components/accordion';
 import {
     DropdownMenu,
@@ -12,7 +12,7 @@ import {
     DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu';
 import { Badge } from '@workspace/ui/components/badge';
-import { Layers, FileText, Plus, MoreVertical, Pencil, Trash, BookOpen, Clock, Video, ClipboardList } from 'lucide-react';
+import { Layers, FileText, Plus, MoreVertical, Pencil, Trash, BookOpen, Clock, Video, ClipboardList, ChevronDown } from 'lucide-react';
 import { useLessons } from '@/api/services/lesson';
 import type { ModuleResponseDTO, LessonResponseDTO } from '@workspace/schemas';
 import { LessonContentType } from '@workspace/schemas';
@@ -44,55 +44,52 @@ function LessonRow({
     return (
         <div
             onClick={() => onEdit(lesson)}
-            className="group flex items-center justify-between py-3.5 px-4 sm:px-5 rounded-xl hover:bg-muted/50 transition-all duration-200 border border-transparent hover:border-border/50 cursor-pointer mb-2 last:mb-0 hover:shadow-sm active:scale-[0.99]"
+            className="group flex items-center justify-between py-3 px-4 rounded-lg hover:bg-muted/60 transition-colors duration-200 border border-transparent hover:border-border/40 cursor-pointer"
         >
-            <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
-                <div className="flex-shrink-0 h-10 w-10 sm:h-11 sm:w-11 rounded-lg bg-gradient-to-br from-muted/60 to-muted/40 text-muted-foreground group-hover:text-primary group-hover:from-primary/15 group-hover:to-primary/5 border border-border/40 group-hover:border-primary/30 transition-all duration-200 flex items-center justify-center shadow-sm group-hover:shadow-md">
+            <div className="flex items-center gap-4 flex-1 min-w-0">
+                <div className="flex-shrink-0 h-9 w-9 rounded-md bg-background border border-border/60 flex items-center justify-center text-muted-foreground group-hover:text-primary group-hover:border-primary/20 transition-colors">
                     {getLessonIcon(lesson.contentType)}
                 </div>
                 <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm sm:text-base font-semibold text-foreground block truncate group-hover:text-primary transition-colors duration-200">
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-foreground truncate">
                             {lesson.title}
                         </span>
                         {lesson.isPreview && (
-                            <Badge variant="outline" className="text-[10px] h-5 px-2 font-semibold border-primary/30 text-primary bg-primary/5">
-                                Preview
+                            <Badge variant="outline" className="text-[10px] h-4 px-1.5 font-normal border-green-500/30 text-green-600 bg-green-500/5">
+                                Free
                             </Badge>
                         )}
-                    </div>
-                    <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs sm:text-sm text-muted-foreground capitalize font-medium">
-                            {lesson.contentType.toLowerCase()}
-                        </span>
-                        {/* Add duration if available later */}
                     </div>
                 </div>
             </div>
             <div className="flex items-center gap-1 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                <div className="text-xs text-muted-foreground mr-3 font-medium px-2 py-0.5 rounded-full bg-background border border-border/40 uppercase tracking-wider">
+                    {lesson.contentType}
+                </div>
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 sm:h-9 sm:w-9 hover:bg-primary/10 hover:text-primary rounded-lg cursor-pointer transition-all duration-200"
+                    className="h-8 w-8 text-muted-foreground hover:text-foreground"
                     onClick={(e) => {
                         e.stopPropagation();
                         onEdit(lesson);
                     }}
                     title="Edit Lesson"
                 >
-                    <Pencil className="h-4 w-4" />
+                    <Pencil className="h-3.5 w-3.5" />
                 </Button>
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 sm:h-9 sm:w-9 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg cursor-pointer transition-all duration-200"
+                    className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                     onClick={(e) => {
                         e.stopPropagation();
                         onDelete(lesson);
                     }}
                     title="Delete Lesson"
                 >
-                    <Trash className="h-4 w-4" />
+                    <Trash className="h-3.5 w-3.5" />
                 </Button>
             </div>
         </div>
@@ -127,43 +124,49 @@ export function ModuleItem({
     return (
         <AccordionItem
             value={module.id}
-            className="border border-border/50 rounded-2xl bg-card/50 backdrop-blur-sm overflow-hidden transition-all duration-200 data-[state=open]:shadow-lg data-[state=open]:shadow-primary/5 data-[state=open]:border-primary/30 data-[state=open]:bg-card hover:border-border/70 hover:shadow-md"
+            className="border border-border/60 rounded-xl bg-card overflow-hidden transition-all duration-200 hover:border-border/80 hover:shadow-sm"
         >
             <div className="flex items-center group bg-card/50 hover:bg-card/80 transition-all duration-200">
-                <AccordionTrigger className="flex-1 hover:no-underline py-5 px-6 [&[data-state=open]>div>svg]:rotate-180">
-                    <div className="flex items-center gap-4 sm:gap-5 flex-1 min-w-0">
-                        <div className="flex-shrink-0 h-12 w-12 sm:h-14 sm:w-14 rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center text-primary border border-primary/20 shadow-sm shadow-primary/10 group-hover:shadow-md group-hover:shadow-primary/20 group-hover:scale-105 transition-all duration-200">
-                            <Layers className="h-6 w-6 sm:h-7 sm:w-7" />
-                        </div>
-                        <div className="flex flex-col items-start gap-2 flex-1 min-w-0 text-left">
-                            <span className="font-bold text-base sm:text-lg text-foreground leading-tight truncate w-full group-hover:text-primary transition-colors duration-200">
-                                {module.title}
-                            </span>
-                            <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
-                                <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-muted/40 border border-border/40">
-                                    <BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4 opacity-70" />
-                                    <span className="font-semibold text-foreground/90">
-                                        {lessons.length} {lessons.length === 1 ? 'Lesson' : 'Lessons'}
-                                    </span>
-                                </div>
-                                {module.durationMinutes != null && module.durationMinutes > 0 && (
-                                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-muted/40 border border-border/40">
-                                        <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 opacity-70" />
-                                        <span className="font-semibold text-foreground/90">
-                                            {module.durationMinutes} mins
+                {/* Custom Trigger with Left Chevron */}
+                <AccordionPrimitive.Header className="flex flex-1 min-w-0">
+                    <AccordionPrimitive.Trigger className="flex flex-1 items-center gap-4 py-5 px-6 text-left hover:no-underline [&[data-state=open]>svg]:rotate-180 transition-all outline-none focus-visible:bg-muted/50 cursor-pointer">
+                        <ChevronDown className="h-5 w-5 text-muted-foreground/70 shrink-0 transition-transform duration-200" />
+
+                        <div className="flex items-center gap-4 sm:gap-5 flex-1 min-w-0">
+                            <div className="flex-shrink-0 h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center text-primary border border-primary/20 shadow-sm shadow-primary/5 group-hover:shadow-primary/10 transition-all duration-200">
+                                <Layers className="h-5 w-5 sm:h-6 sm:w-6" />
+                            </div>
+                            <div className="flex flex-col items-start gap-1.5 flex-1 min-w-0 text-left">
+                                <span className="font-bold text-base sm:text-lg text-foreground leading-tight truncate w-full group-hover:text-primary transition-colors duration-200">
+                                    {module.title}
+                                </span>
+                                <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
+                                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-muted/40 border border-border/40">
+                                        <BookOpen className="h-3.5 w-3.5 opacity-70" />
+                                        <span className="font-semibold text-foreground/80">
+                                            {lessons.length} {lessons.length === 1 ? 'Lesson' : 'Lessons'}
                                         </span>
                                     </div>
-                                )}
+                                    {module.durationMinutes != null && module.durationMinutes > 0 && (
+                                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-muted/40 border border-border/40">
+                                            <Clock className="h-3.5 w-3.5 opacity-70" />
+                                            <span className="font-semibold text-foreground/80">
+                                                {module.durationMinutes} mins
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </AccordionTrigger>
+                    </AccordionPrimitive.Trigger>
+                </AccordionPrimitive.Header>
 
-                <div className="flex items-center gap-2 px-4 sm:px-6 flex-shrink-0">
+                {/* Actions Section - Separated from Trigger */}
+                <div className="flex items-center gap-2 px-4 sm:px-6 flex-shrink-0 py-2">
                     <Button
-                        variant="secondary"
+                        variant="outline"
                         size="sm"
-                        className="h-9 gap-2 text-sm font-semibold hidden sm:inline-flex bg-secondary/60 hover:bg-secondary text-secondary-foreground cursor-pointer rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
+                        className="h-9 gap-2 text-sm font-semibold hidden sm:inline-flex border-dashed border-border/80 hover:border-primary/50 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all duration-200"
                         onClick={(e) => {
                             e.stopPropagation();
                             onAddLesson(module.id);
@@ -203,7 +206,7 @@ export function ModuleItem({
 
             <AccordionContent className="pt-0 pb-3 px-0">
                 <div className="border-t border-border/50 bg-muted/5">
-                    <div className="p-4 sm:p-6 sm:pl-[4.5rem] lg:pl-[5.5rem]">
+                    <div className="p-4 sm:p-6 sm:pl-[5.5rem] lg:pl-[6.5rem]">
                         {isLoading ? (
                             <div className="py-12 text-center">
                                 <div className="inline-flex flex-col items-center gap-3">
