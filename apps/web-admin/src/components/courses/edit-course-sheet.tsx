@@ -164,8 +164,8 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                     </div>
                 </SheetHeader>
 
-                <form onSubmit={handleSubmit(onSubmitForm)} className="flex-1 flex flex-col overflow-hidden">
-                    <ScrollArea className="flex-1 h-full">
+                <form onSubmit={handleSubmit(onSubmitForm)} className="flex flex-col h-full overflow-hidden">
+                    <ScrollArea className="flex-1 min-h-0">
                         <div className="px-6 py-6 space-y-6">
                             {/* Key Metrics */}
                             <div className="grid grid-cols-2 gap-4">
@@ -332,7 +332,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                         </div>
                     </ScrollArea>
 
-                    <SheetFooter className="p-6 border-t border-border/40 bg-muted/5 backdrop-blur-sm flex-row gap-3">
+                    <SheetFooter className="flex-shrink-0 p-6 border-t border-border/40 bg-muted/5 backdrop-blur-sm flex-row gap-3">
                         <Button
                             type="button"
                             variant="outline"

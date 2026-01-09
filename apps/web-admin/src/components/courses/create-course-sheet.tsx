@@ -19,7 +19,7 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { Loader2, Save, Image as ImageIcon, Film, BookOpen, X } from 'lucide-react';
+import { Loader2, Image as ImageIcon, Film, BookOpen, X } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 import { storageApi } from '@/api/services/storage-api.ts';
 import { JlptLevel, CourseStatus, courseCreateDTOSchema, type CourseCreateDTO } from '@workspace/schemas';
@@ -145,8 +145,8 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                     </div>
                 </SheetHeader>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden">
-                    <ScrollArea className="flex-1 h-full">
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full overflow-hidden">
+                    <ScrollArea className="flex-1 min-h-0">
                         <div className="px-6 py-6 space-y-6">
                             {/* Basic Information */}
                             <div className="space-y-4">
@@ -330,7 +330,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                     </ScrollArea>
 
                     {/* Footer */}
-                    <SheetFooter className="px-6 py-4 border-t border-border/40 bg-muted/5 backdrop-blur-sm flex-row gap-3">
+                    <SheetFooter className="flex-shrink-0 px-6 py-4 border-t border-border/40 bg-muted/5 backdrop-blur-sm flex-row gap-3">
                         <div className="flex items-center justify-between w-full gap-3">
                             <p className="text-xs text-muted-foreground">
                                 <span className="text-destructive">*</span> Required fields
