@@ -6,7 +6,7 @@ export default function RoomsPage() {
         <p className="text-muted-foreground">Manage virtual classrooms and sessions.</p>
       </div>
 
-      <div className="zen-card rounded-2xl p-12 text-center">
+      <div className="border border-border shadow-sm bg-card backdrop-blur-sm hover:bg-card hover:shadow-md transition-all duration-300 rounded-xl rounded-2xl p-12 text-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-16 h-16 rounded-full bg-primary/5 flex items-center justify-center">
             <div className="w-8 h-8 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />

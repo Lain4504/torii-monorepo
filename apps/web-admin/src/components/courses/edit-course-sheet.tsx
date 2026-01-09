@@ -1,0 +1,623 @@
+import { useState, useEffect } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+    SheetFooter,
+} from '@workspace/ui/components/sheet';
+import { Button } from '@workspace/ui/components/button';
+import { Input } from '@workspace/ui/components/input';
+import { Textarea } from '@workspace/ui/components/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
+import { ScrollArea } from '@workspace/ui/components/scroll-area';
+import { Separator } from '@workspace/ui/components/separator';
+import { Badge } from '@workspace/ui/components/badge';
+import {
+    Field,
+    FieldLabel,
+    FieldError,
+} from '@workspace/ui/components/field';
+import { BookOpen, Users, Calendar, DollarSign, Layers, Save, Image as ImageIcon, Sparkles } from 'lucide-react';
+import type { CourseResponseDTO } from '@workspace/schemas';
+import { courseUpdateDTOSchema, type CourseUpdateDTO, JlptLevel } from '@workspace/schemas';
+import { toast } from '@workspace/ui/components/sonner';
+import { useUpdateCourse } from "@/api/services/courses.ts";
+import { storageApi } from '@/api/services/storage-api.ts';
+import { useNavigate } from 'react-router-dom';
+
+type UpdateCourseFormData = CourseUpdateDTO;
+
+interface EditCourseSheetProps {
+    course: CourseResponseDTO | null;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+}
+
+export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetProps) {
+    const navigate = useNavigate();
+    const updateCourse = useUpdateCourse();
+    const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+    const [videoFile, setVideoFile] = useState<File | null>(null);
+    const [uploading, setUploading] = useState(false);
+
+    const {
+        control,
+        register,
+        handleSubmit,
+        reset,
+        formState: { isDirty },
+    } = useForm<UpdateCourseFormData>({
+        resolver: zodResolver(courseUpdateDTOSchema),
+        defaultValues: {
+            title: '',
+            description: '',
+            price: 0,
+            shortDescription: '',
+            discountPrice: 0,
+            jlptLevel: undefined,
+            type: 'vod',
+            aiMetadata: {},
+            tags: [],
+            durationWeeks: undefined,
+            isFree: false,
+            learningOutcomes: [],
+            requirements: [],
+        },
+    });
+
+    // Reset form when course changes
+    useEffect(() => {
+        if (course) {
+            reset({
+                title: course.title,
+                description: course.description || '',
+                price: Number(course.price),
+                jlptLevel: course.jlptLevel as JlptLevel,
+                shortDescription: course.shortDescription || '',
+                discountPrice: course.discountPrice ? Number(course.discountPrice) : 0,
+                type: course.type,
+                aiMetadata: course.aiMetadata || {},
+                tags: course.tags || [],
+                durationWeeks: course.durationWeeks ?? undefined,
+                isFree: course.isFree ?? false,
+                learningOutcomes: Array.isArray(course.learningOutcomes) ? course.learningOutcomes : [],
+                requirements: Array.isArray(course.requirements) ? course.requirements : [],
+            });
+            setThumbnailFile(null);
+            setVideoFile(null);
+        }
+    }, [course, reset]);
+
+    const handleFileUpload = async (file: File, module: string) => {
+        try {
+            const uploadData = {
+                filename: file.name,
+                contentType: file.type,
+                module,
+            };
+            const { uploadUrl, fileId } = await storageApi.generateUploadUrl(uploadData);
+
+            await fetch(uploadUrl, {
+                method: 'PUT',
+                body: file,
+                headers: {
+                    'Content-Type': file.type,
+                },
+            });
+
+            const confirmResult = await storageApi.confirmUpload({ fileId });
+            return confirmResult.fileUrl;
+        } catch (error) {
+            console.error('Upload failed:', error);
+            throw error;
+        }
+    };
+
+    const onSubmitForm = async (data: UpdateCourseFormData) => {
+        if (!course) return;
+
+        setUploading(true);
+        try {
+            let thumbnailUrl = course.thumbnailUrl;
+            let previewVideoUrl = course.previewVideoUrl;
+
+            if (thumbnailFile) {
+                thumbnailUrl = await handleFileUpload(thumbnailFile, 'course-thumbnails');
+            }
+            if (videoFile) {
+                previewVideoUrl = await handleFileUpload(videoFile, 'course-videos');
+            }
+
+            const updateData = {
+                ...data,
+                thumbnailUrl,
+                previewVideoUrl,
+            };
+
+            await updateCourse.mutateAsync({ id: course.id, course: updateData });
+            toast.success('Course updated successfully!', {
+                description: `Changes to ${data.title} have been saved.`,
+            });
+            onOpenChange(false);
+        } catch (error: any) {
+            toast.error('Failed to update course', {
+                description: error.response?.data?.error || error.message,
+            });
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const handleManageCurriculum = () => {
+        if (course) {
+            onOpenChange(false);
+            navigate(`/courses/${course.id}`);
+        }
+    };
+
+    if (!course) return null;
+
+    return (
+        <Sheet open={open} onOpenChange={onOpenChange}>
+            <SheetContent className="w-full sm:w-[900px] sm:max-w-[900px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/40 shadow-2xl bg-background/95 backdrop-blur-md overflow-hidden">
+                <SheetHeader className="px-6 py-6 border-b border-border/40 bg-muted/5 space-y-4">
+                    <div className="flex items-center justify-between">
+                        <Badge variant="outline" className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground border-border/60 bg-background/50">
+                            {course.id.substring(0, 8)}
+                        </Badge>
+                        <Badge variant={course.status === 'published' ? 'default' : 'secondary'} className="uppercase tracking-wider font-semibold text-[10px] px-2.5 py-0.5 shadow-none">
+                            {course.status}
+                        </Badge>
+                    </div>
+                    <div className="space-y-1.5">
+                        <SheetTitle className="text-2xl font-bold leading-tight tracking-tight text-foreground">
+                            Edit Course
+                        </SheetTitle>
+                        <SheetDescription className="text-sm text-muted-foreground/80">
+                            Update course information and manage curriculum
+                        </SheetDescription>
+                    </div>
+                </SheetHeader>
+
+                <form onSubmit={handleSubmit(onSubmitForm)} className="flex flex-col h-full overflow-hidden">
+                    <ScrollArea className="flex-1 min-h-0">
+                        <div className="px-6 py-6 space-y-6">
+                            {/* Key Metrics */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="p-5 rounded-xl bg-gradient-to-br from-card to-card/50 border border-border/40 shadow-sm">
+                                    <div className="flex items-center gap-2.5 text-muted-foreground mb-2">
+                                        <div className="p-1.5 rounded-md bg-primary/10 text-primary">
+                                            <Users className="h-4 w-4" />
+                                        </div>
+                                        <span className="text-xs font-semibold uppercase tracking-wide">Students</span>
+                                    </div>
+                                    <div className="text-3xl font-bold text-foreground tracking-tight">{course.totalStudents || 0}</div>
+                                </div>
+                                <div className="p-5 rounded-xl bg-gradient-to-br from-card to-card/50 border border-border/40 shadow-sm">
+                                    <div className="flex items-center gap-2.5 text-muted-foreground mb-2">
+                                        <div className="p-1.5 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                                            <Calendar className="h-4 w-4" />
+                                        </div>
+                                        <span className="text-xs font-semibold uppercase tracking-wide">Updated</span>
+                                    </div>
+                                    <div className="text-sm font-medium text-foreground">
+                                        {new Date(course.updatedAt).toLocaleDateString(undefined, {
+                                            month: 'short',
+                                            day: 'numeric',
+                                            year: 'numeric'
+                                        })}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <Separator className="bg-border/40" />
+
+                            {/* Form Fields */}
+                            <div className="space-y-5">
+                                <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                                    <BookOpen className="h-4 w-4 text-primary" />
+                                    Course Information
+                                </h3>
+
+                                <Controller
+                                    control={control}
+                                    name="title"
+                                    render={({ field, fieldState }) => (
+                                        <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                            <FieldLabel htmlFor={field.name} className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Title</FieldLabel>
+                                            <Input
+                                                id={field.name}
+                                                {...field}
+                                                placeholder="Enter course title"
+                                                className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all"
+                                                aria-invalid={fieldState.invalid}
+                                            />
+                                            <FieldError errors={[fieldState.error]} className="text-[10px] font-medium text-destructive ml-1" />
+                                        </Field>
+                                    )}
+                                />
+
+                                <Controller
+                                    control={control}
+                                    name="description"
+                                    render={({ field, fieldState }) => (
+                                        <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                            <FieldLabel htmlFor={field.name} className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Description</FieldLabel>
+                                            <Textarea
+                                                id={field.name}
+                                                {...field}
+                                                placeholder="Enter course description"
+                                                className="min-h-[100px] border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all resize-none"
+                                                aria-invalid={fieldState.invalid}
+                                            />
+                                            <FieldError errors={[fieldState.error]} className="text-[10px] font-medium text-destructive ml-1" />
+                                        </Field>
+                                    )}
+                                />
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <Controller
+                                        control={control}
+                                        name="price"
+                                        render={({ field, fieldState }) => (
+                                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                                <FieldLabel htmlFor={field.name} className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Price (USD)</FieldLabel>
+                                                <div className="relative">
+                                                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
+                                                    <Input
+                                                        id={field.name}
+                                                        type="number"
+                                                        {...field}
+                                                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                                        placeholder="99.00"
+                                                        className="h-11 pl-9 border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all"
+                                                        aria-invalid={fieldState.invalid}
+                                                    />
+                                                </div>
+                                                <FieldError errors={[fieldState.error]} className="text-[10px] font-medium text-destructive ml-1" />
+                                            </Field>
+                                        )}
+                                    />
+
+                                    {/* Status is computed on backend (approvedBy/approvedAt), hiển thị ở header, không chỉnh trực tiếp ở đây */}
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <Controller
+                                        control={control}
+                                        name="jlptLevel"
+                                        render={({ field, fieldState }) => (
+                                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                                <FieldLabel htmlFor={field.name} className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">JLPT Level</FieldLabel>
+                                                <Select value={field.value || ''} onValueChange={field.onChange}>
+                                                    <SelectTrigger id={field.name} className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus:ring-1 focus:ring-primary/20 rounded-xl transition-all" aria-invalid={fieldState.invalid}>
+                                                        <SelectValue placeholder="Select level" />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="border-none shadow-2xl bg-popover/95 backdrop-blur-xl rounded-xl">
+                                                        {Object.values(JlptLevel).map((level) => (
+                                                            <SelectItem key={level} value={level} className="rounded-lg focus:bg-primary/5 cursor-pointer">{level}</SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                                <FieldError errors={[fieldState.error]} className="text-[10px] font-medium text-destructive ml-1" />
+                                            </Field>
+                                        )}
+                                    />
+                                </div>
+
+                                <Controller
+                                    control={control}
+                                    name="shortDescription"
+                                    render={({ field, fieldState }) => (
+                                        <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                            <FieldLabel htmlFor={field.name} className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">
+                                                Short Description
+                                            </FieldLabel>
+                                            <Textarea
+                                                id={field.name}
+                                                {...field}
+                                                placeholder="Brief summary shown in course cards"
+                                                className="min-h-[80px] border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all resize-none"
+                                                aria-invalid={fieldState.invalid}
+                                            />
+                                            <FieldError errors={[fieldState.error]} className="text-[10px] font-medium text-destructive ml-1" />
+                                        </Field>
+                                    )}
+                                />
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <Controller
+                                        control={control}
+                                        name="type"
+                                        render={({ field, fieldState }) => (
+                                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                                <FieldLabel htmlFor={field.name} className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">
+                                                    Course Type
+                                                </FieldLabel>
+                                                <Select value={field.value || ''} onValueChange={field.onChange}>
+                                                    <SelectTrigger id={field.name} className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus:ring-1 focus:ring-primary/20 rounded-xl transition-all" aria-invalid={fieldState.invalid}>
+                                                        <SelectValue placeholder="Select type" />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="border-none shadow-2xl bg-popover/95 backdrop-blur-xl rounded-xl">
+                                                        <SelectItem value="vod" className="rounded-lg focus:bg-primary/5 cursor-pointer">Video on demand</SelectItem>
+                                                        <SelectItem value="live" className="rounded-lg focus:bg-primary/5 cursor-pointer">Live</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                <FieldError errors={[fieldState.error]} className="text-[10px] font-medium text-destructive ml-1" />
+                                            </Field>
+                                        )}
+                                    />
+
+                                    <Controller
+                                        control={control}
+                                        name="isFree"
+                                        render={({ field }) => (
+                                            <Field className="space-y-2">
+                                                <FieldLabel htmlFor="isFree" className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">
+                                                    Free Course
+                                                </FieldLabel>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <input
+                                                        id="isFree"
+                                                        type="checkbox"
+                                                        checked={!!field.value}
+                                                        onChange={(e) => field.onChange(e.target.checked)}
+                                                        className="h-4 w-4 rounded border-border/60"
+                                                    />
+                                                    <span className="text-xs text-muted-foreground">
+                                                        Mark as free (price can still be shown as 0)
+                                                    </span>
+                                                </div>
+                                            </Field>
+                                        )}
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <Controller
+                                        control={control}
+                                        name="discountPrice"
+                                        render={({ field, fieldState }) => (
+                                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                                <FieldLabel htmlFor={field.name} className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">
+                                                    Discount Price (USD)
+                                                </FieldLabel>
+                                                <Input
+                                                    id={field.name}
+                                                    type="number"
+                                                    {...field}
+                                                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                                    placeholder="0.00"
+                                                    className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all"
+                                                    aria-invalid={fieldState.invalid}
+                                                />
+                                                <FieldError errors={[fieldState.error]} className="text-[10px] font-medium text-destructive ml-1" />
+                                            </Field>
+                                        )}
+                                    />
+
+                                    <Controller
+                                        control={control}
+                                        name="durationWeeks"
+                                        render={({ field, fieldState }) => (
+                                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                                <FieldLabel htmlFor={field.name} className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">
+                                                    Duration (weeks)
+                                                </FieldLabel>
+                                                <Input
+                                                    id={field.name}
+                                                    type="number"
+                                                    {...field}
+                                                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                                    placeholder="e.g. 8"
+                                                    className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all"
+                                                    aria-invalid={fieldState.invalid}
+                                                />
+                                                <FieldError errors={[fieldState.error]} className="text-[10px] font-medium text-destructive ml-1" />
+                                            </Field>
+                                        )}
+                                    />
+                                </div>
+
+                                <Separator className="bg-border/40" />
+
+                                <div className="space-y-4">
+                                    <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                                        <Layers className="h-4 w-4 text-primary" />
+                                        Curriculum Metadata
+                                    </h3>
+
+                                    <Controller
+                                        control={control}
+                                        name="tags"
+                                        render={({ field }) => (
+                                            <Field className="space-y-2">
+                                                <FieldLabel htmlFor="tags" className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">
+                                                    Tags
+                                                </FieldLabel>
+                                                <Input
+                                                    id="tags"
+                                                    value={(field.value || []).join(', ')}
+                                                    onChange={(e) =>
+                                                        field.onChange(
+                                                            e.target.value
+                                                                .split(',')
+                                                                .map((t) => t.trim())
+                                                                .filter(Boolean),
+                                                        )
+                                                    }
+                                                    placeholder="e.g. jlpt, grammar, beginner"
+                                                    className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all"
+                                                />
+                                            </Field>
+                                        )}
+                                    />
+
+                                    <Controller
+                                        control={control}
+                                        name="learningOutcomes"
+                                        render={({ field }) => (
+                                            <Field className="space-y-2">
+                                                <FieldLabel htmlFor="learningOutcomes" className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">
+                                                    Learning Outcomes
+                                                </FieldLabel>
+                                                <Textarea
+                                                    id="learningOutcomes"
+                                                    value={Array.isArray(field.value) ? field.value.join('\n') : ''}
+                                                    onChange={(e) =>
+                                                        field.onChange(
+                                                            e.target.value
+                                                                .split('\n')
+                                                                .map((line) => line.trim())
+                                                                .filter(Boolean),
+                                                        )
+                                                    }
+                                                    placeholder="One outcome per line"
+                                                    rows={4}
+                                                    className="border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all resize-none"
+                                                />
+                                            </Field>
+                                        )}
+                                    />
+
+                                    <Controller
+                                        control={control}
+                                        name="requirements"
+                                        render={({ field }) => (
+                                            <Field className="space-y-2">
+                                                <FieldLabel htmlFor="requirements" className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">
+                                                    Requirements / Prerequisites
+                                                </FieldLabel>
+                                                <Textarea
+                                                    id="requirements"
+                                                    value={Array.isArray(field.value) ? field.value.join('\n') : ''}
+                                                    onChange={(e) =>
+                                                        field.onChange(
+                                                            e.target.value
+                                                                .split('\n')
+                                                                .map((line) => line.trim())
+                                                                .filter(Boolean),
+                                                        )
+                                                    }
+                                                    placeholder="One requirement per line"
+                                                    rows={4}
+                                                    className="border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all resize-none"
+                                                />
+                                            </Field>
+                                        )}
+                                    />
+                                </div>
+
+                                <Separator className="bg-border/40" />
+
+                                {/* Media Upload */}
+                                <div className="space-y-4">
+                                    <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                                        <ImageIcon className="h-4 w-4 text-primary" />
+                                        Media
+                                    </h3>
+
+                                    <Field className="space-y-2">
+                                        <FieldLabel htmlFor="thumbnail-upload" className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Thumbnail</FieldLabel>
+                                        <Input
+                                            id="thumbnail-upload"
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)}
+                                            className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all p-2.5 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                                        />
+                                        {course.thumbnailUrl && !thumbnailFile && (
+                                            <div className="mt-2 rounded-xl overflow-hidden border border-border/40 bg-muted/30 aspect-video relative shadow-sm max-w-xs">
+                                                <img src={course.thumbnailUrl} alt={course.title} className="object-cover w-full h-full" />
+                                            </div>
+                                        )}
+                                    </Field>
+
+                                    <Field className="space-y-2">
+                                        <FieldLabel htmlFor="video-upload" className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Preview Video</FieldLabel>
+                                        <Input
+                                            id="video-upload"
+                                            type="file"
+                                            accept="video/*"
+                                            onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+                                            className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all p-2.5 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                                        />
+                                        {course.previewVideoUrl && !videoFile && (
+                                            <p className="text-xs text-muted-foreground ml-1">Current video uploaded</p>
+                                        )}
+                                    </Field>
+                                </div>
+
+                                {/* AI & Metadata */}
+                                <div className="space-y-4 pt-4 border-t border-border/40">
+                                    <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/70 flex items-center gap-2">
+                                        <Sparkles className="h-3 w-3 text-primary" />
+                                        AI & Data
+                                    </h3>
+
+                                    <Field>
+                                        <FieldLabel htmlFor="aiSummary" className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">
+                                            AI Summary
+                                        </FieldLabel>
+                                        <Textarea
+                                            id="aiSummary"
+                                            {...register('aiMetadata.summary')}
+                                            placeholder="Summary for AI agents (optional)"
+                                            rows={3}
+                                            className="border-none bg-muted/30 hover:bg-muted/50 focus:ring-1 focus:ring-primary/20 rounded-xl transition-all resize-none"
+                                        />
+                                        <p className="text-[10px] text-muted-foreground ml-1 mt-1">
+                                            Used by AI agents to understand the course content without processing all lessons.
+                                        </p>
+                                    </Field>
+
+                                    <Field>
+                                        <FieldLabel htmlFor="aiKeywords" className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">
+                                            Keywords / Tags
+                                        </FieldLabel>
+                                        <Input
+                                            id="aiKeywords"
+                                            {...register('aiMetadata.keywords')}
+                                            placeholder="e.g. jlpt, grammar, n5, beginner (comma separated)"
+                                            className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus:ring-1 focus:ring-primary/20 rounded-xl transition-all"
+                                        />
+                                    </Field>
+                                </div>
+                            </div>
+                        </div>
+                    </ScrollArea>
+
+                    <SheetFooter className="flex-shrink-0 p-6 border-t border-border/40 bg-muted/5 backdrop-blur-sm flex-row gap-3">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleManageCurriculum}
+                            className="flex-1 gap-2 rounded-xl h-11 border-border/50"
+                        >
+                            <Layers className="h-4 w-4" />
+                            Manage Curriculum
+                        </Button>
+                        <Button
+                            type="submit"
+                            disabled={uploading || (!isDirty && !thumbnailFile && !videoFile)}
+                            className="flex-1 gap-2 shadow-lg hover:shadow-xl transition-all rounded-xl h-11 font-medium"
+                        >
+                            {uploading ? (
+                                <>Saving...</>
+                            ) : (
+                                <>
+                                    <Save className="h-4 w-4" />
+                                    Save Changes
+                                </>
+                            )}
+                        </Button>
+                    </SheetFooter>
+                </form>
+            </SheetContent>
+        </Sheet>
+    );
+}

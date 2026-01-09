@@ -22,12 +22,12 @@ export class SessionService implements ISessionService {
         userId: string,
         metadata: { ipAddress?: string; userAgent?: string } = {}
     ): Promise<string> {
-        const tokenId = randomUUID();
+        const sid = randomUUID();
 
         // Generate JWT
         const refreshToken = await this.jwtProvider.generateRefreshToken({
             sub: userId,
-            tokenId,
+            sid,
         });
 
         // Hash token for storage
@@ -80,19 +80,19 @@ export class SessionService implements ISessionService {
             });
 
             if (!storedSession) {
-                this.logger.warn(`Session not found in database: ${payload.tokenId}`);
+                this.logger.warn(`Session not found in database: ${payload.sid}`);
                 return null;
             }
 
             // 3. Check if revoked
             if (storedSession.revokedAt) {
-                this.logger.warn(`Attempted use of revoked session: ${payload.tokenId}`);
+                this.logger.warn(`Attempted use of revoked session: ${payload.sid}`);
                 return null;
             }
 
             // 4. Check if expired (double-check in case JWT verification passed)
             if (storedSession.expiresAt < new Date()) {
-                this.logger.warn(`Session expired: ${payload.tokenId}`);
+                this.logger.warn(`Session expired: ${payload.sid}`);
                 return null;
             }
 

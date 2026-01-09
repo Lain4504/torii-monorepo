@@ -28,6 +28,9 @@ export function ModeToggle() {
                 <DropdownMenuItem onClick={() => setTheme("dark")} className="rounded-xl cursor-pointer">
                     Dark
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme("system")} className="rounded-xl cursor-pointer">
+                    System
+                </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
     )

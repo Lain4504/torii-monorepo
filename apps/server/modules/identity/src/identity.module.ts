@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_FILTER } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { SharedModule } from '@server/shared';
 
@@ -18,6 +19,9 @@ import { AuthorizationController } from './controllers/authorization.controller'
 import { AuditLogController } from './controllers/audit-log.controller';
 import { TwoFactorAuthController } from './controllers/two-factor-auth.controller';
 import { EMAIL_SERVICE_TOKEN } from './interfaces/services';
+
+// Filters
+import { IdentityHttpExceptionFilter } from './filters/http-exception.filter';
 
 @Module({
   imports: [
@@ -41,7 +45,13 @@ import { EMAIL_SERVICE_TOKEN } from './interfaces/services';
     AuditLogController,
     TwoFactorAuthController
   ],
-  providers: [],
+  providers: [
+    // Global exception filter for Identity module
+    {
+      provide: APP_FILTER,
+      useClass: IdentityHttpExceptionFilter,
+    },
+  ],
   exports: [
     AuthModule,
     UsersModule,

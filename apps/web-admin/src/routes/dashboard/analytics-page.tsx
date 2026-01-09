@@ -9,7 +9,7 @@ export default function AnalyticsPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <Card className="zen-card col-span-2">
+        <Card className="border border-border shadow-sm bg-card backdrop-blur-sm hover:bg-card hover:shadow-md transition-all duration-300 rounded-xl col-span-2">
           <CardHeader>
             <CardTitle>Platform Traffic</CardTitle>
             <CardDescription>Daily active users over the last 30 days</CardDescription>

@@ -15,7 +15,8 @@ export const lessonSchema = z.object({
     videoUrl: z.string().optional(),
     videoDuration: z.number().optional(),
     articleContent: z.string().optional(),
-    order: z.number().optional(),
+    aiMetadata: z.record(z.any()).default({}), // JSONB
+    orderIndex: z.number().default(0),
     isPreview: z.boolean().default(false),
     isUnlocked: z.boolean().default(false),
     createdBy: z.string().uuid().optional(),

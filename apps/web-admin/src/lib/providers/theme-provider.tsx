@@ -1,7 +1,7 @@
-import { createContext, useContext, type ReactNode } from "react"
-import { useDarkMode } from "@workspace/ui/hooks/use-dark-mode"
+import { createContext, useContext, useEffect, type ReactNode } from "react"
+import { useTernaryDarkMode, type TernaryDarkMode } from "@workspace/ui/hooks/use-ternary-dark-mode"
 
-type Theme = "dark" | "light"
+type Theme = TernaryDarkMode
 
 type ThemeProviderProps = {
     children: ReactNode
@@ -16,7 +16,7 @@ type ThemeProviderState = {
 }
 
 const initialState: ThemeProviderState = {
-    theme: "dark",
+    theme: "system",
     setTheme: () => null,
     toggleTheme: () => null,
 }
@@ -25,19 +25,33 @@ const ThemeProviderContext = createContext<ThemeProviderState>(initialState)
 
 export function ThemeProvider({
     children,
+    defaultTheme = "system",
     storageKey = "vite-ui-theme",
 }: ThemeProviderProps) {
-    const { isDarkMode, set, toggle } = useDarkMode({
+    const {
+        isDarkMode,
+        ternaryDarkMode,
+        setTernaryDarkMode,
+        toggleTernaryDarkMode,
+    } = useTernaryDarkMode({
+        defaultValue: defaultTheme,
         localStorageKey: storageKey,
         initializeWithValue: true,
     })
 
-    const theme: Theme = isDarkMode ? "dark" : "light"
+    useEffect(() => {
+        const root = window.document.documentElement
+        root.classList.remove("light", "dark")
+
+        if (isDarkMode) {
+            root.classList.add("dark")
+        }
+    }, [isDarkMode])
 
     const value = {
-        theme,
-        setTheme: (newTheme: Theme) => set(newTheme === "dark"),
-        toggleTheme: toggle,
+        theme: ternaryDarkMode,
+        setTheme: setTernaryDarkMode,
+        toggleTheme: toggleTernaryDarkMode,
     }
 
     return (

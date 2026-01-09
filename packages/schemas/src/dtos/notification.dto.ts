@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { NotificationType } from '../models/notification.model';
-import { paginatedResponseSchema } from './common.dto';
 
 export const notificationResponseDTOSchema = z.object({
     id: z.string().uuid(),
@@ -62,6 +61,3 @@ export const notificationUnreadCountResponseDTOSchema = z.object({
 
 export type NotificationUnreadCountResponseDTO = z.infer<typeof notificationUnreadCountResponseDTOSchema>;
 
-export const notificationPaginatedResponseSchema = paginatedResponseSchema(notificationResponseDTOSchema);
-
-export type NotificationPaginatedResponse = z.infer<typeof notificationPaginatedResponseSchema>;

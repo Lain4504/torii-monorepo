@@ -162,7 +162,7 @@ export function Header() {
                                                     <span>Bảng điều khiển</span>
                                                 </Link>
                                                 <Link
-                                                    href="/settings"
+                                                    href="/dashboard/settings"
                                                     className="flex items-center gap-3 px-4 py-2 text-sm text-popover-foreground hover:bg-accent transition-colors cursor-pointer"
                                                     onClick={() => setUserMenuOpen(false)}
                                                 >
@@ -239,7 +239,7 @@ export function Header() {
                                         <span className="font-medium">Bảng điều khiển</span>
                                     </Link>
                                     <Link
-                                        href="/settings"
+                                        href="/dashboard/settings"
                                         className="flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-colors cursor-pointer"
                                         onClick={() => setMobileMenuOpen(false)}
                                     >

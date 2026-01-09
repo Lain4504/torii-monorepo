@@ -11,28 +11,36 @@ export enum JlptLevel {
 export enum CourseStatus {
     DRAFT = 'draft',
     PUBLISHED = 'published',
-    ARCHIVED = 'archived',
+}
+
+/**
+ * Helper function to derive course status from approvedBy and approvedAt
+ */
+export function deriveCourseStatus(approvedBy: string | null | undefined, approvedAt: Date | null | undefined): CourseStatus {
+    return (approvedBy && approvedAt) ? CourseStatus.PUBLISHED : CourseStatus.DRAFT;
 }
 
 export const courseSchema = z.object({
     id: z.string().uuid(),
     title: z.string().min(1),
     slug: z.string(),
+    type: z.enum(['vod', 'live']).default('vod'),
     description: z.string().optional(),
     shortDescription: z.string().optional(),
     jlptLevel: z.nativeEnum(JlptLevel),
+    aiMetadata: z.record(z.any()).default({}), // JSONB
     thumbnailUrl: z.string().optional(),
     previewVideoUrl: z.string().optional(),
     price: z.number().min(0),
     discountPrice: z.number().min(0).optional(),
+    liveConfig: z.record(z.any()).optional().nullable(), // JSONB
     durationWeeks: z.number().min(0).optional(),
     totalLessons: z.number().default(0),
     totalQuizzes: z.number().default(0),
     totalStudents: z.number().default(0),
     averageRating: z.number().default(0),
     totalReviews: z.number().default(0),
-    status: z.nativeEnum(CourseStatus),
-    featured: z.boolean().default(false),
+    status: z.nativeEnum(CourseStatus), // Computed field derived from approvedBy/approvedAt
     isFree: z.boolean().default(false),
     tags: z.array(z.string()).optional(),
     learningOutcomes: z.any().optional(), // JSONB

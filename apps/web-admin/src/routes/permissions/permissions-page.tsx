@@ -121,7 +121,7 @@ export function PermissionsPage() {
                                 <SelectItem key={role.code} value={role.code} className="rounded-lg focus:bg-primary/5">
                                     <div className="flex flex-col">
                                         <span className="font-medium">{role.name}</span>
-                                        <span className="text-[10px] zen-text-muted">
+                                        <span className="text-[10px] text-muted-foreground">
                                             {role.description}
                                         </span>
                                     </div>
@@ -155,7 +155,7 @@ export function PermissionsPage() {
             {rolePermsLoading && (
                 <div className="space-y-6">
                     {Array.from({ length: 2 }).map((_, i) => (
-                        <div key={i} className="zen-card rounded-2xl p-8 space-y-6">
+                        <div key={i} className="border border-border shadow-sm bg-card backdrop-blur-sm hover:bg-card hover:shadow-md transition-all duration-300 rounded-xl rounded-2xl p-8 space-y-6">
                             <Skeleton className="h-6 w-32 bg-muted/50" />
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 {Array.from({ length: 6 }).map((_, j) => (
@@ -171,10 +171,10 @@ export function PermissionsPage() {
             {!rolePermsLoading && permissions && (
                 <div className="space-y-8">
                     {Object.entries(permissions.byCategory).map(([category, perms]) => (
-                        <div key={category} className="zen-card rounded-2xl p-8">
+                        <div key={category} className="border border-border shadow-sm bg-card backdrop-blur-sm hover:bg-card hover:shadow-md transition-all duration-300 rounded-xl rounded-2xl p-8">
                             <div className="mb-8">
                                 <h3 className="text-xl font-bold text-foreground/90">{category}</h3>
-                                <p className="text-xs zen-text-muted mt-1">
+                                <p className="text-xs text-muted-foreground mt-1">
                                     {perms.length} permission{perms.length !== 1 ? 's' : ''} available in this category
                                 </p>
                             </div>

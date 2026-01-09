@@ -42,6 +42,18 @@ export const coursesApi = {
         const response = await apiClient.patch<CourseResponseDTO>(`/api/courses/${id}/restore`);
         return response.data;
     },
+
+    // POST /api/courses/:id/publish
+    async publish(id: string): Promise<CourseResponseDTO> {
+        const response = await apiClient.post<CourseResponseDTO>(`/api/courses/${id}/publish`);
+        return response.data;
+    },
+
+    // POST /api/courses/:id/unpublish
+    async unpublish(id: string): Promise<CourseResponseDTO> {
+        const response = await apiClient.post<CourseResponseDTO>(`/api/courses/${id}/unpublish`);
+        return response.data;
+    },
 };
 
 // ============================================================================
@@ -123,6 +135,36 @@ export function useRestoreCourse() {
     return useMutation({
         mutationFn: (id: string) => coursesApi.restore(id),
         onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['courses'] });
+        },
+    });
+}
+
+/**
+ * Hook: Publish course
+ */
+export function usePublishCourse() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (id: string) => coursesApi.publish(id),
+        onSuccess: (_, id) => {
+            queryClient.invalidateQueries({ queryKey: ['courses', id] });
+            queryClient.invalidateQueries({ queryKey: ['courses'] });
+        },
+    });
+}
+
+/**
+ * Hook: Unpublish course
+ */
+export function useUnpublishCourse() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (id: string) => coursesApi.unpublish(id),
+        onSuccess: (_, id) => {
+            queryClient.invalidateQueries({ queryKey: ['courses', id] });
             queryClient.invalidateQueries({ queryKey: ['courses'] });
         },
     });

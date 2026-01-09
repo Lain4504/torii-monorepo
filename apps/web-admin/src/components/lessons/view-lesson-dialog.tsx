@@ -42,7 +42,7 @@ export function ViewLessonDialog({ open, onOpenChange, lesson }: ViewLessonDialo
 
                         <div className="space-y-2">
                             <Label>Order</Label>
-                            <p className="text-sm">{lesson.order}</p>
+                            <p className="text-sm">{lesson.orderIndex}</p>
                         </div>
                     </div>
 

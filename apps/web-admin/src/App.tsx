@@ -12,19 +12,20 @@ import DashboardPage from '@/routes/dashboard/dashboard-page.tsx'
 import AnalyticsPage from '@/routes/dashboard/analytics-page.tsx'
 import { UsersPage } from '@/routes/users/users-page.tsx'
 import CoursesPage from '@/routes/courses/courses-page.tsx'
-import ModulesPage from '@/routes/modules/modules-page.tsx'
-import LessonsPage from '@/routes/lessons/lessons-page.tsx'
-import { QuestionBankPage } from '@/routes/question-bank/question-bank-page.tsx'
+import CourseDetailPage from '@/routes/courses/course-detail-page.tsx'
+
 import RoomsPage from '@/routes/rooms/rooms-page.tsx'
 import PaymentsPage from '@/routes/finance/payments-page.tsx'
 import AIServicePage from '@/routes/ai/ai-service-page.tsx'
 import NotificationsPage from '@/routes/settings/notifications-page.tsx'
 import SettingsPage from '@/routes/settings/settings-page.tsx'
 import { BlogPage } from '@/routes/blog/blog-page.tsx'
+import QuestionsPage from '@/routes/questions/questions-page.tsx'
+import QuestionPoolsPage from '@/routes/question-pools/question-pools-page.tsx'
 
 import LoginPage from '@/routes/auth/login-page.tsx'
-import {AuditLogsPage} from "@/routes/audit/audit-logs-page.tsx";
-import {PermissionsPage} from "@/routes/permissions/permissions-page.tsx";
+import { AuditLogsPage } from "@/routes/audit/audit-logs-page.tsx";
+import { PermissionsPage } from "@/routes/permissions/permissions-page.tsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -51,11 +52,12 @@ function App() {
                 <Route index element={<DashboardPage />} />
                 <Route path="users" element={<UsersPage />} />
                 <Route path="courses" element={<CoursesPage />} />
-                <Route path="modules" element={<ModulesPage />} />
-                <Route path="lessons" element={<LessonsPage />} />
-                <Route path="question-bank" element={<QuestionBankPage />} />
+                <Route path="courses/:id" element={<CourseDetailPage />} />
+
                 <Route path="rooms" element={<RoomsPage />} />
                 <Route path="blogs" element={<BlogPage />} />
+                <Route path="questions" element={<QuestionsPage />} />
+                <Route path="question-pools" element={<QuestionPoolsPage />} />
                 <Route path="payments" element={<PaymentsPage />} />
                 <Route path="analytics" element={<AnalyticsPage />} />
                 <Route path="ai-service" element={<AIServicePage />} />
@@ -66,7 +68,7 @@ function App() {
               </Route>
             </Routes>
           </BrowserRouter>
-          <Toaster richColors position="top-right" />
+          <Toaster position="top-right" />
         </QueryClientProvider>
       </ThemeProvider>
     </ReduxProvider>

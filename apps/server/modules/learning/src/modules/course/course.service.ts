@@ -1,51 +1,68 @@
-import { Injectable, Logger, Inject } from '@nestjs/common';
-import { RpcException } from '@nestjs/microservices';
+import { Injectable, Logger, Inject, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { PrismaService, generateSlug } from '@server/shared';
-import { Course } from '@prisma/generated';
+import { generateSlug } from '@server/shared';
+import type { Course } from '@prisma/generated';
 import { validate as uuidValidate } from 'uuid';
 
-import {
-  type CourseCreateDTO,
-  type CourseUpdateDTO,
-  type CourseQueryDTO,
-  type CourseResponseDTO,
-  type PaginatedResponseDTO,
-  CourseStatus,
+import { UserRole, CourseStatus } from '@workspace/schemas';
+import type {
+  CourseCreateDTO,
+  CourseUpdateDTO,
+  CourseResponseDTO,
+  PaginationOptionsDTO,
+  PaginatedResponseDTO,
+  Requester,
 } from '@workspace/schemas';
 
+import type { ICourseService } from '../../interfaces/services';
+import type { ICourseRepository, IModuleRepository, ILessonRepository } from '../../interfaces/repositories';
+import { COURSE_REPOSITORY_TOKEN, MODULE_REPOSITORY_TOKEN, LESSON_REPOSITORY_TOKEN } from '../../interfaces/repositories';
+
+/**
+ * Course Service
+ * Handles course business logic operations
+ */
 @Injectable()
-export class CourseService {
+export class CourseService implements ICourseService {
   private readonly logger = new Logger(CourseService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
-    @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
+    @Inject(COURSE_REPOSITORY_TOKEN)
+    private readonly courseRepository: ICourseRepository,
+    @Inject(MODULE_REPOSITORY_TOKEN)
+    private readonly moduleRepository: IModuleRepository,
+    @Inject(LESSON_REPOSITORY_TOKEN)
+    private readonly lessonRepository: ILessonRepository,
+    @Inject('NATS_SERVICE')
+    private readonly natsClient: ClientProxy,
   ) { }
 
   /**
-   * Map Course entity to CourseResponseDto
+   * Map Course entity to CourseResponseDTO
    */
-  private toCourseResponseDto(course: Course): CourseResponseDTO {
+  private toCourseResponseDTO(course: Course): CourseResponseDTO {
     return {
       id: course.id,
       title: course.title,
       slug: course.slug,
+      type: course.type as 'vod' | 'live',
       description: course.description || undefined,
       shortDescription: course.shortDescription || undefined,
       jlptLevel: course.jlptLevel as any,
+      aiMetadata: (course.aiMetadata as any) || undefined,
       thumbnailUrl: course.thumbnailUrl || undefined,
       previewVideoUrl: course.previewVideoUrl || undefined,
       price: Number(course.price),
       discountPrice: course.discountPrice ? Number(course.discountPrice) : undefined,
+      liveConfig: (course.liveConfig as any) || undefined,
       durationWeeks: course.durationWeeks || undefined,
       totalLessons: course.totalLessons,
       totalQuizzes: course.totalQuizzes,
       totalStudents: course.totalStudents,
       averageRating: Number(course.averageRating),
       totalReviews: course.totalReviews,
-      status: course.status as any,
-      featured: course.featured,
+      status: (course as any).status as CourseStatus,
+
       isFree: course.isFree,
       tags: course.tags,
       learningOutcomes: course.learningOutcomes || undefined,
@@ -62,16 +79,14 @@ export class CourseService {
   /**
    * Ensure unique slug by appending date and timestamp if needed
    */
-  private async ensureUniqueSlug(baseSlug: string): Promise<string> {
+  private async ensureUniqueSlug(baseSlug: string, excludeId?: string): Promise<string> {
     const today = new Date();
     const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
     let slug = `${baseSlug}-${dateStr}`;
 
-    const existing = await this.prisma.course.findUnique({
-      where: { slug },
-    });
+    const exists = await this.courseRepository.slugExists(slug, excludeId);
 
-    if (!existing) {
+    if (!exists) {
       return slug;
     }
 
@@ -80,104 +95,334 @@ export class CourseService {
     return `${baseSlug}-${dateStr}-${timestamp}`;
   }
 
-  async findAll(
-    query: CourseQueryDTO,
-  ): Promise<PaginatedResponseDTO<CourseResponseDTO>> {
+  async findAll(options: PaginationOptionsDTO & { status?: CourseStatus; jlptLevel?: string }): Promise<PaginatedResponseDTO<CourseResponseDTO>> {
     try {
-      const { page, limit, jlptLevel, status, search, featured } = query;
+      const { page = 1, limit = 10, search, status, jlptLevel } = options;
+      const skip = (page - 1) * limit;
 
-      this.logger.log(`findAll called with query: ${JSON.stringify(query)}`);
-
-      // Parse pagination params to numbers (query params are strings)
-      const pageNum = parseInt(String(page || 1), 10);
-      const limitNum = parseInt(String(limit || 10), 10);
-      const skip = (pageNum - 1) * limitNum;
-
-      const whereClause: Record<string, any> = {
-        deletedAt: null, // Exclude soft-deleted courses
+      const where: any = {
+        deletedAt: null,
       };
 
-      if (jlptLevel) {
-        whereClause.jlptLevel = jlptLevel;
-      }
-
+      // Filter by status column
       if (status) {
-        whereClause.status = status;
+        if (status === CourseStatus.PUBLISHED) {
+          where.status = 'published';
+        } else if (status === CourseStatus.DRAFT) {
+          where.status = 'draft';
+        }
       }
 
-      if (featured !== undefined) {
-        whereClause.featured = featured;
+      // Filter by JLPT level
+      if (jlptLevel) {
+        where.jlptLevel = jlptLevel;
       }
 
       if (search) {
-        whereClause.OR = [
+        const searchConditions = [
           { title: { contains: search, mode: 'insensitive' } },
           { description: { contains: search, mode: 'insensitive' } },
           { shortDescription: { contains: search, mode: 'insensitive' } },
         ];
+
+        where.OR = searchConditions;
       }
 
-      this.logger.log(`Where clause: ${JSON.stringify(whereClause)}`);
-
       const [total, courses] = await Promise.all([
-        this.prisma.course.count({ where: whereClause }),
-        this.prisma.course.findMany({
-          take: limitNum,
-          skip: skip,
-          where: whereClause,
+        this.courseRepository.count(where),
+        this.courseRepository.findMany({
+          skip,
+          take: limit,
+          where,
           orderBy: { createdAt: 'desc' },
         }),
       ]);
 
-      this.logger.log(`Found ${total} total courses, returning ${courses.length} courses`);
-
-      const totalPages = Math.ceil(total / limitNum);
+      const totalPages = Math.ceil(total / limit);
 
       return {
-        data: courses.map(course => this.toCourseResponseDto(course)),
+        data: courses.map(course => this.toCourseResponseDTO(course)),
         total,
-        page: pageNum,
-        limit: limitNum,
+        page,
+        limit,
         totalPages,
       };
     } catch (error: any) {
       this.logger.error('Failed to retrieve courses', error);
-      this.logger.error(`Error stack: ${error?.stack}`);
-      this.logger.error(`Error message: ${error?.message}`);
-      const pageNum = parseInt(String(query.page), 10) || 1;
-      const limitNum = parseInt(String(query.limit), 10) || 10;
-      return {
-        data: [],
-        total: 0,
-        page: pageNum,
-        limit: limitNum,
-        totalPages: 0,
-      };
+      throw new BadRequestException('Failed to retrieve courses');
     }
   }
 
-  async findOne(id: string): Promise<CourseResponseDTO | null> {
-    const course = await this.prisma.course.findFirst({
-      where: {
-        id,
-        deletedAt: null, // Exclude soft-deleted courses
-      },
-    });
+  /**
+   * Find one course by ID
+   */
+  async findOne(courseId: string): Promise<CourseResponseDTO> {
+    const course = await this.courseRepository.findById(courseId);
 
-    return course ? this.toCourseResponseDto(course) : null;
+    if (!course || course.deletedAt) {
+      throw new NotFoundException(`Course with id ${courseId} not found`);
+    }
+
+    return this.toCourseResponseDTO(course);
   }
 
-  async findBySlug(slug: string): Promise<CourseResponseDTO | null> {
-    const course = await this.prisma.course.findFirst({
-      where: {
+  /**
+   * Find course by slug
+   */
+  async findBySlug(slug: string): Promise<CourseResponseDTO> {
+    const course = await this.courseRepository.findBySlug(slug);
+
+    if (!course || course.deletedAt) {
+      throw new NotFoundException(`Course with slug ${slug} not found`);
+    }
+
+    return this.toCourseResponseDTO(course);
+  }
+
+  /**
+   * Create a new course
+   */
+  async create(requester: Requester, dto: CourseCreateDTO): Promise<CourseResponseDTO> {
+    // Check permissions (only ADMIN and LECTURER can create courses)
+    if (![UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
+      throw new ForbiddenException('Only admins and lecturers can create courses');
+    }
+
+    try {
+      // Generate unique slug
+      const baseSlug = generateSlug(dto.title);
+      const slug = await this.ensureUniqueSlug(baseSlug);
+
+      const data: any = {
+        title: dto.title,
         slug,
-        deletedAt: null, // Exclude soft-deleted courses
-      },
-    });
+        type: dto.type || 'vod',
+        description: dto.description || null,
+        shortDescription: dto.shortDescription || null,
+        jlptLevel: dto.jlptLevel || null,
+        aiMetadata: dto.aiMetadata || {},
+        thumbnailUrl: dto.thumbnailUrl || null,
+        previewVideoUrl: dto.previewVideoUrl || null,
+        price: dto.price ?? 0,
+        discountPrice: dto.discountPrice || null,
+        liveConfig: dto.liveConfig || null,
+        durationWeeks: dto.durationWeeks || null,
+        isFree: dto.isFree ?? false,
+        tags: dto.tags || [],
+        learningOutcomes: dto.learningOutcomes || [],
+        requirements: dto.requirements || [],
+        createdBy: requester.sub,
+        status: 'draft',
+      };
 
-    return course ? this.toCourseResponseDto(course) : null;
+      const course = await this.courseRepository.create(data);
+      return this.toCourseResponseDTO(course);
+    } catch (error: any) {
+      this.logger.error('Error creating course', error);
+      throw new BadRequestException(`Failed to create course: ${error?.message || 'Unknown error'}`);
+    }
   }
 
+  /**
+   * Update course
+   */
+  async update(requester: Requester, courseId: string, dto: CourseUpdateDTO): Promise<CourseResponseDTO> {
+    // Check permissions
+    if (![UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
+      throw new ForbiddenException('Only admins and lecturers can update courses');
+    }
+
+    const existing = await this.courseRepository.findById(courseId);
+
+    if (!existing || existing.deletedAt) {
+      throw new NotFoundException(`Course with id ${courseId} not found`);
+    }
+
+    try {
+      const updateData: any = {};
+
+      // Handle slug update if title changes
+      if (dto.title && dto.title !== existing.title) {
+        const baseSlug = generateSlug(dto.title);
+        updateData.slug = await this.ensureUniqueSlug(baseSlug, courseId);
+        updateData.title = dto.title;
+      }
+
+      // Update other fields
+      if (dto.type !== undefined) updateData.type = dto.type;
+      if (dto.description !== undefined) updateData.description = dto.description;
+      if (dto.shortDescription !== undefined) updateData.shortDescription = dto.shortDescription;
+      if (dto.jlptLevel !== undefined) updateData.jlptLevel = dto.jlptLevel;
+      if (dto.aiMetadata !== undefined) updateData.aiMetadata = dto.aiMetadata;
+      if (dto.thumbnailUrl !== undefined) updateData.thumbnailUrl = dto.thumbnailUrl;
+      if (dto.previewVideoUrl !== undefined) updateData.previewVideoUrl = dto.previewVideoUrl;
+      if (dto.price !== undefined) updateData.price = dto.price;
+      if (dto.discountPrice !== undefined) updateData.discountPrice = dto.discountPrice;
+      if (dto.liveConfig !== undefined) updateData.liveConfig = dto.liveConfig;
+      if (dto.durationWeeks !== undefined) updateData.durationWeeks = dto.durationWeeks;
+      if (dto.isFree !== undefined) updateData.isFree = dto.isFree;
+      if (dto.tags !== undefined) updateData.tags = dto.tags;
+      if (dto.learningOutcomes !== undefined) updateData.learningOutcomes = dto.learningOutcomes;
+      if (dto.requirements !== undefined) updateData.requirements = dto.requirements;
+
+      let isPublishing = false;
+
+      if (dto.approvedBy !== undefined) {
+        // Explicit approval
+        const validApprovedBy = dto.approvedBy && uuidValidate(dto.approvedBy)
+          ? dto.approvedBy
+          : requester.sub;
+        updateData.approvedBy = validApprovedBy;
+        updateData.approvedAt = new Date();
+        updateData.status = 'published';
+        isPublishing = true;
+      }
+
+      if (Object.keys(updateData).length === 0) {
+        return this.toCourseResponseDTO(existing);
+      }
+
+      const course = await this.courseRepository.update(courseId, updateData);
+
+      // Emit event if publishing
+      if (isPublishing) {
+        try {
+          this.logger.log(`Course ${course.id} published, emitting event`);
+          this.natsClient.emit(
+            { cmd: 'course.published' },
+            {
+              courseId: course.id,
+              courseTitle: course.title,
+              courseJlptLevel: course.jlptLevel,
+            },
+          );
+        } catch (error: any) {
+          this.logger.error(`Failed to emit course.published event: ${error?.message}`, error);
+        }
+      }
+
+      return this.toCourseResponseDTO(course);
+    } catch (error: any) {
+      this.logger.error('Error updating course', error);
+      throw new BadRequestException(`Failed to update course: ${error?.message || 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Delete course
+   */
+  async delete(requester: Requester, courseId: string, hardDelete = false): Promise<{ message: string }> {
+    if (requester.role !== UserRole.ADMIN) {
+      throw new ForbiddenException('Only admins can delete courses');
+    }
+
+    const existing = await this.courseRepository.findById(courseId);
+
+    if (!existing || existing.deletedAt) {
+      throw new NotFoundException(`Course with id ${courseId} not found`);
+    }
+
+    try {
+      if (hardDelete) {
+        await this.courseRepository.delete(courseId);
+      }
+      else {
+        await this.courseRepository.softDelete(courseId);
+      }
+
+      return { message: 'Course deleted successfully' };
+    }
+    catch (error: any) {
+      throw new BadRequestException(`Failed to delete course: ${error?.message || 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Get featured courses
+   * Note: Featured functionality removed. Use aiMetadata.featured or tags instead.
+   * This method is kept for backward compatibility but returns empty array.
+   * TODO: Remove this method or implement via aiMetadata/tags filtering
+   */
+  async getFeatured(): Promise<CourseResponseDTO[]> {
+    // Featured courses removed - can be implemented via aiMetadata or tags if needed
+    this.logger.warn('getFeatured() called but featured field is removed. Consider using aiMetadata or tags.');
+    return [];
+  }
+
+  /**
+   * Get courses by type
+   */
+  async getByType(type: 'vod' | 'live'): Promise<CourseResponseDTO[]> {
+    const courses = await this.courseRepository.findByType(type);
+    return courses.map(course => this.toCourseResponseDTO(course));
+  }
+
+  /**
+   * Publish a course (set approvedBy and approvedAt)
+   */
+  async publish(requester: Requester, courseId: string): Promise<CourseResponseDTO> {
+    if (![UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
+      throw new ForbiddenException('Only admins and lecturers can publish courses');
+    }
+
+    const existing = await this.courseRepository.findById(courseId);
+    if (!existing || existing.deletedAt) {
+      throw new NotFoundException(`Course with id ${courseId} not found`);
+    }
+
+    const publishUpdateData: any = {
+      approvedBy: requester.sub,
+      approvedAt: new Date(),
+      status: 'published',
+    };
+
+    const course = await this.courseRepository.update(courseId, publishUpdateData);
+
+    // Emit event
+    try {
+      this.logger.log(`Course ${course.id} published, emitting event`);
+      this.natsClient.emit(
+        { cmd: 'course.published' },
+        {
+          courseId: course.id,
+          courseTitle: course.title,
+          courseJlptLevel: course.jlptLevel,
+        },
+      );
+    } catch (error: any) {
+      this.logger.error(`Failed to emit course.published event: ${error?.message}`, error);
+    }
+
+    return this.toCourseResponseDTO(course);
+  }
+
+  /**
+   * Unpublish a course (clear approvedBy and approvedAt)
+   */
+  async unpublish(requester: Requester, courseId: string): Promise<CourseResponseDTO> {
+    if (![UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
+      throw new ForbiddenException('Only admins and lecturers can unpublish courses');
+    }
+
+    const existing = await this.courseRepository.findById(courseId);
+    if (!existing || existing.deletedAt) {
+      throw new NotFoundException(`Course with id ${courseId} not found`);
+    }
+
+    const unpublishUpdateData: any = {
+      approvedBy: null,
+      approvedAt: null,
+      status: 'draft',
+    };
+
+    const course = await this.courseRepository.update(courseId, unpublishUpdateData);
+
+    return this.toCourseResponseDTO(course);
+  }
+
+  /**
+   * Get course curriculum (modules with lessons)
+   */
   async getCurriculum(courseId: string): Promise<{
     modules: Array<{
       id: string;
@@ -196,369 +441,41 @@ export class CourseService {
       }>;
     }>;
   }> {
-    const modules = await this.prisma.module.findMany({
-      where: {
-        courseId,
-        deletedAt: null,
-      },
-      include: {
-        lessons: {
-          where: {
-            deletedAt: null,
-          },
-          orderBy: {
-            order: 'asc',
-          },
-        },
-      },
-      orderBy: {
-        order: 'asc',
-      },
-    });
+    // Verify course exists
+    const course = await this.courseRepository.findById(courseId);
+    if (!course || course.deletedAt) {
+      throw new NotFoundException(`Course with id ${courseId} not found`);
+    }
 
-    return {
-      modules: modules.map(module => {
-        // Calculate total duration for module from lessons' videoDuration
-        const totalDurationSeconds = module.lessons.reduce((sum, lesson) => {
-          return sum + (lesson.videoDuration || 0);
-        }, 0);
-        const durationMinutes = totalDurationSeconds > 0
-          ? Math.round(totalDurationSeconds / 60)
-          : (module.durationMinutes || undefined);
+    // Get all modules for the course
+    const modules = await this.moduleRepository.findByCourseId(courseId);
+
+    // Get lessons for each module
+    const modulesWithLessons = await Promise.all(
+      modules.map(async (module) => {
+        const lessons = await this.lessonRepository.findByModuleId(module.id);
 
         return {
           id: module.id,
           title: module.title,
           description: module.description || undefined,
-          order: module.order,
-          durationMinutes,
-          lessons: module.lessons.map(lesson => ({
+          order: module.orderIndex,
+          durationMinutes: module.durationMinutes || undefined,
+          lessons: lessons.map((lesson) => ({
             id: lesson.id,
             title: lesson.title,
             contentType: lesson.contentType,
             videoDuration: lesson.videoDuration || undefined,
-            order: lesson.order,
+            order: lesson.orderIndex,
             isPreview: lesson.isPreview,
             isUnlocked: lesson.isUnlocked,
           })),
         };
-      }),
+      })
+    );
+
+    return {
+      modules: modulesWithLessons,
     };
-  }
-
-  async create(input: CourseCreateDTO): Promise<CourseResponseDTO> {
-    try {
-      // Generate slug from title
-      const baseSlug = generateSlug(input.title);
-      const slug = await this.ensureUniqueSlug(baseSlug);
-
-      // Prepare data for creation
-      const data = {
-        title: input.title,
-        slug,
-        description: input.description || null,
-        shortDescription: input.shortDescription || null,
-        jlptLevel: input.jlptLevel,
-        thumbnailUrl: input.thumbnailUrl || null,
-        previewVideoUrl: input.previewVideoUrl || null,
-        price: input.price,
-        discountPrice: input.discountPrice || null,
-        durationWeeks: input.durationWeeks || null,
-        status: input.status || CourseStatus.DRAFT,
-        featured: input.featured ?? false,
-        isFree: input.isFree ?? false,
-        tags: input.tags || [],
-        learningOutcomes: input.learningOutcomes || [],
-        requirements: input.requirements || [],
-        createdBy: input.createdBy || null,
-      };
-
-      const course = await this.prisma.course.create({ data });
-
-      return this.toCourseResponseDto(course);
-    } catch (error: any) {
-      this.logger.error('Error creating course', error);
-      throw new RpcException({
-        status: 400,
-        message: `Failed to create course: ${error?.message || 'Unknown error'}`,
-      });
-    }
-  }
-
-  async update(id: string, input: CourseUpdateDTO): Promise<CourseResponseDTO> {
-    // Check if course exists and not deleted
-    const existing = await this.prisma.course.findFirst({
-      where: {
-        id,
-        deletedAt: null,
-      },
-    });
-
-    if (!existing) {
-      throw new RpcException({
-        status: 404,
-        message: `Course with id ${id} not found`,
-      });
-    }
-
-    try {
-      // If title is being updated, regenerate slug
-      let slug = existing.slug;
-      if (input.title && input.title !== existing.title) {
-        const baseSlug = generateSlug(input.title);
-        slug = await this.ensureUniqueSlug(baseSlug);
-      }
-
-      // Prepare update data - only update fields that are provided AND different from existing values
-      const updateData: Record<string, any> = {};
-
-      // Title: only update if provided and different from existing
-      if (input.title !== undefined && input.title !== existing.title) {
-        updateData.title = input.title;
-        updateData.slug = slug;
-      }
-
-      // Description: only update if provided and different from existing
-      if (input.description !== undefined) {
-        const existingDesc = existing.description || null;
-        const newDesc = input.description || null;
-        if (existingDesc !== newDesc) {
-          updateData.description = input.description;
-        }
-      }
-
-      // ShortDescription: only update if provided and different from existing
-      if (input.shortDescription !== undefined) {
-        const existingShortDesc = existing.shortDescription || null;
-        const newShortDesc = input.shortDescription || null;
-        if (existingShortDesc !== newShortDesc) {
-          updateData.shortDescription = input.shortDescription;
-        }
-      }
-
-      // JlptLevel: only update if provided and different from existing
-      if (input.jlptLevel !== undefined && input.jlptLevel !== existing.jlptLevel) {
-        updateData.jlptLevel = input.jlptLevel;
-      }
-
-      // ThumbnailUrl: only update if provided and different from existing
-      if (input.thumbnailUrl !== undefined) {
-        const existingThumb = existing.thumbnailUrl || null;
-        const newThumb = input.thumbnailUrl || null;
-        if (existingThumb !== newThumb) {
-          updateData.thumbnailUrl = input.thumbnailUrl;
-        }
-      }
-
-      // PreviewVideoUrl: only update if provided and different from existing
-      if (input.previewVideoUrl !== undefined) {
-        const existingPreview = existing.previewVideoUrl || null;
-        const newPreview = input.previewVideoUrl || null;
-        if (existingPreview !== newPreview) {
-          updateData.previewVideoUrl = input.previewVideoUrl;
-        }
-      }
-
-      // Price: only update if provided and different from existing
-      if (input.price !== undefined) {
-        const existingPrice = Number(existing.price);
-        const newPrice = Number(input.price);
-        if (existingPrice !== newPrice) {
-          updateData.price = input.price;
-        }
-      }
-
-      // DiscountPrice: only update if provided and different from existing
-      if (input.discountPrice !== undefined) {
-        const existingDiscount = existing.discountPrice ? Number(existing.discountPrice) : null;
-        const newDiscount = input.discountPrice ? Number(input.discountPrice) : null;
-        if (existingDiscount !== newDiscount) {
-          updateData.discountPrice = input.discountPrice;
-        }
-      }
-
-      // DurationWeeks: only update if provided and different from existing
-      if (input.durationWeeks !== undefined) {
-        const existingDuration = existing.durationWeeks || null;
-        const newDuration = input.durationWeeks || null;
-        if (existingDuration !== newDuration) {
-          updateData.durationWeeks = input.durationWeeks;
-        }
-      }
-
-      // Status: only update if provided and different from existing
-      let isPublishingCourse = false;
-      if (input.status !== undefined && input.status !== existing.status) {
-        updateData.status = input.status;
-
-        // If status is being changed to published, set approvedBy and approvedAt
-        if (input.status === CourseStatus.PUBLISHED) {
-          isPublishingCourse = true;
-          // Only set approvedBy if it's a valid UUID format
-          const validApprovedBy = input.approvedBy &&
-            typeof input.approvedBy === 'string' &&
-            uuidValidate(input.approvedBy.trim())
-            ? input.approvedBy.trim()
-            : null;
-          updateData.approvedBy = validApprovedBy;
-          updateData.approvedAt = validApprovedBy ? new Date() : null;
-        }
-
-        // If status is being changed from published to something else, clear approval
-        if (existing.status === CourseStatus.PUBLISHED && input.status !== CourseStatus.PUBLISHED) {
-          updateData.approvedBy = null;
-          updateData.approvedAt = null;
-        }
-      }
-
-      // Featured: only update if provided and different from existing
-      if (input.featured !== undefined && input.featured !== existing.featured) {
-        updateData.featured = input.featured;
-      }
-
-      // IsFree: only update if provided and different from existing
-      if (input.isFree !== undefined && input.isFree !== existing.isFree) {
-        updateData.isFree = input.isFree;
-      }
-
-      // Tags: only update if provided and different from existing
-      if (input.tags !== undefined) {
-        const existingTags = existing.tags || [];
-        const newTags = input.tags || [];
-        const tagsChanged = existingTags.length !== newTags.length ||
-          existingTags.some((tag, index) => tag !== newTags[index]);
-        if (tagsChanged) {
-          updateData.tags = input.tags;
-        }
-      }
-
-      // LearningOutcomes: only update if provided and different from existing
-      if (input.learningOutcomes !== undefined) {
-        const existingOutcomes = JSON.stringify(existing.learningOutcomes || {});
-        const newOutcomes = JSON.stringify(input.learningOutcomes || {});
-        if (existingOutcomes !== newOutcomes) {
-          updateData.learningOutcomes = input.learningOutcomes;
-        }
-      }
-
-      // Requirements: only update if provided and different from existing
-      if (input.requirements !== undefined) {
-        const existingReqs = JSON.stringify(existing.requirements || {});
-        const newReqs = JSON.stringify(input.requirements || {});
-        if (existingReqs !== newReqs) {
-          updateData.requirements = input.requirements;
-        }
-      }
-
-      // Check if there's anything to update
-      if (Object.keys(updateData).length === 0) {
-        // No changes, return existing course
-        return this.toCourseResponseDto(existing);
-      }
-
-      const course = await this.prisma.course.update({
-        where: { id },
-        data: updateData,
-      });
-
-      // Emit event if course is being published
-      if (isPublishingCourse) {
-        try {
-          this.logger.log(`Course ${course.id} published, emitting course.published event`);
-
-          // For testing: Use MOCK_USER_ID to send notification
-          // In production, this should be replaced with actual interested users (from wishlist, etc.)
-          const MOCK_USER_ID = '5e808603-1e54-4dc9-ae93-f1e347c101ab';
-
-          this.natsClient.emit(
-            { cmd: 'course.published' },
-            {
-              courseId: course.id,
-              courseTitle: course.title,
-              courseJlptLevel: course.jlptLevel,
-              userIds: [MOCK_USER_ID], // Send notification to MOCK_USER_ID for testing
-            },
-          );
-          this.logger.log(`Successfully emitted course.published event for course: ${course.id} with userIds: [${MOCK_USER_ID}]`);
-        } catch (error: any) {
-          // Log error but don't fail the update
-          this.logger.error(`Failed to emit course.published event: ${error?.message}`, error);
-        }
-      }
-
-      return this.toCourseResponseDto(course);
-    } catch (error: any) {
-      this.logger.error('Error updating course', error);
-      throw new RpcException({
-        status: 400,
-        message: `Failed to update course: ${error?.message || 'Unknown error'}`,
-      });
-    }
-  }
-
-  async delete(id: string): Promise<boolean> {
-    const existing = await this.prisma.course.findFirst({
-      where: {
-        id,
-        deletedAt: null,
-      },
-    });
-
-    if (!existing) {
-      throw new RpcException({
-        status: 404,
-        message: `Course with id ${id} not found`,
-      });
-    }
-
-    try {
-      // Soft delete
-      await this.prisma.course.update({
-        where: { id },
-        data: { deletedAt: new Date() },
-      });
-      return true;
-    } catch (error: any) {
-      throw new RpcException({
-        status: 400,
-        message: `Failed to delete course: ${error?.message || 'Unknown error'}`,
-      });
-    }
-  }
-
-  async restore(id: string): Promise<CourseResponseDTO> {
-    // Check if course exists (including soft-deleted ones)
-    const existing = await this.prisma.course.findUnique({
-      where: { id },
-    });
-
-    if (!existing) {
-      throw new RpcException({
-        status: 404,
-        message: `Course with id ${id} not found`,
-      });
-    }
-
-    if (!existing.deletedAt) {
-      throw new RpcException({
-        status: 400,
-        message: `Course with id ${id} is not deleted`,
-      });
-    }
-
-    try {
-      const course = await this.prisma.course.update({
-        where: { id },
-        data: { deletedAt: null },
-      });
-
-      return this.toCourseResponseDto(course);
-    } catch (error: any) {
-      this.logger.error('Error restoring course', error);
-      throw new RpcException({
-        status: 400,
-        message: `Failed to restore course: ${error?.message || 'Unknown error'}`,
-      });
-    }
   }
 }

@@ -1,4 +1,5 @@
 import { useForm, Controller } from 'react-hook-form';
+import { useStep } from "@workspace/ui/hooks/use-step";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -87,7 +88,7 @@ export function CreateUserDialog({
     onOpenChange,
 }: CreateUserDialogProps) {
     const [showStaffVariants, setShowStaffVariants] = useState(false);
-    const [step, setStep] = useState<'details' | 'role'>('details');
+    const [currentStep, { goToNextStep, goToPrevStep, reset }] = useStep(2);
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -110,12 +111,13 @@ export function CreateUserDialog({
             });
             form.reset();
             setShowStaffVariants(false);
-            setStep('details');
+            reset();
             onOpenChange(false);
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('❌ Create user error:', error);
+            const errorMessage = error instanceof Error ? error.message : 'Failed to create user';
             toast.error('Failed to create user', {
-                description: error.response?.data?.error || error.message,
+                description: errorMessage,
             });
         }
     };
@@ -124,7 +126,7 @@ export function CreateUserDialog({
         if (!newOpen) {
             form.reset();
             setShowStaffVariants(false);
-            setStep('details');
+            reset();
         }
         onOpenChange(newOpen);
     };
@@ -132,12 +134,12 @@ export function CreateUserDialog({
     const handleNextToRole = async () => {
         const valid = await form.trigger(['displayName', 'email']);
         if (valid) {
-            setStep('role');
+            goToNextStep();
         }
     };
 
     const handleBackToDetails = () => {
-        setStep('details');
+        goToPrevStep();
         setShowStaffVariants(false);
     };
 
@@ -179,7 +181,7 @@ export function CreateUserDialog({
                                 Create Internal User
                             </DialogTitle>
                             <DialogDescription className="text-sm text-muted-foreground mt-0.5">
-                                {step === 'details'
+                                {currentStep === 1
                                     ? 'Enter user information to send an invitation'
                                     : 'Select the appropriate role and department'}
                             </DialogDescription>
@@ -190,11 +192,11 @@ export function CreateUserDialog({
                     <div className="flex items-center gap-2 mt-4">
                         <div className={cn(
                             "flex-1 h-1 rounded-full transition-all duration-300",
-                            step === 'details' ? "bg-primary" : "bg-primary/30"
+                            currentStep === 1 ? "bg-primary" : "bg-primary/30"
                         )} />
                         <div className={cn(
                             "flex-1 h-1 rounded-full transition-all duration-300",
-                            step === 'role' ? "bg-primary" : "bg-muted"
+                            currentStep === 2 ? "bg-primary" : "bg-muted"
                         )} />
                     </div>
                 </DialogHeader>
@@ -204,7 +206,7 @@ export function CreateUserDialog({
                     className="flex flex-col"
                     onKeyDown={(e) => {
                         if (e.key === 'Enter') {
-                            if (step === 'details') {
+                            if (currentStep === 1) {
                                 e.preventDefault();
                                 if (detailsValid) {
                                     handleNextToRole();
@@ -219,7 +221,7 @@ export function CreateUserDialog({
                 >
                     {/* Content */}
                     <div className="px-6 py-6 min-h-[320px]">
-                        {step === 'details' ? (
+                        {currentStep === 1 ? (
                             // Step 1: Personal Details
                             <div className="space-y-5 animate-in fade-in slide-in-from-left-4 duration-300">
                                 <Controller
@@ -422,7 +424,7 @@ export function CreateUserDialog({
 
                     {/* Footer */}
                     <div className="px-6 py-4 bg-muted/20 border-t border-border/50 flex items-center justify-between gap-3">
-                        {step === 'details' ? (
+                        {currentStep === 1 ? (
                             <>
                                 <Button
                                     type="button"

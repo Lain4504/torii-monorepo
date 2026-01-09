@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import { QuestionJlptLevel } from './question-bank.model';
+import { QuestionJlptLevel } from './question.model';
 
 // Re-export QuestionJlptLevel for convenience
-export { QuestionJlptLevel } from './question-bank.model';
+export { QuestionJlptLevel } from './question.model';
 
 export enum ExamType {
     PRACTICE = 'practice',
@@ -30,12 +30,20 @@ export enum ExamSectionType {
 }
 
 // Section configuration schema
+// Each section must have either questionIds (specific questions) or poolId (select from pool)
 export const examSectionSchema = z.object({
     type: z.nativeEnum(ExamSectionType),
     timeLimit: z.number().min(1), // minutes
     questionCount: z.number().min(1),
-    questionIds: z.array(z.string().uuid()).optional(), // Optional: specific questions, otherwise random
-});
+    questionIds: z.array(z.string().uuid()).optional(), // Specific questions to use (if provided, poolId is ignored)
+    poolId: z.string().uuid().optional(), // Select questions from this pool (required if questionIds not provided)
+}).refine(
+    (data) => (data.questionIds?.length ?? 0) > 0 || !!data.poolId,
+    {
+        message: "Section must have either questionIds or poolId",
+        path: ["questionIds", "poolId"],
+    }
+);
 
 export type ExamSection = z.infer<typeof examSectionSchema>;
 

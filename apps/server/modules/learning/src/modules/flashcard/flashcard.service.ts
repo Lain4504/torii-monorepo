@@ -7,7 +7,7 @@ import type {
     FlashcardUpdateDTO,
     FlashcardQueryDTO,
     FlashcardResponseDTO,
-    FlashcardPaginatedResponse,
+    PaginatedResponseDTO,
     BulkFlashcardOperationsDTO,
     BulkFlashcardOperationsResponseDTO,
 } from "@workspace/schemas";
@@ -129,7 +129,7 @@ export class FlashcardService {
         }
     }
 
-    async getFlashcards(params: FlashcardQueryDTO): Promise<FlashcardPaginatedResponse> {
+    async getFlashcards(params: FlashcardQueryDTO): Promise<PaginatedResponseDTO<FlashcardResponseDTO>> {
         try {
             const { page = 1, limit = 10, deckId } = params;
             const skip = (page - 1) * limit;

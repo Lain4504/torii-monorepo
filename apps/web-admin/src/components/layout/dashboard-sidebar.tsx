@@ -27,6 +27,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui/components/av
 import { Can } from "@/lib/guard/can.tsx"
 import { useAppDispatch, useAppSelector } from "@/hooks/hooks"
 import { logout, selectUser } from "@/store/slices/auth-slice"
+import { useNavigate } from "react-router-dom"
+import { toast } from "@workspace/ui/components/sonner"
 
 import { mainNavItems, managementNavItems, systemNavItems, type NavItem } from "@/config/navigation"
 
@@ -40,10 +42,19 @@ export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: Sid
   const location = useLocation()
   const dispatch = useAppDispatch()
   const user = useAppSelector(selectUser)
+  const navigate = useNavigate()
   const pathname = location.pathname
 
-  const handleLogout = () => {
-    dispatch(logout())
+  const handleLogout = async () => {
+    try {
+      await dispatch(logout()).unwrap()
+      toast.success('Logged out successfully')
+      navigate('/login', { replace: true })
+    } catch (error) {
+      // Even if logout fails, clear local state and redirect
+      toast.error('Failed to logout properly, but you have been signed out locally')
+      navigate('/login', { replace: true })
+    }
   }
 
   const NavGroup = ({ title, items }: { title: string; items: NavItem[] }) => (

@@ -33,9 +33,10 @@ export function DeleteUserDialog({
                 description: `${user.displayName} has been removed from the system.`,
             });
             onOpenChange(false);
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to delete user';
             toast.error('Failed to delete user', {
-                description: error.response?.data?.error || error.message,
+                description: errorMessage,
             });
         }
     };

@@ -1,5 +1,5 @@
 import { Controller, Get, Query, UseGuards, Inject } from '@nestjs/common';
-import { GatewayAuthGuard } from '@server/shared';
+import { GatewayAuthGuard, successResponse, errorResponse } from '@server/shared';
 import type { AuditLogFiltersDTO } from '@workspace/schemas';
 import type { IAuditLogService } from '../interfaces/services';
 import { AUDIT_LOG_SERVICE_TOKEN } from '../interfaces/services';
@@ -34,12 +34,12 @@ export class AuditLogController {
             limit: limit ? parseInt(limit, 10) : 50,
         };
 
-        const result = await this.auditLogService.query(filters);
-
-        return {
-            success: true,
-            data: result,
-        };
+        try {
+            const result = await this.auditLogService.query(filters);
+            return successResponse(result);
+        } catch (error: unknown) {
+            return errorResponse(error instanceof Error ? error.message : 'Failed to fetch audit logs');
+        }
     }
 
     /**
@@ -50,15 +50,15 @@ export class AuditLogController {
         @Query('userId') userId: string,
         @Query('limit') limit?: string,
     ) {
-        const activity = await this.auditLogService.getUserActivity(
-            userId,
-            limit ? parseInt(limit, 10) : 20,
-        );
-
-        return {
-            success: true,
-            data: activity,
-        };
+        try {
+            const activity = await this.auditLogService.getUserActivity(
+                userId,
+                limit ? parseInt(limit, 10) : 20,
+            );
+            return successResponse(activity);
+        } catch (error: unknown) {
+            return errorResponse(error instanceof Error ? error.message : 'Failed to fetch user activity');
+        }
     }
 
     /**
@@ -70,15 +70,15 @@ export class AuditLogController {
         @Query('entityId') entityId: string,
         @Query('limit') limit?: string,
     ) {
-        const activity = await this.auditLogService.getEntityActivity(
-            entity,
-            entityId,
-            limit ? parseInt(limit, 10) : 20,
-        );
-
-        return {
-            success: true,
-            data: activity,
-        };
+        try {
+            const activity = await this.auditLogService.getEntityActivity(
+                entity,
+                entityId,
+                limit ? parseInt(limit, 10) : 20,
+            );
+            return successResponse(activity);
+        } catch (error: unknown) {
+            return errorResponse(error instanceof Error ? error.message : 'Failed to fetch entity activity');
+        }
     }
 }

@@ -132,7 +132,8 @@
     "coverageDirectory": "./coverage",
     "testEnvironment": "node",
     "roots": [
-      "<rootDir>/modules/"
+      "<rootDir>/modules/",
+      "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
       "^@server/shared(|/.*)$": "<rootDir>/libs/shared/src/$1",

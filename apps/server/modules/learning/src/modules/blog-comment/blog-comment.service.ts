@@ -5,7 +5,7 @@ import type {
   BlogCommentUpdateDTO,
   BlogCommentQueryDTO,
   BlogCommentResponseDTO,
-  BlogCommentPaginatedResponse,
+  PaginatedResponseDTO,
 } from '@workspace/schemas';
 
 @Injectable()
@@ -75,7 +75,7 @@ export class BlogCommentService {
     return this.formatCommentResponse(comment);
   }
 
-  async findAllComments(query: BlogCommentQueryDTO): Promise<BlogCommentPaginatedResponse> {
+  async findAllComments(query: BlogCommentQueryDTO): Promise<PaginatedResponseDTO<BlogCommentResponseDTO>> {
     const page = query.page || 1;
     const limit = query.limit || 20;
     const skip = (page - 1) * limit;

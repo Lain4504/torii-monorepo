@@ -3,13 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@workspace/ui/components/button';
 import type { CourseQueryDTO, CourseResponseDTO } from '@workspace/schemas';
 import { Can } from "@/lib/guard/can";
-import { useCourses } from "@/api/services/courses.ts";
+import { useCourses, useUnpublishCourse } from "@/api/services/courses.ts";
 import { CoursesPrimaryToolbar } from "@/components/courses/courses-primary-toolbar.tsx";
 import { CoursesTable } from "@/components/courses/courses-table.tsx";
-import { CreateCourseDialog } from "@/components/courses/create-course-dialog.tsx";
-import { EditCourseDialog } from "@/components/courses/edit-course-dialog.tsx";
+import { CreateCourseSheet } from "@/components/courses/create-course-sheet.tsx";
+import { EditCourseSheet } from "@/components/courses/edit-course-sheet.tsx";
 import { DeleteCourseDialog } from "@/components/courses/delete-course-dialog.tsx";
-import { ViewCourseDialog } from "@/components/courses/view-course-dialog.tsx";
+import { ManageInstructorsSheet } from "@/components/courses/manage-instructors-sheet.tsx";
+import { PublishCourseDialog } from "@/components/courses/publish-course-dialog.tsx";
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import {
   Pagination,
@@ -20,19 +21,23 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@workspace/ui/components/pagination";
+import { toast } from '@workspace/ui/components/sonner';
+import { cn } from '@workspace/ui/lib/utils';
 
 export default function CoursesPage() {
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounceValue(search, 500);
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [jlptLevelFilter, setJlptLevelFilter] = useState<string>('');
 
-  // Dialog States
+  // Dialog/Sheet States
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingCourse, setEditingCourse] = useState<CourseResponseDTO | null>(null);
   const [deletingCourse, setDeletingCourse] = useState<CourseResponseDTO | null>(null);
-  const [viewingCourse, setViewingCourse] = useState<CourseResponseDTO | null>(null);
+  const [managingInstructorsCourse, setManagingInstructorsCourse] = useState<CourseResponseDTO | null>(null);
+  const [publishingCourse, setPublishingCourse] = useState<CourseResponseDTO | null>(null);
 
   const queryParams: CourseQueryDTO = {
     page,
@@ -43,8 +48,7 @@ export default function CoursesPage() {
   };
 
   const { data: coursesData, isLoading, error } = useCourses(queryParams);
-
-  const navigate = useNavigate();
+  const unpublishMutation = useUnpublishCourse();
 
   useEffect(() => {
     setPage(1);
@@ -57,6 +61,15 @@ export default function CoursesPage() {
     page: coursesData.page,
     limit: coursesData.limit
   } : null;
+
+  const handleUnpublish = async (course: CourseResponseDTO) => {
+    try {
+      await unpublishMutation.mutateAsync(course.id);
+      toast.success('Course unpublished successfully');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to unpublish course');
+    }
+  };
 
   if (error) {
     return (
@@ -83,7 +96,15 @@ export default function CoursesPage() {
     if (startPage > 1) {
       items.push(
         <PaginationItem key={1}>
-          <PaginationLink onClick={() => setPage(1)}>1</PaginationLink>
+          <PaginationLink
+            onClick={(e) => {
+              e.preventDefault();
+              setPage(1);
+            }}
+            className="cursor-pointer hover:bg-muted/50 transition-colors"
+          >
+            1
+          </PaginationLink>
         </PaginationItem>
       );
       if (startPage > 2) items.push(<PaginationEllipsis key="start-ellipsis" />);
@@ -94,7 +115,14 @@ export default function CoursesPage() {
         <PaginationItem key={i}>
           <PaginationLink
             isActive={page === i}
-            onClick={() => setPage(i)}
+            onClick={(e) => {
+              e.preventDefault();
+              setPage(i);
+            }}
+            className={cn(
+              "cursor-pointer transition-colors",
+              page === i ? "bg-primary/10" : "hover:bg-muted/50"
+            )}
           >
             {i}
           </PaginationLink>
@@ -106,7 +134,15 @@ export default function CoursesPage() {
       if (endPage < meta.totalPages - 1) items.push(<PaginationEllipsis key="end-ellipsis" />);
       items.push(
         <PaginationItem key={meta.totalPages}>
-          <PaginationLink onClick={() => setPage(meta.totalPages)}>{meta.totalPages}</PaginationLink>
+          <PaginationLink
+            onClick={(e) => {
+              e.preventDefault();
+              setPage(meta.totalPages);
+            }}
+            className="cursor-pointer hover:bg-muted/50 transition-colors"
+          >
+            {meta.totalPages}
+          </PaginationLink>
         </PaginationItem>
       );
     }
@@ -115,21 +151,25 @@ export default function CoursesPage() {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in-50 duration-500">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div className="space-y-4 sm:space-y-6 animate-in fade-in-50 duration-500">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">Courses</h1>
-          <p className="text-muted-foreground">Manage and publish learning content for your students.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">Courses</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Manage and publish learning content for your students.</p>
         </div>
         <Can permission="course.create">
-          <Button onClick={() => setShowCreateDialog(true)} className="rounded-full shadow-lg shadow-primary/20 bg-primary">
+          <Button
+            onClick={() => setShowCreateDialog(true)}
+            className="w-full sm:w-auto rounded-lg shadow-lg shadow-primary/20 bg-primary text-sm sm:text-base"
+            size="sm"
+          >
             Create Course
           </Button>
         </Can>
       </div>
 
-      <div className="zen-card rounded-2xl p-0 overflow-hidden">
-        <div className="p-6 pb-0">
+      <div className="border border-border shadow-sm bg-card backdrop-blur-sm hover:bg-card hover:shadow-md transition-all duration-300 rounded-xl rounded-2xl">
+        <div className="p-3 sm:p-6">
           <CoursesPrimaryToolbar
             search={search}
             onSearchChange={setSearch}
@@ -138,60 +178,94 @@ export default function CoursesPage() {
             jlptLevelFilter={jlptLevelFilter}
             onJlptLevelFilterChange={setJlptLevelFilter}
           />
-        </div>
 
-        <div className="mt-6">
-          <CoursesTable
-            data={courses}
-            onEdit={setEditingCourse}
-            onDelete={setDeletingCourse}
-            onView={setViewingCourse}
-            onModules={(course) => navigate(`/modules?courseId=${course.id}`)}
-            page={page}
-            limit={queryParams.limit || 10}
-            isLoading={isLoading}
-          />
+          <div className="mt-4 sm:mt-6 rounded-xl border border-border/40 overflow-visible sm:overflow-hidden">
+            <div className="overflow-x-auto">
+              <CoursesTable
+                data={courses}
+                onEdit={setEditingCourse}
+                onDelete={setDeletingCourse}
+                onView={setEditingCourse}
+                onTitleClick={(course) => navigate(`/courses/${course.id}`)}
+                onModules={setEditingCourse}
+                onManageInstructors={setManagingInstructorsCourse}
+                onPublish={setPublishingCourse}
+                onUnpublish={handleUnpublish}
+                page={page}
+                limit={queryParams.limit || 10}
+                isLoading={isLoading}
+              />
+            </div>
+          </div>
 
           {/* Pagination */}
           {meta && (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6 border-t border-border/40 px-6">
-              <div className="text-sm zen-text-muted">
-                Showing <span className="font-semibold text-foreground">{courses.length}</span> of <span className="font-semibold text-foreground">{meta.total}</span> courses
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 py-4 sm:py-6 border-t border-border/40 mt-4 sm:mt-6 px-2">
+              <div className="text-xs sm:text-sm text-muted-foreground text-center sm:text-left w-full sm:w-auto">
+                <div>
+                  Showing <span className="font-semibold text-foreground">{courses.length}</span> of <span className="font-semibold text-foreground">{meta.total}</span> courses
+                </div>
+                {meta.totalPages > 0 && (
+                  <div className="mt-1 sm:mt-0 sm:inline sm:ml-2">
+                    (Page {page} of {meta.totalPages})
+                  </div>
+                )}
               </div>
 
-              {meta.totalPages > 1 && (
+              {meta.totalPages > 1 ? (
                 <Pagination>
-                  <PaginationContent>
+                  <PaginationContent className="flex-wrap justify-center">
                     <PaginationItem>
                       <PaginationPrevious
-                        onClick={() => setPage(p => Math.max(1, p - 1))}
-                        className={page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setPage(p => Math.max(1, p - 1));
+                        }}
+                        className={cn(
+                          page === 1 ? "pointer-events-none opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-muted/50",
+                          "transition-colors"
+                        )}
                       />
                     </PaginationItem>
 
-                    {renderPaginationItems()}
+                    <div className="hidden sm:flex">
+                      {renderPaginationItems()}
+                    </div>
+                    <div className="sm:hidden text-sm font-medium px-2">
+                      {page} / {meta.totalPages}
+                    </div>
 
                     <PaginationItem>
                       <PaginationNext
-                        onClick={() => setPage(p => Math.min(meta.totalPages, p + 1))}
-                        className={page === meta.totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setPage(p => Math.min(meta.totalPages, p + 1));
+                        }}
+                        className={cn(
+                          page === meta.totalPages ? "pointer-events-none opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-muted/50",
+                          "transition-colors"
+                        )}
                       />
                     </PaginationItem>
                   </PaginationContent>
                 </Pagination>
-              )}
+              ) : meta.totalPages === 1 ? (
+                <div className="text-xs sm:text-sm text-muted-foreground">
+                  All results on one page
+                </div>
+              ) : null}
             </div>
           )}
         </div>
       </div>
 
-      {/* Dialogs */}
-      <CreateCourseDialog
+      {/* Dialogs & Sheets */}
+      <CreateCourseSheet
         open={showCreateDialog}
         onOpenChange={setShowCreateDialog}
       />
 
-      <EditCourseDialog
+      <EditCourseSheet
         open={!!editingCourse}
         onOpenChange={(open) => !open && setEditingCourse(null)}
         course={editingCourse}
@@ -203,10 +277,16 @@ export default function CoursesPage() {
         course={deletingCourse}
       />
 
-      <ViewCourseDialog
-        open={!!viewingCourse}
-        onOpenChange={(open) => !open && setViewingCourse(null)}
-        course={viewingCourse}
+      <ManageInstructorsSheet
+        open={!!managingInstructorsCourse}
+        onOpenChange={(open) => !open && setManagingInstructorsCourse(null)}
+        course={managingInstructorsCourse}
+      />
+
+      <PublishCourseDialog
+        open={!!publishingCourse}
+        onOpenChange={(open) => !open && setPublishingCourse(null)}
+        course={publishingCourse}
       />
     </div>
   );

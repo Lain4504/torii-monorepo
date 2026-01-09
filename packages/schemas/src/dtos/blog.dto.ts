@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { BlogPostStatus, blogPostSchema } from '../models/blog.model';
-import { paginatedResponseSchema } from './common.dto';
 
 export const blogPostCreateDTOSchema = blogPostSchema
     .pick({
@@ -56,9 +55,6 @@ export const blogPostResponseDTOSchema = blogPostSchema.extend({
 
 export type BlogPostResponseDTO = z.infer<typeof blogPostResponseDTOSchema>;
 
-export const blogPostPaginatedResponseSchema = paginatedResponseSchema(blogPostResponseDTOSchema);
-
-export type BlogPostPaginatedResponse = z.infer<typeof blogPostPaginatedResponseSchema>;
 
 export const uploadImageBase64DTOSchema = z.object({
     imageData: z.string().min(1),

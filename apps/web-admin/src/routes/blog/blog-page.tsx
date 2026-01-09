@@ -122,7 +122,7 @@ export function BlogPage() {
                 </Button>
             </div>
 
-            <div className="zen-card rounded-2xl p-0 overflow-hidden">
+            <div className="border border-border shadow-sm bg-card backdrop-blur-sm hover:bg-card hover:shadow-md transition-all duration-300 rounded-xl rounded-2xl p-0 overflow-hidden">
                 <div className="p-6 pb-0">
                     <BlogPrimaryToolbar
                         search={search}
@@ -151,7 +151,7 @@ export function BlogPage() {
                     {/* Pagination */}
                     {meta && (
                         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6 border-t border-border/40 px-6">
-                            <div className="text-sm zen-text-muted">
+                            <div className="text-sm text-muted-foreground">
                                 Showing <span className="font-semibold text-foreground">{blogs.length}</span> of <span className="font-semibold text-foreground">{meta.total}</span> posts
                             </div>
 

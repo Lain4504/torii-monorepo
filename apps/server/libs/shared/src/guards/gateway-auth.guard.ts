@@ -2,12 +2,16 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { Request } from 'express';
 import { JwtTokenProvider } from '../providers/jwt-token.provider';
+import { BlacklistService } from '../services/blacklist.service';
 
 @Injectable()
 export class GatewayAuthGuard implements CanActivate {
     private readonly logger = new Logger(GatewayAuthGuard.name);
 
-    constructor(private readonly jwtTokenProvider: JwtTokenProvider) { }
+    constructor(
+        private readonly jwtTokenProvider: JwtTokenProvider,
+        private readonly blacklistService: BlacklistService,
+    ) { }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest<Request>();
@@ -21,6 +25,15 @@ export class GatewayAuthGuard implements CanActivate {
         if (!payload) {
             this.logger.warn(`Token verification failed`);
             throw new UnauthorizedException();
+        }
+
+        // Check if token is blacklisted
+        if (payload.jti) {
+            const isBlacklisted = await this.blacklistService.isBlacklisted(payload.jti);
+            if (isBlacklisted) {
+                this.logger.warn(`Token is blacklisted: ${payload.jti}`);
+                throw new UnauthorizedException('Token revoked');
+            }
         }
 
         // Assign payload to request

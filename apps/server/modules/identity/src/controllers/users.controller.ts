@@ -12,13 +12,12 @@ import {
     Request,
     Inject,
 } from '@nestjs/common';
-import { ZodValidationPipe } from '@server/shared';
+import { ZodValidationPipe, successResponse, errorResponse, successPaginatedResponse } from '@server/shared';
 import { UserRole, userCreateDTOSchema, userAdminUpdateDTOSchema, adminCreateInternalUserDTOSchema } from '@workspace/schemas';
 import type {
     UserResponseDTO,
     UserCreateDTO,
     UserAdminUpdateDTO,
-    PaginatedResponseDTO,
     ReqWithRequester,
     AdminCreateInternalUserDTO,
 } from '@workspace/schemas';
@@ -43,20 +42,36 @@ export class UsersController {
         @Query('page') page: number = 1,
         @Query('limit') limit: number = 10,
         @Query('search') search: string = '',
-    ): Promise<PaginatedResponseDTO<UserResponseDTO>> {
-        return this.usersService.findAll({
-            page: Number(page),
-            limit: Number(limit),
-            search,
-        });
+    ) {
+        try {
+            const result = await this.usersService.findAll({
+                page: Number(page),
+                limit: Number(limit),
+                search,
+            });
+            return successPaginatedResponse(
+                result.data,
+                result.total,
+                result.page,
+                result.limit,
+                result.totalPages
+            );
+        } catch (error: unknown) {
+            return errorResponse(error instanceof Error ? error.message : 'Failed to fetch users');
+        }
     }
 
     /**
      * Get user by ID
      */
     @Get(':id')
-    async findOne(@Param('id') id: string): Promise<UserResponseDTO> {
-        return this.usersService.findOne(id);
+    async findOne(@Param('id') id: string) {
+        try {
+            const user = await this.usersService.findOne(id);
+            return successResponse({ user });
+        } catch (error: unknown) {
+            return errorResponse(error instanceof Error ? error.message : 'Failed to fetch user');
+        }
     }
 
     /**
@@ -64,8 +79,13 @@ export class UsersController {
      */
     @Post()
     @UsePipes(new ZodValidationPipe(userCreateDTOSchema))
-    async create(@Body() dto: UserCreateDTO): Promise<UserResponseDTO> {
-        return this.usersService.create(dto);
+    async create(@Body() dto: UserCreateDTO) {
+        try {
+            const user = await this.usersService.create(dto);
+            return successResponse({ user }, 'User created successfully');
+        } catch (error: unknown) {
+            return errorResponse(error instanceof Error ? error.message : 'Failed to create user');
+        }
     }
 
     /**
@@ -76,8 +96,13 @@ export class UsersController {
     async createInternal(
         @Request() req: ReqWithRequester,
         @Body() dto: AdminCreateInternalUserDTO,
-    ): Promise<UserResponseDTO> {
-        return this.usersService.createInternalUser(dto, req.requester.sub);
+    ) {
+        try {
+            const user = await this.usersService.createInternalUser(dto, req.requester.sub);
+            return successResponse({ user }, 'Invitation sent successfully');
+        } catch (error: unknown) {
+            return errorResponse(error instanceof Error ? error.message : 'Failed to create user');
+        }
     }
 
     /**
@@ -89,8 +114,13 @@ export class UsersController {
         @Request() req: ReqWithRequester,
         @Param('id') id: string,
         @Body() dto: UserAdminUpdateDTO,
-    ): Promise<UserResponseDTO> {
-        return this.usersService.update(req.requester, id, dto);
+    ) {
+        try {
+            const user = await this.usersService.update(req.requester, id, dto);
+            return successResponse({ user }, 'User updated successfully');
+        } catch (error: unknown) {
+            return errorResponse(error instanceof Error ? error.message : 'Failed to update user');
+        }
     }
 
     /**
@@ -101,8 +131,13 @@ export class UsersController {
         @Request() req: ReqWithRequester,
         @Param('id') id: string,
         @Query('hardDelete') hardDelete?: string,
-    ): Promise<{ message: string }> {
-        const isHardDelete = hardDelete === 'true';
-        return this.usersService.delete(req.requester, id, isHardDelete);
+    ) {
+        try {
+            const isHardDelete = hardDelete === 'true';
+            await this.usersService.delete(req.requester, id, isHardDelete);
+            return successResponse(null, 'User deleted successfully');
+        } catch (error: unknown) {
+            return errorResponse(error instanceof Error ? error.message : 'Failed to delete user');
+        }
     }
 }

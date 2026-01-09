@@ -31,7 +31,7 @@ export function ViewModuleDialog({ module, open, onOpenChange }: ViewModuleDialo
                     </div>
                     <div>
                         <div className="text-sm text-muted-foreground">Order</div>
-                        <div className="font-medium">{module.order}</div>
+                        <div className="font-medium">{module.orderIndex}</div>
                     </div>
                     <div>
                         <div className="text-sm text-muted-foreground">Duration (minutes)</div>

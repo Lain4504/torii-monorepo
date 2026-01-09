@@ -29,7 +29,7 @@ export function ViewUserDialog({
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto border-none shadow-2xl bg-background/95 backdrop-blur-xl rounded-2xl">
                 <DialogHeader className="px-1">
                     <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">User Details</DialogTitle>
-                    <DialogDescription className="text-sm zen-text-muted mt-1">
+                    <DialogDescription className="text-sm text-muted-foreground mt-1">
                         View the complete profile of the user.
                     </DialogDescription>
                 </DialogHeader>

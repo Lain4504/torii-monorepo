@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { apiClient } from '../../api/api-client';
+import { apiClient, extractErrorMessage } from '../../api/api-client';
 import type { UserResponseDTO, UserLoginDTO, UserRegistrationDTO } from '@workspace/schemas';
+import type { AxiosError } from 'axios';
 
 // Define the auth state
 export interface AuthState {
@@ -24,22 +25,29 @@ export const login = createAsyncThunk(
     'auth/login',
     async (credentials: UserLoginDTO, { rejectWithValue }) => {
         try {
-            // Updated endpoint to verify: Gateway prefix /api might be needed or handled by base URL
-            // Gateway proxy map: /api/auth -> Identity Service /auth
             const response = await apiClient.post('/api/auth/login', credentials);
 
-            // Response structure: { success: true, data: { user: ... } }
-            // Web cookie flow handles tokens automatically.
-
-            return response.data.data.user;
-        } catch (error: any) {
-            // Return error message
-            if (error.response && error.response.data.message) {
-                console.error('Login error:', error.response.data.message);
-                return rejectWithValue(error.response.data.message);
+            // Check if response is successful
+            if (response.data.success && response.data.data?.user) {
+                return response.data.data.user;
             }
-            console.error('Login error:', error.message);
-            return rejectWithValue(error.message || 'Login failed');
+
+            // If response indicates 2FA required
+            if (response.data.requiresTwoFactor) {
+                return rejectWithValue({
+                    requiresTwoFactor: true,
+                    twoFactorMethod: response.data.twoFactorMethod,
+                    tempToken: response.data.tempToken,
+                    message: response.data.message || 'Two-factor authentication required',
+                });
+            }
+
+            // Unexpected response structure
+            return rejectWithValue('Invalid response from server');
+        } catch (error: unknown) {
+            const axiosError = error as AxiosError;
+            const errorMessage = extractErrorMessage(axiosError);
+            return rejectWithValue(errorMessage);
         }
     }
 );
@@ -48,14 +56,23 @@ export const register = createAsyncThunk(
     'auth/register',
     async (userData: UserRegistrationDTO, { rejectWithValue }) => {
         try {
-            // Updated endpoint
             const response = await apiClient.post('/api/auth/register', userData);
-            return response.data.data.user; // Extract user from { success: true, data: { user } }
-        } catch (error: any) {
-            if (error.response && error.response.data.message) {
-                return rejectWithValue(error.response.data.message);
+            
+            // Check if response is successful
+            if (response.data.success && response.data.data?.user) {
+                return response.data.data.user;
             }
-            return rejectWithValue(error.message || 'Registration failed');
+
+            // If response has a message, use it
+            if (response.data.message) {
+                return rejectWithValue(response.data.message);
+            }
+
+            return rejectWithValue('Registration failed');
+        } catch (error: unknown) {
+            const axiosError = error as AxiosError;
+            const errorMessage = extractErrorMessage(axiosError);
+            return rejectWithValue(errorMessage);
         }
     }
 );
@@ -64,11 +81,16 @@ export const logout = createAsyncThunk(
     'auth/logout',
     async (_, { rejectWithValue }) => {
         try {
-            // Updated endpoint
             await apiClient.post('/api/auth/logout');
             return;
-        } catch (error: any) {
-            return rejectWithValue(error.message || 'Logout failed');
+        } catch (error: unknown) {
+            // Even if logout fails, we should clear local state
+            // But log the error for debugging
+            const axiosError = error as AxiosError;
+            const errorMessage = extractErrorMessage(axiosError);
+            console.warn('Logout error:', errorMessage);
+            // Don't reject - logout should succeed even if server call fails
+            return;
         }
     }
 );
@@ -77,11 +99,15 @@ export const checkAuth = createAsyncThunk(
     'auth/checkAuth',
     async (_, { rejectWithValue }) => {
         try {
-            // New endpoint needed: GET /auth/me or /users/profile/me
-            // For now, assuming we might need to fetch profile using stored token/cookie
             const response = await apiClient.get('/api/auth/me');
-            return response.data.data.user; // Extract user from { success: true, data: { user } }
-        } catch (error) {
+            
+            if (response.data.success && response.data.data?.user) {
+                return response.data.data.user;
+            }
+
+            return rejectWithValue('Not authenticated');
+        } catch (error: unknown) {
+            // Don't show error for auth check - it's expected to fail if not logged in
             return rejectWithValue('Not authenticated');
         }
     }
@@ -92,12 +118,16 @@ export const verifyEmail = createAsyncThunk(
     async ({ email, otp }: { email: string; otp: string }, { rejectWithValue }) => {
         try {
             const response = await apiClient.post('/api/auth/verify-email', { email, otp });
-            return response.data;
-        } catch (error: any) {
-            if (error.response && error.response.data.message) {
-                return rejectWithValue(error.response.data.message);
+            
+            if (response.data.success) {
+                return response.data;
             }
-            return rejectWithValue(error.message || 'Verification failed');
+
+            return rejectWithValue(response.data.message || 'Verification failed');
+        } catch (error: unknown) {
+            const axiosError = error as AxiosError;
+            const errorMessage = extractErrorMessage(axiosError);
+            return rejectWithValue(errorMessage);
         }
     }
 );
@@ -107,12 +137,16 @@ export const fetchProfile = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             const response = await apiClient.get('/api/auth/me');
-            return response.data.data.user;
-        } catch (error: any) {
-            if (error.response && error.response.data.message) {
-                return rejectWithValue(error.response.data.message);
+            
+            if (response.data.success && response.data.data?.user) {
+                return response.data.data.user;
             }
-            return rejectWithValue(error.message || 'Failed to fetch profile');
+
+            return rejectWithValue('Failed to fetch profile');
+        } catch (error: unknown) {
+            const axiosError = error as AxiosError;
+            const errorMessage = extractErrorMessage(axiosError);
+            return rejectWithValue(errorMessage);
         }
     }
 );
@@ -142,10 +176,17 @@ export const authSlice = createSlice({
                 state.status = 'succeeded';
                 state.isAuthenticated = true;
                 state.user = action.payload;
+                state.error = null;
             })
             .addCase(login.rejected, (state, action) => {
                 state.status = 'failed';
-                state.error = action.payload as string;
+                // Handle 2FA case
+                if (action.payload && typeof action.payload === 'object' && 'requiresTwoFactor' in action.payload) {
+                    // Don't set error for 2FA - it's not an error, just a different flow
+                    state.error = null;
+                } else {
+                    state.error = action.payload as string || 'Login failed';
+                }
             });
 
         // Register
@@ -158,11 +199,11 @@ export const authSlice = createSlice({
                 state.status = 'succeeded';
                 // Do NOT set isAuthenticated = true here.
                 // The user must verify their email first.
-                // The component will handle the redirect to the verification page based on the 'succeeded' status.
+                state.error = null;
             })
             .addCase(register.rejected, (state, action) => {
                 state.status = 'failed';
-                state.error = action.payload as string;
+                state.error = action.payload as string || 'Registration failed';
             });
 
         // Logout
@@ -171,35 +212,51 @@ export const authSlice = createSlice({
                 state.isAuthenticated = false;
                 state.user = null;
                 state.status = 'idle';
+                state.error = null;
+            })
+            .addCase(logout.rejected, (state) => {
+                // Even if logout fails, clear local state
+                state.isAuthenticated = false;
+                state.user = null;
+                state.status = 'idle';
             });
 
         // Check Auth
         builder
             .addCase(checkAuth.pending, (state) => {
-                // Don't set global loading here if we want background check?
-                // But for initial load, we might want to know.
-                // Let's keep status update but handle UI gracefully.
+                // Don't set loading here - it's a background check
             })
             .addCase(checkAuth.fulfilled, (state, action) => {
                 state.isAuthenticated = true;
                 state.user = action.payload;
+                state.status = 'succeeded';
             })
             .addCase(checkAuth.rejected, (state) => {
                 state.isAuthenticated = false;
                 state.user = null;
-            })
+                // Don't set error for auth check failures
+            });
 
-            // Verify Email
+        // Verify Email
+        builder
             .addCase(verifyEmail.fulfilled, (state) => {
                 if (state.user) {
                     state.user.verifiedAt = new Date();
                 }
             })
+            .addCase(verifyEmail.rejected, (state, action) => {
+                state.error = action.payload as string || 'Verification failed';
+            });
 
-            // Fetch Profile
+        // Fetch Profile
+        builder
             .addCase(fetchProfile.fulfilled, (state, action) => {
                 state.user = action.payload;
                 state.isAuthenticated = true;
+                state.error = null;
+            })
+            .addCase(fetchProfile.rejected, (state, action) => {
+                state.error = action.payload as string || 'Failed to fetch profile';
             });
     },
 });

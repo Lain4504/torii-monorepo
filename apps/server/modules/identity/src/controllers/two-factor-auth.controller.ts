@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import type { ITwoFactorAuthService } from '../interfaces/services';
 import { TWO_FACTOR_AUTH_SERVICE_TOKEN } from '../interfaces/services';
-import { GatewayAuthGuard } from '@server/shared';
+import { GatewayAuthGuard, successResponse, errorResponse } from '@server/shared';
 import type {
     ReqWithRequester,
     EnableTotpDTO,
@@ -39,7 +39,12 @@ export class TwoFactorAuthController {
 
     @Post('totp/generate')
     async generateTotpSecret(@Request() req: ReqWithRequester) {
-        return this.twoFactorAuthService.generateTotpSecret(req.requester.sub);
+        try {
+            const result = await this.twoFactorAuthService.generateTotpSecret(req.requester.sub);
+            return successResponse(result);
+        } catch (error: unknown) {
+            return errorResponse(error instanceof Error ? error.message : 'Failed to generate TOTP secret');
+        }
     }
 
     @Post('totp/enable')
@@ -48,11 +53,16 @@ export class TwoFactorAuthController {
         @Request() req: ReqWithRequester,
         @Body() dto: EnableTotpDTO,
     ) {
-        return this.twoFactorAuthService.enableTotp(
-            req.requester.sub,
-            dto.secret,
-            dto.code,
-        );
+        try {
+            const result = await this.twoFactorAuthService.enableTotp(
+                req.requester.sub,
+                dto.secret,
+                dto.code,
+            );
+            return successResponse(result, '2FA enabled successfully');
+        } catch (error: unknown) {
+            return errorResponse(error instanceof Error ? error.message : 'Failed to enable 2FA');
+        }
     }
 
     @Post('totp/disable')
@@ -61,28 +71,28 @@ export class TwoFactorAuthController {
         @Request() req: ReqWithRequester,
         @Body() dto: Disable2FADTO,
     ) {
-        // Verify password
-        const user = await this.prisma.user.findUnique({
-            where: { id: req.requester.sub },
-            select: { password: true },
-        });
+        try {
+            // Verify password
+            const user = await this.prisma.user.findUnique({
+                where: { id: req.requester.sub },
+                select: { password: true },
+            });
 
-        if (!user || !user.password) {
-            throw new BadRequestException('Invalid password');
+            if (!user || !user.password) {
+                return errorResponse('Invalid password');
+            }
+
+            const isValid = await argon2.verify(user.password, dto.password);
+            if (!isValid) {
+                return errorResponse('Invalid password');
+            }
+
+            // Disable 2FA
+            await this.twoFactorAuthService.disable2FA(req.requester.sub);
+            return successResponse(null, '2FA disabled successfully');
+        } catch (error: unknown) {
+            return errorResponse(error instanceof Error ? error.message : 'Failed to disable 2FA');
         }
-
-        const isValid = await argon2.verify(user.password, dto.password);
-        if (!isValid) {
-            throw new BadRequestException('Invalid password');
-        }
-
-        // Disable 2FA
-        await this.twoFactorAuthService.disable2FA(req.requester.sub);
-
-        return {
-            success: true,
-            message: '2FA disabled successfully',
-        };
     }
 
     // ========================================
@@ -92,17 +102,18 @@ export class TwoFactorAuthController {
     @Post('backup-codes/regenerate')
     @HttpCode(HttpStatus.OK)
     async regenerateBackupCodes(@Request() req: ReqWithRequester) {
-        const backupCodes = await this.twoFactorAuthService.regenerateBackupCodes(
-            req.requester.sub,
-        );
-
-        return {
-            success: true,
-            backupCodes,
-            message: 'Backup codes regenerated. Please save them in a safe place.',
-        };
+        try {
+            const backupCodes = await this.twoFactorAuthService.regenerateBackupCodes(
+                req.requester.sub,
+            );
+            return successResponse(
+                { backupCodes },
+                'Backup codes regenerated. Please save them in a safe place.'
+            );
+        } catch (error: unknown) {
+            return errorResponse(error instanceof Error ? error.message : 'Failed to regenerate backup codes');
+        }
     }
-
 
     // ========================================
     // Status Endpoint
@@ -110,6 +121,11 @@ export class TwoFactorAuthController {
 
     @Get('status')
     async get2FAStatus(@Request() req: ReqWithRequester) {
-        return this.twoFactorAuthService.get2FAStatus(req.requester.sub);
+        try {
+            const status = await this.twoFactorAuthService.get2FAStatus(req.requester.sub);
+            return successResponse(status);
+        } catch (error: unknown) {
+            return errorResponse(error instanceof Error ? error.message : 'Failed to fetch 2FA status');
+        }
     }
 }

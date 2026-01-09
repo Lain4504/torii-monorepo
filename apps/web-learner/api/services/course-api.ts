@@ -28,7 +28,6 @@ export interface CourseQueryParams {
   jlptLevel?: string;
   status?: string;
   search?: string;
-  featured?: boolean;
 }
 
 export const courseApi = {

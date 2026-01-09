@@ -13,6 +13,7 @@ import {
     BarChart3,
     Bell,
     Sparkles,
+    Database,
 } from "lucide-react";
 
 export interface NavItem {
@@ -54,11 +55,18 @@ export const mainNavItems: NavItem[] = [
         description: "Virtual classrooms and schedules",
     },
     {
-        title: "Question Bank",
-        url: "/question-bank",
+        title: "Questions",
+        url: "/questions",
         icon: FileQuestion,
-        permission: "question_bank.manage",
+        permission: "question.manage",
         description: "Manage questions for quizzes",
+    },
+    {
+        title: "Question Pools",
+        url: "/question-pools",
+        icon: Database,
+        permission: "question_pool.manage",
+        description: "Organize questions into pools",
     },
     {
         title: "Exams & Tests",
