@@ -3,50 +3,52 @@
 import Link from 'next/link'
 import { Facebook, Youtube, Instagram, Mail, Phone, MapPin } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
+import { useTranslation } from '@workspace/i18n'
 
 export function Footer() {
+    const { t } = useTranslation()
     const currentYear = new Date().getFullYear()
 
     const footerSections = {
         courses: {
-            title: 'Khóa học',
+            titleKey: 'learner.footer.sections.courses',
             links: [
-                { name: 'JLPT N5 - Sơ cấp', href: '/courses/n5' },
-                { name: 'JLPT N4 - Trung cấp sơ', href: '/courses/n4' },
-                { name: 'JLPT N3 - Trung cấp', href: '/courses/n3' },
-                { name: 'JLPT N2 - Trung cao', href: '/courses/n2' },
-                { name: 'JLPT N1 - Cao cấp', href: '/courses/n1' },
+                { nameKey: 'learner.footer.courses.jlptN5', href: '/courses/n5' },
+                { nameKey: 'learner.footer.courses.jlptN4', href: '/courses/n4' },
+                { nameKey: 'learner.footer.courses.jlptN3', href: '/courses/n3' },
+                { nameKey: 'learner.footer.courses.jlptN2', href: '/courses/n2' },
+                { nameKey: 'learner.footer.courses.jlptN1', href: '/courses/n1' },
             ],
         },
         features: {
-            title: 'Tính năng',
+            titleKey: 'learner.footer.sections.features',
             links: [
-                { name: 'Lớp trực tuyến WebRTC', href: '/live-classes' },
-                { name: 'AI Sensei 先生', href: '/ai-sensei' },
-                { name: 'Flashcards thông minh', href: '/flashcards' },
-                { name: 'Luyện thi JLPT', href: '/jlpt-practice' },
-                { name: 'Cộng đồng học tập', href: '/community' },
+                { nameKey: 'learner.footer.features.liveClassesWebRTC', href: '/live-classes' },
+                { nameKey: 'learner.footer.features.aiSensei', href: '/ai-sensei' },
+                { nameKey: 'learner.footer.features.smartFlashcards', href: '/flashcards' },
+                { nameKey: 'learner.footer.features.jlptPractice', href: '/jlpt-practice' },
+                { nameKey: 'learner.footer.features.learningCommunity', href: '/community' },
             ],
         },
         resources: {
-            title: 'Tài nguyên',
+            titleKey: 'learner.footer.sections.resources',
             links: [
-                { name: 'Blog học tiếng Nhật', href: '/blog' },
-                { name: 'Ngữ pháp N5-N1', href: '/grammar' },
-                { name: 'Từ vựng theo chủ đề', href: '/vocabulary' },
-                { name: 'Kanji tra cứu', href: '/kanji' },
-                { name: 'Câu hỏi thường gặp', href: '/faq' },
+                { nameKey: 'learner.footer.resources.japaneseBlog', href: '/blog' },
+                { nameKey: 'learner.footer.resources.grammarN5N1', href: '/grammar' },
+                { nameKey: 'learner.footer.resources.vocabularyTopics', href: '/vocabulary' },
+                { nameKey: 'learner.footer.resources.kanjiLookup', href: '/kanji' },
+                { nameKey: 'learner.footer.resources.faq', href: '/faq' },
             ],
         },
         company: {
-            title: 'Về Torii Nihongo',
+            titleKey: 'learner.footer.sections.about',
             links: [
-                { name: 'Giới thiệu', href: '/about' },
-                { name: 'Đội ngũ giảng viên', href: '/instructors' },
-                { name: 'Liên hệ', href: '/contact' },
-                { name: 'Tuyển dụng', href: '/careers' },
-                { name: 'Chính sách bảo mật', href: '/privacy' },
-                { name: 'Điều khoản sử dụng', href: '/terms' },
+                { nameKey: 'learner.footer.company.introduction', href: '/about' },
+                { nameKey: 'learner.footer.company.instructors', href: '/instructors' },
+                { nameKey: 'learner.footer.company.contact', href: '/contact' },
+                { nameKey: 'learner.footer.company.careers', href: '/careers' },
+                { nameKey: 'learner.footer.company.privacy', href: '/privacy' },
+                { nameKey: 'learner.footer.company.terms', href: '/terms' },
             ],
         },
     }
@@ -80,9 +82,7 @@ export function Footer() {
 
                         {/* Description */}
                         <p className="text-muted-foreground leading-relaxed">
-                            Nền tảng học tiếng Nhật trực tuyến hàng đầu Việt Nam.
-                            Kết hợp lớp học WebRTC chất lượng cao và AI Sensei để mang đến
-                            trải nghiệm học tập hiệu quả nhất.
+                            {t('learner.footer.platformDescription')}
                         </p>
 
                         {/* Contact Info */}
@@ -140,7 +140,7 @@ export function Footer() {
                     {/* Courses Column */}
                     <div className="space-y-4">
                         <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
-                            {footerSections.courses.title}
+                            {t(footerSections.courses.titleKey)}
                         </h3>
                         <ul className="space-y-3">
                             {footerSections.courses.links.map((link) => (
@@ -149,7 +149,7 @@ export function Footer() {
                                         href={link.href}
                                         className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer"
                                     >
-                                        {link.name}
+                                        {t(link.nameKey)}
                                     </Link>
                                 </li>
                             ))}
@@ -159,7 +159,7 @@ export function Footer() {
                     {/* Features Column */}
                     <div className="space-y-4">
                         <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
-                            {footerSections.features.title}
+                            {t(footerSections.features.titleKey)}
                         </h3>
                         <ul className="space-y-3">
                             {footerSections.features.links.map((link) => (
@@ -168,7 +168,7 @@ export function Footer() {
                                         href={link.href}
                                         className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer"
                                     >
-                                        {link.name}
+                                        {t(link.nameKey)}
                                     </Link>
                                 </li>
                             ))}
@@ -178,7 +178,7 @@ export function Footer() {
                     {/* Resources Column */}
                     <div className="space-y-4">
                         <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
-                            {footerSections.resources.title}
+                            {t(footerSections.resources.titleKey)}
                         </h3>
                         <ul className="space-y-3">
                             {footerSections.resources.links.map((link) => (
@@ -187,7 +187,7 @@ export function Footer() {
                                         href={link.href}
                                         className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer"
                                     >
-                                        {link.name}
+                                        {t(link.nameKey)}
                                     </Link>
                                 </li>
                             ))}
@@ -197,7 +197,7 @@ export function Footer() {
                     {/* Company Column */}
                     <div className="space-y-4">
                         <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
-                            {footerSections.company.title}
+                            {t(footerSections.company.titleKey)}
                         </h3>
                         <ul className="space-y-3">
                             {footerSections.company.links.map((link) => (
@@ -206,7 +206,7 @@ export function Footer() {
                                         href={link.href}
                                         className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer"
                                     >
-                                        {link.name}
+                                        {t(link.nameKey)}
                                     </Link>
                                 </li>
                             ))}
@@ -219,20 +219,20 @@ export function Footer() {
                     <div className="max-w-2xl mx-auto text-center space-y-6">
                         <div className="space-y-2">
                             <h3 className="text-2xl font-bold text-foreground">
-                                Đăng ký nhận tin tức
+                                {t('learner.footer.newsletter.title')}
                             </h3>
                             <p className="text-muted-foreground">
-                                Nhận mẹo học tiếng Nhật, đề thi JLPT mới và ưu đãi đặc biệt
+                                {t('learner.footer.newsletter.description')}
                             </p>
                         </div>
                         <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
                             <input
                                 type="email"
-                                placeholder="Email của bạn"
+                                placeholder={t('learner.footer.newsletter.emailPlaceholder')}
                                 className="flex-1 px-4 py-3 rounded-lg border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                             />
                             <Button className="px-6">
-                                Đăng ký
+                                {t('learner.footer.newsletter.subscribe')}
                             </Button>
                         </form>
                     </div>
@@ -244,17 +244,17 @@ export function Footer() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                         <p className="text-sm text-muted-foreground text-center md:text-left">
-                            © {currentYear} Torii Nihongo. All rights reserved. | SP26SE005
+                            © {currentYear} Torii Nihongo. {t('learner.footer.copyright.allRightsReserved')}. | SP26SE005
                         </p>
                         <div className="flex items-center gap-6 text-sm text-muted-foreground">
                             <Link href="/privacy" className="hover:text-primary transition-colors cursor-pointer">
-                                Chính sách bảo mật
+                                {t('learner.footer.copyright.privacyPolicy')}
                             </Link>
                             <Link href="/terms" className="hover:text-primary transition-colors cursor-pointer">
-                                Điều khoản sử dụng
+                                {t('learner.footer.copyright.termsOfUse')}
                             </Link>
                             <Link href="/cookies" className="hover:text-primary transition-colors cursor-pointer">
-                                Cookie Policy
+                                {t('learner.footer.copyright.cookiePolicy')}
                             </Link>
                         </div>
                     </div>

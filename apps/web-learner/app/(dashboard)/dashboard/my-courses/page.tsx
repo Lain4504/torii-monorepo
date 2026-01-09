@@ -239,7 +239,7 @@ export default function MyCoursesPage() {
                                 </div>
                             </div>
 
-                            <Link href={`/dashboard/learning/${course.slug}`}>
+                            <Link href={`/courses/${course.slug}/learn`}>
                                 <Button className="w-full cursor-pointer">
                                     {course.progress === 0 ? (
                                         <>

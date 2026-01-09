@@ -1,12 +1,12 @@
 // Core exports
-export { default as i18n, initializeI18n, i18nConfig } from './config.js';
+export { default as i18n, initializeI18n, i18nConfig } from './config';
 
 // Types
 export type {
     SupportedLanguage,
     TranslationNamespace,
     LanguageMetadata,
-} from './types.js';
+} from './types';
 
 export {
     SUPPORTED_LANGUAGES,
@@ -15,10 +15,10 @@ export {
     FALLBACK_LANGUAGE,
     DEFAULT_NAMESPACE,
     NAMESPACES,
-} from './types.js';
+} from './types';
 
 // Hooks
-export { useTranslation } from './hooks/use-translation.js';
+export { useTranslation } from './hooks/use-translation';
 
 // Utilities
 export {
@@ -28,4 +28,4 @@ export {
     getLanguageMetadata,
     isLanguageSupported,
     getBrowserLanguage,
-} from './utils/language.js';
+} from './utils/language';

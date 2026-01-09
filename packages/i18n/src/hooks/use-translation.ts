@@ -1,5 +1,5 @@
 import { useTranslation as useI18nextTranslation } from 'react-i18next';
-import type { TranslationNamespace } from '../types.js';
+import type { TranslationNamespace } from '../types';
 
 /**
  * Type-safe translation hook

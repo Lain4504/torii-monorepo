@@ -102,5 +102,74 @@
         "defaultRole": "Quản trị viên",
         "expandSidebar": "Mở rộng thanh bên",
         "collapseSidebar": "Thu gọn thanh bên"
+    },
+    "learner": {
+        "header": {
+            "courses": "Khóa học",
+            "liveClasses": "Lớp trực tuyến",
+            "jlptPractice": "Luyện thi JLPT",
+            "flashcards": "Flashcards",
+            "login": "Đăng nhập",
+            "registerFree": "Đăng ký miễn phí",
+            "dashboard": "Bảng điều khiển",
+            "logout": "Đăng xuất",
+            "loggingOut": "Đang đăng xuất..."
+        },
+        "footer": {
+            "platformDescription": "Nền tảng học tiếng Nhật trực tuyến hàng đầu Việt Nam. Kết hợp lớp học WebRTC chất lượng cao và AI Sensei để mang đến trải nghiệm học tập hiệu quả nhất.",
+            "sections": {
+                "courses": "Khóa học",
+                "features": "Tính năng",
+                "resources": "Tài nguyên",
+                "about": "Về Torii Nihongo"
+            },
+            "courses": {
+                "jlptN5": "JLPT N5 - Sơ cấp",
+                "jlptN4": "JLPT N4 - Trung cấp sơ",
+                "jlptN3": "JLPT N3 - Trung cấp",
+                "jlptN2": "JLPT N2 - Trung cao",
+                "jlptN1": "JLPT N1 - Cao cấp"
+            },
+            "features": {
+                "liveClassesWebRTC": "Lớp trực tuyến WebRTC",
+                "aiSensei": "AI Sensei 先生",
+                "smartFlashcards": "Flashcards thông minh",
+                "jlptPractice": "Luyện thi JLPT",
+                "learningCommunity": "Cộng đồng học tập"
+            },
+            "resources": {
+                "japaneseBlog": "Blog học tiếng Nhật",
+                "grammarN5N1": "Ngữ pháp N5-N1",
+                "vocabularyTopics": "Từ vựng theo chủ đề",
+                "kanjiLookup": "Kanji tra cứu",
+                "faq": "Câu hỏi thường gặp"
+            },
+            "company": {
+                "introduction": "Giới thiệu",
+                "instructors": "Đội ngũ giảng viên",
+                "contact": "Liên hệ",
+                "careers": "Tuyển dụng",
+                "privacy": "Chính sách bảo mật",
+                "terms": "Điều khoản sử dụng"
+            },
+            "newsletter": {
+                "title": "Đăng ký nhận tin tức",
+                "description": "Nhận mẹo học tiếng Nhật, đề thi JLPT mới và ưu đãi đặc biệt",
+                "emailPlaceholder": "Email của bạn",
+                "subscribe": "Đăng ký"
+            },
+            "copyright": {
+                "allRightsReserved": "Bản quyền thuộc về",
+                "privacyPolicy": "Chính sách bảo mật",
+                "termsOfUse": "Điều khoản sử dụng",
+                "cookiePolicy": "Chính sách Cookie"
+            }
+        },
+        "messages": {
+            "logoutSuccess": "Đăng xuất thành công",
+            "seeYouAgain": "Hẹn gặp lại bạn!",
+            "logoutFailed": "Đăng xuất thất bại",
+            "pleaseTryAgain": "Vui lòng thử lại"
+        }
     }
 }

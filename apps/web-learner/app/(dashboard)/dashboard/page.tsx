@@ -176,7 +176,7 @@ export default function DashboardPage() {
                                                 </div>
                                                 <Progress value={course.progress} className="h-2" />
                                             </div>
-                                            <Link href={`/dashboard/learning/${course.slug}`}>
+                                            <Link href={`/courses/${course.slug}/learn`}>
                                                 <Button size="sm" className="mt-3 w-full cursor-pointer">
                                                     <PlayCircle className="mr-2 w-4 h-4" />
                                                     Tiếp tục học

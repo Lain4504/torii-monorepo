@@ -102,5 +102,74 @@
         "defaultRole": "Administrator",
         "expandSidebar": "Expand Sidebar",
         "collapseSidebar": "Collapse Sidebar"
+    },
+    "learner": {
+        "header": {
+            "courses": "Courses",
+            "liveClasses": "Live Classes",
+            "jlptPractice": "JLPT Practice",
+            "flashcards": "Flashcards",
+            "login": "Login",
+            "registerFree": "Sign Up Free",
+            "dashboard": "Dashboard",
+            "logout": "Logout",
+            "loggingOut": "Logging out..."
+        },
+        "footer": {
+            "platformDescription": "Vietnam's leading online Japanese learning platform. Combining high-quality WebRTC classes and AI Sensei for the most effective learning experience.",
+            "sections": {
+                "courses": "Courses",
+                "features": "Features",
+                "resources": "Resources",
+                "about": "About Torii Nihongo"
+            },
+            "courses": {
+                "jlptN5": "JLPT N5 - Beginner",
+                "jlptN4": "JLPT N4 - Elementary",
+                "jlptN3": "JLPT N3 - Intermediate",
+                "jlptN2": "JLPT N2 - Upper Intermediate",
+                "jlptN1": "JLPT N1 - Advanced"
+            },
+            "features": {
+                "liveClassesWebRTC": "WebRTC Live Classes",
+                "aiSensei": "AI Sensei 先生",
+                "smartFlashcards": "Smart Flashcards",
+                "jlptPractice": "JLPT Practice",
+                "learningCommunity": "Learning Community"
+            },
+            "resources": {
+                "japaneseBlog": "Japanese Learning Blog",
+                "grammarN5N1": "Grammar N5-N1",
+                "vocabularyTopics": "Vocabulary by Topics",
+                "kanjiLookup": "Kanji Lookup",
+                "faq": "FAQ"
+            },
+            "company": {
+                "introduction": "About Us",
+                "instructors": "Our Instructors",
+                "contact": "Contact",
+                "careers": "Careers",
+                "privacy": "Privacy Policy",
+                "terms": "Terms of Service"
+            },
+            "newsletter": {
+                "title": "Subscribe to Newsletter",
+                "description": "Get Japanese learning tips, new JLPT tests and special offers",
+                "emailPlaceholder": "Your email",
+                "subscribe": "Subscribe"
+            },
+            "copyright": {
+                "allRightsReserved": "All rights reserved",
+                "privacyPolicy": "Privacy Policy",
+                "termsOfUse": "Terms of Use",
+                "cookiePolicy": "Cookie Policy"
+            }
+        },
+        "messages": {
+            "logoutSuccess": "Logged out successfully",
+            "seeYouAgain": "See you again!",
+            "logoutFailed": "Logout failed",
+            "pleaseTryAgain": "Please try again"
+        }
     }
 }

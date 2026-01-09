@@ -1,5 +1,5 @@
-import i18n from '../config.js';
-import { SUPPORTED_LANGUAGES, LANGUAGE_METADATA, type SupportedLanguage } from '../types.js';
+import i18n from '../config';
+import { SUPPORTED_LANGUAGES, LANGUAGE_METADATA, type SupportedLanguage } from '../types';
 
 /**
  * Get the current language

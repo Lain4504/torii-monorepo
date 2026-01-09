@@ -6,13 +6,13 @@ import {
     FALLBACK_LANGUAGE,
     DEFAULT_NAMESPACE,
     NAMESPACES,
-} from './types.js';
+} from './types';
 
 // Import translation files
-import enCommon from './locales/en/common.json' with { type: 'json' };
-import enTranslation from './locales/en/translation.json' with { type: 'json' };
-import viCommon from './locales/vi/common.json' with { type: 'json' };
-import viTranslation from './locales/vi/translation.json' with { type: 'json' };
+import enCommon from './locales/en/common.json';
+import enTranslation from './locales/en/translation.json';
+import viCommon from './locales/vi/common.json';
+import viTranslation from './locales/vi/translation.json';
 
 /**
  * i18next configuration
@@ -29,7 +29,7 @@ export const i18nConfig = {
             [NAMESPACES.TRANSLATION]: viTranslation,
         },
     },
-    lng: DEFAULT_LANGUAGE,
+
     fallbackLng: FALLBACK_LANGUAGE,
     defaultNS: DEFAULT_NAMESPACE,
     ns: [NAMESPACES.TRANSLATION, NAMESPACES.COMMON],

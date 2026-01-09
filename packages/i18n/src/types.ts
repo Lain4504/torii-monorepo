@@ -48,4 +48,4 @@ export const LANGUAGE_METADATA: Record<SupportedLanguage, LanguageMetadata> = {
  */
 export const DEFAULT_LANGUAGE: SupportedLanguage = 'vi';
 export const FALLBACK_LANGUAGE: SupportedLanguage = 'en';
-export const DEFAULT_NAMESPACE: TranslationNamespace = 'translation';
+export const DEFAULT_NAMESPACE: TranslationNamespace = 'common';

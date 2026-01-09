@@ -52,7 +52,7 @@ const continueLearning = [
         title: 'Tiếng Nhật N5 - Cơ bản',
         progress: 65,
         nextLesson: 'Bài 12: Ngữ pháp cơ bản',
-        href: '/dashboard/learning/tieng-nhat-n5-co-ban',
+        href: '/courses/tieng-nhat-n5-co-ban/learn',
     },
     {
         id: 2,
@@ -60,7 +60,7 @@ const continueLearning = [
         title: 'Ngữ pháp N4',
         progress: 30,
         nextLesson: 'Bài 8: Động từ thể te',
-        href: '/dashboard/learning/ngu-phap-n4',
+        href: '/courses/ngu-phap-n4/learn',
     },
 ]
 
