@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
+import { AutomapperModule } from '@automapper/nestjs';
+import { pojos } from '@automapper/pojos';
 import { SharedModule } from '@server/shared';
 
 // Feature modules
@@ -27,6 +29,9 @@ import { IdentityHttpExceptionFilter } from './filters/http-exception.filter';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+    }),
+    AutomapperModule.forRoot({
+      strategyInitializer: pojos(),
     }),
     SharedModule,
     AuthModule,

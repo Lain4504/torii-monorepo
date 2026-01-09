@@ -19,6 +19,7 @@ import {
 import { Loader2, Plus, X } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 import { useCreateQuestion } from '@/api/services/questions.ts';
+import { useQuestionPools } from '@/api/services/question-pools.ts';
 import {
     QuestionType,
     QuestionCategory,
@@ -38,6 +39,7 @@ interface CreateQuestionDialogProps {
 
 export function CreateQuestionDialog({ open, onOpenChange }: CreateQuestionDialogProps) {
     const createQuestion = useCreateQuestion();
+    const { data: poolsData } = useQuestionPools({ page: 1, limit: 100 });
     const [options, setOptions] = useState<Record<string, string>>({ A: '', B: '' });
     const [optionKeys, setOptionKeys] = useState<string[]>(['A', 'B']);
 
@@ -57,6 +59,7 @@ export function CreateQuestionDialog({ open, onOpenChange }: CreateQuestionDialo
             correctAnswer: '',
             explanation: '',
             tags: [],
+            poolId: undefined,
         },
     });
 
@@ -215,6 +218,30 @@ export function CreateQuestionDialog({ open, onOpenChange }: CreateQuestionDialo
                             )}
                         />
                     </div>
+
+                    <Controller
+                        name="poolId"
+                        control={control}
+                        render={({ field, fieldState }) => (
+                            <Field>
+                                <FieldLabel>Question Pool (Optional)</FieldLabel>
+                                <Select value={field.value || ''} onValueChange={(value) => field.onChange(value || undefined)}>
+                                    <SelectTrigger className="bg-background/50 border-border/40">
+                                        <SelectValue placeholder="Select a pool" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="">None</SelectItem>
+                                        {poolsData?.data.map((pool) => (
+                                            <SelectItem key={pool.id} value={pool.id}>
+                                                {pool.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
+                            </Field>
+                        )}
+                    />
 
                     {questionType === QuestionType.MULTIPLE_CHOICE && (
                         <Field>

@@ -7,6 +7,8 @@ import {
     Inject,
     ConflictException,
 } from '@nestjs/common';
+import { InjectMapper } from '@automapper/nestjs';
+import type { Mapper } from '@automapper/core';
 import { v4 as uuidv4 } from 'uuid';
 import Redis from 'ioredis';
 import type {
@@ -38,6 +40,7 @@ export class UsersService implements IUsersService {
         @Inject(AUTHORIZATION_SERVICE_TOKEN) private readonly authorizationService: IAuthorizationService,
         @Inject(EMAIL_SERVICE_TOKEN) private readonly emailService: IEmailService,
         @Inject(REDIS_CLIENT) private readonly redis: Redis,
+        @InjectMapper() private readonly mapper: Mapper,
     ) { }
 
     /**
@@ -65,19 +68,10 @@ export class UsersService implements IUsersService {
             this.usersRepository.count(where),
         ]);
 
-        // Map Prisma User to UserResponseDTO (exclude password/salt)
-        const data: UserResponseDTO[] = users.map(user => ({
-            id: user.id,
-            email: user.email,
-            displayName: user.displayName,
-            role: user.role as UserRole,
-            verifiedAt: user.verifiedAt,
-            bannedUntil: user.bannedUntil,
-            lastLoginAt: user.lastSignInAt,
-            createdAt: user.createdAt,
-            updatedAt: user.updatedAt,
-            deletedAt: user.deletedAt,
-        }));
+        // Map Prisma User to UserResponseDTO using AutoMapper
+        const data: UserResponseDTO[] = users.map(user =>
+            this.mapper.map<User, UserResponseDTO>(user, 'User', 'UserResponseDTO')
+        );
 
         return {
             data,
@@ -98,18 +92,8 @@ export class UsersService implements IUsersService {
             throw new NotFoundException('User not found');
         }
 
-        return {
-            id: user.id,
-            email: user.email,
-            displayName: user.displayName,
-            role: user.role as UserRole,
-            verifiedAt: user.verifiedAt,
-            bannedUntil: user.bannedUntil,
-            lastLoginAt: user.lastSignInAt,
-            createdAt: user.createdAt,
-            updatedAt: user.updatedAt,
-            deletedAt: user.deletedAt,
-        };
+        // Map Prisma User to UserResponseDTO using AutoMapper
+        return this.mapper.map<User, UserResponseDTO>(user, 'User', 'UserResponseDTO');
     }
 
     /**
@@ -134,18 +118,8 @@ export class UsersService implements IUsersService {
             // verifiedAt: null (default) = pending
         });
 
-        return {
-            id: user.id,
-            email: user.email,
-            displayName: user.displayName,
-            role: user.role as UserRole,
-            verifiedAt: user.verifiedAt,
-            bannedUntil: user.bannedUntil,
-            lastLoginAt: user.lastSignInAt,
-            createdAt: user.createdAt,
-            updatedAt: user.updatedAt,
-            deletedAt: user.deletedAt,
-        };
+        // Map Prisma User to UserResponseDTO using AutoMapper
+        return this.mapper.map<User, UserResponseDTO>(user, 'User', 'UserResponseDTO');
     }
 
     /**
@@ -185,18 +159,8 @@ export class UsersService implements IUsersService {
             inviteUrl
         );
 
-        return {
-            id: user.id,
-            email: user.email,
-            displayName: user.displayName,
-            role: user.role as UserRole,
-            verifiedAt: user.verifiedAt,
-            bannedUntil: user.bannedUntil,
-            lastLoginAt: user.lastSignInAt,
-            createdAt: user.createdAt,
-            updatedAt: user.updatedAt,
-            deletedAt: user.deletedAt,
-        };
+        // Map Prisma User to UserResponseDTO using AutoMapper
+        return this.mapper.map<User, UserResponseDTO>(user, 'User', 'UserResponseDTO');
     }
 
     /**
@@ -260,18 +224,8 @@ export class UsersService implements IUsersService {
 
         const updatedUser = await this.usersRepository.update(userId, updateData);
 
-        return {
-            id: updatedUser.id,
-            email: updatedUser.email,
-            displayName: updatedUser.displayName,
-            role: updatedUser.role as UserRole,
-            verifiedAt: updatedUser.verifiedAt,
-            bannedUntil: updatedUser.bannedUntil,
-            lastLoginAt: updatedUser.lastSignInAt,
-            createdAt: updatedUser.createdAt,
-            updatedAt: updatedUser.updatedAt,
-            deletedAt: updatedUser.deletedAt,
-        };
+        // Map Prisma User to UserResponseDTO using AutoMapper
+        return this.mapper.map<User, UserResponseDTO>(updatedUser, 'User', 'UserResponseDTO');
     }
 
     /**
