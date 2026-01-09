@@ -55,18 +55,11 @@ export const mainNavItems: NavItem[] = [
         description: "Virtual classrooms and schedules",
     },
     {
-        title: "Questions",
-        url: "/questions",
+        title: "Question Bank",
+        url: "/question-bank",
         icon: FileQuestion,
-        permission: "question.manage",
-        description: "Manage questions for quizzes",
-    },
-    {
-        title: "Question Pools",
-        url: "/question-pools",
-        icon: Database,
-        permission: "question_pool.manage",
-        description: "Organize questions into pools",
+        anyPermission: ["question.manage", "question_pool.manage"],
+        description: "Manage questions and organize into pools",
     },
     {
         title: "Exams & Tests",

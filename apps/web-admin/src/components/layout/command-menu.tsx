@@ -97,13 +97,13 @@ export function CommandMenu() {
                             <FileText className="mr-2 h-4 w-4" />
                             <span>Lessons</span>
                         </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => navigate("/questions"))}>
+                        <CommandItem onSelect={() => runCommand(() => navigate("/question-bank/questions"))}>
                             <FileQuestion className="mr-2 h-4 w-4" />
-                            <span>Questions</span>
+                            <span>Question Bank - Questions</span>
                         </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => navigate("/question-pools"))}>
+                        <CommandItem onSelect={() => runCommand(() => navigate("/question-bank/pools"))}>
                             <Database className="mr-2 h-4 w-4" />
-                            <span>Question Pools</span>
+                            <span>Question Bank - Pools</span>
                         </CommandItem>
                         <CommandItem onSelect={() => runCommand(() => navigate("/rooms"))}>
                             <Video className="mr-2 h-4 w-4" />

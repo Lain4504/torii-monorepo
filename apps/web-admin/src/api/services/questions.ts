@@ -86,6 +86,12 @@ export const questionsApi = {
         const response = await apiClient.post<QuestionResponseDTO>(`/api/questions/${id}/review`);
         return response.data;
     },
+
+    // GET /api/questions/pool/:poolId
+    async getByPool(poolId: string): Promise<QuestionResponseDTO[]> {
+        const response = await apiClient.get<QuestionResponseDTO[]>(`/api/questions/pool/${poolId}`);
+        return response.data;
+    },
 };
 
 // ============================================================================
@@ -186,6 +192,18 @@ export function useSendForReviewQuestion() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['questions'] });
         },
+    });
+}
+
+// Get questions by pool
+export function useQuestionsByPool(poolId: string) {
+    return useQuery({
+        queryKey: ['questions', 'pool', poolId],
+        queryFn: async () => {
+            const response = await apiClient.get<QuestionResponseDTO[]>(`/api/questions/pool/${poolId}`);
+            return response.data;
+        },
+        enabled: !!poolId,
     });
 }
 

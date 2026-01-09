@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -35,9 +35,10 @@ type CreateQuestionFormData = z.input<typeof questionCreateDTOSchema>;
 interface CreateQuestionDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    defaultPoolId?: string;
 }
 
-export function CreateQuestionDialog({ open, onOpenChange }: CreateQuestionDialogProps) {
+export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: CreateQuestionDialogProps) {
     const createQuestion = useCreateQuestion();
     const { data: poolsData } = useQuestionPools({ page: 1, limit: 100 });
     const [options, setOptions] = useState<Record<string, string>>({ A: '', B: '' });
@@ -59,11 +60,27 @@ export function CreateQuestionDialog({ open, onOpenChange }: CreateQuestionDialo
             correctAnswer: '',
             explanation: '',
             tags: [],
-            poolId: undefined,
+            poolId: defaultPoolId || undefined,
         },
     });
 
     const questionType = watch('questionType');
+
+    useEffect(() => {
+        if (open && defaultPoolId) {
+            reset({
+                questionText: '',
+                questionType: QuestionType.MULTIPLE_CHOICE,
+                jlptLevel: QuestionJlptLevel.N5,
+                category: QuestionCategory.VOCAB,
+                difficulty: QuestionDifficultyLevel.MEDIUM,
+                correctAnswer: '',
+                explanation: '',
+                tags: [],
+                poolId: defaultPoolId,
+            });
+        }
+    }, [open, defaultPoolId, reset]);
 
     const addOption = () => {
         const nextKey = String.fromCharCode(65 + optionKeys.length);
@@ -225,12 +242,12 @@ export function CreateQuestionDialog({ open, onOpenChange }: CreateQuestionDialo
                         render={({ field, fieldState }) => (
                             <Field>
                                 <FieldLabel>Question Pool (Optional)</FieldLabel>
-                                <Select value={field.value || ''} onValueChange={(value) => field.onChange(value || undefined)}>
+                                <Select value={field.value || 'none'} onValueChange={(value) => field.onChange(value === 'none' ? undefined : value)}>
                                     <SelectTrigger className="bg-background/50 border-border/40">
                                         <SelectValue placeholder="Select a pool" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="">None</SelectItem>
+                                        <SelectItem value="none">None</SelectItem>
                                         {poolsData?.data.map((pool) => (
                                             <SelectItem key={pool.id} value={pool.id}>
                                                 {pool.name}

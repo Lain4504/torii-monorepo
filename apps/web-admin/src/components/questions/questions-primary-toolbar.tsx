@@ -8,6 +8,7 @@ import {
     SelectValue,
 } from '@workspace/ui/components/select';
 import { QuestionType, QuestionStatus, QuestionCategory, QuestionDifficultyLevel, QuestionJlptLevel } from '@workspace/schemas';
+import { useQuestionPools } from '@/api/services/question-pools.ts';
 
 interface QuestionsPrimaryToolbarProps {
     search: string;
@@ -22,6 +23,8 @@ interface QuestionsPrimaryToolbarProps {
     onDifficultyFilterChange: (value: string) => void;
     statusFilter: string;
     onStatusFilterChange: (value: string) => void;
+    poolIdFilter?: string;
+    onPoolIdFilterChange?: (value: string) => void;
 }
 
 export function QuestionsPrimaryToolbar({
@@ -37,7 +40,10 @@ export function QuestionsPrimaryToolbar({
     onDifficultyFilterChange,
     statusFilter,
     onStatusFilterChange,
+    poolIdFilter,
+    onPoolIdFilterChange,
 }: QuestionsPrimaryToolbarProps) {
+    const { data: poolsData } = useQuestionPools({ page: 1, limit: 100 });
     return (
         <div className="space-y-4">
             <div className="flex flex-col sm:flex-row gap-4">
@@ -144,6 +150,27 @@ export function QuestionsPrimaryToolbar({
                             <SelectItem value={QuestionStatus.ARCHIVED}>Archived</SelectItem>
                         </SelectContent>
                     </Select>
+
+                    {onPoolIdFilterChange && (
+                        <Select
+                            value={poolIdFilter || 'all'}
+                            onValueChange={(value) =>
+                                onPoolIdFilterChange(value === 'all' ? '' : value)
+                            }
+                        >
+                            <SelectTrigger className="flex-1 sm:w-[160px] bg-background/50 border-border/40 focus:bg-background transition-all hover:bg-background/80">
+                                <SelectValue placeholder="Question Pool" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Pools</SelectItem>
+                                {poolsData?.data.map((pool) => (
+                                    <SelectItem key={pool.id} value={pool.id}>
+                                        {pool.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    )}
                 </div>
             </div>
         </div>

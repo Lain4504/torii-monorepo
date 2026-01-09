@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(course): integrate AutoMapper for Course entity mapping and update module structureè">
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/course/course.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/course/course.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/course/course.profile.ts" beforeDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(question-pools): add functionality to manage question pools with CRUD operations and filtering by course and JLPT level">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/question-bank/question-bank-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/question-bank/question-bank-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/question-pools/question-pools-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/question-pools/question-pools-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/questions/questions-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/questions/questions-page.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -14,7 +16,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="938" />
+    <option name="cachedIndexableFilesCount" value="953" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -280,39 +282,8 @@
       <workItem from="1767933733732" duration="482000" />
       <workItem from="1767937314619" duration="7276000" />
       <workItem from="1767954560047" duration="1564000" />
-      <workItem from="1767962792348" duration="3978000" />
-    </task>
-    <task id="LOCAL-00504" summary="refactor(ui): align theme styles with tokenized color system&#10;&#10;- Updated theme-specific class names to use tokenized variables (e.g., `bg-primary`, `text-muted-foreground`) for consistency.&#10;- Replaced hardcoded values with reusable theme tokens across authentication pages, course components, and layouts.&#10;- Enhanced visual elements, accessibility, and responsiveness.">
-      <option name="closed" value="true" />
-      <created>1767798311525</created>
-      <option name="number" value="00504" />
-      <option name="presentableId" value="LOCAL-00504" />
-      <option name="project" value="LOCAL" />
-      <updated>1767798311525</updated>
-    </task>
-    <task id="LOCAL-00505" summary="refactor(ui): align theme styles with tokenized color system&#10;&#10;- Updated theme-specific class names to use tokenized variables (e.g., `bg-primary`, `text-muted-foreground`) for consistency.&#10;- Replaced hardcoded values with reusable theme tokens across authentication pages, course components, and layouts.&#10;- Enhanced visual elements, accessibility, and responsiveness.">
-      <option name="closed" value="true" />
-      <created>1767798687966</created>
-      <option name="number" value="00505" />
-      <option name="presentableId" value="LOCAL-00505" />
-      <option name="project" value="LOCAL" />
-      <updated>1767798688164</updated>
-    </task>
-    <task id="LOCAL-00506" summary="refactor(ui): align theme styles with tokenized color system&#10;&#10;- Updated theme-specific class names to use tokenized variables (e.g., `bg-primary`, `text-muted-foreground`) for consistency.&#10;- Replaced hardcoded values with reusable theme tokens across authentication pages, course components, and layouts.&#10;- Enhanced visual elements, accessibility, and responsiveness.">
-      <option name="closed" value="true" />
-      <created>1767799112252</created>
-      <option name="number" value="00506" />
-      <option name="presentableId" value="LOCAL-00506" />
-      <option name="project" value="LOCAL" />
-      <updated>1767799112255</updated>
-    </task>
-    <task id="LOCAL-00507" summary="feat(database): document database design and add admin login interface method&#10;&#10;- Added new documentation: `database-design-overview.md` and `database-design-schema.md` for system architecture clarity.&#10;- Extended `IAuthService` interface with `adminLogin` for specialized admin portal authentication.">
-      <option name="closed" value="true" />
-      <created>1767800670317</created>
-      <option name="number" value="00507" />
-      <option name="presentableId" value="LOCAL-00507" />
-      <option name="project" value="LOCAL" />
-      <updated>1767800670318</updated>
+      <workItem from="1767962792348" duration="6426000" />
+      <workItem from="1767970155935" duration="772000" />
     </task>
     <task id="LOCAL-00508" summary="feat(database): document database design and add admin login interface method&#10;&#10;- Added new documentation: `database-design-overview.md` and `database-design-schema.md` for system architecture clarity.&#10;- Extended `IAuthService` interface with `adminLogin` for specialized admin portal authentication.">
       <option name="closed" value="true" />
@@ -674,7 +645,39 @@
       <option name="project" value="LOCAL" />
       <updated>1767966176596</updated>
     </task>
-    <option name="localTasksCounter" value="553" />
+    <task id="LOCAL-00553" summary="feat(course): integrate AutoMapper for Course entity mapping and update module structureè">
+      <option name="closed" value="true" />
+      <created>1767966825603</created>
+      <option name="number" value="00553" />
+      <option name="presentableId" value="LOCAL-00553" />
+      <option name="project" value="LOCAL" />
+      <updated>1767966825603</updated>
+    </task>
+    <task id="LOCAL-00554" summary="feat(course): integrate AutoMapper for Course entity mapping and update module structureè">
+      <option name="closed" value="true" />
+      <created>1767966865021</created>
+      <option name="number" value="00554" />
+      <option name="presentableId" value="LOCAL-00554" />
+      <option name="project" value="LOCAL" />
+      <updated>1767966865021</updated>
+    </task>
+    <task id="LOCAL-00555" summary="feat(user): integrate AutoMapper for User entity mapping and update module structureè">
+      <option name="closed" value="true" />
+      <created>1767967622389</created>
+      <option name="number" value="00555" />
+      <option name="presentableId" value="LOCAL-00555" />
+      <option name="project" value="LOCAL" />
+      <updated>1767967622389</updated>
+    </task>
+    <task id="LOCAL-00556" summary="feat(question-pools): add functionality to manage question pools with CRUD operations and filtering by course and JLPT level">
+      <option name="closed" value="true" />
+      <created>1767968232281</created>
+      <option name="number" value="00556" />
+      <option name="presentableId" value="LOCAL-00556" />
+      <option name="project" value="LOCAL" />
+      <updated>1767968232281</updated>
+    </task>
+    <option name="localTasksCounter" value="557" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -704,8 +707,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat(database): update schema by removing obsolete tables and commenting out unused structures" />
-    <MESSAGE value="feat(database): add new modules for gamification, payments, and user management" />
     <MESSAGE value="feat(auth): rename endpoints and update token generation for email verification" />
     <MESSAGE value="feat(rbac): simplify permissions handling by removing user-specific overrides" />
     <MESSAGE value="feat(database): add radix-ui dependency and update package lock" />
@@ -729,7 +730,9 @@
     <MESSAGE value="feat(lms): core rebuild with auth, schema, and service refactor (#59)" />
     <MESSAGE value="feat(lms): restructure controllers and repositories for exams, questions, and storage modules&#10;&#10;- Migrated all exam-related controllers and repository logic to dedicated modules.&#10;- Removed obsolete question, question pool, and storage controllers.&#10;- Introduced interfaces for exam services and repositories for better abstraction.&#10;- Added exam admin controller for admin-specific operations (e.g., stats, publishing).&#10;- Improved logging and error handling across exam-related endpoints." />
     <MESSAGE value="feat(course): integrate AutoMapper for Course entity mapping and update module structureè" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(course): integrate AutoMapper for Course entity mapping and update module structureè" />
+    <MESSAGE value="feat(user): integrate AutoMapper for User entity mapping and update module structureè" />
+    <MESSAGE value="feat(question-pools): add functionality to manage question pools with CRUD operations and filtering by course and JLPT level" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(question-pools): add functionality to manage question pools with CRUD operations and filtering by course and JLPT level" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -95,3 +95,27 @@ export function useDeleteQuestionPool() {
     });
 }
 
+// Get pools by course
+export function useQuestionPoolsByCourse(courseId: string) {
+    return useQuery({
+        queryKey: ['question-pools', 'course', courseId],
+        queryFn: async () => {
+            const response = await apiClient.get<QuestionPoolResponseDTO[]>(`/api/question-pools/course/${courseId}`);
+            return response.data;
+        },
+        enabled: !!courseId,
+    });
+}
+
+// Get pools by JLPT level
+export function useQuestionPoolsByJlptLevel(jlptLevel: string) {
+    return useQuery({
+        queryKey: ['question-pools', 'jlpt', jlptLevel],
+        queryFn: async () => {
+            const response = await apiClient.get<QuestionPoolResponseDTO[]>(`/api/question-pools/jlpt/${jlptLevel}`);
+            return response.data;
+        },
+        enabled: !!jlptLevel,
+    });
+}
+
