@@ -6,8 +6,15 @@
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: remove unused fields and update indexes in course schema">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/http/question-pool.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/http/question.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/repositories/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/repositories/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/services/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/services/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/learning.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/learning.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/exam/exam.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/exam/exam.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/exam/exam.module.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/exam/exam.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/exam/exam.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/models/exam.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/models/exam.model.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/api/services/exam-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/api/services/exam-api.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,7 +42,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="lms-rebuild" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -120,7 +127,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "quiz-rebuild",
     "ignore.virus.scanning.warn.message": "true",
     "javascript.preferred.runtime.type.id": "node",
     "junie.onboarding.icon.badge.shown": "true",

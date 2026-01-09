@@ -9,8 +9,8 @@ import {
     UseGuards,
     Req,
     Logger,
+    Inject,
 } from '@nestjs/common';
-import { ExamService } from './exam.service';
 import {
     type ExamQueryDTO,
     type ExamSessionStartResponseDTO,
@@ -22,20 +22,25 @@ import {
     type PaginatedResponseDTO,
 } from '@workspace/schemas';
 import { GatewayAuthGuard } from '@server/shared';
+import type { IExamService } from '../interfaces/services/i-exam.service';
+import { EXAM_SERVICE_TOKEN } from '../interfaces/services/i-exam.service';
 
-@Controller('v1/exams')
+@Controller('exams')
 @UseGuards(GatewayAuthGuard)
 export class ExamController {
     private readonly logger = new Logger(ExamController.name);
 
-    constructor(private readonly examService: ExamService) { }
+    constructor(
+        @Inject(EXAM_SERVICE_TOKEN)
+        private readonly examService: IExamService,
+    ) { }
 
     @Get()
     async findAll(
         @Query() query: ExamQueryDTO,
         @Req() req: any,
     ): Promise<PaginatedResponseDTO<ExamWithStatusResponseDTO>> {
-        this.logger.log(`GET /v1/exams called with query: ${JSON.stringify(query)}`);
+        this.logger.log(`GET /exams called with query: ${JSON.stringify(query)}`);
         const userId = req.user?.sub || req.user?.id || req.user?.userId;
         this.logger.log(`User ID: ${userId}`);
         const result = await this.examService.findAllWithStatus(query, userId);
@@ -44,7 +49,7 @@ export class ExamController {
     }
 
     /**
-     * GET /api/v1/exams/attempts
+     * GET /api/exams/attempts
      * Get user's exam attempts (history)
      * MUST be before @Get(':id') to avoid route conflict
      */
@@ -58,12 +63,12 @@ export class ExamController {
             this.logger.error('User ID not found in request', { user: req.user });
             throw new Error('User ID not found in request');
         }
-        this.logger.log(`GET /v1/exams/attempts called with query: ${JSON.stringify(query)}`);
+        this.logger.log(`GET /exams/attempts called with query: ${JSON.stringify(query)}`);
         return this.examService.getUserSessions(userId, query);
     }
 
     /**
-     * PUT /api/v1/exams/sessions/:sessionId/answers
+     * PUT /api/exams/sessions/:sessionId/answers
      * Save exam session answers
      */
     @Put('sessions/:sessionId/answers')
@@ -81,7 +86,7 @@ export class ExamController {
     }
 
     /**
-     * POST /api/v1/exams/sessions/:sessionId/submit
+     * POST /api/exams/sessions/:sessionId/submit
      * Submit exam session
      */
     @Post('sessions/:sessionId/submit')
@@ -98,7 +103,7 @@ export class ExamController {
     }
 
     /**
-     * POST /api/v1/exams/:id/start
+     * POST /api/exams/:id/start
      * Start an exam session
      * MUST be before @Get(':id') to avoid route conflict
      */
@@ -114,10 +119,22 @@ export class ExamController {
         }
         return this.examService.startExam(examId, userId);
     }
+
+    /**
+     * GET /api/exams/sessions/:sessionId/details
+     * Get attempt details with explanations (if allowed)
+     */
+    @Get('sessions/:sessionId/details')
+    async getAttemptDetails(
+        @Param('sessionId') sessionId: string,
+        @Req() req: any,
+    ): Promise<any> {
+        const userId = req.user?.sub || req.user?.id || req.user?.userId;
+        if (!userId) {
+            this.logger.error('User ID not found in request', { user: req.user });
+            throw new Error('User ID not found in request');
+        }
+        return this.examService.getAttemptDetails(sessionId, userId);
+    }
 }
-
-
-
-
-
 

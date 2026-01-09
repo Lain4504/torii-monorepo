@@ -38,6 +38,11 @@ import { LessonController } from './controllers/lesson.controller';
 import { CourseInstructorController } from './controllers/course-instructor.controller';
 import { LessonMaterialController } from './controllers/lesson-material.controller';
 import { StaffDashboardController } from './controllers/staff-dashboard.controller';
+import { ExamController } from './controllers/exam.controller';
+import { ExamAdminController } from './controllers/exam-admin.controller';
+import { QuestionController } from './controllers/question.controller';
+import { QuestionPoolController } from './controllers/question-pool.controller';
+import { StorageController } from './controllers/storage.controller';
 
 // Controllers (keeping existing ones from interfaces/http for now)
 import { WishlistController } from './controllers/wishlist.controller';
@@ -45,8 +50,6 @@ import { ReviewController } from './controllers/review.controller';
 import { BlogController } from './interfaces/http/blog.controller';
 import { BlogCommentController } from './interfaces/http/blog-comment.controller';
 import { NotificationController } from './interfaces/http/notification.controller';
-import { QuestionController } from './interfaces/http/question.controller';
-import { QuestionPoolController } from './interfaces/http/question-pool.controller';
 import { FlashcardDeckController } from './interfaces/http/flashcard-deck.controller';
 import { FlashcardController } from './interfaces/http/flashcard.controller';
 
@@ -94,13 +97,16 @@ import { FlashcardController } from './interfaces/http/flashcard.controller';
     CourseInstructorController,
     LessonMaterialController,
     StaffDashboardController,
+    ExamController,
+    ExamAdminController,
+    QuestionController,
+    QuestionPoolController,
+    StorageController,
     WishlistController,
     ReviewController,
     BlogController,
     BlogCommentController,
     NotificationController,
-    QuestionController,
-    QuestionPoolController,
     FlashcardDeckController,
     FlashcardController,
   ],

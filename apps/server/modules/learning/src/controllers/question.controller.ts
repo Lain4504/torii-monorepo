@@ -28,8 +28,8 @@ import type {
     PaginatedResponseDTO,
     ReqWithRequester,
 } from '@workspace/schemas';
-import type { IQuestionService } from '../services/i-question.service';
-import { QUESTION_SERVICE_TOKEN } from '../services/i-question.service';
+import type { IQuestionService } from '../interfaces/services/i-question.service';
+import { QUESTION_SERVICE_TOKEN } from '../interfaces/services/i-question.service';
 
 /**
  * Question HTTP Controller
