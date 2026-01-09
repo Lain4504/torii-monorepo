@@ -1,18 +1,22 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit, Inject } from '@nestjs/common';
 import { FastMCP } from 'fastmcp';
 import { z } from 'zod';
-import { SenseiAgentService } from '../sensei-agent/sensei-agent.service';
-import { AssessmentAgentService } from '../assessment-agent/assessment-agent.service';
-import { AnalyticsAgentService } from '../analytics-agent/analytics-agent.service';
+import type { ISenseiAgentService } from '../interfaces/services';
+import type { IAssessmentAgentService } from '../interfaces/services';
+import type { IAnalyticsAgentService } from '../interfaces/services';
+import { SENSEI_AGENT_SERVICE_TOKEN, ASSESSMENT_AGENT_SERVICE_TOKEN, ANALYTICS_AGENT_SERVICE_TOKEN } from '../interfaces/services';
 
 @Injectable()
 export class FastMcpService implements OnModuleInit {
   private server: FastMCP;
 
   constructor(
-    private readonly senseiService: SenseiAgentService,
-    private readonly assessmentService: AssessmentAgentService,
-    private readonly analyticsService: AnalyticsAgentService,
+    @Inject(SENSEI_AGENT_SERVICE_TOKEN)
+    private readonly senseiService: ISenseiAgentService,
+    @Inject(ASSESSMENT_AGENT_SERVICE_TOKEN)
+    private readonly assessmentService: IAssessmentAgentService,
+    @Inject(ANALYTICS_AGENT_SERVICE_TOKEN)
+    private readonly analyticsService: IAnalyticsAgentService,
   ) {}
 
   onModuleInit() {

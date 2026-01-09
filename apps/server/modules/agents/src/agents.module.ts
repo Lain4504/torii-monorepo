@@ -5,12 +5,9 @@ import { AssessmentAgentModule } from './assessment-agent/assessment-agent.modul
 import { AnalyticsAgentModule } from './analytics-agent/analytics-agent.module';
 import { SharedModule } from './shared/shared.module';
 import { FastMcpModule } from './fastmcp/fastmcp.module';
-import { SenseiController } from './interfaces/http/sensei.controller';
-import { AssessmentController } from './interfaces/http/assessment.controller';
-import { AnalyticsController } from './interfaces/http/analytics.controller';
-import { SenseiAgentController } from './interfaces/nats/sensei-agent.controller';
-import { AssessmentAgentController } from './interfaces/nats/assessment-agent.controller';
-import { AnalyticsAgentController } from './interfaces/nats/analytics-agent.controller';
+import { SenseiController } from './controllers/sensei.controller';
+import { AssessmentController } from './controllers/assessment.controller';
+import { AnalyticsController } from './controllers/analytics.controller';
 
 @Module({
   imports: [
@@ -23,7 +20,7 @@ import { AnalyticsAgentController } from './interfaces/nats/analytics-agent.cont
     AnalyticsAgentModule,
     FastMcpModule,
   ],
-  controllers: [SenseiController, AssessmentController, AnalyticsController, SenseiAgentController, AssessmentAgentController, AnalyticsAgentController],
+  controllers: [SenseiController, AssessmentController, AnalyticsController],
   providers: [],
 })
 export class AgentsModule { }

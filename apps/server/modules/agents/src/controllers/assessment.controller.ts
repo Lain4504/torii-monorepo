@@ -1,12 +1,17 @@
-import { Controller, Post, Body, Logger } from '@nestjs/common';
-import { AssessmentAgentService } from '../../assessment-agent/assessment-agent.service';
-import { GenerateTestDto, EvaluateTestDto, GetBenchmarkDto, ScheduleTestDto } from '../../dtos/assessment.dto';
+import { Controller, Post, Body, Logger, Inject } from '@nestjs/common';
+import { AssessmentAgentService } from '../assessment-agent/assessment-agent.service';
+import { GenerateTestDto, EvaluateTestDto, GetBenchmarkDto, ScheduleTestDto } from '../dtos/assessment.dto';
+import type { IAssessmentAgentService } from '../interfaces/services';
+import { ASSESSMENT_AGENT_SERVICE_TOKEN } from '../interfaces/services';
 
 @Controller('agents')
 export class AssessmentController {
   private readonly logger = new Logger(AssessmentController.name);
 
-  constructor(private readonly assessmentService: AssessmentAgentService) {}
+  constructor(
+    @Inject(ASSESSMENT_AGENT_SERVICE_TOKEN)
+    private readonly assessmentService: IAssessmentAgentService,
+  ) {}
 
   @Post('test/generate')
   async generateTest(@Body() body: GenerateTestDto) {
