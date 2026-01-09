@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { courseSchema, JlptLevel, CourseStatus, deriveCourseStatus } from '../models/course.model';
+import { CourseStatus, courseSchema, JlptLevel, deriveCourseStatus } from '../models/course.model';
 
 export const courseCreateDTOSchema = courseSchema
     .pick({

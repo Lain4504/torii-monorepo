@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { AutomapperModule } from '@automapper/nestjs';
+import { pojos } from '@automapper/pojos';
 import { PrismaModule, SharedModule } from '@server/shared';
 
 // LMS Modules
@@ -57,6 +59,9 @@ import { FlashcardController } from './interfaces/http/flashcard.controller';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+    }),
+    AutomapperModule.forRoot({
+      strategyInitializer: pojos(),
     }),
     SharedModule,
     PrismaModule,

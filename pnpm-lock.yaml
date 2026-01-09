@@ -112,6 +112,18 @@ importers:
 
   apps/server:
     dependencies:
+      '@automapper/classes':
+        specifier: ^8.8.1
+        version: 8.8.1(@automapper/core@8.8.1)(reflect-metadata@0.2.2)
+      '@automapper/core':
+        specifier: ^8.8.1
+        version: 8.8.1
+      '@automapper/nestjs':
+        specifier: ^8.8.1
+        version: 8.8.1(@automapper/core@8.8.1)(@nestjs/common@11.1.9(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.9)
+      '@automapper/pojos':
+        specifier: ^8.8.1
+        version: 8.8.1(@automapper/core@8.8.1)
       '@aws-sdk/client-s3':
         specifier: ^3.956.0
         version: 3.956.0
@@ -803,6 +815,31 @@ packages:
   '@angular-devkit/schematics@19.2.19':
     resolution: {integrity: sha512-J4Jarr0SohdrHcb40gTL4wGPCQ952IMWF1G/MSAQfBAPvA9ZKApYhpxcY7PmehVePve+ujpus1dGsJ7dPxz8Kg==}
     engines: {node: ^18.19.1 || ^20.11.1 || >=22.0.0, npm: ^6.11.0 || ^7.5.6 || >=8.0.0, yarn: '>= 1.13.0'}
+
+  '@automapper/classes@8.8.1':
+    resolution: {integrity: sha512-qWP92Vz4z5zGWVXVkoGKmI9PIiAh8uhTBcKpKMmTVwmS1wfOQgj3ceD+A3mlC9ZUTohwvXebS3M30scLaUZmeg==}
+    engines: {node: '>=16.0.0'}
+    peerDependencies:
+      '@automapper/core': 8.8.1
+      reflect-metadata: ~0.1.13
+
+  '@automapper/core@8.8.1':
+    resolution: {integrity: sha512-VIRULNAImqaTojp8zqhVGVimjxjriawqZWlemooWh5B5tX2XlgA6icPrQBQh+M9wY8IVQipBTOcr338N9lf8RA==}
+    engines: {node: '>=16.0.0'}
+
+  '@automapper/nestjs@8.8.1':
+    resolution: {integrity: sha512-EeC0UBoBIchnWwNdfVUb0bbOKaHhuDLBOFXeZbwUxFcOn2CR+zOs96Dv6gd9x0WGZGcdZ39h4hkDaos6QPCG+Q==}
+    engines: {node: '>=16.0.0'}
+    peerDependencies:
+      '@automapper/core': 8.8.1
+      '@nestjs/common': ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0
+      '@nestjs/core': ^7.0.0 || ^8.0.0  || ^9.0.0 || ^10.0.0
+
+  '@automapper/pojos@8.8.1':
+    resolution: {integrity: sha512-nHzNmzPNikflL1S0m1NA9lYpPC54ZS/Mo/j2yyvyfoXjIqqzVmVWYefgp1EJRbqrL0g6lS/ZgSdEKgmUW/Tv0w==}
+    engines: {node: '>=16.0.0'}
+    peerDependencies:
+      '@automapper/core': 8.8.1
 
   '@aws-crypto/crc32@5.2.0':
     resolution: {integrity: sha512-nLbCWqQNgUiwwtFsen1AdzAtvuLRsQS8rYgMuxCrdKf9kOssamGLuPwyTY9wyYblNr9+1XM8v6zoDTPPSIeANg==}
@@ -8554,6 +8591,23 @@ snapshots:
     transitivePeerDependencies:
       - chokidar
 
+  '@automapper/classes@8.8.1(@automapper/core@8.8.1)(reflect-metadata@0.2.2)':
+    dependencies:
+      '@automapper/core': 8.8.1
+      reflect-metadata: 0.2.2
+
+  '@automapper/core@8.8.1': {}
+
+  '@automapper/nestjs@8.8.1(@automapper/core@8.8.1)(@nestjs/common@11.1.9(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.9)':
+    dependencies:
+      '@automapper/core': 8.8.1
+      '@nestjs/common': 11.1.9(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/core': 11.1.9(@nestjs/common@11.1.9(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/microservices@10.4.20)(@nestjs/platform-express@11.1.9)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+
+  '@automapper/pojos@8.8.1(@automapper/core@8.8.1)':
+    dependencies:
+      '@automapper/core': 8.8.1
+
   '@aws-crypto/crc32@5.2.0':
     dependencies:
       '@aws-crypto/util': 5.2.0
@@ -14342,7 +14396,7 @@ snapshots:
       strict-event-emitter-types: 2.0.0
       undici: 7.16.0
       uri-templates: 0.2.0
-      xsschema: 0.4.0-beta.5(effect@3.18.4)(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@4.3.5)
+      xsschema: 0.4.0-beta.5(effect@3.18.4)(zod-to-json-schema@3.25.1(zod@4.3.5))(zod@4.3.5)
       yargs: 18.0.0
       zod: 4.3.5
       zod-to-json-schema: 3.25.1(zod@4.3.5)
@@ -17778,7 +17832,7 @@ snapshots:
       imurmurhash: 0.1.4
       signal-exit: 4.1.0
 
-  xsschema@0.4.0-beta.5(effect@3.18.4)(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@4.3.5):
+  xsschema@0.4.0-beta.5(effect@3.18.4)(zod-to-json-schema@3.25.1(zod@4.3.5))(zod@4.3.5):
     optionalDependencies:
       effect: 3.18.4
       zod: 4.3.5

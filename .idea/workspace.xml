@@ -4,17 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: remove unused fields and update indexes in course schema">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/http/question-pool.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/http/question.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/repositories/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/repositories/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/services/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/services/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/learning.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/learning.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/exam/exam.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/exam/exam.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/exam/exam.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/exam/exam.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/exam/exam.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/api/services/exam-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/api/services/exam-api.ts" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(course): integrate AutoMapper for Course entity mapping and update module structureè">
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/course/course.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/course/course.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/course/course.profile.ts" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -22,7 +14,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="917" />
+    <option name="cachedIndexableFilesCount" value="938" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -114,43 +106,43 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
-    "JavaScript Debug.localhost:3000.executor": "Debug",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "quiz-rebuild",
-    "ignore.virus.scanning.warn.message": "true",
-    "javascript.preferred.runtime.type.id": "node",
-    "junie.onboarding.icon.badge.shown": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "E:/projectdev/bmap-capstone/torii-monorepo/packages/ui",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "pnpm",
-    "settings.editor.selected.configurable": "ml.llm.LLMThirdPartyAiProvidersConfigurable",
-    "to.speed.mode.migration.done": "true",
-    "ts.external.directory.path": "E:\\projectdev\\bmap-capstone\\torii-monorepo\\node_modules\\typescript\\lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Docker.docker-compose.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
+    &quot;JavaScript Debug.localhost:3000.executor&quot;: &quot;Debug&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;quiz-rebuild&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;E:/projectdev/bmap-capstone/torii-monorepo/packages/ui&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;ml.llm.LLMThirdPartyAiProvidersConfigurable&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;E:\\projectdev\\bmap-capstone\\torii-monorepo\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "redis",
-      "mongo",
-      "postgresql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;redis&quot;,
+      &quot;mongo&quot;,
+      &quot;postgresql&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="QodanaCIConfigService">
     <option name="path" value="$PROJECT_DIR$/.github/workflows/qodana_code_quality.yml" />
   </component>
@@ -288,22 +280,7 @@
       <workItem from="1767933733732" duration="482000" />
       <workItem from="1767937314619" duration="7276000" />
       <workItem from="1767954560047" duration="1564000" />
-    </task>
-    <task id="LOCAL-00502" summary="cursor gen: update theme">
-      <option name="closed" value="true" />
-      <created>1767796935423</created>
-      <option name="number" value="00502" />
-      <option name="presentableId" value="LOCAL-00502" />
-      <option name="project" value="LOCAL" />
-      <updated>1767796935423</updated>
-    </task>
-    <task id="LOCAL-00503" summary="cursor gen: update theme">
-      <option name="closed" value="true" />
-      <created>1767797013944</created>
-      <option name="number" value="00503" />
-      <option name="presentableId" value="LOCAL-00503" />
-      <option name="project" value="LOCAL" />
-      <updated>1767797013944</updated>
+      <workItem from="1767962792348" duration="3978000" />
     </task>
     <task id="LOCAL-00504" summary="refactor(ui): align theme styles with tokenized color system&#10;&#10;- Updated theme-specific class names to use tokenized variables (e.g., `bg-primary`, `text-muted-foreground`) for consistency.&#10;- Replaced hardcoded values with reusable theme tokens across authentication pages, course components, and layouts.&#10;- Enhanced visual elements, accessibility, and responsiveness.">
       <option name="closed" value="true" />
@@ -681,7 +658,23 @@
       <option name="project" value="LOCAL" />
       <updated>1767944760226</updated>
     </task>
-    <option name="localTasksCounter" value="551" />
+    <task id="LOCAL-00551" summary="feat(lms): restructure controllers and repositories for exams, questions, and storage modules&#10;&#10;- Migrated all exam-related controllers and repository logic to dedicated modules.&#10;- Removed obsolete question, question pool, and storage controllers.&#10;- Introduced interfaces for exam services and repositories for better abstraction.&#10;- Added exam admin controller for admin-specific operations (e.g., stats, publishing).&#10;- Improved logging and error handling across exam-related endpoints.">
+      <option name="closed" value="true" />
+      <created>1767961334186</created>
+      <option name="number" value="00551" />
+      <option name="presentableId" value="LOCAL-00551" />
+      <option name="project" value="LOCAL" />
+      <updated>1767961334186</updated>
+    </task>
+    <task id="LOCAL-00552" summary="feat(course): integrate AutoMapper for Course entity mapping and update module structureè">
+      <option name="closed" value="true" />
+      <created>1767966176596</created>
+      <option name="number" value="00552" />
+      <option name="presentableId" value="LOCAL-00552" />
+      <option name="project" value="LOCAL" />
+      <updated>1767966176596</updated>
+    </task>
+    <option name="localTasksCounter" value="553" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -711,9 +704,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat(auth): update user status handling and improve UI components" />
-    <MESSAGE value="feat(auth): replace refresh token mechanism with session-based implementation  &#10;&#10;- Renamed `RefreshTokenService` to `SessionService` and updated all references.  &#10;- Replaced `refresh_tokens` table with `sessions` table, adding metadata fields (IP, user agent, device info).  &#10;- Updated Prisma schema to reflect the new `Session` model.  &#10;- Refactored authentication flow to use sessions for token creation, verification, and revocation.  &#10;- Added support for session cleanup with metadata logging for improved traceability and security." />
-    <MESSAGE value="feat(auth): sync database schema and Prisma models with session-based authentication&#10;&#10;- Replaced `refresh_tokens` table with `sessions` table in database schema.&#10;- Updated tables to include extended metadata (e.g., IP, user agent, device info).&#10;- Synced Prisma models with revised schema, optimizing for session management.&#10;- Removed legacy user role and permission tables, consolidating mappings with updated schemas.&#10;- Added tables for `user_identities`, `two_factor_auth`, and audit functionalities for improved security and logging." />
     <MESSAGE value="feat(database): update schema by removing obsolete tables and commenting out unused structures" />
     <MESSAGE value="feat(database): add new modules for gamification, payments, and user management" />
     <MESSAGE value="feat(auth): rename endpoints and update token generation for email verification" />
@@ -736,7 +726,10 @@
     <MESSAGE value="feat: add SQL functions and triggers for course aggregate fields" />
     <MESSAGE value="vf" />
     <MESSAGE value="refactor: remove unused fields and update indexes in course schema" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: remove unused fields and update indexes in course schema" />
+    <MESSAGE value="feat(lms): core rebuild with auth, schema, and service refactor (#59)" />
+    <MESSAGE value="feat(lms): restructure controllers and repositories for exams, questions, and storage modules&#10;&#10;- Migrated all exam-related controllers and repository logic to dedicated modules.&#10;- Removed obsolete question, question pool, and storage controllers.&#10;- Introduced interfaces for exam services and repositories for better abstraction.&#10;- Added exam admin controller for admin-specific operations (e.g., stats, publishing).&#10;- Improved logging and error handling across exam-related endpoints." />
+    <MESSAGE value="feat(course): integrate AutoMapper for Course entity mapping and update module structureè" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(course): integrate AutoMapper for Course entity mapping and update module structureè" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

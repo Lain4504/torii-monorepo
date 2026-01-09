@@ -1,5 +1,7 @@
 import { Injectable, Logger, Inject, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { InjectMapper } from '@automapper/nestjs';
+import type { Mapper } from '@automapper/core';
 import { generateSlug } from '@server/shared';
 import type { Course } from '@prisma/generated';
 import { validate as uuidValidate } from 'uuid';
@@ -35,45 +37,14 @@ export class CourseService implements ICourseService {
     private readonly lessonRepository: ILessonRepository,
     @Inject('NATS_SERVICE')
     private readonly natsClient: ClientProxy,
+    @InjectMapper() private readonly mapper: Mapper,
   ) { }
 
   /**
-   * Map Course entity to CourseResponseDTO
+   * Map Course entity to CourseResponseDTO using AutoMapper
    */
   private toCourseResponseDTO(course: Course): CourseResponseDTO {
-    return {
-      id: course.id,
-      title: course.title,
-      slug: course.slug,
-      type: course.type as 'vod' | 'live',
-      description: course.description || undefined,
-      shortDescription: course.shortDescription || undefined,
-      jlptLevel: course.jlptLevel as any,
-      aiMetadata: (course.aiMetadata as any) || undefined,
-      thumbnailUrl: course.thumbnailUrl || undefined,
-      previewVideoUrl: course.previewVideoUrl || undefined,
-      price: Number(course.price),
-      discountPrice: course.discountPrice ? Number(course.discountPrice) : undefined,
-      liveConfig: (course.liveConfig as any) || undefined,
-      durationWeeks: course.durationWeeks || undefined,
-      totalLessons: course.totalLessons,
-      totalQuizzes: course.totalQuizzes,
-      totalStudents: course.totalStudents,
-      averageRating: Number(course.averageRating),
-      totalReviews: course.totalReviews,
-      status: (course as any).status as CourseStatus,
-
-      isFree: course.isFree,
-      tags: course.tags,
-      learningOutcomes: course.learningOutcomes || undefined,
-      requirements: course.requirements || undefined,
-      createdBy: course.createdBy || undefined,
-      approvedBy: course.approvedBy || undefined,
-      approvedAt: course.approvedAt || undefined,
-      createdAt: course.createdAt,
-      updatedAt: course.updatedAt,
-      deletedAt: course.deletedAt || undefined,
-    };
+    return this.mapper.map<Course, CourseResponseDTO>(course, 'Course', 'CourseResponseDTO');
   }
 
   /**
