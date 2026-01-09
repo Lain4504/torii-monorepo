@@ -4,7 +4,7 @@ import { UsersTable } from '@/components/users/users-table.tsx';
 import { CreateUserDialog } from '@/components/users/create-user-dialog.tsx';
 import { EditUserDialog } from '@/components/users/edit-user-dialog.tsx';
 import { DeleteUserDialog } from '@/components/users/delete-user-dialog.tsx';
-import { ViewUserDialog } from '@/components/users/view-user-dialog.tsx';
+import { ViewUserSheet } from '@/components/users/view-user-sheet.tsx';
 import type { UserResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
 import { useUsers } from "@/api/services/users.ts";
@@ -135,7 +135,7 @@ export function UsersPage() {
                 </div>
                 <Button
                     onClick={createDialog.setTrue}
-                    className="w-full sm:w-auto rounded-full shadow-lg shadow-primary/20 bg-primary text-sm sm:text-base"
+                    className="w-full sm:w-auto rounded-lg shadow-lg shadow-primary/20 bg-primary text-sm sm:text-base"
                     size="sm"
                 >
                     Add New User
@@ -250,7 +250,7 @@ export function UsersPage() {
                 user={deletingUser}
             />
 
-            <ViewUserDialog
+            <ViewUserSheet
                 open={!!viewingUser}
                 onOpenChange={(open) => !open && setViewingUser(null)}
                 user={viewingUser}

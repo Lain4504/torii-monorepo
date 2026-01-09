@@ -119,7 +119,7 @@ export function DashboardHeader() {
                   {user?.email}
                 </p>
                 <div className="mt-2">
-                  <Badge variant={getRoleBadgeVariant(user?.role || null)} className="text-[10px] px-2 py-0.5 rounded-full capitalize">
+                  <Badge variant={getRoleBadgeVariant(user?.role || null)} className="text-[10px] px-2 py-0.5 rounded-md capitalize">
                     {user?.role || 'USER'}
                   </Badge>
                 </div>

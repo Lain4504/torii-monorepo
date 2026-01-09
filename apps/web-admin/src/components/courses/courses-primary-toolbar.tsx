@@ -26,57 +26,55 @@ export function CoursesPrimaryToolbar({
     onJlptLevelFilterChange,
 }: CoursesPrimaryToolbarProps) {
     return (
-        <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row gap-4">
-                {/* Search Input - Flexible width */}
-                <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60 peer-focus:text-foreground transition-colors" />
-                    <Input
-                        placeholder="Search courses by title..."
-                        value={search}
-                        onChange={(e) => onSearchChange(e.target.value)}
-                        className="pl-9 w-full bg-background/50 border-border/40 focus:bg-background transition-all hover:bg-background/80"
-                    />
-                </div>
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center justify-between">
+            <div className="relative flex-1 w-full sm:max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 dark:text-muted-foreground/80" />
+                <Input
+                    placeholder="Search courses..."
+                    value={search}
+                    onChange={(e) => onSearchChange(e.target.value)}
+                    className="pl-9 border border-border/50 bg-muted/50 dark:bg-muted/70 hover:bg-muted/70 dark:hover:bg-muted/80 focus-visible:ring-2 focus-visible:ring-primary/30 dark:focus-visible:ring-primary/40 rounded-xl transition-all text-sm sm:text-base"
+                />
+            </div>
 
-                {/* Filters - Responsive layout */}
-                <div className="flex flex-row gap-3">
-                    <Select
-                        value={statusFilter || 'all'}
-                        onValueChange={(value) =>
-                            onStatusFilterChange(value === 'all' ? '' : value)
-                        }
-                    >
-                        <SelectTrigger className="flex-1 sm:w-[150px] bg-background/50 border-border/40 focus:bg-background transition-all hover:bg-background/80">
-                            <SelectValue placeholder="Status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Status</SelectItem>
-                            <SelectItem value="draft">Draft</SelectItem>
-                            <SelectItem value="published">Published</SelectItem>
-                            <SelectItem value="archived">Archived</SelectItem>
-                        </SelectContent>
-                    </Select>
+            <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                {/* Status Filter */}
+                <Select
+                    value={statusFilter || 'all'}
+                    onValueChange={(value) =>
+                        onStatusFilterChange(value === 'all' ? '' : value)
+                    }
+                >
+                    <SelectTrigger className="flex-1 sm:flex-none sm:w-[180px] border border-border/50 bg-muted/50 dark:bg-muted/70 hover:bg-muted/70 dark:hover:bg-muted/80 rounded-xl transition-all focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary/40 text-sm sm:text-base">
+                        <SelectValue placeholder="All Status" />
+                    </SelectTrigger>
+                    <SelectContent className="border-none shadow-xl bg-background/90 backdrop-blur-xl rounded-xl">
+                        <SelectItem value="all" className="rounded-lg cursor-pointer">All Status</SelectItem>
+                        <SelectItem value="draft" className="rounded-lg cursor-pointer">Draft</SelectItem>
+                        <SelectItem value="published" className="rounded-lg cursor-pointer">Published</SelectItem>
+                        <SelectItem value="archived" className="rounded-lg cursor-pointer">Archived</SelectItem>
+                    </SelectContent>
+                </Select>
 
-                    <Select
-                        value={jlptLevelFilter || 'all'}
-                        onValueChange={(value) =>
-                            onJlptLevelFilterChange(value === 'all' ? '' : value)
-                        }
-                    >
-                        <SelectTrigger className="flex-1 sm:w-[150px] bg-background/50 border-border/40 focus:bg-background transition-all hover:bg-background/80">
-                            <SelectValue placeholder="Level" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Levels</SelectItem>
-                            <SelectItem value="N5">N5</SelectItem>
-                            <SelectItem value="N4">N4</SelectItem>
-                            <SelectItem value="N3">N3</SelectItem>
-                            <SelectItem value="N2">N2</SelectItem>
-                            <SelectItem value="N1">N1</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
+                {/* JLPT Level Filter */}
+                <Select
+                    value={jlptLevelFilter || 'all'}
+                    onValueChange={(value) =>
+                        onJlptLevelFilterChange(value === 'all' ? '' : value)
+                    }
+                >
+                    <SelectTrigger className="flex-1 sm:flex-none sm:w-[180px] border border-border/50 bg-muted/50 dark:bg-muted/70 hover:bg-muted/70 dark:hover:bg-muted/80 rounded-xl transition-all focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary/40 text-sm sm:text-base">
+                        <SelectValue placeholder="All Levels" />
+                    </SelectTrigger>
+                    <SelectContent className="border-none shadow-xl bg-background/90 backdrop-blur-xl rounded-xl">
+                        <SelectItem value="all" className="rounded-lg cursor-pointer">All Levels</SelectItem>
+                        <SelectItem value="N5" className="rounded-lg cursor-pointer">N5</SelectItem>
+                        <SelectItem value="N4" className="rounded-lg cursor-pointer">N4</SelectItem>
+                        <SelectItem value="N3" className="rounded-lg cursor-pointer">N3</SelectItem>
+                        <SelectItem value="N2" className="rounded-lg cursor-pointer">N2</SelectItem>
+                        <SelectItem value="N1" className="rounded-lg cursor-pointer">N1</SelectItem>
+                    </SelectContent>
+                </Select>
             </div>
         </div>
     );

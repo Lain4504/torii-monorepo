@@ -34,8 +34,10 @@ export class ProxyController {
         // ============================================
         // LMS Domain
         '/api/courses': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
+        '/api/course-instructors': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
         '/api/modules': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
         '/api/lessons': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
+        '/api/lesson-materials': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
         '/api/wishlists': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
         '/api/reviews': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
 

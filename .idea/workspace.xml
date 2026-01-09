@@ -4,9 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update 3">
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/create-course-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/create-course-dialog.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/course-detail-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/course-detail-page.tsx" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="style: update button styles and improve dialog handling">
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/create-course-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/create-course-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/edit-course-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/edit-course-sheet.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -109,6 +109,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
+    "JavaScript Debug.localhost:5173.executor": "Debug",
     "Jest.BlacklistService.executor": "Run",
     "RunOnceActivity.MCP Project settings loaded": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -119,8 +120,9 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "#59 on lms-rebuild",
+    "git-widget-placeholder": "lms-rebuild",
     "ignore.virus.scanning.warn.message": "true",
+    "javascript.preferred.runtime.type.id": "node",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "E:/projectdev/bmap-capstone/torii-monorepo/packages/ui",
@@ -132,7 +134,7 @@
     "nodejs_package_manager_path": "pnpm",
     "settings.editor.selected.configurable": "com.github.copilot.settings.mcp.McpConfigurable",
     "to.speed.mode.migration.done": "true",
-    "ts.external.directory.path": "E:\\Ky8\\torii-monorepo\\node_modules\\typescript\\lib",
+    "ts.external.directory.path": "E:\\projectdev\\bmap-capstone\\torii-monorepo\\node_modules\\typescript\\lib",
     "vue.rearranger.settings.migration": "true"
   },
   "keyToStringList": {
@@ -159,7 +161,7 @@
       <recent name="E:\Ky8\bmap-capstone\torii-monorepo\apps\web-learner\lib\providers" />
     </key>
   </component>
-  <component name="RunManager" selected="Jest.BlacklistService">
+  <component name="RunManager" selected="JavaScript Debug.localhost:5173">
     <configuration name="BlacklistService" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
       <node-interpreter value="project" />
       <jest-package value="$PROJECT_DIR$/apps/server/node_modules/jest" />
@@ -170,6 +172,9 @@
       <test-names>
         <test-name value="BlacklistService" />
       </test-names>
+      <method v="2" />
+    </configuration>
+    <configuration name="localhost:5173" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:5173/">
       <method v="2" />
     </configuration>
     <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
@@ -188,8 +193,8 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JavaScript Debug.localhost:5173" />
         <item itemvalue="Jest.BlacklistService" />
-        <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
@@ -276,46 +281,6 @@
       <workItem from="1767780214679" duration="224000" />
       <workItem from="1767784611248" duration="3225000" />
       <workItem from="1767888786556" duration="3081000" />
-    </task>
-    <task id="LOCAL-00518" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
-      <option name="closed" value="true" />
-      <created>1767802756548</created>
-      <option name="number" value="00518" />
-      <option name="presentableId" value="LOCAL-00518" />
-      <option name="project" value="LOCAL" />
-      <updated>1767802756616</updated>
-    </task>
-    <task id="LOCAL-00519" summary="feat(users): integrate EmailModule for user management enhancements">
-      <option name="closed" value="true" />
-      <created>1767832879775</created>
-      <option name="number" value="00519" />
-      <option name="presentableId" value="LOCAL-00519" />
-      <option name="project" value="LOCAL" />
-      <updated>1767832879775</updated>
-    </task>
-    <task id="LOCAL-00520" summary="feat(users): enhance create-user-dialog with multi-step flow and role selection&#10;&#10;- Added multi-step form flow for user creation (details &gt; role selection).&#10;- Introduced UI updates for better usability and visual consistency.&#10;- Implemented support for staff role variants with descriptive labels.&#10;- Improved form validation and error handling logic.">
-      <option name="closed" value="true" />
-      <created>1767846397654</created>
-      <option name="number" value="00520" />
-      <option name="presentableId" value="LOCAL-00520" />
-      <option name="project" value="LOCAL" />
-      <updated>1767846397654</updated>
-    </task>
-    <task id="LOCAL-00521" summary="feat(users): enhance create-user-dialog with multi-step flow and role selection&#10;&#10;- Added multi-step form flow for user creation (details &gt; role selection).&#10;- Introduced UI updates for better usability and visual consistency.&#10;- Implemented support for staff role variants with descriptive labels.&#10;- Improved form validation and error handling logic.">
-      <option name="closed" value="true" />
-      <created>1767848496580</created>
-      <option name="number" value="00521" />
-      <option name="presentableId" value="LOCAL-00521" />
-      <option name="project" value="LOCAL" />
-      <updated>1767848496580</updated>
-    </task>
-    <task id="LOCAL-00522" summary="feat(users): enhance create-user-dialog with multi-step flow and role selection&#10;&#10;- Added multi-step form flow for user creation (details &gt; role selection).&#10;- Introduced UI updates for better usability and visual consistency.&#10;- Implemented support for staff role variants with descriptive labels.&#10;- Improved form validation and error handling logic.">
-      <option name="closed" value="true" />
-      <created>1767848937008</created>
-      <option name="number" value="00522" />
-      <option name="presentableId" value="LOCAL-00522" />
-      <option name="project" value="LOCAL" />
-      <updated>1767848937008</updated>
     </task>
     <task id="LOCAL-00523" summary="feat(users): enhance create-user-dialog with multi-step flow and role selection&#10;&#10;- Added multi-step form flow for user creation (details &gt; role selection).&#10;- Introduced UI updates for better usability and visual consistency.&#10;- Implemented support for staff role variants with descriptive labels.&#10;- Improved form validation and error handling logic.">
       <option name="closed" value="true" />
@@ -669,7 +634,47 @@
       <option name="project" value="LOCAL" />
       <updated>1767893153483</updated>
     </task>
-    <option name="localTasksCounter" value="567" />
+    <task id="LOCAL-00567" summary="style: update button styles and improve dialog handling">
+      <option name="closed" value="true" />
+      <created>1767922137914</created>
+      <option name="number" value="00567" />
+      <option name="presentableId" value="LOCAL-00567" />
+      <option name="project" value="LOCAL" />
+      <updated>1767922137914</updated>
+    </task>
+    <task id="LOCAL-00568" summary="style: update button styles and improve dialog handling">
+      <option name="closed" value="true" />
+      <created>1767922570731</created>
+      <option name="number" value="00568" />
+      <option name="presentableId" value="LOCAL-00568" />
+      <option name="project" value="LOCAL" />
+      <updated>1767922570731</updated>
+    </task>
+    <task id="LOCAL-00569" summary="style: update button styles and improve dialog handling">
+      <option name="closed" value="true" />
+      <created>1767922759762</created>
+      <option name="number" value="00569" />
+      <option name="presentableId" value="LOCAL-00569" />
+      <option name="project" value="LOCAL" />
+      <updated>1767922759762</updated>
+    </task>
+    <task id="LOCAL-00570" summary="style: update button styles and improve dialog handling">
+      <option name="closed" value="true" />
+      <created>1767922925822</created>
+      <option name="number" value="00570" />
+      <option name="presentableId" value="LOCAL-00570" />
+      <option name="project" value="LOCAL" />
+      <updated>1767922925823</updated>
+    </task>
+    <task id="LOCAL-00571" summary="style: update button styles and improve dialog handling">
+      <option name="closed" value="true" />
+      <created>1767924602624</created>
+      <option name="number" value="00571" />
+      <option name="presentableId" value="LOCAL-00571" />
+      <option name="project" value="LOCAL" />
+      <updated>1767924602625</updated>
+    </task>
+    <option name="localTasksCounter" value="572" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1150,36 +1155,21 @@
         <option value="$PROJECT_DIR$/apps/server/libs/shared/src/utils/access_token.js" />
         <option value="$PROJECT_DIR$/apps/server/libs/shared/src/utils/lti_v1.d.ts" />
         <option value="$PROJECT_DIR$/apps/server/libs/shared/src/utils/webhook_queue_worker.d.ts.map" />
-        <option value="$PROJECT_DIR$/apps/web-admin/src/components/courses/course-info-sheet.d.ts" />
         <option value="$PROJECT_DIR$/apps/web-admin/src/components/courses/courses-primary-toolbar.d.ts" />
-        <option value="$PROJECT_DIR$/apps/web-admin/src/components/courses/create-course-dialog.d.ts" />
         <option value="$PROJECT_DIR$/apps/web-admin/src/components/courses/courses-table.js" />
         <option value="$PROJECT_DIR$/apps/web-admin/src/components/courses/courses-primary-toolbar.d.ts.map" />
         <option value="$PROJECT_DIR$/apps/web-admin/src/components/courses/courses-columns.d.ts.map" />
         <option value="$PROJECT_DIR$/apps/web-admin/src/components/courses/delete-course-dialog.d.ts.map" />
         <option value="$PROJECT_DIR$/apps/web-admin/src/components/courses/delete-course-dialog.js" />
         <option value="$PROJECT_DIR$/apps/web-admin/src/components/courses/publish-course-dialog.js" />
-        <option value="$PROJECT_DIR$/apps/web-admin/src/components/courses/edit-course-dialog.js" />
         <option value="$PROJECT_DIR$/apps/web-admin/src/components/courses/courses-primary-toolbar.js" />
-        <option value="$PROJECT_DIR$/apps/web-admin/src/components/courses/view-course-dialog.d.ts.map" />
-        <option value="$PROJECT_DIR$/apps/web-admin/src/components/courses/course-info-sheet.d.ts.map" />
-        <option value="$PROJECT_DIR$/apps/web-admin/src/components/courses/manage-instructors-dialog.d.ts.map" />
         <option value="$PROJECT_DIR$/apps/web-admin/src/components/courses/courses-table.d.ts.map" />
         <option value="$PROJECT_DIR$/apps/web-admin/src/components/courses/courses-columns.d.ts" />
         <option value="$PROJECT_DIR$/apps/web-admin/src/components/courses/courses-columns.js" />
         <option value="$PROJECT_DIR$/apps/web-admin/src/components/courses/publish-course-dialog.d.ts.map" />
-        <option value="$PROJECT_DIR$/apps/web-admin/src/components/courses/view-course-dialog.js" />
-        <option value="$PROJECT_DIR$/apps/web-admin/src/components/courses/course-info-sheet.js" />
-        <option value="$PROJECT_DIR$/apps/web-admin/src/components/courses/create-course-dialog.js" />
-        <option value="$PROJECT_DIR$/apps/web-admin/src/components/courses/edit-course-dialog.d.ts.map" />
-        <option value="$PROJECT_DIR$/apps/web-admin/src/components/courses/manage-instructors-dialog.d.ts" />
         <option value="$PROJECT_DIR$/apps/web-admin/src/components/courses/publish-course-dialog.d.ts" />
         <option value="$PROJECT_DIR$/apps/web-admin/src/components/courses/delete-course-dialog.d.ts" />
-        <option value="$PROJECT_DIR$/apps/web-admin/src/components/courses/create-course-dialog.d.ts.map" />
-        <option value="$PROJECT_DIR$/apps/web-admin/src/components/courses/view-course-dialog.d.ts" />
         <option value="$PROJECT_DIR$/apps/web-admin/src/components/courses/courses-table.d.ts" />
-        <option value="$PROJECT_DIR$/apps/web-admin/src/components/courses/edit-course-dialog.d.ts" />
-        <option value="$PROJECT_DIR$/apps/web-admin/src/components/courses/manage-instructors-dialog.js" />
         <option value="$PROJECT_DIR$/apps/web-admin/src/routes/ai/ai-service-page.js" />
         <option value="$PROJECT_DIR$/apps/web-admin/src/routes/ai/ai-service-page.d.ts" />
         <option value="$PROJECT_DIR$/apps/web-admin/src/routes/ai/ai-service-page.d.ts.map" />
@@ -2422,7 +2412,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat(auth): rename endpoints and update token generation for email verification" />
     <MESSAGE value="feat(rbac): simplify permissions handling by removing user-specific overrides" />
     <MESSAGE value="feat(database): add radix-ui dependency and update package lock" />
     <MESSAGE value="feat(ui): enhance dashboard layout and components for improved aesthetics and usability" />
@@ -2447,7 +2436,8 @@
     <MESSAGE value="update config#2" />
     <MESSAGE value="feat(users): enhance create-user-dialog with multi-step flow and role selection&#10;&#10;- Added multi-step form flow for user creation (details &gt; role selection).&#10;- Introduced UI updates for better usability and visual consistency.&#10;- Implemented support for staff role variants with descriptive labels.&#10;- Improved form validation and error handling logic." />
     <MESSAGE value="update 3" />
-    <option name="LAST_COMMIT_MESSAGE" value="update 3" />
+    <MESSAGE value="style: update button styles and improve dialog handling" />
+    <option name="LAST_COMMIT_MESSAGE" value="style: update button styles and improve dialog handling" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
