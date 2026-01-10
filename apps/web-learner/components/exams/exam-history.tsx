@@ -162,7 +162,8 @@ export function ExamHistory() {
                                             "font-black uppercase tracking-widest text-[8px] px-3 py-1 rounded-full border-none",
                                             passed
                                                 ? "bg-emerald-500/10 text-emerald-500"
-                                                : "bg-destructive/10 text-destructive"}
+                                                : "bg-destructive/10 text-destructive"
+                                        )}
                                     >
                                         {passed ? 'PASSED' : 'FAILED'}
                                     </Badge>

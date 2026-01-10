@@ -91,6 +91,52 @@ export default function DashboardPage() {
                 })}
             </div>
 
+            {/* Practice Tools Section - New Addition */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Link href="/dashboard/flashcards">
+                    <div className="relative overflow-hidden group rounded-[2rem] bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-background border border-indigo-500/20 p-6 min-h-[160px] flex flex-col justify-between hover:shadow-2xl hover:shadow-indigo-500/10 transition-all">
+                        <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-700">
+                            {/* Brain icon placeholder - using div for now or import BrainCircuit */}
+                            <div className="w-24 h-24 bg-indigo-500 rounded-full blur-3xl opacity-50" />
+                        </div>
+                        <div className="relative z-10">
+                            <h3 className="text-xl font-black uppercase italic tracking-tighter text-foreground mb-1">Neural Memory Banks</h3>
+                            <p className="text-xs font-medium text-muted-foreground max-w-[80%]">Spaced Repetition System (SRS) active. Enhance long-term retention.</p>
+                        </div>
+                        <div className="relative z-10 flex items-center justify-between mt-4">
+                            <div className="flex items-center gap-2">
+                                <span className="inline-flex h-2 w-2 rounded-full bg-indigo-500 animate-pulse"></span>
+                                <span className="text-[9px] font-bold uppercase tracking-widest text-indigo-500">System Ready</span>
+                            </div>
+                            <Button size="sm" variant="ghost" className="rounded-xl px-4 text-[10px] font-black uppercase tracking-widest bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500 hover:text-white">
+                                Access <ArrowRight className="ml-2 w-3 h-3" />
+                            </Button>
+                        </div>
+                    </div>
+                </Link>
+
+                <Link href="/dashboard/exams">
+                    <div className="relative overflow-hidden group rounded-[2rem] bg-gradient-to-br from-blue-500/10 via-cyan-500/5 to-background border border-blue-500/20 p-6 min-h-[160px] flex flex-col justify-between hover:shadow-2xl hover:shadow-blue-500/10 transition-all">
+                        <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-700">
+                            <div className="w-24 h-24 bg-blue-500 rounded-full blur-3xl opacity-50" />
+                        </div>
+                        <div className="relative z-10">
+                            <h3 className="text-xl font-black uppercase italic tracking-tighter text-foreground mb-1">Examination Protocols</h3>
+                            <p className="text-xs font-medium text-muted-foreground max-w-[80%]">Standardized competency assessments. N5 - N1 levels available.</p>
+                        </div>
+                        <div className="relative z-10 flex items-center justify-between mt-4">
+                            <div className="flex items-center gap-2">
+                                <span className="inline-flex h-2 w-2 rounded-full bg-blue-500 animate-pulse"></span>
+                                <span className="text-[9px] font-bold uppercase tracking-widest text-blue-500">Online</span>
+                            </div>
+                            <Button size="sm" variant="ghost" className="rounded-xl px-4 text-[10px] font-black uppercase tracking-widest bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white">
+                                Initiate <ArrowRight className="ml-2 w-3 h-3" />
+                            </Button>
+                        </div>
+                    </div>
+                </Link>
+            </div>
+
             <div className="grid lg:grid-cols-3 gap-10">
                 {/* Main Content Column */}
                 <div className="lg:col-span-2 space-y-8">

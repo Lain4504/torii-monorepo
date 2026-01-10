@@ -19,7 +19,8 @@ import {
     X,
     ChevronDown,
     LayoutDashboard,
-    Search
+    Search,
+    FileEdit
 } from 'lucide-react'
 import { useState } from 'react'
 import { useTheme } from 'next-themes'
@@ -62,8 +63,7 @@ export function Header() {
     const navigation = [
         { nameKey: 'learner.header.courses', href: '/courses', icon: BookOpen },
         { nameKey: 'learner.header.liveClasses', href: '/live-classes', icon: Users },
-        { nameKey: 'learner.header.jlptPractice', href: '/jlpt-practice', icon: GraduationCap },
-        { nameKey: 'learner.header.flashcards', href: '/flashcards', icon: Sparkles },
+        { nameKey: 'learner.header.posts', href: '/posts', icon: FileEdit },
     ]
 
     return (
@@ -170,13 +170,13 @@ export function Header() {
                                                 <AvatarFallback className="bg-primary/10 text-primary text-xs font-black uppercase">
                                                     {user?.displayName?.charAt(0) || 'U'}
                                                 </AvatarFallback>
-                                                {user?.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || 'User'} className="object-cover" />}
+                                                {/* {user?.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || 'User'} className="object-cover" />} */}
                                             </Avatar>
                                             <div className="flex flex-col items-start hidden md:flex">
                                                 <span className="text-[10px] font-black uppercase tracking-widest text-foreground/80 group-hover:text-primary transition-colors">
                                                     {user?.displayName}
                                                 </span>
-                                                <span className="text-[8px] font-bold uppercase tracking-wider text-muted-foreground/40">Learner ID: {user?.uid?.substring(0, 6)}</span>
+                                                <span className="text-[8px] font-bold uppercase tracking-wider text-muted-foreground/40">Learner ID: {user?.id?.substring(0, 6)}</span>
                                             </div>
                                             <ChevronDown className="w-3.5 h-3.5 text-muted-foreground/30 group-hover:text-primary transition-colors" />
                                         </div>

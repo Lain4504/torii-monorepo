@@ -4,10 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="rebuild ui admin">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/layout/command-menu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/layout/command-menu.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/statistics/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/statistics/page.tsx" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="flashcard and exam">
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/dashboard/dashboard-header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/dashboard/dashboard-header.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/dashboard/dashboard-sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/dashboard/dashboard-sidebar.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -293,62 +293,6 @@
       <workItem from="1767962792348" duration="6426000" />
       <workItem from="1767970155935" duration="4593000" />
       <workItem from="1768010492981" duration="681000" />
-    </task>
-    <task id="LOCAL-00559" summary="feat(i18n): implement internationalization support with Vietnamese and English translations">
-      <option name="closed" value="true" />
-      <created>1767971688062</created>
-      <option name="number" value="00559" />
-      <option name="presentableId" value="LOCAL-00559" />
-      <option name="project" value="LOCAL" />
-      <updated>1767971688063</updated>
-    </task>
-    <task id="LOCAL-00560" summary="feat(i18n): implement internationalization support with Vietnamese and English translations">
-      <option name="closed" value="true" />
-      <created>1767972648628</created>
-      <option name="number" value="00560" />
-      <option name="presentableId" value="LOCAL-00560" />
-      <option name="project" value="LOCAL" />
-      <updated>1767972648629</updated>
-    </task>
-    <task id="LOCAL-00561" summary="feat(i18n): implement internationalization support with Vietnamese and English translations">
-      <option name="closed" value="true" />
-      <created>1767973024854</created>
-      <option name="number" value="00561" />
-      <option name="presentableId" value="LOCAL-00561" />
-      <option name="project" value="LOCAL" />
-      <updated>1767973024854</updated>
-    </task>
-    <task id="LOCAL-00562" summary="feat(i18n): implement internationalization support with Vietnamese and English translations">
-      <option name="closed" value="true" />
-      <created>1767973814572</created>
-      <option name="number" value="00562" />
-      <option name="presentableId" value="LOCAL-00562" />
-      <option name="project" value="LOCAL" />
-      <updated>1767973814572</updated>
-    </task>
-    <task id="LOCAL-00563" summary="feat(i18n): implement internationalization support with Vietnamese and English translations">
-      <option name="closed" value="true" />
-      <created>1767973822343</created>
-      <option name="number" value="00563" />
-      <option name="presentableId" value="LOCAL-00563" />
-      <option name="project" value="LOCAL" />
-      <updated>1767973822343</updated>
-    </task>
-    <task id="LOCAL-00564" summary="feat(i18n): implement internationalization support with Vietnamese and English translations">
-      <option name="closed" value="true" />
-      <created>1767973990985</created>
-      <option name="number" value="00564" />
-      <option name="presentableId" value="LOCAL-00564" />
-      <option name="project" value="LOCAL" />
-      <updated>1767973990985</updated>
-    </task>
-    <task id="LOCAL-00565" summary="feat(i18n): implement internationalization support with Vietnamese and English translations">
-      <option name="closed" value="true" />
-      <created>1767974287875</created>
-      <option name="number" value="00565" />
-      <option name="presentableId" value="LOCAL-00565" />
-      <option name="project" value="LOCAL" />
-      <updated>1767974287876</updated>
     </task>
     <task id="LOCAL-00566" summary="feat(flashcards): add advanced search functionality and new tracking models for user progress and review sessions">
       <option name="closed" value="true" />
@@ -686,7 +630,63 @@
       <option name="project" value="LOCAL" />
       <updated>1768069201018</updated>
     </task>
-    <option name="localTasksCounter" value="608" />
+    <task id="LOCAL-00608" summary="rebuild ui admin">
+      <option name="closed" value="true" />
+      <created>1768069671018</created>
+      <option name="number" value="00608" />
+      <option name="presentableId" value="LOCAL-00608" />
+      <option name="project" value="LOCAL" />
+      <updated>1768069671019</updated>
+    </task>
+    <task id="LOCAL-00609" summary="flashcard and exam">
+      <option name="closed" value="true" />
+      <created>1768070527878</created>
+      <option name="number" value="00609" />
+      <option name="presentableId" value="LOCAL-00609" />
+      <option name="project" value="LOCAL" />
+      <updated>1768070527878</updated>
+    </task>
+    <task id="LOCAL-00610" summary="flashcard and exam">
+      <option name="closed" value="true" />
+      <created>1768070734374</created>
+      <option name="number" value="00610" />
+      <option name="presentableId" value="LOCAL-00610" />
+      <option name="project" value="LOCAL" />
+      <updated>1768070734374</updated>
+    </task>
+    <task id="LOCAL-00611" summary="flashcard and exam">
+      <option name="closed" value="true" />
+      <created>1768070965739</created>
+      <option name="number" value="00611" />
+      <option name="presentableId" value="LOCAL-00611" />
+      <option name="project" value="LOCAL" />
+      <updated>1768070965740</updated>
+    </task>
+    <task id="LOCAL-00612" summary="flashcard and exam">
+      <option name="closed" value="true" />
+      <created>1768071480196</created>
+      <option name="number" value="00612" />
+      <option name="presentableId" value="LOCAL-00612" />
+      <option name="project" value="LOCAL" />
+      <updated>1768071480197</updated>
+    </task>
+    <task id="LOCAL-00613" summary="flashcard and exam">
+      <option name="closed" value="true" />
+      <created>1768071682160</created>
+      <option name="number" value="00613" />
+      <option name="presentableId" value="LOCAL-00613" />
+      <option name="project" value="LOCAL" />
+      <updated>1768071682161</updated>
+    </task>
+    <task id="LOCAL-00614" summary="flashcard and exam">
+      <option name="closed" value="true" />
+      <created>1768071794810</created>
+      <option name="number" value="00614" />
+      <option name="presentableId" value="LOCAL-00614" />
+      <option name="project" value="LOCAL" />
+      <updated>1768071794810</updated>
+    </task>
+    <option name="localTasksCounter" value="615" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -716,7 +716,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="cursor gen: update theme" />
     <MESSAGE value="refactor(ui): align theme styles with tokenized color system&#10;&#10;- Updated theme-specific class names to use tokenized variables (e.g., `bg-primary`, `text-muted-foreground`) for consistency.&#10;- Replaced hardcoded values with reusable theme tokens across authentication pages, course components, and layouts.&#10;- Enhanced visual elements, accessibility, and responsiveness." />
     <MESSAGE value="feat(database): document database design and add admin login interface method&#10;&#10;- Added new documentation: `database-design-overview.md` and `database-design-schema.md` for system architecture clarity.&#10;- Extended `IAuthService` interface with `adminLogin` for specialized admin portal authentication." />
     <MESSAGE value="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`." />
@@ -741,7 +740,8 @@
     <MESSAGE value="remove ci cd" />
     <MESSAGE value="update ui course detail page" />
     <MESSAGE value="rebuild ui admin" />
-    <option name="LAST_COMMIT_MESSAGE" value="rebuild ui admin" />
+    <MESSAGE value="flashcard and exam" />
+    <option name="LAST_COMMIT_MESSAGE" value="flashcard and exam" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

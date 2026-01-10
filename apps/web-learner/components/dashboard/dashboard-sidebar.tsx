@@ -64,19 +64,44 @@ interface NavGroupProps {
     items: NavItem[]
     pathname: string
     className?: string
+    isCollapsed?: boolean
 }
 
-function NavGroup({ title, items, pathname, className }: NavGroupProps) {
+function NavGroup({ title, items, pathname, className, isCollapsed }: NavGroupProps) {
     return (
         <div className={cn('space-y-1.5', className)}>
-            {title && (
-                <h3 className="px-5 py-2 text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.2em]">
+            {title && !isCollapsed && (
+                <h3 className="px-5 py-2 text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.2em] animate-in fade-in duration-300">
                     {title}
                 </h3>
             )}
+            {/* Show Divider if collapsed and has title, to separate groups visually */}
+            {title && isCollapsed && (
+                <div className="h-px w-8 mx-auto bg-border/40 my-2" />
+            )}
+
             {items.map((item) => {
                 const Icon = item.icon
                 const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname?.startsWith(item.href + '/'))
+
+                if (isCollapsed) {
+                    return (
+                        <Link
+                            key={item.name}
+                            href={item.href}
+                            className={cn(
+                                'group flex items-center justify-center w-12 h-12 mx-auto rounded-2xl transition-all duration-300 cursor-pointer border',
+                                isActive
+                                    ? 'bg-primary/10 border-primary/20 text-primary shadow-sm shadow-primary/5'
+                                    : 'border-transparent text-muted-foreground/70 hover:bg-muted/30 hover:text-foreground'
+                            )}
+                            title={item.name}
+                        >
+                            <Icon className="w-5 h-5 shrink-0" />
+                        </Link>
+                    )
+                }
+
                 return (
                     <Link
                         key={item.name}
@@ -94,7 +119,7 @@ function NavGroup({ title, items, pathname, className }: NavGroupProps) {
                         )}>
                             <Icon className="w-4 h-4 shrink-0" />
                         </div>
-                        <span className="flex-1">{item.name}</span>
+                        <span className="flex-1 whitespace-nowrap">{item.name}</span>
                         {isActive && <ChevronRight className="w-3 h-3 opacity-50" />}
                         {item.badge !== undefined && item.badge !== null && (
                             <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-primary/10 text-primary">
@@ -145,23 +170,31 @@ function ContinueLearningSection() {
     )
 }
 
-export function DashboardSidebar() {
+interface DashboardSidebarProps {
+    isCollapsed?: boolean
+}
+
+export function DashboardSidebar({ isCollapsed = false }: DashboardSidebarProps) {
     const pathname = usePathname()
 
     return (
-        <aside className="fixed left-0 top-16 h-[calc(100vh-4rem)] w-72 border-r border-border/40 bg-background/50 backdrop-blur-3xl overflow-y-auto hidden lg:block scrollbar-none">
-            <div className="p-6 space-y-10">
+        <aside className={cn(
+            "fixed left-0 top-16 h-[calc(100vh-4rem)] border-r border-border/40 bg-background/50 backdrop-blur-3xl overflow-y-auto hidden lg:block scrollbar-none transition-all duration-300",
+            isCollapsed ? "w-20" : "w-72"
+        )}>
+            <div className={cn("space-y-10", isCollapsed ? "p-4" : "p-6")}>
                 {/* Learning - Navigation chính */}
-                <NavGroup items={learningNav} pathname={pathname} />
+                <NavGroup items={learningNav} pathname={pathname} isCollapsed={isCollapsed} />
 
-                {/* Continue Learning Section */}
-                <ContinueLearningSection />
+                {/* Continue Learning Section - Hide when collapsed */}
+                {!isCollapsed && <ContinueLearningSection />}
 
                 {/* Tiến độ & Thành tích */}
                 <NavGroup
                     title="Tiến độ học tập"
                     items={progressNav}
                     pathname={pathname}
+                    isCollapsed={isCollapsed}
                 />
 
                 {/* Tài khoản - Đặt cuối cùng */}
@@ -169,6 +202,7 @@ export function DashboardSidebar() {
                     title="Tài khoản"
                     items={accountNav}
                     pathname={pathname}
+                    isCollapsed={isCollapsed}
                 />
             </div>
         </aside>

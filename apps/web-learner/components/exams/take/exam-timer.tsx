@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Progress } from "@workspace/ui/components/progress"
 import { Clock } from "lucide-react"
+import { cn } from "@workspace/ui/lib/utils"
 
 interface ExamTimerProps {
     durationMinutes: number
@@ -53,12 +54,19 @@ export function ExamTimer({ durationMinutes, initialSeconds, onTimeUp, onTimeUpd
 
     return (
         <div className="flex items-center gap-4 min-w-[200px]">
-            <div className={`flex items-center gap-2 font-mono font-bold text-xl ${isUrgent ? "text-destructive animate-pulse" : "text-foreground"}`}>
+            <div className={cn(
+                "flex items-center gap-2 text-xl font-black uppercase tracking-widest tabular-nums",
+                isUrgent ? "text-destructive animate-pulse" : "text-foreground"
+            )}>
                 <Clock className="w-5 h-5" />
                 {formatTime(timeLeft)}
             </div>
             <div className="flex-1 w-32 hidden sm:block">
-                <Progress value={progress} className={`h-2 ${isUrgent ? "bg-destructive/20" : ""}`} />
+                <Progress
+                    value={progress}
+                    className="h-2 bg-muted/20"
+                    indicatorClassName={isUrgent ? "bg-destructive transition-colors duration-500" : "bg-primary transition-colors duration-500"}
+                />
             </div>
         </div>
     )

@@ -2,7 +2,8 @@
 
 import { useAppSelector } from '@/hooks/hooks'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
+import { cn } from '@workspace/ui/lib/utils'
 import { DashboardSidebar } from '@/components/dashboard/dashboard-sidebar'
 import { DashboardHeader } from '@/components/dashboard/dashboard-header'
 
@@ -13,6 +14,7 @@ export default function DashboardLayout({
 }) {
     const { isAuthenticated, status } = useAppSelector((state) => state.auth)
     const router = useRouter()
+    const [isCollapsed, setIsCollapsed] = useState(false)
 
     useEffect(() => {
         if (status === 'succeeded' && !isAuthenticated) {
@@ -43,11 +45,14 @@ export default function DashboardLayout({
                 <div className="absolute bottom-[-10%] right-[-10%] w-[30%] h-[30%] bg-blue-500/5 rounded-full blur-[100px]" />
             </div>
 
-            <DashboardHeader />
+            <DashboardHeader isCollapsed={isCollapsed} toggleSidebar={() => setIsCollapsed(!isCollapsed)} />
 
             <div className="flex relative z-10 container mx-auto">
-                <DashboardSidebar />
-                <main className="flex-1 lg:ml-72 min-h-[calc(100vh-4rem)] relative">
+                <DashboardSidebar isCollapsed={isCollapsed} />
+                <main className={cn(
+                    "flex-1 min-h-[calc(100vh-4rem)] relative transition-all duration-300",
+                    isCollapsed ? "lg:ml-20" : "lg:ml-72"
+                )}>
                     <div className="w-full h-full pb-20">
                         {children}
                     </div>

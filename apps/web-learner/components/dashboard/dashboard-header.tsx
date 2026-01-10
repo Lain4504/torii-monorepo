@@ -37,7 +37,12 @@ const navigation = [
     { name: 'Cài đặt', href: '/dashboard/settings', icon: Settings },
 ]
 
-export function DashboardHeader() {
+interface DashboardHeaderProps {
+    isCollapsed?: boolean
+    toggleSidebar?: () => void
+}
+
+export function DashboardHeader({ isCollapsed, toggleSidebar }: DashboardHeaderProps) {
     const { user } = useAppSelector((state) => state.auth)
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const pathname = usePathname()
@@ -92,6 +97,16 @@ export function DashboardHeader() {
                                 </div>
                             </SheetContent>
                         </Sheet>
+
+                        {/* Desktop Sidebar Toggle */}
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={toggleSidebar}
+                            className="hidden lg:flex rounded-xl text-muted-foreground hover:text-foreground hover:bg-primary/5 transition-all"
+                        >
+                            <Menu className={cn("w-5 h-5 transition-transform", isCollapsed ? "rotate-90" : "")} />
+                        </Button>
 
                         <Link href="/dashboard" className="hidden sm:flex items-center gap-2 group">
                             <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary transition-colors">

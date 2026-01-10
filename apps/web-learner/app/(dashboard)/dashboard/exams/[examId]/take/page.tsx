@@ -12,6 +12,7 @@ import { QuestionArea, Question } from "@/components/exams/take/question-area"
 import { QuestionNavigator } from "@/components/exams/take/question-navigator"
 import { startExam, saveExamAnswers, submitExam } from "@/api/services/exam-api"
 import type { ExamSessionStartResponseDTO, ExamSessionAnswersDTO } from '@workspace/schemas'
+import { PageLoading } from "@workspace/ui/components/page-loading"
 
 // Type helper for resume data (schema includes these fields but types may not be updated)
 type ExamSessionStartResponseWithResume = ExamSessionStartResponseDTO & {
@@ -77,7 +78,7 @@ export default function TakeExamPage() {
                 // Load existing answers and flags from session (for resume)
                 // Response includes optional resume data: answers, flaggedQuestions, currentQuestion, timeRemaining
                 const resumeData = response as ExamSessionStartResponseWithResume
-                
+
                 if (resumeData.answers && typeof resumeData.answers === 'object') {
                     setAnswers(resumeData.answers)
                 } else {
@@ -230,7 +231,7 @@ export default function TakeExamPage() {
 
             // Submit exam
             await submitExam(sessionId)
-            router.push('/exams')
+            router.push('/dashboard/exams')
         } catch (err: any) {
             alert('Lỗi khi nộp bài: ' + (err.message || 'Unknown error'))
             console.error('Error submitting exam:', err)
@@ -249,7 +250,7 @@ export default function TakeExamPage() {
                 currentQuestion: currentQuestionIndex + 1,
                 timeRemaining: 0, // Time is up
             } as ExamSessionAnswersDTO & { timeRemaining?: number }
-            
+
             // Try to save first, but don't fail if it errors (time might be up)
             try {
                 await saveExamAnswers(sessionId, saveData)
@@ -257,17 +258,17 @@ export default function TakeExamPage() {
                 console.warn('Failed to save before auto-submit:', saveErr)
                 // Continue to submit even if save fails
             }
-            
+
             // Submit exam
             await submitExam(sessionId)
             alert('Hết giờ! Bài thi đã được nộp tự động.')
-            router.push('/exams')
+            router.push('/dashboard/exams')
         } catch (err: any) {
             const errorMessage = err.response?.data?.message || err.message || 'Unknown error'
             console.error('Error auto-submitting exam:', err)
             alert('Lỗi khi nộp bài tự động: ' + errorMessage)
             // Still redirect to exams page even if submit fails
-            router.push('/exams')
+            router.push('/dashboard/exams')
         }
     }
 
@@ -277,22 +278,15 @@ export default function TakeExamPage() {
     }, [])
 
     if (loading) {
-        return (
-            <div className="flex items-center justify-center h-screen bg-background">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-                    <p className="text-muted-foreground">Đang tải bài thi...</p>
-                </div>
-            </div>
-        )
+        return <PageLoading text="Initializing Exam Matrix..." className="h-screen" />
     }
 
     if (error) {
         return (
             <div className="flex items-center justify-center h-screen bg-background">
                 <div className="text-center">
-                    <p className="text-destructive mb-4">{error}</p>
-                    <Button onClick={() => router.push('/exams')}>Quay lại</Button>
+                    <p className="text-destructive mb-4 font-bold uppercase tracking-widest text-[10px]">Error: {error}</p>
+                    <Button onClick={() => router.push('/dashboard/exams')} variant="outline">Return to Base</Button>
                 </div>
             </div>
         )
@@ -316,7 +310,7 @@ export default function TakeExamPage() {
             {/* Header */}
             <header className="h-16 border-b bg-background flex items-center justify-between px-4 sm:px-6 shrink-0 z-20">
                 <div className="flex items-center gap-4">
-                    <Link href="/exams" className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
+                    <Link href="/dashboard/exams" className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
                         <X className="w-6 h-6" />
                     </Link>
                     <div className="hidden sm:block font-bold text-lg text-foreground">
