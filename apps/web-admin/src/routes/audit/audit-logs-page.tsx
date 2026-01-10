@@ -19,7 +19,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@workspace/ui/components/dialog';
-import { Eye } from 'lucide-react';
+import { Eye, ShieldCheck, Activity, Terminal, Calendar, Search, Sparkles, Fingerprint, Zap, ShieldAlert, Clock, Layers } from 'lucide-react';
 import { type AuditLog, useAuditLogs } from "@/api/services/audit-logs.ts";
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
@@ -32,95 +32,101 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "@workspace/ui/components/pagination";
+import { cn } from '@workspace/ui/lib/utils';
+import { Card } from '@workspace/ui/components/card';
 
 function AuditLogDetailsDialog({ log }: { log: AuditLog }) {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="ghost" size="sm" className="rounded-full hover:bg-primary/5 transition-colors">
-                    <Eye className="h-4 w-4" />
+                <Button variant="ghost" size="sm" className="h-10 w-10 p-0 rounded-2xl hover:bg-primary/10 hover:text-primary transition-all">
+                    <Eye className="size-4 opacity-40 group-hover:opacity-100" />
                 </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto border-none shadow-2xl bg-background/95 backdrop-blur-xl rounded-2xl p-0 overflow-hidden">
-                <DialogHeader className="p-8 pb-4 bg-muted/30">
-                    <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">
-                        Audit Log Details
-                    </DialogTitle>
-                    <DialogDescription className="text-sm text-muted-foreground mt-1">
-                        Action performed on {format(new Date(log.createdAt), 'PPpp')}
-                    </DialogDescription>
-                </DialogHeader>
-
-                <div className="p-8 pt-4 space-y-6">
-                    {/* Basic Info */}
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                        <div className="space-y-1">
-                            <div className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">User</div>
-                            <div className="text-sm font-medium ml-1">{log.userEmail}</div>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-[2rem] p-0 overflow-hidden">
+                <div className="absolute inset-0 bg-primary/[0.01] pointer-events-none" />
+                <DialogHeader className="p-10 pb-6 border-b border-border/10">
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="p-3 rounded-2xl bg-primary/10 text-primary">
+                            <ShieldCheck className="size-6" />
                         </div>
                         <div className="space-y-1">
-                            <div className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Role</div>
-                            <div className="ml-1">
-                                <Badge variant="outline" className="text-[10px] bg-primary/5 border-primary/20 text-primary">
+                            <DialogTitle className="text-2xl font-black uppercase italic tracking-tight">
+                                Protocol Entry Details
+                            </DialogTitle>
+                            <DialogDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic">
+                                Timestamp Alignment: {format(new Date(log.createdAt), 'yyyy-MM-dd HH:mm:ss.SSS')}
+                            </DialogDescription>
+                        </div>
+                    </div>
+                </DialogHeader>
+
+                <div className="p-10 space-y-10">
+                    {/* Identification Matrix */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                        <div className="space-y-1">
+                            <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 italic">SUBJECT IDENTITY</p>
+                            <p className="text-[13px] font-black italic text-foreground uppercase truncate">{log.userEmail}</p>
+                        </div>
+                        <div className="space-y-1">
+                            <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 italic">ACCESS LEVEL</p>
+                            <div className="pt-1">
+                                <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest bg-primary/5 border-primary/20 text-primary rounded-full px-3">
                                     {log.userRole}
                                 </Badge>
                             </div>
                         </div>
                         <div className="space-y-1">
-                            <div className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Action</div>
-                            <div className="ml-1">
-                                <Badge variant="secondary" className="text-[10px]">{log.action}</Badge>
+                            <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 italic">PROTOCOL ACTION</p>
+                            <div className="pt-1">
+                                <Badge variant="secondary" className="text-[9px] font-black uppercase tracking-widest bg-muted/20 border-none rounded-lg px-3">{log.action}</Badge>
                             </div>
                         </div>
                         <div className="space-y-1">
-                            <div className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Entity</div>
-                            <div className="text-sm font-mono ml-1">{log.entity}</div>
+                            <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 italic">TARGET COMPONENT</p>
+                            <p className="text-[13px] font-black italic text-foreground uppercase truncate font-mono">{log.entity}</p>
                         </div>
-                        {log.ipAddress && (
-                            <div className="space-y-1">
-                                <div className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">IP Address</div>
-                                <div className="text-sm font-mono text-muted-foreground ml-1">{log.ipAddress}</div>
-                            </div>
-                        )}
                     </div>
 
-                    {/* Description */}
-                    <div className="space-y-2">
-                        <div className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Description</div>
-                        <div className="text-sm bg-muted/30 p-4 rounded-xl border border-border/10 leading-relaxed text-foreground/80">
+                    {/* Operational Summary */}
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-3">
+                            <Activity className="size-4 text-primary opacity-40" />
+                            <h4 className="text-[11px] font-black uppercase tracking-[0.2em] italic">Operational Summary</h4>
+                        </div>
+                        <div className="p-6 rounded-2xl bg-muted/10 border border-border/10 leading-relaxed text-[13px] font-bold text-foreground/80 italic">
                             {log.description}
                         </div>
                     </div>
 
-                    {/* Metadata */}
-                    {log.metadata && (
-                        <div className="space-y-2">
-                            <div className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Metadata</div>
-                            <pre className="text-xs bg-muted/30 p-4 rounded-xl overflow-x-auto border border-border/20 font-mono text-muted-foreground custom-scrollbar">
+                    {/* Data Stream Analysis */}
+                    {Object.keys(log.metadata || {}).length > 0 && (
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-3">
+                                <Terminal className="size-4 text-primary opacity-40" />
+                                <h4 className="text-[11px] font-black uppercase tracking-[0.2em] italic">Meta Intelligence</h4>
+                            </div>
+                            <pre className="text-[11px] bg-muted/20 p-8 rounded-[1.5rem] overflow-x-auto border border-border/10 font-mono text-muted-foreground/80 leading-relaxed custom-scrollbar">
                                 {JSON.stringify(log.metadata, null, 2)}
                             </pre>
                         </div>
                     )}
 
-                    {/* Changes */}
+                    {/* Delta Analysis */}
                     {(log.oldValues || log.newValues) && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                             {log.oldValues && (
-                                <div className="space-y-2">
-                                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">
-                                        Old Values
-                                    </div>
-                                    <pre className="text-xs bg-muted/30 p-4 rounded-xl overflow-x-auto max-h-64 border border-border/20 font-mono text-muted-foreground custom-scrollbar">
+                                <div className="space-y-4">
+                                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-rose-500/60 italic ml-2">PRE-SYNC STATE</h4>
+                                    <pre className="text-[10px] bg-rose-500/[0.02] p-6 rounded-[1.5rem] overflow-x-auto max-h-80 border border-rose-500/10 font-mono text-rose-500/60 leading-relaxed custom-scrollbar">
                                         {JSON.stringify(log.oldValues, null, 2)}
                                     </pre>
                                 </div>
                             )}
                             {log.newValues && (
-                                <div className="space-y-2">
-                                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">
-                                        New Values
-                                    </div>
-                                    <pre className="text-xs bg-muted/30 p-4 rounded-xl overflow-x-auto max-h-64 border border-border/20 font-mono text-muted-foreground custom-scrollbar">
+                                <div className="space-y-4">
+                                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500/60 italic ml-2">POST-SYNC STATE</h4>
+                                    <pre className="text-[10px] bg-emerald-500/[0.02] p-6 rounded-[1.5rem] overflow-x-auto max-h-80 border border-emerald-500/10 font-mono text-emerald-500/60 leading-relaxed custom-scrollbar">
                                         {JSON.stringify(log.newValues, null, 2)}
                                     </pre>
                                 </div>
@@ -128,17 +134,21 @@ function AuditLogDetailsDialog({ log }: { log: AuditLog }) {
                         </div>
                     )}
 
-                    {/* User Agent */}
-                    {log.userAgent && (
-                        <div className="space-y-2">
-                            <div className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">
-                                User Agent
+                    {/* Infrastructure Metadata */}
+                    <div className="pt-10 border-t border-border/10 grid grid-cols-1 md:grid-cols-2 gap-10">
+                        {log.ipAddress && (
+                            <div className="space-y-2">
+                                <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 italic">NETWORK ORIGIN</p>
+                                <p className="text-[12px] font-black italic text-foreground/60 font-mono">{log.ipAddress}</p>
                             </div>
-                            <div className="text-xs font-mono bg-muted/30 p-4 rounded-xl break-all border border-border/10 text-muted-foreground leading-relaxed">
-                                {log.userAgent}
+                        )}
+                        {log.userAgent && (
+                            <div className="space-y-2">
+                                <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 italic">IDENTIFIER STRING</p>
+                                <p className="text-[10px] font-black italic text-muted-foreground/60 leading-relaxed break-all font-mono">{log.userAgent}</p>
                             </div>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
             </DialogContent>
         </Dialog>
@@ -187,10 +197,15 @@ export function AuditLogsPage() {
         if (startPage > 1) {
             items.push(
                 <PaginationItem key={1}>
-                    <PaginationLink onClick={() => setPage(1)}>1</PaginationLink>
+                    <PaginationLink
+                        onClick={() => setPage(1)}
+                        className="rounded-xl h-10 w-10 text-[11px] font-black hover:bg-primary/10 transition-all cursor-pointer"
+                    >
+                        1
+                    </PaginationLink>
                 </PaginationItem>
             );
-            if (startPage > 2) items.push(<PaginationEllipsis key="start-ellipsis" />);
+            if (startPage > 2) items.push(<PaginationEllipsis key="start-ellipsis" className="opacity-20" />);
         }
 
         for (let i = startPage; i <= endPage; i++) {
@@ -199,6 +214,10 @@ export function AuditLogsPage() {
                     <PaginationLink
                         isActive={page === i}
                         onClick={() => setPage(i)}
+                        className={cn(
+                            "rounded-xl h-10 w-10 text-[11px] font-black transition-all cursor-pointer",
+                            page === i ? "bg-primary text-white shadow-lg shadow-primary/20" : "hover:bg-primary/10 text-muted-foreground/60 hover:text-primary"
+                        )}
                     >
                         {i}
                     </PaginationLink>
@@ -207,10 +226,15 @@ export function AuditLogsPage() {
         }
 
         if (endPage < data.totalPages) {
-            if (endPage < data.totalPages - 1) items.push(<PaginationEllipsis key="end-ellipsis" />);
+            if (endPage < data.totalPages - 1) items.push(<PaginationEllipsis key="end-ellipsis" className="opacity-20" />);
             items.push(
                 <PaginationItem key={data.totalPages}>
-                    <PaginationLink onClick={() => setPage(data.totalPages)}>{data.totalPages}</PaginationLink>
+                    <PaginationLink
+                        onClick={() => setPage(data.totalPages)}
+                        className="rounded-xl h-10 w-10 text-[11px] font-black hover:bg-primary/10 transition-all cursor-pointer"
+                    >
+                        {data.totalPages}
+                    </PaginationLink>
                 </PaginationItem>
             );
         }
@@ -219,154 +243,208 @@ export function AuditLogsPage() {
     };
 
     return (
-        <div className="space-y-6 animate-in fade-in-50 duration-500">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div className="space-y-1">
-                    <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">Audit Logs</h1>
-                    <p className="text-muted-foreground">
-                        Track all administrative actions and system modifications.
+        <div className="space-y-10 animate-in fade-in duration-700 pb-20 px-2 lg:px-6">
+            {/* Header Section */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-8 relative">
+                <div className="space-y-4 max-w-2xl text-center sm:text-left">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[9px] font-black uppercase tracking-[0.3em]">
+                        <Activity className="size-3" />
+                        Infrastructure Guard
+                    </div>
+                    <h1 className="text-5xl font-black tracking-tight text-foreground uppercase italic leading-[0.85]">
+                        Protocol <br />
+                        <span className="text-primary not-italic text-3xl sm:text-5xl">Surveillance</span>
+                    </h1>
+                    <p className="text-[11px] font-bold text-muted-foreground/40 uppercase tracking-[0.15em] italic border-l-2 border-primary/20 pl-6 mt-6">
+                        Tiếp nhận và giám soát toàn bộ chu trình vận hành hệ thống, <br />
+                        đảm bảo tính toàn vẹn dữ liệu cho <span className="text-foreground">Lain Identity Matrix</span>.
                     </p>
+                </div>
+
+                <div className="flex items-center gap-6 p-8 rounded-[2.5rem] bg-background/40 border border-border/20 backdrop-blur-xl hidden sm:flex">
+                    <div className="space-y-1">
+                        <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">Observed Events</p>
+                        <h3 className="text-3xl font-black italic text-center leading-none">{data?.total || 0}</h3>
+                    </div>
                 </div>
             </div>
 
-            {/* Filters */}
-            <div className="p-6 border border-border shadow-sm bg-card backdrop-blur-sm hover:bg-card hover:shadow-md transition-all duration-300 rounded-xl rounded-2xl">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div className="space-y-2">
-                        <label className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Action</label>
-                        <Input
-                            placeholder="e.g., permission.update"
-                            value={action}
-                            onChange={(e) => setAction(e.target.value)}
-                            className="h-11 border-none bg-muted/40 hover:bg-muted/60 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all"
-                        />
+            {/* Matrix Filters */}
+            <Card className="rounded-[2.5rem] bg-background/40 backdrop-blur-3xl border border-border/20 p-8 lg:p-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div className="space-y-3">
+                        <label className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 italic flex items-center gap-2 ml-1">
+                            <Zap className="size-3" />
+                            PROTOCOL ACTION
+                        </label>
+                        <div className="relative group">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground/30 group-focus-within:text-primary transition-colors" />
+                            <Input
+                                placeholder="ACTION KEYWORD..."
+                                value={action}
+                                onChange={(e) => setAction(e.target.value)}
+                                className="h-12 pl-10 rounded-xl border-border/10 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-[10px] font-black uppercase tracking-widest placeholder:text-muted-foreground/20"
+                            />
+                        </div>
                     </div>
-                    <div className="space-y-2">
-                        <label className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Entity</label>
-                        <Input
-                            placeholder="e.g., role_permission"
-                            value={entity}
-                            onChange={(e) => setEntity(e.target.value)}
-                            className="h-11 border-none bg-muted/40 hover:bg-muted/60 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all"
-                        />
+                    <div className="space-y-3">
+                        <label className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 italic flex items-center gap-2 ml-1">
+                            <Layers className="size-3" />
+                            ENTITY NODE
+                        </label>
+                        <div className="relative group">
+                            <Fingerprint className="absolute left-4 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground/30 group-focus-within:text-primary transition-colors" />
+                            <Input
+                                placeholder="IDENTIFIER..."
+                                value={entity}
+                                onChange={(e) => setEntity(e.target.value)}
+                                className="h-12 pl-10 rounded-xl border-border/10 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-[10px] font-black uppercase tracking-widest placeholder:text-muted-foreground/20"
+                            />
+                        </div>
                     </div>
-                    <div className="space-y-2">
-                        <label className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Start Date</label>
+                    <div className="space-y-3">
+                        <label className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 italic flex items-center gap-2 ml-1">
+                            <Calendar className="size-3" />
+                            SYNC START
+                        </label>
                         <Input
                             type="date"
                             value={dateRange.startDate}
                             onChange={(e) => setDateRange(prev => ({ ...prev, startDate: e.target.value }))}
-                            className="h-11 border-none bg-muted/40 hover:bg-muted/60 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all [color-scheme:dark]"
+                            className="h-12 rounded-xl border-border/10 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-[10px] font-black uppercase tracking-widest [color-scheme:dark]"
                         />
                     </div>
-                    <div className="space-y-2">
-                        <label className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">End Date</label>
+                    <div className="space-y-3">
+                        <label className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 italic flex items-center gap-2 ml-1">
+                            <Clock className="size-3" />
+                            SYNC END
+                        </label>
                         <Input
                             type="date"
                             value={dateRange.endDate}
                             onChange={(e) => setDateRange(prev => ({ ...prev, endDate: e.target.value }))}
-                            className="h-11 border-none bg-muted/40 hover:bg-muted/60 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all [color-scheme:dark]"
+                            className="h-12 rounded-xl border-border/10 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-[10px] font-black uppercase tracking-widest [color-scheme:dark]"
                         />
                     </div>
                 </div>
-            </div>
+            </Card>
 
-            {/* Table */}
-            <div className="border border-border shadow-sm bg-card backdrop-blur-sm hover:bg-card hover:shadow-md transition-all duration-300 rounded-xl rounded-2xl p-0 overflow-hidden">
-                <Table>
-                    <TableHeader className="bg-muted/30">
-                        <TableRow className="border-border/50 hover:bg-transparent">
-                            <TableHead className="h-11 text-[10px] font-bold text-muted-foreground/70 uppercase tracking-wider pl-6">Time</TableHead>
-                            <TableHead className="h-11 text-[10px] font-bold text-muted-foreground/70 uppercase tracking-wider">User</TableHead>
-                            <TableHead className="h-11 text-[10px] font-bold text-muted-foreground/70 uppercase tracking-wider">Action</TableHead>
-                            <TableHead className="h-11 text-[10px] font-bold text-muted-foreground/70 uppercase tracking-wider">Description</TableHead>
-                            <TableHead className="h-11 text-[10px] font-bold text-muted-foreground/70 uppercase tracking-wider text-right pr-6">Details</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {isLoading ? (
-                            Array.from({ length: 10 }).map((_, index) => (
-                                <TableRow key={index} className="border-border/40">
-                                    <TableCell className="pl-6"><Skeleton className="h-4 w-28 bg-muted/50 rounded" /></TableCell>
-                                    <TableCell>
-                                        <div className="space-y-2">
-                                            <Skeleton className="h-4 w-32 bg-muted/50 rounded" />
-                                            <Skeleton className="h-3 w-16 bg-muted/50 rounded" />
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>
-                                        <div className="space-y-2">
-                                            <Skeleton className="h-5 w-24 bg-muted/50 rounded-lg" />
-                                            <Skeleton className="h-3 w-12 bg-muted/50 rounded" />
-                                        </div>
-                                    </TableCell>
-                                    <TableCell><Skeleton className="h-4 w-full bg-muted/50 rounded" /></TableCell>
-                                    <TableCell className="text-right pr-6"><Skeleton className="h-8 w-8 bg-muted/50 rounded ml-auto" /></TableCell>
-                                </TableRow>
-                            ))
-                        ) : data?.data.length === 0 ? (
-                            <TableRow className="hover:bg-transparent">
-                                <TableCell colSpan={5} className="text-center py-24 text-muted-foreground">
-                                    No audit logs found matching your criteria.
-                                </TableCell>
+            {/* Registry Table */}
+            <Card className="rounded-[3rem] bg-background/40 backdrop-blur-3xl border border-border/20 shadow-2xl shadow-primary/5 overflow-hidden">
+                <div className="overflow-x-auto">
+                    <Table className="min-w-[1000px] border-collapse bg-transparent">
+                        <TableHeader className="bg-muted/10 border-b border-border/20">
+                            <TableRow className="border-none hover:bg-transparent">
+                                <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-8 whitespace-nowrap">Temporal Marker</TableHead>
+                                <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-6">Subject Identity</TableHead>
+                                <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-6">Protocol Action</TableHead>
+                                <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-6">Manifest Summary</TableHead>
+                                <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-8 text-right">Access</TableHead>
                             </TableRow>
-                        ) : (
-                            data?.data.map((log) => (
-                                <TableRow key={log.id} className="border-border/40 hover:bg-muted/30 transition-colors">
-                                    <TableCell className="font-mono text-[10px] text-muted-foreground pl-6">
-                                        {format(new Date(log.createdAt), 'yyyy-MM-dd HH:mm:ss')}
-                                    </TableCell>
-                                    <TableCell>
-                                        <div className="flex flex-col gap-1">
-                                            <div className="font-medium text-sm text-foreground/90">{log.userEmail}</div>
-                                            <div className="text-xs text-muted-foreground">
-                                                <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 bg-primary/5 border-primary/20 text-primary">
-                                                    {log.userRole}
-                                                </Badge>
+                        </TableHeader>
+                        <TableBody>
+                            {isLoading ? (
+                                Array.from({ length: 10 }).map((_, index) => (
+                                    <TableRow key={index} className="border-b border-border/10">
+                                        <TableCell className="px-8"><Skeleton className="h-4 w-32 bg-muted/20 rounded-xl" /></TableCell>
+                                        <TableCell className="px-6">
+                                            <div className="space-y-2">
+                                                <Skeleton className="h-4 w-40 bg-muted/20 rounded-xl" />
+                                                <Skeleton className="h-3 w-20 bg-muted/20 rounded-xl" />
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="px-6"><Skeleton className="h-6 w-24 bg-muted/20 rounded-xl" /></TableCell>
+                                        <TableCell className="px-6"><Skeleton className="h-4 w-full bg-muted/20 rounded-xl" /></TableCell>
+                                        <TableCell className="px-8 text-right"><Skeleton className="h-10 w-10 bg-muted/20 rounded-2xl ml-auto" /></TableCell>
+                                    </TableRow>
+                                ))
+                            ) : data?.data.length === 0 ? (
+                                <TableRow className="hover:bg-transparent">
+                                    <TableCell colSpan={5} className="h-64 text-center">
+                                        <div className="flex flex-col items-center justify-center p-12 space-y-6">
+                                            <div className="w-20 h-20 rounded-[1.5rem] bg-muted/20 flex items-center justify-center border border-border/40 relative">
+                                                <div className="absolute inset-0 bg-primary/5 blur-2xl rounded-full" />
+                                                <ShieldAlert className="size-10 text-muted-foreground/20 relative z-10" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <h3 className="text-xl font-black uppercase italic tracking-tight text-foreground/40">Registry Gap</h3>
+                                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/20 italic">No surveillance signals captured within the current matrix.</p>
                                             </div>
                                         </div>
                                     </TableCell>
-                                    <TableCell>
-                                        <Badge variant="secondary" className="bg-muted/50 hover:bg-muted/70 border-none px-2 py-0.5 text-xs rounded-lg">{log.action}</Badge>
-                                        <div className="text-[10px] text-muted-foreground/60 mt-1 uppercase tracking-tight font-medium ml-1">{log.entity}</div>
-                                    </TableCell>
-                                    <TableCell className="max-w-md">
-                                        <div className="truncate text-sm text-foreground/70 leading-relaxed">{log.description}</div>
-                                    </TableCell>
-                                    <TableCell className="text-right pr-6">
-                                        <AuditLogDetailsDialog log={log} />
-                                    </TableCell>
                                 </TableRow>
-                            ))
-                        )}
-                    </TableBody>
-                </Table>
+                            ) : (
+                                data?.data.map((log) => (
+                                    <TableRow key={log.id} className="border-b border-border/10 hover:bg-primary/[0.02] transition-all duration-500 group">
+                                        <TableCell className="px-8 font-mono text-[9px] font-black text-muted-foreground/40 italic tabular-nums">
+                                            {format(new Date(log.createdAt), 'yyyy.MM.dd / HH:mm:ss')}
+                                        </TableCell>
+                                        <TableCell className="px-6">
+                                            <div className="flex flex-col gap-1">
+                                                <div className="font-black italic text-[13px] text-foreground/80 group-hover:text-primary transition-colors uppercase">{log.userEmail.split('@')[0]}</div>
+                                                <div className="text-[9px] font-bold text-muted-foreground/30 uppercase tracking-widest">{log.userRole}</div>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="px-6">
+                                            <div className="space-y-2">
+                                                <Badge variant="secondary" className="bg-muted/20 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 border-none rounded-md">
+                                                    {log.action}
+                                                </Badge>
+                                                <div className="text-[9px] font-black uppercase tracking-tight text-muted-foreground/30 italic flex items-center gap-1.5 ml-1">
+                                                    <Fingerprint className="size-3 opacity-30" />
+                                                    {log.entity}
+                                                </div>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="px-6 max-w-md">
+                                            <div className="truncate text-[12px] font-bold italic text-foreground/60 leading-relaxed group-hover:text-foreground transition-colors">{log.description}</div>
+                                        </TableCell>
+                                        <TableCell className="px-8 text-right">
+                                            <AuditLogDetailsDialog log={log} />
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
 
-                {/* Pagination */}
+                {/* Pagination Meta */}
                 {data && (
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6 border-t border-border/40 px-6">
-                        <div className="text-sm text-muted-foreground">
-                            Showing <span className="font-semibold text-foreground">{(data.page - 1) * data.limit + 1}</span> to{' '}
-                            <span className="font-semibold text-foreground">{Math.min(data.page * data.limit, data.total)}</span> of <span className="font-semibold text-foreground">{data.total}</span> logs
+                    <div className="flex flex-col lg:flex-row items-center justify-between gap-8 p-10 border-t border-border/10">
+                        <div className="flex flex-col lg:flex-row lg:items-center gap-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 text-center lg:text-left">
+                            <div className="inline-flex items-center gap-2 group-hover:text-primary transition-colors">
+                                <Sparkles className="size-3" />
+                                Observed: <span className="text-foreground text-xs">{data.total} Signals</span>
+                            </div>
+                            <div className="hidden lg:block w-1 h-1 rounded-full bg-border" />
+                            <div className="italic">Data Point 0{page} of 0{data.totalPages}</div>
                         </div>
 
                         {data.totalPages > 1 && (
                             <Pagination>
-                                <PaginationContent>
+                                <PaginationContent className="flex items-center gap-2">
                                     <PaginationItem>
                                         <PaginationPrevious
                                             onClick={() => setPage(p => Math.max(1, p - 1))}
-                                            className={page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                                            className={cn(
+                                                "h-12 px-6 rounded-2xl bg-muted/20 border border-border/20 text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer",
+                                                page === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/10 hover:text-primary active:scale-95"
+                                            )}
                                         />
                                     </PaginationItem>
 
-                                    {renderPaginationItems()}
+                                    <div className="hidden md:flex items-center gap-1 mx-2">
+                                        {renderPaginationItems()}
+                                    </div>
 
                                     <PaginationItem>
                                         <PaginationNext
                                             onClick={() => setPage(p => Math.min(data.totalPages, p + 1))}
-                                            className={page === data.totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                                            className={cn(
+                                                "h-12 px-6 rounded-2xl bg-muted/20 border border-border/20 text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer",
+                                                page === data.totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/10 hover:text-primary active:scale-95"
+                                            )}
                                         />
                                     </PaginationItem>
                                 </PaginationContent>
@@ -374,8 +452,7 @@ export function AuditLogsPage() {
                         )}
                     </div>
                 )}
-            </div>
+            </Card>
         </div>
     );
 }
-

@@ -53,7 +53,7 @@ export const lessonsApi = {
  */
 export function useLessons(params: LessonQueryDTO) {
     return useQuery({
-        queryKey: ['lessons', params],
+        queryKey: ['lessons', params.moduleId || 'all', params],
         queryFn: () => lessonsApi.findAll(params),
         staleTime: 30000,
     });

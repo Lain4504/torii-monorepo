@@ -72,6 +72,16 @@ export async function getAttemptDetails(sessionId: string): Promise<any> {
     return response.data;
 }
 
+// Convenience wrapper for easier imports in pages
+export const examApi = {
+    startExam,
+    saveExamAnswers,
+    submitExam,
+    getExams,
+    getExamAttempts,
+    getAttemptDetails,
+};
+
 
 
 

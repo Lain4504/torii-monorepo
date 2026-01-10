@@ -57,7 +57,7 @@ export const register = createAsyncThunk(
     async (userData: UserRegistrationDTO, { rejectWithValue }) => {
         try {
             const response = await apiClient.post('/api/auth/register', userData);
-            
+
             // Check if response is successful
             if (response.data.success && response.data.data?.user) {
                 return response.data.data.user;
@@ -100,7 +100,7 @@ export const checkAuth = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             const response = await apiClient.get('/api/auth/me');
-            
+
             if (response.data.success && response.data.data?.user) {
                 return response.data.data.user;
             }
@@ -118,7 +118,7 @@ export const verifyEmail = createAsyncThunk(
     async ({ email, otp }: { email: string; otp: string }, { rejectWithValue }) => {
         try {
             const response = await apiClient.post('/api/auth/verify-email', { email, otp });
-            
+
             if (response.data.success) {
                 return response.data;
             }
@@ -137,7 +137,7 @@ export const fetchProfile = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             const response = await apiClient.get('/api/auth/me');
-            
+
             if (response.data.success && response.data.data?.user) {
                 return response.data.data.user;
             }
@@ -224,7 +224,8 @@ export const authSlice = createSlice({
         // Check Auth
         builder
             .addCase(checkAuth.pending, (state) => {
-                // Don't set loading here - it's a background check
+                state.status = 'loading';
+                state.error = null;
             })
             .addCase(checkAuth.fulfilled, (state, action) => {
                 state.isAuthenticated = true;

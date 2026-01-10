@@ -8,11 +8,7 @@ import { I18nProvider } from "./i18n-provider"
 
 const queryClient = new QueryClient()
 
-
-
 import { AuthInitializer } from "@/store/auth-initializer"
-
-import { Toaster } from "@workspace/ui/components/sonner"
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -28,7 +24,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
               enableColorScheme
             >
               {children}
-              <Toaster />
             </NextThemesProvider>
           </QueryClientProvider>
         </AuthInitializer>

@@ -1,84 +1,103 @@
 'use client'
 
-import { Video, Brain, BookOpen, GraduationCap, Users, TrendingUp } from 'lucide-react'
+import { Video, Brain, BookOpen, GraduationCap, Users, TrendingUp, Sparkles } from 'lucide-react'
+import { cn } from '@workspace/ui/lib/utils'
 
 const features = [
     {
         icon: Video,
-        title: 'Lớp học trực tuyến WebRTC',
-        description: 'Tham gia lớp học trực tiếp chất lượng cao với giảng viên và học viên. Tương tác real-time, chia sẻ màn hình, bảng trắng tương tác.',
-        gradient: 'from-teal-500 to-cyan-500',
+        title: 'Lớp học WebRTC',
+        description: 'Tương tác trực tiếp không độ trễ. Bảng trắng thông minh và chia sẻ tài liệu real-time.',
+        color: 'text-blue-500',
+        bg: 'bg-blue-500/5',
     },
     {
         icon: Brain,
-        title: 'AI Sensei 先生 (FastMCP)',
-        description: 'Trợ lý AI đa tác vụ: Sensei Agent (ngữ pháp, dịch), Assessment Agent (đề thi JLPT), Analytics Agent (phân tích tiến độ).',
-        gradient: 'from-cyan-500 to-blue-500',
+        title: 'AI Sensei trợ lực',
+        description: 'Trợ lý AI đa năng hỗ trợ dịch thuật, giải thích ngữ pháp và phân tích lỗi sai 24/7.',
+        color: 'text-primary',
+        bg: 'bg-primary/5',
     },
     {
         icon: GraduationCap,
-        title: 'Lộ trình JLPT N5→N1',
-        description: 'Học theo lộ trình JLPT rõ ràng từ cơ bản đến nâng cao. Bài kiểm tra mô phỏng, phản hồi chi tiết, theo dõi tiến độ.',
-        gradient: 'from-blue-500 to-indigo-500',
+        title: 'Lộ trình cá nhân',
+        description: 'Hệ thống tự động tùy chỉnh bài học theo trình độ JLPT và mục tiêu riêng của từng học viên.',
+        color: 'text-purple-500',
+        bg: 'bg-purple-500/5',
     },
     {
         icon: BookOpen,
-        title: 'Flashcards thông minh',
-        description: 'Học từ vựng hiệu quả với hệ thống flashcards spaced repetition. Tạo bộ thẻ riêng, ôn tập định kỳ, ghi nhớ lâu dài.',
-        gradient: 'from-purple-500 to-pink-500',
+        title: 'Kho học liệu mở',
+        description: 'Hàng ngàn bài giảng, video và đề thi thử JLPT N5-N1 được biên soạn bởi các chuyên gia.',
+        color: 'text-amber-500',
+        bg: 'bg-amber-500/5',
     },
     {
         icon: Users,
-        title: 'Cộng đồng học tập',
-        description: 'Kết nối với người học, chia sẻ tài liệu, thảo luận bài học. Blog, forum, group study sessions.',
-        gradient: 'from-orange-500 to-red-500',
+        title: 'Cộng đồng Torii',
+        description: 'Kết nối, trao đổi kinh nghiệm và tham gia các buổi học nhóm cùng cộng đồng hàng ngàn học viên.',
+        color: 'text-emerald-500',
+        bg: 'bg-emerald-500/5',
     },
     {
         icon: TrendingUp,
-        title: 'Gamification & Rewards',
-        description: 'Tích điểm, nhận huy hiệu, đổi voucher khi hoàn thành bài học. Hệ thống động viên giúp học đều đặn.',
-        gradient: 'from-green-500 to-emerald-500',
+        title: 'Smart Analytics',
+        description: 'Báo cáo chi tiết điểm mạnh, điểm yếu và dự đoán tỉ lệ đỗ JLPT chính xác qua từng giai đoạn.',
+        color: 'text-rose-500',
+        bg: 'bg-rose-500/5',
     },
 ]
 
 export function FeaturesSection() {
     return (
-        <section className="py-24 bg-background border-t">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Section Header */}
-                <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-                    <h2 className="text-4xl sm:text-5xl font-bold text-foreground">
-                        Tính năng{' '}
-                        <span className="text-primary">
-                            Vượt trội
-                        </span>
+        <section className="py-32 relative overflow-hidden bg-background">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                {/* Zen Section Header */}
+                <div className="text-center max-w-4xl mx-auto mb-24 space-y-6">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[9px] font-black uppercase tracking-[0.3em]">
+                        <Sparkles className="w-3 h-3" />
+                        <span>Torii Eco-system</span>
+                    </div>
+                    <h2 className="text-5xl md:text-6xl font-black tracking-tighter text-foreground uppercase italic">
+                        Trải Nghiệm <span className="text-primary not-italic">Học Tập</span> Đỉnh Cao
                     </h2>
-                    <p className="text-xl text-muted-foreground">
-                        Nền tảng học tiếng Nhật toàn diện với công nghệ WebRTC và AI hiện đại
+                    <p className="text-lg text-muted-foreground font-medium max-w-2xl mx-auto opacity-70">
+                        Chúng tôi kết hợp tinh hoa sư phạm Nhật Bản với công nghệ AI và WebRTC hiện đại nhất để mang lại hiệu quả vượt trội.
                     </p>
                 </div>
 
-                {/* Features Grid */}
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {/* Features Grid - Zen Style */}
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {features.map((feature, index) => {
                         const Icon = feature.icon
                         return (
                             <div
                                 key={index}
-                                className="group relative bg-card rounded-lg p-8 border hover:shadow-md transition-shadow cursor-pointer"
+                                className="group relative p-10 rounded-[2.5rem] bg-muted/20 border border-border/40 hover:bg-background hover:border-primary/20 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500 cursor-default"
                             >
-                                {/* Icon */}
-                                <div className="w-14 h-14 rounded-lg bg-primary flex items-center justify-center mb-6">
-                                    <Icon className="w-7 h-7 text-primary-foreground" />
+                                {/* Icon Box */}
+                                <div className={cn(
+                                    "w-16 h-16 rounded-2xl flex items-center justify-center mb-8 transition-transform group-hover:scale-110 duration-500 group-hover:-rotate-3",
+                                    feature.bg,
+                                    feature.color
+                                )}>
+                                    <Icon className="w-8 h-8" />
                                 </div>
 
                                 {/* Content */}
-                                <h3 className="text-xl font-semibold text-card-foreground mb-3">
-                                    {feature.title}
-                                </h3>
-                                <p className="text-muted-foreground leading-relaxed">
-                                    {feature.description}
-                                </p>
+                                <div className="space-y-4">
+                                    <h3 className="text-xs font-black uppercase tracking-[0.15em] text-foreground group-hover:text-primary transition-colors">
+                                        {feature.title}
+                                    </h3>
+                                    <p className="text-sm text-muted-foreground/80 leading-relaxed font-bold">
+                                        {feature.description}
+                                    </p>
+                                </div>
+
+                                {/* Decorative Element */}
+                                <div className="absolute top-8 right-8 text-[10px] font-black text-muted-foreground/10 uppercase tracking-widest italic group-hover:text-primary/10 transition-colors">
+                                    0{index + 1}
+                                </div>
                             </div>
                         )
                     })}

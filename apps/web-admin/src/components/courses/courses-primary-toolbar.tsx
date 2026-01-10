@@ -1,5 +1,5 @@
 import { Input } from '@workspace/ui/components/input';
-import { Search } from 'lucide-react';
+import { Search, Layers, Layout } from 'lucide-react';
 import {
     Select,
     SelectContent,
@@ -26,33 +26,37 @@ export function CoursesPrimaryToolbar({
     onJlptLevelFilterChange,
 }: CoursesPrimaryToolbarProps) {
     return (
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center justify-between">
-            <div className="relative flex-1 w-full sm:max-w-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 dark:text-muted-foreground/80" />
+        <div className="flex flex-col lg:flex-row gap-6 items-stretch lg:items-center justify-between w-full">
+            {/* Zen Search Input */}
+            <div className="relative flex-1 group">
+                <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/30 group-focus-within:text-primary transition-colors duration-500" />
                 <Input
-                    placeholder="Search courses..."
+                    placeholder="ENTER COURSE TITLE OR ARCHIVE IDENTIFIER..."
                     value={search}
                     onChange={(e) => onSearchChange(e.target.value)}
-                    className="pl-9 border border-border/50 bg-muted/50 dark:bg-muted/70 hover:bg-muted/70 dark:hover:bg-muted/80 focus-visible:ring-2 focus-visible:ring-primary/30 dark:focus-visible:ring-primary/40 rounded-xl transition-all text-sm sm:text-base"
+                    className="h-14 pl-12 rounded-2xl border-border/20 bg-background/50 hover:bg-background/80 focus-visible:ring-primary/20 transition-all text-[11px] font-black uppercase tracking-[0.15em] placeholder:text-muted-foreground/20"
                 />
             </div>
 
-            <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-                {/* Status Filter (draft/published - computed từ backend) */}
+            <div className="flex items-center gap-4">
+                {/* Status Filter */}
                 <Select
                     value={statusFilter || 'all'}
                     onValueChange={(value) =>
                         onStatusFilterChange(value === 'all' ? '' : value)
                     }
                 >
-                    <SelectTrigger className="flex-1 sm:flex-none sm:w-[180px] border border-border/50 bg-muted/50 dark:bg-muted/70 hover:bg-muted/70 dark:hover:bg-muted/80 rounded-xl transition-all focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary/40 text-sm sm:text-base">
-                        <SelectValue placeholder="All Status" />
+                    <SelectTrigger className="h-14 w-[180px] rounded-2xl border-border/20 bg-background/50 hover:bg-background/80 transition-all text-[10px] font-black uppercase tracking-widest focus:ring-primary/20">
+                        <div className="flex items-center gap-2">
+                            <Layers className="size-3.5 opacity-30" />
+                            <SelectValue placeholder="REPOSITORY STATUS" />
+                        </div>
                     </SelectTrigger>
-                    <SelectContent className="border-none shadow-xl bg-background/90 backdrop-blur-xl rounded-xl">
-                        <SelectItem value="all" className="rounded-lg cursor-pointer">All Status</SelectItem>
-                        <SelectItem value="draft" className="rounded-lg cursor-pointer">Draft</SelectItem>
-                        <SelectItem value="published" className="rounded-lg cursor-pointer">Published</SelectItem>
-                        <SelectItem value="archived" className="rounded-lg cursor-pointer">Archived</SelectItem>
+                    <SelectContent className="border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-[1.5rem] p-2">
+                        <SelectItem value="all" className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer italic">ALL REPOSITORIES</SelectItem>
+                        <SelectItem value="draft" className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">DRAFT</SelectItem>
+                        <SelectItem value="published" className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">PUBLISHED</SelectItem>
+                        <SelectItem value="archived" className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">ARCHIVED</SelectItem>
                     </SelectContent>
                 </Select>
 
@@ -63,20 +67,22 @@ export function CoursesPrimaryToolbar({
                         onJlptLevelFilterChange(value === 'all' ? '' : value)
                     }
                 >
-                    <SelectTrigger className="flex-1 sm:flex-none sm:w-[180px] border border-border/50 bg-muted/50 dark:bg-muted/70 hover:bg-muted/70 dark:hover:bg-muted/80 rounded-xl transition-all focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary/40 text-sm sm:text-base">
-                        <SelectValue placeholder="All Levels" />
+                    <SelectTrigger className="h-14 w-[180px] rounded-2xl border-border/20 bg-background/50 hover:bg-background/80 transition-all text-[10px] font-black uppercase tracking-widest focus:ring-primary/20">
+                        <div className="flex items-center gap-2">
+                            <Layout className="size-3.5 opacity-30" />
+                            <SelectValue placeholder="LEVEL MATRIX" />
+                        </div>
                     </SelectTrigger>
-                    <SelectContent className="border-none shadow-xl bg-background/90 backdrop-blur-xl rounded-xl">
-                        <SelectItem value="all" className="rounded-lg cursor-pointer">All Levels</SelectItem>
-                        <SelectItem value="N5" className="rounded-lg cursor-pointer">N5</SelectItem>
-                        <SelectItem value="N4" className="rounded-lg cursor-pointer">N4</SelectItem>
-                        <SelectItem value="N3" className="rounded-lg cursor-pointer">N3</SelectItem>
-                        <SelectItem value="N2" className="rounded-lg cursor-pointer">N2</SelectItem>
-                        <SelectItem value="N1" className="rounded-lg cursor-pointer">N1</SelectItem>
+                    <SelectContent className="border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-[1.5rem] p-2">
+                        <SelectItem value="all" className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer italic">ALL LEVELS</SelectItem>
+                        <SelectItem value="N5" className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">N5 FOUNDATION</SelectItem>
+                        <SelectItem value="N4" className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">N4 ELEMENTARY</SelectItem>
+                        <SelectItem value="N3" className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">N3 INTERMEDIATE</SelectItem>
+                        <SelectItem value="N2" className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">N2 ADVANCED</SelectItem>
+                        <SelectItem value="N1" className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">N1 MASTERY</SelectItem>
                     </SelectContent>
                 </Select>
             </div>
         </div>
     );
 }
-

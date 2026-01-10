@@ -1,74 +1,67 @@
 'use client'
 
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import Link from 'next/link'
 
 export function CTASection() {
     return (
-        <section className="py-24 bg-background border-t">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="relative overflow-hidden rounded-lg bg-primary p-12 lg:p-20">
+        <section className="py-24 bg-background">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="relative overflow-hidden rounded-[3rem] bg-foreground p-12 lg:p-24 shadow-2xl">
+                    {/* Zen Abstract Background */}
+                    <div className="absolute top-0 right-0 w-full h-full pointer-events-none overflow-hidden">
+                        <div className="absolute top-[-20%] right-[-10%] w-96 h-96 bg-primary/20 rounded-full blur-[120px]" />
+                        <div className="absolute bottom-[-10%] left-[-5%] w-64 h-64 bg-primary/10 rounded-full blur-[100px]" />
+                    </div>
+
                     {/* Content */}
-                    <div className="relative z-10 max-w-3xl mx-auto text-center space-y-8">
-                        <div className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-primary-foreground/20 text-primary-foreground text-sm font-medium mb-4">
-                            Ưu đãi đặc biệt
+                    <div className="relative z-10 max-w-4xl mx-auto text-center space-y-10">
+                        <div className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-primary/20 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-[0.3em]">
+                            <Sparkles className="w-3.5 h-3.5 mr-2" />
+                            Đặc quyền học viên
                         </div>
 
-                        <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary-foreground">
-                            Sẵn sàng chinh phục tiếng Nhật?
-                            <br />
-                            <span className="text-2xl sm:text-3xl text-primary-foreground/90">
-                                日本語を始めましょう！
-                            </span>
+                        <h2 className="text-5xl md:text-7xl font-black text-background tracking-tighter leading-none uppercase italic">
+                            Sẵn Sàng <span className="text-primary not-italic">Chinh Phục</span> <br className="hidden md:block" /> Tiếng Nhật?
                         </h2>
-                        <p className="text-xl text-primary-foreground/90 leading-relaxed">
-                            Tham gia cùng 5000+ học viên đang học tiếng Nhật và đạt mục tiêu JLPT.
-                            Bắt đầu ngay hôm nay với trải nghiệm học tập toàn diện: lớp live WebRTC,
-                            AI Sensei hỗ trợ 24/7, và flashcards thông minh.
+
+                        <p className="text-lg md:text-xl text-background/60 font-bold max-w-2xl mx-auto leading-relaxed">
+                            Tham gia cùng hàng ngàn học viên đang thay đổi bản thân mỗi ngày tại Torii.
+                            Bắt đầu hôm nay để không bỏ lỡ tương lai của chính mình.
                         </p>
 
-                        {/* CTAs */}
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
+                        <div className="flex flex-col sm:flex-row gap-5 justify-center items-center">
                             <Link href="/register">
                                 <Button
                                     size="lg"
-                                    variant="secondary"
-                                    className="text-lg px-10 py-7 font-medium"
+                                    className="h-16 px-12 text-sm font-black uppercase tracking-widest rounded-2xl bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/20 cursor-pointer transition-all active:scale-95"
                                 >
-                                    Đăng ký miễn phí ngay
-                                    <ArrowRight className="ml-2 w-5 h-5" />
+                                    Đăng ký ngay
+                                    <ArrowRight className="ml-3 w-5 h-5" />
                                 </Button>
                             </Link>
                             <Button
                                 size="lg"
                                 variant="outline"
-                                className="text-lg px-10 py-7 border-2 border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10"
+                                className="h-16 px-12 text-sm font-black uppercase tracking-widest rounded-2xl border-background/20 text-background hover:bg-background/10 cursor-pointer transition-all active:scale-95"
                             >
-                                Tìm hiểu thêm
+                                Tư vấn miễn phí
                             </Button>
                         </div>
 
-                        {/* Trust badges */}
-                        <div className="flex flex-wrap justify-center gap-6 pt-8 text-primary-foreground/80 text-sm">
-                            <div className="flex items-center gap-2">
-                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                </svg>
-                                <span>Miễn phí 7 ngày đầu</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                </svg>
-                                <span>Hủy bất cứ lúc nào</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                </svg>
-                                <span>AI Sensei 24/7</span>
-                            </div>
+                        {/* Trust Badges */}
+                        <div className="flex flex-wrap justify-center gap-8 pt-8 border-t border-background/5">
+                            {[
+                                'Đăng ký trong 30s',
+                                'Hỗ trợ 24/7',
+                                'Chứng chỉ quốc tế'
+                            ].map((text) => (
+                                <div key={text} className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-background/40 italic">
+                                    <CheckCircle2 className="w-4 h-4 text-primary" />
+                                    <span>{text}</span>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>

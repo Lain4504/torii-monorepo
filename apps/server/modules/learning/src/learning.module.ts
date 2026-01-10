@@ -12,6 +12,8 @@ import { WishlistModule } from './modules/wishlist/wishlist.module';
 import { ReviewModule } from './modules/review/review.module';
 import { CourseInstructorModule } from './modules/course-instructor/course-instructor.module';
 import { LessonMaterialModule } from './modules/lesson-material/lesson-material.module';
+import { EnrollmentModule } from './modules/enrollment/enrollment.module';
+import { PaymentModule } from './modules/payment/payment.module';
 
 // Community Modules
 import { PostModule } from './modules/post/post.module';
@@ -49,11 +51,14 @@ import { StorageController } from './controllers/storage.controller';
 // Controllers (keeping existing ones from interfaces/http for now)
 import { WishlistController } from './controllers/wishlist.controller';
 import { ReviewController } from './controllers/review.controller';
+import { EnrollmentController } from './controllers/enrollment.controller';
+import { PaymentController } from './controllers/payment.controller';
 import { PostController } from './interfaces/http/post.controller';
 import { CommentController } from './interfaces/http/comment.controller';
 import { NotificationController } from './interfaces/http/notification.controller';
 import { FlashcardDeckController } from './interfaces/http/flashcard-deck.controller';
 import { FlashcardController } from './interfaces/http/flashcard.controller';
+import { FlashcardReviewController } from './interfaces/http/flashcard-review.controller';
 
 @Module({
   imports: [
@@ -74,6 +79,8 @@ import { FlashcardController } from './interfaces/http/flashcard.controller';
     ReviewModule,
     CourseInstructorModule,
     LessonMaterialModule,
+    EnrollmentModule,
+    PaymentModule,
 
     // Community Domain
     PostModule,
@@ -109,11 +116,14 @@ import { FlashcardController } from './interfaces/http/flashcard.controller';
     StorageController,
     WishlistController,
     ReviewController,
+    EnrollmentController,
+    PaymentController,
     PostController,
     CommentController,
     NotificationController,
     FlashcardDeckController,
     FlashcardController,
+    FlashcardReviewController,
   ],
 })
 export class LearningModule { }

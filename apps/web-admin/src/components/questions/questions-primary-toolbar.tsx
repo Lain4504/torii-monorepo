@@ -1,5 +1,5 @@
 import { Input } from '@workspace/ui/components/input';
-import { Search } from 'lucide-react';
+import { Layers, Layout, Target, Zap, Activity, BrainCircuit } from 'lucide-react';
 import {
     Select,
     SelectContent,
@@ -44,136 +44,151 @@ export function QuestionsPrimaryToolbar({
     onPoolIdFilterChange,
 }: QuestionsPrimaryToolbarProps) {
     const { data: poolsData } = useQuestionPools({ page: 1, limit: 100 });
+
     return (
-        <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row gap-4">
-                {/* Search Input */}
-                <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60 peer-focus:text-foreground transition-colors" />
-                    <Input
-                        placeholder="Search questions..."
-                        value={search}
-                        onChange={(e) => onSearchChange(e.target.value)}
-                        className="pl-9 w-full bg-background/50 border-border/40 focus:bg-background transition-all hover:bg-background/80"
-                    />
-                </div>
+        <div className="flex flex-col gap-6 w-full">
+            {/* Main Search Row */}
+            <div className="relative group">
+                <Input
+                    placeholder="ENTER LOGIC PROMPT OR ASSET IDENTIFIER..."
+                    value={search}
+                    onChange={(e) => onSearchChange(e.target.value)}
+                    className="h-14 pl-6 rounded-2xl border-border/20 bg-background/50 hover:bg-background/80 focus-visible:ring-primary/20 transition-all text-[11px] font-black uppercase tracking-[0.15em] placeholder:text-muted-foreground/20"
+                />
+            </div>
 
-                {/* Filters */}
-                <div className="flex flex-row gap-3 flex-wrap">
+            {/* Matrix Filters Row */}
+            <div className="flex flex-wrap items-center gap-3">
+                <Select
+                    value={questionTypeFilter || 'all'}
+                    onValueChange={(value) =>
+                        onQuestionTypeFilterChange(value === 'all' ? '' : value)
+                    }
+                >
+                    <SelectTrigger className="h-12 min-w-[140px] px-4 rounded-xl border-border/20 bg-background/50 hover:bg-background/80 transition-all text-[9px] font-black uppercase tracking-widest focus:ring-primary/20">
+                        <div className="flex items-center gap-2">
+                            <BrainCircuit className="size-3.5 opacity-30" />
+                            <SelectValue placeholder="UNIT TYPE" />
+                        </div>
+                    </SelectTrigger>
+                    <SelectContent className="border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-2xl p-2">
+                        <SelectItem value="all" className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer italic">ALL UNITS</SelectItem>
+                        <SelectItem value={QuestionType.MULTIPLE_CHOICE} className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">MCQ UNIT</SelectItem>
+                        <SelectItem value={QuestionType.TRUE_FALSE} className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">POLAR LOGIC</SelectItem>
+                        <SelectItem value={QuestionType.FILL_BLANK} className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">GAPS SYNC</SelectItem>
+                        <SelectItem value={QuestionType.MATCHING} className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">NODE PAIR</SelectItem>
+                        <SelectItem value={QuestionType.ESSAY} className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">FREE FORM</SelectItem>
+                    </SelectContent>
+                </Select>
+
+                <Select
+                    value={categoryFilter || 'all'}
+                    onValueChange={(value) =>
+                        onCategoryFilterChange(value === 'all' ? '' : value)
+                    }
+                >
+                    <SelectTrigger className="h-12 min-w-[140px] px-4 rounded-xl border-border/20 bg-background/50 hover:bg-background/80 transition-all text-[9px] font-black uppercase tracking-widest focus:ring-primary/20">
+                        <div className="flex items-center gap-2">
+                            <Layers className="size-3.5 opacity-30" />
+                            <SelectValue placeholder="CATEGORY" />
+                        </div>
+                    </SelectTrigger>
+                    <SelectContent className="border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-2xl p-2">
+                        <SelectItem value="all" className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer italic">ALL DOMAINS</SelectItem>
+                        <SelectItem value={QuestionCategory.VOCAB} className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">VOCABULARY</SelectItem>
+                        <SelectItem value={QuestionCategory.GRAMMAR} className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">GRAMMAR</SelectItem>
+                        <SelectItem value={QuestionCategory.READING} className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">READING</SelectItem>
+                        <SelectItem value={QuestionCategory.LISTENING} className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">LISTENING</SelectItem>
+                    </SelectContent>
+                </Select>
+
+                <Select
+                    value={jlptLevelFilter || 'all'}
+                    onValueChange={(value) =>
+                        onJlptLevelFilterChange(value === 'all' ? '' : value)
+                    }
+                >
+                    <SelectTrigger className="h-12 min-w-[100px] px-4 rounded-xl border-border/20 bg-background/50 hover:bg-background/80 transition-all text-[9px] font-black uppercase tracking-widest focus:ring-primary/20">
+                        <div className="flex items-center gap-2">
+                            <Target className="size-3.5 opacity-30" />
+                            <SelectValue placeholder="MATRIX" />
+                        </div>
+                    </SelectTrigger>
+                    <SelectContent className="border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-2xl p-2">
+                        <SelectItem value="all" className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer italic">ALL MATRIX</SelectItem>
+                        <SelectItem value={QuestionJlptLevel.N5} className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">N5</SelectItem>
+                        <SelectItem value={QuestionJlptLevel.N4} className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">N4</SelectItem>
+                        <SelectItem value={QuestionJlptLevel.N3} className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">N3</SelectItem>
+                        <SelectItem value={QuestionJlptLevel.N2} className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">N2</SelectItem>
+                        <SelectItem value={QuestionJlptLevel.N1} className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">N1</SelectItem>
+                    </SelectContent>
+                </Select>
+
+                <Select
+                    value={difficultyFilter || 'all'}
+                    onValueChange={(value) =>
+                        onDifficultyFilterChange(value === 'all' ? '' : value)
+                    }
+                >
+                    <SelectTrigger className="h-12 min-w-[130px] px-4 rounded-xl border-border/20 bg-background/50 hover:bg-background/80 transition-all text-[9px] font-black uppercase tracking-widest focus:ring-primary/20">
+                        <div className="flex items-center gap-2">
+                            <Activity className="size-3.5 opacity-30" />
+                            <SelectValue placeholder="STRESS" />
+                        </div>
+                    </SelectTrigger>
+                    <SelectContent className="border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-2xl p-2">
+                        <SelectItem value="all" className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer italic">ALL STRESS LEVELS</SelectItem>
+                        <SelectItem value={QuestionDifficultyLevel.EASY} className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer text-emerald-500">LOW STRESS</SelectItem>
+                        <SelectItem value={QuestionDifficultyLevel.MEDIUM} className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer text-amber-500">OPTIMAL STRESS</SelectItem>
+                        <SelectItem value={QuestionDifficultyLevel.HARD} className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer text-rose-500">MAX STRESS</SelectItem>
+                    </SelectContent>
+                </Select>
+
+                <Select
+                    value={statusFilter || 'all'}
+                    onValueChange={(value) =>
+                        onStatusFilterChange(value === 'all' ? '' : value)
+                    }
+                >
+                    <SelectTrigger className="h-12 min-w-[130px] px-4 rounded-xl border-border/20 bg-background/50 hover:bg-background/80 transition-all text-[9px] font-black uppercase tracking-widest focus:ring-primary/20">
+                        <div className="flex items-center gap-2">
+                            <Zap className="size-3.5 opacity-30" />
+                            <SelectValue placeholder="STATUS" />
+                        </div>
+                    </SelectTrigger>
+                    <SelectContent className="border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-2xl p-2">
+                        <SelectItem value="all" className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer italic">ALL REGISTRY</SelectItem>
+                        <SelectItem value={QuestionStatus.ACTIVE} className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">ACTIVE NODE</SelectItem>
+                        <SelectItem value={QuestionStatus.INACTIVE} className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">STASIS NODE</SelectItem>
+                        <SelectItem value={QuestionStatus.REVIEW} className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">AUDIT QUEUE</SelectItem>
+                        <SelectItem value={QuestionStatus.ARCHIVED} className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">COLD STORAGE</SelectItem>
+                    </SelectContent>
+                </Select>
+
+                {onPoolIdFilterChange && (
                     <Select
-                        value={questionTypeFilter || 'all'}
+                        value={poolIdFilter || 'all'}
                         onValueChange={(value) =>
-                            onQuestionTypeFilterChange(value === 'all' ? '' : value)
+                            onPoolIdFilterChange(value === 'all' ? '' : value)
                         }
                     >
-                        <SelectTrigger className="flex-1 sm:w-[140px] bg-background/50 border-border/40 focus:bg-background transition-all hover:bg-background/80">
-                            <SelectValue placeholder="Type" />
+                        <SelectTrigger className="h-12 min-w-[160px] px-4 rounded-xl border-border/20 bg-background/50 hover:bg-background/80 transition-all text-[9px] font-black uppercase tracking-widest focus:ring-primary/20">
+                            <div className="flex items-center gap-2">
+                                <Layout className="size-3.5 opacity-30" />
+                                <SelectValue placeholder="POOL" />
+                            </div>
                         </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Types</SelectItem>
-                            <SelectItem value={QuestionType.MULTIPLE_CHOICE}>Multiple Choice</SelectItem>
-                            <SelectItem value={QuestionType.TRUE_FALSE}>True/False</SelectItem>
-                            <SelectItem value={QuestionType.FILL_BLANK}>Fill Blank</SelectItem>
-                            <SelectItem value={QuestionType.MATCHING}>Matching</SelectItem>
-                            <SelectItem value={QuestionType.ESSAY}>Essay</SelectItem>
+                        <SelectContent className="border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-2xl p-2 max-h-[300px]">
+                            <SelectItem value="all" className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer italic">ALL POOLS</SelectItem>
+                            {poolsData?.data.map((pool) => (
+                                <SelectItem key={pool.id} value={pool.id} className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">
+                                    {pool.name.toUpperCase()}
+                                </SelectItem>
+                            ))}
                         </SelectContent>
                     </Select>
-
-                    <Select
-                        value={categoryFilter || 'all'}
-                        onValueChange={(value) =>
-                            onCategoryFilterChange(value === 'all' ? '' : value)
-                        }
-                    >
-                        <SelectTrigger className="flex-1 sm:w-[140px] bg-background/50 border-border/40 focus:bg-background transition-all hover:bg-background/80">
-                            <SelectValue placeholder="Category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Categories</SelectItem>
-                            <SelectItem value={QuestionCategory.VOCAB}>Vocab</SelectItem>
-                            <SelectItem value={QuestionCategory.GRAMMAR}>Grammar</SelectItem>
-                            <SelectItem value={QuestionCategory.READING}>Reading</SelectItem>
-                            <SelectItem value={QuestionCategory.LISTENING}>Listening</SelectItem>
-                        </SelectContent>
-                    </Select>
-
-                    <Select
-                        value={jlptLevelFilter || 'all'}
-                        onValueChange={(value) =>
-                            onJlptLevelFilterChange(value === 'all' ? '' : value)
-                        }
-                    >
-                        <SelectTrigger className="flex-1 sm:w-[120px] bg-background/50 border-border/40 focus:bg-background transition-all hover:bg-background/80">
-                            <SelectValue placeholder="JLPT" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Levels</SelectItem>
-                            <SelectItem value={QuestionJlptLevel.N5}>N5</SelectItem>
-                            <SelectItem value={QuestionJlptLevel.N4}>N4</SelectItem>
-                            <SelectItem value={QuestionJlptLevel.N3}>N3</SelectItem>
-                            <SelectItem value={QuestionJlptLevel.N2}>N2</SelectItem>
-                            <SelectItem value={QuestionJlptLevel.N1}>N1</SelectItem>
-                        </SelectContent>
-                    </Select>
-
-                    <Select
-                        value={difficultyFilter || 'all'}
-                        onValueChange={(value) =>
-                            onDifficultyFilterChange(value === 'all' ? '' : value)
-                        }
-                    >
-                        <SelectTrigger className="flex-1 sm:w-[130px] bg-background/50 border-border/40 focus:bg-background transition-all hover:bg-background/80">
-                            <SelectValue placeholder="Difficulty" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Difficulties</SelectItem>
-                            <SelectItem value={QuestionDifficultyLevel.EASY}>Easy</SelectItem>
-                            <SelectItem value={QuestionDifficultyLevel.MEDIUM}>Medium</SelectItem>
-                            <SelectItem value={QuestionDifficultyLevel.HARD}>Hard</SelectItem>
-                        </SelectContent>
-                    </Select>
-
-                    <Select
-                        value={statusFilter || 'all'}
-                        onValueChange={(value) =>
-                            onStatusFilterChange(value === 'all' ? '' : value)
-                        }
-                    >
-                        <SelectTrigger className="flex-1 sm:w-[130px] bg-background/50 border-border/40 focus:bg-background transition-all hover:bg-background/80">
-                            <SelectValue placeholder="Status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Status</SelectItem>
-                            <SelectItem value={QuestionStatus.ACTIVE}>Active</SelectItem>
-                            <SelectItem value={QuestionStatus.INACTIVE}>Inactive</SelectItem>
-                            <SelectItem value={QuestionStatus.REVIEW}>Review</SelectItem>
-                            <SelectItem value={QuestionStatus.ARCHIVED}>Archived</SelectItem>
-                        </SelectContent>
-                    </Select>
-
-                    {onPoolIdFilterChange && (
-                        <Select
-                            value={poolIdFilter || 'all'}
-                            onValueChange={(value) =>
-                                onPoolIdFilterChange(value === 'all' ? '' : value)
-                            }
-                        >
-                            <SelectTrigger className="flex-1 sm:w-[160px] bg-background/50 border-border/40 focus:bg-background transition-all hover:bg-background/80">
-                                <SelectValue placeholder="Question Pool" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All Pools</SelectItem>
-                                {poolsData?.data.map((pool) => (
-                                    <SelectItem key={pool.id} value={pool.id}>
-                                        {pool.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    )}
-                </div>
+                )}
             </div>
         </div>
     );
 }
-

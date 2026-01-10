@@ -57,6 +57,7 @@ model Course {
   reviews Review[]
   quizzes Quiz[]
   instructors CourseInstructor[]
+  enrollments Enrollment[]
 
   @@index([jlptLevel])
   @@index([createdBy])
@@ -329,6 +330,9 @@ model User {
   auditLogs               AuditLog[]               @relation("UserAuditLogs")
   wishlists               Wishlist[]
   reviews                 Review[]
+  enrollments             Enrollment[]
+  payments                Payment[]
+  giftEnrollments         Enrollment[]              @relation("GiftEnrollments")
 
   @@index([email])
   @@index([role])
@@ -990,4 +994,106 @@ model Review {
   @@index([courseId])
   @@index([userId])
   @@map("reviews")
+}
+
+// Enrollment - Student enrollment in courses
+// Based on database.sql (lines 256-272)
+model Enrollment {
+  id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId              String    @map("user_id") @db.Uuid
+  courseId            String    @map("course_id") @db.Uuid
+  enrollmentDate      DateTime  @default(now()) @map("enrollment_date")
+  completionStatus    String    @default("in_progress") @map("completion_status") @db.VarChar(20) // in_progress, completed, dropped
+  completionPercentage Decimal  @default(0.00) @map("completion_percentage") @db.Decimal(5, 2)
+  lastAccessedAt      DateTime? @map("last_accessed_at")
+  completedAt         DateTime? @map("completed_at")
+  paymentId           String?   @unique @map("payment_id") @db.Uuid
+  couponAppliedId     String?   @map("coupon_applied_id") @db.Uuid
+  finalPrice          Decimal   @map("final_price") @db.Decimal(10, 2)
+  isGift              Boolean   @default(false) @map("is_gift")
+  giftMessage         String?   @map("gift_message") @db.Text
+  senderId            String?   @map("sender_id") @db.Uuid
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course  Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  payment Payment? @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+  sender  User?    @relation("GiftEnrollments", fields: [senderId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, courseId]) // Mỗi user chỉ enroll 1 lần cho 1 course
+  @@index([userId])
+  @@index([courseId])
+  @@index([completionStatus])
+  @@index([enrollmentDate])
+  @@map("enrollments")
+}
+
+enum PaymentStatus {
+  pending
+  processing
+  completed
+  failed
+  cancelled
+}
+
+enum PaymentMethod {
+  credit_card
+  bank_transfer
+  momo
+  zalopay
+  vnpay
+  mock // For testing
+}
+
+enum PaymentGateway {
+  stripe
+  paypal
+  vnpay
+  momo
+  mock // For testing
+}
+
+enum PaymentType {
+  course_purchase
+  subscription
+  top_up
+  gift
+}
+
+// Payment - Payment transactions for course purchases
+// Based on database.sql and database-design-schema-part2.md
+model Payment {
+  id                    String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId                String        @map("user_id") @db.Uuid
+  amount                Decimal       @db.Decimal(10, 2)
+  currency              String        @default("VND") @db.VarChar(3)
+  paymentMethod         String        @map("payment_method") @db.VarChar(50) // credit_card, bank_transfer, momo, zalopay, vnpay
+  paymentGateway        String?       @map("payment_gateway") @db.VarChar(50) // stripe, paypal, vnpay, momo
+  transactionId         String?       @unique @map("transaction_id") @db.VarChar(100) // Internal transaction ID
+  gatewayTransactionId  String?       @map("gateway_transaction_id") @db.VarChar(100) // Gateway transaction ID
+  status                PaymentStatus @default(pending)
+  paymentType           PaymentType   @default(course_purchase) @map("payment_type")
+  enrollmentId          String?       @map("enrollment_id") @db.Uuid
+  couponId              String?       @map("coupon_id") @db.Uuid
+  description           String?       @db.Text
+  metadata              Json?         @default("{}") // Additional payment data (coupon, discount, invoice, etc.)
+  completedAt           DateTime?     @map("completed_at")
+  failedAt              DateTime?     @map("failed_at")
+  createdAt             DateTime      @default(now()) @map("created_at")
+  updatedAt             DateTime      @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  enrollment Enrollment? // Relation defined on Enrollment side (via paymentId)
+  // Note: Coupon relation will be added when Coupon model is created
+
+  @@index([userId])
+  @@index([status])
+  @@index([paymentType])
+  @@index([enrollmentId])
+  @@index([createdAt])
+  @@index([transactionId])
+  @@map("payments")
 }

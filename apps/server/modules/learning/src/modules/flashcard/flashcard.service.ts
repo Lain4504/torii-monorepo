@@ -1,7 +1,8 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { RpcException } from '@nestjs/microservices';
 import { PrismaService } from "@server/shared";
-import { FlashcardDifficulty } from "@workspace/schemas";
+import { FlashcardDifficulty, FlashcardGenerationMethod } from "@workspace/schemas";
+import { SrsAlgorithmService } from './srs-algorithm.service';
 import type {
     FlashcardCreateDTO,
     FlashcardUpdateDTO,
@@ -48,7 +49,10 @@ function fromDifficultyLevel(level: FlashcardDifficulty): string {
 export class FlashcardService {
     private readonly logger = new Logger(FlashcardService.name);
 
-    constructor(private readonly prisma: PrismaService) {
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly srsAlgorithm: SrsAlgorithmService,
+    ) {
     }
 
     /**
@@ -86,6 +90,7 @@ export class FlashcardService {
             // Verify deck ownership
             await this.verifyDeckOwnership(userId, deckId);
 
+            // Create flashcard
             const flashcard = await this.prisma.flashcard.create({
                 data: {
                     deckId: deckId,
@@ -97,12 +102,40 @@ export class FlashcardService {
                     audioUrl: data.audioUrl || null,
                     tags: data.tags || [],
                     difficulty: data.difficulty !== undefined ? fromDifficultyLevel(data.difficulty) : 'medium',
-                    // Default SM-2 values
+                    // Japanese-specific fields
+                    furigana: (data as any).furigana || null,
+                    kanji: (data as any).kanji || null,
+                    partOfSpeech: (data as any).partOfSpeech || null,
+                    wordJlptLevel: (data as any).wordJlptLevel || null,
+                    meanings: (data as any).meanings || null,
+                    // AI Integration fields
+                    aiGenerated: (data as any).aiGenerated || false,
+                    sourceDocumentId: (data as any).sourceDocumentId || null,
+                    generationMethod: (data as any).generationMethod || FlashcardGenerationMethod.MANUAL,
+                    generationMetadata: (data as any).generationMetadata || {},
+                    // Metadata
+                    notes: (data as any).notes || null,
+                    isArchived: (data as any).isArchived || false,
+                    // Global stats (for analytics)
                     intervalDays: 1,
                     easeFactor: 2.5,
                     reviewCount: 0,
                     correctCount: 0,
-                    nextReviewDate: null
+                    lastReviewDate: null,
+                    timesStudied: 0,
+                }
+            });
+
+            // Create initial user progress for card creator
+            const initialValues = this.srsAlgorithm.getInitialValues();
+            await this.prisma.flashcardUserProgress.create({
+                data: {
+                    userId,
+                    flashcardId: flashcard.id,
+                    state: initialValues.state,
+                    currentInterval: initialValues.currentInterval,
+                    easeFactor: initialValues.easeFactor,
+                    nextReviewDate: initialValues.nextReviewDate,
                 }
             });
 
@@ -129,13 +162,72 @@ export class FlashcardService {
         }
     }
 
-    async getFlashcards(params: FlashcardQueryDTO): Promise<PaginatedResponseDTO<FlashcardResponseDTO>> {
+    async getFlashcards(userId: string, params: FlashcardQueryDTO): Promise<PaginatedResponseDTO<FlashcardResponseDTO>> {
         try {
-            const { page = 1, limit = 10, deckId } = params;
+            const { page = 1, limit = 10, deckId, search, tags, difficulty, jlptLevel } = params;
             const skip = (page - 1) * limit;
-            const whereClause: any = {};
+            const whereClause: any = {
+                deck: {
+                    userId: userId, // Only flashcards from user's decks (personal flashcards)
+                },
+            };
+
+            // Filter by deck if provided
             if (deckId) {
+                // Verify deck ownership
+                const deck = await this.prisma.flashcardDeck.findUnique({
+                    where: { id: deckId },
+                    select: { userId: true },
+                });
+
+                if (!deck) {
+                    throw new RpcException({
+                        status: 404,
+                        message: 'Flashcard deck not found',
+                    });
+                }
+
+                if (deck.userId !== userId) {
+                    throw new RpcException({
+                        status: 403,
+                        message: 'You do not have permission to access this deck',
+                    });
+                }
+
                 whereClause.deckId = deckId;
+            }
+
+            // Search by text (front or back text)
+            if (search) {
+                whereClause.OR = [
+                    { frontText: { contains: search, mode: 'insensitive' } },
+                    { backText: { contains: search, mode: 'insensitive' } },
+                    { exampleSentence: { contains: search, mode: 'insensitive' } },
+                ];
+            }
+
+            // Filter by tags
+            if (tags && tags.length > 0) {
+                whereClause.tags = {
+                    hasSome: tags,
+                };
+            }
+
+            // Filter by difficulty
+            if (difficulty !== undefined) {
+                whereClause.difficulty = fromDifficultyLevel(difficulty);
+            }
+
+            // Filter by JLPT level (word level)
+            if (jlptLevel) {
+                whereClause.wordJlptLevel = jlptLevel;
+            }
+
+            // Filter out archived cards by default (unless explicitly requested)
+            if (params.isArchived === undefined || !params.isArchived) {
+                whereClause.isArchived = false;
+            } else if (params.isArchived) {
+                whereClause.isArchived = true;
             }
 
             const [total, flashcards] = await Promise.all([
@@ -156,6 +248,9 @@ export class FlashcardService {
                 totalPages: Math.ceil(total / limit),
             };
         } catch (error: any) {
+            if (error instanceof RpcException) {
+                throw error;
+            }
             this.logger.error(`Error getting flashcards: ${error.message}`, error.stack);
             throw new RpcException({
                 status: 400,
@@ -199,19 +294,30 @@ export class FlashcardService {
             const targetDeckId = deckId || existing.deckId;
             await this.verifyDeckOwnership(userId, targetDeckId);
 
+            const updateData: any = {
+                deckId: deckId ?? undefined,
+                frontText: frontText ?? undefined,
+                backText: backText ?? undefined,
+                exampleSentence: exampleSentence ?? undefined,
+                pronunciation: pronunciation ?? undefined,
+                imageUrl: imageUrl ?? undefined,
+                audioUrl: audioUrl ?? undefined,
+                tags: tags ?? undefined,
+                difficulty: difficulty !== undefined ? fromDifficultyLevel(difficulty) : undefined,
+            };
+
+            // Update Japanese-specific fields if provided
+            if ((data as any).furigana !== undefined) updateData.furigana = (data as any).furigana;
+            if ((data as any).kanji !== undefined) updateData.kanji = (data as any).kanji;
+            if ((data as any).partOfSpeech !== undefined) updateData.partOfSpeech = (data as any).partOfSpeech;
+            if ((data as any).wordJlptLevel !== undefined) updateData.wordJlptLevel = (data as any).wordJlptLevel;
+            if ((data as any).meanings !== undefined) updateData.meanings = (data as any).meanings;
+            if ((data as any).notes !== undefined) updateData.notes = (data as any).notes;
+            if ((data as any).isArchived !== undefined) updateData.isArchived = (data as any).isArchived;
+
             const updated = await this.prisma.flashcard.update({
                 where: { id },
-                data: {
-                    deckId: deckId ?? undefined,
-                    frontText: frontText ?? undefined,
-                    backText: backText ?? undefined,
-                    exampleSentence: exampleSentence ?? undefined,
-                    pronunciation: pronunciation ?? undefined,
-                    imageUrl: imageUrl ?? undefined,
-                    audioUrl: audioUrl ?? undefined,
-                    tags: tags ?? undefined,
-                    difficulty: difficulty !== undefined ? fromDifficultyLevel(difficulty) : undefined,
-                }
+                data: updateData,
             });
 
             return this.mapToProto(updated);
@@ -286,13 +392,30 @@ export class FlashcardService {
             pronunciation: fc.pronunciation || undefined,
             imageUrl: fc.imageUrl || undefined,
             audioUrl: fc.audioUrl || undefined,
-            tags: fc.tags,
+            tags: fc.tags || [],
             difficulty: toDifficultyLevel(fc.difficulty),
+            // Japanese-specific fields
+            furigana: fc.furigana || undefined,
+            kanji: fc.kanji || undefined,
+            partOfSpeech: fc.partOfSpeech || undefined,
+            wordJlptLevel: fc.wordJlptLevel || undefined,
+            meanings: fc.meanings || [],
+            // AI Integration fields
+            aiGenerated: fc.aiGenerated || false,
+            sourceDocumentId: fc.sourceDocumentId || undefined,
+            generationMethod: fc.generationMethod || FlashcardGenerationMethod.MANUAL,
+            generationMetadata: fc.generationMetadata || {},
+            // Metadata
+            notes: fc.notes || undefined,
+            isArchived: fc.isArchived || false,
+            // Global stats (for compatibility/analytics)
             nextReviewDate: fc.nextReviewDate || undefined,
-            intervalDays: fc.intervalDays,
-            easeFactor: Number(fc.easeFactor),
-            reviewCount: fc.reviewCount,
-            correctCount: fc.correctCount,
+            intervalDays: fc.intervalDays || 0,
+            easeFactor: Number(fc.easeFactor) || 2.5,
+            reviewCount: fc.reviewCount || 0,
+            correctCount: fc.correctCount || 0,
+            lastReviewDate: fc.lastReviewDate || undefined,
+            timesStudied: fc.timesStudied || 0,
             createdAt: fc.createdAt,
             updatedAt: fc.updatedAt
         };

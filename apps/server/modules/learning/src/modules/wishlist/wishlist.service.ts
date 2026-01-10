@@ -152,4 +152,48 @@ export class WishlistService implements IWishlistService {
       return false;
     }
   }
+
+  /**
+   * Toggle wishlist (add if not exists, remove if exists)
+   */
+  async toggle(userId: string, courseId: string): Promise<{ isInWishlist: boolean; wishlist?: WishlistResponseDTO }> {
+    try {
+      const existing = await this.wishlistRepository.findByUserAndCourse(userId, courseId);
+      
+      if (existing) {
+        // Remove from wishlist
+        await this.wishlistRepository.delete(existing.id);
+        return { isInWishlist: false };
+      } else {
+        // Add to wishlist
+        const created = await this.wishlistRepository.create({
+          user: { connect: { id: userId } },
+          course: { connect: { id: courseId } },
+        });
+        return { isInWishlist: true, wishlist: this.toWishlistDto(created) };
+      }
+    } catch (error: any) {
+      this.logger.error(
+        `Error toggling wishlist: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Check if course is in user's wishlist
+   */
+  async isInWishlist(userId: string, courseId: string): Promise<boolean> {
+    try {
+      const existing = await this.wishlistRepository.findByUserAndCourse(userId, courseId);
+      return existing !== null;
+    } catch (error: any) {
+      this.logger.error(
+        `Error checking wishlist: ${error.message}`,
+        error.stack,
+      );
+      return false;
+    }
+  }
 }

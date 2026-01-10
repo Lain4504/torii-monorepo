@@ -58,14 +58,14 @@ function App() {
 
                 <Route path="rooms" element={<RoomsPage />} />
                 <Route path="blogs" element={<BlogPage />} />
-                
+
                 {/* Question Bank - Unified entry point */}
                 <Route path="question-bank" element={<QuestionBankPage />}>
-                    <Route index element={<QuestionsPage />} />
-                    <Route path="questions" element={<QuestionsPage />} />
-                    <Route path="pools" element={<QuestionPoolsPage />} />
+                  <Route index element={<QuestionsPage />} />
+                  <Route path="questions" element={<QuestionsPage />} />
+                  <Route path="pools" element={<QuestionPoolsPage />} />
                 </Route>
-                
+
                 {/* Pool detail page */}
                 <Route path="question-bank/pools/:id/questions" element={<PoolDetailPage />} />
                 <Route path="payments" element={<PaymentsPage />} />
@@ -86,4 +86,3 @@ function App() {
 }
 
 export default App
-

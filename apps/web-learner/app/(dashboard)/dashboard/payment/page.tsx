@@ -1,276 +1,172 @@
 'use client'
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@workspace/ui/components/card'
+import { Badge } from '@workspace/ui/components/badge'
+import {
+    CheckCircle2,
+    Clock,
+    XCircle,
+    Search,
+    Filter,
+    Download,
+    Receipt,
+    ExternalLink
+} from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { Input } from '@workspace/ui/components/input'
-import { Label } from '@workspace/ui/components/label'
-import { RadioGroup, RadioGroupItem } from '@workspace/ui/components/radio-group'
-import { Separator } from '@workspace/ui/components/separator'
-import { CreditCard, Wallet, Smartphone, Lock, Check, ArrowLeft } from 'lucide-react'
-import { useState } from 'react'
-import Link from 'next/link'
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@workspace/ui/components/table'
+import { cn } from '@workspace/ui/lib/utils'
 
-export default function PaymentPage() {
-    const [selectedMethod, setSelectedMethod] = useState('card')
-    const [cardData, setCardData] = useState({
-        number: '',
-        name: '',
-        expiry: '',
-        cvv: '',
-    })
-
-    // Mock course data - replace with actual data
-    const course = {
-        title: 'Tiếng Nhật N5 - Khóa học toàn diện',
-        instructor: 'Nguyễn Văn A',
-        price: 499000,
-        originalPrice: 999000,
-        thumbnail: '/api/placeholder/300/200',
-    }
-
-    const paymentMethods = [
-        { id: 'card', name: 'Thẻ tín dụng/Ghi nợ', icon: CreditCard },
-        { id: 'wallet', name: 'Ví điện tử', icon: Wallet },
-        { id: 'momo', name: 'MoMo', icon: Smartphone },
+export default function PaymentHistoryPage() {
+    const payments = [
+        {
+            id: 'TXN-10293',
+            course: 'Tiếng Nhật N5 - Khóa học toàn diện',
+            date: '2026-01-05',
+            amount: 499000,
+            method: 'Chuyển khoản ngân hàng',
+            status: 'completed',
+        },
+        {
+            id: 'TXN-10182',
+            course: 'Ngữ pháp N4 nâng cao',
+            date: '2025-12-20',
+            amount: 599000,
+            method: 'Chuyển khoản ngân hàng',
+            status: 'completed',
+        },
+        {
+            id: 'TXN-09823',
+            course: 'Học Kanji qua hình ảnh',
+            date: '2025-11-15',
+            amount: 350000,
+            method: 'Chuyển khoản ngân hàng',
+            status: 'completed',
+        },
+        {
+            id: 'TXN-09712',
+            course: 'Giao tiếp tiếng Nhật cơ bản',
+            date: '2025-11-01',
+            amount: 450000,
+            method: 'Chuyển khoản ngân hàng',
+            status: 'failed',
+        },
     ]
 
-    const discount = course.originalPrice - course.price
-    const tax = 0
-    const total = course.price + tax
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        // TODO: Implement payment processing
-        console.log('Processing payment...')
+    const getStatusBadge = (status: string) => {
+        switch (status) {
+            case 'completed':
+                return (
+                    <Badge variant="outline" className="border-emerald-500/20 bg-emerald-500/10 text-emerald-600 font-bold text-[10px] uppercase tracking-wider gap-1.5 py-1">
+                        <CheckCircle2 className="w-3 h-3" /> Thành công
+                    </Badge>
+                )
+            case 'pending':
+                return (
+                    <Badge variant="outline" className="border-amber-500/20 bg-amber-500/10 text-amber-600 font-bold text-[10px] uppercase tracking-wider gap-1.5 py-1">
+                        <Clock className="w-3 h-3" /> Chờ xử lý
+                    </Badge>
+                )
+            case 'failed':
+                return (
+                    <Badge variant="outline" className="border-red-500/20 bg-red-500/10 text-red-600 font-bold text-[10px] uppercase tracking-wider gap-1.5 py-1">
+                        <XCircle className="w-3 h-3" /> Thất bại
+                    </Badge>
+                )
+            default:
+                return null
+        }
     }
 
     return (
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-6xl space-y-6">
-            <div className="flex items-center gap-4">
-                <Link href="/courses">
-                    <Button variant="ghost" size="icon" className="cursor-pointer">
-                        <ArrowLeft className="w-5 h-5" />
-                    </Button>
-                </Link>
-                <div>
-                    <h1 className="text-3xl font-bold text-foreground">Thanh toán</h1>
-                    <p className="text-muted-foreground mt-2">
-                        Hoàn tất đăng ký khóa học của bạn
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 max-w-7xl animate-in fade-in duration-500">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-border/40">
+                <div className="space-y-2">
+                    <h1 className="text-3xl font-black uppercase italic tracking-tighter text-foreground flex items-center gap-3">
+                        <Receipt className="w-8 h-8 text-primary" />
+                        Lịch sử thanh toán
+                    </h1>
+                    <p className="text-sm font-medium text-muted-foreground/80 tracking-wide">
+                        Theo dõi và quản lý các giao dịch học tập
                     </p>
+                </div>
+
+                <div className="flex items-center gap-3 w-full md:w-auto">
+                    <div className="relative flex-1 md:flex-initial">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
+                        <Input
+                            placeholder="Tìm mã giao dịch..."
+                            className="pl-10 h-10 w-full md:w-64 bg-background/50 border-border/40 focus:bg-background focus:border-primary/20 rounded-xl transition-all font-medium text-xs placeholder:text-muted-foreground/50 shadow-sm"
+                        />
+                    </div>
+                    <Button variant="outline" size="icon" className="h-10 w-10 border-border/40 rounded-xl hover:bg-muted/50 cursor-pointer text-muted-foreground">
+                        <Filter className="w-4 h-4" />
+                    </Button>
                 </div>
             </div>
 
-            <div className="grid lg:grid-cols-3 gap-6">
-                {/* Payment Form */}
-                <div className="lg:col-span-2 space-y-6">
-                    {/* Course Summary */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Khóa học</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="flex gap-4">
-                                <div className="w-24 h-16 rounded-lg bg-muted flex-shrink-0" />
-                                <div className="flex-1 min-w-0">
-                                    <h3 className="font-semibold text-foreground">{course.title}</h3>
-                                    <p className="text-sm text-muted-foreground mt-1">
-                                        Giảng viên: {course.instructor}
-                                    </p>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Payment Method */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Phương thức thanh toán</CardTitle>
-                            <CardDescription>
-                                Chọn phương thức thanh toán bạn muốn sử dụng
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <RadioGroup
-                                value={selectedMethod}
-                                onValueChange={setSelectedMethod}
-                                className="space-y-3"
-                            >
-                                {paymentMethods.map((method) => {
-                                    const Icon = method.icon
-                                    return (
-                                        <div key={method.id} className="flex items-center space-x-3">
-                                            <RadioGroupItem value={method.id} id={method.id} />
-                                            <Label
-                                                htmlFor={method.id}
-                                                className="flex items-center gap-3 flex-1 p-4 rounded-lg border cursor-pointer hover:bg-accent transition-colors"
-                                            >
-                                                <Icon className="w-5 h-5 text-muted-foreground" />
-                                                <span className="font-medium">{method.name}</span>
-                                            </Label>
-                                        </div>
-                                    )
-                                })}
-                            </RadioGroup>
-                        </CardContent>
-                    </Card>
-
-                    {/* Payment Details Form */}
-                    {selectedMethod === 'card' && (
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Thông tin thẻ</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <form onSubmit={handleSubmit} className="space-y-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="cardNumber">Số thẻ</Label>
-                                        <Input
-                                            id="cardNumber"
-                                            placeholder="1234 5678 9012 3456"
-                                            value={cardData.number}
-                                            onChange={(e) =>
-                                                setCardData({ ...cardData, number: e.target.value })
-                                            }
-                                            maxLength={19}
-                                        />
+            {/* Transactions Table */}
+            <div className="rounded-[1.5rem] border border-border/40 bg-background/40 backdrop-blur-xl overflow-hidden shadow-sm">
+                <Table>
+                    <TableHeader className="bg-muted/30 border-b border-white/5">
+                        <TableRow className="hover:bg-transparent border-white/5">
+                            <TableHead className="w-[120px] text-[10px] font-black uppercase tracking-widest text-muted-foreground py-5">Mã Giao Dịch</TableHead>
+                            <TableHead className="text-[10px] font-black uppercase tracking-widest text-muted-foreground py-5">Khóa Học / Nội Dung</TableHead>
+                            <TableHead className="w-[140px] text-[10px] font-black uppercase tracking-widest text-muted-foreground py-5">Ngày</TableHead>
+                            <TableHead className="w-[150px] text-[10px] font-black uppercase tracking-widest text-muted-foreground py-5 text-right">Số Tiền</TableHead>
+                            <TableHead className="w-[150px] text-[10px] font-black uppercase tracking-widest text-muted-foreground py-5 text-center">Trạng Thái</TableHead>
+                            <TableHead className="w-[50px] py-5"></TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {payments.map((payment) => (
+                            <TableRow key={payment.id} className="group hover:bg-primary/[0.02] border-white/5 transition-colors">
+                                <TableCell className="font-bold text-xs text-muted-foreground/80 py-4">
+                                    <span className="font-mono text-primary/80">{payment.id}</span>
+                                </TableCell>
+                                <TableCell className="py-4">
+                                    <div className="flex flex-col">
+                                        <span className="font-bold text-sm text-foreground group-hover:text-primary transition-colors">{payment.course}</span>
+                                        <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-tight mt-0.5">{payment.method}</span>
                                     </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="cardName">Tên chủ thẻ</Label>
-                                        <Input
-                                            id="cardName"
-                                            placeholder="NGUYEN VAN A"
-                                            value={cardData.name}
-                                            onChange={(e) =>
-                                                setCardData({ ...cardData, name: e.target.value })
-                                            }
-                                        />
+                                </TableCell>
+                                <TableCell className="py-4 text-xs font-semibold text-muted-foreground">
+                                    {new Date(payment.date).toLocaleDateString('vi-VN')}
+                                </TableCell>
+                                <TableCell className="py-4 text-right">
+                                    <span className="font-black text-sm text-foreground">
+                                        {payment.amount.toLocaleString('vi-VN')}₫
+                                    </span>
+                                </TableCell>
+                                <TableCell className="py-4 text-center">
+                                    <div className="flex justify-center">
+                                        {getStatusBadge(payment.status)}
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <Label htmlFor="expiry">Ngày hết hạn</Label>
-                                            <Input
-                                                id="expiry"
-                                                placeholder="MM/YY"
-                                                value={cardData.expiry}
-                                                onChange={(e) =>
-                                                    setCardData({ ...cardData, expiry: e.target.value })
-                                                }
-                                                maxLength={5}
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="cvv">CVV</Label>
-                                            <Input
-                                                id="cvv"
-                                                placeholder="123"
-                                                type="password"
-                                                value={cardData.cvv}
-                                                onChange={(e) =>
-                                                    setCardData({ ...cardData, cvv: e.target.value })
-                                                }
-                                                maxLength={3}
-                                            />
-                                        </div>
-                                    </div>
-                                </form>
-                            </CardContent>
-                        </Card>
-                    )}
+                                </TableCell>
+                                <TableCell className="py-4 text-right pr-4">
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-all opacity-0 group-hover:opacity-100 cursor-pointer">
+                                        <ExternalLink className="w-4 h-4" />
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
 
-                    {/* Security Notice */}
-                    <Card className="bg-muted/50">
-                        <CardContent className="pt-6">
-                            <div className="flex items-start gap-3">
-                                <Lock className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                                <div className="flex-1">
-                                    <p className="text-sm font-medium text-foreground">
-                                        Thanh toán an toàn
-                                    </p>
-                                    <p className="text-xs text-muted-foreground mt-1">
-                                        Thông tin thanh toán của bạn được mã hóa và bảo mật. Chúng tôi không
-                                        lưu trữ thông tin thẻ của bạn.
-                                    </p>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                {/* Order Summary */}
-                <div className="lg:col-span-1">
-                    <Card className="sticky top-24">
-                        <CardHeader>
-                            <CardTitle>Tóm tắt đơn hàng</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="space-y-3">
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-muted-foreground">Giá gốc</span>
-                                    <span className="line-through text-muted-foreground">
-                                        {course.originalPrice.toLocaleString('vi-VN')}₫
-                                    </span>
-                                </div>
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-muted-foreground">Giảm giá</span>
-                                    <span className="text-primary font-medium">
-                                        -{discount.toLocaleString('vi-VN')}₫
-                                    </span>
-                                </div>
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-muted-foreground">Thuế</span>
-                                    <span>{tax.toLocaleString('vi-VN')}₫</span>
-                                </div>
-                                <Separator />
-                                <div className="flex justify-between">
-                                    <span className="font-semibold text-foreground">Tổng cộng</span>
-                                    <span className="text-2xl font-bold text-foreground">
-                                        {total.toLocaleString('vi-VN')}₫
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="space-y-2 pt-4">
-                                <div className="flex items-start gap-2 text-sm">
-                                    <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                                    <span className="text-muted-foreground">
-                                        Truy cập trọn đời
-                                    </span>
-                                </div>
-                                <div className="flex items-start gap-2 text-sm">
-                                    <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                                    <span className="text-muted-foreground">
-                                        Chứng chỉ hoàn thành
-                                    </span>
-                                </div>
-                                <div className="flex items-start gap-2 text-sm">
-                                    <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                                    <span className="text-muted-foreground">
-                                        Hỗ trợ 30 ngày hoàn tiền
-                                    </span>
-                                </div>
-                            </div>
-
-                            <Button
-                                onClick={handleSubmit}
-                                className="w-full mt-6 cursor-pointer"
-                                size="lg"
-                            >
-                                <Lock className="mr-2 w-4 h-4" />
-                                Thanh toán {total.toLocaleString('vi-VN')}₫
-                            </Button>
-
-                            <p className="text-xs text-center text-muted-foreground mt-4">
-                                Bằng cách thanh toán, bạn đồng ý với{' '}
-                                <Link href="/terms" className="text-primary hover:underline">
-                                    Điều khoản dịch vụ
-                                </Link>{' '}
-                                của chúng tôi
-                            </p>
-                        </CardContent>
-                    </Card>
-                </div>
+            {/* Pagination / Load More */}
+            <div className="flex justify-center pt-2">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40 hover:text-primary cursor-pointer transition-colors">
+                    Hiển thị 4 trong tổng số 12 giao dịch
+                </p>
             </div>
         </div>
     )
 }
-

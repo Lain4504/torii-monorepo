@@ -10,6 +10,7 @@ import {
   MediaTimeDisplay,
   MediaTimeRange,
   MediaVolumeRange,
+  MediaFullscreenButton,
 } from 'media-chrome/react';
 import type { ComponentProps, CSSProperties } from 'react';
 import { cn } from '@workspace/ui/lib/utils';
@@ -122,4 +123,18 @@ export const VideoPlayerContent = ({
   ...props
 }: VideoPlayerContentProps) => (
   <video className={cn('mt-0 mb-0', className)} {...(props as any)} />
+);
+
+export type VideoPlayerFullscreenButtonProps = ComponentProps<
+  typeof MediaFullscreenButton
+>;
+
+export const VideoPlayerFullscreenButton = ({
+  className,
+  ...props
+}: VideoPlayerFullscreenButtonProps) => (
+  <MediaFullscreenButton
+    className={cn('p-2.5', className)}
+    {...(props as any)}
+  />
 );

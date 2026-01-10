@@ -2,6 +2,7 @@ import { type ReactNode, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/hooks/hooks.ts';
 import { selectIsAuthenticated, checkAuth, setError, logout } from '@/store/slices/auth-slice.ts';
+import { PageLoading } from '@workspace/ui/components/page-loading';
 
 interface AuthGuardProps {
     children: ReactNode;
@@ -50,12 +51,9 @@ export function AuthGuard({ children }: AuthGuardProps) {
 
     if (!isAuthenticated && !hasVerified) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
-            </div>
+            <PageLoading text="Verifying Access Permissions..." className="h-screen" />
         );
     }
 
     return isAuthenticated ? <>{children}</> : null;
 }
-
