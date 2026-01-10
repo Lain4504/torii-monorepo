@@ -121,3 +121,4 @@ export function LessonsTable({ data, onView, onEdit, onDelete, page, limit, isLo
         </div>
     );
 }
+

@@ -95,3 +95,4 @@ export function ViewLessonDialog({ open, onOpenChange, lesson }: ViewLessonDialo
         </Dialog>
     );
 }
+

@@ -41,3 +41,4 @@ export function Can({ permission, anyPermission, allPermissions, children, fallb
 
     return hasAccess ? <>{children}</> : <>{fallback}</>;
 }
+

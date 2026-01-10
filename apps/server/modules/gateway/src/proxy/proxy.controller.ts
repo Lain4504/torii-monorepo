@@ -49,8 +49,8 @@ export class ProxyController {
         '/api/flashcard-decks': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
 
         // Community Domain
-        '/api/blogs': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
-        '/api/blog-comments': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
+        '/api/posts': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
+        '/api/comments': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
         '/api/notifications': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
 
         // Assessment Domain

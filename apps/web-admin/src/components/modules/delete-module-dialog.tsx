@@ -1,4 +1,4 @@
-﻿import {
+import {
     AlertDialog,
     AlertDialogAction,
     AlertDialogCancel,
@@ -59,3 +59,4 @@ export function DeleteModuleDialog({ module, open, onOpenChange }: DeleteModuleD
         </AlertDialog>
     );
 }
+

@@ -1,7 +1,8 @@
 import { z } from 'zod';
-import { BlogPostStatus, blogPostSchema } from '../models/blog.model';
+import { PostStatus, postSchema } from '../models/post.model';
+import { paginatedResponseSchema } from './common.dto';
 
-export const blogPostCreateDTOSchema = blogPostSchema
+export const postCreateDTOSchema = postSchema
     .pick({
         title: true,
         slug: true,
@@ -26,26 +27,26 @@ export const blogPostCreateDTOSchema = blogPostSchema
         tags: true,
     });
 
-export type BlogPostCreateDTO = z.infer<typeof blogPostCreateDTOSchema>;
+export type PostCreateDTO = z.infer<typeof postCreateDTOSchema>;
 
-export const blogPostUpdateDTOSchema = blogPostCreateDTOSchema.partial().omit({ authorId: true });
+export const postUpdateDTOSchema = postCreateDTOSchema.partial().omit({ authorId: true });
 
-export type BlogPostUpdateDTO = z.infer<typeof blogPostUpdateDTOSchema>;
+export type PostUpdateDTO = z.infer<typeof postUpdateDTOSchema>;
 
-export const blogPostQueryDTOSchema = z.object({
+export const postQueryDTOSchema = z.object({
     page: z.coerce.number().min(1).default(1),
     limit: z.coerce.number().min(1).max(100).default(10),
     search: z.string().optional(),
-    status: z.nativeEnum(BlogPostStatus).optional(),
+    status: z.nativeEnum(PostStatus).optional(),
     authorId: z.string().uuid().optional(),
     tagId: z.string().optional(),
     sortBy: z.string().optional(),
     sortOrder: z.enum(['asc', 'desc']).optional(),
 });
 
-export type BlogPostQueryDTO = z.infer<typeof blogPostQueryDTOSchema>;
+export type PostQueryDTO = z.infer<typeof postQueryDTOSchema>;
 
-export const blogPostResponseDTOSchema = blogPostSchema.extend({
+export const postResponseDTOSchema = postSchema.extend({
     author: z.object({
         id: z.string().uuid(),
         displayName: z.string(),
@@ -53,8 +54,11 @@ export const blogPostResponseDTOSchema = blogPostSchema.extend({
     }).optional(),
 });
 
-export type BlogPostResponseDTO = z.infer<typeof blogPostResponseDTOSchema>;
+export type PostResponseDTO = z.infer<typeof postResponseDTOSchema>;
 
+export const postPaginatedResponseSchema = paginatedResponseSchema(postResponseDTOSchema);
+
+export type PostPaginatedResponse = z.infer<typeof postPaginatedResponseSchema>;
 
 export const uploadImageBase64DTOSchema = z.object({
     imageData: z.string().min(1),

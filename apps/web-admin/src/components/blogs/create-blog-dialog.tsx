@@ -25,7 +25,7 @@ import {
     FieldError,
 } from '@workspace/ui/components/field';
 import { Loader2, Upload, X } from 'lucide-react';
-import { BlogPostStatus, type BlogPostCreateDTO } from '@workspace/schemas';
+import { PostStatus, type PostCreateDTO } from '@workspace/schemas';
 import { useCreateBlog } from '@/api/services/blog.ts';
 import { toast } from '@workspace/ui/components/sonner';
 import { useAppSelector } from '@/hooks/hooks.ts';
@@ -36,7 +36,7 @@ const createBlogSchema = z.object({
     title: z.string().min(1),
     content: z.string().min(1),
     excerpt: z.string().optional(),
-    status: z.nativeEnum(BlogPostStatus).optional(),
+    status: z.nativeEnum(PostStatus).optional(),
     tags: z.string().optional(), // String input, will be parsed to array
     publishedAt: z.string().optional(), // ISO date string from datetime-local input
     seoTitle: z.string().optional(),
@@ -69,7 +69,7 @@ export function CreateBlogDialog({
             title: '',
             content: '',
             excerpt: '',
-            status: BlogPostStatus.DRAFT,
+            status: PostStatus.DRAFT,
             tags: '',
             seoTitle: '',
             seoDescription: '',
@@ -158,11 +158,11 @@ export function CreateBlogDialog({
                 ? new Date(data.publishedAt)
                 : undefined;
 
-            const dto: BlogPostCreateDTO = {
+            const dto: PostCreateDTO = {
                 title: data.title,
                 content: data.content,
                 excerpt: data.excerpt || undefined,
-                status: data.status || BlogPostStatus.DRAFT,
+                status: data.status || PostStatus.DRAFT,
                 authorId: user.id,
                 tags,
                 coverImageUrl,
@@ -331,15 +331,15 @@ export function CreateBlogDialog({
                                         <FieldLabel htmlFor={field.name}>Status</FieldLabel>
                                         <Select
                                             value={field.value}
-                                            onValueChange={(value) => field.onChange(value as BlogPostStatus)}
+                                            onValueChange={(value) => field.onChange(value as PostStatus)}
                                         >
                                             <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value={BlogPostStatus.DRAFT}>Draft</SelectItem>
-                                                <SelectItem value={BlogPostStatus.PUBLISHED}>Published</SelectItem>
-                                                <SelectItem value={BlogPostStatus.ARCHIVED}>Archived</SelectItem>
+                                                <SelectItem value={PostStatus.DRAFT}>Draft</SelectItem>
+                                                <SelectItem value={PostStatus.PUBLISHED}>Published</SelectItem>
+                                                <SelectItem value={PostStatus.ARCHIVED}>Archived</SelectItem>
                                             </SelectContent>
                                         </Select>
                                         <FieldError errors={[fieldState.error]} />
@@ -454,4 +454,6 @@ export function CreateBlogDialog({
         </Dialog>
     );
 }
+
+
 

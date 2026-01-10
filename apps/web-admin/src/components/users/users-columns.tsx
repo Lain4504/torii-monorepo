@@ -149,3 +149,4 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
         size: 80,
     }),
 ];
+

@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="chore: remove redundant charts and colors data files in `.claude` and `.shared` directories" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update  PostUpdateDTOSchema -&gt; postUpdateDTOSchema,">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/common.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/common.dto.ts" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -29,6 +32,11 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="PREVIOUS_COMMIT_AUTHORS">
+      <list>
+        <option value="Ngochieu3165 &lt;ngochieu3165@gmail.com&gt;" />
+      </list>
+    </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
         <entry key="$PROJECT_DIR$" value="main" />
@@ -116,7 +124,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "flash-card",
+    "git-widget-placeholder": "#65 on refactoring-post&&comment",
     "ignore.virus.scanning.warn.message": "true",
     "javascript.preferred.runtime.type.id": "node",
     "junie.onboarding.icon.badge.shown": "true",
@@ -280,22 +288,6 @@
       <workItem from="1767962792348" duration="6426000" />
       <workItem from="1767970155935" duration="4593000" />
       <workItem from="1768010492981" duration="681000" />
-    </task>
-    <task id="LOCAL-00520" summary="feat(users): enhance create-user-dialog with multi-step flow and role selection&#10;&#10;- Added multi-step form flow for user creation (details &gt; role selection).&#10;- Introduced UI updates for better usability and visual consistency.&#10;- Implemented support for staff role variants with descriptive labels.&#10;- Improved form validation and error handling logic.">
-      <option name="closed" value="true" />
-      <created>1767846397654</created>
-      <option name="number" value="00520" />
-      <option name="presentableId" value="LOCAL-00520" />
-      <option name="project" value="LOCAL" />
-      <updated>1767846397654</updated>
-    </task>
-    <task id="LOCAL-00521" summary="feat(users): enhance create-user-dialog with multi-step flow and role selection&#10;&#10;- Added multi-step form flow for user creation (details &gt; role selection).&#10;- Introduced UI updates for better usability and visual consistency.&#10;- Implemented support for staff role variants with descriptive labels.&#10;- Improved form validation and error handling logic.">
-      <option name="closed" value="true" />
-      <created>1767848496580</created>
-      <option name="number" value="00521" />
-      <option name="presentableId" value="LOCAL-00521" />
-      <option name="project" value="LOCAL" />
-      <updated>1767848496580</updated>
     </task>
     <task id="LOCAL-00522" summary="feat(users): enhance create-user-dialog with multi-step flow and role selection&#10;&#10;- Added multi-step form flow for user creation (details &gt; role selection).&#10;- Introduced UI updates for better usability and visual consistency.&#10;- Implemented support for staff role variants with descriptive labels.&#10;- Improved form validation and error handling logic.">
       <option name="closed" value="true" />
@@ -673,7 +665,23 @@
       <option name="project" value="LOCAL" />
       <updated>1768011140993</updated>
     </task>
-    <option name="localTasksCounter" value="569" />
+    <task id="LOCAL-00569" summary="merge code">
+      <option name="closed" value="true" />
+      <created>1768041087876</created>
+      <option name="number" value="00569" />
+      <option name="presentableId" value="LOCAL-00569" />
+      <option name="project" value="LOCAL" />
+      <updated>1768041087876</updated>
+    </task>
+    <task id="LOCAL-00570" summary="update  PostUpdateDTOSchema -&gt; postUpdateDTOSchema,">
+      <option name="closed" value="true" />
+      <created>1768041607063</created>
+      <option name="number" value="00570" />
+      <option name="presentableId" value="LOCAL-00570" />
+      <option name="project" value="LOCAL" />
+      <updated>1768041607063</updated>
+    </task>
+    <option name="localTasksCounter" value="571" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -703,8 +711,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat(ui): enhance dashboard layout and components for improved aesthetics and usability" />
-    <MESSAGE value="feat(ui): implement custom scrollbar styles and enhance loading states across various pages" />
     <MESSAGE value="feat(ui): add reusable hooks for dark mode and debounced state management&#10;&#10;- Implemented `useDarkMode` hook supporting OS preferences, local" />
     <MESSAGE value="feat(ui): add reusable hooks for dark mode and debounced state management&#10;&#10;- Implemented `useDarkMode` hook supporting OS preferences, localStorage, and dynamic theme class changes.&#10;- Added `useDebounceCallback` for controlled debounced function execution.&#10;- Introduced `useDebounceValue` for state synchronization with debounced updates.&#10;- Updated dependencies to include `lodash.debounce` for debounce functionality." />
     <MESSAGE value="cursor gen" />
@@ -728,7 +734,9 @@
     <MESSAGE value="feat(i18n): implement internationalization support with Vietnamese and English translations" />
     <MESSAGE value="feat(flashcards): add advanced search functionality and new tracking models for user progress and review sessions" />
     <MESSAGE value="chore: remove redundant charts and colors data files in `.claude` and `.shared` directories" />
-    <option name="LAST_COMMIT_MESSAGE" value="chore: remove redundant charts and colors data files in `.claude` and `.shared` directories" />
+    <MESSAGE value="merge code" />
+    <MESSAGE value="update  PostUpdateDTOSchema -&gt; postUpdateDTOSchema," />
+    <option name="LAST_COMMIT_MESSAGE" value="update  PostUpdateDTOSchema -&gt; postUpdateDTOSchema," />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

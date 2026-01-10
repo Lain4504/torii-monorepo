@@ -31,3 +31,4 @@ export function usePermissions() {
         canAll: (requiredPermissions: string[]) => isAdmin || hasAllPermissions(permissions, requiredPermissions),
     };
 }
+

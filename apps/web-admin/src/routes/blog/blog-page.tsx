@@ -5,7 +5,7 @@ import { CreateBlogDialog } from '@/components/blogs/create-blog-dialog.tsx';
 import { EditBlogDialog } from '@/components/blogs/edit-blog-dialog.tsx';
 import { DeleteBlogDialog } from '@/components/blogs/delete-blog-dialog.tsx';
 import { ViewBlogDialog } from '@/components/blogs/view-blog-dialog.tsx';
-import type { BlogPostResponseDTO, BlogPostQueryDTO } from '@workspace/schemas';
+import type { PostResponseDTO, PostQueryDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
 import { useBlogs } from "@/api/services/blog.ts";
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
@@ -29,12 +29,12 @@ export function BlogPage() {
 
     // Dialog States
     const [showCreateDialog, setShowCreateDialog] = useState(false);
-    const [editingBlog, setEditingBlog] = useState<BlogPostResponseDTO | null>(null);
-    const [deletingBlog, setDeletingBlog] = useState<BlogPostResponseDTO | null>(null);
-    const [viewingBlog, setViewingBlog] = useState<BlogPostResponseDTO | null>(null);
+    const [editingBlog, setEditingBlog] = useState<PostResponseDTO | null>(null);
+    const [deletingBlog, setDeletingBlog] = useState<PostResponseDTO | null>(null);
+    const [viewingBlog, setViewingBlog] = useState<PostResponseDTO | null>(null);
 
     // Query params
-    const queryParams: BlogPostQueryDTO = {
+    const queryParams: PostQueryDTO = {
         page,
         limit: 10,
         ...(debouncedSearch && { search: debouncedSearch }),
@@ -207,4 +207,5 @@ export function BlogPage() {
         </div>
     );
 }
+
 

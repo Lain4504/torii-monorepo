@@ -2,10 +2,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/api/api-client.ts';
 import type {
     PaginatedResponseDTO,
-    BlogPostResponseDTO,
-    BlogPostCreateDTO,
-    BlogPostUpdateDTO,
-    BlogPostQueryDTO,
+    PostResponseDTO,
+    PostCreateDTO,
+    PostUpdateDTO,
+    PostQueryDTO,
 } from '@workspace/schemas';
 
 // ============================================================================
@@ -13,33 +13,33 @@ import type {
 // ============================================================================
 
 export const blogApi = {
-    // GET /api/blogs
-    async findAll(params: BlogPostQueryDTO): Promise<PaginatedResponseDTO<BlogPostResponseDTO>> {
-        const response = await apiClient.get<PaginatedResponseDTO<BlogPostResponseDTO>>('/api/blogs', { params });
+    // GET /api/posts
+    async findAll(params: PostQueryDTO): Promise<PaginatedResponseDTO<PostResponseDTO>> {
+        const response = await apiClient.get<PaginatedResponseDTO<PostResponseDTO>>('/api/posts', { params });
         return response.data;
     },
 
-    // GET /api/blogs/:id
-    async findOne(id: string): Promise<BlogPostResponseDTO> {
-        const response = await apiClient.get<BlogPostResponseDTO>(`/api/blogs/${id}`);
+    // GET /api/posts/:id
+    async findOne(id: string): Promise<PostResponseDTO> {
+        const response = await apiClient.get<PostResponseDTO>(`/api/posts/${id}`);
         return response.data;
     },
 
-    // POST /api/blogs
-    async create(blog: BlogPostCreateDTO): Promise<BlogPostResponseDTO> {
-        const response = await apiClient.post<BlogPostResponseDTO>('/api/blogs', blog);
+    // POST /api/posts
+    async create(blog: PostCreateDTO): Promise<PostResponseDTO> {
+        const response = await apiClient.post<PostResponseDTO>('/api/posts', blog);
         return response.data;
     },
 
-    // PATCH /api/blogs/:id
-    async update(id: string, blog: BlogPostUpdateDTO): Promise<BlogPostResponseDTO> {
-        const response = await apiClient.patch<BlogPostResponseDTO>(`/api/blogs/${id}`, blog);
+    // PATCH /api/posts/:id
+    async update(id: string, blog: PostUpdateDTO): Promise<PostResponseDTO> {
+        const response = await apiClient.patch<PostResponseDTO>(`/api/posts/${id}`, blog);
         return response.data;
     },
 
-    // DELETE /api/blogs/:id
+    // DELETE /api/posts/:id
     async delete(id: string): Promise<void> {
-        await apiClient.delete(`/api/blogs/${id}`);
+        await apiClient.delete(`/api/posts/${id}`);
     },
 };
 
@@ -50,7 +50,7 @@ export const blogApi = {
 /**
  * Hook: Get blog posts list with pagination and filters
  */
-export function useBlogs(params: BlogPostQueryDTO) {
+export function useBlogs(params: PostQueryDTO) {
     return useQuery({
         queryKey: ['blogs', params],
         queryFn: () => blogApi.findAll(params),
@@ -76,7 +76,7 @@ export function useCreateBlog() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (blog: BlogPostCreateDTO) => blogApi.create(blog),
+        mutationFn: (blog: PostCreateDTO) => blogApi.create(blog),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['blogs'] });
         },
@@ -90,7 +90,7 @@ export function useUpdateBlog() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({ id, blog }: { id: string; blog: BlogPostUpdateDTO }) =>
+        mutationFn: ({ id, blog }: { id: string; blog: PostUpdateDTO }) =>
             blogApi.update(id, blog),
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['blogs', variables.id] });
@@ -112,5 +112,7 @@ export function useDeleteBlog() {
         },
     });
 }
+
+
 
 

@@ -1,12 +1,12 @@
 import { z } from 'zod';
 
-export enum BlogPostStatus {
+export enum PostStatus {
     DRAFT = 'draft',
     PUBLISHED = 'published',
     ARCHIVED = 'archived',
 }
 
-export const blogPostSchema = z.object({
+export const postSchema = z.object({
     id: z.string().uuid(),
     title: z.string().min(1),
     slug: z.string().min(1),
@@ -14,7 +14,7 @@ export const blogPostSchema = z.object({
     content: z.string().min(1),
     coverImageUrl: z.string().optional(),
     authorId: z.string().uuid(),
-    status: z.nativeEnum(BlogPostStatus).default(BlogPostStatus.DRAFT),
+    status: z.nativeEnum(PostStatus).default(PostStatus.DRAFT),
     publishedAt: z.coerce.date().optional(),
     viewCount: z.number().default(0),
     likeCount: z.number().default(0),
@@ -26,4 +26,4 @@ export const blogPostSchema = z.object({
     updatedAt: z.date(),
 });
 
-export type BlogPost = z.infer<typeof blogPostSchema>;
+export type Post = z.infer<typeof postSchema>;

@@ -70,3 +70,4 @@ export function useAuditLogs(filters: AuditLogFilters) {
         queryFn: () => auditLogsApi.query(filters),
     });
 }
+

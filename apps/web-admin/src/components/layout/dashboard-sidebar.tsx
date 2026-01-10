@@ -220,3 +220,4 @@ export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: Sid
     </TooltipProvider>
   )
 }
+

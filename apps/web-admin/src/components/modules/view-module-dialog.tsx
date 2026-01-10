@@ -1,4 +1,4 @@
-﻿import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@workspace/ui/components/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@workspace/ui/components/dialog';
 import type { ModuleResponseDTO } from '@workspace/schemas';
 
 interface ViewModuleDialogProps {
@@ -46,3 +46,4 @@ export function ViewModuleDialog({ module, open, onOpenChange }: ViewModuleDialo
         </Dialog>
     );
 }
+

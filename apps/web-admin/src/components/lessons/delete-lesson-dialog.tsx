@@ -59,3 +59,4 @@ export function DeleteLessonDialog({ lesson, open, onOpenChange }: DeleteLessonD
         </AlertDialog>
     );
 }
+

@@ -7,7 +7,8 @@ export * from './i-review.service';
 export * from './i-wishlist.service';
 export * from './i-exam.service';
 export * from './i-storage.service';
-
+export * from './i-comment.service';
+export * from './i-post.service';
 
 // Injection tokens for services
 export const COURSE_SERVICE_TOKEN = Symbol('COURSE_SERVICE');

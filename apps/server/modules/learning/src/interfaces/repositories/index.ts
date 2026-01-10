@@ -7,6 +7,8 @@ export * from './i-review.repository';
 export * from './i-wishlist.repository';
 export * from './i-exam.repository';
 export * from './i-storage.repository';
+export * from './i-comment.repository';
+export * from './i-post.repository';
 
 // Injection tokens for repositories
 export const COURSE_REPOSITORY_TOKEN = Symbol('COURSE_REPOSITORY');

@@ -5,13 +5,13 @@ import {
     DialogTitle,
 } from '@workspace/ui/components/dialog';
 import { Badge } from '@workspace/ui/components/badge';
-import type { BlogPostResponseDTO } from '@workspace/schemas';
+import type { PostResponseDTO } from '@workspace/schemas';
 import { Calendar, Eye, MessageCircle, User } from 'lucide-react';
 
 interface ViewBlogDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    blog: BlogPostResponseDTO | null;
+    blog: PostResponseDTO | null;
 }
 
 export function ViewBlogDialog({
@@ -115,5 +115,6 @@ export function ViewBlogDialog({
         </Dialog>
     );
 }
+
 
 
