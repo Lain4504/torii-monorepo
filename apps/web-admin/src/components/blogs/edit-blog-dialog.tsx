@@ -24,12 +24,12 @@ import {
     FieldError,
 } from '@workspace/ui/components/field';
 import { Loader2, Upload, X } from 'lucide-react';
-import { PostUpdateDTOSchema, PostStatus, type PostUpdateDTO, type PostResponseDTO } from '@workspace/schemas';
+import { postUpdateDTOSchema, PostStatus, type PostUpdateDTO, type PostResponseDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
 import { storageApi } from '@/api/services/storage-api.ts';
 import { useUpdateBlog } from "@/api/services/blog.ts";
 
-const editBlogSchema = PostUpdateDTOSchema.omit({
+const editBlogSchema = postUpdateDTOSchema.omit({
     tags: true,
     publishedAt: true,
 }).extend({

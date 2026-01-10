@@ -24,6 +24,18 @@ export interface StandardApiResponse<T = any> {
 }
 
 /**
+ * Helper to create a paginated response schema
+ */
+export const paginatedResponseSchema = <T extends z.ZodTypeAny>(itemSchema: T) =>
+    z.object({
+        data: z.array(itemSchema),
+        total: z.number(),
+        page: z.number(),
+        limit: z.number(),
+        totalPages: z.number(),
+    });
+
+/**
  * Paginated API Response Format
  * Standard response for paginated endpoints with flattened structure
  * Combines StandardApiResponse with pagination metadata at top level
