@@ -58,3 +58,4 @@ export function AuthGuard({ children }: AuthGuardProps) {
 
     return isAuthenticated ? <>{children}</> : null;
 }
+

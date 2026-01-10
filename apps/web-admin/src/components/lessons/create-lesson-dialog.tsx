@@ -363,3 +363,4 @@ export function CreateLessonDialog({ open, onOpenChange, moduleId }: CreateLesso
         </Sheet>
     );
 }
+

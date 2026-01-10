@@ -24,16 +24,16 @@ import {
     FieldError,
 } from '@workspace/ui/components/field';
 import { Loader2, Upload, X } from 'lucide-react';
-import { blogPostUpdateDTOSchema, BlogPostStatus, type BlogPostUpdateDTO, type BlogPostResponseDTO } from '@workspace/schemas';
+import { PostUpdateDTOSchema, PostStatus, type PostUpdateDTO, type PostResponseDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
 import { storageApi } from '@/api/services/storage-api.ts';
 import { useUpdateBlog } from "@/api/services/blog.ts";
 
-const editBlogSchema = blogPostUpdateDTOSchema.omit({
+const editBlogSchema = PostUpdateDTOSchema.omit({
     tags: true,
     publishedAt: true,
 }).extend({
-    status: z.nativeEnum(BlogPostStatus).optional(),
+    status: z.nativeEnum(PostStatus).optional(),
     tags: z.string().optional(), // String input, will be parsed to array
     publishedAt: z.string().optional(), // ISO date string from datetime-local input
 });
@@ -43,7 +43,7 @@ type EditBlogFormData = z.infer<typeof editBlogSchema>;
 interface EditBlogDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    blog: BlogPostResponseDTO | null;
+    blog: PostResponseDTO | null;
 }
 
 export function EditBlogDialog({
@@ -170,7 +170,7 @@ export function EditBlogDialog({
                 ? new Date(data.publishedAt)
                 : undefined;
 
-            const dto: BlogPostUpdateDTO = {
+            const dto: PostUpdateDTO = {
                 title: data.title,
                 content: data.content,
                 excerpt: data.excerpt || undefined,
@@ -335,15 +335,15 @@ export function EditBlogDialog({
                                 <FieldLabel htmlFor={field.name}>Status</FieldLabel>
                                 <Select
                                     value={field.value}
-                                    onValueChange={(value) => field.onChange(value as BlogPostStatus)}
+                                    onValueChange={(value) => field.onChange(value as PostStatus)}
                                 >
                                     <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value={BlogPostStatus.DRAFT}>Draft</SelectItem>
-                                        <SelectItem value={BlogPostStatus.PUBLISHED}>Published</SelectItem>
-                                        <SelectItem value={BlogPostStatus.ARCHIVED}>Archived</SelectItem>
+                                        <SelectItem value={PostStatus.DRAFT}>Draft</SelectItem>
+                                        <SelectItem value={PostStatus.PUBLISHED}>Published</SelectItem>
+                                        <SelectItem value={PostStatus.ARCHIVED}>Archived</SelectItem>
                                     </SelectContent>
                                 </Select>
                                 <FieldError errors={[fieldState.error]} />
@@ -448,4 +448,6 @@ export function EditBlogDialog({
         </Dialog>
     );
 }
+
+
 

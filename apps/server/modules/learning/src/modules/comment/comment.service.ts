@@ -1,24 +1,35 @@
 import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import type {
-  BlogCommentCreateDTO,
-  BlogCommentUpdateDTO,
-  BlogCommentQueryDTO,
-  BlogCommentResponseDTO,
-  PaginatedResponseDTO,
+  CommentCreateDTO,
+  CommentUpdateDTO,
+  CommentQueryDTO,
+  CommentResponseDTO,
+  CommentPaginatedResponse,
 } from '@workspace/schemas';
+import type { Prisma } from '@prisma/generated';
+import type { ICommentService } from '../../interfaces/services';
+import { CommentRepository } from './comment.repository';
 
+/**
+ * comment Service
+ * Handles business logic for comments
+ */
 @Injectable()
-export class BlogCommentService {
-  private readonly logger = new Logger(BlogCommentService.name);
+export class CommentService implements ICommentService {
+  private readonly logger = new Logger(CommentService.name);
 
   constructor(
+    private readonly commentRepository: CommentRepository,
     private readonly prisma: PrismaService,
   ) { }
 
-  async createComment(dto: BlogCommentCreateDTO): Promise<BlogCommentResponseDTO> {
+  /**
+   * Create new comment
+   */
+  async createComment(dto: CommentCreateDTO): Promise<CommentResponseDTO> {
     // Verify post exists
-    const post = await this.prisma.blogPost.findUnique({
+    const post = await this.prisma.post.findUnique({
       where: { id: dto.postId },
     });
 
@@ -37,9 +48,7 @@ export class BlogCommentService {
 
     // If parentId is provided, verify parent comment exists
     if (dto.parentId) {
-      const parentComment = await this.prisma.blogComment.findUnique({
-        where: { id: dto.parentId },
-      });
+      const parentComment = await this.commentRepository.findById(dto.parentId);
 
       if (!parentComment) {
         throw new NotFoundException(`Parent comment with id "${dto.parentId}" not found`);
@@ -52,18 +61,22 @@ export class BlogCommentService {
     }
 
     // Create comment
-    const comment = await this.prisma.blogComment.create({
-      data: {
-        postId: dto.postId,
-        userId: dto.authorId,
-        content: dto.content,
-        parentCommentId: dto.parentId,
-        status: 'approved',
+    const comment = await this.commentRepository.create({
+      post: {
+        connect: { id: dto.postId },
       },
+      user: {
+        connect: { id: dto.authorId },
+      },
+      content: dto.content,
+      parent: dto.parentId ? {
+        connect: { id: dto.parentId },
+      } : undefined,
+      status: 'approved',
     });
 
     // Increment comment count on the post
-    await this.prisma.blogPost.update({
+    await this.prisma.post.update({
       where: { id: dto.postId },
       data: {
         commentCount: {
@@ -75,12 +88,15 @@ export class BlogCommentService {
     return this.formatCommentResponse(comment);
   }
 
-  async findAllComments(query: BlogCommentQueryDTO): Promise<PaginatedResponseDTO<BlogCommentResponseDTO>> {
+  /**
+   * Find all comments with pagination and filters
+   */
+  async findAllComments(query: CommentQueryDTO): Promise<CommentPaginatedResponse> {
     const page = query.page || 1;
     const limit = query.limit || 20;
     const skip = (page - 1) * limit;
 
-    const where: any = {
+    const where: Prisma.CommentWhereInput = {
       status: { not: 'deleted' },
     };
 
@@ -92,7 +108,7 @@ export class BlogCommentService {
       where.parentCommentId = query.parentId || null;
     }
 
-    const orderBy: any = {};
+    const orderBy: Prisma.CommentOrderByWithRelationInput = {};
     if (query.sortBy) {
       orderBy[query.sortBy] = query.sortOrder || 'desc';
     } else {
@@ -100,26 +116,22 @@ export class BlogCommentService {
     }
 
     const [comments, total] = await Promise.all([
-      this.prisma.blogComment.findMany({
+      this.commentRepository.findMany({
         where,
         skip,
         take: limit,
         orderBy,
-        include: {
-          _count: {
-            select: { replies: true },
-          },
-        },
+        includeReplyCount: true,
       }),
-      this.prisma.blogComment.count({ where }),
+      this.commentRepository.count(where),
     ]);
 
     const formattedComments = await Promise.all(
-      comments.map(async (comment) => {
+      comments.map(async (comment: any) => {
         const formatted = await this.formatCommentResponse(comment);
         return {
           ...formatted,
-          replyCount: comment._count.replies,
+          replyCount: comment._count?.replies || 0,
         };
       }),
     );
@@ -133,15 +145,11 @@ export class BlogCommentService {
     };
   }
 
-  async findCommentById(id: string): Promise<BlogCommentResponseDTO> {
-    const comment = await this.prisma.blogComment.findUnique({
-      where: { id },
-      include: {
-        _count: {
-          select: { replies: true },
-        },
-      },
-    });
+  /**
+   * Find comment by ID
+   */
+  async findCommentById(id: string): Promise<CommentResponseDTO> {
+    const comment = await this.commentRepository.findByIdWithReplyCount(id);
 
     if (!comment) {
       throw new NotFoundException(`Comment with id "${id}" not found`);
@@ -154,10 +162,11 @@ export class BlogCommentService {
     };
   }
 
-  async updateComment(id: string, authorId: string, dto: BlogCommentUpdateDTO): Promise<BlogCommentResponseDTO> {
-    const comment = await this.prisma.blogComment.findUnique({
-      where: { id },
-    });
+  /**
+   * Update comment
+   */
+  async updateComment(id: string, authorId: string, dto: CommentUpdateDTO): Promise<CommentResponseDTO> {
+    const comment = await this.commentRepository.findById(id);
 
     if (!comment) {
       throw new NotFoundException(`Comment with id "${id}" not found`);
@@ -172,20 +181,18 @@ export class BlogCommentService {
       throw new BadRequestException('You can only edit your own comments');
     }
 
-    const updatedComment = await this.prisma.blogComment.update({
-      where: { id },
-      data: {
-        content: dto.content,
-      },
+    const updatedComment = await this.commentRepository.update(id, {
+      content: dto.content,
     });
 
     return this.formatCommentResponse(updatedComment);
   }
 
+  /**
+   * Delete comment (soft delete)
+   */
   async deleteComment(id: string, authorId: string) {
-    const comment = await this.prisma.blogComment.findUnique({
-      where: { id },
-    });
+    const comment = await this.commentRepository.findById(id);
 
     if (!comment) {
       throw new NotFoundException(`Comment with id "${id}" not found`);
@@ -197,16 +204,10 @@ export class BlogCommentService {
     }
 
     // Soft delete
-    await this.prisma.blogComment.update({
-      where: { id },
-      data: {
-        status: 'deleted',
-        content: '[deleted]',
-      },
-    });
+    await this.commentRepository.softDelete(id);
 
     // Decrement comment count on the post
-    await this.prisma.blogPost.update({
+    await this.prisma.post.update({
       where: { id: comment.postId },
       data: {
         commentCount: {
@@ -218,23 +219,15 @@ export class BlogCommentService {
     return { success: true, message: 'Comment deleted successfully' };
   }
 
-  async getCommentWithReplies(commentId: string, depth: number = 2): Promise<BlogCommentResponseDTO | null> {
+  /**
+   * Get comment with nested replies
+   */
+  async getCommentWithReplies(commentId: string, depth: number = 2): Promise<CommentResponseDTO | null> {
     if (depth <= 0) {
       return null;
     }
 
-    const comment = await this.prisma.blogComment.findUnique({
-      where: { id: commentId },
-      include: {
-        replies: {
-          where: { status: { not: 'deleted' } },
-          orderBy: { createdAt: 'asc' },
-        },
-        _count: {
-          select: { replies: true },
-        },
-      },
-    });
+    const comment = await this.commentRepository.findWithReplies(commentId);
 
     if (!comment || comment.status === 'deleted') {
       return null;
@@ -259,8 +252,10 @@ export class BlogCommentService {
     };
   }
 
-  private async formatCommentResponse(comment: any): Promise<BlogCommentResponseDTO> {
-    // Get author info from User table
+  /**
+   * Format comment response with author info
+   */
+  private async formatCommentResponse(comment: any): Promise<CommentResponseDTO> {
     let authorInfo: { id: string; displayName: string; email: string } | null = null;
 
     if (comment.userId) {
@@ -302,4 +297,6 @@ export class BlogCommentService {
     };
   }
 }
+
+
 

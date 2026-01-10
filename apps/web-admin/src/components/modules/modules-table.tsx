@@ -1,4 +1,4 @@
-﻿import {
+import {
     flexRender,
     getCoreRowModel,
     useReactTable,
@@ -121,3 +121,4 @@ export function ModulesTable({ data, onView, onEdit, onDelete, page, limit, cour
         </div>
     );
 }
+

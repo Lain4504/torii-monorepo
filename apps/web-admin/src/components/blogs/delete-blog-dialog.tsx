@@ -10,13 +10,13 @@ import {
 } from '@workspace/ui/components/alert-dialog';
 import { useDeleteBlog } from "@/api/services/blog.ts";
 import { toast } from '@workspace/ui/components/sonner';
-import type { BlogPostResponseDTO } from '@workspace/schemas';
+import type { PostResponseDTO } from '@workspace/schemas';
 import { Loader2 } from 'lucide-react';
 
 interface DeleteBlogDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    blog: BlogPostResponseDTO | null;
+    blog: PostResponseDTO | null;
 }
 
 export function DeleteBlogDialog({
@@ -69,5 +69,6 @@ export function DeleteBlogDialog({
         </AlertDialog>
     );
 }
+
 
 

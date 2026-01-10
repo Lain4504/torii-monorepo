@@ -14,17 +14,17 @@ import {
     TableRow,
 } from '@workspace/ui/components/table';
 import { useState } from 'react';
-import type { BlogPostResponseDTO } from '@workspace/schemas';
+import type { PostResponseDTO } from '@workspace/schemas';
 import { getBlogColumns } from './blog-columns.tsx';
 import { Inbox } from 'lucide-react';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 
 interface BlogTableProps {
-    data: BlogPostResponseDTO[];
-    onView: (blog: BlogPostResponseDTO) => void;
-    onEdit: (blog: BlogPostResponseDTO) => void;
-    onDelete: (blog: BlogPostResponseDTO) => void;
+    data: PostResponseDTO[];
+    onView: (blog: PostResponseDTO) => void;
+    onEdit: (blog: PostResponseDTO) => void;
+    onDelete: (blog: PostResponseDTO) => void;
     page: number;
     limit: number;
     isLoading?: boolean;
@@ -120,5 +120,6 @@ export function BlogTable({ data, onView, onEdit, onDelete, page, limit, isLoadi
         </div>
     );
 }
+
 
 

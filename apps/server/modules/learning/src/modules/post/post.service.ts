@@ -1,24 +1,31 @@
 import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { PrismaService, generateSlug } from '@server/shared';
-import { BlogPostStatus, PaginatedResponseDTO } from '@workspace/schemas';
+import { PostStatus, PaginatedResponseDTO } from '@workspace/schemas';
 import type {
-  BlogPostCreateDTO,
-  BlogPostUpdateDTO,
-  BlogPostQueryDTO,
-  BlogPostResponseDTO,
+  PostCreateDTO,
+  PostUpdateDTO,
+  PostQueryDTO,
+  PostResponseDTO,
 } from '@workspace/schemas';
+import type { Prisma } from '@prisma/generated';
+import type { IPostService } from '../../interfaces/services';
+import { PostRepository } from './post.repository';
 
+/**
+ * Post Service
+ * Handles business logic for posts
+ */
 @Injectable()
-export class BlogService {
-  private readonly logger = new Logger(BlogService.name);
+export class PostService implements IPostService {
+  private readonly logger = new Logger(PostService.name);
 
   constructor(
+    private readonly postRepository: PostRepository,
     private readonly prisma: PrismaService,
   ) { }
 
   /**
    * Ensure unique slug by appending date and timestamp if needed
-   * Similar to course.service.ts approach - uses date format instead of counter
    */
   private async ensureUniqueSlug(baseSlug: string, checkExists: (slug: string) => Promise<boolean>): Promise<string> {
     const today = new Date();
@@ -36,29 +43,22 @@ export class BlogService {
     return `${baseSlug}-${dateStr}-${timestamp}`;
   }
 
-  // =========================
-  // BLOG POST METHODS
-  // =========================
-
-  async createPost(dto: BlogPostCreateDTO): Promise<BlogPostResponseDTO> {
+  /**
+   * Create new blog post
+   */
+  async createPost(dto: PostCreateDTO): Promise<PostResponseDTO> {
     // Auto-generate slug from title if not provided
     const baseSlug = dto.slug || generateSlug(dto.title);
 
-    // Auto-generate unique slug if slug already exists (using date format)
+    // Auto-generate unique slug if slug already exists
     const slug = await this.ensureUniqueSlug(
       baseSlug,
-      async (slugToCheck) => {
-        const existing = await this.prisma.blogPost.findUnique({
-          where: { slug: slugToCheck },
-        });
-        return !!existing;
-      },
+      async (slugToCheck) => this.postRepository.slugExists(slugToCheck),
     );
 
-    // Sử dụng slug đã được đảm bảo unique
     const finalDto = { ...dto, slug };
 
-    // authorId là required - phải có từ JWT token hoặc DTO
+    // authorId is required
     if (!dto.authorId) {
       throw new BadRequestException('Author ID is required');
     }
@@ -72,37 +72,33 @@ export class BlogService {
       throw new NotFoundException(`Author with id "${dto.authorId}" not found`);
     }
 
-    // Create post (matching SQL schema)
-    const post = await this.prisma.blogPost.create({
-      data: {
-        title: finalDto.title,
-        slug: finalDto.slug,
-        excerpt: finalDto.excerpt,
-        content: finalDto.content,
-        coverImageUrl: finalDto.coverImageUrl,
-        authorId: finalDto.authorId,
-        status: finalDto.status || BlogPostStatus.DRAFT,
-        publishedAt: finalDto.publishedAt || null,
-        seoTitle: finalDto.seoTitle,
-        seoDescription: finalDto.seoDescription,
-        tags: finalDto.tags || [],
-      },
+    // Create post
+    const post = await this.postRepository.create({
+      title: finalDto.title,
+      slug: finalDto.slug,
+      excerpt: finalDto.excerpt,
+      content: finalDto.content,
+      coverImageUrl: finalDto.coverImageUrl,
+      authorId: finalDto.authorId,
+      status: finalDto.status || PostStatus.DRAFT,
+      publishedAt: finalDto.publishedAt || null,
+      seoTitle: finalDto.seoTitle,
+      seoDescription: finalDto.seoDescription,
+      tags: finalDto.tags || [],
     });
 
-    // Images are stored in FileAsset table via storage service
-    // No need to handle images here - they are managed by storage service
-
-    // Format response with author info
     return this.formatPostResponseWithAuthor(post);
   }
 
-  async findAllPosts(query: BlogPostQueryDTO): Promise<PaginatedResponseDTO<BlogPostResponseDTO>> {
-    // Parse pagination params to numbers (query params are strings)
+  /**
+   * Find all posts with pagination and filters
+   */
+  async findAllPosts(query: PostQueryDTO): Promise<PaginatedResponseDTO<PostResponseDTO>> {
     const pageNum = parseInt(String(query.page || 1), 10);
     const limitNum = parseInt(String(query.limit || 10), 10);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Prisma.PostWhereInput = {};
 
     if (query.status) {
       where.status = query.status;
@@ -111,7 +107,6 @@ export class BlogService {
     if (query.authorId) {
       where.authorId = query.authorId;
     }
-
 
     if (query.search) {
       where.OR = [
@@ -122,13 +117,12 @@ export class BlogService {
     }
 
     if (query.tagId) {
-      // Filter by tag name in tags array
       where.tags = {
         has: query.tagId,
       };
     }
 
-    const orderBy: any = {};
+    const orderBy: Prisma.PostOrderByWithRelationInput = {};
     if (query.sortBy) {
       orderBy[query.sortBy] = query.sortOrder || 'desc';
     } else {
@@ -136,13 +130,13 @@ export class BlogService {
     }
 
     const [posts, total] = await Promise.all([
-      this.prisma.blogPost.findMany({
+      this.postRepository.findMany({
         where,
         skip,
         take: limitNum,
         orderBy,
       }),
-      this.prisma.blogPost.count({ where }),
+      this.postRepository.count(where),
     ]);
 
     return {
@@ -154,10 +148,11 @@ export class BlogService {
     };
   }
 
-  async findPostById(id: string): Promise<BlogPostResponseDTO> {
-    const post = await this.prisma.blogPost.findUnique({
-      where: { id },
-    });
+  /**
+   * Find post by ID
+   */
+  async findPostById(id: string): Promise<PostResponseDTO> {
+    const post = await this.postRepository.findById(id);
 
     if (!post) {
       throw new NotFoundException(`Post with id "${id}" not found`);
@@ -166,34 +161,29 @@ export class BlogService {
     return this.formatPostResponseWithAuthor(post);
   }
 
-  async updatePost(id: string, dto: BlogPostUpdateDTO): Promise<BlogPostResponseDTO> {
-    const existing = await this.prisma.blogPost.findUnique({
-      where: { id },
-    });
+  /**
+   * Update post
+   */
+  async updatePost(id: string, dto: PostUpdateDTO): Promise<PostResponseDTO> {
+    const existing = await this.postRepository.findById(id);
 
     if (!existing) {
       throw new NotFoundException(`Post with id "${id}" not found`);
     }
 
-    // If title is being updated, regenerate slug using date format
+    // If title is being updated, regenerate slug
     let slug = existing.slug;
     if (dto.title && dto.title !== existing.title) {
       const baseSlug = dto.slug || generateSlug(dto.title);
       slug = await this.ensureUniqueSlug(
         baseSlug,
         async (slugToCheck) => {
-          // Check if slug exists and is not the current post's slug
-          const slugExists = await this.prisma.blogPost.findUnique({
-            where: { slug: slugToCheck },
-          });
+          const slugExists = await this.postRepository.findBySlug(slugToCheck);
           return !!slugExists && slugExists.id !== id;
         },
       );
     } else if (dto.slug && dto.slug !== existing.slug) {
-      // If slug is explicitly provided and different, check uniqueness
-      const slugExists = await this.prisma.blogPost.findUnique({
-        where: { slug: dto.slug },
-      });
+      const slugExists = await this.postRepository.findBySlug(dto.slug);
 
       if (slugExists) {
         throw new BadRequestException(`Post with slug "${dto.slug}" already exists`);
@@ -201,7 +191,7 @@ export class BlogService {
       slug = dto.slug;
     }
 
-    const updateData: any = { ...dto };
+    const updateData: Prisma.PostUpdateInput = { ...dto };
 
     // Update slug if it was regenerated
     if (slug !== existing.slug) {
@@ -212,41 +202,34 @@ export class BlogService {
       updateData.publishedAt = dto.publishedAt;
     }
 
-    // Update tags if provided (tags is now a string array)
     if (dto.tags !== undefined) {
       updateData.tags = dto.tags;
     }
 
-    const post = await this.prisma.blogPost.update({
-      where: { id },
-      data: updateData,
-    });
+    const post = await this.postRepository.update(id, updateData);
 
     return this.formatPostResponseWithAuthor(post);
   }
 
+  /**
+   * Delete post
+   */
   async deletePost(id: string) {
-    const post = await this.prisma.blogPost.findUnique({
-      where: { id },
-    });
+    const post = await this.postRepository.findById(id);
 
     if (!post) {
       throw new NotFoundException(`Post with id "${id}" not found`);
     }
 
-    await this.prisma.blogPost.delete({
-      where: { id },
-    });
+    await this.postRepository.delete(id);
 
     return { success: true };
   }
 
-  // =========================
-  // HELPER METHODS
-  // =========================
-
-  private async formatPostResponseWithAuthor(post: any): Promise<BlogPostResponseDTO> {
-    // Get author info from User table
+  /**
+   * Format post response with author info
+   */
+  private async formatPostResponseWithAuthor(post: any): Promise<PostResponseDTO> {
     let authorInfo: { id: string; displayName: string; email: string } | null = null;
 
     if (post.authorId) {
@@ -268,16 +251,14 @@ export class BlogService {
           };
         }
       } catch (error: any) {
-        // Silent fail - continue without author info
+        // Silent fail
       }
     }
 
     return {
       ...post,
       author: authorInfo,
-      tags: post.tags || [], // tags is now a string array
-      // Images are stored in FileAsset table via storage service
-      // Query FileAsset with moduleOrigin='BLOG' and ownerId=post.id to get images
+      tags: post.tags || [],
     };
   }
 }

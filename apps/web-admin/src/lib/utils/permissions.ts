@@ -33,3 +33,4 @@ export function hasAllPermissions(userPermissions: string[], requiredPermissions
 
     return requiredPermissions.every(permission => userPermissions.includes(permission));
 }
+

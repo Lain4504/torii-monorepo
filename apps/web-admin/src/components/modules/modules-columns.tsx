@@ -1,4 +1,4 @@
-﻿import { createColumnHelper } from '@tanstack/react-table';
+import { createColumnHelper } from '@tanstack/react-table';
 import type { ModuleResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
 import { ArrowUpDown, MoreHorizontal, Pencil, Trash, Eye, BookOpen } from 'lucide-react';
@@ -120,3 +120,4 @@ export const getModulesColumns = ({ onView, onEdit, onDelete, page, limit, cours
         },
     }),
 ];
+

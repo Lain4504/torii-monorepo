@@ -1,5 +1,5 @@
 import { createColumnHelper } from '@tanstack/react-table';
-import type { BlogPostResponseDTO } from '@workspace/schemas';
+import type { PostResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
 import { ArrowUpDown, MoreHorizontal, Pencil, Trash, Eye } from 'lucide-react';
 import {
@@ -13,12 +13,12 @@ import {
 import { Badge } from '@workspace/ui/components/badge';
 import { Can } from "@/lib/guard/can";
 
-const columnHelper = createColumnHelper<BlogPostResponseDTO>();
+const columnHelper = createColumnHelper<PostResponseDTO>();
 
 export type BlogColumnsProps = {
-    onView: (blog: BlogPostResponseDTO) => void;
-    onEdit: (blog: BlogPostResponseDTO) => void;
-    onDelete: (blog: BlogPostResponseDTO) => void;
+    onView: (blog: PostResponseDTO) => void;
+    onEdit: (blog: PostResponseDTO) => void;
+    onDelete: (blog: PostResponseDTO) => void;
     page: number;
     limit: number;
 };
@@ -119,5 +119,6 @@ export const getBlogColumns = ({ onView, onEdit, onDelete, page, limit }: BlogCo
         },
     }),
 ];
+
 
 

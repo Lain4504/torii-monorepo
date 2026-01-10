@@ -14,8 +14,8 @@ import { CourseInstructorModule } from './modules/course-instructor/course-instr
 import { LessonMaterialModule } from './modules/lesson-material/lesson-material.module';
 
 // Community Modules
-import { BlogModule } from './modules/blog/blog.module';
-import { BlogCommentModule } from './modules/blog-comment/blog-comment.module';
+import { PostModule } from './modules/post/post.module';
+import { CommentModule } from './modules/comment/comment.module';
 import { NotificationModule } from './modules/notification/notification.module';
 
 // Assessment Modules
@@ -49,8 +49,8 @@ import { StorageController } from './controllers/storage.controller';
 // Controllers (keeping existing ones from interfaces/http for now)
 import { WishlistController } from './controllers/wishlist.controller';
 import { ReviewController } from './controllers/review.controller';
-import { BlogController } from './interfaces/http/blog.controller';
-import { BlogCommentController } from './interfaces/http/blog-comment.controller';
+import { PostController } from './interfaces/http/post.controller';
+import { CommentController } from './interfaces/http/comment.controller';
 import { NotificationController } from './interfaces/http/notification.controller';
 import { FlashcardDeckController } from './interfaces/http/flashcard-deck.controller';
 import { FlashcardController } from './interfaces/http/flashcard.controller';
@@ -76,8 +76,8 @@ import { FlashcardController } from './interfaces/http/flashcard.controller';
     LessonMaterialModule,
 
     // Community Domain
-    BlogModule,
-    BlogCommentModule,
+    PostModule,
+    CommentModule,
     NotificationModule,
 
     // Assessment Domain
@@ -109,8 +109,8 @@ import { FlashcardController } from './interfaces/http/flashcard.controller';
     StorageController,
     WishlistController,
     ReviewController,
-    BlogController,
-    BlogCommentController,
+    PostController,
+    CommentController,
     NotificationController,
     FlashcardDeckController,
     FlashcardController,

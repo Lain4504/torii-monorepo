@@ -197,3 +197,4 @@ export const getCoursesColumns = ({ onEdit, onDelete, onManageInstructors, onPub
         size: 80,
     }),
 ];
+

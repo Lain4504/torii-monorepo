@@ -4,7 +4,112 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="chore: remove redundant charts and colors data files in `.claude` and `.shared` directories" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="chore: remove redundant charts and colors data files in `.claude` and `.shared` directories">
+      <change afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/http/comment.controller.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/http/post.controller.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/repositories/i-comment.repository.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/repositories/i-post.repository.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/services/i-comment.service.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/services/i-post.service.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/comment/comment.module.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/comment/comment.repository.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/post/post.module.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/post/post.repository.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/view-course-dialog.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/web-admin/src/components/question-banks/view-question-bank-dialog.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/comment.dto.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/schemas/src/models/comment.model.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/proxy/proxy.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/proxy/proxy.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/http/blog-comment.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/http/blog.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/repositories/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/repositories/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/services/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/services/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/learning.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/learning.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/blog-comment/blog-comment.module.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/blog-comment/blog-comment.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/comment/comment.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/blog/blog.module.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/blog/blog.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/post/post.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/prisma/migrations/20251228144418_init/migration.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/prisma/migrations/20251228154919_init/migration.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/prisma/migrations/20251229030213_add_audit_log_system/migration.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/prisma/migrations/20260103151107_verifyrename_fullname_to_displayname/migration.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/prisma/migrations/20260105043751_add_two_factor_auth/migration.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/prisma/migrations/20260107044310_rename_refresh_token_to_session/migration.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/services/audit-logs.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/api/services/audit-logs.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/services/blog.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/api/services/blog.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/services/lesson.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/api/services/lesson.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/services/modules.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/api/services/modules.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/services/permissions.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/api/services/permissions.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/services/storage-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/api/services/storage-api.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/services/users.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/api/services/users.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/blog-columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/blog-columns.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/blog-primary-toolbar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/blog-primary-toolbar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/blog-table.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/blog-table.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/create-blog-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/create-blog-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/delete-blog-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/delete-blog-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/edit-blog-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/edit-blog-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/view-blog-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/view-blog-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/courses-columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/courses-columns.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/courses-primary-toolbar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/courses-primary-toolbar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/courses-table.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/courses-table.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/delete-course-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/delete-course-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/layout/command-menu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/layout/command-menu.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/layout/dashboard-header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/layout/dashboard-header.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/layout/dashboard-layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/layout/dashboard-layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/layout/dashboard-sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/layout/dashboard-sidebar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/layout/mode-toggle.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/layout/mode-toggle.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/lessons/create-lesson-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/lessons/create-lesson-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/lessons/delete-lesson-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/lessons/delete-lesson-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/lessons/edit-lesson-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/lessons/edit-lesson-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/lessons/lessons-columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/lessons/lessons-columns.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/lessons/lessons-primary-toolbar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/lessons/lessons-primary-toolbar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/lessons/lessons-table.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/lessons/lessons-table.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/lessons/view-lesson-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/lessons/view-lesson-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/modules/delete-module-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/modules/delete-module-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/modules/edit-module-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/modules/edit-module-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/modules/modules-columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/modules/modules-columns.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/modules/modules-primary-toolbar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/modules/modules-primary-toolbar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/modules/modules-table.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/modules/modules-table.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/modules/view-module-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/modules/view-module-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/users/create-user-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/users/create-user-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/users/delete-user-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/users/delete-user-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/users/edit-user-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/users/edit-user-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/users/users-columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/users/users-columns.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/users/users-primary-toolbar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/users/users-primary-toolbar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/users/users-table.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/users/users-table.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/users/view-user-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/users/view-user-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/config/navigation.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/config/navigation.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/hooks/hooks.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/hooks/hooks.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/hooks/use-permissions.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/hooks/use-permissions.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/guard/auth-guard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/guard/auth-guard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/guard/can.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/guard/can.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/protected/protected-route.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/protected/protected-route.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/providers/theme-provider.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/providers/theme-provider.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/utils/permissions.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/utils/permissions.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/ai/ai-service-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/ai/ai-service-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/audit/audit-logs-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/audit/audit-logs-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/auth/login-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/auth/login-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/blog/blog-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/blog/blog-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/courses-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/courses-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/dashboard/analytics-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/dashboard/analytics-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/dashboard/dashboard-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/dashboard/dashboard-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/finance/payments-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/finance/payments-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/forbidden-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/forbidden-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/permissions/permissions-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/permissions/permissions-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/rooms/rooms-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/rooms/rooms-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/settings/notifications-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/settings/notifications-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/settings/permissions-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/settings/permissions-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/settings/settings-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/settings/settings-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/users/users-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/users/users-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/store/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/store/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/blog-comment.dto.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/blog.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/post.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/models/blog-comment.model.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/models/blog.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/models/post.model.ts" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -116,7 +221,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "flash-card",
+    "git-widget-placeholder": "#65 on Rebasing refactoring-post&&comment",
     "ignore.virus.scanning.warn.message": "true",
     "javascript.preferred.runtime.type.id": "node",
     "junie.onboarding.icon.badge.shown": "true",

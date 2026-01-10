@@ -120,3 +120,4 @@ export const getLessonsColumns = ({ onView, onEdit, onDelete, page, limit }: Les
         },
     }),
 ];
+

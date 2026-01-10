@@ -119,3 +119,4 @@ export function UsersTable({ data, onView, onEdit, onDelete, page, limit, isLoad
         </Table>
     );
 }
+

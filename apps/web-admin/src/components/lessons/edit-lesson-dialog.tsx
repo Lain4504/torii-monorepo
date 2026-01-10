@@ -360,3 +360,4 @@ export function EditLessonDialog({ lesson, open, onOpenChange }: EditLessonDialo
         </Sheet>
     );
 }
+

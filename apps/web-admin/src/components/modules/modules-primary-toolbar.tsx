@@ -1,4 +1,4 @@
-﻿import { Input } from '@workspace/ui/components/input';
+import { Input } from '@workspace/ui/components/input';
 import {
     Select,
     SelectContent,
@@ -82,3 +82,4 @@ export function ModulesPrimaryToolbar({
         </div>
     );
 }
+
