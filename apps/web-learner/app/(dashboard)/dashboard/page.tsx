@@ -17,8 +17,14 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 
+import { PageLoading } from '@workspace/ui/components/page-loading'
+
 export default function DashboardPage() {
-    const { user } = useAppSelector((state) => state.auth)
+    const { user, status } = useAppSelector((state) => state.auth)
+
+    if (status === 'loading') {
+        return <PageLoading text="Đang tải dữ liệu..." />
+    }
 
     const stats = [
         { label: 'Khóa học', value: '12', subValue: '5 hoàn thành', icon: BookOpen, color: 'text-blue-500' },

@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { ResetPasswordForm } from "@/components/auth/reset-password-form"
 import { Lock, ShieldCheck, Key, Sparkles, ChevronLeft, Spinner } from 'lucide-react'
 import { cn } from "@workspace/ui/lib/utils"
+import { PageLoading } from '@workspace/ui/components/page-loading'
 
 export default function ResetPasswordPage() {
     return (
@@ -101,8 +102,10 @@ export default function ResetPasswordPage() {
                             </div>
                         </div>
 
+
+
                         {/* Reset Form */}
-                        <Suspense fallback={<div className="flex items-center justify-center p-12"><Spinner /></div>}>
+                        <Suspense fallback={<PageLoading text="Đang tải..." className="min-h-[200px]" />}>
                             <ResetPasswordForm />
                         </Suspense>
 

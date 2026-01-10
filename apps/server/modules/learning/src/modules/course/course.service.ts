@@ -153,7 +153,7 @@ export class CourseService implements ICourseService {
       // Force published status for client search
       const where: any = {
         deletedAt: null,
-        status: 'draft',
+        status: 'published',
       };
 
       // Filter by JLPT levels

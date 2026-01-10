@@ -4,11 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="flashcard and exam">
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/dashboard/dashboard-header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/dashboard/dashboard-header.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/dashboard/dashboard-sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/dashboard/dashboard-sidebar.tsx" afterDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="sđs" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -293,54 +289,6 @@
       <workItem from="1767962792348" duration="6426000" />
       <workItem from="1767970155935" duration="4593000" />
       <workItem from="1768010492981" duration="681000" />
-    </task>
-    <task id="LOCAL-00566" summary="feat(flashcards): add advanced search functionality and new tracking models for user progress and review sessions">
-      <option name="closed" value="true" />
-      <created>1768010590210</created>
-      <option name="number" value="00566" />
-      <option name="presentableId" value="LOCAL-00566" />
-      <option name="project" value="LOCAL" />
-      <updated>1768010590212</updated>
-    </task>
-    <task id="LOCAL-00567" summary="chore: remove redundant charts and colors data files in `.claude` and `.shared` directories">
-      <option name="closed" value="true" />
-      <created>1768011135628</created>
-      <option name="number" value="00567" />
-      <option name="presentableId" value="LOCAL-00567" />
-      <option name="project" value="LOCAL" />
-      <updated>1768011135628</updated>
-    </task>
-    <task id="LOCAL-00568" summary="chore: remove redundant charts and colors data files in `.claude` and `.shared` directories">
-      <option name="closed" value="true" />
-      <created>1768011140993</created>
-      <option name="number" value="00568" />
-      <option name="presentableId" value="LOCAL-00568" />
-      <option name="project" value="LOCAL" />
-      <updated>1768011140993</updated>
-    </task>
-    <task id="LOCAL-00569" summary="merge code">
-      <option name="closed" value="true" />
-      <created>1768041087876</created>
-      <option name="number" value="00569" />
-      <option name="presentableId" value="LOCAL-00569" />
-      <option name="project" value="LOCAL" />
-      <updated>1768041087876</updated>
-    </task>
-    <task id="LOCAL-00570" summary="update  PostUpdateDTOSchema -&gt; postUpdateDTOSchema,">
-      <option name="closed" value="true" />
-      <created>1768041607063</created>
-      <option name="number" value="00570" />
-      <option name="presentableId" value="LOCAL-00570" />
-      <option name="project" value="LOCAL" />
-      <updated>1768041607063</updated>
-    </task>
-    <task id="LOCAL-00571" summary="remove ci cd">
-      <option name="closed" value="true" />
-      <created>1768046076831</created>
-      <option name="number" value="00571" />
-      <option name="presentableId" value="LOCAL-00571" />
-      <option name="project" value="LOCAL" />
-      <updated>1768046076831</updated>
     </task>
     <task id="LOCAL-00572" summary="update ui course detail page">
       <option name="closed" value="true" />
@@ -686,7 +634,55 @@
       <option name="project" value="LOCAL" />
       <updated>1768071794810</updated>
     </task>
-    <option name="localTasksCounter" value="615" />
+    <task id="LOCAL-00615" summary="flashcard and exam">
+      <option name="closed" value="true" />
+      <created>1768071986942</created>
+      <option name="number" value="00615" />
+      <option name="presentableId" value="LOCAL-00615" />
+      <option name="project" value="LOCAL" />
+      <updated>1768071986942</updated>
+    </task>
+    <task id="LOCAL-00616" summary="flashcard and exam">
+      <option name="closed" value="true" />
+      <created>1768072126827</created>
+      <option name="number" value="00616" />
+      <option name="presentableId" value="LOCAL-00616" />
+      <option name="project" value="LOCAL" />
+      <updated>1768072126828</updated>
+    </task>
+    <task id="LOCAL-00617" summary="sđs">
+      <option name="closed" value="true" />
+      <created>1768072393990</created>
+      <option name="number" value="00617" />
+      <option name="presentableId" value="LOCAL-00617" />
+      <option name="project" value="LOCAL" />
+      <updated>1768072393991</updated>
+    </task>
+    <task id="LOCAL-00618" summary="sđs">
+      <option name="closed" value="true" />
+      <created>1768072400886</created>
+      <option name="number" value="00618" />
+      <option name="presentableId" value="LOCAL-00618" />
+      <option name="project" value="LOCAL" />
+      <updated>1768072400886</updated>
+    </task>
+    <task id="LOCAL-00619" summary="sđs">
+      <option name="closed" value="true" />
+      <created>1768072662304</created>
+      <option name="number" value="00619" />
+      <option name="presentableId" value="LOCAL-00619" />
+      <option name="project" value="LOCAL" />
+      <updated>1768072662304</updated>
+    </task>
+    <task id="LOCAL-00620" summary="sđs">
+      <option name="closed" value="true" />
+      <created>1768072930398</created>
+      <option name="number" value="00620" />
+      <option name="presentableId" value="LOCAL-00620" />
+      <option name="project" value="LOCAL" />
+      <updated>1768072930400</updated>
+    </task>
+    <option name="localTasksCounter" value="621" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -716,7 +712,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="refactor(ui): align theme styles with tokenized color system&#10;&#10;- Updated theme-specific class names to use tokenized variables (e.g., `bg-primary`, `text-muted-foreground`) for consistency.&#10;- Replaced hardcoded values with reusable theme tokens across authentication pages, course components, and layouts.&#10;- Enhanced visual elements, accessibility, and responsiveness." />
     <MESSAGE value="feat(database): document database design and add admin login interface method&#10;&#10;- Added new documentation: `database-design-overview.md` and `database-design-schema.md` for system architecture clarity.&#10;- Extended `IAuthService` interface with `adminLogin` for specialized admin portal authentication." />
     <MESSAGE value="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`." />
     <MESSAGE value="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`," />
@@ -741,7 +736,8 @@
     <MESSAGE value="update ui course detail page" />
     <MESSAGE value="rebuild ui admin" />
     <MESSAGE value="flashcard and exam" />
-    <option name="LAST_COMMIT_MESSAGE" value="flashcard and exam" />
+    <MESSAGE value="sđs" />
+    <option name="LAST_COMMIT_MESSAGE" value="sđs" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -756,6 +752,12 @@
           <line>3</line>
           <properties lambdaOrdinal="-1" />
           <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/services/i-course.service.ts</url>
+          <line>25</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="3" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

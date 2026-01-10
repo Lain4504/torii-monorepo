@@ -5,7 +5,7 @@ import { Database, FileQuestion } from 'lucide-react';
 export default function QuestionBankPage() {
     const location = useLocation();
     const navigate = useNavigate();
-    
+
     // Determine active tab from URL
     const pathname = location.pathname;
     const activeTab = pathname.includes('/pools') && !pathname.includes('/questions') ? 'pools' : 'questions';
@@ -24,31 +24,62 @@ export default function QuestionBankPage() {
     };
 
     return (
-        <div className="space-y-4 sm:space-y-6 animate-in fade-in-50 duration-500">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
-                <div className="space-y-1">
-                    <h1 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">
-                        Question Bank
-                    </h1>
-                    <p className="text-sm sm:text-base text-muted-foreground">
-                        Manage questions and organize them into pools for quizzes and exams.
-                    </p>
-                </div>
+        <div className="relative min-h-screen space-y-10 animate-in fade-in duration-700 pb-20 px-2 lg:px-6">
+            {/* Zen Atmosphere */}
+            <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
+                <div className="absolute top-[-10%] right-[-5%] w-[40%] h-[40%] bg-primary/[0.02] blur-[120px] rounded-full" />
+                <div className="absolute bottom-[20%] left-[-10%] w-[50%] h-[50%] bg-blue-500/[0.02] blur-[100px] rounded-full" />
             </div>
 
-            <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-                <TabsList className="grid w-full max-w-md grid-cols-2 mb-4 sm:mb-6">
-                    <TabsTrigger value="questions" className="flex items-center gap-2 cursor-pointer transition-colors">
-                        <FileQuestion className="h-4 w-4" />
-                        Questions
-                    </TabsTrigger>
-                    <TabsTrigger value="pools" className="flex items-center gap-2 cursor-pointer transition-colors">
-                        <Database className="h-4 w-4" />
-                        Question Pools
-                    </TabsTrigger>
-                </TabsList>
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full space-y-8">
+                {/* Custom Tabs Navigation */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    {/* Page Title - Hidden on mobile if needed, but keeping for context */}
+                    <div className="hidden md:block space-y-1">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[9px] font-black uppercase tracking-[0.3em]">
+                            <Database className="size-3" />
+                            <span>System Database</span>
+                        </div>
+                        <h1 className="text-3xl font-black tracking-tight text-foreground uppercase italic">
+                            Question <span className="text-primary not-italic">Bank</span>
+                        </h1>
+                    </div>
 
-                <Outlet />
+                    <TabsList className="h-auto p-1.5 bg-muted/20 backdrop-blur-xl border border-border/10 rounded-[1.5rem] flex gap-1 w-full md:w-auto">
+                        <TabsTrigger
+                            value="questions"
+                            className="flex-1 md:flex-none data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-lg data-[state=active]:shadow-primary/5 rounded-2xl px-6 py-3 transition-all duration-300 group"
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="p-1.5 rounded-lg bg-muted/50 group-data-[state=active]:bg-primary/10 transition-colors">
+                                    <FileQuestion className="h-4 w-4 opacity-50 group-data-[state=active]:opacity-100 group-data-[state=active]:text-primary" />
+                                </div>
+                                <div className="flex flex-col items-start gap-0.5">
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground group-data-[state=active]:text-foreground">Questions</span>
+                                    <span className="text-[8px] font-bold text-muted-foreground/40 hidden sm:block">Individual Entities</span>
+                                </div>
+                            </div>
+                        </TabsTrigger>
+                        <TabsTrigger
+                            value="pools"
+                            className="flex-1 md:flex-none data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-lg data-[state=active]:shadow-primary/5 rounded-2xl px-6 py-3 transition-all duration-300 group"
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="p-1.5 rounded-lg bg-muted/50 group-data-[state=active]:bg-primary/10 transition-colors">
+                                    <Database className="h-4 w-4 opacity-50 group-data-[state=active]:opacity-100 group-data-[state=active]:text-primary" />
+                                </div>
+                                <div className="flex flex-col items-start gap-0.5">
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground group-data-[state=active]:text-foreground">Pools</span>
+                                    <span className="text-[8px] font-bold text-muted-foreground/40 hidden sm:block">Grouped Collections</span>
+                                </div>
+                            </div>
+                        </TabsTrigger>
+                    </TabsList>
+                </div>
+
+                <div className="relative z-10">
+                    <Outlet />
+                </div>
             </Tabs>
         </div>
     );
