@@ -7,7 +7,9 @@ import { Card, CardContent } from '@workspace/ui/components/card'
 import { Badge } from '@workspace/ui/components/badge'
 import { PlayCircle, BookOpen, Clock, Globe, Award, Heart } from 'lucide-react'
 import type { CourseResponseDTO } from '@workspace/schemas'
-import { wishlistApi, type WishlistItem } from '@/api/services/wishlist-api'
+import { wishlistApi } from '@/api/services/wishlist-api'
+import { enrollmentApi } from '@/api/services/enrollment-api'
+import { paymentApi } from '@/api/services/payment-api'
 import { useAppSelector } from '@/hooks/hooks'
 import { toast } from '@workspace/ui/components/sonner'
 
@@ -17,9 +19,11 @@ interface CourseSidebarProps {
 
 export function CourseSidebar({ course }: CourseSidebarProps) {
     const [isInWishlist, setIsInWishlist] = useState(false)
-    const [wishlistId, setWishlistId] = useState<string | null>(null)
+    const [isEnrolled, setIsEnrolled] = useState(false)
     const [isLoadingWishlist, setIsLoadingWishlist] = useState(false)
+    const [isLoadingEnrollment, setIsLoadingEnrollment] = useState(false)
     const [isToggling, setIsToggling] = useState(false)
+    const [isEnrolling, setIsEnrolling] = useState(false)
 
     const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated)
     const user = useAppSelector((state) => state.auth.user)
@@ -28,26 +32,31 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
     useEffect(() => {
         if (isAuthenticated && user?.id) {
             checkWishlistStatus()
+            checkEnrollmentStatus()
         }
     }, [isAuthenticated, user?.id, course.id])
 
     const checkWishlistStatus = async () => {
-        if (!user?.id) return
-
         try {
             setIsLoadingWishlist(true)
-            const item = await wishlistApi.checkCourseInWishlist(course.id, user.id)
-            if (item) {
-                setIsInWishlist(true)
-                setWishlistId(item.id)
-            } else {
-                setIsInWishlist(false)
-                setWishlistId(null)
-            }
+            const result = await wishlistApi.checkWishlist(course.id)
+            setIsInWishlist(result.isInWishlist)
         } catch (error) {
             console.error('Failed to check wishlist status:', error)
         } finally {
             setIsLoadingWishlist(false)
+        }
+    }
+
+    const checkEnrollmentStatus = async () => {
+        try {
+            setIsLoadingEnrollment(true)
+            const result = await enrollmentApi.checkEnrollment(course.id)
+            setIsEnrolled(result.isEnrolled)
+        } catch (error) {
+            console.error('Failed to check enrollment status:', error)
+        } finally {
+            setIsLoadingEnrollment(false)
         }
     }
 
@@ -60,22 +69,53 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
 
         try {
             setIsToggling(true)
-            if (isInWishlist && wishlistId) {
-                await wishlistApi.removeFromWishlist(wishlistId)
-                setIsInWishlist(false)
-                setWishlistId(null)
-                toast.success('Đã xóa khỏi yêu thích')
-            } else {
-                const item = await wishlistApi.addToWishlist(course.id)
-                setIsInWishlist(true)
-                setWishlistId(item.id)
-                toast.success('Đã thêm vào yêu thích')
-            }
+            const result = await wishlistApi.toggleWishlist(course.id)
+            setIsInWishlist(result.isInWishlist)
+            toast.success(result.isInWishlist ? 'Đã thêm vào yêu thích' : 'Đã xóa khỏi yêu thích')
         } catch (error: any) {
             console.error('Failed to toggle wishlist:', error)
             toast.error(error?.response?.data?.message || 'Không thể cập nhật yêu thích')
         } finally {
             setIsToggling(false)
+        }
+    }
+
+    const handlePurchase = async () => {
+        if (!isAuthenticated) {
+            toast.error('Vui lòng đăng nhập để mua khóa học')
+            router.push('/login')
+            return
+        }
+
+        if (course.isFree) {
+            // Free course - enroll directly
+            await handleEnroll()
+            return
+        }
+
+        // Paid course - redirect to checkout
+        router.push(`/checkout/${course.id}`)
+    }
+
+    const handleEnroll = async () => {
+        if (!isAuthenticated) {
+            toast.error('Vui lòng đăng nhập để đăng ký khóa học')
+            router.push('/login')
+            return
+        }
+
+        try {
+            setIsEnrolling(true)
+            await enrollmentApi.createEnrollment({ courseId: course.id })
+            setIsEnrolled(true)
+            toast.success('Đã đăng ký khóa học thành công!')
+            // Redirect to course learning page
+            router.push(`/courses/${course.slug}/learn`)
+        } catch (error: any) {
+            console.error('Failed to enroll:', error)
+            toast.error(error?.response?.data?.message || 'Không thể đăng ký khóa học')
+        } finally {
+            setIsEnrolling(false)
         }
     }
 
@@ -139,35 +179,43 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
                     </div>
 
                     <div className="space-y-3">
-                        <Button className="w-full h-12 text-base font-semibold">
-                            {course.isFree ? 'Học miễn phí' : 'Đăng ký ngay'}
-                        </Button>
-                        {!course.isFree && (
-                            <div className="flex gap-2">
+                        {isEnrolled ? (
+                            <Button 
+                                className="w-full h-12 text-base font-semibold"
+                                onClick={() => router.push(`/courses/${course.slug}/learn`)}
+                            >
+                                Tiếp tục học
+                            </Button>
+                        ) : (
+                            <>
                                 <Button 
-                                    variant="outline" 
-                                    className="flex-1 h-12 text-base font-medium"
+                                    className="w-full h-12 text-base font-semibold"
+                                    onClick={handlePurchase}
+                                    disabled={isEnrolling || isLoadingEnrollment}
                                 >
-                                    Thêm vào giỏ hàng
+                                    {isEnrolling ? 'Đang xử lý...' : course.isFree ? 'Học miễn phí' : 'Mua khóa học'}
                                 </Button>
-                                {isAuthenticated && (
-                                    <Button
-                                        variant="outline"
-                                        size="icon"
-                                        className="h-12 w-12"
-                                        onClick={handleToggleWishlist}
-                                        disabled={isToggling || isLoadingWishlist}
-                                    >
-                                        <Heart
-                                            className={`w-5 h-5 ${
-                                                isInWishlist
-                                                    ? 'fill-destructive text-destructive'
-                                                    : 'text-muted-foreground'
-                                            }`}
-                                        />
-                                    </Button>
-                                )}
-                            </div>
+                                <div className="flex gap-2">
+                                    {isAuthenticated && (
+                                        <Button
+                                            variant="outline"
+                                            size="icon"
+                                            className="h-12 w-12"
+                                            onClick={handleToggleWishlist}
+                                            disabled={isToggling || isLoadingWishlist}
+                                            title={isInWishlist ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích'}
+                                        >
+                                            <Heart
+                                                className={`w-5 h-5 ${
+                                                    isInWishlist
+                                                        ? 'fill-destructive text-destructive'
+                                                        : 'text-muted-foreground'
+                                                }`}
+                                            />
+                                        </Button>
+                                    )}
+                                </div>
+                            </>
                         )}
                     </div>
 

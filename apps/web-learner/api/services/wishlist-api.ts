@@ -67,6 +67,22 @@ export const wishlistApi = {
     await apiClient.delete(`/api/wishlists/${wishlistId}`);
     return true;
   },
+
+  /**
+   * Toggle wishlist (add/remove course from wishlist)
+   */
+  toggleWishlist: async (courseId: string): Promise<{ isInWishlist: boolean }> => {
+    const response = await apiClient.post<{ isInWishlist: boolean }>(`/api/wishlists/toggle/${courseId}`);
+    return response.data;
+  },
+
+  /**
+   * Check if course is in wishlist
+   */
+  checkWishlist: async (courseId: string): Promise<{ isInWishlist: boolean }> => {
+    const response = await apiClient.get<{ isInWishlist: boolean }>(`/api/wishlists/check/${courseId}`);
+    return response.data;
+  },
 };
 
 
