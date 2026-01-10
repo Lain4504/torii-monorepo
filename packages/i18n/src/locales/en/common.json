@@ -1,0 +1,175 @@
+{
+    "app": {
+        "name": "Torii Nihongo",
+        "description": "Japanese Learning Platform"
+    },
+    "navigation": {
+        "home": "Home",
+        "dashboard": "Dashboard",
+        "courses": "Courses",
+        "lessons": "Lessons",
+        "profile": "Profile",
+        "settings": "Settings",
+        "logout": "Logout",
+        "users": "Users",
+        "liveClasses": "Live Classes",
+        "questionBank": "Question Bank",
+        "examsTests": "Exams & Tests",
+        "blog": "Blog",
+        "financials": "Financials",
+        "promotions": "Promotions",
+        "analytics": "Analytics",
+        "aiService": "AI Service",
+        "notifications": "Notifications",
+        "permissions": "Permissions"
+    },
+    "navDescriptions": {
+        "dashboard": "Overview of your activities",
+        "users": "Manage system users",
+        "courses": "Course management and approval",
+        "liveClasses": "Virtual classrooms and schedules",
+        "questionBank": "Manage questions and organize into pools",
+        "examsTests": "Manage JLPT and practice tests",
+        "blog": "Manage news and articles",
+        "financials": "Revenue and transactions",
+        "promotions": "Coupons and discount policies",
+        "analytics": "Detailed system analytics",
+        "aiService": "AI-powered features",
+        "notifications": "System alerts",
+        "permissions": "Access control",
+        "settings": "System configuration"
+    },
+    "actions": {
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "edit": "Edit",
+        "create": "Create",
+        "update": "Update",
+        "confirm": "Confirm",
+        "back": "Back",
+        "next": "Next",
+        "submit": "Submit",
+        "search": "Search",
+        "filter": "Filter",
+        "export": "Export",
+        "import": "Import"
+    },
+    "forms": {
+        "required": "This field is required",
+        "invalid": "Invalid value",
+        "emailInvalid": "Invalid email address",
+        "minLength": "Minimum length is {{min}} characters",
+        "maxLength": "Maximum length is {{max}} characters",
+        "password": {
+            "label": "Password",
+            "placeholder": "Enter your password",
+            "confirm": "Confirm password",
+            "mismatch": "Passwords do not match"
+        },
+        "email": {
+            "label": "Email",
+            "placeholder": "Enter your email"
+        }
+    },
+    "status": {
+        "loading": "Loading...",
+        "error": "Error",
+        "success": "Success",
+        "warning": "Warning",
+        "info": "Information"
+    },
+    "messages": {
+        "saved": "Saved successfully",
+        "deleted": "Deleted successfully",
+        "updated": "Updated successfully",
+        "created": "Created successfully",
+        "error": "An error occurred. Please try again.",
+        "logoutSuccess": "Logged out successfully",
+        "logoutError": "Failed to logout properly, but you have been signed out locally"
+    },
+    "language": {
+        "switch": "Switch Language",
+        "current": "Current Language"
+    },
+    "sidebar": {
+        "appName": "Torii Admin",
+        "workspace": "Workspace",
+        "overview": "Overview",
+        "management": "Management",
+        "system": "System",
+        "defaultUser": "Admin User",
+        "defaultRole": "Administrator",
+        "expandSidebar": "Expand Sidebar",
+        "collapseSidebar": "Collapse Sidebar"
+    },
+    "learner": {
+        "header": {
+            "courses": "Courses",
+            "liveClasses": "Live Classes",
+            "jlptPractice": "JLPT Practice",
+            "flashcards": "Flashcards",
+            "login": "Login",
+            "registerFree": "Sign Up Free",
+            "dashboard": "Dashboard",
+            "logout": "Logout",
+            "loggingOut": "Logging out..."
+        },
+        "footer": {
+            "platformDescription": "Vietnam's leading online Japanese learning platform. Combining high-quality WebRTC classes and AI Sensei for the most effective learning experience.",
+            "sections": {
+                "courses": "Courses",
+                "features": "Features",
+                "resources": "Resources",
+                "about": "About Torii Nihongo"
+            },
+            "courses": {
+                "jlptN5": "JLPT N5 - Beginner",
+                "jlptN4": "JLPT N4 - Elementary",
+                "jlptN3": "JLPT N3 - Intermediate",
+                "jlptN2": "JLPT N2 - Upper Intermediate",
+                "jlptN1": "JLPT N1 - Advanced"
+            },
+            "features": {
+                "liveClassesWebRTC": "WebRTC Live Classes",
+                "aiSensei": "AI Sensei 先生",
+                "smartFlashcards": "Smart Flashcards",
+                "jlptPractice": "JLPT Practice",
+                "learningCommunity": "Learning Community"
+            },
+            "resources": {
+                "japaneseBlog": "Japanese Learning Blog",
+                "grammarN5N1": "Grammar N5-N1",
+                "vocabularyTopics": "Vocabulary by Topics",
+                "kanjiLookup": "Kanji Lookup",
+                "faq": "FAQ"
+            },
+            "company": {
+                "introduction": "About Us",
+                "instructors": "Our Instructors",
+                "contact": "Contact",
+                "careers": "Careers",
+                "privacy": "Privacy Policy",
+                "terms": "Terms of Service"
+            },
+            "newsletter": {
+                "title": "Subscribe to Newsletter",
+                "description": "Get Japanese learning tips, new JLPT tests and special offers",
+                "emailPlaceholder": "Your email",
+                "subscribe": "Subscribe"
+            },
+            "copyright": {
+                "allRightsReserved": "All rights reserved",
+                "privacyPolicy": "Privacy Policy",
+                "termsOfUse": "Terms of Use",
+                "cookiePolicy": "Cookie Policy"
+            }
+        },
+        "messages": {
+            "logoutSuccess": "Logged out successfully",
+            "seeYouAgain": "See you again!",
+            "logoutFailed": "Logout failed",
+            "pleaseTryAgain": "Please try again"
+        }
+    }
+}

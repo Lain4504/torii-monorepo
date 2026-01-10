@@ -1,6 +1,5 @@
 import React from "react"
 import { useLocation, Link } from "react-router-dom"
-import { Bell } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Badge } from "@workspace/ui/components/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui/components/avatar"
@@ -20,15 +19,19 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@workspace/ui/components/breadcrumb"
+import { LanguageSwitcher } from "@workspace/ui/components/language-switcher"
+import { useTranslation } from "@workspace/i18n"
 
 import { ModeToggle } from "@/components/layout/mode-toggle.tsx"
 import { CommandMenu } from "@/components/layout/command-menu.tsx"
+import { NotificationsDropdown } from "@/components/layout/notifications-dropdown.tsx"
 import { useAppSelector, useAppDispatch } from "@/hooks/hooks.ts"
 import { selectUser, logout } from "@/store/slices/auth-slice.ts"
 import { toast } from "@workspace/ui/components/sonner"
 import { useNavigate } from "react-router-dom"
 
 export function DashboardHeader() {
+  const { t } = useTranslation('common')
   const dispatch = useAppDispatch()
   const user = useAppSelector(selectUser)
   const location = useLocation()
@@ -37,11 +40,11 @@ export function DashboardHeader() {
   const handleLogout = async () => {
     try {
       await dispatch(logout()).unwrap()
-      toast.success('Logged out successfully')
+      toast.success(t('messages.logoutSuccess'))
       navigate('/login', { replace: true })
     } catch (error) {
       // Even if logout fails, clear local state and redirect
-      toast.error('Failed to logout properly, but you have been signed out locally')
+      toast.error(t('messages.logoutError'))
       navigate('/login', { replace: true })
     }
   }
@@ -66,7 +69,7 @@ export function DashboardHeader() {
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">Dashboard</Link>
+                <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">{t('navigation.dashboard')}</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             {pathSegments.length > 0 && <BreadcrumbSeparator className="opacity-40" />}
@@ -92,22 +95,21 @@ export function DashboardHeader() {
         </Breadcrumb>
       </div>
 
-      <div className="ml-auto flex items-center gap-3">
+      <div className="ml-auto flex items-center gap-1.5 sm:gap-3">
         <CommandMenu />
 
-        <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-xl">
-          <Bell className="size-5" />
-          <span className="absolute top-2.5 right-2.5 size-2 bg-rose-500 rounded-full ring-2 ring-background"></span>
-        </Button>
+        <NotificationsDropdown />
+
+        <LanguageSwitcher />
 
         <ModeToggle />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-9 w-9 rounded-full ring-2 ring-transparent hover:ring-primary/10 transition-all p-0 overflow-hidden">
-              <Avatar className="h-9 w-9">
+            <Button variant="ghost" className="relative h-8 w-8 sm:h-9 sm:w-9 rounded-full ring-2 ring-transparent hover:ring-primary/10 transition-all p-0 overflow-hidden">
+              <Avatar className="h-8 w-8 sm:h-9 sm:w-9">
                 <AvatarImage src={user?.avatarUrl || undefined} alt={user?.displayName || ''} />
-                <AvatarFallback className="bg-muted hover:bg-muted/80 transition-colors">{user?.displayName?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
+                <AvatarFallback className="bg-muted hover:bg-muted/80 transition-colors text-xs sm:text-sm">{user?.displayName?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
@@ -127,14 +129,14 @@ export function DashboardHeader() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator className="bg-muted/50" />
             <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
-              <Link to="/settings/profile">Profile</Link>
+              <Link to="/settings/profile">{t('navigation.profile')}</Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
-              <Link to="/settings">Settings</Link>
+              <Link to="/settings">{t('navigation.settings')}</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator className="bg-muted/50" />
             <DropdownMenuItem onClick={handleLogout} className="text-rose-500 focus:bg-rose-500/10 focus:text-rose-600 rounded-xl cursor-pointer">
-              Log out
+              {t('navigation.logout')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

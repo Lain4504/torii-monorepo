@@ -20,8 +20,10 @@ import AIServicePage from '@/routes/ai/ai-service-page.tsx'
 import NotificationsPage from '@/routes/settings/notifications-page.tsx'
 import SettingsPage from '@/routes/settings/settings-page.tsx'
 import { BlogPage } from '@/routes/blog/blog-page.tsx'
+import QuestionBankPage from '@/routes/question-bank/question-bank-page.tsx'
 import QuestionsPage from '@/routes/questions/questions-page.tsx'
 import QuestionPoolsPage from '@/routes/question-pools/question-pools-page.tsx'
+import PoolDetailPage from '@/routes/question-pools/pool-detail-page.tsx'
 
 import LoginPage from '@/routes/auth/login-page.tsx'
 import { AuditLogsPage } from "@/routes/audit/audit-logs-page.tsx";
@@ -56,8 +58,16 @@ function App() {
 
                 <Route path="rooms" element={<RoomsPage />} />
                 <Route path="blogs" element={<BlogPage />} />
-                <Route path="questions" element={<QuestionsPage />} />
-                <Route path="question-pools" element={<QuestionPoolsPage />} />
+                
+                {/* Question Bank - Unified entry point */}
+                <Route path="question-bank" element={<QuestionBankPage />}>
+                    <Route index element={<QuestionsPage />} />
+                    <Route path="questions" element={<QuestionsPage />} />
+                    <Route path="pools" element={<QuestionPoolsPage />} />
+                </Route>
+                
+                {/* Pool detail page */}
+                <Route path="question-bank/pools/:id/questions" element={<PoolDetailPage />} />
                 <Route path="payments" element={<PaymentsPage />} />
                 <Route path="analytics" element={<AnalyticsPage />} />
                 <Route path="ai-service" element={<AIServicePage />} />

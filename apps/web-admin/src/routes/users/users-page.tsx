@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { UsersPrimaryToolbar } from '@/components/users/users-primary-toolbar.tsx';
 import { UsersTable } from '@/components/users/users-table.tsx';
-import { CreateUserDialog } from '@/components/users/create-user-dialog.tsx';
-import { EditUserDialog } from '@/components/users/edit-user-dialog.tsx';
+import { CreateUserSheet } from '@/components/users/create-user-sheet.tsx';
+import { EditUserSheet } from '@/components/users/edit-user-sheet.tsx';
 import { DeleteUserDialog } from '@/components/users/delete-user-dialog.tsx';
 import { ViewUserSheet } from '@/components/users/view-user-sheet.tsx';
 import type { UserResponseDTO } from '@workspace/schemas';
@@ -232,13 +232,13 @@ export function UsersPage() {
                 </div>
             </div>
 
-            {/* Dialogs */}
-            <CreateUserDialog
+            {/* Sheets & Dialogs */}
+            <CreateUserSheet
                 open={createDialog.value}
                 onOpenChange={createDialog.setValue}
             />
 
-            <EditUserDialog
+            <EditUserSheet
                 open={!!editingUser}
                 onOpenChange={(open) => !open && setEditingUser(null)}
                 user={editingUser}

@@ -5,6 +5,8 @@ export * from './i-course-instructor.service';
 export * from './i-lesson-material.service';
 export * from './i-review.service';
 export * from './i-wishlist.service';
+export * from './i-exam.service';
+export * from './i-storage.service';
 
 
 // Injection tokens for services

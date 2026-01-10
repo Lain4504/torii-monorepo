@@ -4,18 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: remove unused fields and update indexes in course schema">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/exam/exam.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/exam/exam.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/models/exam.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/models/exam.model.ts" afterDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="chore: remove redundant charts and colors data files in `.claude` and `.shared` directories" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="917" />
+    <option name="cachedIndexableFilesCount" value="1029" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -35,7 +31,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="lms-rebuild" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -120,7 +116,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "flash-card",
     "ignore.virus.scanning.warn.message": "true",
     "javascript.preferred.runtime.type.id": "node",
     "junie.onboarding.icon.badge.shown": "true",
@@ -192,7 +188,7 @@
       <list>
         <item itemvalue="JavaScript Debug.localhost:3000" />
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
-        <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
+        <item itemvalue="JavaScript Debug.localhost:3000" />
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
       </list>
@@ -281,150 +277,9 @@
       <workItem from="1767933733732" duration="482000" />
       <workItem from="1767937314619" duration="7276000" />
       <workItem from="1767954560047" duration="1564000" />
-    </task>
-    <task id="LOCAL-00502" summary="cursor gen: update theme">
-      <option name="closed" value="true" />
-      <created>1767796935423</created>
-      <option name="number" value="00502" />
-      <option name="presentableId" value="LOCAL-00502" />
-      <option name="project" value="LOCAL" />
-      <updated>1767796935423</updated>
-    </task>
-    <task id="LOCAL-00503" summary="cursor gen: update theme">
-      <option name="closed" value="true" />
-      <created>1767797013944</created>
-      <option name="number" value="00503" />
-      <option name="presentableId" value="LOCAL-00503" />
-      <option name="project" value="LOCAL" />
-      <updated>1767797013944</updated>
-    </task>
-    <task id="LOCAL-00504" summary="refactor(ui): align theme styles with tokenized color system&#10;&#10;- Updated theme-specific class names to use tokenized variables (e.g., `bg-primary`, `text-muted-foreground`) for consistency.&#10;- Replaced hardcoded values with reusable theme tokens across authentication pages, course components, and layouts.&#10;- Enhanced visual elements, accessibility, and responsiveness.">
-      <option name="closed" value="true" />
-      <created>1767798311525</created>
-      <option name="number" value="00504" />
-      <option name="presentableId" value="LOCAL-00504" />
-      <option name="project" value="LOCAL" />
-      <updated>1767798311525</updated>
-    </task>
-    <task id="LOCAL-00505" summary="refactor(ui): align theme styles with tokenized color system&#10;&#10;- Updated theme-specific class names to use tokenized variables (e.g., `bg-primary`, `text-muted-foreground`) for consistency.&#10;- Replaced hardcoded values with reusable theme tokens across authentication pages, course components, and layouts.&#10;- Enhanced visual elements, accessibility, and responsiveness.">
-      <option name="closed" value="true" />
-      <created>1767798687966</created>
-      <option name="number" value="00505" />
-      <option name="presentableId" value="LOCAL-00505" />
-      <option name="project" value="LOCAL" />
-      <updated>1767798688164</updated>
-    </task>
-    <task id="LOCAL-00506" summary="refactor(ui): align theme styles with tokenized color system&#10;&#10;- Updated theme-specific class names to use tokenized variables (e.g., `bg-primary`, `text-muted-foreground`) for consistency.&#10;- Replaced hardcoded values with reusable theme tokens across authentication pages, course components, and layouts.&#10;- Enhanced visual elements, accessibility, and responsiveness.">
-      <option name="closed" value="true" />
-      <created>1767799112252</created>
-      <option name="number" value="00506" />
-      <option name="presentableId" value="LOCAL-00506" />
-      <option name="project" value="LOCAL" />
-      <updated>1767799112255</updated>
-    </task>
-    <task id="LOCAL-00507" summary="feat(database): document database design and add admin login interface method&#10;&#10;- Added new documentation: `database-design-overview.md` and `database-design-schema.md` for system architecture clarity.&#10;- Extended `IAuthService` interface with `adminLogin` for specialized admin portal authentication.">
-      <option name="closed" value="true" />
-      <created>1767800670317</created>
-      <option name="number" value="00507" />
-      <option name="presentableId" value="LOCAL-00507" />
-      <option name="project" value="LOCAL" />
-      <updated>1767800670318</updated>
-    </task>
-    <task id="LOCAL-00508" summary="feat(database): document database design and add admin login interface method&#10;&#10;- Added new documentation: `database-design-overview.md` and `database-design-schema.md` for system architecture clarity.&#10;- Extended `IAuthService` interface with `adminLogin` for specialized admin portal authentication.">
-      <option name="closed" value="true" />
-      <created>1767800964207</created>
-      <option name="number" value="00508" />
-      <option name="presentableId" value="LOCAL-00508" />
-      <option name="project" value="LOCAL" />
-      <updated>1767800964208</updated>
-    </task>
-    <task id="LOCAL-00509" summary="feat(database): document database design and add admin login interface method&#10;&#10;- Added new documentation: `database-design-overview.md` and `database-design-schema.md` for system architecture clarity.&#10;- Extended `IAuthService` interface with `adminLogin` for specialized admin portal authentication.">
-      <option name="closed" value="true" />
-      <created>1767801374672</created>
-      <option name="number" value="00509" />
-      <option name="presentableId" value="LOCAL-00509" />
-      <option name="project" value="LOCAL" />
-      <updated>1767801374672</updated>
-    </task>
-    <task id="LOCAL-00510" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`, and `ForgotPasswordDTO`.&#10;- Updated email service to support OTP delivery with platform-specific templates.">
-      <option name="closed" value="true" />
-      <created>1767801559299</created>
-      <option name="number" value="00510" />
-      <option name="presentableId" value="LOCAL-00510" />
-      <option name="project" value="LOCAL" />
-      <updated>1767801559300</updated>
-    </task>
-    <task id="LOCAL-00511" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
-      <option name="closed" value="true" />
-      <created>1767801939777</created>
-      <option name="number" value="00511" />
-      <option name="presentableId" value="LOCAL-00511" />
-      <option name="project" value="LOCAL" />
-      <updated>1767801939778</updated>
-    </task>
-    <task id="LOCAL-00512" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
-      <option name="closed" value="true" />
-      <created>1767802147671</created>
-      <option name="number" value="00512" />
-      <option name="presentableId" value="LOCAL-00512" />
-      <option name="project" value="LOCAL" />
-      <updated>1767802147672</updated>
-    </task>
-    <task id="LOCAL-00513" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
-      <option name="closed" value="true" />
-      <created>1767802260841</created>
-      <option name="number" value="00513" />
-      <option name="presentableId" value="LOCAL-00513" />
-      <option name="project" value="LOCAL" />
-      <updated>1767802260841</updated>
-    </task>
-    <task id="LOCAL-00514" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
-      <option name="closed" value="true" />
-      <created>1767802359922</created>
-      <option name="number" value="00514" />
-      <option name="presentableId" value="LOCAL-00514" />
-      <option name="project" value="LOCAL" />
-      <updated>1767802359922</updated>
-    </task>
-    <task id="LOCAL-00515" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
-      <option name="closed" value="true" />
-      <created>1767802516312</created>
-      <option name="number" value="00515" />
-      <option name="presentableId" value="LOCAL-00515" />
-      <option name="project" value="LOCAL" />
-      <updated>1767802516313</updated>
-    </task>
-    <task id="LOCAL-00516" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
-      <option name="closed" value="true" />
-      <created>1767802634362</created>
-      <option name="number" value="00516" />
-      <option name="presentableId" value="LOCAL-00516" />
-      <option name="project" value="LOCAL" />
-      <updated>1767802634367</updated>
-    </task>
-    <task id="LOCAL-00517" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
-      <option name="closed" value="true" />
-      <created>1767802732757</created>
-      <option name="number" value="00517" />
-      <option name="presentableId" value="LOCAL-00517" />
-      <option name="project" value="LOCAL" />
-      <updated>1767802732759</updated>
-    </task>
-    <task id="LOCAL-00518" summary="feat(auth): add OTP-based flows for registration and password reset&#10;&#10;- Introduced OTP for mobile registration and password reset, replacing web-specific magic links.&#10;- Added `verifyOTP`, `resendOTP`, and updated `forgotPassword` in `IAuthService`.&#10;- Extended DTOs with `VerifyOTPDTO`, `ResendOTPDTO`,">
-      <option name="closed" value="true" />
-      <created>1767802756548</created>
-      <option name="number" value="00518" />
-      <option name="presentableId" value="LOCAL-00518" />
-      <option name="project" value="LOCAL" />
-      <updated>1767802756616</updated>
-    </task>
-    <task id="LOCAL-00519" summary="feat(users): integrate EmailModule for user management enhancements">
-      <option name="closed" value="true" />
-      <created>1767832879775</created>
-      <option name="number" value="00519" />
-      <option name="presentableId" value="LOCAL-00519" />
-      <option name="project" value="LOCAL" />
-      <updated>1767832879775</updated>
+      <workItem from="1767962792348" duration="6426000" />
+      <workItem from="1767970155935" duration="4593000" />
+      <workItem from="1768010492981" duration="681000" />
     </task>
     <task id="LOCAL-00520" summary="feat(users): enhance create-user-dialog with multi-step flow and role selection&#10;&#10;- Added multi-step form flow for user creation (details &gt; role selection).&#10;- Introduced UI updates for better usability and visual consistency.&#10;- Implemented support for staff role variants with descriptive labels.&#10;- Improved form validation and error handling logic.">
       <option name="closed" value="true" />
@@ -674,7 +529,151 @@
       <option name="project" value="LOCAL" />
       <updated>1767944760226</updated>
     </task>
-    <option name="localTasksCounter" value="551" />
+    <task id="LOCAL-00551" summary="feat(lms): restructure controllers and repositories for exams, questions, and storage modules&#10;&#10;- Migrated all exam-related controllers and repository logic to dedicated modules.&#10;- Removed obsolete question, question pool, and storage controllers.&#10;- Introduced interfaces for exam services and repositories for better abstraction.&#10;- Added exam admin controller for admin-specific operations (e.g., stats, publishing).&#10;- Improved logging and error handling across exam-related endpoints.">
+      <option name="closed" value="true" />
+      <created>1767961334186</created>
+      <option name="number" value="00551" />
+      <option name="presentableId" value="LOCAL-00551" />
+      <option name="project" value="LOCAL" />
+      <updated>1767961334186</updated>
+    </task>
+    <task id="LOCAL-00552" summary="feat(course): integrate AutoMapper for Course entity mapping and update module structureè">
+      <option name="closed" value="true" />
+      <created>1767966176596</created>
+      <option name="number" value="00552" />
+      <option name="presentableId" value="LOCAL-00552" />
+      <option name="project" value="LOCAL" />
+      <updated>1767966176596</updated>
+    </task>
+    <task id="LOCAL-00553" summary="feat(course): integrate AutoMapper for Course entity mapping and update module structureè">
+      <option name="closed" value="true" />
+      <created>1767966825603</created>
+      <option name="number" value="00553" />
+      <option name="presentableId" value="LOCAL-00553" />
+      <option name="project" value="LOCAL" />
+      <updated>1767966825603</updated>
+    </task>
+    <task id="LOCAL-00554" summary="feat(course): integrate AutoMapper for Course entity mapping and update module structureè">
+      <option name="closed" value="true" />
+      <created>1767966865021</created>
+      <option name="number" value="00554" />
+      <option name="presentableId" value="LOCAL-00554" />
+      <option name="project" value="LOCAL" />
+      <updated>1767966865021</updated>
+    </task>
+    <task id="LOCAL-00555" summary="feat(user): integrate AutoMapper for User entity mapping and update module structureè">
+      <option name="closed" value="true" />
+      <created>1767967622389</created>
+      <option name="number" value="00555" />
+      <option name="presentableId" value="LOCAL-00555" />
+      <option name="project" value="LOCAL" />
+      <updated>1767967622389</updated>
+    </task>
+    <task id="LOCAL-00556" summary="feat(question-pools): add functionality to manage question pools with CRUD operations and filtering by course and JLPT level">
+      <option name="closed" value="true" />
+      <created>1767968232281</created>
+      <option name="number" value="00556" />
+      <option name="presentableId" value="LOCAL-00556" />
+      <option name="project" value="LOCAL" />
+      <updated>1767968232281</updated>
+    </task>
+    <task id="LOCAL-00557" summary="feat(question-pools): add functionality to manage question pools with CRUD operations and filtering by course and JLPT level">
+      <option name="closed" value="true" />
+      <created>1767970964381</created>
+      <option name="number" value="00557" />
+      <option name="presentableId" value="LOCAL-00557" />
+      <option name="project" value="LOCAL" />
+      <updated>1767970964383</updated>
+    </task>
+    <task id="LOCAL-00558" summary="feat(i18n): implement internationalization support with Vietnamese and English translations">
+      <option name="closed" value="true" />
+      <created>1767971599205</created>
+      <option name="number" value="00558" />
+      <option name="presentableId" value="LOCAL-00558" />
+      <option name="project" value="LOCAL" />
+      <updated>1767971599205</updated>
+    </task>
+    <task id="LOCAL-00559" summary="feat(i18n): implement internationalization support with Vietnamese and English translations">
+      <option name="closed" value="true" />
+      <created>1767971688062</created>
+      <option name="number" value="00559" />
+      <option name="presentableId" value="LOCAL-00559" />
+      <option name="project" value="LOCAL" />
+      <updated>1767971688063</updated>
+    </task>
+    <task id="LOCAL-00560" summary="feat(i18n): implement internationalization support with Vietnamese and English translations">
+      <option name="closed" value="true" />
+      <created>1767972648628</created>
+      <option name="number" value="00560" />
+      <option name="presentableId" value="LOCAL-00560" />
+      <option name="project" value="LOCAL" />
+      <updated>1767972648629</updated>
+    </task>
+    <task id="LOCAL-00561" summary="feat(i18n): implement internationalization support with Vietnamese and English translations">
+      <option name="closed" value="true" />
+      <created>1767973024854</created>
+      <option name="number" value="00561" />
+      <option name="presentableId" value="LOCAL-00561" />
+      <option name="project" value="LOCAL" />
+      <updated>1767973024854</updated>
+    </task>
+    <task id="LOCAL-00562" summary="feat(i18n): implement internationalization support with Vietnamese and English translations">
+      <option name="closed" value="true" />
+      <created>1767973814572</created>
+      <option name="number" value="00562" />
+      <option name="presentableId" value="LOCAL-00562" />
+      <option name="project" value="LOCAL" />
+      <updated>1767973814572</updated>
+    </task>
+    <task id="LOCAL-00563" summary="feat(i18n): implement internationalization support with Vietnamese and English translations">
+      <option name="closed" value="true" />
+      <created>1767973822343</created>
+      <option name="number" value="00563" />
+      <option name="presentableId" value="LOCAL-00563" />
+      <option name="project" value="LOCAL" />
+      <updated>1767973822343</updated>
+    </task>
+    <task id="LOCAL-00564" summary="feat(i18n): implement internationalization support with Vietnamese and English translations">
+      <option name="closed" value="true" />
+      <created>1767973990985</created>
+      <option name="number" value="00564" />
+      <option name="presentableId" value="LOCAL-00564" />
+      <option name="project" value="LOCAL" />
+      <updated>1767973990985</updated>
+    </task>
+    <task id="LOCAL-00565" summary="feat(i18n): implement internationalization support with Vietnamese and English translations">
+      <option name="closed" value="true" />
+      <created>1767974287875</created>
+      <option name="number" value="00565" />
+      <option name="presentableId" value="LOCAL-00565" />
+      <option name="project" value="LOCAL" />
+      <updated>1767974287876</updated>
+    </task>
+    <task id="LOCAL-00566" summary="feat(flashcards): add advanced search functionality and new tracking models for user progress and review sessions">
+      <option name="closed" value="true" />
+      <created>1768010590210</created>
+      <option name="number" value="00566" />
+      <option name="presentableId" value="LOCAL-00566" />
+      <option name="project" value="LOCAL" />
+      <updated>1768010590212</updated>
+    </task>
+    <task id="LOCAL-00567" summary="chore: remove redundant charts and colors data files in `.claude` and `.shared` directories">
+      <option name="closed" value="true" />
+      <created>1768011135628</created>
+      <option name="number" value="00567" />
+      <option name="presentableId" value="LOCAL-00567" />
+      <option name="project" value="LOCAL" />
+      <updated>1768011135628</updated>
+    </task>
+    <task id="LOCAL-00568" summary="chore: remove redundant charts and colors data files in `.claude` and `.shared` directories">
+      <option name="closed" value="true" />
+      <created>1768011140993</created>
+      <option name="number" value="00568" />
+      <option name="presentableId" value="LOCAL-00568" />
+      <option name="project" value="LOCAL" />
+      <updated>1768011140993</updated>
+    </task>
+    <option name="localTasksCounter" value="569" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -704,14 +703,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat(auth): update user status handling and improve UI components" />
-    <MESSAGE value="feat(auth): replace refresh token mechanism with session-based implementation  &#10;&#10;- Renamed `RefreshTokenService` to `SessionService` and updated all references.  &#10;- Replaced `refresh_tokens` table with `sessions` table, adding metadata fields (IP, user agent, device info).  &#10;- Updated Prisma schema to reflect the new `Session` model.  &#10;- Refactored authentication flow to use sessions for token creation, verification, and revocation.  &#10;- Added support for session cleanup with metadata logging for improved traceability and security." />
-    <MESSAGE value="feat(auth): sync database schema and Prisma models with session-based authentication&#10;&#10;- Replaced `refresh_tokens` table with `sessions` table in database schema.&#10;- Updated tables to include extended metadata (e.g., IP, user agent, device info).&#10;- Synced Prisma models with revised schema, optimizing for session management.&#10;- Removed legacy user role and permission tables, consolidating mappings with updated schemas.&#10;- Added tables for `user_identities`, `two_factor_auth`, and audit functionalities for improved security and logging." />
-    <MESSAGE value="feat(database): update schema by removing obsolete tables and commenting out unused structures" />
-    <MESSAGE value="feat(database): add new modules for gamification, payments, and user management" />
-    <MESSAGE value="feat(auth): rename endpoints and update token generation for email verification" />
-    <MESSAGE value="feat(rbac): simplify permissions handling by removing user-specific overrides" />
-    <MESSAGE value="feat(database): add radix-ui dependency and update package lock" />
     <MESSAGE value="feat(ui): enhance dashboard layout and components for improved aesthetics and usability" />
     <MESSAGE value="feat(ui): implement custom scrollbar styles and enhance loading states across various pages" />
     <MESSAGE value="feat(ui): add reusable hooks for dark mode and debounced state management&#10;&#10;- Implemented `useDarkMode` hook supporting OS preferences, local" />
@@ -729,7 +720,15 @@
     <MESSAGE value="feat: add SQL functions and triggers for course aggregate fields" />
     <MESSAGE value="vf" />
     <MESSAGE value="refactor: remove unused fields and update indexes in course schema" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: remove unused fields and update indexes in course schema" />
+    <MESSAGE value="feat(lms): core rebuild with auth, schema, and service refactor (#59)" />
+    <MESSAGE value="feat(lms): restructure controllers and repositories for exams, questions, and storage modules&#10;&#10;- Migrated all exam-related controllers and repository logic to dedicated modules.&#10;- Removed obsolete question, question pool, and storage controllers.&#10;- Introduced interfaces for exam services and repositories for better abstraction.&#10;- Added exam admin controller for admin-specific operations (e.g., stats, publishing).&#10;- Improved logging and error handling across exam-related endpoints." />
+    <MESSAGE value="feat(course): integrate AutoMapper for Course entity mapping and update module structureè" />
+    <MESSAGE value="feat(user): integrate AutoMapper for User entity mapping and update module structureè" />
+    <MESSAGE value="feat(question-pools): add functionality to manage question pools with CRUD operations and filtering by course and JLPT level" />
+    <MESSAGE value="feat(i18n): implement internationalization support with Vietnamese and English translations" />
+    <MESSAGE value="feat(flashcards): add advanced search functionality and new tracking models for user progress and review sessions" />
+    <MESSAGE value="chore: remove redundant charts and colors data files in `.claude` and `.shared` directories" />
+    <option name="LAST_COMMIT_MESSAGE" value="chore: remove redundant charts and colors data files in `.claude` and `.shared` directories" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

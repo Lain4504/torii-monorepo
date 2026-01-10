@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -19,6 +19,7 @@ import {
 import { Loader2, Plus, X } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 import { useCreateQuestion } from '@/api/services/questions.ts';
+import { useQuestionPools } from '@/api/services/question-pools.ts';
 import {
     QuestionType,
     QuestionCategory,
@@ -34,10 +35,12 @@ type CreateQuestionFormData = z.input<typeof questionCreateDTOSchema>;
 interface CreateQuestionDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    defaultPoolId?: string;
 }
 
-export function CreateQuestionDialog({ open, onOpenChange }: CreateQuestionDialogProps) {
+export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: CreateQuestionDialogProps) {
     const createQuestion = useCreateQuestion();
+    const { data: poolsData } = useQuestionPools({ page: 1, limit: 100 });
     const [options, setOptions] = useState<Record<string, string>>({ A: '', B: '' });
     const [optionKeys, setOptionKeys] = useState<string[]>(['A', 'B']);
 
@@ -57,10 +60,27 @@ export function CreateQuestionDialog({ open, onOpenChange }: CreateQuestionDialo
             correctAnswer: '',
             explanation: '',
             tags: [],
+            poolId: defaultPoolId || undefined,
         },
     });
 
     const questionType = watch('questionType');
+
+    useEffect(() => {
+        if (open && defaultPoolId) {
+            reset({
+                questionText: '',
+                questionType: QuestionType.MULTIPLE_CHOICE,
+                jlptLevel: QuestionJlptLevel.N5,
+                category: QuestionCategory.VOCAB,
+                difficulty: QuestionDifficultyLevel.MEDIUM,
+                correctAnswer: '',
+                explanation: '',
+                tags: [],
+                poolId: defaultPoolId,
+            });
+        }
+    }, [open, defaultPoolId, reset]);
 
     const addOption = () => {
         const nextKey = String.fromCharCode(65 + optionKeys.length);
@@ -215,6 +235,30 @@ export function CreateQuestionDialog({ open, onOpenChange }: CreateQuestionDialo
                             )}
                         />
                     </div>
+
+                    <Controller
+                        name="poolId"
+                        control={control}
+                        render={({ field, fieldState }) => (
+                            <Field>
+                                <FieldLabel>Question Pool (Optional)</FieldLabel>
+                                <Select value={field.value || 'none'} onValueChange={(value) => field.onChange(value === 'none' ? undefined : value)}>
+                                    <SelectTrigger className="bg-background/50 border-border/40">
+                                        <SelectValue placeholder="Select a pool" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="none">None</SelectItem>
+                                        {poolsData?.data.map((pool) => (
+                                            <SelectItem key={pool.id} value={pool.id}>
+                                                {pool.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
+                            </Field>
+                        )}
+                    />
 
                     {questionType === QuestionType.MULTIPLE_CHOICE && (
                         <Field>

@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { SharedModule } from '@server/shared';
 import { QuestionService } from './question.service';
 import { QuestionRepository } from './question.repository';
-import { QuestionController } from '../../interfaces/http/question.controller';
 import { QUESTION_REPOSITORY_TOKEN } from '../../interfaces/repositories/i-question.repository';
 import { QUESTION_SERVICE_TOKEN } from '../../interfaces/services/i-question.service';
 

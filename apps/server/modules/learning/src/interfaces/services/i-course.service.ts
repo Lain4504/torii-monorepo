@@ -21,6 +21,20 @@ export interface ICourseService {
     findAll(options: PaginationOptionsDTO & { status?: CourseStatus; jlptLevel?: string }): Promise<PaginatedResponseDTO<CourseResponseDTO>>;
 
     /**
+     * Advanced search for clients
+     */
+    advancedSearch(options: {
+        page?: number;
+        limit?: number;
+        search?: string;
+        levels?: string[];
+        priceMin?: number;
+        priceMax?: number;
+        ratingMin?: number;
+        sortBy?: string;
+    }): Promise<PaginatedResponseDTO<CourseResponseDTO>>;
+
+    /**
      * Find one course by ID
      * @param courseId - The course's unique identifier
      * @returns The course data

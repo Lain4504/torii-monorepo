@@ -13,124 +13,119 @@ import {
     BarChart3,
     Bell,
     Sparkles,
-    Database,
 } from "lucide-react";
 
 export interface NavItem {
-    title: string;
+    titleKey: string; // Translation key
     url: string;
     icon: React.ComponentType<{ className?: string }>;
     badge?: string;
     permission?: string;
     anyPermission?: string[];
-    description?: string;
+    descriptionKey?: string; // Translation key
 }
 
 export const mainNavItems: NavItem[] = [
     {
-        title: "Dashboard",
+        titleKey: "navigation.dashboard",
         url: "/",
         icon: Home,
-        description: "Overview of your activities",
+        descriptionKey: "navDescriptions.dashboard",
     },
     {
-        title: "Users",
+        titleKey: "navigation.users",
         url: "/users",
         icon: Users,
         permission: "user.manage",
-        description: "Manage system users",
+        descriptionKey: "navDescriptions.users",
     },
     {
-        title: "Courses",
+        titleKey: "navigation.courses",
         url: "/courses",
         icon: BookOpen,
         anyPermission: ["course.manage", "course.approve", "course.view_restricted"],
-        description: "Course management and approval",
+        descriptionKey: "navDescriptions.courses",
     },
     {
-        title: "Live Classes",
+        titleKey: "navigation.liveClasses",
         url: "/rooms",
         icon: Video,
         anyPermission: ["live_class.schedule", "live_class.view"],
-        description: "Virtual classrooms and schedules",
+        descriptionKey: "navDescriptions.liveClasses",
     },
     {
-        title: "Questions",
-        url: "/questions",
+        titleKey: "navigation.questionBank",
+        url: "/question-bank",
         icon: FileQuestion,
-        permission: "question.manage",
-        description: "Manage questions for quizzes",
+        anyPermission: ["question.manage", "question_pool.manage"],
+        descriptionKey: "navDescriptions.questionBank",
     },
     {
-        title: "Question Pools",
-        url: "/question-pools",
-        icon: Database,
-        permission: "question_pool.manage",
-        description: "Organize questions into pools",
-    },
-    {
-        title: "Exams & Tests",
+        titleKey: "navigation.examsTests",
         url: "/exams",
         icon: ClipboardList,
         permission: "exam.manage",
-        description: "Manage JLPT and practice tests",
+        descriptionKey: "navDescriptions.examsTests",
     },
     {
-        title: "Blog",
+        titleKey: "navigation.blog",
         url: "/blogs",
         icon: Newspaper,
         anyPermission: ["blog.manage"],
-        description: "Manage news and articles",
+        descriptionKey: "navDescriptions.blog",
     },
 ];
 
 export const managementNavItems: NavItem[] = [
     {
-        title: "Financials",
+        titleKey: "navigation.financials",
         url: "/payments",
         icon: CreditCard,
         permission: "payment.manage",
-        description: "Revenue and transactions",
+        descriptionKey: "navDescriptions.financials",
     },
     {
-        title: "Promotions",
+        titleKey: "navigation.promotions",
         url: "/promotions",
         icon: Ticket,
         permission: "coupon.manage",
-        description: "Coupons and discount policies",
+        descriptionKey: "navDescriptions.promotions",
     },
     {
-        title: "Analytics",
+        titleKey: "navigation.analytics",
         url: "/analytics",
         icon: BarChart3,
         permission: "report.view",
-        description: "Detailed system analytics",
+        descriptionKey: "navDescriptions.analytics",
     },
 ];
 
 export const systemNavItems: NavItem[] = [
     {
-        title: "AI Service",
+        titleKey: "navigation.aiService",
         url: "/ai-service",
         icon: Sparkles,
         permission: "system.config",
+        descriptionKey: "navDescriptions.aiService",
     },
     {
-        title: "Notifications",
+        titleKey: "navigation.notifications",
         url: "/notifications",
         icon: Bell,
-        description: "System alerts",
+        descriptionKey: "navDescriptions.notifications",
     },
     {
-        title: "Permissions",
+        titleKey: "navigation.permissions",
         url: "/permissions",
         icon: Shield,
         permission: "system.config",
+        descriptionKey: "navDescriptions.permissions",
     },
     {
-        title: "Settings",
+        titleKey: "navigation.settings",
         url: "/settings",
         icon: Settings,
         permission: "system.config",
+        descriptionKey: "navDescriptions.settings",
     },
 ];

@@ -12,6 +12,9 @@ export * from './models/blog.model';
 export * from './models/blog-comment.model';
 export * from './models/flashcard.model';
 export * from './models/flashcard-deck.model';
+export * from './models/flashcard-user-progress.model';
+export * from './models/flashcard-review.model';
+export * from './models/flashcard-review-session.model';
 export * from './models/review.model';
 export * from './models/exam.model';
 

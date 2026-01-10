@@ -1,6 +1,5 @@
-import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
 import { SharedStorageService } from '@server/shared/storage/shared-storage.service';
-import { PrismaService } from '@server/shared/prisma/prisma.service';
 import {
     StoragePresignedUrlRequestDTO,
     StoragePresignedUrlResponseDTO,
@@ -14,14 +13,18 @@ import {
     StorageGetSignedUrlResponseDTO,
 } from '@workspace/schemas';
 import { v4 as uuidv4 } from 'uuid';
+import type { IStorageRepository } from '../../interfaces/repositories/i-storage.repository';
+import { STORAGE_REPOSITORY_TOKEN } from '../../interfaces/repositories/i-storage.repository';
+import type { IStorageService } from '../../interfaces/services/i-storage.service';
 
 @Injectable()
-export class StorageService {
+export class StorageService implements IStorageService {
     private readonly logger = new Logger(StorageService.name);
 
     constructor(
         private readonly sharedStorage: SharedStorageService,
-        private readonly prisma: PrismaService,
+        @Inject(STORAGE_REPOSITORY_TOKEN)
+        private readonly storageRepository: IStorageRepository,
     ) { }
 
     /**
@@ -34,17 +37,15 @@ export class StorageService {
         const key = `uploads/${data.module}/${fileId}${extension ? '.' + extension : ''}`;
 
         // 2. Create a pending record in the database
-        await this.prisma.fileAsset.create({
-            data: {
-                id: fileId,
-                fileUrl: key,
-                mimeType: data.contentType,
-                status: 'pending',
-                ownerId: data.ownerId,
-                metadata: data.metadata || {},
-                moduleOrigin: data.module.toUpperCase(),
-                isPublic: false,
-            }
+        await this.storageRepository.create({
+            id: fileId,
+            fileUrl: key,
+            mimeType: data.contentType,
+            status: 'pending',
+            ownerId: data.ownerId,
+            metadata: data.metadata || {},
+            moduleOrigin: data.module.toUpperCase(),
+            isPublic: false,
         });
 
         // 3. Generate presigned URL from S3/R2
@@ -53,10 +54,7 @@ export class StorageService {
         // 4. Return info
         const publicUrl = this.sharedStorage.getPublicUrl(key);
 
-        await this.prisma.fileAsset.update({
-            where: { id: fileId },
-            data: { fileUrl: publicUrl }
-        });
+        await this.storageRepository.update(fileId, { fileUrl: publicUrl });
 
         return {
             uploadUrl,
@@ -70,9 +68,7 @@ export class StorageService {
      * Confirm that a file has been uploaded
      */
     async confirmUpload(data: StorageConfirmUploadRequestDTO): Promise<StorageConfirmUploadResponseDTO> {
-        const fileAsset = await this.prisma.fileAsset.findUnique({
-            where: { id: data.fileId },
-        });
+        const fileAsset = await this.storageRepository.findById(data.fileId);
 
         if (!fileAsset) {
             throw new NotFoundException('File asset not found');
@@ -95,10 +91,7 @@ export class StorageService {
         }
 
         // Update status
-        const updated = await this.prisma.fileAsset.update({
-            where: { id: data.fileId },
-            data: { status: 'uploaded' },
-        });
+        const updated = await this.storageRepository.update(data.fileId, { status: 'uploaded' });
 
         return {
             success: true,
@@ -131,18 +124,16 @@ export class StorageService {
             metadata: data.metadata,
         });
 
-        await this.prisma.fileAsset.create({
-            data: {
-                id: fileId,
-                fileUrl: publicUrl,
-                mimeType: data.contentType,
-                fileSize: buffer.length,
-                status: 'uploaded',
-                ownerId: data.ownerId,
-                metadata: data.metadata || {},
-                moduleOrigin: data.module.toUpperCase(),
-                isPublic: true,
-            }
+        await this.storageRepository.create({
+            id: fileId,
+            fileUrl: publicUrl,
+            mimeType: data.contentType,
+            fileSize: buffer.length,
+            status: 'uploaded',
+            ownerId: data.ownerId,
+            metadata: data.metadata || {},
+            moduleOrigin: data.module.toUpperCase(),
+            isPublic: true,
         });
 
         return {
@@ -157,9 +148,7 @@ export class StorageService {
      * Delete a file
      */
     async deleteFile(data: StorageDeleteFileRequestDTO): Promise<StorageDeleteFileResponseDTO> {
-        const fileAsset = await this.prisma.fileAsset.findUnique({
-            where: { id: data.fileId },
-        });
+        const fileAsset = await this.storageRepository.findById(data.fileId);
 
         if (!fileAsset) {
             throw new NotFoundException('File asset not found');
@@ -176,9 +165,7 @@ export class StorageService {
 
         await this.sharedStorage.delete(key);
 
-        await this.prisma.fileAsset.delete({
-            where: { id: data.fileId },
-        });
+        await this.storageRepository.delete(data.fileId);
 
         return {
             success: true,
@@ -190,9 +177,7 @@ export class StorageService {
      * Get a temporary signed URL for viewing a private file
      */
     async getSignedUrl(data: StorageGetSignedUrlRequestDTO): Promise<StorageGetSignedUrlResponseDTO> {
-        const fileAsset = await this.prisma.fileAsset.findUnique({
-            where: { id: data.fileId },
-        });
+        const fileAsset = await this.storageRepository.findById(data.fileId);
 
         if (!fileAsset) {
             throw new NotFoundException('File asset not found');

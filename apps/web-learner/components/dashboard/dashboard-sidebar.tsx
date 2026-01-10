@@ -48,17 +48,19 @@ const quickLinks = [
 const continueLearning = [
     {
         id: 1,
+        slug: 'tieng-nhat-n5-co-ban',
         title: 'Tiếng Nhật N5 - Cơ bản',
         progress: 65,
         nextLesson: 'Bài 12: Ngữ pháp cơ bản',
-        href: '/dashboard/learning/1',
+        href: '/courses/tieng-nhat-n5-co-ban/learn',
     },
     {
         id: 2,
+        slug: 'ngu-phap-n4',
         title: 'Ngữ pháp N4',
         progress: 30,
         nextLesson: 'Bài 8: Động từ thể te',
-        href: '/dashboard/learning/2',
+        href: '/courses/ngu-phap-n4/learn',
     },
 ]
 

@@ -56,22 +56,36 @@ export function useCourses(params: {
   page?: number;
   limit?: number;
   level?: string;
+  levels?: string[]; // New
   type?: string;
   q?: string;
+  priceFilter?: 'all' | 'free' | 'paid';
+  sortBy?: string;
 }) {
   return useQuery({
     queryKey: ['courses', params],
     queryFn: async () => {
       // Map params to backend API format
-      const queryParams: CourseQueryParams = {
+      let priceMin: number | undefined;
+      let priceMax: number | undefined;
+
+      if (params.priceFilter === 'free') {
+        priceMax = 0;
+      } else if (params.priceFilter === 'paid') {
+        priceMin = 1;
+      }
+
+      const levelsString = params.levels?.length ? params.levels.join(',') : params.level;
+
+      const response = await courseApi.advancedSearch({
         page: params.page,
         limit: params.limit,
-        jlptLevel: params.level,
-        search: params.q,
-        // Note: 'type' filter not yet supported by backend
-      };
-
-      const response = await courseApi.findAll(queryParams);
+        q: params.q,
+        levels: levelsString,
+        priceMin,
+        priceMax,
+        sort: params.sortBy
+      });
 
       // Map API response to expected format
       const mappedCourses = response.data.map(mapApiCourseToCourse);

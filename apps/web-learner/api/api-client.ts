@@ -81,9 +81,13 @@ const isPublicEndpoint = (url?: string): boolean => {
         '/auth/verify-reset-token',
         '/auth/verify-invite-token',
         '/auth/set-password',
+        '/auth/me', // Auth check endpoint - 401 is expected when not authenticated (matches both /api/auth/me and /auth/me)
     ];
     
-    return publicEndpoints.some(endpoint => url.includes(endpoint));
+    // Normalize URL by removing query params and hash for matching
+    const normalizedUrl = url.split('?')[0].split('#')[0];
+    
+    return publicEndpoints.some(endpoint => normalizedUrl.includes(endpoint));
 };
 
 /**
@@ -91,6 +95,8 @@ const isPublicEndpoint = (url?: string): boolean => {
  */
 const isPublicPage = (): boolean => {
     if (typeof window === 'undefined') return false;
+    
+    const pathname = window.location.pathname;
     
     const publicPages = [
         '/login',
@@ -101,7 +107,14 @@ const isPublicPage = (): boolean => {
         '/verify-request',
     ];
     
-    return publicPages.some(page => window.location.pathname.includes(page));
+    // Home page is public
+    if (pathname === '/') return true;
+    
+    // Course pages are public (course listing and course detail)
+    if (pathname.startsWith('/courses')) return true;
+    
+    // Other public pages
+    return publicPages.some(page => pathname.includes(page));
 };
 
 /**

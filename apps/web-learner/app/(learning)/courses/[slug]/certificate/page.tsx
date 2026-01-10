@@ -1,0 +1,118 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useParams } from 'next/navigation'
+import Link from 'next/link'
+import { Button } from '@workspace/ui/components/button'
+import { Card, CardContent } from '@workspace/ui/components/card'
+import { ArrowLeft, Download, Share2 } from 'lucide-react'
+import { courseApi } from '@/api/services/course-api'
+
+export default function CourseCertificatePage() {
+    const params = useParams()
+    const slug = params.slug as string
+    const [course, setCourse] = useState<any>(null)
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true)
+                const courseData = await courseApi.getCourseBySlug(slug)
+                if (courseData) {
+                    setCourse(courseData)
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        if (slug) {
+            fetchData()
+        }
+    }, [slug])
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-screen">
+                <p className="text-muted-foreground">Đang tải...</p>
+            </div>
+        )
+    }
+
+    if (!course) {
+        return (
+            <div className="flex items-center justify-center h-screen">
+                <p className="text-muted-foreground">Không tìm thấy khóa học</p>
+            </div>
+        )
+    }
+
+    return (
+        <div className="min-h-screen bg-background">
+            {/* Header */}
+            <div className="border-b bg-card">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                    <div className="flex items-center gap-4">
+                        <Link href={`/courses/${slug}`}>
+                            <Button variant="ghost" size="icon">
+                                <ArrowLeft className="w-4 h-4" />
+                            </Button>
+                        </Link>
+                        <div>
+                            <h1 className="text-xl font-bold text-foreground">Chứng chỉ hoàn thành</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Certificate */}
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-4xl">
+                <Card className="border-2">
+                    <CardContent className="p-12">
+                        <div className="text-center space-y-6">
+                            <div className="border-b-2 border-primary pb-6">
+                                <h2 className="text-3xl font-bold text-foreground mb-2">
+                                    Chứng chỉ hoàn thành
+                                </h2>
+                                <p className="text-muted-foreground">
+                                    Chứng nhận rằng học viên đã hoàn thành thành công khóa học
+                                </p>
+                            </div>
+
+                            <div className="py-8">
+                                <h3 className="text-2xl font-semibold text-foreground mb-4">
+                                    {course.title}
+                                </h3>
+                                <p className="text-muted-foreground mb-2">
+                                    Ngày hoàn thành: {new Date().toLocaleDateString('vi-VN')}
+                                </p>
+                            </div>
+
+                            <div className="border-t-2 border-primary pt-6">
+                                <p className="text-sm text-muted-foreground">
+                                    Chứng chỉ này được cấp bởi Torii Nihongo
+                                </p>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Actions */}
+                <div className="flex items-center justify-center gap-4 mt-6">
+                    <Button size="lg">
+                        <Download className="mr-2 w-4 h-4" />
+                        Tải xuống PDF
+                    </Button>
+                    <Button variant="outline" size="lg">
+                        <Share2 className="mr-2 w-4 h-4" />
+                        Chia sẻ
+                    </Button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
