@@ -21,6 +21,8 @@ import {
 import { toast } from '@workspace/ui/components/sonner';
 import { QuestionType, QuestionStatus, QuestionCategory, QuestionDifficultyLevel, QuestionJlptLevel } from '@workspace/schemas';
 import { cn } from '@workspace/ui/lib/utils';
+import { Database, Plus, Search, Sparkles, Filter, ShieldAlert, Cpu } from 'lucide-react';
+import { Card } from '@workspace/ui/components/card';
 
 export default function QuestionsPage() {
     const [page, setPage] = useState(1);
@@ -106,9 +108,13 @@ export default function QuestionsPage() {
 
     if (error) {
         return (
-            <div className="p-6">
-                <div className="text-center text-rose-500 py-8">
-                    Error: {error.message}
+            <div className="flex flex-col items-center justify-center p-20 space-y-4 bg-destructive/5 rounded-[3rem] border border-dashed border-destructive/20 text-center animate-in fade-in duration-500">
+                <div className="w-16 h-16 rounded-2xl bg-white shadow-xl flex items-center justify-center">
+                    <ShieldAlert className="size-8 text-destructive opacity-40" />
+                </div>
+                <div className="space-y-1">
+                    <h3 className="text-lg font-black uppercase tracking-tight italic">Registry Failure</h3>
+                    <p className="text-xs font-bold text-muted-foreground/60 italic uppercase tracking-widest">{error.message}</p>
                 </div>
             </div>
         );
@@ -134,13 +140,13 @@ export default function QuestionsPage() {
                             e.preventDefault();
                             setPage(1);
                         }}
-                        className="cursor-pointer hover:bg-muted/50 transition-colors"
+                        className="rounded-xl h-10 w-10 text-[11px] font-black hover:bg-primary/10 transition-all"
                     >
                         1
                     </PaginationLink>
                 </PaginationItem>
             );
-            if (startPage > 2) items.push(<PaginationEllipsis key="start-ellipsis" />);
+            if (startPage > 2) items.push(<PaginationEllipsis key="start-ellipsis" className="opacity-20" />);
         }
 
         for (let i = startPage; i <= endPage; i++) {
@@ -153,8 +159,8 @@ export default function QuestionsPage() {
                             setPage(i);
                         }}
                         className={cn(
-                            "cursor-pointer transition-colors",
-                            page === i ? "bg-primary/10" : "hover:bg-muted/50"
+                            "rounded-xl h-10 w-10 text-[11px] font-black transition-all",
+                            page === i ? "bg-primary text-white shadow-lg shadow-primary/20" : "hover:bg-primary/10 text-muted-foreground/60 hover:text-primary"
                         )}
                     >
                         {i}
@@ -164,7 +170,7 @@ export default function QuestionsPage() {
         }
 
         if (endPage < meta.totalPages) {
-            if (endPage < meta.totalPages - 1) items.push(<PaginationEllipsis key="end-ellipsis" />);
+            if (endPage < meta.totalPages - 1) items.push(<PaginationEllipsis key="end-ellipsis" className="opacity-20" />);
             items.push(
                 <PaginationItem key={meta.totalPages}>
                     <PaginationLink
@@ -172,7 +178,7 @@ export default function QuestionsPage() {
                             e.preventDefault();
                             setPage(meta.totalPages);
                         }}
-                        className="cursor-pointer hover:bg-muted/50 transition-colors"
+                        className="rounded-xl h-10 w-10 text-[11px] font-black hover:bg-primary/10 transition-all"
                     >
                         {meta.totalPages}
                     </PaginationLink>
@@ -184,43 +190,76 @@ export default function QuestionsPage() {
     };
 
     return (
-        <div className="border border-border shadow-sm bg-card backdrop-blur-sm hover:bg-card hover:shadow-md transition-all duration-300 rounded-xl rounded-2xl">
-            <div className="p-3 sm:p-6">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+        <div className="space-y-10 animate-in fade-in duration-700 pb-20">
+            {/* Header Section */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-8 relative px-2">
+                <div className="space-y-4 max-w-2xl text-center sm:text-left">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[9px] font-black uppercase tracking-[0.3em]">
+                        <Cpu className="size-3" />
+                        Logic Engine
+                    </div>
+                    <h1 className="text-5xl font-black tracking-tight text-foreground uppercase italic leading-[0.85]">
+                        Question <br />
+                        <span className="text-primary not-italic text-4xl sm:text-5xl">Repositories</span>
+                    </h1>
+                    <p className="text-[11px] font-bold text-muted-foreground/40 uppercase tracking-[0.15em] italic border-l-2 border-primary/20 pl-6 mt-6">
+                        Quản trị hệ thống ngân hàng câu hỏi, kiểm chuẩn và phân phối dữ liệu cho <span className="text-foreground">Torii Intelligence</span>.
+                    </p>
+                </div>
+                <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto pt-6 sm:pt-0">
+                    <div className="flex items-center gap-6 p-6 rounded-[2rem] bg-background/40 border border-border/20 backdrop-blur-xl hidden sm:flex">
+                        <div className="space-y-1">
+                            <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">Active Data</p>
+                            <h3 className="text-2xl font-black italic text-center">{meta?.total || 0}</h3>
+                        </div>
+                    </div>
                     <Can permission="question.create">
                         <Button
                             onClick={() => setShowCreateDialog(true)}
-                            className="w-full sm:w-auto rounded-lg shadow-lg shadow-primary/20 bg-primary text-sm sm:text-base"
-                            size="sm"
+                            className="w-full sm:w-auto h-16 px-10 rounded-[1.5rem] bg-primary text-white font-black uppercase tracking-[0.2em] text-[11px] shadow-xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-1 transition-all group"
                         >
-                            Create Question
+                            Forge New Logic
+                            <Plus className="ml-3 size-4 opacity-50 group-hover:opacity-100 transition-opacity" />
                         </Button>
                     </Can>
                 </div>
+            </div>
 
-                <QuestionsPrimaryToolbar
-                    search={search}
-                    onSearchChange={setSearch}
-                    questionTypeFilter={questionTypeFilter}
-                    onQuestionTypeFilterChange={setQuestionTypeFilter}
-                    categoryFilter={categoryFilter}
-                    onCategoryFilterChange={setCategoryFilter}
-                    jlptLevelFilter={jlptLevelFilter}
-                    onJlptLevelFilterChange={setJlptLevelFilter}
-                    difficultyFilter={difficultyFilter}
-                    onDifficultyFilterChange={setDifficultyFilter}
-                    statusFilter={statusFilter}
-                    onStatusFilterChange={setStatusFilter}
-                    poolIdFilter={poolIdFilter}
-                    onPoolIdFilterChange={setPoolIdFilter}
-                />
+            {/* Main Content Card */}
+            <Card className="rounded-[3rem] bg-background/40 backdrop-blur-3xl border border-border/20 shadow-2xl shadow-primary/5 overflow-hidden group">
+                <div className="p-8 lg:p-12 space-y-10">
+                    <div className="flex flex-col lg:flex-row items-center justify-between gap-6 p-6 rounded-[2rem] bg-muted/20 border border-border/20">
+                        <div className="flex flex-1 items-center gap-6 w-full group/search">
+                            <div className="p-3.5 rounded-2xl bg-background border border-border/20 text-muted-foreground group-focus-within/search:text-primary transition-colors">
+                                <Search className="size-5" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <QuestionsPrimaryToolbar
+                                    search={search}
+                                    onSearchChange={setSearch}
+                                    questionTypeFilter={questionTypeFilter}
+                                    onQuestionTypeFilterChange={setQuestionTypeFilter}
+                                    categoryFilter={categoryFilter}
+                                    onCategoryFilterChange={setCategoryFilter}
+                                    jlptLevelFilter={jlptLevelFilter}
+                                    onJlptLevelFilterChange={setJlptLevelFilter}
+                                    difficultyFilter={difficultyFilter}
+                                    onDifficultyFilterChange={setDifficultyFilter}
+                                    statusFilter={statusFilter}
+                                    onStatusFilterChange={setStatusFilter}
+                                    poolIdFilter={poolIdFilter}
+                                    onPoolIdFilterChange={setPoolIdFilter}
+                                />
+                            </div>
+                        </div>
+                    </div>
 
-                <div className="mt-4 sm:mt-6 rounded-xl border border-border/40 overflow-visible sm:overflow-hidden">
-                    <div className="overflow-x-auto">
+                    <div className="rounded-[2.5rem] border border-border/20 bg-background/40 overflow-hidden relative group/table">
+                        <div className="absolute inset-0 bg-primary/[0.01] pointer-events-none" />
                         <QuestionsTable
                             data={questions}
                             onView={setViewingQuestion}
-                            onEdit={() => {}}
+                            onEdit={() => { }}
                             onDelete={setDeletingQuestion}
                             onApprove={handleApprove}
                             onDeactivate={handleDeactivate}
@@ -231,67 +270,58 @@ export default function QuestionsPage() {
                             isLoading={isLoading}
                         />
                     </div>
-                </div>
 
-                {/* Pagination */}
-                {meta && (
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 py-4 sm:py-6 border-t border-border/40 mt-4 sm:mt-6 px-2">
-                        <div className="text-xs sm:text-sm text-muted-foreground text-center sm:text-left w-full sm:w-auto">
-                            <div>
-                                Showing <span className="font-semibold text-foreground">{questions.length}</span> of <span className="font-semibold text-foreground">{meta.total}</span> questions
-                            </div>
-                            {meta.totalPages > 0 && (
-                                <div className="mt-1 sm:mt-0 sm:inline sm:ml-2">
-                                    (Page {page} of {meta.totalPages})
+                    {/* Pagination */}
+                    {meta && (
+                        <div className="flex flex-col lg:flex-row items-center justify-between gap-8 pt-10 border-t border-border/10">
+                            <div className="flex flex-col lg:flex-row lg:items-center gap-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 text-center lg:text-left">
+                                <div className="inline-flex items-center gap-2 group-hover:text-primary transition-colors">
+                                    <Sparkles className="size-3" />
+                                    Metric: <span className="text-foreground text-xs">{meta.total} Question Assets</span>
                                 </div>
+                                <div className="hidden lg:block w-1 h-1 rounded-full bg-border" />
+                                <div className="italic">Data Point 0{page} of 0{meta.totalPages}</div>
+                            </div>
+
+                            {meta.totalPages > 1 && (
+                                <Pagination>
+                                    <PaginationContent className="flex items-center gap-2">
+                                        <PaginationItem>
+                                            <PaginationPrevious
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    setPage(p => Math.max(1, p - 1));
+                                                }}
+                                                className={cn(
+                                                    "h-12 px-6 rounded-2xl bg-muted/20 border border-border/20 text-[10px] font-black uppercase tracking-widest transition-all",
+                                                    page === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/10 hover:text-primary cursor-pointer active:scale-95"
+                                                )}
+                                            />
+                                        </PaginationItem>
+
+                                        <div className="hidden md:flex items-center gap-1 mx-2">
+                                            {renderPaginationItems()}
+                                        </div>
+
+                                        <PaginationItem>
+                                            <PaginationNext
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    setPage(p => Math.min(meta.totalPages, p + 1));
+                                                }}
+                                                className={cn(
+                                                    "h-12 px-6 rounded-2xl bg-muted/20 border border-border/20 text-[10px] font-black uppercase tracking-widest transition-all",
+                                                    page === meta.totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/10 hover:text-primary cursor-pointer active:scale-95"
+                                                )}
+                                            />
+                                        </PaginationItem>
+                                    </PaginationContent>
+                                </Pagination>
                             )}
                         </div>
-
-                        {meta.totalPages > 1 ? (
-                            <Pagination>
-                                <PaginationContent className="flex-wrap justify-center">
-                                    <PaginationItem>
-                                        <PaginationPrevious
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                setPage(p => Math.max(1, p - 1));
-                                            }}
-                                            className={cn(
-                                                page === 1 ? "pointer-events-none opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-muted/50",
-                                                "transition-colors"
-                                            )}
-                                        />
-                                    </PaginationItem>
-
-                                    <div className="hidden sm:flex">
-                                        {renderPaginationItems()}
-                                    </div>
-                                    <div className="sm:hidden text-sm font-medium px-2">
-                                        {page} / {meta.totalPages}
-                                    </div>
-
-                                    <PaginationItem>
-                                        <PaginationNext
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                setPage(p => Math.min(meta.totalPages, p + 1));
-                                            }}
-                                            className={cn(
-                                                page === meta.totalPages ? "pointer-events-none opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-muted/50",
-                                                "transition-colors"
-                                            )}
-                                        />
-                                    </PaginationItem>
-                                </PaginationContent>
-                            </Pagination>
-                        ) : meta.totalPages === 1 ? (
-                            <div className="text-xs sm:text-sm text-muted-foreground">
-                                All results on one page
-                            </div>
-                        ) : null}
-                    </div>
-                )}
-            </div>
+                    )}
+                </div>
+            </Card>
 
             {/* Dialogs */}
             <CreateQuestionDialog
@@ -313,4 +343,3 @@ export default function QuestionsPage() {
         </div>
     );
 }
-

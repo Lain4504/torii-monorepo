@@ -36,6 +36,7 @@ import {
 import { courseApi } from '@/api/services/course-api'
 import { LearningSidebar } from '@/components/courses/learning-sidebar'
 import { cn } from '@workspace/ui/lib/utils'
+import { PageLoading } from '@workspace/ui/components/page-loading'
 
 export default function LessonDetailPage() {
     const params = useParams()
@@ -137,11 +138,8 @@ export default function LessonDetailPage() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-screen bg-background">
-                <div className="flex flex-col items-center gap-4 animate-in fade-in duration-700">
-                    <div className="w-12 h-12 rounded-2xl border-2 border-primary/20 border-t-primary animate-spin" />
-                    <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">Đang chuẩn bị bài học...</div>
-                </div>
+            <div className="h-screen bg-background">
+                <PageLoading text="Đang chuẩn bị bài học..." className="h-full" />
             </div>
         )
     }

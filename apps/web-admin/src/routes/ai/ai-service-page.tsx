@@ -1,17 +1,13 @@
-export default function AIServicePage() {
-  return (
-    <div className="p-6">
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">AI Service</h1>
-          <p className="text-muted-foreground">Monitor AI service and configurations</p>
-        </div>
-        
-        <div className="rounded-lg border bg-card p-6">
-          <p className="text-muted-foreground">AI service monitoring interface</p>
-        </div>
-      </div>
-    </div>
-  )
-}
+import { Cpu } from 'lucide-react';
+import { SystemStasis } from '@/components/layout/system-stasis';
 
+export default function AiServicePage() {
+  return (
+    <SystemStasis
+      title="Neural AI Core"
+      description="CALIBRATING LARGE LANGUAGE MODELS AND NEURAL WEIGHTS. ACCESS TO AI ANALYTICS AND INFERENCE ENGINE IS CURRENTLY RESTRICTED TO SYSTEM OPERATORS."
+      icon={Cpu}
+      statusText="Neural Link Offline"
+    />
+  );
+}

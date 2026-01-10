@@ -1,9 +1,9 @@
 import Link from 'next/link'
-import { ForgotPasswordForm } from "@/components/auth/forgot-password-form"
-import { KeyRound, Shield, Clock, Mail, Sparkles, ChevronLeft } from 'lucide-react'
+import { ResendVerificationForm } from "@/components/auth/resend-verification-form"
+import { Mail, Sparkles, ChevronLeft, RefreshCcw } from 'lucide-react'
 import { cn } from "@workspace/ui/lib/utils"
 
-export default function ForgotPasswordPage() {
+export default function ResendVerificationPage() {
     return (
         <div className="relative min-h-screen flex items-center justify-center p-4 lg:p-0 bg-background selection:bg-primary/10 selection:text-primary overflow-hidden">
             {/* Zen Background Elements */}
@@ -14,7 +14,7 @@ export default function ForgotPasswordPage() {
 
             <div className="container relative z-10 max-w-7xl mx-auto h-[min(900px,calc(100vh-2rem))] lg:grid lg:grid-cols-2 lg:px-0 bg-background/40 backdrop-blur-3xl rounded-[3rem] border border-border/40 shadow-2xl shadow-primary/5 overflow-hidden">
 
-                {/* Left Panel - Security Info */}
+                {/* Left Panel - Narrative */}
                 <div className="relative hidden h-full flex-col p-16 lg:flex overflow-hidden">
                     <div className="absolute inset-0 bg-primary/[0.02] -z-10" />
 
@@ -34,78 +34,67 @@ export default function ForgotPasswordPage() {
                         </div>
                     </Link>
 
-                    {/* Center Content - Security Status */}
+                    {/* Center Content - Narrative */}
                     <div className="relative z-20 flex-1 flex flex-col justify-center max-w-md">
                         <div className="space-y-6 mb-16 animate-in fade-in slide-in-from-left-8 duration-700">
                             <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[9px] font-black uppercase tracking-[0.3em]">
-                                <KeyRound className="w-3 h-3" />
-                                <span>Recovery System</span>
+                                <RefreshCcw className="w-3 h-3" />
+                                <span>Identity Sync</span>
                             </div>
                             <h2 className="text-6xl font-black tracking-[0.02em] leading-[0.85] text-foreground uppercase italic mb-8">
-                                Phục hồi <br />
-                                <span className="text-primary/20 not-italic">Quyền hạn</span> <br />
+                                Gửi lại mã <br />
+                                <span className="text-primary/20 not-italic">Xác thực</span> <br />
                                 <span className="text-foreground">Tài khoản</span>
                             </h2>
                             <p className="text-sm font-bold text-muted-foreground/60 leading-relaxed italic border-l-2 border-primary/20 pl-6">
-                                "Hệ thống bảo vệ phân tầng giúp bạn lấy lại quyền truy cập một cách an toàn và nhanh chóng nhất."
+                                "Nếu bạn chưa nhận được email kích hoạt sau 5 phút, vui lòng yêu cầu mã mới để đảm bảo tunnel học tập được thiết lập."
                             </p>
                         </div>
 
-                        {/* Security Cards Grid */}
-                        <div className="grid gap-6 animate-in fade-in slide-in-from-left-12 duration-1000">
-                            {[
-                                { icon: Shield, title: 'Encrypted Link', desc: 'Mã hóa token bảo mật cao' },
-                                { icon: Clock, title: 'Time-Limited', desc: 'Hiệu lực trong 60 phút' },
-                                { icon: Mail, title: 'Direct Access', desc: 'Gửi thẳng tới inbox của bạn' }
-                            ].map((f, i) => (
-                                <div key={i} className="group flex items-center gap-6 p-6 rounded-[2rem] bg-background/40 border border-border/20 hover:border-primary/20 hover:bg-background transition-all duration-500 shadow-sm hover:shadow-xl hover:shadow-primary/5">
-                                    <div className="w-14 h-14 rounded-2xl bg-muted/30 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
-                                        <f.icon className="w-6 h-6" />
+                        {/* Security Visual */}
+                        <div className="relative animate-in fade-in slide-in-from-left-12 duration-1000">
+                            <div className="p-10 rounded-[2.5rem] bg-background/40 border border-border/20 backdrop-blur-xl group hover:border-primary/20 transition-all shadow-sm">
+                                <div className="space-y-6">
+                                    <div className="w-16 h-16 rounded-[1.25rem] bg-primary/5 flex items-center justify-center border border-primary/10">
+                                        <Mail className="w-8 h-8 text-primary group-hover:scale-110 transition-all duration-500" />
                                     </div>
-                                    <div className="space-y-1">
-                                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em]">{f.title}</h3>
-                                        <p className="text-[10px] font-bold text-muted-foreground/40">{f.desc}</p>
+                                    <div className="space-y-2 text-left">
+                                        <h3 className="text-[12px] font-black uppercase tracking-[0.2em] text-foreground">Cloud Identity Gateway</h3>
+                                        <p className="text-[10px] font-bold text-muted-foreground/40 leading-relaxed italic">Hệ thống sẽ tái cấp mã xác thực duy nhất cho email của bạn. Hãy chắc chắn email là chính xác.</p>
                                     </div>
                                 </div>
-                            ))}
+                            </div>
                         </div>
-                    </div>
-
-                    {/* Footer Notice */}
-                    <div className="mt-auto p-8 rounded-[2rem] bg-background/40 border border-border/20">
-                        <p className="text-[10px] font-bold text-muted-foreground/40 leading-relaxed italic">
-                            <strong>Security Note:</strong> Nếu bạn không yêu cầu hành động này, hãy bỏ qua email. Hệ thống tự động vô hiệu hóa token sau khi hết hạn.
-                        </p>
                     </div>
                 </div>
 
-                {/* Right Panel - Recovery Form */}
+                {/* Right Panel - Form */}
                 <div className="flex items-center justify-center p-8 lg:p-20 relative bg-background/20 lg:border-l border-border/20 overflow-y-auto">
                     <div className="w-full max-w-[420px] space-y-12 animate-in fade-in slide-in-from-right-8 duration-700">
                         {/* Header */}
                         <div className="space-y-4">
                             <div className="w-16 h-16 mx-auto lg:mx-0 rounded-[1.5rem] bg-primary/5 flex items-center justify-center mb-8 border border-primary/10">
-                                <KeyRound className="w-8 h-8 text-primary" />
+                                <RefreshCcw className="w-8 h-8 text-primary" />
                             </div>
 
                             <div className="space-y-2 text-center lg:text-left">
-                                <h1 className="text-4xl font-black tracking-[0.02em] uppercase italic text-foreground">Quên <br /><span className="text-primary not-italic italic">Mật khẩu?</span></h1>
-                                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Nhập email để nhận link recovery</p>
+                                <h1 className="text-4xl font-black tracking-[0.02em] uppercase italic text-foreground">Gửi lại <br /><span className="text-primary not-italic italic">Mã Kích hoạt</span></h1>
+                                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Nhập email để đồng bộ lại trạng thái</p>
                             </div>
                         </div>
 
                         {/* Form */}
-                        <ForgotPasswordForm />
+                        <ResendVerificationForm />
 
                         {/* Navigation Links */}
                         <div className="space-y-6 pt-6 border-t border-border/20">
                             <p className="text-center text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">
-                                Nhớ mật khẩu rồi?{" "}
+                                Quay lại trang đăng nhập?{" "}
                                 <Link
                                     href="/login"
                                     className="text-primary hover:text-primary/80 transition-colors ml-2"
                                 >
-                                    Quay lại Đăng nhập
+                                    Đăng nhập
                                 </Link>
                             </p>
 

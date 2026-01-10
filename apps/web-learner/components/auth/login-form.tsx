@@ -11,9 +11,10 @@ import { Input } from '@workspace/ui/components/input'
 import { Field, FieldLabel, FieldError } from '@workspace/ui/components/field'
 import { toast } from '@workspace/ui/components/sonner'
 import { Spinner } from '@workspace/ui/components/spinner'
-import { Eye, EyeOff, Mail, Lock, LogIn } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, LogIn, Sparkles } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { cn } from '@workspace/ui/lib/utils'
 
 export function LoginForm() {
     const dispatch = useAppDispatch()
@@ -59,26 +60,26 @@ export function LoginForm() {
     }
 
     return (
-        <div className="grid gap-6">
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5" noValidate>
+        <div className="grid gap-8">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6" noValidate>
                 <Controller
                     name="email"
                     control={form.control}
                     render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid}>
-                            <FieldLabel htmlFor={field.name}>Email</FieldLabel>
-                            <div className="relative">
-                                <Mail className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                        <Field data-invalid={fieldState.invalid} className="space-y-2.5">
+                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 ml-1">Email Access</FieldLabel>
+                            <div className="relative group">
+                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 transition-colors group-focus-within:text-primary" />
                                 <Input
                                     {...field}
                                     id={field.name}
                                     type="email"
                                     aria-invalid={fieldState.invalid}
-                                    placeholder="hoctiennhat@example.com"
-                                    className="pl-10 h-11"
+                                    placeholder="yourname@domain.com"
+                                    className="pl-12 h-14 rounded-2xl bg-muted/20 border-border/40 focus:bg-background focus:ring-0 text-sm font-bold transition-all placeholder:text-muted-foreground/30"
                                 />
                             </div>
-                            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                            {fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-[10px] font-bold uppercase" />}
                         </Field>
                     )}
                 />
@@ -86,31 +87,29 @@ export function LoginForm() {
                     name="password"
                     control={form.control}
                     render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid}>
-                            <div className="flex items-center justify-between">
-                                <FieldLabel htmlFor={field.name}>Mật khẩu</FieldLabel>
+                        <Field data-invalid={fieldState.invalid} className="space-y-2.5">
+                            <div className="flex items-center justify-between px-1">
+                                <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">Mật khẩu</FieldLabel>
                                 <Link
                                     href="/forgot-password"
-                                    className="text-xs font-medium text-primary hover:opacity-80 transition-opacity cursor-pointer"
+                                    className="text-[10px] font-black uppercase tracking-widest text-primary hover:opacity-80 transition-opacity cursor-pointer"
                                 >
                                     Quên mật khẩu?
                                 </Link>
                             </div>
-                            <div className="relative">
-                                <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                            <div className="relative group">
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 transition-colors group-focus-within:text-primary" />
                                 <Input
                                     {...field}
                                     id={field.name}
                                     type={showPassword ? 'text' : 'password'}
                                     aria-invalid={fieldState.invalid}
-                                    placeholder="••••••••"
-                                    className="pl-10 pr-10 h-11"
+                                    placeholder="••••••••••••"
+                                    className="pl-12 pr-12 h-14 rounded-2xl bg-muted/20 border-border/40 focus:bg-background focus:ring-0 text-sm font-bold transition-all placeholder:text-muted-foreground/30"
                                 />
-                                <Button
+                                <button
                                     type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent text-muted-foreground hover:text-foreground cursor-pointer"
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-foreground cursor-pointer transition-colors"
                                     onClick={() => setShowPassword(!showPassword)}
                                 >
                                     {showPassword ? (
@@ -118,44 +117,35 @@ export function LoginForm() {
                                     ) : (
                                         <Eye className="h-4 w-4" />
                                     )}
-                                </Button>
+                                </button>
                             </div>
-                            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                            {fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-[10px] font-bold uppercase" />}
                         </Field>
                     )}
                 />
 
                 {error && (
-                    <div className="flex items-center gap-2 text-sm font-medium text-destructive bg-destructive/10 p-4 rounded-lg border border-destructive/20">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="h-4 w-4"
-                        >
-                            <circle cx="12" cy="12" r="10" />
-                            <line x1="12" y1="8" x2="12" y2="12" />
-                            <line x1="12" y1="16" x2="12.01" y2="16" />
-                        </svg>
+                    <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-destructive bg-destructive/5 p-4 rounded-2xl border border-destructive/20 animate-in fade-in zoom-in-95">
+                        <div className="w-6 h-6 rounded-lg bg-destructive/10 flex items-center justify-center">
+                            <LogIn className="h-3 w-3" />
+                        </div>
                         {error}
                     </div>
                 )}
 
                 <Button
                     type="submit"
-                    className="w-full h-12 font-semibold text-base"
+                    className="w-full h-14 rounded-2xl bg-primary text-white font-black uppercase tracking-[0.2em] text-[11px] shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all active:scale-95 group"
                     disabled={isLoading}
                 >
                     {isLoading ? (
                         <Spinner className="mr-2" />
                     ) : (
-                        <LogIn className="mr-2 h-5 w-5" />
+                        <>
+                            Đăng nhập
+                            <Sparkles className="ml-2.5 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </>
                     )}
-                    Đăng nhập
                 </Button>
             </form>
         </div>

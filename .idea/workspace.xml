@@ -4,7 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update ui course detail page" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="rebuild ui admin">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/layout/command-menu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/layout/command-menu.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/statistics/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/statistics/page.tsx" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -290,126 +294,6 @@
       <workItem from="1767970155935" duration="4593000" />
       <workItem from="1768010492981" duration="681000" />
     </task>
-    <task id="LOCAL-00544" summary="refactor: remove unused fields and update indexes in course schema">
-      <option name="closed" value="true" />
-      <created>1767940735835</created>
-      <option name="number" value="00544" />
-      <option name="presentableId" value="LOCAL-00544" />
-      <option name="project" value="LOCAL" />
-      <updated>1767940735836</updated>
-    </task>
-    <task id="LOCAL-00545" summary="refactor: remove unused fields and update indexes in course schema">
-      <option name="closed" value="true" />
-      <created>1767941816847</created>
-      <option name="number" value="00545" />
-      <option name="presentableId" value="LOCAL-00545" />
-      <option name="project" value="LOCAL" />
-      <updated>1767941816847</updated>
-    </task>
-    <task id="LOCAL-00546" summary="refactor: remove unused fields and update indexes in course schema">
-      <option name="closed" value="true" />
-      <created>1767942293462</created>
-      <option name="number" value="00546" />
-      <option name="presentableId" value="LOCAL-00546" />
-      <option name="project" value="LOCAL" />
-      <updated>1767942293462</updated>
-    </task>
-    <task id="LOCAL-00547" summary="refactor: remove unused fields and update indexes in course schema">
-      <option name="closed" value="true" />
-      <created>1767943281071</created>
-      <option name="number" value="00547" />
-      <option name="presentableId" value="LOCAL-00547" />
-      <option name="project" value="LOCAL" />
-      <updated>1767943281071</updated>
-    </task>
-    <task id="LOCAL-00548" summary="refactor: remove unused fields and update indexes in course schema">
-      <option name="closed" value="true" />
-      <created>1767943705735</created>
-      <option name="number" value="00548" />
-      <option name="presentableId" value="LOCAL-00548" />
-      <option name="project" value="LOCAL" />
-      <updated>1767943705736</updated>
-    </task>
-    <task id="LOCAL-00549" summary="refactor: remove unused fields and update indexes in course schema">
-      <option name="closed" value="true" />
-      <created>1767944409927</created>
-      <option name="number" value="00549" />
-      <option name="presentableId" value="LOCAL-00549" />
-      <option name="project" value="LOCAL" />
-      <updated>1767944409927</updated>
-    </task>
-    <task id="LOCAL-00550" summary="refactor: remove unused fields and update indexes in course schema">
-      <option name="closed" value="true" />
-      <created>1767944760226</created>
-      <option name="number" value="00550" />
-      <option name="presentableId" value="LOCAL-00550" />
-      <option name="project" value="LOCAL" />
-      <updated>1767944760226</updated>
-    </task>
-    <task id="LOCAL-00551" summary="feat(lms): restructure controllers and repositories for exams, questions, and storage modules&#10;&#10;- Migrated all exam-related controllers and repository logic to dedicated modules.&#10;- Removed obsolete question, question pool, and storage controllers.&#10;- Introduced interfaces for exam services and repositories for better abstraction.&#10;- Added exam admin controller for admin-specific operations (e.g., stats, publishing).&#10;- Improved logging and error handling across exam-related endpoints.">
-      <option name="closed" value="true" />
-      <created>1767961334186</created>
-      <option name="number" value="00551" />
-      <option name="presentableId" value="LOCAL-00551" />
-      <option name="project" value="LOCAL" />
-      <updated>1767961334186</updated>
-    </task>
-    <task id="LOCAL-00552" summary="feat(course): integrate AutoMapper for Course entity mapping and update module structureè">
-      <option name="closed" value="true" />
-      <created>1767966176596</created>
-      <option name="number" value="00552" />
-      <option name="presentableId" value="LOCAL-00552" />
-      <option name="project" value="LOCAL" />
-      <updated>1767966176596</updated>
-    </task>
-    <task id="LOCAL-00553" summary="feat(course): integrate AutoMapper for Course entity mapping and update module structureè">
-      <option name="closed" value="true" />
-      <created>1767966825603</created>
-      <option name="number" value="00553" />
-      <option name="presentableId" value="LOCAL-00553" />
-      <option name="project" value="LOCAL" />
-      <updated>1767966825603</updated>
-    </task>
-    <task id="LOCAL-00554" summary="feat(course): integrate AutoMapper for Course entity mapping and update module structureè">
-      <option name="closed" value="true" />
-      <created>1767966865021</created>
-      <option name="number" value="00554" />
-      <option name="presentableId" value="LOCAL-00554" />
-      <option name="project" value="LOCAL" />
-      <updated>1767966865021</updated>
-    </task>
-    <task id="LOCAL-00555" summary="feat(user): integrate AutoMapper for User entity mapping and update module structureè">
-      <option name="closed" value="true" />
-      <created>1767967622389</created>
-      <option name="number" value="00555" />
-      <option name="presentableId" value="LOCAL-00555" />
-      <option name="project" value="LOCAL" />
-      <updated>1767967622389</updated>
-    </task>
-    <task id="LOCAL-00556" summary="feat(question-pools): add functionality to manage question pools with CRUD operations and filtering by course and JLPT level">
-      <option name="closed" value="true" />
-      <created>1767968232281</created>
-      <option name="number" value="00556" />
-      <option name="presentableId" value="LOCAL-00556" />
-      <option name="project" value="LOCAL" />
-      <updated>1767968232281</updated>
-    </task>
-    <task id="LOCAL-00557" summary="feat(question-pools): add functionality to manage question pools with CRUD operations and filtering by course and JLPT level">
-      <option name="closed" value="true" />
-      <created>1767970964381</created>
-      <option name="number" value="00557" />
-      <option name="presentableId" value="LOCAL-00557" />
-      <option name="project" value="LOCAL" />
-      <updated>1767970964383</updated>
-    </task>
-    <task id="LOCAL-00558" summary="feat(i18n): implement internationalization support with Vietnamese and English translations">
-      <option name="closed" value="true" />
-      <created>1767971599205</created>
-      <option name="number" value="00558" />
-      <option name="presentableId" value="LOCAL-00558" />
-      <option name="project" value="LOCAL" />
-      <updated>1767971599205</updated>
-    </task>
     <task id="LOCAL-00559" summary="feat(i18n): implement internationalization support with Vietnamese and English translations">
       <option name="closed" value="true" />
       <created>1767971688062</created>
@@ -682,7 +566,127 @@
       <option name="project" value="LOCAL" />
       <updated>1768064514229</updated>
     </task>
-    <option name="localTasksCounter" value="593" />
+    <task id="LOCAL-00593" summary="update ui course detail page">
+      <option name="closed" value="true" />
+      <created>1768064715801</created>
+      <option name="number" value="00593" />
+      <option name="presentableId" value="LOCAL-00593" />
+      <option name="project" value="LOCAL" />
+      <updated>1768064715801</updated>
+    </task>
+    <task id="LOCAL-00594" summary="update ui course detail page">
+      <option name="closed" value="true" />
+      <created>1768065060809</created>
+      <option name="number" value="00594" />
+      <option name="presentableId" value="LOCAL-00594" />
+      <option name="project" value="LOCAL" />
+      <updated>1768065060814</updated>
+    </task>
+    <task id="LOCAL-00595" summary="rebuild ui admin">
+      <option name="closed" value="true" />
+      <created>1768065169132</created>
+      <option name="number" value="00595" />
+      <option name="presentableId" value="LOCAL-00595" />
+      <option name="project" value="LOCAL" />
+      <updated>1768065169133</updated>
+    </task>
+    <task id="LOCAL-00596" summary="rebuild ui admin">
+      <option name="closed" value="true" />
+      <created>1768065508571</created>
+      <option name="number" value="00596" />
+      <option name="presentableId" value="LOCAL-00596" />
+      <option name="project" value="LOCAL" />
+      <updated>1768065508572</updated>
+    </task>
+    <task id="LOCAL-00597" summary="rebuild ui admin">
+      <option name="closed" value="true" />
+      <created>1768065514313</created>
+      <option name="number" value="00597" />
+      <option name="presentableId" value="LOCAL-00597" />
+      <option name="project" value="LOCAL" />
+      <updated>1768065514313</updated>
+    </task>
+    <task id="LOCAL-00598" summary="rebuild ui admin">
+      <option name="closed" value="true" />
+      <created>1768065965009</created>
+      <option name="number" value="00598" />
+      <option name="presentableId" value="LOCAL-00598" />
+      <option name="project" value="LOCAL" />
+      <updated>1768065965010</updated>
+    </task>
+    <task id="LOCAL-00599" summary="rebuild ui admin">
+      <option name="closed" value="true" />
+      <created>1768066326386</created>
+      <option name="number" value="00599" />
+      <option name="presentableId" value="LOCAL-00599" />
+      <option name="project" value="LOCAL" />
+      <updated>1768066326386</updated>
+    </task>
+    <task id="LOCAL-00600" summary="rebuild ui admin">
+      <option name="closed" value="true" />
+      <created>1768066619502</created>
+      <option name="number" value="00600" />
+      <option name="presentableId" value="LOCAL-00600" />
+      <option name="project" value="LOCAL" />
+      <updated>1768066619502</updated>
+    </task>
+    <task id="LOCAL-00601" summary="rebuild ui admin">
+      <option name="closed" value="true" />
+      <created>1768067368819</created>
+      <option name="number" value="00601" />
+      <option name="presentableId" value="LOCAL-00601" />
+      <option name="project" value="LOCAL" />
+      <updated>1768067368819</updated>
+    </task>
+    <task id="LOCAL-00602" summary="rebuild ui admin">
+      <option name="closed" value="true" />
+      <created>1768067556733</created>
+      <option name="number" value="00602" />
+      <option name="presentableId" value="LOCAL-00602" />
+      <option name="project" value="LOCAL" />
+      <updated>1768067556734</updated>
+    </task>
+    <task id="LOCAL-00603" summary="rebuild ui admin">
+      <option name="closed" value="true" />
+      <created>1768067933787</created>
+      <option name="number" value="00603" />
+      <option name="presentableId" value="LOCAL-00603" />
+      <option name="project" value="LOCAL" />
+      <updated>1768067933787</updated>
+    </task>
+    <task id="LOCAL-00604" summary="rebuild ui admin">
+      <option name="closed" value="true" />
+      <created>1768068128113</created>
+      <option name="number" value="00604" />
+      <option name="presentableId" value="LOCAL-00604" />
+      <option name="project" value="LOCAL" />
+      <updated>1768068128113</updated>
+    </task>
+    <task id="LOCAL-00605" summary="rebuild ui admin">
+      <option name="closed" value="true" />
+      <created>1768068243300</created>
+      <option name="number" value="00605" />
+      <option name="presentableId" value="LOCAL-00605" />
+      <option name="project" value="LOCAL" />
+      <updated>1768068243300</updated>
+    </task>
+    <task id="LOCAL-00606" summary="rebuild ui admin">
+      <option name="closed" value="true" />
+      <created>1768068634314</created>
+      <option name="number" value="00606" />
+      <option name="presentableId" value="LOCAL-00606" />
+      <option name="project" value="LOCAL" />
+      <updated>1768068634315</updated>
+    </task>
+    <task id="LOCAL-00607" summary="rebuild ui admin">
+      <option name="closed" value="true" />
+      <created>1768069201017</created>
+      <option name="number" value="00607" />
+      <option name="presentableId" value="LOCAL-00607" />
+      <option name="project" value="LOCAL" />
+      <updated>1768069201018</updated>
+    </task>
+    <option name="localTasksCounter" value="608" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -712,7 +716,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="cursor gen" />
     <MESSAGE value="cursor gen: update theme" />
     <MESSAGE value="refactor(ui): align theme styles with tokenized color system&#10;&#10;- Updated theme-specific class names to use tokenized variables (e.g., `bg-primary`, `text-muted-foreground`) for consistency.&#10;- Replaced hardcoded values with reusable theme tokens across authentication pages, course components, and layouts.&#10;- Enhanced visual elements, accessibility, and responsiveness." />
     <MESSAGE value="feat(database): document database design and add admin login interface method&#10;&#10;- Added new documentation: `database-design-overview.md` and `database-design-schema.md` for system architecture clarity.&#10;- Extended `IAuthService` interface with `adminLogin` for specialized admin portal authentication." />
@@ -737,7 +740,8 @@
     <MESSAGE value="update  PostUpdateDTOSchema -&gt; postUpdateDTOSchema," />
     <MESSAGE value="remove ci cd" />
     <MESSAGE value="update ui course detail page" />
-    <option name="LAST_COMMIT_MESSAGE" value="update ui course detail page" />
+    <MESSAGE value="rebuild ui admin" />
+    <option name="LAST_COMMIT_MESSAGE" value="rebuild ui admin" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -746,6 +750,12 @@
           <url>file://$PROJECT_DIR$/apps/server/libs/shared/src/providers/jwt-token.provider.ts</url>
           <line>25</line>
           <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/apps/web-admin/src/components/lessons/delete-lesson-dialog.tsx</url>
+          <line>3</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="2" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

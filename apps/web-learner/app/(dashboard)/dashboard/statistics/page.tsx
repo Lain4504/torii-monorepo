@@ -3,6 +3,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card'
 import { TrendingUp, Clock, BookOpen, Award, Target, Calendar, ChevronRight } from 'lucide-react'
 import { Progress } from '@workspace/ui/components/progress'
+import { Button } from "@workspace/ui/components/button"
+import { CheckCircle2 } from 'lucide-react'
 
 export default function StatisticsPage() {
     return (
@@ -162,4 +164,4 @@ export default function StatisticsPage() {
         </div>
     )
 }
-import { CheckCircle2 } from 'lucide-react'
+
