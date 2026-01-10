@@ -15,8 +15,7 @@ import {
 } from '@workspace/ui/components/table';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { useState } from 'react';
-import { BrainCircuit, Inbox } from 'lucide-react';
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
+import { BrainCircuit } from 'lucide-react';
 import type { QuestionResponseDTO } from '@workspace/schemas';
 import { getQuestionsColumns } from './questions-columns.tsx';
 

@@ -21,7 +21,7 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { BookOpen, Users, Calendar, Layers, Save, Image as ImageIcon, Sparkles, BrainCircuit, Database, Film, UploadCloud, X, ArrowUpRight } from 'lucide-react';
+import { BookOpen, Users, Calendar, Layers, Save, BrainCircuit, Database, Film, UploadCloud, X } from 'lucide-react';
 import type { CourseResponseDTO } from '@workspace/schemas';
 import { courseUpdateDTOSchema, type CourseUpdateDTO, JlptLevel } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
@@ -51,7 +51,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
         register,
         handleSubmit,
         reset,
-        formState: { isDirty, errors },
+        formState: { isDirty },
     } = useForm<UpdateCourseFormData>({
         resolver: zodResolver(courseUpdateDTOSchema),
         defaultValues: {

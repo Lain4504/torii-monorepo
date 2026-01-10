@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import Link from 'next/link'
 import { ResetPasswordForm } from "@/components/auth/reset-password-form"
-import { Lock, ShieldCheck, Key, Sparkles, ChevronLeft, Spinner } from 'lucide-react'
+import { Lock, ShieldCheck, Key, Sparkles, ChevronLeft } from 'lucide-react'
 import { cn } from "@workspace/ui/lib/utils"
 import { PageLoading } from '@workspace/ui/components/page-loading'
 

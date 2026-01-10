@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { Outlet, useLocation } from "react-router-dom"
-import { Menu, ChevronLeft } from "lucide-react"
+import { Menu } from "lucide-react"
 
 import { useWindowSize } from "@workspace/ui/hooks/use-window-size"
 import { useLocalStorage } from "@workspace/ui/hooks/use-local-storage"

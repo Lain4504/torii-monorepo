@@ -25,7 +25,7 @@ import { storageApi } from '@/api/services/storage-api.ts';
 import { LessonContentType, lessonCreateDTOSchema } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
 import { useCreateLesson } from "@/api/services/lesson";
-import { Loader2, Plus, Video, FileText, ClipboardList, BookOpen, Sparkles, LayoutDashboard, CloudUpload, Lock, Eye, BookMarked, Hash, Clock, FileType } from 'lucide-react';
+import { Loader2, Plus, Video, FileText, ClipboardList, BookOpen, Sparkles, LayoutDashboard, CloudUpload, Lock, Eye, BookMarked, FileType } from 'lucide-react';
 
 const createLessonSchema = lessonCreateDTOSchema;
 

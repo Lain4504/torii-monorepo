@@ -1,8 +1,8 @@
 import { createColumnHelper } from '@tanstack/react-table';
 import type { UserResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
-import { Badge } from '@workspace/ui/components/badge';
-import { ArrowUpDown, MoreVertical, Pencil, Trash, UserCircle, Mail, Clock, ShieldIcon } from 'lucide-react';
+
+import { ArrowUpDown, Pencil, Trash, UserCircle, Mail, Clock, ShieldIcon } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,

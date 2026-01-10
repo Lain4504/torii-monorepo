@@ -7,8 +7,8 @@ import {
     SheetDescription,
     SheetHeader,
     SheetTitle,
-    SheetFooter,
 } from '@workspace/ui/components/sheet';
+
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Textarea } from '@workspace/ui/components/textarea';
@@ -24,7 +24,7 @@ import { toast } from '@workspace/ui/components/sonner';
 import { storageApi } from '@/api/services/storage-api.ts';
 import { JlptLevel, courseCreateDTOSchema, type CourseCreateDTO } from '@workspace/schemas';
 import { useCreateCourse } from "@/api/services/courses.ts";
-import { cn } from '@workspace/ui/lib/utils';
+
 
 interface CreateCourseSheetProps {
     open: boolean;

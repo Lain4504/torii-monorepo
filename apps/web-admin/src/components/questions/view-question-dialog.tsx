@@ -8,9 +8,10 @@ import {
 import { Badge } from '@workspace/ui/components/badge';
 import { Label } from '@workspace/ui/components/label';
 import type { QuestionResponseDTO } from '@workspace/schemas';
+import { QuestionStatus, QuestionDifficultyLevel } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
-import { FileText, Tag, CheckCircle2, BrainCircuit, Activity, Layers, Hash, Calendar, HelpCircle, X, AlignLeft } from 'lucide-react';
+import { FileText, Tag, CheckCircle2, BrainCircuit, Activity, Layers, Hash, Calendar, X, AlignLeft } from 'lucide-react';
 import { cn } from '@workspace/ui/lib/utils';
 
 interface ViewQuestionDialogProps {
@@ -62,7 +63,7 @@ export function ViewQuestionDialog({
                                 <Badge
                                     className={cn(
                                         "w-fit rounded-md text-[10px] uppercase tracking-wider font-black shadow-none border",
-                                        question.status === 'ACTIVE'
+                                        question.status === QuestionStatus.ACTIVE
                                             ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
                                             : "bg-muted/20 text-muted-foreground border-border/20"
                                     )}
@@ -134,8 +135,8 @@ export function ViewQuestionDialog({
                                         <span className="text-xs font-bold text-muted-foreground uppercase">Complexity</span>
                                         <Badge variant="outline" className={cn(
                                             "text-[10px] font-bold uppercase tracking-wider",
-                                            question.difficulty === 'HARD' ? "bg-rose-500/10 text-rose-500 border-rose-500/20" :
-                                                question.difficulty === 'MEDIUM' ? "bg-amber-500/10 text-amber-500 border-amber-500/20" :
+                                            question.difficulty === QuestionDifficultyLevel.HARD ? "bg-rose-500/10 text-rose-500 border-rose-500/20" :
+                                                question.difficulty === QuestionDifficultyLevel.MEDIUM ? "bg-amber-500/10 text-amber-500 border-amber-500/20" :
                                                     "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
                                         )}>
                                             {question.difficulty || 'N/A'}

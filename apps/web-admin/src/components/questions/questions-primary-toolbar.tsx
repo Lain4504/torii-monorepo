@@ -1,5 +1,5 @@
 import { Input } from '@workspace/ui/components/input';
-import { Search, Filter, Layers, Layout, Target, Zap, Activity, BrainCircuit } from 'lucide-react';
+import { Layers, Layout, Target, Zap, Activity, BrainCircuit } from 'lucide-react';
 import {
     Select,
     SelectContent,

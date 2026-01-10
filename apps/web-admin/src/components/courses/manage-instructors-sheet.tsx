@@ -11,7 +11,7 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import { Checkbox } from '@workspace/ui/components/checkbox';
-import { Separator } from '@workspace/ui/components/separator';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar';
 import { Loader2, User as UserIcon, Trash2, Crown, Users, Plus, ShieldCheck, Mail } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';

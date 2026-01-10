@@ -21,7 +21,7 @@ import {
 import { toast } from '@workspace/ui/components/sonner';
 import { QuestionType, QuestionStatus, QuestionCategory, QuestionDifficultyLevel, QuestionJlptLevel } from '@workspace/schemas';
 import { cn } from '@workspace/ui/lib/utils';
-import { Database, Plus, Search, Sparkles, Filter, ShieldAlert, Cpu } from 'lucide-react';
+import { Plus, Search, Sparkles, ShieldAlert, Cpu } from 'lucide-react';
 import { Card } from '@workspace/ui/components/card';
 
 export default function QuestionsPage() {

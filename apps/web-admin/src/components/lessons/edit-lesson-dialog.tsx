@@ -25,7 +25,7 @@ import { storageApi } from '@/api/services/storage-api';
 import { LessonContentType, lessonUpdateDTOSchema, type LessonResponseDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
 import { useUpdateLesson } from "@/api/services/lesson";
-import { Loader2, Video, FileText, ClipboardList, BookOpen, Pencil, Box, LayoutDashboard, CloudUpload, Lock, Eye, FileType, Save } from 'lucide-react';
+import { Loader2, Video, FileText, ClipboardList, BookOpen, Box, LayoutDashboard, CloudUpload, Lock, Eye, FileType, Save } from 'lucide-react';
 
 const updateLessonSchema = lessonUpdateDTOSchema;
 

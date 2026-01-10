@@ -23,7 +23,7 @@ import {
 } from "@workspace/ui/components/pagination";
 import { toast } from '@workspace/ui/components/sonner';
 import { cn } from '@workspace/ui/lib/utils';
-import { BookOpen, Plus, Search, Sparkles, Filter, ShieldAlert } from 'lucide-react';
+import { BookOpen, Plus, Search, Sparkles, ShieldAlert } from 'lucide-react';
 import { Card } from '@workspace/ui/components/card';
 
 export default function CoursesPage() {

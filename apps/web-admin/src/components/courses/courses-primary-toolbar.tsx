@@ -1,5 +1,5 @@
 import { Input } from '@workspace/ui/components/input';
-import { Search, Filter, Layers, Layout, SlidersHorizontal } from 'lucide-react';
+import { Search, Layers, Layout } from 'lucide-react';
 import {
     Select,
     SelectContent,

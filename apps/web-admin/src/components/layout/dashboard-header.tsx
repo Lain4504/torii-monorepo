@@ -1,7 +1,7 @@
 import React from "react"
 import { useLocation, Link, useNavigate } from "react-router-dom"
 import { Button } from "@workspace/ui/components/button"
-import { Badge } from "@workspace/ui/components/badge"
+
 import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui/components/avatar"
 import {
   DropdownMenu,
@@ -29,7 +29,7 @@ import { NotificationsDropdown } from "@/components/layout/notifications-dropdow
 import { useAppSelector, useAppDispatch } from "@/hooks/hooks.ts"
 import { selectUser, logout } from "@/store/slices/auth-slice.ts"
 import { toast } from "@workspace/ui/components/sonner"
-import {cn} from "@workspace/ui/lib/utils";
+import { cn } from "@workspace/ui/lib/utils";
 
 export function DashboardHeader() {
   const { t } = useTranslation('common')

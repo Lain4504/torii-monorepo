@@ -14,9 +14,16 @@ import type {
 export const flashcardApi = {
     // --- DECKS ---
 
-    getDecks: async (params: FlashcardDeckQueryDTO = {}): Promise<PaginatedResponseDTO<FlashcardDeckResponseDTO>> => {
+    getDecks: async (params: Partial<FlashcardDeckQueryDTO> = {}): Promise<PaginatedResponseDTO<FlashcardDeckResponseDTO>> => {
+        const query: FlashcardDeckQueryDTO = {
+            page: params.page ?? 1,
+            limit: params.limit ?? 10,
+            search: params.search,
+            jlptLevel: params.jlptLevel,
+        };
+
         const response = await apiClient.get<PaginatedResponseDTO<FlashcardDeckResponseDTO>>('/api/flashcard-decks', {
-            params,
+            params: query,
         });
         return response.data;
     },
@@ -37,9 +44,22 @@ export const flashcardApi = {
 
     // --- FLASHCARDS ---
 
-    getFlashcards: async (params: FlashcardQueryDTO = {}): Promise<PaginatedResponseDTO<FlashcardResponseDTO>> => {
+    getFlashcards: async (params: Partial<FlashcardQueryDTO> = {}): Promise<PaginatedResponseDTO<FlashcardResponseDTO>> => {
+        const query: FlashcardQueryDTO = {
+            page: params.page ?? 1,
+            limit: params.limit ?? 10,
+            deckId: params.deckId,
+            search: params.search,
+            difficulty: params.difficulty,
+            tags: params.tags,
+            jlptLevel: params.jlptLevel,
+            dueForReview: params.dueForReview,
+            userId: params.userId,
+            isArchived: params.isArchived,
+        };
+
         const response = await apiClient.get<PaginatedResponseDTO<FlashcardResponseDTO>>('/api/flashcards', {
-            params,
+            params: query,
         });
         return response.data;
     },

@@ -15,8 +15,8 @@ import {
 } from '@workspace/ui/components/table';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { useState } from 'react';
-import { Archive, Inbox, SearchCode } from 'lucide-react';
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
+import { SearchCode } from 'lucide-react';
+
 import type { CourseResponseDTO } from '@workspace/schemas';
 import { getCoursesColumns } from './courses-columns.tsx';
 

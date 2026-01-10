@@ -8,7 +8,6 @@ import {
     Plus,
     ChevronLeft,
     AlertCircle,
-    BookOpen,
     Sparkles,
     ShieldCheck,
     Fingerprint,

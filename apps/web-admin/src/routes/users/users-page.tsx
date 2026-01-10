@@ -20,8 +20,8 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "@workspace/ui/components/pagination";
-import { UserPlus, Search, ShieldCheck, Users as UsersIcon, Sparkles, Filter } from 'lucide-react';
-import {Card} from "@workspace/ui/components/card";
+import { UserPlus, Search, ShieldCheck, Users as UsersIcon, Sparkles } from 'lucide-react';
+import { Card } from "@workspace/ui/components/card";
 
 export function UsersPage() {
     const [page, setPage] = useState(1);

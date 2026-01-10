@@ -90,7 +90,7 @@ export function CourseInstructor({ course }: CourseInstructorProps) {
                             <div className="flex-shrink-0 flex flex-col items-center gap-4">
                                 <div className="w-32 h-32 rounded-[2rem] p-1.5 border-2 border-primary/20 bg-background shadow-2xl relative group-hover:scale-105 transition-transform duration-500">
                                     <Avatar className="w-full h-full rounded-[1.5rem]">
-                                        <AvatarImage src={instructor.user.avatarUrl} className="object-cover" />
+                                        <AvatarImage src={instructor.user.avatarUrl ?? undefined} className="object-cover" />
                                         <AvatarFallback className="bg-primary/10 text-primary text-3xl font-black">
                                             {instructor.user.displayName.charAt(0).toUpperCase()}
                                         </AvatarFallback>
@@ -132,7 +132,7 @@ export function CourseInstructor({ course }: CourseInstructorProps) {
                                 </div>
 
                                 <p className="text-sm font-bold text-muted-foreground/80 leading-relaxed italic border-l-2 border-primary/20 pl-6">
-                                    {instructor.user.bio || "Mang đến trải nghiệm học tiếng Nhật hiện đại, đơn giản và cực kỳ hiệu quả thông qua lộ trình cá nhân hóa."}
+                                    Mang đến trải nghiệm học tiếng Nhật hiện đại, đơn giản và cực kỳ hiệu quả thông qua lộ trình cá nhân hóa.
                                 </p>
 
                                 <Button variant="outline" className="h-12 px-8 rounded-xl text-[10px] font-black uppercase tracking-widest border-border/40 hover:bg-muted hover:border-primary/20 transition-all cursor-pointer group/btn active:scale-95">

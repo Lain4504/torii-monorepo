@@ -1,8 +1,8 @@
 import { createColumnHelper } from '@tanstack/react-table';
 import type { CourseResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
-import { Badge } from '@workspace/ui/components/badge';
-import { ArrowUpDown, MoreVertical, Pencil, Trash, Users, CheckCircle, XCircle, Layout, BookOpen, Clock, Zap, Target } from 'lucide-react';
+
+import { ArrowUpDown, Pencil, Trash, Users, CheckCircle, XCircle, BookOpen, Clock, Zap, Target } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,

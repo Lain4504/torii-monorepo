@@ -7,7 +7,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@workspace/ui/components/select';
-import { Search, ArrowUpDown, Filter, Sparkles, SlidersHorizontal } from 'lucide-react';
+import { Search, Filter, Sparkles, SlidersHorizontal } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,

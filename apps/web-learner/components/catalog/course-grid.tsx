@@ -5,6 +5,7 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink, Paginati
 import { useCourses } from "./useCourses"
 import { Inbox, Loader2 } from "lucide-react"
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
+import { cn } from "@workspace/ui/lib/utils";
 
 interface CourseGridProps {
     searchQuery?: string

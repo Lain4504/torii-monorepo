@@ -16,10 +16,10 @@ import {
 import { useState } from 'react';
 import type { UserResponseDTO } from '@workspace/schemas';
 import { getUsersColumns } from './users-columns.tsx';
-import { ShieldAlert, Fingerprint } from 'lucide-react';
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
+import { Fingerprint } from 'lucide-react';
+
 import { Skeleton } from '@workspace/ui/components/skeleton';
-import { cn } from '@workspace/ui/lib/utils';
+
 
 interface UsersTableProps {
     data: UserResponseDTO[];

@@ -10,7 +10,7 @@ import { paymentApi } from '@/api/services/payment-api'
 import { enrollmentApi } from '@/api/services/enrollment-api'
 import { useAppSelector } from '@/hooks/hooks'
 import { toast } from '@workspace/ui/components/sonner'
-import type { CourseResponseDTO, PaymentMethod } from '@workspace/schemas'
+import { CourseResponseDTO, PaymentMethod, PaymentType } from '@workspace/schemas'
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { cn } from '@workspace/ui/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
@@ -24,7 +24,7 @@ export default function CheckoutPage() {
     const [course, setCourse] = useState<CourseResponseDTO | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [isProcessing, setIsProcessing] = useState(false)
-    const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('mock')
+    const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(PaymentMethod.MOCK)
 
     const status = useAppSelector((state) => state.auth.status)
     const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated)
@@ -84,7 +84,7 @@ export default function CheckoutPage() {
             const payment = await paymentApi.createPayment({
                 courseId: course.id,
                 paymentMethod: paymentMethod,
-                paymentType: 'course_purchase',
+                paymentType: PaymentType.COURSE_PURCHASE,
                 description: `Thanh toán cho khóa học: ${course.title}`,
             })
 
@@ -155,7 +155,7 @@ export default function CheckoutPage() {
                     <div className="flex items-center gap-2">
                         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">Checkout</span>
                         <span className="text-muted-foreground/30">/</span>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{course.code || 'COURSE'}</span>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{course.slug || 'COURSE'}</span>
                     </div>
                 </div>
 
@@ -189,9 +189,9 @@ export default function CheckoutPage() {
 
                                     <div className="flex-1 space-y-4">
                                         <div>
-                                            {course.level && (
+                                            {course.jlptLevel && (
                                                 <Badge variant="secondary" className="mb-2 bg-primary/10 text-primary border-0 rounded-md px-2 py-0.5 text-[9px] font-black uppercase tracking-widest">
-                                                    {course.level}
+                                                    {course.jlptLevel}
                                                 </Badge>
                                             )}
                                             <h3 className="text-xl font-bold leading-tight">{course.title}</h3>
@@ -203,12 +203,12 @@ export default function CheckoutPage() {
                                         <div className="flex items-center gap-4 pt-2">
                                             <div className="flex items-center gap-2">
                                                 <Avatar className="w-6 h-6 border border-white/10">
-                                                    <AvatarImage src={course.instructor?.avatar} />
+                                                    <AvatarImage src={course.instructors?.[0]?.user.avatarUrl ?? undefined} />
                                                     <AvatarFallback className="text-[9px] font-bold bg-muted text-muted-foreground">IN</AvatarFallback>
                                                 </Avatar>
                                                 <div className="flex flex-col">
                                                     <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/50">Instructor</span>
-                                                    <span className="text-xs font-bold">{course.instructor?.name || 'Torii Instructor'}</span>
+                                                    <span className="text-xs font-bold">{course.instructors?.[0]?.user.displayName || 'Torii Instructor'}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -227,10 +227,10 @@ export default function CheckoutPage() {
                             <div className="grid gap-4">
                                 {/* Mock Payment Option */}
                                 <div
-                                    onClick={() => setPaymentMethod('mock')}
+                                    onClick={() => setPaymentMethod(PaymentMethod.MOCK)}
                                     className={cn(
                                         "relative group cursor-pointer transition-all duration-300 rounded-[1.5rem] border overflow-hidden",
-                                        paymentMethod === 'mock'
+                                        paymentMethod === PaymentMethod.MOCK
                                             ? "bg-primary/5 border-primary/20 shadow-lg shadow-primary/5"
                                             : "bg-background/40 border-white/5 hover:border-white/10 hover:bg-background/60"
                                     )}
@@ -238,14 +238,14 @@ export default function CheckoutPage() {
                                     <div className="p-5 flex items-center gap-4">
                                         <div className={cn(
                                             "w-12 h-12 rounded-2xl flex items-center justify-center transition-colors shrink-0",
-                                            paymentMethod === 'mock' ? "bg-primary text-primary-foreground" : "bg-muted/10 text-muted-foreground"
+                                            paymentMethod === PaymentMethod.MOCK ? "bg-primary text-primary-foreground" : "bg-muted/10 text-muted-foreground"
                                         )}>
                                             <Building2 className="w-6 h-6" />
                                         </div>
                                         <div className="flex-1">
                                             <div className="flex items-center justify-between mb-1">
                                                 <h4 className="font-bold text-foreground">Thanh toán giả lập (Test Mode)</h4>
-                                                {paymentMethod === 'mock' && (
+                                                {paymentMethod === PaymentMethod.MOCK && (
                                                     <CheckCircle2 className="w-5 h-5 text-primary fill-primary/20" />
                                                 )}
                                             </div>

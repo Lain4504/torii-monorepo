@@ -1,8 +1,8 @@
 import { createColumnHelper } from '@tanstack/react-table';
-import type { QuestionResponseDTO, QuestionType, QuestionStatus, QuestionCategory, QuestionDifficultyLevel, QuestionJlptLevel } from '@workspace/schemas';
+import type { QuestionResponseDTO, QuestionType, QuestionStatus, QuestionDifficultyLevel, QuestionJlptLevel } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
-import { Badge } from '@workspace/ui/components/badge';
-import { ArrowUpDown, Pencil, Trash, Eye, CheckCircle, XCircle, Clock, Archive, Sparkles, BrainCircuit, Zap, ShieldCheck, Activity } from 'lucide-react';
+
+import { ArrowUpDown, Pencil, Trash, Eye, CheckCircle, XCircle, Clock, Archive, BrainCircuit, Zap } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,

@@ -4,11 +4,9 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   LogOut,
-  ChevronRight,
   MoreVertical,
   Sparkles,
   ShieldCheck,
-  LayoutDashboard
 } from "lucide-react"
 import { useTranslation } from "@workspace/i18n"
 

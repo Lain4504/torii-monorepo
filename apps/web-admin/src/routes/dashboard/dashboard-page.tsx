@@ -22,7 +22,8 @@ import {
   Sparkles,
   ArrowUpRight,
   Zap,
-  Target
+  Target,
+  ShieldAlert
 } from "lucide-react"
 import { cn } from "@workspace/ui/lib/utils"
 

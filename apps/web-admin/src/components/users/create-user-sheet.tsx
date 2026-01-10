@@ -27,7 +27,6 @@ import {
     ChevronRight,
     User,
     ArrowLeft,
-    Check,
     ScanFace,
     Sparkles,
     ShieldCheck,
