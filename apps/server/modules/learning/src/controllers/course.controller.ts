@@ -11,6 +11,7 @@ import {
     UseGuards,
     Request,
     Inject,
+    ParseUUIDPipe,
 } from '@nestjs/common';
 import { ZodValidationPipe, GatewayAuthGuard } from '@server/shared';
 import { courseCreateDTOSchema, courseUpdateDTOSchema, courseQueryDTOSchema, CourseStatus } from '@workspace/schemas';
@@ -32,6 +33,33 @@ import { COURSE_SERVICE_TOKEN } from '../interfaces/services';
 @Controller('courses')
 export class CourseController {
     constructor(@Inject(COURSE_SERVICE_TOKEN) private readonly courseService: ICourseService) { }
+
+    /**
+     * Advanced search for client
+     */
+    @Get('advanced-search')
+    async advancedSearch(
+        @Query('page') page?: number,
+        @Query('limit') limit?: number,
+        @Query('q') search?: string,
+        @Query('levels') levels?: string,
+        @Query('priceMin') priceMin?: number,
+        @Query('priceMax') priceMax?: number,
+        @Query('sort') sortBy?: string,
+    ): Promise<PaginatedResponseDTO<CourseResponseDTO>> {
+        // Parse levels from comma separated string
+        const parsedLevels = levels ? levels.split(',') : undefined;
+
+        return this.courseService.advancedSearch({
+            page: page ? Number(page) : 1,
+            limit: limit ? Number(limit) : 12,
+            search,
+            levels: parsedLevels,
+            priceMin: priceMin ? Number(priceMin) : undefined,
+            priceMax: priceMax ? Number(priceMax) : undefined,
+            sortBy
+        });
+    }
 
     /**
      * Get all courses with pagination and filters
@@ -69,7 +97,7 @@ export class CourseController {
      * Get course curriculum (modules with lessons)
      */
     @Get(':id/curriculum')
-    async getCurriculum(@Param('id') id: string) {
+    async getCurriculum(@Param('id', ParseUUIDPipe) id: string) {
         return this.courseService.getCurriculum(id);
     }
 
@@ -77,7 +105,7 @@ export class CourseController {
      * Get course by ID
      */
     @Get(':id')
-    async findOne(@Param('id') id: string): Promise<CourseResponseDTO> {
+    async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<CourseResponseDTO> {
         return this.courseService.findOne(id);
     }
 
@@ -100,7 +128,7 @@ export class CourseController {
     @UseGuards(GatewayAuthGuard)
     async update(
         @Request() req: ReqWithRequester,
-        @Param('id') id: string,
+        @Param('id', ParseUUIDPipe) id: string,
         @Body(new ZodValidationPipe(courseUpdateDTOSchema)) dto: CourseUpdateDTO,
     ): Promise<CourseResponseDTO> {
         return this.courseService.update(req.requester, id, dto);
@@ -113,7 +141,7 @@ export class CourseController {
     @UseGuards(GatewayAuthGuard)
     async publish(
         @Request() req: ReqWithRequester,
-        @Param('id') id: string,
+        @Param('id', ParseUUIDPipe) id: string,
     ): Promise<CourseResponseDTO> {
         return this.courseService.publish(req.requester, id);
     }
@@ -125,7 +153,7 @@ export class CourseController {
     @UseGuards(GatewayAuthGuard)
     async unpublish(
         @Request() req: ReqWithRequester,
-        @Param('id') id: string,
+        @Param('id', ParseUUIDPipe) id: string,
     ): Promise<CourseResponseDTO> {
         return this.courseService.unpublish(req.requester, id);
     }
@@ -137,7 +165,7 @@ export class CourseController {
     @UseGuards(GatewayAuthGuard)
     async delete(
         @Request() req: ReqWithRequester,
-        @Param('id') id: string,
+        @Param('id', ParseUUIDPipe) id: string,
         @Query('hardDelete') hardDelete?: string,
     ): Promise<{ message: string }> {
         const isHardDelete = hardDelete === 'true';

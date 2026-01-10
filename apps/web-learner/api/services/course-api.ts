@@ -40,6 +40,26 @@ export const courseApi = {
     });
     return response.data;
   },
+
+  /**
+   * Advanced search for courses
+   */
+  advancedSearch: async (params: {
+    page?: number;
+    limit?: number;
+    q?: string;
+    levels?: string; // comma separated
+    priceMin?: number;
+    priceMax?: number;
+    rating?: number;
+    sort?: string;
+  } = {}): Promise<PaginatedResponseDTO<CourseResponseDTO>> => {
+    const response = await apiClient.get<PaginatedResponseDTO<CourseResponseDTO>>('/api/courses/advanced-search', {
+      params,
+    });
+    return response.data;
+  },
+
   /**
    * Get course by slug
    */

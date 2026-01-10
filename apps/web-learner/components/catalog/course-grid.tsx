@@ -25,47 +25,21 @@ export function CourseGrid({
 }: CourseGridProps) {
     const ITEMS_PER_PAGE = 12;
 
-    const { data, isLoading, error } = useCourses({
-        page: 1,
-        limit: 1000, // Fetch all data to filter client-side
-        q: searchQuery
+
+
+    const { data: response, isLoading, error } = useCourses({
+        page: currentPage,
+        limit: ITEMS_PER_PAGE,
+        q: searchQuery,
+        levels: selectedLevels,
+        priceFilter: priceFilter,
+        sortBy: sortBy
     });
 
-    const courses = data?.data || [];
+    const courses = response?.data || [];
+    const totalPages = response?.totalPages || 1;
 
-    // Filter courses by level (OR logic - show courses matching ANY selected level)
-    let filteredCourses = courses;
-    if (selectedLevels.length > 0) {
-        filteredCourses = courses.filter(course =>
-            selectedLevels.includes(course.level)
-        );
-    }
-
-    // Filter courses by price
-    if (priceFilter === "free") {
-        filteredCourses = filteredCourses.filter(course => course.price === 0);
-    } else if (priceFilter === "paid") {
-        filteredCourses = filteredCourses.filter(course => course.price > 0);
-    }
-
-    // Sort courses based on sortBy parameter
-    let sortedCourses = [...filteredCourses];
-    if (sortBy === 'newest') {
-        sortedCourses.sort((a, b) => new Date(b.id).getTime() - new Date(a.id).getTime());
-    } else if (sortBy === 'price-asc') {
-        sortedCourses.sort((a, b) => a.price - b.price);
-    } else if (sortBy === 'price-desc') {
-        sortedCourses.sort((a, b) => b.price - a.price);
-    }
-    // 'popular' is default, no sorting needed
-
-    // Calculate pagination based on filtered data
-    const totalPages = Math.ceil(sortedCourses.length / ITEMS_PER_PAGE);
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const endIndex = startIndex + ITEMS_PER_PAGE;
-    const paginatedCourses = sortedCourses.slice(startIndex, endIndex);
-
-    const isEmpty = !isLoading && sortedCourses.length === 0;
+    const isEmpty = !isLoading && courses.length === 0;
 
     return (
         <div className="space-y-12">
@@ -89,7 +63,7 @@ export function CourseGrid({
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {paginatedCourses.map((course) => (
+                    {courses.map((course) => (
                         <CourseCard key={course.id} {...course} />
                     ))}
                 </div>
