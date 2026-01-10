@@ -70,7 +70,7 @@ export class EnrollmentService implements IEnrollmentService {
                     where: whereClause,
                     take: validLimit,
                     skip,
-                    orderBy: { enrolledAt: 'desc' },
+                    orderBy: { enrollmentDate: 'desc' },
                 }),
             ]);
 

@@ -102,7 +102,7 @@ export class CourseController {
         @Request() req: ReqWithRequester,
         @Param('id', ParseUUIDPipe) id: string,
     ): Promise<{ isEnrolled: boolean }> {
-        const userId = req.requester.id;
+        const userId = req.requester.sub;
         // This would require injecting EnrollmentService, but for now we'll return a simple response
         // In a full implementation, you'd inject IEnrollmentService here
         return { isEnrolled: false }; // Placeholder

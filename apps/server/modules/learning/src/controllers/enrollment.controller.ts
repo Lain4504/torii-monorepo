@@ -56,7 +56,7 @@ export class EnrollmentController {
         @Request() req: ReqWithRequester,
         @Param('courseId', ParseUUIDPipe) courseId: string,
     ): Promise<{ isEnrolled: boolean; enrollment?: EnrollmentResponseDTO }> {
-        const userId = req.requester.id;
+        const userId = req.requester.sub;
         const enrollment = await this.enrollmentService.findByUserAndCourse(userId, courseId);
         return {
             isEnrolled: enrollment !== null && enrollment.completionStatus === 'in_progress',
@@ -72,7 +72,7 @@ export class EnrollmentController {
         @Request() req: ReqWithRequester,
         @Body() input: EnrollmentCreateDTO,
     ): Promise<EnrollmentResponseDTO> {
-        const userId = req.requester.id;
+        const userId = req.requester.sub;
         return this.enrollmentService.create(userId, input);
     }
 

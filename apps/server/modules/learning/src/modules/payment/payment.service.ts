@@ -68,7 +68,7 @@ export class PaymentService implements IPaymentService {
 
             const whereClause: Prisma.PaymentWhereInput = {};
             if (userId) whereClause.userId = userId;
-            if (status) whereClause.status = status;
+            if (status) whereClause.status = status as any; // Cast to satisfy Prisma strict typing if needed
 
             const [total, items] = await Promise.all([
                 this.paymentRepository.count(whereClause),
@@ -121,10 +121,12 @@ export class PaymentService implements IPaymentService {
     async create(userId: string, input: PaymentCreateDTO): Promise<PaymentResponseDTO> {
         let amount = 0;
 
+        let course: any = null;
+
         // For course_purchase type, get course price from metadata or courseId
         const courseId = input.courseId || input.metadata?.courseId;
         if (input.paymentType === 'course_purchase' && courseId) {
-            const course = await this.courseRepository.findById(courseId);
+            course = await this.courseRepository.findById(courseId);
             if (!course) {
                 throw new NotFoundException('Course not found');
             }
@@ -143,11 +145,11 @@ export class PaymentService implements IPaymentService {
 
         try {
             // Calculate original amount and discount if course has discount
-            const originalAmount = courseId && course?.discountPrice 
-                ? Number(course.price) 
+            const originalAmount = courseId && course?.discountPrice
+                ? Number(course.price)
                 : undefined;
-            const discountAmount = courseId && course?.discountPrice 
-                ? Number(course.price) - Number(course.discountPrice) 
+            const discountAmount = courseId && course?.discountPrice
+                ? Number(course.price) - Number(course.discountPrice)
                 : undefined;
 
             // Store courseId, originalAmount, and discountAmount in metadata
@@ -198,36 +200,37 @@ export class PaymentService implements IPaymentService {
             // Mock payment confirmation - simulate successful payment
             // In production, this would verify with payment gateway
             const transactionId = input.transactionId || `MOCK-${Date.now()}-${paymentId.substring(0, 8)}`;
-            
+
             const updated = await this.paymentRepository.update(paymentId, {
                 status: PaymentStatus.COMPLETED,
                 transactionId,
                 gatewayTransactionId: input.gatewayTransactionId,
                 completedAt: new Date(),
-                metadata: input.metadata ? { ...payment.metadata, ...input.metadata } : payment.metadata,
+                metadata: input.metadata ? { ...(payment.metadata as Record<string, any> || {}), ...input.metadata } : (payment.metadata as any) || {},
             });
 
             // Automatically create enrollment after successful payment (if course_purchase type)
             // Note: courseId should be in metadata when creating payment for course purchase
-            if (payment.paymentType === 'course_purchase' && payment.metadata?.courseId) {
+            const metadata = payment.metadata as Record<string, any>;
+            if (payment.paymentType === 'course_purchase' && metadata?.courseId) {
                 try {
                     const enrollment = await this.enrollmentService.create(payment.userId, {
-                        courseId: payment.metadata.courseId,
+                        courseId: metadata.courseId,
                     });
-                    
+
                     // Link payment to enrollment (update enrollment with paymentId)
                     await this.enrollmentService.updatePaymentId(enrollment.id, paymentId);
-                    
+
                     // Optionally update payment with enrollmentId for reverse lookup (field only, not relation)
                     await this.paymentRepository.update(paymentId, {
                         enrollmentId: enrollment.id,
                     });
-                    
-                    this.logger.log(`Enrollment created automatically for user ${payment.userId} and course ${payment.metadata.courseId}`);
+
+                    this.logger.log(`Enrollment created automatically for user ${payment.userId} and course ${metadata.courseId}`);
                 } catch (enrollError: any) {
                     // If enrollment already exists, that's okay - just log it
                     if (enrollError?.message?.includes('Already enrolled')) {
-                        this.logger.log(`User ${payment.userId} is already enrolled in course ${payment.metadata.courseId}`);
+                        this.logger.log(`User ${payment.userId} is already enrolled in course ${metadata.courseId}`);
                     } else {
                         this.logger.warn(`Failed to create enrollment after payment: ${enrollError.message}`);
                     }
@@ -242,7 +245,7 @@ export class PaymentService implements IPaymentService {
                 status: PaymentStatus.FAILED,
                 failedAt: new Date(),
                 metadata: {
-                    ...payment.metadata,
+                    ...(payment.metadata as Record<string, any>),
                     failureReason: error.message,
                 },
             });

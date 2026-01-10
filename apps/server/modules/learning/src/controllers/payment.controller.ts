@@ -55,7 +55,7 @@ export class PaymentController {
         @Request() req: ReqWithRequester,
         @Body() input: PaymentCreateDTO,
     ): Promise<PaymentResponseDTO> {
-        const userId = req.requester.id;
+        const userId = req.requester.sub;
         return this.paymentService.create(userId, input);
     }
 
