@@ -11,7 +11,7 @@ export const enrollmentApi = {
      * Get all enrollments
      */
     async getAllEnrollments(query?: EnrollmentQueryDTO): Promise<PaginatedResponseDTO<EnrollmentResponseDTO>> {
-        const response = await apiClient.get<PaginatedResponseDTO<EnrollmentResponseDTO>>('/enrollments', {
+        const response = await apiClient.get<PaginatedResponseDTO<EnrollmentResponseDTO>>('/api/enrollments', {
             params: query,
         });
         return response.data;
@@ -21,7 +21,7 @@ export const enrollmentApi = {
      * Get enrollment by ID
      */
     async getEnrollment(id: string): Promise<EnrollmentResponseDTO> {
-        const response = await apiClient.get<EnrollmentResponseDTO>(`/enrollments/${id}`);
+        const response = await apiClient.get<EnrollmentResponseDTO>(`/api/enrollments/${id}`);
         return response.data;
     },
 
@@ -30,7 +30,7 @@ export const enrollmentApi = {
      */
     async checkEnrollment(courseId: string): Promise<{ isEnrolled: boolean; enrollment?: EnrollmentResponseDTO }> {
         const response = await apiClient.get<{ isEnrolled: boolean; enrollment?: EnrollmentResponseDTO }>(
-            `/enrollments/check/${courseId}`
+            `/api/enrollments/check/${courseId}`
         );
         return response.data;
     },
@@ -39,7 +39,7 @@ export const enrollmentApi = {
      * Create enrollment
      */
     async createEnrollment(data: EnrollmentCreateDTO): Promise<EnrollmentResponseDTO> {
-        const response = await apiClient.post<EnrollmentResponseDTO>('/enrollments', data);
+        const response = await apiClient.post<EnrollmentResponseDTO>('/api/enrollments', data);
         return response.data;
     },
 
@@ -48,7 +48,7 @@ export const enrollmentApi = {
      */
     async updateProgress(enrollmentId: string, completionPercentage: number): Promise<EnrollmentResponseDTO> {
         const response = await apiClient.patch<EnrollmentResponseDTO>(
-            `/enrollments/${enrollmentId}/progress`,
+            `/api/enrollments/${enrollmentId}/progress`,
             { completionPercentage }
         );
         return response.data;

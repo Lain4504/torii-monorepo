@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { Card, CardContent } from '@workspace/ui/components/card'
 import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
-import { Award, CheckCircle2, Share2, Download } from 'lucide-react'
+import { Award, CheckCircle2, Share2, Download, Sparkles, Home, BookOpen, ArrowRight } from 'lucide-react'
 import { courseApi } from '@/api/services/course-api'
 
 export default function CourseCompletionPage() {
@@ -38,74 +38,103 @@ export default function CourseCompletionPage() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-screen">
-                <p className="text-muted-foreground">Đang tải...</p>
+            <div className="flex items-center justify-center h-screen bg-background">
+                <div className="w-10 h-10 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
             </div>
         )
     }
 
     if (!course) {
         return (
-            <div className="flex items-center justify-center h-screen">
-                <p className="text-muted-foreground">Không tìm thấy khóa học</p>
+            <div className="flex items-center justify-center h-screen bg-background text-center p-6">
+                <div className="space-y-4">
+                    <p className="text-muted-foreground font-bold uppercase tracking-widest text-sm">Không tìm thấy dữ liệu khóa học</p>
+                    <Link href="/dashboard">
+                        <Button variant="outline" className="rounded-full">Trở về Dashboard</Button>
+                    </Link>
+                </div>
             </div>
         )
     }
 
     return (
-        <div className="min-h-screen bg-background flex items-center justify-center p-4">
-            <Card className="max-w-2xl w-full">
-                <CardContent className="p-12 text-center">
-                    <div className="mb-6">
-                        <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                            <Award className="w-12 h-12 text-primary" />
+        <div className="min-h-screen bg-background flex items-center justify-center p-6 relative overflow-hidden">
+            {/* Background Decorations */}
+            <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[120px] animate-pulse" />
+                <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-[120px] animate-pulse duration-5000" />
+            </div>
+
+            <Card className="max-w-3xl w-full border-border/40 bg-background/60 backdrop-blur-2xl shadow-2xl rounded-[2.5rem] overflow-hidden relative z-10 animate-in zoom-in-95 fade-in duration-1000">
+                <CardContent className="p-8 md:p-16 text-center space-y-10">
+                    {/* Icon & Badge */}
+                    <div className="relative inline-block">
+                        <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full scale-110" />
+                        <div className="w-24 h-24 rounded-[2rem] bg-primary flex items-center justify-center mx-auto relative z-10 shadow-xl shadow-primary/20">
+                            <Award className="w-12 h-12 text-white" />
                         </div>
-                        <Badge className="mb-4">
-                            <CheckCircle2 className="w-4 h-4 mr-1" />
-                            Hoàn thành khóa học
-                        </Badge>
-                        <h1 className="text-3xl font-bold text-foreground mb-2">
-                            Chúc mừng bạn!
+                        <div className="absolute -top-2 -right-2 bg-amber-400 text-amber-950 p-1.5 rounded-full shadow-lg animate-bounce duration-3000">
+                            <Sparkles className="w-4 h-4" />
+                        </div>
+                    </div>
+
+                    <div className="space-y-4">
+                        <div className="flex justify-center flex-wrap gap-2">
+                            <Badge className="bg-emerald-500/10 text-emerald-600 border-none px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                                <CheckCircle2 className="w-3.5 h-3.5 mr-2" />
+                                Hoàn thành xuất sắc
+                            </Badge>
+                            <Badge className="bg-primary/10 text-primary border-none px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                                Chứng chỉ chính thức
+                            </Badge>
+                        </div>
+                        <h1 className="text-4xl md:text-5xl font-black text-foreground tracking-tighter leading-none">
+                            XIN CHÚC MỪNG!
                         </h1>
-                        <p className="text-lg text-muted-foreground mb-4">
-                            Bạn đã hoàn thành khóa học
+                        <p className="text-lg text-muted-foreground font-medium opacity-80 max-w-md mx-auto">
+                            Hành trình vạn dặm đã kết thúc tại đây. Bạn đã chính thức vượt qua các bài học của khóa học:
                         </p>
-                        <p className="text-2xl font-semibold text-foreground">
+                        <p className="text-2xl font-black text-primary uppercase tracking-tight">
                             {course.title}
                         </p>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-                        <Link href={`/courses/${slug}/certificate`}>
-                            <Button size="lg">
-                                <Download className="mr-2 w-4 h-4" />
-                                Tải chứng chỉ
+                    {/* Main Actions */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-md mx-auto pt-4">
+                        <Link href={`/dashboard/certificates`} className="sm:col-span-2">
+                            <Button size="lg" className="w-full rounded-2xl h-14 text-sm font-bold uppercase tracking-widest bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20 cursor-pointer transition-all active:scale-95">
+                                <Download className="mr-3 w-5 h-5 text-white" />
+                                Nhận Chứng Chỉ Ngay
                             </Button>
                         </Link>
                         <Link href={`/courses/${slug}/progress`}>
-                            <Button variant="outline" size="lg">
-                                Xem tiến độ
+                            <Button variant="outline" className="w-full rounded-2xl h-12 text-xs font-bold uppercase tracking-widest border-border/50 hover:bg-muted cursor-pointer transition-all">
+                                Xem lại lộ trình
                             </Button>
                         </Link>
-                        <Button variant="outline" size="lg">
-                            <Share2 className="mr-2 w-4 h-4" />
-                            Chia sẻ
+                        <Button variant="outline" className="w-full rounded-2xl h-12 text-xs font-bold uppercase tracking-widest border-border/50 hover:bg-muted cursor-pointer transition-all">
+                            <Share2 className="mr-3 w-4 h-4" />
+                            Chia sẻ thành tích
                         </Button>
                     </div>
 
-                    <div className="mt-8 pt-8 border-t">
-                        <p className="text-sm text-muted-foreground mb-4">
-                            Tiếp tục học tập với các khóa học khác
+                    {/* Secondary Navigation */}
+                    <div className="pt-8 border-t border-border/30">
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] mb-6">
+                            Bước tiếp theo cho hành trình của bạn
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
                             <Link href="/courses">
-                                <Button variant="outline">
-                                    Khám phá khóa học
+                                <Button variant="ghost" className="rounded-full px-6 h-10 text-xs font-bold uppercase tracking-widest text-foreground hover:bg-primary/5 hover:text-primary cursor-pointer group">
+                                    <BookOpen className="mr-2.5 w-4 h-4" />
+                                    Khám phá khóa mới
+                                    <ArrowRight className="ml-2 w-3 h-3 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                                 </Button>
                             </Link>
                             <Link href="/dashboard/my-courses">
-                                <Button variant="outline">
-                                    Khóa học của tôi
+                                <Button variant="ghost" className="rounded-full px-6 h-10 text-xs font-bold uppercase tracking-widest text-foreground hover:bg-primary/5 hover:text-primary cursor-pointer">
+                                    <Home className="mr-2.5 w-4 h-4" />
+                                    Về Dashboard
                                 </Button>
                             </Link>
                         </div>
@@ -115,4 +144,3 @@ export default function CourseCompletionPage() {
         </div>
     )
 }
-

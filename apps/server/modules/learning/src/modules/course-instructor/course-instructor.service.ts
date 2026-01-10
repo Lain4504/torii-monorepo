@@ -70,7 +70,8 @@ export class CourseInstructorService implements ICourseInstructorService {
      */
     async assignLecturer(requester: Requester, dto: CourseInstructorAssignDTO): Promise<CourseInstructorResponseDTO> {
         // Check permissions - only ADMIN and STAFF can assign lecturers
-        if (!['ADMIN', 'STAFF'].includes(requester.role)) {
+        const role = requester.role.toLowerCase();
+        if (role !== 'admin' && !role.startsWith('staff')) {
             throw new ForbiddenException('Only admins and staff can assign lecturers to courses');
         }
 
@@ -93,7 +94,7 @@ export class CourseInstructorService implements ICourseInstructorService {
                 throw new NotFoundException(`Lecturer with id ${dto.lecturerId} not found`);
             }
 
-            if (lecturer.role !== 'LECTURER') {
+            if (lecturer.role.toLowerCase() !== 'lecturer') {
                 throw new BadRequestException('User must have LECTURER role to be assigned as an instructor');
             }
 
@@ -169,7 +170,8 @@ export class CourseInstructorService implements ICourseInstructorService {
      */
     async updatePrimaryInstructor(requester: Requester, instructorId: string, dto: CourseInstructorUpdateDTO): Promise<CourseInstructorResponseDTO> {
         // Check permissions
-        if (!['ADMIN', 'STAFF'].includes(requester.role)) {
+        const role = requester.role.toLowerCase();
+        if (role !== 'admin' && !role.startsWith('staff')) {
             throw new ForbiddenException('Only admins and staff can update instructor assignments');
         }
 
@@ -193,7 +195,8 @@ export class CourseInstructorService implements ICourseInstructorService {
      */
     async unassignLecturer(requester: Requester, instructorId: string): Promise<{ message: string }> {
         // Check permissions
-        if (!['ADMIN', 'STAFF'].includes(requester.role)) {
+        const role = requester.role.toLowerCase();
+        if (role !== 'admin' && !role.startsWith('staff')) {
             throw new ForbiddenException('Only admins and staff can unassign lecturers');
         }
 

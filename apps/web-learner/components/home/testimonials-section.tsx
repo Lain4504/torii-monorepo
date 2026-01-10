@@ -1,48 +1,51 @@
 'use client'
 
-import { Star } from 'lucide-react'
+import { Star, Quote, Heart, Users } from 'lucide-react'
+import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
+import { cn } from '@workspace/ui/lib/utils'
 
 const testimonials = [
     {
-        name: 'Sarah Johnson',
-        role: 'Full-Stack Developer',
-        avatar: 'SJ',
-        content: 'The AI Sensei feature is a game-changer! It\'s like having a personal tutor available 24/7. I completed my web development certification in just 3 months.',
+        name: 'Trần Minh Quân',
+        role: 'Học viên lớp N3 - Torii',
+        content: 'AI Sensei là một cuộc cách mạng! Cảm giác như có một Sensei người Nhật bên cạnh 24/7 để giải đáp mọi thắc mắc về ngữ pháp một cách tức thì.',
         rating: 5,
-        gradient: 'from-blue-500 to-cyan-500',
+        avatar: 'MQ',
     },
     {
-        name: 'Michael Chen',
-        role: 'Data Scientist',
-        avatar: 'MC',
-        content: 'The flashcard system helped me master machine learning concepts faster than traditional methods. The spaced repetition algorithm is incredibly effective.',
+        name: 'Lê Thị Mỹ Linh',
+        role: 'Du học sinh tại Tokyo',
+        content: 'Hệ thống Flashcard thông minh giúp mình nhớ Kanji nhanh hơn rất nhiều so với cách học truyền thống. Nhờ Torii mà mình đã đỗ N2 chỉ sau 6 tháng.',
         rating: 5,
-        gradient: 'from-purple-500 to-pink-500',
+        avatar: 'ML',
     },
     {
-        name: 'Emma Rodriguez',
-        role: 'UX Designer',
-        avatar: 'ER',
-        content: 'I love the engaging course content and the supportive community. The certificates I earned here helped me land my dream job!',
+        name: 'Nguyễn Hoàng Nam',
+        role: 'Kỹ sư phần mềm',
+        content: 'Lớp học WebRTC rất ổn định, âm thanh rõ nét. Khả năng tương tác trực tiếp với giáo viên qua bảng trắng giúp những giờ học online không còn nhàm chán.',
         rating: 5,
-        gradient: 'from-orange-500 to-red-500',
+        avatar: 'HN',
     },
 ]
 
 export function TestimonialsSection() {
     return (
-        <section className="py-24 bg-muted/50">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="py-32 relative bg-muted/30 overflow-hidden">
+            {/* Zen Ambient Lighting */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-primary/[0.03] rounded-full blur-[120px] pointer-events-none" />
+
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 {/* Section Header */}
-                <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-                    <h2 className="text-4xl sm:text-5xl font-bold text-foreground">
-                        Loved by{' '}
-                        <span className="text-primary">
-                            Learners Worldwide
-                        </span>
+                <div className="text-center max-w-4xl mx-auto mb-20 space-y-6">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[9px] font-black uppercase tracking-[0.3em]">
+                        <Users className="w-3 h-3" />
+                        <span>Success Stories</span>
+                    </div>
+                    <h2 className="text-5xl md:text-6xl font-black tracking-tighter text-foreground uppercase italic">
+                        Cảm Nhận Từ <span className="text-primary not-italic">Học Viên</span>
                     </h2>
-                    <p className="text-xl text-muted-foreground">
-                        Join thousands of successful students who transformed their careers
+                    <p className="text-lg text-muted-foreground font-medium max-w-2xl mx-auto opacity-70">
+                        Hàng ngàn học viên đã thay đổi tương lai nhờ lộ trình học tập tối ưu tại Torii Nihongo.
                     </p>
                 </div>
 
@@ -51,30 +54,35 @@ export function TestimonialsSection() {
                     {testimonials.map((testimonial, index) => (
                         <div
                             key={index}
-                            className="bg-card rounded-lg p-8 border hover:shadow-md transition-shadow cursor-pointer"
+                            className="relative group bg-background/60 backdrop-blur-xl rounded-[2.5rem] p-10 border border-border/40 hover:border-primary/20 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500 flex flex-col cursor-default"
                         >
+                            {/* Quote Icon */}
+                            <div className="absolute top-8 right-10 opacity-10 group-hover:opacity-20 transition-opacity">
+                                <Quote className="w-12 h-12 text-primary" />
+                            </div>
+
                             {/* Rating */}
-                            <div className="flex gap-1 mb-6">
+                            <div className="flex gap-1 mb-8">
                                 {[...Array(testimonial.rating)].map((_, i) => (
-                                    <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                                    <Star key={i} className="w-3.5 h-3.5 fill-primary text-primary" />
                                 ))}
                             </div>
 
                             {/* Content */}
-                            <p className="text-card-foreground leading-relaxed mb-8 text-lg">
+                            <p className="text-base text-foreground font-bold italic leading-relaxed mb-10 flex-1">
                                 "{testimonial.content}"
                             </p>
 
-                            {/* Author */}
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold flex-shrink-0">
-                                    {testimonial.avatar}
-                                </div>
-                                <div>
-                                    <div className="font-semibold text-card-foreground">
+                            {/* Author Banner */}
+                            <div className="flex items-center gap-5 pt-8 border-t border-border/20">
+                                <Avatar className="w-12 h-12 rounded-2xl border border-border/40">
+                                    <AvatarFallback className="bg-primary/10 text-primary text-[11px] font-black">{testimonial.avatar}</AvatarFallback>
+                                </Avatar>
+                                <div className="space-y-1">
+                                    <div className="text-xs font-black uppercase tracking-widest text-foreground">
                                         {testimonial.name}
                                     </div>
-                                    <div className="text-sm text-muted-foreground">
+                                    <div className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest">
                                         {testimonial.role}
                                     </div>
                                 </div>
@@ -83,24 +91,19 @@ export function TestimonialsSection() {
                     ))}
                 </div>
 
-                {/* Stats Row */}
-                <div className="mt-20 grid grid-cols-2 lg:grid-cols-4 gap-8">
-                    <div className="text-center">
-                        <div className="text-4xl font-bold text-foreground mb-2">98%</div>
-                        <div className="text-muted-foreground">Satisfaction Rate</div>
-                    </div>
-                    <div className="text-center">
-                        <div className="text-4xl font-bold text-foreground mb-2">50K+</div>
-                        <div className="text-muted-foreground">Course Completions</div>
-                    </div>
-                    <div className="text-center">
-                        <div className="text-4xl font-bold text-foreground mb-2">4.9/5</div>
-                        <div className="text-muted-foreground">Average Rating</div>
-                    </div>
-                    <div className="text-center">
-                        <div className="text-4xl font-bold text-foreground mb-2">24/7</div>
-                        <div className="text-muted-foreground">AI Support</div>
-                    </div>
+                {/* Large Stats Bar */}
+                <div className="mt-24 grid grid-cols-2 md:grid-cols-4 gap-12 py-12 px-8 rounded-[2.5rem] bg-foreground text-background">
+                    {[
+                        { label: 'Tỉ lệ hài lòng', value: '98%', icon: Heart },
+                        { label: 'Học viên đã học', value: '50K+', icon: Users },
+                        { label: 'Điểm đánh giá', value: '4.9/5', icon: Star },
+                        { label: 'Hỗ trợ AI 24/7', value: 'Active', icon: Heart },
+                    ].map((stat, idx) => (
+                        <div key={idx} className="text-center space-y-2">
+                            <div className="text-3xl font-black tracking-tighter">{stat.value}</div>
+                            <div className="text-[10px] font-black uppercase tracking-widest opacity-40">{stat.label}</div>
+                        </div>
+                    ))}
                 </div>
             </div>
         </section>

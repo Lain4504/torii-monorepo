@@ -76,4 +76,9 @@ export interface ICourseRepository {
         averageRating?: number;
         totalReviews?: number;
     }): Promise<Course>;
+
+    /**
+     * Get instructors for a course
+     */
+    getInstructors(courseId: string): Promise<any[]>;
 }

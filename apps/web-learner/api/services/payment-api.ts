@@ -12,7 +12,7 @@ export const paymentApi = {
      * Get all payments
      */
     async getAllPayments(query?: PaymentQueryDTO): Promise<PaginatedResponseDTO<PaymentResponseDTO>> {
-        const response = await apiClient.get<PaginatedResponseDTO<PaymentResponseDTO>>('/payments', {
+        const response = await apiClient.get<PaginatedResponseDTO<PaymentResponseDTO>>('/api/payments', {
             params: query,
         });
         return response.data;
@@ -22,7 +22,7 @@ export const paymentApi = {
      * Get payment by ID
      */
     async getPayment(id: string): Promise<PaymentResponseDTO> {
-        const response = await apiClient.get<PaymentResponseDTO>(`/payments/${id}`);
+        const response = await apiClient.get<PaymentResponseDTO>(`/api/payments/${id}`);
         return response.data;
     },
 
@@ -38,7 +38,7 @@ export const paymentApi = {
                 courseId: data.courseId, // Store courseId in metadata for later enrollment creation
             },
         };
-        const response = await apiClient.post<PaymentResponseDTO>('/payments', payload);
+        const response = await apiClient.post<PaymentResponseDTO>('/api/payments', payload);
         return response.data;
     },
 
@@ -46,7 +46,7 @@ export const paymentApi = {
      * Confirm payment (mock)
      */
     async confirmPayment(paymentId: string, data: PaymentConfirmDTO): Promise<PaymentResponseDTO> {
-        const response = await apiClient.post<PaymentResponseDTO>(`/payments/${paymentId}/confirm`, data);
+        const response = await apiClient.post<PaymentResponseDTO>(`/api/payments/${paymentId}/confirm`, data);
         return response.data;
     },
 };

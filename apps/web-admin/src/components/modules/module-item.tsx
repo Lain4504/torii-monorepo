@@ -115,7 +115,6 @@ export function ModuleItem({
     const { data: lessonsData, isLoading } = useLessons({
         page: 1,
         limit: 100,
-        // @ts-ignore
         moduleId: module.id
     });
 

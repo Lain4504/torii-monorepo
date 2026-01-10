@@ -10,6 +10,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu';
+import { formatCurrency, formatDateTime } from '@/lib/format-utils';
 
 const columnHelper = createColumnHelper<CourseResponseDTO>();
 
@@ -83,11 +84,7 @@ export const getCoursesColumns = ({ onEdit, onDelete, onManageInstructors, onPub
             );
         },
         cell: (info) => {
-            const price = parseFloat(info.getValue().toString());
-            const formatted = new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD',
-            }).format(price);
+            const formatted = formatCurrency(info.getValue());
             return <div className="font-medium tabular-nums">{formatted}</div>;
         },
         size: 100,
@@ -121,6 +118,22 @@ export const getCoursesColumns = ({ onEdit, onDelete, onManageInstructors, onPub
         },
         cell: (info) => <div className="text-center font-medium tabular-nums">{info.getValue() || 0}</div>,
         size: 100,
+    }),
+    columnHelper.accessor('updatedAt', {
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+                    className="-ml-4 h-8 text-xs font-semibold uppercase tracking-wider hover:bg-transparent hover:text-foreground"
+                >
+                    Updated
+                    <ArrowUpDown className="ml-2 h-3 w-3" />
+                </Button>
+            );
+        },
+        cell: (info) => <div className="text-sm text-muted-foreground tabular-nums">{formatDateTime(info.getValue())}</div>,
+        size: 140,
     }),
     columnHelper.display({
         id: 'actions',

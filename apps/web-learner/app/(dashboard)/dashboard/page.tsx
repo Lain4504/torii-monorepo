@@ -1,7 +1,7 @@
 'use client'
 
 import { useAppSelector } from '@/hooks/hooks'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@workspace/ui/components/card'
+import { Card, CardContent } from '@workspace/ui/components/card'
 import { Button } from '@workspace/ui/components/button'
 import { Progress } from '@workspace/ui/components/progress'
 import {
@@ -12,19 +12,20 @@ import {
     TrendingUp,
     Calendar,
     ArrowRight,
+    ChevronRight,
+    Target
 } from 'lucide-react'
 import Link from 'next/link'
 
 export default function DashboardPage() {
     const { user } = useAppSelector((state) => state.auth)
 
-    // Mock data - replace with actual API calls
-    const stats = {
-        enrolledCourses: 12,
-        completedCourses: 5,
-        totalHours: 48,
-        certificates: 3,
-    }
+    const stats = [
+        { label: 'Khóa học', value: '12', subValue: '5 hoàn thành', icon: BookOpen, color: 'text-blue-500' },
+        { label: 'Giờ học', value: '48h', subValue: 'Tổng thời gian', icon: Clock, color: 'text-emerald-500' },
+        { label: 'Chứng chỉ', value: '3', subValue: 'Đã nhận được', icon: Award, color: 'text-amber-500' },
+        { label: 'Tiến độ', value: '58%', subValue: 'Trung bình', icon: TrendingUp, color: 'text-purple-500' },
+    ]
 
     const recentCourses = [
         {
@@ -32,7 +33,6 @@ export default function DashboardPage() {
             slug: 'tieng-nhat-n5-co-ban',
             title: 'Tiếng Nhật N5 - Cơ bản',
             progress: 65,
-            thumbnail: '/api/placeholder/300/200',
             instructor: 'Nguyễn Văn A',
         },
         {
@@ -40,16 +40,7 @@ export default function DashboardPage() {
             slug: 'ngu-phap-n4',
             title: 'Ngữ pháp N4',
             progress: 30,
-            thumbnail: '/api/placeholder/300/200',
             instructor: 'Trần Thị B',
-        },
-        {
-            id: 3,
-            slug: 'tu-vung-n3',
-            title: 'Từ vựng N3',
-            progress: 80,
-            thumbnail: '/api/placeholder/300/200',
-            instructor: 'Lê Văn C',
         },
     ]
 
@@ -69,168 +60,141 @@ export default function DashboardPage() {
     ]
 
     return (
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-            {/* Welcome Section */}
-            <div>
-                <h1 className="text-3xl font-bold text-foreground">
-                    Chào mừng trở lại, {user?.displayName || 'Học viên'}!
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 max-w-6xl animate-in fade-in duration-500">
+            {/* Minimal Welcome Header */}
+            <div className="pb-2">
+                <h1 className="text-2xl font-bold text-foreground tracking-tight">
+                    Chào mừng trở lại, <span className="text-primary">{user?.displayName || 'Học viên'}</span>
                 </h1>
-                <p className="text-muted-foreground mt-2">
-                    Tiếp tục hành trình học tập của bạn
+                <p className="text-sm text-muted-foreground mt-1 font-medium opacity-70">
+                    Bạn đã học được 12 giờ trong tuần này. Tuyệt vời!
                 </p>
             </div>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card className="cursor-pointer hover:shadow-md transition-shadow">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">
-                            Khóa học đã đăng ký
-                        </CardTitle>
-                        <BookOpen className="w-4 h-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-foreground">{stats.enrolledCourses}</div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                            {stats.completedCourses} đã hoàn thành
-                        </p>
-                    </CardContent>
-                </Card>
-
-                <Card className="cursor-pointer hover:shadow-md transition-shadow">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">
-                            Giờ học
-                        </CardTitle>
-                        <Clock className="w-4 h-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-foreground">{stats.totalHours}h</div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                            Tổng thời gian học tập
-                        </p>
-                    </CardContent>
-                </Card>
-
-                <Card className="cursor-pointer hover:shadow-md transition-shadow">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">
-                            Chứng chỉ
-                        </CardTitle>
-                        <Award className="w-4 h-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-foreground">{stats.certificates}</div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                            Đã nhận được
-                        </p>
-                    </CardContent>
-                </Card>
-
-                <Card className="cursor-pointer hover:shadow-md transition-shadow">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">
-                            Tiến độ trung bình
-                        </CardTitle>
-                        <TrendingUp className="w-4 h-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-foreground">58%</div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                            Tất cả khóa học
-                        </p>
-                    </CardContent>
-                </Card>
+            {/* Stats Grid - Ultra Minimal */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {stats.map((stat, index) => {
+                    const Icon = stat.icon
+                    return (
+                        <div key={index} className="p-5 rounded-2xl border border-border/50 bg-muted/5 group hover:bg-muted/10 transition-all cursor-default">
+                            <div className="flex items-center justify-between mb-3">
+                                <div className={`p-2 rounded-xl bg-background border border-border/50 ${stat.color}`}>
+                                    <Icon className="w-4 h-4" />
+                                </div>
+                            </div>
+                            <div>
+                                <p className="text-2xl font-bold tracking-tight">{stat.value}</p>
+                                <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mt-0.5">{stat.label}</p>
+                            </div>
+                        </div>
+                    )
+                })}
             </div>
 
-            <div className="grid lg:grid-cols-3 gap-6">
-                {/* Continue Learning */}
-                <div className="lg:col-span-2 space-y-4">
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-semibold text-foreground">Tiếp tục học</h2>
-                        <Link href="/dashboard/my-courses">
-                            <Button variant="ghost" size="sm" className="cursor-pointer">
-                                Xem tất cả
-                                <ArrowRight className="ml-2 w-4 h-4" />
-                            </Button>
-                        </Link>
-                    </div>
-
+            <div className="grid lg:grid-cols-3 gap-10">
+                {/* Main Content Column */}
+                <div className="lg:col-span-2 space-y-8">
+                    {/* Continue Learning */}
                     <div className="space-y-4">
-                        {recentCourses.map((course) => (
-                            <Card key={course.id} className="cursor-pointer hover:shadow-md transition-shadow">
-                                <CardContent className="p-4">
-                                    <div className="flex gap-4">
-                                        <div className="w-24 h-16 rounded-lg bg-muted flex-shrink-0" />
-                                        <div className="flex-1 min-w-0">
-                                            <h3 className="font-semibold text-foreground truncate">
-                                                {course.title}
-                                            </h3>
-                                            <p className="text-sm text-muted-foreground mt-1">
-                                                {course.instructor}
-                                            </p>
-                                            <div className="mt-3 space-y-2">
-                                                <div className="flex items-center justify-between text-xs">
-                                                    <span className="text-muted-foreground">Tiến độ</span>
-                                                    <span className="font-medium text-foreground">{course.progress}%</span>
+                        <div className="flex items-center justify-between px-1">
+                            <div className="flex items-center gap-2">
+                                <PlayCircle className="w-5 h-5 text-primary" />
+                                <h2 className="text-lg font-bold tracking-tight">Tiếp tục học</h2>
+                            </div>
+                            <Link href="/dashboard/my-courses">
+                                <Button variant="ghost" size="sm" className="text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-primary cursor-pointer">
+                                    Xem tất cả <ChevronRight className="w-4 h-4 ml-1" />
+                                </Button>
+                            </Link>
+                        </div>
+
+                        <div className="grid sm:grid-cols-1 gap-4">
+                            {recentCourses.map((course) => (
+                                <Card key={course.id} className="border-border/50 shadow-none bg-card/30 hover:bg-card/50 transition-colors group cursor-pointer overflow-hidden">
+                                    <CardContent className="p-5">
+                                        <div className="flex flex-col sm:flex-row sm:items-center gap-6">
+                                            <div className="w-full sm:w-32 h-20 rounded-xl bg-muted/50 border border-border/30 flex-shrink-0 relative overflow-hidden group-hover:bg-muted transition-colors">
+                                                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <PlayCircle className="w-8 h-8 text-primary" />
                                                 </div>
-                                                <Progress value={course.progress} className="h-2" />
                                             </div>
-                                            <Link href={`/courses/${course.slug}/learn`}>
-                                                <Button size="sm" className="mt-3 w-full cursor-pointer">
-                                                    <PlayCircle className="mr-2 w-4 h-4" />
-                                                    Tiếp tục học
-                                                </Button>
-                                            </Link>
+                                            <div className="flex-1 min-w-0 space-y-3">
+                                                <div>
+                                                    <h3 className="font-bold text-foreground truncate group-hover:text-primary transition-colors">
+                                                        {course.title}
+                                                    </h3>
+                                                    <p className="text-xs text-muted-foreground mt-0.5">Giảng viên: {course.instructor}</p>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
+                                                        <span>Tiến độ</span>
+                                                        <span>{course.progress}%</span>
+                                                    </div>
+                                                    <Progress value={course.progress} className="h-1.5 bg-primary/10" />
+                                                </div>
+                                            </div>
+                                            <div className="flex shrink-0">
+                                                <Link href={`/courses/${course.slug}/learn`}>
+                                                    <Button size="icon" variant="ghost" className="rounded-full w-10 h-10 hover:bg-primary/5 hover:text-primary">
+                                                        <ChevronRight className="w-5 h-5" />
+                                                    </Button>
+                                                </Link>
+                                            </div>
                                         </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        ))}
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
-                {/* Upcoming Classes */}
-                <div className="space-y-4">
-                    <h2 className="text-xl font-semibold text-foreground">Lớp sắp tới</h2>
-                    <div className="space-y-3">
-                        {upcomingClasses.map((classItem) => (
-                            <Card key={classItem.id} className="cursor-pointer hover:shadow-md transition-shadow">
-                                <CardContent className="p-4">
-                                    <div className="flex items-start gap-3">
-                                        <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                            <Calendar className="w-6 h-6 text-primary" />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <h3 className="font-semibold text-sm text-foreground">
-                                                {classItem.title}
-                                            </h3>
-                                            <p className="text-xs text-muted-foreground mt-1">
-                                                {classItem.date} • {classItem.time}
-                                            </p>
-                                            <Button size="sm" variant="outline" className="mt-2 w-full cursor-pointer">
-                                                Tham gia
-                                            </Button>
-                                        </div>
+                {/* Sidebar Column */}
+                <div className="space-y-10">
+                    {/* Upcoming Classes */}
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-2 px-1">
+                            <Calendar className="w-4 h-4 text-primary" />
+                            <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground/80">Lớp sắp tới</h3>
+                        </div>
+                        <div className="space-y-3">
+                            {upcomingClasses.map((classItem) => (
+                                <div key={classItem.id} className="p-4 rounded-2xl border border-border/50 bg-background/50 flex items-start gap-4 group cursor-pointer hover:border-primary/30 transition-all">
+                                    <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center shrink-0">
+                                        <Clock className="w-5 h-5 text-primary" />
                                     </div>
-                                </CardContent>
-                            </Card>
-                        ))}
+                                    <div className="space-y-1">
+                                        <h4 className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">{classItem.title}</h4>
+                                        <p className="text-[10px] text-muted-foreground font-medium">{classItem.date} • {classItem.time}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-base">Mục tiêu tuần này</CardTitle>
-                            <CardDescription>Hoàn thành 3 bài học mới</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <Progress value={66} className="h-2" />
-                            <p className="text-xs text-muted-foreground mt-2">2/3 bài học đã hoàn thành</p>
-                        </CardContent>
-                    </Card>
+                    {/* Weekly Goals */}
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-2 px-1">
+                            <Target className="w-4 h-4 text-emerald-500" />
+                            <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground/80">Mục tiêu tuần</h3>
+                        </div>
+                        <Card className="border-border/50 shadow-none bg-primary/5">
+                            <CardContent className="p-5 space-y-4">
+                                <div>
+                                    <p className="text-xs font-bold text-foreground">Hoàn thành 3 bài học mới</p>
+                                    <p className="text-[10px] text-muted-foreground mt-1">Hành trình vạn dặm bắt đầu từ 1 bước chân</p>
+                                </div>
+                                <div className="space-y-2">
+                                    <Progress value={66} className="h-1.5 bg-background" />
+                                    <div className="flex justify-between text-[10px] font-bold text-primary tracking-widest uppercase">
+                                        <span>2/3 Bài học</span>
+                                        <span>66%</span>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
                 </div>
             </div>
         </div>
     )
 }
-

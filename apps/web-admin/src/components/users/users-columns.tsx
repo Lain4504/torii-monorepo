@@ -11,6 +11,7 @@ import {
     DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu';
 import { Can } from "@/lib/guard/can";
+import { formatDateTime } from "@/lib/format-utils";
 
 const columnHelper = createColumnHelper<UserResponseDTO>();
 
@@ -99,6 +100,22 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
             );
         },
         size: 100,
+    }),
+    columnHelper.accessor('lastLoginAt', {
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+                    className="-ml-4 h-8 text-xs font-semibold uppercase tracking-wider hover:bg-transparent hover:text-foreground"
+                >
+                    Last Login
+                    <ArrowUpDown className="ml-2 h-3 w-3" />
+                </Button>
+            );
+        },
+        cell: (info) => <div className="text-sm text-muted-foreground tabular-nums">{formatDateTime(info.getValue())}</div>,
+        size: 140,
     }),
     columnHelper.display({
         id: 'actions',

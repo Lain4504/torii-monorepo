@@ -36,11 +36,10 @@ interface CreateModuleDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     courseId?: string;
-    courseTitle?: string;
     existingModules?: ModuleResponseDTO[];
 }
 
-export function CreateModuleDialog({ open, onOpenChange, courseId, courseTitle, existingModules = [] }: CreateModuleDialogProps) {
+export function CreateModuleDialog({ open, onOpenChange, courseId, existingModules = [] }: CreateModuleDialogProps) {
     const createModule = useCreateModule();
 
     const existingTitles = existingModules.map((m) => m.title.trim());
@@ -98,17 +97,7 @@ export function CreateModuleDialog({ open, onOpenChange, courseId, courseTitle, 
                     <ScrollArea className="flex-1 min-h-0">
                         <div className="px-6 py-6 space-y-6">
                             <div className="space-y-4">
-                                <Field>
-                                    <FieldLabel className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">
-                                        Course Title
-                                    </FieldLabel>
-                                    <Input
-                                        value={courseTitle}
-                                        readOnly
-                                        className="h-11 border-none bg-muted/50 text-muted-foreground rounded-xl"
-                                    />
-                                    <input type="hidden" {...register('courseId')} />
-                                </Field>
+                                <input type="hidden" {...register('courseId')} />
 
                                 <Controller
                                     control={control}

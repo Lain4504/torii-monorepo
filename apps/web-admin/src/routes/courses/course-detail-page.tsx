@@ -8,10 +8,7 @@ import {
     Plus,
     ChevronLeft,
     AlertCircle,
-    GraduationCap,
-    Clock,
-    BookOpen,
-    DollarSign
+    BookOpen
 } from 'lucide-react';
 import { useCourse } from '@/api/services/courses';
 import { useModules, useDeleteModule } from '@/api/services/modules';
@@ -115,106 +112,54 @@ export default function CourseDetailPage() {
     }
 
     // Calculate metadata
-    const totalDuration = modules.reduce((acc, m) => acc + (m.durationMinutes || 0), 0);
+    // Removed unused totalLessons calculation
     // Removed unused totalLessons calculation
 
     return (
         <div className="min-h-screen bg-muted/5 pb-20">
-            {/* Top Navigation Bar */}
+            {/* Simple Top Navigation & Header */}
             <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-border/40">
-                <div className="container max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-muted-foreground hover:text-foreground gap-1.5 -ml-2"
-                        onClick={() => navigate('/courses')}
-                    >
-                        <ChevronLeft className="h-4 w-4" />
-                        <span className="font-medium">All Courses</span>
-                    </Button>
-                    <div className="flex items-center gap-2">
-                        {/* Optional: Add top-right actions like 'Preview Course' or 'Settings' here */}
+                <div className="container max-w-6xl mx-auto px-4 sm:px-6 py-4">
+                    {/* Top Row: Back Button */}
+                    <div className="flex items-center gap-2 mb-4">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-muted-foreground hover:text-foreground gap-1.5 -ml-2 h-8"
+                            onClick={() => navigate('/courses')}
+                        >
+                            <ChevronLeft className="h-4 w-4" />
+                            <span className="font-medium text-xs uppercase tracking-wider">All Courses</span>
+                        </Button>
                     </div>
-                </div>
-            </div>
 
-            {/* Course Header Hero */}
-            <div className="bg-background border-b border-border/40 pb-8 pt-6">
-                <div className="container max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
-                    {/* Header Top Row: Title & Badge */}
-                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
-                        <div className="space-y-4 flex-1">
-                            <div className="space-y-2">
-                                <div className="flex items-center gap-3 mb-1">
-                                    <Badge
-                                        variant={course.status === 'published' ? 'default' : 'secondary'}
-                                        className="h-6 px-2.5 text-xs uppercase tracking-wider font-semibold rounded-md"
-                                    >
-                                        {course.status}
-                                    </Badge>
-                                    {course.isFree &&
-                                        <Badge variant="outline" className="h-6 px-2.5 text-xs font-semibold rounded-md border-green-500/30 text-green-600 bg-green-500/5">
-                                            Free
-                                        </Badge>
-                                    }
-                                </div>
-                                <h1 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight leading-tight">
-                                    {course.title}
-                                </h1>
-                            </div>
-
-                            {course.description && (
-                                <p className="text-lg text-muted-foreground leading-relaxed max-w-3xl">
-                                    {course.description}
-                                </p>
-                            )}
-
-                            {/* Stats Grid */}
-                            <div className="flex flex-wrap items-center gap-y-4 gap-x-8 pt-2 text-sm text-foreground/80 font-medium">
-                                <div className="flex items-center gap-2.5">
-                                    <div className="p-1.5 rounded-md bg-primary/10 text-primary">
-                                        <Layers className="h-4 w-4" />
-                                    </div>
-                                    <span>{modules.length} Modules</span>
-                                </div>
-
-                                <div className="flex items-center gap-2.5">
-                                    <div className="p-1.5 rounded-md bg-blue-500/10 text-blue-500">
-                                        <Clock className="h-4 w-4" />
-                                    </div>
-                                    {totalDuration > 0 ? (
-                                        <span>{Math.floor(totalDuration / 60)}h {totalDuration % 60}m content</span>
-                                    ) : (
-                                        <span>0m content</span>
-                                    )}
-                                </div>
-
-                                {course.jlptLevel && (
-                                    <div className="flex items-center gap-2.5">
-                                        <div className="p-1.5 rounded-md bg-orange-500/10 text-orange-500">
-                                            <GraduationCap className="h-4 w-4" />
-                                        </div>
-                                        <span>{course.jlptLevel}</span>
-                                    </div>
-                                )}
-
-                                <div className="flex items-center gap-2.5">
-                                    <div className="p-1.5 rounded-md bg-green-500/10 text-green-600">
-                                        <DollarSign className="h-4 w-4" />
-                                    </div>
-                                    <span>{course.price > 0 ? `$${course.price.toLocaleString()}` : 'Free'}</span>
-                                </div>
-                            </div>
+                    {/* Main Header Row: Title & Actions */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex items-center gap-3 overflow-hidden">
+                            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground truncate">
+                                {course.title}
+                            </h1>
+                            <Badge
+                                variant={course.status === 'published' ? 'default' : 'secondary'}
+                                className="h-5 px-2 text-[10px] uppercase tracking-wider font-semibold rounded-full flex-shrink-0"
+                            >
+                                {course.status}
+                            </Badge>
                         </div>
 
-                        {/* Header Actions */}
-                        <div className="flex items-start gap-3 flex-shrink-0 pt-2">
+                        <div className="flex items-center gap-3 flex-shrink-0">
+                            <div className="hidden sm:flex items-center gap-3 text-sm text-foreground/60 font-medium mr-2">
+                                <span className="flex items-center gap-1.5">
+                                    <Layers className="h-4 w-4" />
+                                    {modules.length} Modules
+                                </span>
+                            </div>
                             <Button
-                                size="lg"
-                                className="h-11 px-6 shadow-lg shadow-primary/20 rounded-xl font-semibold hover:scale-[1.02] transition-transform"
+                                size="sm"
+                                className="h-9 px-4 shadow-md shadow-primary/20 rounded-lg font-semibold bg-primary text-primary-foreground hover:bg-primary/90"
                                 onClick={() => setCreateModuleOpen(true)}
                             >
-                                <Plus className="h-4 w-4 mr-2" />
+                                <Plus className="h-4 w-4 mr-1.5" />
                                 Add Module
                             </Button>
                         </div>
