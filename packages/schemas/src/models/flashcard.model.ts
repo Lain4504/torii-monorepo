@@ -40,11 +40,11 @@ export enum JapanesePartOfSpeech {
 }
 
 export enum ReviewQuality {
-    ZERO = '0',   // Again (incorrect)
-    ONE = '1',    // Hard
-    TWO = '2',    // Good
-    THREE = '3',  // Easy
-    FOUR = '4',   // Easy+
+    ZERO = 'ZERO',   // Again (incorrect)
+    ONE = 'ONE',     // Hard
+    TWO = 'TWO',     // Good
+    THREE = 'THREE', // Easy
+    FOUR = 'FOUR',   // Easy+
 }
 
 // Main flashcard schema with all new fields

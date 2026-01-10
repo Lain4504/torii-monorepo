@@ -39,6 +39,8 @@ export * from './dtos/post.dto';
 export * from './dtos/comment.dto';
 export * from './dtos/flashcard.dto';
 export * from './dtos/flashcard-deck.dto';
+export * from './dtos/flashcard-review.dto';
+export * from './dtos/flashcard-review-session.dto';
 export * from './dtos/review.dto';
 export * from './dtos/exam.dto';
 export * from './dtos/lesson-material.dto';

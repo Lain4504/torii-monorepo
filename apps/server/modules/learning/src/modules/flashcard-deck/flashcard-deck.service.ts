@@ -28,9 +28,16 @@ export class FlashcardDeckService {
       description: deck.description || undefined,
       jlptLevel: deck.jlptLevel || undefined,
       isPublic: deck.isPublic,
-      tags: deck.tags,
+      tags: deck.tags || [],
       cardCount: deck.cardCount,
       studiedCount: deck.studiedCount,
+      // New fields
+      srsSettings: deck.srsSettings || undefined,
+      aiSettings: deck.aiSettings || undefined,
+      sourceType: deck.sourceType || 'manual',
+      lastStudiedAt: deck.lastStudiedAt || undefined,
+      totalStudyTime: deck.totalStudyTime || 0,
+      masteryPercentage: deck.masteryPercentage ? Number(deck.masteryPercentage) : undefined,
       createdAt: deck.createdAt,
       updatedAt: deck.updatedAt,
     };

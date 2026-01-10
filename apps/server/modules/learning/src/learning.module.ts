@@ -58,6 +58,7 @@ import { CommentController } from './interfaces/http/comment.controller';
 import { NotificationController } from './interfaces/http/notification.controller';
 import { FlashcardDeckController } from './interfaces/http/flashcard-deck.controller';
 import { FlashcardController } from './interfaces/http/flashcard.controller';
+import { FlashcardReviewController } from './interfaces/http/flashcard-review.controller';
 
 @Module({
   imports: [
@@ -122,6 +123,7 @@ import { FlashcardController } from './interfaces/http/flashcard.controller';
     NotificationController,
     FlashcardDeckController,
     FlashcardController,
+    FlashcardReviewController,
   ],
 })
 export class LearningModule { }

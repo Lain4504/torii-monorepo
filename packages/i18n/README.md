@@ -1,4 +1,4 @@
-# @workspace/i18n
+ @workspace/i18n
 
 Shared internationalization (i18n) package for the Torii Nihongo monorepo.
 

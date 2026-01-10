@@ -1,5 +1,10 @@
 import { z } from 'zod';
-import { FlashcardDifficulty, flashcardSchema } from '../models/flashcard.model';
+import { 
+    FlashcardDifficulty, 
+    flashcardSchema,
+    FlashcardGenerationMethod,
+    JapanesePartOfSpeech,
+} from '../models/flashcard.model';
 
 export const flashcardCreateDTOSchema = flashcardSchema.pick({
     deckId: true,
@@ -11,6 +16,20 @@ export const flashcardCreateDTOSchema = flashcardSchema.pick({
     audioUrl: true,
     tags: true,
     difficulty: true,
+    // Japanese-specific fields
+    furigana: true,
+    kanji: true,
+    partOfSpeech: true,
+    wordJlptLevel: true,
+    meanings: true,
+    // AI Integration fields
+    aiGenerated: true,
+    sourceDocumentId: true,
+    generationMethod: true,
+    generationMetadata: true,
+    // Metadata
+    notes: true,
+    isArchived: true,
 }).partial({
     exampleSentence: true,
     pronunciation: true,
@@ -18,6 +37,18 @@ export const flashcardCreateDTOSchema = flashcardSchema.pick({
     audioUrl: true,
     tags: true,
     difficulty: true,
+    // Optional fields
+    furigana: true,
+    kanji: true,
+    partOfSpeech: true,
+    wordJlptLevel: true,
+    meanings: true,
+    aiGenerated: true,
+    sourceDocumentId: true,
+    generationMethod: true,
+    generationMetadata: true,
+    notes: true,
+    isArchived: true,
 });
 
 export type FlashcardCreateDTO = z.infer<typeof flashcardCreateDTOSchema>;
@@ -38,6 +69,7 @@ export const flashcardQueryDTOSchema = z.object({
     jlptLevel: z.string().optional(),
     dueForReview: z.coerce.boolean().optional(),
     userId: z.string().uuid().optional(),
+    isArchived: z.coerce.boolean().optional(),
 });
 
 export type FlashcardQueryDTO = z.infer<typeof flashcardQueryDTOSchema>;

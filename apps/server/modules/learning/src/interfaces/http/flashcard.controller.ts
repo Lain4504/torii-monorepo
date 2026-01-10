@@ -27,15 +27,10 @@ export class FlashcardController {
 
     @Get()
     async getFlashcards(@Req() req: any, @Query() query: FlashcardQueryDTO): Promise<PaginatedResponseDTO<FlashcardResponseDTO>> {
-        // Ensure query uses correct types if needed, but DTO should handle it
-        // Pass userId if service needs it for filtering (likely yes for personal flashcards)
-        // If service expects userId in query, we might need to inject it.
-        // Checking NATS: it passed data: FlashcardQueryDTO directly.
-        // Assuming FlashcardQueryDTO might contain userId or service handles it.
-        // Wait, NATS passed payload directly.
-        // Let's assume for now we pass query. 
-        // If service needs filtering by current user, we'll see.
-        return this.flashcardService.getFlashcards(query);
+        const userId = req.user.uid;
+        this.logger.log(`Getting flashcards for user ${userId}`);
+        // Pass userId to ensure only personal flashcards (from user's decks) are returned
+        return this.flashcardService.getFlashcards(userId, query);
     }
 
     @Get(':id')
