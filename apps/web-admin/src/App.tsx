@@ -19,7 +19,7 @@ import PaymentsPage from '@/routes/finance/payments-page.tsx'
 import AIServicePage from '@/routes/ai/ai-service-page.tsx'
 import NotificationsPage from '@/routes/settings/notifications-page.tsx'
 import SettingsPage from '@/routes/settings/settings-page.tsx'
-import { BlogPage } from '@/routes/blog/blog-page.tsx'
+import { PostPage } from '@/routes/post/post-page.tsx'
 import QuestionBankPage from '@/routes/question-bank/question-bank-page.tsx'
 import QuestionsPage from '@/routes/questions/questions-page.tsx'
 import QuestionPoolsPage from '@/routes/question-pools/question-pools-page.tsx'
@@ -57,7 +57,7 @@ function App() {
                 <Route path="courses/:id" element={<CourseDetailPage />} />
 
                 <Route path="rooms" element={<RoomsPage />} />
-                <Route path="blogs" element={<BlogPage />} />
+                <Route path="posts" element={<PostPage />} />
 
                 {/* Question Bank - Unified entry point */}
                 <Route path="question-bank" element={<QuestionBankPage />}>

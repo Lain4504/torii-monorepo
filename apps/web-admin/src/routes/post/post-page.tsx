@@ -151,7 +151,7 @@ export function PostPage() {
                     {meta && (
                         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6 border-t border-border/40 px-6">
                             <div className="text-sm text-muted-foreground">
-                                Showing <span className="font-semibold text-foreground">{blogs.length}</span> of <span className="font-semibold text-foreground">{meta.total}</span> posts
+                                Showing <span className="font-semibold text-foreground">{posts.length}</span> of <span className="font-semibold text-foreground">{meta.total}</span> posts
                             </div>
 
                             {meta.totalPages > 1 && (
@@ -206,5 +206,3 @@ export function PostPage() {
         </div>
     );
 }
-
-

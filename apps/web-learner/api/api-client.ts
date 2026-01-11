@@ -82,6 +82,8 @@ const isPublicEndpoint = (url?: string): boolean => {
         '/auth/verify-invite-token',
         '/auth/set-password',
         '/auth/me', // Auth check endpoint - 401 is expected when not authenticated (matches both /api/auth/me and /auth/me)
+        '/posts', 
+        '/comments', 
     ];
 
     // Normalize URL by removing query params and hash for matching
@@ -112,6 +114,10 @@ const isPublicPage = (): boolean => {
 
     // Course pages are public (course listing and course detail)
     if (pathname.startsWith('/courses')) return true;
+
+    // Post and Live Classes pages are public
+    if (pathname.startsWith('/post')) return true;
+    if (pathname.startsWith('/live-classes')) return true;
 
     // Other public pages
     return publicPages.some(page => pathname.includes(page));

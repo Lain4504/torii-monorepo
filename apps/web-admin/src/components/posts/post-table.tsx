@@ -15,25 +15,25 @@ import {
 } from '@workspace/ui/components/table';
 import { useState } from 'react';
 import type { PostResponseDTO } from '@workspace/schemas';
-import { getBlogColumns } from './blog-columns.tsx';
+import { getPostColumns } from './post-columns.tsx';
 import { Inbox } from 'lucide-react';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 
-interface BlogTableProps {
+interface PostTableProps {
     data: PostResponseDTO[];
-    onView: (blog: PostResponseDTO) => void;
-    onEdit: (blog: PostResponseDTO) => void;
-    onDelete: (blog: PostResponseDTO) => void;
+    onView: (post: PostResponseDTO) => void;
+    onEdit: (post: PostResponseDTO) => void;
+    onDelete: (post: PostResponseDTO) => void;
     page: number;
     limit: number;
     isLoading?: boolean;
 }
 
-export function BlogTable({ data, onView, onEdit, onDelete, page, limit, isLoading }: BlogTableProps) {
+export function PostTable({ data, onView, onEdit, onDelete, page, limit, isLoading }: PostTableProps) {
     const [sorting, setSorting] = useState<SortingState>([]);
 
-    const columns = getBlogColumns({ onView, onEdit, onDelete, page, limit });
+    const columns = getPostColumns({ onView, onEdit, onDelete, page, limit });
 
     const table = useReactTable({
         data,
@@ -105,9 +105,9 @@ export function BlogTable({ data, onView, onEdit, onDelete, page, limit, isLoadi
                                     <Empty>
                                         <EmptyHeader>
                                             <EmptyMedia variant="icon"><Inbox /></EmptyMedia>
-                                            <EmptyTitle>No blogs found</EmptyTitle>
+                                            <EmptyTitle>No posts found</EmptyTitle>
                                             <EmptyDescription>
-                                                Try adjusting your filters or create a new blog post.
+                                                Try adjusting your filters or create a new post.
                                             </EmptyDescription>
                                         </EmptyHeader>
                                     </Empty>

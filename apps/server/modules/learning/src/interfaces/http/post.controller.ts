@@ -4,7 +4,7 @@ import type {
     PostUpdateDTO,
     PostQueryDTO,
 } from '@workspace/schemas';
-import { GatewayAuthGuard } from '@server/shared';
+import { GatewayAuthGuard, Public } from '@server/shared';
 import { PostService } from '../../modules/post/post.service';
 
 /**
@@ -21,6 +21,7 @@ export class PostController {
     /**
      * Get all posts with pagination
      */
+    @Public()
     @Get()
     findAllPosts(@Query() query: PostQueryDTO) {
         return this.postService.findAllPosts(query);
@@ -29,6 +30,7 @@ export class PostController {
     /**
      * Get post by ID
      */
+    @Public()
     @Get(':id')
     findPostById(@Param('id') id: string) {
         return this.postService.findPostById(id);

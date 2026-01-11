@@ -15,6 +15,7 @@ export * from './guards/jwt-auth.guard';
 export * from './guards/gateway-auth.guard';
 export * from './guards/verified.guard';
 export * from './guards/verified-only.decorator';
+export * from './guards/public.decorator';
 
 export * from './utils/slug.utils';
 export * from './utils/webhook_verify';

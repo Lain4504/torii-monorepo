@@ -8,26 +8,26 @@ import { Badge } from '@workspace/ui/components/badge';
 import type { PostResponseDTO } from '@workspace/schemas';
 import { Calendar, Eye, MessageCircle, User } from 'lucide-react';
 
-interface ViewBlogDialogProps {
+interface ViewPostDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    blog: PostResponseDTO | null;
+    post: PostResponseDTO | null;
 }
 
-export function ViewBlogDialog({
+export function ViewPostDialog({
     open,
     onOpenChange,
-    blog,
-}: ViewBlogDialogProps) {
-    if (!blog) return null;
+    post,
+}: ViewPostDialogProps) {
+    if (!post) return null;
 
-    const statusVariant = blog.status === 'published' ? 'default' : blog.status === 'draft' ? 'secondary' : 'outline';
+    const statusVariant = post.status === 'published' ? 'default' : post.status === 'draft' ? 'secondary' : 'outline';
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle className="text-2xl">{blog.title}</DialogTitle>
+                    <DialogTitle className="text-2xl">{post.title}</DialogTitle>
                 </DialogHeader>
 
                 <div className="space-y-4">
@@ -35,32 +35,32 @@ export function ViewBlogDialog({
                     <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                         <div className="flex items-center gap-2">
                             <User className="h-4 w-4" />
-                            <span>{blog.author?.displayName || 'Unknown'}</span>
+                            <span>{post.author?.displayName || 'Unknown'}</span>
                         </div>
-                        {blog.publishedAt && (
+                        {post.publishedAt && (
                             <div className="flex items-center gap-2">
                                 <Calendar className="h-4 w-4" />
-                                <span>{new Date(blog.publishedAt).toLocaleDateString()}</span>
+                                <span>{new Date(post.publishedAt).toLocaleDateString()}</span>
                             </div>
                         )}
                         <div className="flex items-center gap-2">
                             <Eye className="h-4 w-4" />
-                            <span>{blog.viewCount || 0} views</span>
+                            <span>{post.viewCount || 0} views</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <MessageCircle className="h-4 w-4" />
-                            <span>{blog.commentCount || 0} comments</span>
+                            <span>{post.commentCount || 0} comments</span>
                         </div>
                         <Badge variant={statusVariant} className="capitalize">
-                            {blog.status}
+                            {post.status}
                         </Badge>
                     </div>
 
                     {/* Excerpt */}
-                    {blog.excerpt && (
+                    {post.excerpt && (
                         <div className="space-y-2">
                             <h3 className="font-semibold">Excerpt</h3>
-                            <p className="text-muted-foreground">{blog.excerpt}</p>
+                            <p className="text-muted-foreground">{post.excerpt}</p>
                         </div>
                     )}
 
@@ -68,16 +68,16 @@ export function ViewBlogDialog({
                     <div className="space-y-2">
                         <h3 className="font-semibold">Content</h3>
                         <div className="prose max-w-none">
-                            <p className="whitespace-pre-wrap">{blog.content}</p>
+                            <p className="whitespace-pre-wrap">{post.content}</p>
                         </div>
                     </div>
 
                     {/* Tags */}
-                    {blog.tags && blog.tags.length > 0 && (
+                    {post.tags && post.tags.length > 0 && (
                         <div className="space-y-2">
                             <h3 className="font-semibold">Tags</h3>
                             <div className="flex flex-wrap gap-2">
-                                {blog.tags.map((tag, index) => (
+                                {post.tags.map((tag, index) => (
                                     <Badge key={index} variant="outline">
                                         {tag}
                                     </Badge>
@@ -87,19 +87,19 @@ export function ViewBlogDialog({
                     )}
 
                     {/* SEO Info */}
-                    {(blog.seoTitle || blog.seoDescription) && (
+                    {(post.seoTitle || post.seoDescription) && (
                         <div className="space-y-2 border-t pt-4">
                             <h3 className="font-semibold">SEO Information</h3>
-                            {blog.seoTitle && (
+                            {post.seoTitle && (
                                 <div>
                                     <span className="text-sm text-muted-foreground">SEO Title: </span>
-                                    <span className="text-sm">{blog.seoTitle}</span>
+                                    <span className="text-sm">{post.seoTitle}</span>
                                 </div>
                             )}
-                            {blog.seoDescription && (
+                            {post.seoDescription && (
                                 <div>
                                     <span className="text-sm text-muted-foreground">SEO Description: </span>
-                                    <span className="text-sm">{blog.seoDescription}</span>
+                                    <span className="text-sm">{post.seoDescription}</span>
                                 </div>
                             )}
                         </div>
@@ -107,8 +107,8 @@ export function ViewBlogDialog({
 
                     {/* Timestamps */}
                     <div className="space-y-1 border-t pt-4 text-xs text-muted-foreground">
-                        <div>Created: {new Date(blog.createdAt).toLocaleString()}</div>
-                        <div>Updated: {new Date(blog.updatedAt).toLocaleString()}</div>
+                        <div>Created: {new Date(post.createdAt).toLocaleString()}</div>
+                        <div>Updated: {new Date(post.updatedAt).toLocaleString()}</div>
                     </div>
                 </div>
             </DialogContent>

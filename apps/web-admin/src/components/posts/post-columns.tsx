@@ -15,15 +15,15 @@ import { Can } from "@/lib/guard/can";
 
 const columnHelper = createColumnHelper<PostResponseDTO>();
 
-export type BlogColumnsProps = {
-    onView: (blog: PostResponseDTO) => void;
-    onEdit: (blog: PostResponseDTO) => void;
-    onDelete: (blog: PostResponseDTO) => void;
+export type PostColumnsProps = {
+    onView: (post: PostResponseDTO) => void;
+    onEdit: (post: PostResponseDTO) => void;
+    onDelete: (post: PostResponseDTO) => void;
     page: number;
     limit: number;
 };
 
-export const getBlogColumns = ({ onView, onEdit, onDelete, page, limit }: BlogColumnsProps) => [
+export const getPostColumns = ({ onView, onEdit, onDelete, page, limit }: PostColumnsProps) => [
     // STT Column
     columnHelper.display({
         id: 'stt',
@@ -86,7 +86,7 @@ export const getBlogColumns = ({ onView, onEdit, onDelete, page, limit }: BlogCo
     columnHelper.display({
         id: 'actions',
         cell: ({ row }) => {
-            const blog = row.original;
+            const post = row.original;
 
             return (
                 <DropdownMenu>
@@ -98,18 +98,18 @@ export const getBlogColumns = ({ onView, onEdit, onDelete, page, limit }: BlogCo
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => navigator.clipboard.writeText(blog.id)}>
+                        <DropdownMenuItem onClick={() => navigator.clipboard.writeText(post.id)}>
                             Copy ID
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => onView(blog)}>
+                        <DropdownMenuItem onClick={() => onView(post)}>
                             <Eye className="mr-2 h-4 w-4" /> View Details
                         </DropdownMenuItem>
-                        <Can permission="blog.manage">
-                            <DropdownMenuItem onClick={() => onEdit(blog)}>
+                        <Can permission="post.manage">
+                            <DropdownMenuItem onClick={() => onEdit(post)}>
                                 <Pencil className="mr-2 h-4 w-4" /> Edit
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onDelete(blog)} className="text-red-600">
+                            <DropdownMenuItem onClick={() => onDelete(post)} className="text-red-600">
                                 <Trash className="mr-2 h-4 w-4" /> Delete
                             </DropdownMenuItem>
                         </Can>

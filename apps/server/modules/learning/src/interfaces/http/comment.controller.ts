@@ -4,7 +4,7 @@ import type {
     CommentUpdateDTO,
     CommentQueryDTO,
 } from '@workspace/schemas';
-import { GatewayAuthGuard } from '@server/shared';
+import { GatewayAuthGuard, Public } from '@server/shared';
 import { CommentService } from '../../modules/comment/comment.service';
 
 /**
@@ -21,6 +21,7 @@ export class CommentController {
     /**
      * Get all comments with pagination
      */
+    @Public()
     @Get()
     findAllComments(@Query() query: CommentQueryDTO) {
         return this.commentService.findAllComments(query);
@@ -29,6 +30,7 @@ export class CommentController {
     /**
      * Get comment by ID
      */
+    @Public()
     @Get(':id')
     findCommentById(@Param('id') id: string) {
         return this.commentService.findCommentById(id);
@@ -37,6 +39,7 @@ export class CommentController {
     /**
      * Get comment with nested replies
      */
+    @Public()
     @Get(':id/replies')
     getCommentWithReplies(@Param('id') commentId: string, @Query('depth') depth?: number) {
         return this.commentService.getCommentWithReplies(commentId, depth);
