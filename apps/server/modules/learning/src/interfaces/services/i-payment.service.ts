@@ -30,5 +30,10 @@ export interface IPaymentService {
      * Confirm/complete payment (mock implementation)
      */
     confirm(paymentId: string, input: PaymentConfirmDTO): Promise<PaymentResponseDTO>;
+
+    /**
+     * Handle PayOS Webhook
+     */
+    handleWebhook(webhookData: any, authHeader?: string): Promise<any>;
 }
 

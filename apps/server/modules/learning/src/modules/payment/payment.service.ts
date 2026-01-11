@@ -12,6 +12,7 @@ import type { IPaymentService } from '../../interfaces/services';
 import { PAYMENT_SERVICE_TOKEN, ENROLLMENT_SERVICE_TOKEN } from '../../interfaces/services';
 import type { IEnrollmentService } from '../../interfaces/services';
 import { PaymentRepository } from './payment.repository';
+import { SePayService } from './sepay.service';
 import { ICourseRepository, COURSE_REPOSITORY_TOKEN } from '../../interfaces/repositories';
 import type { Prisma } from '@prisma/generated';
 
@@ -29,7 +30,9 @@ export class PaymentService implements IPaymentService {
         private readonly courseRepository: ICourseRepository,
         @Inject(ENROLLMENT_SERVICE_TOKEN)
         private readonly enrollmentService: IEnrollmentService,
+        private readonly sePayService: SePayService,
     ) { }
+
 
     private toPaymentDto(p: any): PaymentResponseDTO {
         return {
@@ -171,6 +174,44 @@ export class PaymentService implements IPaymentService {
                 description: input.description || undefined,
                 metadata,
             });
+
+            // If SePay payment method, create QR code
+            if (input.paymentMethod === PaymentMethod.SEPAY) {
+                try {
+                    // Generate SePay QR Code
+                    // Use Payment ID or a shorter code as description
+                    // Payment ID is UUID, might be too long for some bank apps messages, but usually fine.
+                    // SePay recommends: "nội dung chuyển khoản". content field.
+
+                    const paymentRef = created.id.split('-')[0].toUpperCase(); // Short ref
+                    const description = `PAY ${paymentRef}`;
+
+                    const qrCodeUrl = this.sePayService.generateQrCode({
+                        amount: Number(created.amount),
+                        description: description,
+                    });
+
+                    // Update payment with transaction info
+                    await this.paymentRepository.update(created.id, {
+                        transactionId: paymentRef,
+                        metadata: {
+                            ...(created.metadata as any),
+                            qrCode: qrCodeUrl,
+                            paymentRef: paymentRef,
+                        }
+                    });
+
+                    return {
+                        ...this.toPaymentDto(created),
+                        qrCode: qrCodeUrl,
+                        paymentMethod: PaymentMethod.SEPAY,
+                    };
+                } catch (error: any) {
+                    this.logger.error(`Failed to create SePay QR: ${error.message}`);
+                    throw new BadRequestException(`Failed to initialize payment gateway: ${error.message}`);
+                }
+            }
+
             return this.toPaymentDto(created);
         } catch (error: any) {
             this.logger.error(`Error creating payment: ${error.message}`, error.stack);
@@ -252,6 +293,91 @@ export class PaymentService implements IPaymentService {
 
             this.logger.error(`Error confirming payment: ${error.message}`, error.stack);
             throw error;
+        }
+    }
+
+
+    /**
+     * Handle SePay Webhook
+     */
+    async handleWebhook(webhookData: any, authHeader?: string): Promise<any> {
+        try {
+            // Verify webhook data
+            // SePay sends Authorization header. We need to pass it here.
+            // But controller calls this. We need to update controller to pass header.
+            // Assuming we updated controller.
+            if (authHeader) {
+                this.sePayService.verifyWebhook(webhookData, authHeader);
+            }
+
+            // data: { id, gateway, transactionDate, accountNumber, content, transferType, transferAmount, ... }
+            const { content, transferAmount, referenceCode, id } = webhookData;
+
+            // Extract payment ref from content "PAY {ref}"
+            // Regex to find "PAY <REF>"
+            const match = content?.match(/PAY\s+([A-Z0-9]+)/i);
+            if (!match) {
+                this.logger.warn(`SePay webhook content does not match pattern: ${content}`);
+                // Should we return success anyway to stop SePay from retrying?
+                // If it's a transaction unrelated to us (spam?), yes.
+                // But maybe it's a valid transaction with wrong content?
+                // Let's assume we ignore it but acknowledge receipt.
+                return { success: true };
+            }
+
+            const paymentRef = match[1].toUpperCase();
+
+            // Find payment by transactionId (which stores the short ref)
+            const payment = await this.paymentRepository.findByTransactionId(paymentRef);
+
+            // Save transaction to DB
+            try {
+                await this.paymentRepository.createTransaction({
+                    paymentId: payment ? payment.id : undefined,
+                    transactionId: paymentRef,
+                    gateway: 'sepay',
+                    amount: transferAmount,
+                    currency: 'VND', // SePay is VND
+                    content: content,
+                    status: payment ? (payment.status === PaymentStatus.COMPLETED ? 'duplicate' : 'success') : 'orphan',
+                    rawResponse: webhookData,
+                });
+            } catch (txError) {
+                this.logger.error(`Failed to save payment transaction log: ${txError}`);
+            }
+
+            if (!payment) {
+                this.logger.warn(`Payment not found for SePay ref: ${paymentRef}`);
+                return { success: true, message: 'Payment not found' };
+            }
+
+            if (payment.status === PaymentStatus.COMPLETED) {
+                return { success: true, message: 'Already completed' };
+            }
+
+            // Verify amount
+            if (Number(transferAmount) < Number(payment.amount)) {
+                this.logger.warn(`Payment amount mismatch for ${payment.id}. Expected ${payment.amount}, got ${transferAmount}`);
+                // What to do? Partial payment? For now, ignore or mark as failed/partial?
+                // Let's not confirm it.
+                return { success: true, message: 'Amount mismatch' };
+            }
+
+            // Confirm payment
+            await this.confirm(payment.id, {
+                paymentId: payment.id,
+                transactionId: referenceCode || id.toString(),
+                gatewayTransactionId: id.toString(),
+                metadata: {
+                    ...webhookData,
+                    sepayWebhookReceivedAt: new Date().toISOString()
+                }
+            });
+
+            return { success: true };
+        } catch (error: any) {
+            this.logger.error(`Error handling webhook: ${error.message}`, error.stack);
+            return { success: false, error: error.message };
         }
     }
 }

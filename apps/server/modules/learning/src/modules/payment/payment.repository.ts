@@ -84,5 +84,15 @@ export class PaymentRepository implements IPaymentRepository {
             where: { id },
         });
     }
+
+    /**
+     * Create a payment transaction log
+     */
+    async createTransaction(data: any): Promise<any> {
+        // Use any for data type temporarily as Prisma types might not be fully updated in IDE context
+        return this.prisma.paymentTransaction.create({
+            data,
+        });
+    }
 }
 

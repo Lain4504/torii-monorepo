@@ -15,6 +15,8 @@ export enum PaymentMethod {
     MOMO = 'momo',
     ZALOPAY = 'zalopay',
     VNPAY = 'vnpay',
+    PAYOS = 'payos',
+    SEPAY = 'sepay',
     MOCK = 'mock',
 }
 
@@ -23,6 +25,8 @@ export enum PaymentGateway {
     PAYPAL = 'paypal',
     VNPAY = 'vnpay',
     MOMO = 'momo',
+    PAYOS = 'payos',
+    SEPAY = 'sepay',
     MOCK = 'mock',
 }
 
@@ -52,6 +56,8 @@ export const paymentSchema = z.object({
     failedAt: z.date().optional(),
     createdAt: z.date(),
     updatedAt: z.date(),
+    checkoutUrl: z.string().optional(),
+    qrCode: z.string().optional(),
 });
 
 export type Payment = z.infer<typeof paymentSchema>;

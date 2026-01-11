@@ -9,8 +9,11 @@ import {
     Request,
     Inject,
     ParseUUIDPipe,
+    HttpCode,
+    HttpStatus,
+    Headers as RequestHeaders,
 } from '@nestjs/common';
-import { GatewayAuthGuard } from '@server/shared';
+import { GatewayAuthGuard, Public } from '@server/shared';
 import type {
     PaymentResponseDTO,
     PaymentCreateDTO,
@@ -57,6 +60,19 @@ export class PaymentController {
     ): Promise<PaymentResponseDTO> {
         const userId = req.requester.sub;
         return this.paymentService.create(userId, input);
+    }
+
+    /**
+     * Handle SePay Webhook
+     */
+    @Post('webhook/sepay')
+    @Public()
+    @HttpCode(HttpStatus.OK)
+    async handleSePayWebhook(
+        @Body() webhookData: any,
+        @RequestHeaders('authorization') authHeader: string,
+    ): Promise<any> {
+        return this.paymentService.handleWebhook(webhookData, authHeader);
     }
 
     /**

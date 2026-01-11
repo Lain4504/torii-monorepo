@@ -1087,7 +1087,7 @@ model Payment {
   // Relations
   user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   enrollment Enrollment? // Relation defined on Enrollment side (via paymentId)
-  // Note: Coupon relation will be added when Coupon model is created
+  transactions PaymentTransaction[]
 
   @@index([userId])
   @@index([status])
@@ -1096,4 +1096,23 @@ model Payment {
   @@index([createdAt])
   @@index([transactionId])
   @@map("payments")
+}
+
+model PaymentTransaction {
+  id                    String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  paymentId             String?       @map("payment_id") @db.Uuid
+  transactionId         String?       @map("transaction_id") @db.VarChar(100) // SePay ID or Ref
+  gateway               String?       @db.VarChar(50) // "sepay"
+  amount                Decimal?      @db.Decimal(10, 2)
+  currency              String        @default("VND") @db.VarChar(3)
+  content               String?       @db.Text
+  status                String?       @db.VarChar(50) // success/fail
+  rawResponse           Json?         @map("raw_response") // Full webhook data
+  processedAt           DateTime      @default(now()) @map("processed_at")
+
+  payment               Payment?      @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+
+  @@index([paymentId])
+  @@index([transactionId])
+  @@map("payment_transactions")
 }

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
-import { Loader2, ArrowLeft, CreditCard, CheckCircle2, ShieldCheck, Zap, Receipt, Sparkles, Building2, Wallet } from 'lucide-react'
+import { Loader2, ArrowLeft, CreditCard, CheckCircle2, ShieldCheck, Zap, Receipt, Sparkles, Building2, Wallet, QrCode } from 'lucide-react'
 import { courseApi } from '@/api/services/course-api'
 import { paymentApi } from '@/api/services/payment-api'
 import { enrollmentApi } from '@/api/services/enrollment-api'
@@ -15,6 +15,7 @@ import { PageLoading } from '@workspace/ui/components/page-loading'
 import { cn } from '@workspace/ui/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
 import { Separator } from '@workspace/ui/components/separator'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@workspace/ui/components/dialog'
 
 export default function CheckoutPage() {
     const params = useParams()
@@ -24,7 +25,8 @@ export default function CheckoutPage() {
     const [course, setCourse] = useState<CourseResponseDTO | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [isProcessing, setIsProcessing] = useState(false)
-    const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(PaymentMethod.MOCK)
+    const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(PaymentMethod.SEPAY)
+    const [qrCodeData, setQrCodeData] = useState<{ url: string, ref: string } | null>(null)
 
     const status = useAppSelector((state) => state.auth.status)
     const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated)
@@ -83,30 +85,27 @@ export default function CheckoutPage() {
             // Step 1: Create payment
             const payment = await paymentApi.createPayment({
                 courseId: course.id,
-                paymentMethod: paymentMethod,
+                paymentMethod: paymentMethod, // Now defaults to SEPAY
                 paymentType: PaymentType.COURSE_PURCHASE,
                 description: `Thanh toán cho khóa học: ${course.title}`,
             })
 
-            // Step 2: Confirm payment (mock - in production this would be handled by payment gateway)
-            const confirmedPayment = await paymentApi.confirmPayment(payment.id, {
-                paymentId: payment.id,
-                transactionId: `MOCK-${Date.now()}-${payment.id.substring(0, 8)}`,
-            })
-
-            // Step 3: Create enrollment
-            const enrollment = await enrollmentApi.createEnrollment({
-                courseId: course.id,
-            })
-
-            toast.success('Thanh toán thành công! Đang chuyển đến khóa học...', {
-                className: "border-emerald-500/20 bg-background/95 backdrop-blur-xl",
-            })
-
-            // Redirect to course learning page
-            setTimeout(() => {
-                router.push(`/courses/${course.slug}/learn`)
-            }, 1000)
+            // If SePay, show QR Code
+            if (paymentMethod === PaymentMethod.SEPAY) {
+                if (payment.qrCode) {
+                    setQrCodeData({
+                        url: payment.qrCode,
+                        ref: payment.metadata?.paymentRef || '',
+                    })
+                    toast.success('Đã tạo mã QR. Vui lòng quét để thanh toán.')
+                } else {
+                    throw new Error('Không tìm thấy mã QR thanh toán')
+                }
+            } else {
+                // Handle success directly if mock
+                toast.success('Thanh toán thành công!')
+                router.push(`/checkout/return?payment_id=${payment.id}`)
+            }
         } catch (error: any) {
             console.error('Payment failed:', error)
             toast.error(error?.response?.data?.message || 'Thanh toán thất bại. Vui lòng thử lại.')
@@ -225,12 +224,12 @@ export default function CheckoutPage() {
                             </h2>
 
                             <div className="grid gap-4">
-                                {/* Mock Payment Option */}
+                                {/* SePay Option */}
                                 <div
-                                    onClick={() => setPaymentMethod(PaymentMethod.MOCK)}
+                                    onClick={() => setPaymentMethod(PaymentMethod.SEPAY)}
                                     className={cn(
                                         "relative group cursor-pointer transition-all duration-300 rounded-[1.5rem] border overflow-hidden",
-                                        paymentMethod === PaymentMethod.MOCK
+                                        paymentMethod === PaymentMethod.SEPAY
                                             ? "bg-primary/5 border-primary/20 shadow-lg shadow-primary/5"
                                             : "bg-background/40 border-white/5 hover:border-white/10 hover:bg-background/60"
                                     )}
@@ -238,116 +237,164 @@ export default function CheckoutPage() {
                                     <div className="p-5 flex items-center gap-4">
                                         <div className={cn(
                                             "w-12 h-12 rounded-2xl flex items-center justify-center transition-colors shrink-0",
-                                            paymentMethod === PaymentMethod.MOCK ? "bg-primary text-primary-foreground" : "bg-muted/10 text-muted-foreground"
+                                            paymentMethod === PaymentMethod.SEPAY ? "bg-emerald-500/20 text-emerald-500" : "bg-muted/10 text-muted-foreground"
                                         )}>
-                                            <Building2 className="w-6 h-6" />
+                                            <QrCode className="w-6 h-6" />
                                         </div>
                                         <div className="flex-1">
                                             <div className="flex items-center justify-between mb-1">
-                                                <h4 className="font-bold text-foreground">Thanh toán giả lập (Test Mode)</h4>
-                                                {paymentMethod === PaymentMethod.MOCK && (
+                                                <h4 className="font-bold text-foreground">SePay / QR Code</h4>
+                                                {paymentMethod === PaymentMethod.SEPAY && (
                                                     <CheckCircle2 className="w-5 h-5 text-primary fill-primary/20" />
                                                 )}
                                             </div>
                                             <p className="text-xs text-muted-foreground font-medium leading-relaxed max-w-[90%]">
-                                                Hệ thống giả lập thanh toán cho môi trường phát triển. Đơn hàng sẽ được xác nhận ngay lập tức.
+                                                Quét mã QR để chuyển khoản nhanh chóng. Hỗ trợ VietQR.
                                             </p>
                                         </div>
                                     </div>
                                 </div>
-
-                                {/* Placeholder for Real Payment (Disabled style) */}
-                                <div className="opacity-50 grayscale pointer-events-none rounded-[1.5rem] border border-white/5 bg-background/20 p-5 flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-2xl bg-muted/10 flex items-center justify-center shrink-0">
-                                        <CreditCard className="w-6 h-6 text-muted-foreground" />
-                                    </div>
-                                    <div>
-                                        <h4 className="font-bold text-foreground">Thẻ ghi nợ / Tín dụng</h4>
-                                        <p className="text-xs text-muted-foreground font-medium">Sắp ra mắt</p>
-                                    </div>
-                                </div>
                             </div>
-                        </div>
-                    </div>
 
-                    {/* Right Column: Order Summary */}
-                    <div className="lg:col-span-4 animate-in fade-in slide-in-from-right-4 duration-700 delay-200">
-                        <div className="sticky top-24 space-y-6">
-                            <div className="rounded-[2rem] border border-white/5 bg-background/60 backdrop-blur-xl shadow-2xl shadow-black/5 overflow-hidden">
-                                <div className="p-6 lg:p-8 space-y-6">
-                                    <h3 className="text-lg font-black uppercase tracking-widest text-muted-foreground/80 flex items-center gap-2">
-                                        <Receipt className="w-4 h-4" />
-                                        Hóa đơn
-                                    </h3>
-
-                                    <div className="space-y-4">
-                                        <div className="flex justify-between items-center text-sm">
-                                            <span className="text-muted-foreground font-medium">Giá gốc</span>
-                                            <span className={cn("font-bold", discount > 0 && "line-through text-muted-foreground/50")}>
-                                                {formatPrice(Number(course.price))}
-                                            </span>
-                                        </div>
-
-                                        {discount > 0 && (
-                                            <div className="flex justify-between items-center text-sm">
-                                                <span className="text-emerald-500 font-medium flex items-center gap-1.5">
-                                                    <Zap className="w-3 h-3 fill-current" />
-                                                    Giảm giá ưu đãi
-                                                </span>
-                                                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-0 text-[10px] font-black uppercase tracking-wider">
-                                                    -{Math.round(discount)}%
-                                                </Badge>
-                                            </div>
-                                        )}
-
-                                        <Separator className="bg-border/40" />
-
-                                        <div className="flex justify-between items-end pt-2">
-                                            <span className="text-sm font-bold uppercase tracking-wider text-foreground">Tổng thanh toán</span>
-                                            <div className="text-right">
-                                                <span className="block text-3xl font-black text-primary tracking-tight">
-                                                    {formatPrice(total)}
-                                                </span>
-                                                {/* <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">VNĐ</span> */}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="pt-4">
-                                        <Button
-                                            className="w-full h-14 rounded-2xl text-sm font-black uppercase tracking-widest bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
-                                            onClick={handlePayment}
-                                            disabled={isProcessing}
-                                        >
-                                            {isProcessing ? (
-                                                <>
-                                                    <Loader2 className="w-5 h-5 mr-3 animate-spin" />
-                                                    Đang xử lý...
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <ShieldCheck className="w-5 h-5 mr-3" />
-                                                    Thanh toán ngay
-                                                </>
-                                            )}
-                                        </Button>
-                                        <div className="mt-4 flex items-center justify-center gap-2 text-[10px] text-muted-foreground font-medium uppercase tracking-tight">
-                                            <ShieldCheck className="w-3 h-3" />
-                                            Bảo mật thanh toán 100%
-                                        </div>
-                                    </div>
+                            {/* Placeholder for Real Payment (Disabled style) */}
+                            <div className="opacity-50 grayscale pointer-events-none rounded-[1.5rem] border border-white/5 bg-background/20 p-5 flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-2xl bg-muted/10 flex items-center justify-center shrink-0">
+                                    <CreditCard className="w-6 h-6 text-muted-foreground" />
                                 </div>
-                                <div className="bg-muted/30 p-4 border-t border-white/5 text-center">
-                                    <p className="text-[10px] text-muted-foreground/60 leading-relaxed max-w-xs mx-auto">
-                                        Bằng việc hoàn tất thanh toán, bạn đồng ý với <span className="underline cursor-pointer hover:text-primary transition-colors">Điều khoản dịch vụ</span> của Torii.
-                                    </p>
+                                <div>
+                                    <h4 className="font-bold text-foreground">Thẻ ghi nợ / Tín dụng</h4>
+                                    <p className="text-xs text-muted-foreground font-medium">Sắp ra mắt</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                {/* Right Column: Order Summary */}
+                <div className="lg:col-span-4 animate-in fade-in slide-in-from-right-4 duration-700 delay-200">
+                    <div className="sticky top-24 space-y-6">
+                        <div className="rounded-[2rem] border border-white/5 bg-background/60 backdrop-blur-xl shadow-2xl shadow-black/5 overflow-hidden">
+                            <div className="p-6 lg:p-8 space-y-6">
+                                <h3 className="text-lg font-black uppercase tracking-widest text-muted-foreground/80 flex items-center gap-2">
+                                    <Receipt className="w-4 h-4" />
+                                    Hóa đơn
+                                </h3>
+
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-center text-sm">
+                                        <span className="text-muted-foreground font-medium">Giá gốc</span>
+                                        <span className={cn("font-bold", discount > 0 && "line-through text-muted-foreground/50")}>
+                                            {formatPrice(Number(course.price))}
+                                        </span>
+                                    </div>
+
+                                    {discount > 0 && (
+                                        <div className="flex justify-between items-center text-sm">
+                                            <span className="text-emerald-500 font-medium flex items-center gap-1.5">
+                                                <Zap className="w-3 h-3 fill-current" />
+                                                Giảm giá ưu đãi
+                                            </span>
+                                            <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-0 text-[10px] font-black uppercase tracking-wider">
+                                                -{Math.round(discount)}%
+                                            </Badge>
+                                        </div>
+                                    )}
+
+                                    <Separator className="bg-border/40" />
+
+                                    <div className="flex justify-between items-end pt-2">
+                                        <span className="text-sm font-bold uppercase tracking-wider text-foreground">Tổng thanh toán</span>
+                                        <div className="text-right">
+                                            <span className="block text-3xl font-black text-primary tracking-tight">
+                                                {formatPrice(total)}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="pt-4">
+                                    <Button
+                                        className="w-full h-14 rounded-2xl text-sm font-black uppercase tracking-widest bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                                        onClick={handlePayment}
+                                        disabled={isProcessing}
+                                    >
+                                        {isProcessing ? (
+                                            <>
+                                                <Loader2 className="w-5 h-5 mr-3 animate-spin" />
+                                                Đang xử lý...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <ShieldCheck className="w-5 h-5 mr-3" />
+                                                Thanh toán ngay
+                                            </>
+                                        )}
+                                    </Button>
+                                    <div className="mt-4 flex items-center justify-center gap-2 text-[10px] text-muted-foreground font-medium uppercase tracking-tight">
+                                        <ShieldCheck className="w-3 h-3" />
+                                        Bảo mật thanh toán 100%
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="bg-muted/30 p-4 border-t border-white/5 text-center">
+                                <p className="text-[10px] text-muted-foreground/60 leading-relaxed max-w-xs mx-auto">
+                                    Bằng việc hoàn tất thanh toán, bạn đồng ý với <span className="underline cursor-pointer hover:text-primary transition-colors">Điều khoản dịch vụ</span> của Torii.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            {/* QR Code Dialog */}
+            <Dialog open={!!qrCodeData} onOpenChange={(open) => {
+                if (!open) {
+                    setQrCodeData(null)
+                    // Optionally check status or redirect
+                }
+            }}>
+                <DialogContent className="sm:max-w-md bg-background/95 backdrop-blur-xl border-white/10">
+                    <DialogHeader>
+                        <DialogTitle className="text-center text-xl font-bold uppercase tracking-tight">Quét mã thanh toán</DialogTitle>
+                        <DialogDescription className="text-center">
+                            Sử dụng ứng dụng ngân hàng của bạn để quét mã QR bên dưới.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex flex-col items-center justify-center p-6 space-y-4">
+                        {qrCodeData && (
+                            <div className="relative p-2 bg-white rounded-xl shadow-xl">
+                                <img
+                                    src={qrCodeData.url}
+                                    alt="Payment QR Code"
+                                    className="w-64 h-64 object-contain"
+                                />
+                            </div>
+                        )}
+                        <div className="text-center space-y-2">
+                            <p className="text-sm font-medium">Nội dung chuyển khoản:</p>
+                            <div className="bg-muted/50 p-3 rounded-lg border border-white/5 select-all font-mono font-bold text-lg tracking-wider text-primary">
+                                {qrCodeData?.ref ? `PAY ${qrCodeData.ref}` : "..."}
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-2">
+                                Hệ thống sẽ tự động xác nhận thanh toán sau vài phút.
+                            </p>
+                        </div>
+                        <Button
+                            className="w-full mt-4"
+                            variant="outline"
+                            onClick={() => {
+                                // Maybe force check or just close
+                                setQrCodeData(null)
+                                // In a real app, maybe poll here?
+                            }}
+                        >
+                            Tôi đã thanh toán
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }
+
 

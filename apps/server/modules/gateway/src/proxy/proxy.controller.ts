@@ -42,6 +42,7 @@ export class ProxyController {
         '/api/reviews': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
         '/api/enrollments': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
         '/api/payments': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
+        '/webhook': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
 
         // Storage Domain
         '/api/storage': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
@@ -73,8 +74,8 @@ export class ProxyController {
         // Meet Service (Port 8091)
         // WebRTC, Live Classes, Rooms, Polls, Waiting Room
         // ============================================
-        // LiveKit Webhook
-        '/webhook': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
+        // LiveKit Webhook (moved to learning service for PayOS, need better strategy for multiple webhooks later)
+        // '/webhook': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
 
         // Room Authentication
         '/auth/room': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
