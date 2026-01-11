@@ -4,7 +4,7 @@ import type {
     PostUpdateDTO,
     PostQueryDTO,
 } from '@workspace/schemas';
-import { GatewayAuthGuard, Public } from '@server/shared';
+import { GatewayAuthGuard, Public, successResponse, successPaginatedResponse } from '@server/shared';
 import { PostService } from '../../modules/post/post.service';
 
 /**
@@ -23,8 +23,25 @@ export class PostController {
      */
     @Public()
     @Get()
-    findAllPosts(@Query() query: PostQueryDTO) {
-        return this.postService.findAllPosts(query);
+    async findAllPosts(@Query() query: PostQueryDTO) {
+        const result = await this.postService.findAllPosts(query);
+        return successPaginatedResponse(
+            result.data,
+            result.total,
+            result.page,
+            result.limit,
+            result.totalPages,
+        );
+    }
+
+    /**
+     * Get post by slug
+     */
+    @Public()
+    @Get('slug/:slug')
+    async findPostBySlug(@Param('slug') slug: string) {
+        const post = await this.postService.findPostBySlug(slug);
+        return successResponse(post);
     }
 
     /**
@@ -32,31 +49,45 @@ export class PostController {
      */
     @Public()
     @Get(':id')
-    findPostById(@Param('id') id: string) {
-        return this.postService.findPostById(id);
+    async findPostById(@Param('id') id: string) {
+        const post = await this.postService.findPostById(id);
+        return successResponse(post);
+    }
+
+    /**
+     * Increment view count for a post
+     */
+    @Public()
+    @Patch(':id/view')
+    async incrementViewCount(@Param('id') id: string) {
+        await this.postService.incrementViewCount(id);
+        return successResponse(null, 'View count incremented');
     }
 
     /**
      * Create new post
      */
     @Post()
-    createPost(@Body() dto: PostCreateDTO, @Req() req: any) {
-        return this.postService.createPost(dto);
+    async createPost(@Body() dto: PostCreateDTO, @Req() req: any) {
+        const post = await this.postService.createPost(dto);
+        return successResponse(post, 'Post created successfully');
     }
 
     /**
      * Update post
      */
     @Patch(':id')
-    updatePost(@Param('id') id: string, @Body() dto: PostUpdateDTO) {
-        return this.postService.updatePost(id, dto);
+    async updatePost(@Param('id') id: string, @Body() dto: PostUpdateDTO) {
+        const post = await this.postService.updatePost(id, dto);
+        return successResponse(post, 'Post updated successfully');
     }
 
     /**
      * Delete post
      */
     @Delete(':id')
-    deletePost(@Param('id') id: string) {
-        return this.postService.deletePost(id);
+    async deletePost(@Param('id') id: string) {
+        await this.postService.deletePost(id);
+        return successResponse(null, 'Post deleted successfully');
     }
 }

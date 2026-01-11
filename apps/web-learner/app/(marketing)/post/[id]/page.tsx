@@ -4,7 +4,7 @@ import { use, useEffect, useState } from 'react'
 import { postApi } from '@/api/services/post-api'
 import { PostSidebar } from '@/components/post/post-sidebar'
 import { CommentSection } from '@/components/post/comment-section'
-import type { BlogPostResponseDTO } from '@workspace/schemas'
+import type { PostResponseDTO } from '@workspace/schemas'
 import { TiptapEditor } from '@workspace/ui/components/tiptap-editor'
 import { Loader2, Calendar, User, Eye, Share2, Heart, Bookmark, ChevronLeft, Clock, List } from 'lucide-react'
 import { format } from 'date-fns'
@@ -16,8 +16,8 @@ import { useAppSelector } from '@/hooks/hooks'
 
 export default function PostDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params)
-    const [post, setPost] = useState<BlogPostResponseDTO | null>(null)
-    const [recentPosts, setRecentPosts] = useState<BlogPostResponseDTO[]>([])
+    const [post, setPost] = useState<PostResponseDTO | null>(null)
+    const [recentPosts, setRecentPosts] = useState<PostResponseDTO[]>([])
     const [loading, setLoading] = useState(true)
     const { isAuthenticated } = useAppSelector(state => state.auth)
 
@@ -27,10 +27,17 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                 setLoading(true)
                 const [postData, latestData] = await Promise.all([
                     postApi.findById(id),
-                    postApi.findAll({ limit: 5 })
+                    postApi.findAll({ page: 1, limit: 5 })
                 ])
                 setPost(postData)
                 setRecentPosts(latestData.data.filter(p => p.id !== postData?.id))
+                
+                // Increment view count (only once per session)
+                const viewCountKey = `post_viewed_${id}`
+                if (!sessionStorage.getItem(viewCountKey)) {
+                    postApi.incrementViewCount(id)
+                    sessionStorage.setItem(viewCountKey, 'true')
+                }
             } catch (error) {
                 console.error('Failed to fetch post:', error)
             } finally {
@@ -58,7 +65,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                 <h1 className="text-2xl font-bold">Ôi! Không tìm thấy bài viết này</h1>
                 <p className="text-muted-foreground">Có vẻ như bài viết đã bị gỡ bỏ hoặc link không chính xác.</p>
                 <Link href="/post">
-                    <Button variant="primary" className="rounded-xl px-8 h-12 font-bold shadow-lg shadow-primary/20">
+                    <Button className="rounded-xl px-8 h-12 font-bold shadow-lg shadow-primary/20">
                         Quay lại trang Posts
                     </Button>
                 </Link>
@@ -73,9 +80,9 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
     // Simple TOC generation
     const headings = post.content ? 
         Array.from(post.content.matchAll(/<h([2-3])>(.*?)<\/h\1>/g)).map(m => ({
-            level: parseInt(m[1]),
-            text: m[2].replace(/<[^>]*>/g, ''),
-            id: m[2].toLowerCase().replace(/\s+/g, '-')
+            level: parseInt(m[1] || '2', 10),
+            text: (m[2] || '').replace(/<[^>]*>/g, ''),
+            id: (m[2] || '').toLowerCase().replace(/\s+/g, '-')
         })) : []
 
     return (
@@ -189,7 +196,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                             <div className="flex items-center gap-4">
                                 <span className="text-sm font-bold text-muted-foreground">Chia sẻ:</span>
                                 <div className="flex gap-2">
-                                    <Button variant="accent" size="icon" className="h-10 w-10 rounded-full bg-[#1877F2] text-white hover:opacity-90">
+                                    <Button variant="outline" size="icon" className="h-10 w-10 rounded-full bg-[#1877F2] text-white hover:opacity-90 border-none">
                                         <Share2 className="w-4 h-4" />
                                     </Button>
                                     <Button variant="outline" size="icon" className="h-10 w-10 rounded-full">

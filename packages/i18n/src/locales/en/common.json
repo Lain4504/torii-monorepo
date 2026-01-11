@@ -107,6 +107,7 @@
         "header": {
             "courses": "Courses",
             "liveClasses": "Live Classes",
+            "post": "Posts",
             "jlptPractice": "JLPT Practice",
             "flashcards": "Flashcards",
             "login": "Login",

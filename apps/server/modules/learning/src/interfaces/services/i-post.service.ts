@@ -35,5 +35,15 @@ export interface IPostService {
      * Delete post
      */
     deletePost(id: string): Promise<{ success: boolean }>;
+
+    /**
+     * Increment view count for a post
+     */
+    incrementViewCount(id: string): Promise<void>;
+
+    /**
+     * Find post by slug
+     */
+    findPostBySlug(slug: string): Promise<PostResponseDTO>;
 }
 

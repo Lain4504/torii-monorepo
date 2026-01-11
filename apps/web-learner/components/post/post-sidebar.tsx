@@ -2,14 +2,14 @@
 
 import Link from 'next/link'
 import { User, Tag, Clock, ChevronRight, MessageSquare } from 'lucide-react'
-import type { BlogPostResponseDTO } from '@workspace/schemas'
+import type { PostResponseDTO } from '@workspace/schemas'
 import { Badge } from '@workspace/ui/components/badge'
 import { format } from 'date-fns'
 import { vi } from 'date-fns/locale'
 
 interface PostSidebarProps {
-    author: BlogPostResponseDTO['author']
-    recentPosts: BlogPostResponseDTO[]
+    author: PostResponseDTO['author']
+    recentPosts: PostResponseDTO[]
     popularTags: string[]
 }
 

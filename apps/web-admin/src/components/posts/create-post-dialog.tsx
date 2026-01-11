@@ -3,15 +3,17 @@ import { useForm, type SubmitHandler, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from '@workspace/ui/components/dialog';
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+} from '@workspace/ui/components/sheet';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Textarea } from '@workspace/ui/components/textarea';
 import { TiptapEditor } from '@workspace/ui/components/tiptap-editor';
+import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import {
     Select,
     SelectContent,
@@ -24,7 +26,7 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { Loader2, Upload, X } from 'lucide-react';
+import { Loader2, UploadCloud, X, FileText, Sparkles, Image as ImageIcon } from 'lucide-react';
 import { PostStatus, type PostCreateDTO } from '@workspace/schemas';
 import { useCreatePost } from '@/api/services/post.ts';
 import { toast } from '@workspace/ui/components/sonner';
@@ -172,266 +174,350 @@ export function CreatePostDialog({
             };
 
             await createPost.mutateAsync(dto);
-            toast.success('Post created successfully!');
-            reset();
-            setCoverImageFile(null);
-            setCoverImagePreview(null);
-            onOpenChange(false);
+            toast.success('Article Initialized', {
+                description: 'Post structure established. Content can now be published.',
+            });
+            handleClose();
         } catch (error: any) {
-            toast.error('Failed to create post', {
-                description: error.response?.data?.message || error.message,
+            toast.error('Initialization Failed', {
+                description: error.response?.data?.error || error.message,
             });
         } finally {
             setUploading(false);
         }
     };
 
-    const handleOpenChange = (newOpen: boolean) => {
-        if (!newOpen) {
+    const handleClose = () => {
+        if (!uploading) {
+            onOpenChange(false);
             reset();
             setCoverImageFile(null);
             setCoverImagePreview(null);
         }
-        onOpenChange(newOpen);
     };
 
     return (
-        <Dialog open={open} onOpenChange={handleOpenChange}>
-            <DialogContent className="max-w-3xl border-none shadow-2xl bg-background/95 backdrop-blur-xl rounded-2xl p-0 overflow-hidden max-h-[95vh] overflow-y-auto">
-                <DialogHeader className="p-8 pb-4 bg-muted/30">
-                    <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">Create New Post</DialogTitle>
-                </DialogHeader>
-
-                <form onSubmit={handleSubmit(handleFormSubmit)} className="p-8 pt-4 space-y-6" noValidate>
-                    {/* Cover Image */}
-                    <Field className="space-y-2">
-                        <FieldLabel htmlFor="cover-image-upload" className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Cover Image</FieldLabel>
-                        {coverImagePreview ? (
-                            <div className="relative rounded-xl overflow-hidden border border-border">
-                                <img
-                                    src={coverImagePreview}
-                                    alt="Cover preview"
-                                    className="w-full h-48 object-cover"
-                                />
-                                <Button
-                                    type="button"
-                                    variant="destructive"
-                                    size="icon"
-                                    className="absolute top-2 right-2 h-8 w-8"
-                                    onClick={removeCoverImage}
-                                >
-                                    <X className="h-4 w-4" />
-                                </Button>
-                            </div>
-                        ) : (
-                            <div className="border-2 border-dashed border-border/50 rounded-xl p-6 bg-muted/30 hover:bg-muted/50 transition-colors">
-                                <div className="flex flex-col items-center justify-center gap-2">
-                                    <Upload className="h-8 w-8 text-muted-foreground" />
-                                    <FieldLabel htmlFor="cover-image-upload" className="cursor-pointer text-sm text-muted-foreground hover:text-foreground transition-colors">
-                                        Click to upload cover image
-                                        <Input
-                                            id="cover-image-upload"
-                                            type="file"
-                                            accept="image/*"
-                                            className="hidden"
-                                            onChange={handleCoverImageChange}
-                                        />
-                                    </FieldLabel>
-                                    <p className="text-xs text-muted-foreground">
-                                        JPG, PNG or GIF. Max 5MB
-                                    </p>
-                                </div>
-                            </div>
-                        )}
-                    </Field>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <Controller
-                            control={control}
-                            name="title"
-                            render={({ field, fieldState }) => (
-                                <Field className="space-y-2 col-span-2" data-invalid={fieldState.invalid}>
-                                    <FieldLabel htmlFor={field.name} className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Title</FieldLabel>
-                                    <Input
-                                        id={field.name}
-                                        {...field}
-                                        placeholder="Enter post title"
-                                        className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all"
-                                        aria-invalid={fieldState.invalid}
-                                    />
-                                    <FieldError errors={[fieldState.error]} className="text-[10px] font-medium text-destructive ml-1" />
-                                </Field>
-                            )}
-                        />
-
-                        <Controller
-                            control={control}
-                            name="excerpt"
-                            render={({ field, fieldState }) => (
-                                <Field className="space-y-2 col-span-2" data-invalid={fieldState.invalid}>
-                                    <FieldLabel htmlFor={field.name} className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Excerpt</FieldLabel>
-                                    <Textarea
-                                        id={field.name}
-                                        {...field}
-                                        value={field.value || ''}
-                                        placeholder="Short description of the post"
-                                        rows={3}
-                                        className="border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all"
-                                        aria-invalid={fieldState.invalid}
-                                    />
-                                    <FieldError errors={[fieldState.error]} className="text-[10px] font-medium text-destructive ml-1" />
-                                </Field>
-                            )}
-                        />
-
-                        <Controller
-                            control={control}
-                            name="content"
-                            render={({ field, fieldState }) => (
-                                <Field className="space-y-2 col-span-2" data-invalid={fieldState.invalid}>
-                                    <FieldLabel htmlFor={field.name} className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Content</FieldLabel>
-                                    <TiptapEditor
-                                        content={field.value || ''}
-                                        onChange={(html) => field.onChange(html)}
-                                        placeholder="Write your post content here..."
-                                        ariaInvalid={fieldState.invalid}
-                                        className="min-h-[400px]"
-                                        showCharacterCount={true}
-                                        mode="admin"
-                                    />
-                                    <FieldError errors={[fieldState.error]} className="text-[10px] font-medium text-destructive ml-1" />
-                                </Field>
-                            )}
-                        />
-
-                        <Controller
-                            control={control}
-                            name="status"
-                            render={({ field, fieldState }) => (
-                                <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                    <FieldLabel htmlFor={field.name} className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Status</FieldLabel>
-                                    <Select
-                                        value={field.value}
-                                        onValueChange={(value) => field.onChange(value as PostStatus)}
-                                    >
-                                        <SelectTrigger id={field.name} className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus:ring-1 focus:ring-primary/20 rounded-xl transition-all" aria-invalid={fieldState.invalid}>
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent className="border-none shadow-2xl bg-popover/95 backdrop-blur-xl rounded-xl">
-                                            <SelectItem value={PostStatus.DRAFT} className="rounded-lg focus:bg-primary/5">Draft</SelectItem>
-                                            <SelectItem value={PostStatus.PUBLISHED} className="rounded-lg focus:bg-primary/5">Published</SelectItem>
-                                            <SelectItem value={PostStatus.ARCHIVED} className="rounded-lg focus:bg-primary/5">Archived</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    <FieldError errors={[fieldState.error]} className="text-[10px] font-medium text-destructive ml-1" />
-                                </Field>
-                            )}
-                        />
-
-                        <Controller
-                            control={control}
-                            name="tags"
-                            render={({ field, fieldState }) => (
-                                <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                    <FieldLabel htmlFor={field.name} className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Tags</FieldLabel>
-                                    <Input
-                                        id={field.name}
-                                        {...field}
-                                        value={field.value || ''}
-                                        placeholder="Enter tags separated by commas"
-                                        className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all"
-                                        aria-invalid={fieldState.invalid}
-                                    />
-                                    <FieldError errors={[fieldState.error]} className="text-[10px] font-medium text-destructive ml-1" />
-                                </Field>
-                            )}
-                        />
-
-                        <Controller
-                            control={control}
-                            name="publishedAt"
-                            render={({ field, fieldState }) => (
-                                <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                    <FieldLabel htmlFor={field.name} className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Published At</FieldLabel>
-                                    <Input
-                                        id={field.name}
-                                        type="datetime-local"
-                                        {...field}
-                                        value={field.value || ''}
-                                        className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all"
-                                        aria-invalid={fieldState.invalid}
-                                    />
-                                    <FieldError errors={[fieldState.error]} className="text-[10px] font-medium text-destructive ml-1" />
-                                </Field>
-                            )}
-                        />
-
-                        <Controller
-                            control={control}
-                            name="seoTitle"
-                            render={({ field, fieldState }) => (
-                                <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                    <FieldLabel htmlFor={field.name} className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">SEO Title</FieldLabel>
-                                    <Input
-                                        id={field.name}
-                                        {...field}
-                                        value={field.value || ''}
-                                        placeholder="Enter SEO title (optional)"
-                                        className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all"
-                                        aria-invalid={fieldState.invalid}
-                                    />
-                                    <FieldError errors={[fieldState.error]} className="text-[10px] font-medium text-destructive ml-1" />
-                                </Field>
-                            )}
-                        />
-
-                        <Controller
-                            control={control}
-                            name="seoDescription"
-                            render={({ field, fieldState }) => (
-                                <Field className="space-y-2 col-span-2" data-invalid={fieldState.invalid}>
-                                    <FieldLabel htmlFor={field.name} className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">SEO Description</FieldLabel>
-                                    <Textarea
-                                        id={field.name}
-                                        {...field}
-                                        value={field.value || ''}
-                                        placeholder="Enter SEO description (optional)"
-                                        rows={3}
-                                        className="border-none bg-muted/30 hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-xl transition-all"
-                                        aria-invalid={fieldState.invalid}
-                                    />
-                                    <FieldError errors={[fieldState.error]} className="text-[10px] font-medium text-destructive ml-1" />
-                                </Field>
-                            )}
-                        />
+        <Sheet open={open} onOpenChange={handleClose}>
+            <SheetContent className="w-full sm:w-[900px] sm:max-w-[900px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl overflow-hidden">
+                <SheetHeader className="px-8 pt-8 pb-6 border-b border-border/10 bg-muted/5 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-primary/5 blur-3xl opacity-50 pointer-events-none" />
+                    <div className="relative flex items-center gap-4 z-10">
+                        <div className="p-3 rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-inner">
+                            <FileText className="h-6 w-6" />
+                        </div>
+                        <div className="flex-1 space-y-1">
+                            <SheetTitle className="text-2xl font-black uppercase tracking-tight italic">
+                                Initialize <span className="text-primary not-italic">Article</span>
+                            </SheetTitle>
+                            <SheetDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">
+                                Step 01: Define Post Specifications
+                            </SheetDescription>
+                        </div>
+                        <div className="p-2 bg-background/50 backdrop-blur-md rounded-full border border-border/20 text-muted-foreground">
+                            <Sparkles className="size-4 animate-pulse text-primary" />
+                        </div>
                     </div>
+                </SheetHeader>
 
-                    <div className="flex justify-end gap-3 pt-4">
+                <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col flex-1 overflow-hidden relative z-10">
+                    <ScrollArea className="flex-1 overflow-y-auto px-8 py-8">
+                        <div className="space-y-8 animate-in fade-in slide-in-from-right-8 duration-500">
+                            {/* Basic Information */}
+                            <div className="space-y-6">
+                                <div className="flex items-center gap-3 pb-2 border-b border-border/20">
+                                    <div className="h-px flex-1 bg-border/20" />
+                                    <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">
+                                        Core Specifications
+                                    </h3>
+                                    <div className="h-px flex-1 bg-border/20" />
+                                </div>
+
+                                <Controller
+                                    control={control}
+                                    name="title"
+                                    render={({ field, fieldState }) => (
+                                        <Field>
+                                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
+                                                Post Title <span className="text-destructive">*</span>
+                                            </FieldLabel>
+                                            <Input
+                                                id={field.name}
+                                                {...field}
+                                                placeholder="ARTICLE DESIGNATION"
+                                                className="h-14 px-5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all uppercase"
+                                                aria-invalid={fieldState.invalid}
+                                            />
+                                            {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
+                                        </Field>
+                                    )}
+                                />
+
+                                <Controller
+                                    control={control}
+                                    name="excerpt"
+                                    render={({ field, fieldState }) => (
+                                        <Field>
+                                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
+                                                Excerpt / Short Description
+                                            </FieldLabel>
+                                            <Textarea
+                                                id={field.name}
+                                                {...field}
+                                                value={field.value || ''}
+                                                placeholder="BRIEF SUMMARY FOR CARDS..."
+                                                rows={3}
+                                                className="rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all resize-none p-4"
+                                                aria-invalid={fieldState.invalid}
+                                            />
+                                            {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
+                                        </Field>
+                                    )}
+                                />
+
+                                <Controller
+                                    control={control}
+                                    name="content"
+                                    render={({ field, fieldState }) => (
+                                        <Field>
+                                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
+                                                Content <span className="text-destructive">*</span>
+                                            </FieldLabel>
+                                            <TiptapEditor
+                                                content={field.value || ''}
+                                                onChange={(html) => field.onChange(html)}
+                                                placeholder="DETAILED ARTICLE CONTENT..."
+                                                ariaInvalid={fieldState.invalid}
+                                                className="min-h-[400px]"
+                                                showCharacterCount={true}
+                                                mode="admin"
+                                            />
+                                            {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
+                                        </Field>
+                                    )}
+                                />
+
+                                <div className="grid grid-cols-2 gap-6">
+                                    <Controller
+                                        control={control}
+                                        name="status"
+                                        render={({ field, fieldState }) => (
+                                            <Field>
+                                                <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
+                                                    Operational Status
+                                                </FieldLabel>
+                                                <Select
+                                                    value={field.value}
+                                                    onValueChange={(value) => field.onChange(value as PostStatus)}
+                                                >
+                                                    <SelectTrigger id={field.name} className="h-14 px-5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus:ring-primary/20 text-sm font-bold uppercase transition-all">
+                                                        <SelectValue placeholder="SELECT STATUS" />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="border-border/10 shadow-2xl bg-background/95 backdrop-blur-3xl rounded-2xl overflow-hidden p-1">
+                                                        <SelectItem value={PostStatus.DRAFT} className="rounded-xl cursor-pointer text-xs font-bold uppercase tracking-wide focus:bg-primary/10 focus:text-primary py-3">DRAFT</SelectItem>
+                                                        <SelectItem value={PostStatus.PUBLISHED} className="rounded-xl cursor-pointer text-xs font-bold uppercase tracking-wide focus:bg-primary/10 focus:text-primary py-3">PUBLISHED</SelectItem>
+                                                        <SelectItem value={PostStatus.ARCHIVED} className="rounded-xl cursor-pointer text-xs font-bold uppercase tracking-wide focus:bg-primary/10 focus:text-primary py-3">ARCHIVED</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
+                                            </Field>
+                                        )}
+                                    />
+
+                                    <Controller
+                                        control={control}
+                                        name="publishedAt"
+                                        render={({ field, fieldState }) => (
+                                            <Field>
+                                                <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
+                                                    Published At
+                                                </FieldLabel>
+                                                <Input
+                                                    id={field.name}
+                                                    type="datetime-local"
+                                                    {...field}
+                                                    value={field.value || ''}
+                                                    className="h-14 px-5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold transition-all font-mono"
+                                                    aria-invalid={fieldState.invalid}
+                                                />
+                                                {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
+                                            </Field>
+                                        )}
+                                    />
+                                </div>
+
+                                <Controller
+                                    control={control}
+                                    name="tags"
+                                    render={({ field, fieldState }) => (
+                                        <Field>
+                                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
+                                                Tags
+                                            </FieldLabel>
+                                            <Input
+                                                id={field.name}
+                                                {...field}
+                                                value={field.value || ''}
+                                                placeholder="BLOG, NEWS, TUTORIAL (COMMA SEPARATED)"
+                                                className="h-14 px-5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all uppercase"
+                                                aria-invalid={fieldState.invalid}
+                                            />
+                                            {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
+                                        </Field>
+                                    )}
+                                />
+                            </div>
+
+                            {/* Media Files */}
+                            <div className="space-y-6 pt-6">
+                                <div className="flex items-center gap-3 pb-2 border-b border-border/20">
+                                    <div className="h-px flex-1 bg-border/20" />
+                                    <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">
+                                        Data Assets (Optional)
+                                    </h3>
+                                    <div className="h-px flex-1 bg-border/20" />
+                                </div>
+
+                                <Field>
+                                    <FieldLabel htmlFor="cover-image-upload" className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
+                                        Cover Image
+                                    </FieldLabel>
+                                    <div className="space-y-3">
+                                        <div className="flex items-center gap-3">
+                                            <div className="relative flex-1">
+                                                <Input
+                                                    id="cover-image-upload"
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={handleCoverImageChange}
+                                                    className="h-14 px-4 pt-3.5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-xs font-bold file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all"
+                                                />
+                                                <UploadCloud className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50 pointer-events-none" />
+                                            </div>
+                                            {coverImageFile && (
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={removeCoverImage}
+                                                    className="h-12 w-12 rounded-2xl bg-destructive/10 text-destructive hover:bg-destructive/20"
+                                                >
+                                                    <X className="h-4 w-4" />
+                                                </Button>
+                                            )}
+                                        </div>
+                                        {coverImageFile && (
+                                            <div className="flex items-center gap-3 p-3 rounded-2xl bg-primary/5 border border-primary/10">
+                                                <div className="p-2 rounded-xl bg-primary/10 text-primary">
+                                                    <ImageIcon className="h-4 w-4" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-xs font-bold text-foreground truncate">{coverImageFile.name}</p>
+                                                    <p className="text-[10px] text-muted-foreground font-mono">{(coverImageFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                        {coverImagePreview && (
+                                            <div className="relative rounded-2xl overflow-hidden border border-border/20">
+                                                <img
+                                                    src={coverImagePreview}
+                                                    alt="Cover preview"
+                                                    className="w-full h-48 object-cover"
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+                                </Field>
+                            </div>
+
+                            {/* SEO Metadata */}
+                            <div className="space-y-6 pt-6">
+                                <div className="flex items-center gap-3 pb-2 border-b border-border/20">
+                                    <div className="h-px flex-1 bg-border/20" />
+                                    <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">
+                                        SEO Metadata
+                                    </h3>
+                                    <div className="h-px flex-1 bg-border/20" />
+                                </div>
+
+                                <Controller
+                                    control={control}
+                                    name="seoTitle"
+                                    render={({ field, fieldState }) => (
+                                        <Field>
+                                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
+                                                SEO Title
+                                            </FieldLabel>
+                                            <Input
+                                                id={field.name}
+                                                {...field}
+                                                value={field.value || ''}
+                                                placeholder="SEO TITLE FOR SEARCH ENGINES..."
+                                                className="h-14 px-5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all uppercase"
+                                                aria-invalid={fieldState.invalid}
+                                            />
+                                            {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
+                                        </Field>
+                                    )}
+                                />
+
+                                <Controller
+                                    control={control}
+                                    name="seoDescription"
+                                    render={({ field, fieldState }) => (
+                                        <Field>
+                                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
+                                                SEO Description
+                                            </FieldLabel>
+                                            <Textarea
+                                                id={field.name}
+                                                {...field}
+                                                value={field.value || ''}
+                                                placeholder="SEO DESCRIPTION FOR SEARCH ENGINES..."
+                                                rows={3}
+                                                className="rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all resize-none p-4"
+                                                aria-invalid={fieldState.invalid}
+                                            />
+                                            {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
+                                        </Field>
+                                    )}
+                                />
+                            </div>
+                        </div>
+                    </ScrollArea>
+
+                    {/* Footer */}
+                    <div className="px-8 py-6 bg-background/50 backdrop-blur-xl border-t border-border/10 flex items-center justify-between gap-4 relative z-20">
                         <Button
                             type="button"
                             variant="ghost"
-                            onClick={() => handleOpenChange(false)}
-                            disabled={createPost.isPending || uploading}
-                            className="rounded-xl h-11 px-6 hover:bg-primary/5"
+                            onClick={handleClose}
+                            disabled={uploading}
+                            className="rounded-xl h-12 px-6 text-[11px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground hover:bg-muted/20 group"
                         >
-                            Cancel
+                            <X className="mr-2 h-4 w-4 transition-transform group-hover:rotate-90" />
+                            Discard
                         </Button>
                         <Button
                             type="submit"
-                            disabled={createPost.isPending || uploading}
-                            className="rounded-xl h-11 px-8 bg-primary shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform"
+                            disabled={uploading || createPost.isPending}
+                            className="rounded-xl h-12 px-8 bg-primary text-primary-foreground text-[11px] font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-1 transition-all"
                         >
-                            {(createPost.isPending || uploading) ? (
+                            {uploading || createPost.isPending ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Creating...
+                                    Initializing...
                                 </>
-                            ) : 'Create Post'}
+                            ) : (
+                                <>
+                                    <UploadCloud className="mr-2 h-4 w-4" />
+                                    Initialize Post
+                                </>
+                            )}
                         </Button>
                     </div>
                 </form>
-            </DialogContent>
-        </Dialog>
+            </SheetContent>
+        </Sheet>
     );
 }
 

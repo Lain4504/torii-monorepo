@@ -1,4 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
+import { InjectMapper } from '@automapper/nestjs';
+import type { Mapper } from '@automapper/core';
 import { PrismaService, generateSlug } from '@server/shared';
 import { PostStatus, PaginatedResponseDTO } from '@workspace/schemas';
 import type {
@@ -7,7 +9,7 @@ import type {
   PostQueryDTO,
   PostResponseDTO,
 } from '@workspace/schemas';
-import type { Prisma } from '@prisma/generated';
+import type { Post, Prisma } from '@prisma/generated';
 import type { IPostService } from '../../interfaces/services';
 import { PostRepository } from './post.repository';
 
@@ -22,6 +24,7 @@ export class PostService implements IPostService {
   constructor(
     private readonly postRepository: PostRepository,
     private readonly prisma: PrismaService,
+    @InjectMapper() private readonly mapper: Mapper,
   ) { }
 
   /**
@@ -162,6 +165,32 @@ export class PostService implements IPostService {
   }
 
   /**
+   * Increment view count for a post
+   */
+  async incrementViewCount(id: string): Promise<void> {
+    const post = await this.postRepository.findById(id);
+
+    if (!post) {
+      throw new NotFoundException(`Post with id "${id}" not found`);
+    }
+
+    await this.postRepository.incrementViewCount(id);
+  }
+
+  /**
+   * Find post by slug
+   */
+  async findPostBySlug(slug: string): Promise<PostResponseDTO> {
+    const post = await this.postRepository.findBySlug(slug);
+
+    if (!post) {
+      throw new NotFoundException(`Post with slug "${slug}" not found`);
+    }
+
+    return this.formatPostResponseWithAuthor(post);
+  }
+
+  /**
    * Update post
    */
   async updatePost(id: string, dto: PostUpdateDTO): Promise<PostResponseDTO> {
@@ -227,11 +256,19 @@ export class PostService implements IPostService {
   }
 
   /**
+   * Map Post entity to PostResponseDTO using AutoMapper
+   */
+  private toPostResponseDTO(post: Post): PostResponseDTO {
+    return this.mapper.map<Post, PostResponseDTO>(post, 'Post', 'PostResponseDTO');
+  }
+
+  /**
    * Format post response with author info
    */
-  private async formatPostResponseWithAuthor(post: any): Promise<PostResponseDTO> {
-    let authorInfo: { id: string; displayName: string; email: string } | null = null;
+  private async formatPostResponseWithAuthor(post: Post): Promise<PostResponseDTO> {
+    const dto = this.toPostResponseDTO(post);
 
+    // Load author info separately
     if (post.authorId) {
       try {
         const user = await this.prisma.user.findUnique({
@@ -240,14 +277,15 @@ export class PostService implements IPostService {
             id: true,
             displayName: true,
             email: true,
+            avatarUrl: true,
           },
         });
 
         if (user) {
-          authorInfo = {
+          dto.author = {
             id: user.id,
             displayName: user.displayName || user.email || 'Unknown',
-            email: user.email,
+            avatarUrl: user.avatarUrl || undefined,
           };
         }
       } catch (error: any) {
@@ -255,11 +293,7 @@ export class PostService implements IPostService {
       }
     }
 
-    return {
-      ...post,
-      author: authorInfo,
-      tags: post.tags || [],
-    };
+    return dto;
   }
 }
 

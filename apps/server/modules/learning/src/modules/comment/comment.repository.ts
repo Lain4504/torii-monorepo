@@ -45,7 +45,7 @@ export class CommentRepository implements ICommentRepository {
         where?: Prisma.CommentWhereInput;
         orderBy?: Prisma.CommentOrderByWithRelationInput;
         includeReplyCount?: boolean;
-    }): Promise<Comment[]> {
+    }): Promise<(Comment & { _count?: { replies?: number } })[]> {
         return this.prisma.comment.findMany({
             where: options.where,
             skip: options.skip,
@@ -56,7 +56,7 @@ export class CommentRepository implements ICommentRepository {
                     select: { replies: true },
                 },
             } : undefined,
-        });
+        }) as Promise<(Comment & { _count?: { replies?: number } })[]>;
     }
 
     /**

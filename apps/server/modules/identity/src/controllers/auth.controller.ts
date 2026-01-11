@@ -635,6 +635,7 @@ export class AuthController {
             if (!req.requester || !req.requester.sub) {
                 throw new UnauthorizedException('No token provided');
             }
+            
             const user = await this.authService.getCurrentUser(req.requester.sub);
             return successResponse({ user });
         } catch (error: unknown) {

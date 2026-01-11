@@ -4,11 +4,11 @@ import Link from 'next/link'
 import { Calendar, User, Clock, ArrowRight } from 'lucide-react'
 import { format } from 'date-fns'
 import { vi } from 'date-fns/locale'
-import type { BlogPostResponseDTO } from '@workspace/schemas'
+import type { PostResponseDTO } from '@workspace/schemas'
 import { Badge } from '@workspace/ui/components/badge'
 
 interface PostCardProps {
-    post: BlogPostResponseDTO
+    post: PostResponseDTO
 }
 
 export function PostCard({ post }: PostCardProps) {

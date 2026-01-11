@@ -3,8 +3,10 @@ import type {
     CommentCreateDTO,
     CommentUpdateDTO,
     CommentQueryDTO,
+    CommentResponseDTO,
+    CommentPaginatedResponse,
 } from '@workspace/schemas';
-import { GatewayAuthGuard, Public } from '@server/shared';
+import { GatewayAuthGuard, Public, successResponse, successPaginatedResponse } from '@server/shared';
 import { CommentService } from '../../modules/comment/comment.service';
 
 /**
@@ -23,8 +25,15 @@ export class CommentController {
      */
     @Public()
     @Get()
-    findAllComments(@Query() query: CommentQueryDTO) {
-        return this.commentService.findAllComments(query);
+    async findAllComments(@Query() query: CommentQueryDTO) {
+        const result = await this.commentService.findAllComments(query);
+        return successPaginatedResponse(
+            result.data,
+            result.total,
+            result.page,
+            result.limit,
+            result.totalPages,
+        );
     }
 
     /**
@@ -32,8 +41,9 @@ export class CommentController {
      */
     @Public()
     @Get(':id')
-    findCommentById(@Param('id') id: string) {
-        return this.commentService.findCommentById(id);
+    async findCommentById(@Param('id') id: string) {
+        const comment = await this.commentService.findCommentById(id);
+        return successResponse(comment);
     }
 
     /**
@@ -41,8 +51,9 @@ export class CommentController {
      */
     @Public()
     @Get(':id/replies')
-    getCommentWithReplies(@Param('id') commentId: string, @Query('depth') depth?: number) {
-        return this.commentService.getCommentWithReplies(commentId, depth);
+    async getCommentWithReplies(@Param('id') commentId: string, @Query('depth') depth?: number) {
+        const comment = await this.commentService.getCommentWithReplies(commentId, depth);
+        return successResponse(comment);
     }
 
     /**
@@ -52,28 +63,31 @@ export class CommentController {
     async createComment(@Body() dto: CommentCreateDTO, @Req() req: any) {
         const userId = req.user.uid;
         if (!dto.authorId) dto.authorId = userId;
-        return this.commentService.createComment(dto);
+        const comment = await this.commentService.createComment(dto);
+        return successResponse(comment, 'Comment created successfully');
     }
 
     /**
      * Update comment
      */
     @Patch(':id')
-    updateComment(
+    async updateComment(
         @Param('id') id: string,
         @Body() dto: CommentUpdateDTO,
         @Req() req: any
     ) {
         const userId = req.user.uid;
-        return this.commentService.updateComment(id, userId, dto);
+        const comment = await this.commentService.updateComment(id, userId, dto);
+        return successResponse(comment, 'Comment updated successfully');
     }
 
     /**
      * Delete comment
      */
     @Delete(':id')
-    deleteComment(@Param('id') id: string, @Req() req: any) {
+    async deleteComment(@Param('id') id: string, @Req() req: any) {
         const userId = req.user.uid;
-        return this.commentService.deleteComment(id, userId);
+        await this.commentService.deleteComment(id, userId);
+        return successResponse(null, 'Comment deleted successfully');
     }
 }

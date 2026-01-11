@@ -3,13 +3,14 @@
 import { useState, useEffect } from 'react'
 import { useAppSelector } from '@/hooks/hooks'
 import { postCommentApi } from '@/api/services/post-comment-api'
-import type { BlogCommentResponseDTO } from '@workspace/schemas'
+import type { CommentResponseDTO } from '@workspace/schemas'
 import { Button } from '@workspace/ui/components/button'
 import { Textarea } from '@workspace/ui/components/textarea'
 import { User, MessageCircle, Heart, Reply, MoreHorizontal, LogIn, Loader2 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { vi } from 'date-fns/locale'
 import Link from 'next/link'
+import { toast } from '@workspace/ui/components/sonner'
 
 interface CommentSectionProps {
     postId: string
@@ -17,7 +18,7 @@ interface CommentSectionProps {
 
 export function CommentSection({ postId }: CommentSectionProps) {
     const { isAuthenticated, user } = useAppSelector(state => state.auth)
-    const [comments, setComments] = useState<BlogCommentResponseDTO[]>([])
+    const [comments, setComments] = useState<CommentResponseDTO[]>([])
     const [loading, setLoading] = useState(true)
     const [commentText, setCommentText] = useState('')
     const [submitting, setSubmitting] = useState(false)
@@ -25,10 +26,14 @@ export function CommentSection({ postId }: CommentSectionProps) {
 
     const fetchComments = async () => {
         try {
+            setLoading(true)
             const response = await postCommentApi.findAll({ postId, limit: 100 }) // Load many for nesting
             setComments(response.data)
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to fetch comments:', error)
+            toast.error('Không thể tải bình luận', {
+                description: error?.userMessage || error?.message || 'Vui lòng thử lại sau'
+            })
         } finally {
             setLoading(false)
         }
@@ -39,21 +44,33 @@ export function CommentSection({ postId }: CommentSectionProps) {
     }, [postId])
 
     const handleSubmitComment = async (parentId?: string) => {
-        if (!commentText.trim()) return
+        if (!commentText.trim()) {
+            toast.error('Vui lòng nhập nội dung bình luận')
+            return
+        }
+
+        if (!isAuthenticated || !user?.id) {
+            toast.error('Vui lòng đăng nhập để bình luận')
+            return
+        }
 
         try {
             setSubmitting(true)
             await postCommentApi.create({
                 postId,
-                authorId: user?.id || '',
-                content: commentText,
+                authorId: user.id,
+                content: commentText.trim(),
                 parentId: parentId || undefined
             })
             setCommentText('')
             setReplyTo(null)
-            fetchComments() // Refresh list
-        } catch (error) {
+            toast.success(parentId ? 'Đã trả lời bình luận' : 'Đã gửi bình luận thành công')
+            await fetchComments() // Refresh list
+        } catch (error: any) {
             console.error('Failed to post comment:', error)
+            toast.error('Không thể gửi bình luận', {
+                description: error?.userMessage || error?.message || 'Vui lòng thử lại sau'
+            })
         } finally {
             setSubmitting(false)
         }
@@ -157,8 +174,8 @@ function CommentItem({
     onReplySubmit,
     submitting
 }: { 
-    comment: BlogCommentResponseDTO, 
-    replies: BlogCommentResponseDTO[],
+    comment: CommentResponseDTO, 
+    replies: CommentResponseDTO[],
     isAuthenticated: boolean,
     onReplyClick: (id: string) => void,
     isReplying: boolean,

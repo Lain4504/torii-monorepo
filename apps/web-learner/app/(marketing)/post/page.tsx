@@ -4,13 +4,13 @@ import { postApi } from '@/api/services/post-api'
 import { PostCard } from '@/components/post/post-card'
 import { PostFilters } from '@/components/post/post-filters'
 import { useEffect, useState } from 'react'
-import type { BlogPostResponseDTO, PaginatedResponseDTO } from '@workspace/schemas'
+import type { PostResponseDTO, PaginatedResponseDTO } from '@workspace/schemas'
 import { PostStatus } from '@workspace/schemas'
 import { Loader2, Newspaper, Sparkles } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 
 export default function PostListingPage() {
-    const [posts, setPosts] = useState<BlogPostResponseDTO[]>([])
+    const [posts, setPosts] = useState<PostResponseDTO[]>([])
     const [loading, setLoading] = useState(true)
     const [page, setPage] = useState(1)
     const [totalPages, setTotalPages] = useState(1)

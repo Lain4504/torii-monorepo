@@ -1,16 +1,16 @@
 import { createColumnHelper } from '@tanstack/react-table';
 import type { PostResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
-import { ArrowUpDown, MoreHorizontal, Pencil, Trash, Eye } from 'lucide-react';
+import { ArrowUpDown, Pencil, Trash, Eye, FileText, Clock, Zap, Eye as EyeIcon } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu';
-import { Badge } from '@workspace/ui/components/badge';
+import { formatDateTime } from '@/lib/format-utils';
+import { cn } from "@workspace/ui/lib/utils";
 import { Can } from "@/lib/guard/can";
 
 const columnHelper = createColumnHelper<PostResponseDTO>();
@@ -27,11 +27,10 @@ export const getPostColumns = ({ onView, onEdit, onDelete, page, limit }: PostCo
     // STT Column
     columnHelper.display({
         id: 'stt',
-        header: () => <div className="text-center font-semibold">STT</div>,
+        header: () => <div className="text-center">#</div>,
         cell: ({ row }) => {
-            const index = row.index;
-            const stt = (page - 1) * limit + index + 1;
-            return <div className="text-center font-medium">{stt}</div>;
+            const stt = (page - 1) * limit + row.index + 1;
+            return <div className="text-center font-black italic text-muted-foreground/30 tabular-nums text-[10px]">0{stt}</div>;
         },
         size: 60,
     }),
@@ -41,82 +40,178 @@ export const getPostColumns = ({ onView, onEdit, onDelete, page, limit }: PostCo
                 <Button
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+                    className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group"
                 >
-                    Title
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                    Article Title
+                    <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
                 </Button>
             );
         },
-        cell: (info) => <div className="font-medium ml-4 max-w-md truncate">{info.getValue()}</div>,
+        cell: (info) => (
+            <div className="flex items-center gap-3 group/title">
+                <div className="w-10 h-10 rounded-xl bg-primary/5 border border-primary/10 flex items-center justify-center text-primary group-hover/title:bg-primary group-hover/title:text-white transition-all">
+                    <FileText className="size-4" />
+                </div>
+                <div className="flex flex-col">
+                    <span className="font-black italic uppercase tracking-tight text-foreground group-hover/title:text-primary transition-colors line-clamp-1">{info.getValue()}</span>
+                    <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest">ID: {info.row.original.id.slice(0, 8)}</span>
+                </div>
+            </div>
+        ),
     }),
     columnHelper.accessor('author', {
-        header: 'Author',
+        header: () => <div className="px-1">Author Node</div>,
         cell: (info) => {
             const author = info.getValue();
-            return <div className="ml-4">{author?.displayName || 'Unknown'}</div>;
-        },
-    }),
-    columnHelper.accessor('status', {
-        header: 'Status',
-        cell: (info) => {
-            const status = info.getValue();
-            const variant = status === 'published' ? 'default' : status === 'draft' ? 'secondary' : 'outline';
             return (
-                <Badge variant={variant} className="capitalize">
-                    {status}
-                </Badge>
+                <div className="text-[11px] font-bold text-foreground/80 italic">
+                    {author?.displayName || 'Unknown'}
+                </div>
             );
         },
+        size: 120,
+    }),
+    columnHelper.accessor('status', {
+        header: () => <div className="px-1">Operational Status</div>,
+        cell: (info) => {
+            const status = info.getValue() as string;
+            const colors = {
+                published: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
+                draft: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
+                archived: 'bg-muted/10 text-muted-foreground border-border/20'
+            };
+            const colorClass = colors[status as keyof typeof colors] || 'bg-muted/10 text-muted-foreground border-border/20';
+
+            return (
+                <div className={cn("inline-flex items-center px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] border shadow-sm", colorClass)}>
+                    <div className={cn("size-1 rounded-full mr-2", status === 'published' ? 'bg-emerald-500 animate-pulse' : 'bg-current')} />
+                    {status}
+                </div>
+            );
+        },
+        size: 120,
     }),
     columnHelper.accessor('viewCount', {
-        header: 'Views',
-        cell: (info) => <div className="text-center">{info.getValue() || 0}</div>,
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+                    className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group w-full justify-center"
+                >
+                    Views
+                    <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
+                </Button>
+            );
+        },
+        cell: (info) => (
+            <div className="flex flex-col items-center">
+                <div className="font-black italic text-lg leading-none">{info.getValue() || 0}</div>
+                <div className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40 mt-1">Metrics</div>
+            </div>
+        ),
+        size: 100,
     }),
     columnHelper.accessor('commentCount', {
-        header: 'Comments',
-        cell: (info) => <div className="text-center">{info.getValue() || 0}</div>,
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+                    className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group w-full justify-center"
+                >
+                    Comments
+                    <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
+                </Button>
+            );
+        },
+        cell: (info) => (
+            <div className="flex flex-col items-center">
+                <div className="font-black italic text-lg leading-none">{info.getValue() || 0}</div>
+                <div className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40 mt-1">Threads</div>
+            </div>
+        ),
+        size: 100,
     }),
     columnHelper.accessor('publishedAt', {
-        header: 'Published',
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+                    className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group w-full justify-center"
+                >
+                    Sync Cycle
+                    <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
+                </Button>
+            );
+        },
         cell: (info) => {
             const date = info.getValue();
-            return date ? new Date(date).toLocaleDateString() : '-';
+            return (
+                <div className="flex items-center justify-center gap-2 text-muted-foreground/40 tabular-nums text-[10px] font-bold italic">
+                    <Clock className="size-3 opacity-40" />
+                    {date ? formatDateTime(date) : '-'}
+                </div>
+            );
         },
+        size: 140,
     }),
     columnHelper.display({
         id: 'actions',
+        header: () => <div className="text-center">Protocol</div>,
         cell: ({ row }) => {
             const post = row.original;
 
             return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => navigator.clipboard.writeText(post.id)}>
-                            Copy ID
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => onView(post)}>
-                            <Eye className="mr-2 h-4 w-4" /> View Details
-                        </DropdownMenuItem>
-                        <Can permission="post.manage">
-                            <DropdownMenuItem onClick={() => onEdit(post)}>
-                                <Pencil className="mr-2 h-4 w-4" /> Edit
+                <div className="flex justify-center">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                className="h-10 w-10 p-0 rounded-2xl hover:bg-primary/10 hover:text-primary transition-all data-[state=open]:bg-primary/20"
+                            >
+                                <span className="sr-only">Open Control Portal</span>
+                                <Zap className="h-4 w-4 opacity-40 group-hover:opacity-100" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent
+                            align="end"
+                            className="w-[220px] border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-2xl p-2"
+                        >
+                            <DropdownMenuItem
+                                onClick={() => onView(post)}
+                                className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
+                            >
+                                <EyeIcon className="h-4 w-4 opacity-30" />
+                                <span>View Details</span>
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onDelete(post)} className="text-red-600">
-                                <Trash className="mr-2 h-4 w-4" /> Delete
-                            </DropdownMenuItem>
-                        </Can>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+
+                            <Can permission="post.manage">
+                                <DropdownMenuItem
+                                    onClick={() => onEdit(post)}
+                                    className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
+                                >
+                                    <Pencil className="h-4 w-4 opacity-30" />
+                                    <span>Modify Structure</span>
+                                </DropdownMenuItem>
+
+                                <DropdownMenuSeparator className="bg-border/20 mx-2" />
+
+                                <DropdownMenuItem
+                                    onClick={() => onDelete(post)}
+                                    className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer flex gap-3"
+                                >
+                                    <Trash className="h-4 w-4 opacity-30" />
+                                    <span>Purge Asset</span>
+                                </DropdownMenuItem>
+                            </Can>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
             );
         },
+        size: 100,
     }),
 ];
 
