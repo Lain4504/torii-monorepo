@@ -3,7 +3,8 @@
 import { Checkbox } from "@workspace/ui/components/checkbox"
 import { Label } from "@workspace/ui/components/label"
 import { Button } from "@workspace/ui/components/button"
-import { Filter } from "lucide-react"
+import { Filter, X } from "lucide-react"
+import { cn } from "@workspace/ui/lib/utils"
 
 interface FilterSidebarProps {
     selectedLevels?: string[]
@@ -13,11 +14,11 @@ interface FilterSidebarProps {
 }
 
 const JLPT_LEVELS = [
-    { label: 'N5 - Sơ cấp', value: 'N5' },
-    { label: 'N4 - Sơ trung cấp', value: 'N4' },
-    { label: 'N3 - Trung cấp', value: 'N3' },
-    { label: 'N2 - Cao cấp', value: 'N2' },
-    { label: 'N1 - Thượng cấp', value: 'N1' },
+    { label: 'JLPT N5 - Sơ cấp', value: 'N5' },
+    { label: 'JLPT N4 - Sơ trung', value: 'N4' },
+    { label: 'JLPT N3 - Trung cấp', value: 'N3' },
+    { label: 'JLPT N2 - Cao cấp', value: 'N2' },
+    { label: 'JLPT N1 - Thượng cấp', value: 'N1' },
 ]
 
 export function FilterSidebar({ selectedLevels = [], onLevelChange, priceFilter, onPriceChange }: FilterSidebarProps) {
@@ -43,26 +44,41 @@ export function FilterSidebar({ selectedLevels = [], onLevelChange, priceFilter,
     }
 
     return (
-        <div className="space-y-8">
-            <div className="flex items-center gap-2 font-bold text-lg pb-4 border-b border-slate-200 dark:border-slate-800">
-                <Filter className="w-5 h-5 text-teal-600" />
-                Filters
+        <div className="space-y-10 p-2">
+            <div className="flex items-center justify-between pb-6 border-b border-border/40">
+                <div className="flex items-center gap-3">
+                    <Filter className="w-4 h-4 text-primary" />
+                    <span className="text-xs font-black uppercase tracking-[0.2em] text-foreground">Bộ Lọc</span>
+                </div>
+                {(selectedLevels.length > 0 || priceFilter !== "all") && (
+                    <button
+                        onClick={handleClearFilters}
+                        className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1.5"
+                    >
+                        <X className="w-3 h-3" />
+                        Xóa tất cả
+                    </button>
+                )}
             </div>
 
             {/* JLPT Level */}
-            <div className="space-y-4">
-                <h3 className="font-semibold text-slate-900 dark:text-white">Trình độ JLPT</h3>
-                <div className="space-y-3">
+            <div className="space-y-6">
+                <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground/50">Trình độ JLPT</h3>
+                <div className="space-y-4">
                     {JLPT_LEVELS.map(({ label, value }) => (
-                        <div key={value} className="flex items-center space-x-2">
-                            <Checkbox 
+                        <div key={value} className="flex items-center group">
+                            <Checkbox
                                 id={`level-${value}`}
                                 checked={selectedLevels.includes(value)}
                                 onCheckedChange={(checked) => handleLevelChange(value, checked as boolean)}
+                                className="w-5 h-5 rounded-lg border-border/40 data-[state=checked]:bg-primary transition-all"
                             />
-                            <Label 
-                                htmlFor={`level-${value}`} 
-                                className="text-sm font-normal text-slate-600 dark:text-slate-300 cursor-pointer"
+                            <Label
+                                htmlFor={`level-${value}`}
+                                className={cn(
+                                    "ml-3 text-sm font-bold transition-colors cursor-pointer",
+                                    selectedLevels.includes(value) ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
+                                )}
                             >
                                 {label}
                             </Label>
@@ -71,77 +87,60 @@ export function FilterSidebar({ selectedLevels = [], onLevelChange, priceFilter,
                 </div>
             </div>
 
-            {/* Format */}
-            <div className="space-y-4">
-                <h3 className="font-semibold text-slate-900 dark:text-white">Hình thức học</h3>
-                <div className="space-y-3">
-                    {['Video (VOD)', 'Lớp Live (WebRTC)', 'Luyện thi Mock Test'].map((format) => (
-                        <div key={format} className="flex items-center space-x-2">
-                            <Checkbox id={`format-${format}`} disabled />
-                            <Label htmlFor={`format-${format}`} className="text-sm font-normal text-slate-600 dark:text-slate-300 cursor-pointer opacity-50">
-                                {format}
-                            </Label>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Topic */}
-            <div className="space-y-4">
-                <h3 className="font-semibold text-slate-900 dark:text-white">Kỹ năng</h3>
-                <div className="space-y-3">
-                    {['Ngữ pháp (Bunpou)', 'Từ vựng (Goi)', 'Hán tự (Kanji)', 'Nghe hiểu (Choukai)', 'Đọc hiểu (Dokkai)'].map((topic) => (
-                        <div key={topic} className="flex items-center space-x-2">
-                            <Checkbox id={`topic-${topic}`} disabled />
-                            <Label htmlFor={`topic-${topic}`} className="text-sm font-normal text-slate-600 dark:text-slate-300 cursor-pointer opacity-50">
-                                {topic}
-                            </Label>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
             {/* Price */}
-            <div className="space-y-4">
-                <h3 className="font-semibold text-slate-900 dark:text-white">Học phí</h3>
-                <div className="space-y-3">
-                    <div className="flex items-center space-x-2">
-                        <Checkbox 
-                            id="price-free"
-                            checked={priceFilter === "free"}
-                            onCheckedChange={(checked) => handlePriceChange("free", checked as boolean)}
-                        />
-                        <Label 
-                            htmlFor="price-free"
-                            className="text-sm font-normal text-slate-600 dark:text-slate-300 cursor-pointer"
-                        >
-                            Miễn phí
-                        </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <Checkbox 
-                            id="price-paid"
-                            checked={priceFilter === "paid"}
-                            onCheckedChange={(checked) => handlePriceChange("paid", checked as boolean)}
-                        />
-                        <Label 
-                            htmlFor="price-paid"
-                            className="text-sm font-normal text-slate-600 dark:text-slate-300 cursor-pointer"
-                        >
-                            Trả phí
-                        </Label>
-                    </div>
+            <div className="space-y-6">
+                <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground/50">Học phí</h3>
+                <div className="space-y-4">
+                    {[
+                        { label: 'Miễn phí', value: 'free' },
+                        { label: 'Trả phí', value: 'paid' }
+                    ].map((item) => (
+                        <div key={item.value} className="flex items-center group">
+                            <Checkbox
+                                id={`price-${item.value}`}
+                                checked={priceFilter === item.value}
+                                onCheckedChange={(checked) => handlePriceChange(item.value as any, checked as boolean)}
+                                className="w-5 h-5 rounded-lg border-border/40 transition-all dark:bg-muted/20"
+                            />
+                            <Label
+                                htmlFor={`price-${item.value}`}
+                                className={cn(
+                                    "ml-3 text-sm font-bold transition-colors cursor-pointer",
+                                    priceFilter === item.value ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
+                                )}
+                            >
+                                {item.label}
+                            </Label>
+                        </div>
+                    ))}
                 </div>
             </div>
 
-            <Button 
-                variant="outline" 
-                className="w-full"
-                onClick={handleClearFilters}
-                disabled={selectedLevels.length === 0 && priceFilter === "all"}
-            >
-                Xóa bộ lọc
-            </Button>
+            {/* Coming Soon Filters */}
+            <div className="space-y-6 opacity-40">
+                <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground/50">Kỹ năng chuyên sâu</h3>
+                <div className="space-y-3">
+                    {['Ngữ pháp', 'Hán tự', 'Nghe hiểu'].map((topic) => (
+                        <div key={topic} className="flex items-center space-x-3 grayscale pointer-events-none">
+                            <Checkbox id={`topic-${topic}`} disabled className="w-5 h-5 rounded-lg" />
+                            <Label className="text-sm font-bold text-muted-foreground">{topic}</Label>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <div className="pt-8">
+                <div className="p-6 rounded-3xl bg-primary/5 border border-primary/10 space-y-3 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-16 h-16 bg-primary/10 rounded-full -mr-8 -mt-8 blur-2xl group-hover:bg-primary/20 transition-all" />
+                    <h4 className="text-[11px] font-black uppercase tracking-widest text-primary">Cần tư vấn?</h4>
+                    <p className="text-[11px] font-bold text-muted-foreground/70 leading-relaxed">
+                        Liên hệ với AI Sensei để nhận lộ trình cá nhân hóa miễn phí.
+                    </p>
+                    <Button variant="link" className="p-0 h-auto text-[10px] font-black uppercase tracking-widest text-primary hover:no-underline">
+                        Bắt đầu ngay →
+                    </Button>
+                </div>
+            </div>
         </div>
     )
 }

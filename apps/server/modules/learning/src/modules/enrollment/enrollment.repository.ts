@@ -1,0 +1,93 @@
+import { Injectable, Logger } from '@nestjs/common';
+import { PrismaService } from '@server/shared';
+import type { Enrollment, Prisma } from '@prisma/generated';
+import type { IEnrollmentRepository } from '../../interfaces/repositories';
+
+/**
+ * Enrollment Repository
+ * Handles all database operations for Enrollment entity
+ */
+@Injectable()
+export class EnrollmentRepository implements IEnrollmentRepository {
+    private readonly logger = new Logger(EnrollmentRepository.name);
+
+    constructor(private readonly prisma: PrismaService) { }
+
+    /**
+     * Find enrollment by ID
+     */
+    async findById(id: string): Promise<Enrollment | null> {
+        return this.prisma.enrollment.findUnique({
+            where: { id },
+        });
+    }
+
+    /**
+     * Find enrollment by user and course
+     */
+    async findByUserAndCourse(userId: string, courseId: string): Promise<Enrollment | null> {
+        return this.prisma.enrollment.findUnique({
+            where: {
+                userId_courseId: {
+                    userId,
+                    courseId,
+                },
+            },
+        });
+    }
+
+    /**
+     * Find all enrollments with pagination and filters
+     */
+    async findMany(options: {
+        skip: number;
+        take: number;
+        where?: Prisma.EnrollmentWhereInput;
+        orderBy?: Prisma.EnrollmentOrderByWithRelationInput;
+    }): Promise<Enrollment[]> {
+        return this.prisma.enrollment.findMany({
+            where: options.where,
+            skip: options.skip,
+            take: options.take,
+            orderBy: options.orderBy || { enrollmentDate: 'desc' },
+        });
+    }
+
+    /**
+     * Count enrollments with optional filter
+     */
+    async count(where?: Prisma.EnrollmentWhereInput): Promise<number> {
+        return this.prisma.enrollment.count({
+            where,
+        });
+    }
+
+    /**
+     * Create a new enrollment
+     */
+    async create(data: Prisma.EnrollmentCreateInput): Promise<Enrollment> {
+        return this.prisma.enrollment.create({
+            data,
+        });
+    }
+
+    /**
+     * Update enrollment
+     */
+    async update(id: string, data: Prisma.EnrollmentUpdateInput): Promise<Enrollment> {
+        return this.prisma.enrollment.update({
+            where: { id },
+            data,
+        });
+    }
+
+    /**
+     * Delete enrollment by ID
+     */
+    async delete(id: string): Promise<void> {
+        await this.prisma.enrollment.delete({
+            where: { id },
+        });
+    }
+}
+

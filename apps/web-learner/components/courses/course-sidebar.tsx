@@ -1,82 +1,47 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@workspace/ui/components/button'
 import { Card, CardContent } from '@workspace/ui/components/card'
 import { Badge } from '@workspace/ui/components/badge'
-import { PlayCircle, BookOpen, Clock, Globe, Award, Heart } from 'lucide-react'
+import { BookOpen, Clock, Globe, Award, Heart, Sparkles, ShieldCheck } from 'lucide-react'
 import type { CourseResponseDTO } from '@workspace/schemas'
-import { wishlistApi, type WishlistItem } from '@/api/services/wishlist-api'
-import { useAppSelector } from '@/hooks/hooks'
 import { toast } from '@workspace/ui/components/sonner'
+import { CourseVideoPreview } from './course-video-preview'
+import { useCourseEnrollment } from '@/hooks/use-course-enrollment'
+import { cn } from '@workspace/ui/lib/utils'
 
 interface CourseSidebarProps {
     course: CourseResponseDTO
 }
 
 export function CourseSidebar({ course }: CourseSidebarProps) {
-    const [isInWishlist, setIsInWishlist] = useState(false)
-    const [wishlistId, setWishlistId] = useState<string | null>(null)
-    const [isLoadingWishlist, setIsLoadingWishlist] = useState(false)
-    const [isToggling, setIsToggling] = useState(false)
-
-    const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated)
-    const user = useAppSelector((state) => state.auth.user)
     const router = useRouter()
+    const {
+        isInWishlist,
+        isEnrolled,
+        isLoadingWishlist,
+        isLoadingEnrollment,
+        isToggling,
+        isEnrolling,
+        isAuthenticated,
+        handleToggleWishlist,
+        handleEnroll
+    } = useCourseEnrollment(course.id, course.slug)
 
-    useEffect(() => {
-        if (isAuthenticated && user?.id) {
-            checkWishlistStatus()
-        }
-    }, [isAuthenticated, user?.id, course.id])
-
-    const checkWishlistStatus = async () => {
-        if (!user?.id) return
-
-        try {
-            setIsLoadingWishlist(true)
-            const item = await wishlistApi.checkCourseInWishlist(course.id, user.id)
-            if (item) {
-                setIsInWishlist(true)
-                setWishlistId(item.id)
-            } else {
-                setIsInWishlist(false)
-                setWishlistId(null)
-            }
-        } catch (error) {
-            console.error('Failed to check wishlist status:', error)
-        } finally {
-            setIsLoadingWishlist(false)
-        }
-    }
-
-    const handleToggleWishlist = async () => {
+    const handlePurchase = async () => {
         if (!isAuthenticated) {
-            toast.error('Vui lòng đăng nhập để thêm vào yêu thích')
+            toast.error('Vui lòng đăng nhập để mua khóa học')
             router.push('/login')
             return
         }
 
-        try {
-            setIsToggling(true)
-            if (isInWishlist && wishlistId) {
-                await wishlistApi.removeFromWishlist(wishlistId)
-                setIsInWishlist(false)
-                setWishlistId(null)
-                toast.success('Đã xóa khỏi yêu thích')
-            } else {
-                const item = await wishlistApi.addToWishlist(course.id)
-                setIsInWishlist(true)
-                setWishlistId(item.id)
-                toast.success('Đã thêm vào yêu thích')
-            }
-        } catch (error: any) {
-            console.error('Failed to toggle wishlist:', error)
-            toast.error(error?.response?.data?.message || 'Không thể cập nhật yêu thích')
-        } finally {
-            setIsToggling(false)
+        if (course.isFree) {
+            await handleEnroll()
+            return
         }
+
+        router.push(`/checkout/${course.id}`)
     }
 
     const formatPrice = (price: number) => {
@@ -95,75 +60,77 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
     const discount = calculateDiscount()
 
     return (
-        <div className="sticky top-24 space-y-4">
-            {/* Video Preview / Thumbnail */}
-            {course.thumbnailUrl && (
-                <div className="relative aspect-video rounded-lg overflow-hidden shadow-md border group cursor-pointer">
-                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
-                    <img
-                        src={course.thumbnailUrl}
-                        alt={course.title}
-                        className="w-full h-full object-cover"
-                    />
-                    {course.previewVideoUrl && (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="w-16 h-16 bg-background/90 rounded-full flex items-center justify-center shadow-lg group-hover:opacity-80 transition-opacity">
-                                <PlayCircle className="w-8 h-8 text-primary ml-1" />
-                            </div>
-                        </div>
-                    )}
-                </div>
-            )}
+        <div className="sticky top-24 space-y-6 lg:translate-y-[-120px] relative z-20">
+            {/* Video Preview Section */}
+            <div className="rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-background bg-background p-1.5">
+                <CourseVideoPreview
+                    thumbnailUrl={course.thumbnailUrl}
+                    previewVideoUrl={course.previewVideoUrl}
+                    title={course.title}
+                />
+            </div>
 
             {/* Pricing Card */}
-            <Card>
-                <CardContent className="p-6 space-y-6">
-                    <div className="space-y-2">
-                        <div className="flex items-end gap-3">
-                            <span className="text-3xl font-bold text-foreground">
-                                {course.discountPrice ? formatPrice(Number(course.discountPrice)) : formatPrice(Number(course.price))}
-                            </span>
-                            {course.discountPrice && (
-                                <span className="text-lg text-muted-foreground line-through mb-1">
-                                    {formatPrice(Number(course.price))}
+            <Card className="rounded-[2.5rem] border-border/40 bg-background/60 backdrop-blur-2xl shadow-xl overflow-hidden group">
+                <CardContent className="p-10 space-y-8">
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2 text-primary opacity-60">
+                            <Sparkles className="w-3 h-3" />
+                            <span className="text-[10px] font-black uppercase tracking-widest">Premium Enrolment</span>
+                        </div>
+
+                        <div className="flex flex-col">
+                            <div className="flex items-end gap-3">
+                                <span className="text-4xl font-black text-foreground tracking-tighter italic">
+                                    {course.isFree ? 'FREE' : (course.discountPrice ? formatPrice(Number(course.discountPrice)) : formatPrice(Number(course.price)))}
                                 </span>
+                                {course.discountPrice && !course.isFree && (
+                                    <span className="text-sm text-muted-foreground/40 line-through mb-2 font-bold tracking-tight">
+                                        {formatPrice(Number(course.price))}
+                                    </span>
+                                )}
+                            </div>
+                            {discount && !course.isFree && (
+                                <div className="mt-2">
+                                    <Badge className="bg-destructive/10 text-destructive border-none px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest">
+                                        Tiết kiệm {discount}%
+                                    </Badge>
+                                </div>
                             )}
                         </div>
-                        {discount && (
-                            <div className="flex items-center gap-2">
-                                <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/20">
-                                    -{discount}%
-                                </Badge>
-                            </div>
-                        )}
                     </div>
 
-                    <div className="space-y-3">
-                        <Button className="w-full h-12 text-base font-semibold">
-                            {course.isFree ? 'Học miễn phí' : 'Đăng ký ngay'}
-                        </Button>
-                        {!course.isFree && (
-                            <div className="flex gap-2">
-                                <Button 
-                                    variant="outline" 
-                                    className="flex-1 h-12 text-base font-medium"
+                    <div className="space-y-4">
+                        {isEnrolled ? (
+                            <Button
+                                className="w-full h-16 rounded-2xl text-[11px] font-black uppercase tracking-widest bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20 cursor-pointer active:scale-95 transition-all"
+                                onClick={() => router.push(`/courses/${course.slug}/learn`)}
+                            >
+                                Tiếp tục học tập
+                            </Button>
+                        ) : (
+                            <div className="flex gap-4">
+                                <Button
+                                    className="flex-1 h-16 rounded-2xl text-[11px] font-black uppercase tracking-widest bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20 cursor-pointer active:scale-95 transition-all"
+                                    onClick={handlePurchase}
+                                    disabled={isEnrolling || isLoadingEnrollment}
                                 >
-                                    Thêm vào giỏ hàng
+                                    {isEnrolling ? 'Đang xử lý...' : course.isFree ? 'Bắt đầu ngay' : 'Mua khóa học'}
                                 </Button>
+
                                 {isAuthenticated && (
                                     <Button
                                         variant="outline"
                                         size="icon"
-                                        className="h-12 w-12"
+                                        className="h-16 w-16 rounded-2xl border-border/40 hover:bg-muted group/heart cursor-pointer transition-all active:scale-90"
                                         onClick={handleToggleWishlist}
                                         disabled={isToggling || isLoadingWishlist}
                                     >
                                         <Heart
-                                            className={`w-5 h-5 ${
-                                                isInWishlist
-                                                    ? 'fill-destructive text-destructive'
-                                                    : 'text-muted-foreground'
-                                            }`}
+                                            className={cn(
+                                                "w-6 h-6 transition-all duration-300",
+                                                isInWishlist ? "fill-destructive text-destructive" : "text-muted-foreground group-hover/heart:text-primary"
+                                            )}
                                         />
                                     </Button>
                                 )}
@@ -171,37 +138,37 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
                         )}
                     </div>
 
-                    <div className="space-y-4 pt-4 border-t">
-                        <h4 className="font-semibold text-sm text-foreground">
+                    <div className="space-y-6 pt-8 border-t border-border/20">
+                        <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">
                             Khóa học bao gồm:
                         </h4>
-                        <ul className="space-y-3 text-sm text-muted-foreground">
-                            <li className="flex items-center gap-3">
-                                <BookOpen className="w-4 h-4 text-primary" />
-                                <span>{course.totalLessons} bài giảng</span>
-                            </li>
-                            {course.totalQuizzes > 0 && (
-                                <li className="flex items-center gap-3">
-                                    <Clock className="w-4 h-4 text-primary" />
-                                    <span>{course.totalQuizzes} bài kiểm tra</span>
+                        <ul className="space-y-4">
+                            {[
+                                { icon: BookOpen, text: `${course.totalLessons} bài giảng chi tiết` },
+                                { icon: Clock, text: course.totalQuizzes > 0 ? `${course.totalQuizzes} bài kiểm tra JLPT` : 'Thời gian học không giới hạn' },
+                                { icon: Globe, text: 'Truy cập trọn đời' },
+                                { icon: Award, text: 'Chứng chỉ hoàn thành Torii' },
+                            ].map((item, idx) => (
+                                <li key={idx} className="flex items-center gap-4 group/item">
+                                    <div className="w-8 h-8 rounded-lg bg-muted/30 flex items-center justify-center text-muted-foreground group-hover/item:text-primary group-hover/item:bg-primary/10 transition-colors">
+                                        <item.icon className="w-4 h-4" />
+                                    </div>
+                                    <span className="text-[11px] font-bold text-muted-foreground/80 group-hover/item:text-foreground transition-colors">{item.text}</span>
                                 </li>
-                            )}
-                            <li className="flex items-center gap-3">
-                                <Globe className="w-4 h-4 text-primary" />
-                                <span>Truy cập web & mobile trọn đời</span>
-                            </li>
-                            <li className="flex items-center gap-3">
-                                <Award className="w-4 h-4 text-primary" />
-                                <span>Chứng chỉ hoàn thành</span>
-                            </li>
+                            ))}
                         </ul>
+                    </div>
+
+                    <div className="pt-2 flex items-center justify-center gap-2 text-emerald-500/60">
+                        <ShieldCheck className="w-3.5 h-3.5" />
+                        <span className="text-[10px] font-black uppercase tracking-widest">30-Day Guarantee</span>
                     </div>
                 </CardContent>
             </Card>
 
-            <div className="text-center">
-                <p className="text-xs text-muted-foreground">
-                    Hoàn tiền trong 30 ngày nếu không hài lòng
+            <div className="text-center px-6">
+                <p className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest leading-relaxed">
+                    Được tin dùng bởi hơn 50,000 học viên chuyên nghiệp trên toàn quốc.
                 </p>
             </div>
         </div>

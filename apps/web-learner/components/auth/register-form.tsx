@@ -10,9 +10,10 @@ import { Input } from '@workspace/ui/components/input'
 import { Field, FieldLabel, FieldError } from '@workspace/ui/components/field'
 import { toast } from '@workspace/ui/components/sonner'
 import { Spinner } from '@workspace/ui/components/spinner'
-import { Eye, EyeOff, Mail, Lock, UserPlus, CheckCircle, XCircle } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, UserPlus, CheckCircle, XCircle, Sparkles } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { z } from 'zod'
+import { cn } from '@workspace/ui/lib/utils'
 
 // Registration schema
 const registerFormSchema = z.object({
@@ -46,21 +47,18 @@ export function RegisterForm() {
             password: '',
             confirmPassword: '',
         },
-        mode: 'onChange', // Enable live validation for password strength
+        mode: 'onChange',
     })
 
-    // Watch password for strength meter
     const password = form.watch('password')
 
-    // Password requirements check
     const requirements = [
-        { label: 'Ít nhất 8 ký tự', valid: password?.length >= 8 },
+        { label: 'Ít nhất 8 ký tự', valid: (password?.length ?? 0) >= 8 },
         { label: 'Chữ in hoa', valid: /[A-Z]/.test(password || '') },
         { label: 'Chữ thường', valid: /[a-z]/.test(password || '') },
         { label: 'Số', valid: /[0-9]/.test(password || '') },
     ]
 
-    // Clear error when component unmounts
     useEffect(() => {
         return () => {
             dispatch(clearError())
@@ -69,7 +67,6 @@ export function RegisterForm() {
 
     const onSubmit = async (data: RegisterFormData) => {
         try {
-            // Remove confirmPassword before sending to API
             const { confirmPassword, ...registrationData } = data
 
             const resultAction = await dispatch(registerAction({
@@ -103,25 +100,25 @@ export function RegisterForm() {
     }
 
     return (
-        <div className="grid gap-6">
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
+        <div className="grid gap-8">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6" noValidate>
                 <Controller
                     control={form.control}
                     name="email"
                     render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid}>
-                            <FieldLabel htmlFor={field.name}>Email</FieldLabel>
-                            <div className="relative">
-                                <Mail className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                        <Field data-invalid={fieldState.invalid} className="space-y-2.5">
+                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 ml-1">Identity Gateway</FieldLabel>
+                            <div className="relative group">
+                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 transition-colors group-focus-within:text-primary" />
                                 <Input
                                     {...field}
                                     id={field.name}
-                                    placeholder="hoctiennhat@example.com"
-                                    className="pl-10 h-11"
+                                    placeholder="futurehero@torii.jp"
+                                    className="pl-12 h-14 rounded-2xl bg-muted/20 border-border/40 focus:bg-background focus:ring-0 text-sm font-bold transition-all placeholder:text-muted-foreground/30"
                                     aria-invalid={fieldState.invalid}
                                 />
                             </div>
-                            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                            {fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-[10px] font-bold uppercase" />}
                         </Field>
                     )}
                 />
@@ -130,51 +127,48 @@ export function RegisterForm() {
                     control={form.control}
                     name="password"
                     render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid}>
-                            <FieldLabel htmlFor={field.name}>Mật khẩu</FieldLabel>
-                            <div className="relative">
-                                <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                        <Field data-invalid={fieldState.invalid} className="space-y-2.5">
+                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 ml-1">Tạo mật khẩu</FieldLabel>
+                            <div className="relative group">
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 transition-colors group-focus-within:text-primary" />
                                 <Input
                                     {...field}
                                     id={field.name}
                                     type={showPassword ? 'text' : 'password'}
-                                    placeholder="••••••••"
-                                    className="pl-10 pr-10 h-11"
+                                    placeholder="••••••••••••"
+                                    className="pl-12 pr-12 h-14 rounded-2xl bg-muted/20 border-border/40 focus:bg-background focus:ring-0 text-sm font-bold transition-all placeholder:text-muted-foreground/30"
                                     aria-invalid={fieldState.invalid}
                                 />
-                                <Button
+                                <button
                                     type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent text-muted-foreground hover:text-foreground cursor-pointer"
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-foreground cursor-pointer transition-colors"
                                     onClick={() => setShowPassword(!showPassword)}
                                 >
-                                    {showPassword ? (
-                                        <EyeOff className="h-4 w-4" />
-                                    ) : (
-                                        <Eye className="h-4 w-4" />
-                                    )}
-                                </Button>
+                                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                </button>
                             </div>
-                            {/* Password Strength Indicators */}
-                            {/* Only show when user starts typing */}
                             {password && (
-                                <div className="mt-3 grid grid-cols-2 gap-2">
-                                    {requirements.map((req, index) => (
-                                        <div key={index} className="flex items-center gap-2 text-xs">
-                                            {req.valid ? (
-                                                <CheckCircle className="h-3 w-3 text-primary" />
-                                            ) : (
-                                                <div className="h-3 w-3 rounded-full border border-muted-foreground/30" />
-                                            )}
-                                            <span className={req.valid ? 'text-primary font-medium' : 'text-muted-foreground'}>
-                                                {req.label}
-                                            </span>
-                                        </div>
-                                    ))}
+                                <div className="mt-4 p-5 rounded-2xl bg-muted/20 border border-border/40 space-y-3 animate-in fade-in slide-in-from-top-2">
+                                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Security Integrity Check</span>
+                                    <div className="grid grid-cols-2 gap-y-2 gap-x-4">
+                                        {requirements.map((req, index) => (
+                                            <div key={index} className="flex items-center gap-2 group">
+                                                <div className={cn(
+                                                    "w-1.5 h-1.5 rounded-full transition-all duration-500",
+                                                    req.valid ? "bg-emerald-500 scale-125 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-muted-foreground/20"
+                                                )} />
+                                                <span className={cn(
+                                                    "text-[10px] font-black uppercase tracking-wider transition-colors",
+                                                    req.valid ? "text-emerald-500/80" : "text-muted-foreground/40"
+                                                )}>
+                                                    {req.label}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             )}
-                            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                            {fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-[10px] font-bold uppercase" />}
                         </Field>
                     )}
                 />
@@ -183,55 +177,53 @@ export function RegisterForm() {
                     control={form.control}
                     name="confirmPassword"
                     render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid}>
-                            <FieldLabel htmlFor={field.name}>Xác nhận mật khẩu</FieldLabel>
-                            <div className="relative">
-                                <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                        <Field data-invalid={fieldState.invalid} className="space-y-2.5">
+                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 ml-1">Xác nhận bảo mật</FieldLabel>
+                            <div className="relative group">
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 transition-colors group-focus-within:text-primary" />
                                 <Input
                                     {...field}
                                     id={field.name}
                                     type={showConfirmPassword ? 'text' : 'password'}
-                                    placeholder="••••••••"
-                                    className="pl-10 pr-10 h-11"
+                                    placeholder="••••••••••••"
+                                    className="pl-12 pr-12 h-14 rounded-2xl bg-muted/20 border-border/40 focus:bg-background focus:ring-0 text-sm font-bold transition-all placeholder:text-muted-foreground/30"
                                     aria-invalid={fieldState.invalid}
                                 />
-                                <Button
+                                <button
                                     type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent text-muted-foreground hover:text-foreground cursor-pointer"
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-foreground cursor-pointer transition-colors"
                                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                 >
-                                    {showConfirmPassword ? (
-                                        <EyeOff className="h-4 w-4" />
-                                    ) : (
-                                        <Eye className="h-4 w-4" />
-                                    )}
-                                </Button>
+                                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                </button>
                             </div>
-                            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                            {fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-[10px] font-bold uppercase" />}
                         </Field>
                     )}
                 />
 
                 {error && (
-                    <div className="flex items-center gap-2 text-sm font-medium text-destructive bg-destructive/10 p-4 rounded-lg border border-destructive/20">
-                        <XCircle className="h-4 w-4" />
+                    <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-destructive bg-destructive/5 p-4 rounded-2xl border border-destructive/20 animate-in fade-in zoom-in-95">
+                        <div className="w-6 h-6 rounded-lg bg-destructive/10 flex items-center justify-center">
+                            <XCircle className="h-3 w-3" />
+                        </div>
                         {error}
                     </div>
                 )}
 
                 <Button
                     type="submit"
-                    className="w-full h-12 font-semibold text-base mt-2"
+                    className="w-full h-14 rounded-2xl bg-primary text-white font-black uppercase tracking-[0.2em] text-[11px] shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all active:scale-95 group"
                     disabled={isLoading}
                 >
                     {isLoading ? (
                         <Spinner className="mr-2" />
                     ) : (
-                        <UserPlus className="mr-2 h-5 w-5" />
+                        <>
+                            Bắt đầu hành trình
+                            <Sparkles className="ml-2.5 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </>
                     )}
-                    Tạo tài khoản
                 </Button>
             </form>
         </div>

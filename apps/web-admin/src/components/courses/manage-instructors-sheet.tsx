@@ -11,14 +11,15 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import { Checkbox } from '@workspace/ui/components/checkbox';
-import { Separator } from '@workspace/ui/components/separator';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar';
-import { Loader2, User as UserIcon, Trash2, Crown, Users } from 'lucide-react';
+import { Loader2, User as UserIcon, Trash2, Crown, Users, Plus, ShieldCheck, Mail } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 import { type CourseResponseDTO, UserRole } from '@workspace/schemas';
 import { useUsers } from '@/api/services/users';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
 import { Field, FieldLabel } from '@workspace/ui/components/field';
+import { cn } from '@workspace/ui/lib/utils';
 
 interface ManageInstructorsSheetProps {
     open: boolean;
@@ -52,20 +53,28 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                 lecturerId: selectedLecturerId,
                 isPrimary: isPrimary.value,
             });
-            toast.success('Lecturer assigned successfully');
+            toast.success('Personnel Assigned', {
+                description: 'Lecturer successfully allocated to course repository.',
+            });
             setSelectedLecturerId('');
             isPrimary.setFalse();
         } catch (error: any) {
-            toast.error(error.response?.data?.message || 'Failed to assign lecturer');
+            toast.error('Assignment Failed', {
+                description: error.response?.data?.message || 'Could not assign lecturer.',
+            });
         }
     };
 
     const handleUnassign = async (id: string) => {
         try {
             await unassignMutation.mutateAsync(id);
-            toast.success('Lecturer unassigned successfully');
+            toast.success('Personnel Removed', {
+                description: 'Lecturer access revoked from course repository.',
+            });
         } catch (error: any) {
-            toast.error(error.response?.data?.message || 'Failed to unassign lecturer');
+            toast.error('Removal Failed', {
+                description: error.response?.data?.message || 'Could not remove lecturer.',
+            });
         }
     };
 
@@ -75,9 +84,13 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                 id,
                 dto: { isPrimary: !currentPrimary },
             });
-            toast.success('Primary instructor updated');
+            toast.success('Privileges Updated', {
+                description: `Primary instructor status have been ${!currentPrimary ? 'granted' : 'revoked'}.`,
+            });
         } catch (error: any) {
-            toast.error(error.response?.data?.message || 'Failed to update primary instructor');
+            toast.error('Update Failed', {
+                description: error.response?.data?.message || 'Could not update instructor status.',
+            });
         }
     };
 
@@ -85,83 +98,100 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:w-[900px] sm:max-w-[900px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/40 shadow-2xl bg-background/95 backdrop-blur-md overflow-hidden">
-                <SheetHeader className="px-6 py-6 border-b border-border/40 bg-muted/5 space-y-4">
-                    <div className="space-y-1.5">
-                        <SheetTitle className="text-2xl font-bold leading-tight tracking-tight text-foreground flex items-center gap-2">
-                            <Users className="h-5 w-5 text-primary" />
-                            Manage Instructors
-                        </SheetTitle>
-                        <SheetDescription className="text-sm text-muted-foreground/80">
-                            Assign and manage lecturers for <strong className="text-foreground">{course.title}</strong>
-                        </SheetDescription>
+            <SheetContent className="w-full sm:w-[600px] sm:max-w-[600px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl overflow-hidden">
+                <SheetHeader className="px-8 pt-8 pb-6 border-b border-border/10 bg-muted/5 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-primary/5 blur-3xl opacity-50 pointer-events-none" />
+                    <div className="relative flex items-center gap-4 z-10">
+                        <div className="p-3 rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-inner">
+                            <Users className="h-6 w-6" />
+                        </div>
+                        <div className="space-y-1">
+                            <SheetTitle className="text-2xl font-black uppercase tracking-tight italic">
+                                Manage <span className="text-primary not-italic">Instructors</span>
+                            </SheetTitle>
+                            <SheetDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2">
+                                Repository: <span className="font-mono text-primary">{course.title}</span>
+                            </SheetDescription>
+                        </div>
                     </div>
                 </SheetHeader>
 
-                <ScrollArea className="flex-1 h-full">
-                    <div className="px-6 py-6 space-y-6">
+                <ScrollArea className="flex-1 h-full px-8 py-8">
+                    <div className="space-y-8 animate-in fade-in slide-in-from-right-8 duration-500">
+
                         {/* Current Instructors */}
-                        <div className="space-y-3">
-                            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/70 flex items-center gap-2">
-                                <UserIcon className="h-3.5 w-3.5" />
-                                Current Instructors
-                            </h4>
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-3 pb-2 border-b border-border/20">
+                                <div className="h-px flex-1 bg-border/20" />
+                                <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center flex items-center gap-2">
+                                    <ShieldCheck className="h-3 w-3" />
+                                    Active Personnel
+                                </h4>
+                                <div className="h-px flex-1 bg-border/20" />
+                            </div>
+
                             {loadingInstructors ? (
-                                <div className="flex items-center justify-center py-12 rounded-xl border border-border/40 bg-muted/20">
-                                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                                <div className="flex items-center justify-center py-12 rounded-3xl border border-border/20 bg-muted/5">
+                                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground/50" />
                                 </div>
                             ) : !instructors || instructors.length === 0 ? (
-                                <div className="rounded-xl border border-dashed border-muted-foreground/20 p-8 text-center bg-muted/10">
-                                    <UserIcon className="h-12 w-12 mx-auto mb-3 text-muted-foreground/40" />
-                                    <p className="text-sm font-medium text-muted-foreground">
-                                        No instructors assigned yet
+                                <div className="rounded-3xl border border-dashed border-muted-foreground/20 p-8 text-center bg-muted/5">
+                                    <UserIcon className="h-12 w-12 mx-auto mb-3 text-muted-foreground/20" />
+                                    <p className="text-sm font-bold uppercase tracking-wide text-muted-foreground/60">
+                                        No instructors assigned
                                     </p>
-                                    <p className="text-xs text-muted-foreground/60 mt-1">
-                                        Assign lecturers below to get started
+                                    <p className="text-[10px] uppercase font-bold text-muted-foreground/40 mt-1 tracking-widest">
+                                        Assign personnel below to initialize
                                     </p>
                                 </div>
                             ) : (
-                                <div className="space-y-2">
+                                <div className="space-y-3">
                                     {instructors.map((instructor) => (
                                         <div
                                             key={instructor.id}
-                                            className="flex items-center justify-between p-4 rounded-xl bg-card border border-border/40 hover:bg-card/80 hover:border-border/60 transition-all shadow-sm group"
+                                            className="flex items-center justify-between p-4 rounded-2xl bg-muted/5 border border-border/10 hover:bg-muted/10 hover:border-primary/20 transition-all shadow-sm group"
                                         >
-                                            <div className="flex items-center gap-3">
-                                                <Avatar className="h-10 w-10 border border-border/50">
+                                            <div className="flex items-center gap-4">
+                                                <Avatar className="h-12 w-12 border-2 border-background shadow-sm">
                                                     <AvatarImage src={instructor.lecturer?.avatarUrl || undefined} />
-                                                    <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                                                    <AvatarFallback className="bg-primary/10 text-primary font-black text-sm">
                                                         {instructor.lecturer?.displayName?.charAt(0) || 'L'}
                                                     </AvatarFallback>
                                                 </Avatar>
                                                 <div>
                                                     <div className="flex items-center gap-2">
-                                                        <p className="text-sm font-medium text-foreground">{instructor.lecturer?.displayName}</p>
+                                                        <p className="text-sm font-bold text-foreground uppercase tracking-tight">{instructor.lecturer?.displayName}</p>
                                                         {instructor.isPrimary && (
-                                                            <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/10">
-                                                                <Crown className="h-3 w-3 text-amber-600 dark:text-amber-400 fill-amber-600 dark:fill-amber-400" />
-                                                                <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wide">Primary</span>
+                                                            <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/20">
+                                                                <Crown className="h-3 w-3 text-amber-500 fill-amber-500" />
+                                                                <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest">Lead</span>
                                                             </div>
                                                         )}
                                                     </div>
-                                                    <p className="text-xs text-muted-foreground/80">{instructor.lecturer?.email}</p>
+                                                    <div className="flex items-center gap-1.5 mt-0.5 text-xs font-medium text-muted-foreground/60">
+                                                        <Mail className="h-3 w-3" />
+                                                        {instructor.lecturer?.email}
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <Button
                                                     size="icon"
                                                     variant="ghost"
-                                                    className="h-8 w-8 rounded-lg hover:bg-amber-500/10 hover:text-amber-600 dark:hover:text-amber-400"
+                                                    className={cn(
+                                                        "h-9 w-9 rounded-xl hover:bg-amber-500/10 hover:text-amber-500 transition-colors",
+                                                        instructor.isPrimary && "text-amber-500 bg-amber-500/5"
+                                                    )}
                                                     onClick={() => handleTogglePrimary(instructor.id, instructor.isPrimary)}
                                                     disabled={updatePrimaryMutation.isPending}
-                                                    title={instructor.isPrimary ? "Remove as Primary" : "Set as Primary"}
+                                                    title={instructor.isPrimary ? "Revoke Lead Status" : "Grant Lead Status"}
                                                 >
-                                                    <Crown className={`h-4 w-4 ${instructor.isPrimary ? "fill-amber-500 text-amber-500" : ""}`} />
+                                                    <Crown className={cn("h-4 w-4", instructor.isPrimary && "fill-current")} />
                                                 </Button>
                                                 <Button
                                                     size="icon"
                                                     variant="ghost"
-                                                    className="h-8 w-8 rounded-lg hover:bg-destructive/10 hover:text-destructive"
+                                                    className="h-9 w-9 rounded-xl hover:bg-destructive/10 hover:text-destructive transition-colors"
                                                     onClick={() => handleUnassign(instructor.id)}
                                                     disabled={unassignMutation.isPending}
                                                     title="Remove Instructor"
@@ -175,61 +205,68 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                             )}
                         </div>
 
-                        <Separator className="bg-border/40" />
-
                         {/* Assign New Instructor */}
-                        <div className="space-y-4">
-                            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">Assign New Instructor</h4>
-                            <div className="space-y-4">
+                        <div className="space-y-6 pt-2">
+                            <div className="flex items-center gap-3 pb-2 border-b border-border/20">
+                                <div className="h-px flex-1 bg-border/20" />
+                                <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center flex items-center gap-2">
+                                    <Plus className="h-3 w-3" />
+                                    Add Personnel
+                                </h4>
+                                <div className="h-px flex-1 bg-border/20" />
+                            </div>
+
+                            <div className="space-y-5 p-5 rounded-3xl bg-muted/5 border border-border/10">
                                 <Field className="space-y-2">
-                                    <FieldLabel htmlFor="lecturer-select" className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-bold ml-1">Select Lecturer</FieldLabel>
+                                    <FieldLabel htmlFor="lecturer-select" className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">Select Lecturer</FieldLabel>
                                     <Select
                                         value={selectedLecturerId}
                                         onValueChange={setSelectedLecturerId}
                                     >
-                                        <SelectTrigger id="lecturer-select" className="h-11 border-none bg-muted/30 hover:bg-muted/50 focus:ring-1 focus:ring-primary/20 rounded-xl transition-all">
-                                            <SelectValue placeholder="Choose a lecturer..." />
+                                        <SelectTrigger id="lecturer-select" className="h-12 border-none bg-background/50 hover:bg-background/80 focus:ring-1 focus:ring-primary/20 rounded-xl transition-all shadow-sm">
+                                            <SelectValue placeholder="CHOOSE A LECTURER..." />
                                         </SelectTrigger>
-                                        <SelectContent className="border-none shadow-xl bg-popover/95 backdrop-blur-xl rounded-xl">
+                                        <SelectContent className="border-border/10 shadow-2xl bg-background/95 backdrop-blur-3xl rounded-2xl overflow-hidden p-1">
                                             {availableLecturers.map((lecturer) => (
-                                                <SelectItem key={lecturer.id} value={lecturer.id} className="rounded-lg focus:bg-primary/5 cursor-pointer">
-                                                    <span className="font-medium">{lecturer.displayName}</span>
-                                                    <span className="ml-2 text-muted-foreground text-xs">({lecturer.email})</span>
+                                                <SelectItem key={lecturer.id} value={lecturer.id} className="rounded-xl cursor-pointer text-xs font-bold uppercase tracking-wide focus:bg-primary/10 focus:text-primary py-3">
+                                                    <span className="mr-2">{lecturer.displayName}</span>
+                                                    <span className="text-[10px] text-muted-foreground font-medium lowercase opacity-70">uid:{lecturer.id.substring(0, 4)}</span>
                                                 </SelectItem>
                                             ))}
                                             {availableLecturers.length === 0 && (
-                                                <div className="p-4 text-center text-sm text-muted-foreground">
-                                                    No available lecturers
+                                                <div className="p-6 text-center">
+                                                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">No available personnel</p>
                                                 </div>
                                             )}
                                         </SelectContent>
                                     </Select>
                                 </Field>
 
-                                <div className="flex items-center gap-2.5 ml-1">
+                                <div className="flex items-center gap-3 p-3 rounded-xl bg-background/50 border border-border/10 cursor-pointer hover:bg-background/80 transition-all" onClick={() => isPrimary.setValue(!isPrimary.value)}>
                                     <Checkbox
                                         id="is-primary"
                                         checked={isPrimary.value}
                                         onCheckedChange={(checked) => isPrimary.setValue(checked as boolean)}
-                                        className="border-muted-foreground/40 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                                        className="h-5 w-5 rounded-md border-border/60 text-primary focus:ring-primary/20"
                                     />
-                                    <label htmlFor="is-primary" className="text-sm font-medium text-muted-foreground cursor-pointer select-none">
-                                        Set as primary instructor
+                                    <label htmlFor="is-primary" className="text-xs font-bold uppercase tracking-wide text-muted-foreground cursor-pointer select-none">
+                                        Grant Lead Privileges
                                     </label>
                                 </div>
 
                                 <Button
                                     onClick={handleAssign}
                                     disabled={!selectedLecturerId || assignMutation.isPending}
-                                    className="w-full rounded-xl h-11 bg-primary shadow-lg shadow-primary/20 hover:scale-[1.01] transition-transform font-medium"
+                                    className="w-full rounded-xl h-12 bg-primary text-primary-foreground text-[11px] font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-1 transition-all"
                                 >
                                     {assignMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                    Assign Lecturer
+                                    Allocate Personnel
                                 </Button>
                             </div>
                         </div>
                     </div>
                 </ScrollArea>
+                <div className="h-6 bg-gradient-to-t from-background/50 to-transparent pointer-events-none absolute bottom-0 left-0 right-0 z-20" />
             </SheetContent>
         </Sheet>
     );

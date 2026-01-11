@@ -79,26 +79,26 @@ export function NotificationsDropdown() {
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="relative text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-xl h-9 w-9"
+                    className="relative text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-xl h-9 w-9 transition-all group"
                 >
-                    <Bell className="h-4 w-4 sm:size-5" />
+                    <Bell className="size-4 sm:size-5 group-hover:rotate-12 transition-transform duration-500" />
                     {unreadCount > 0 && (
-                        <span className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 size-1.5 sm:size-2 bg-rose-500 rounded-full ring-2 ring-background"></span>
+                        <span className="absolute top-2 right-2 size-2 bg-primary rounded-full ring-2 ring-background animate-pulse shadow-lg shadow-primary/40"></span>
                     )}
                 </Button>
             </DropdownMenuTrigger>
 
             <DropdownMenuContent
                 align="end"
-                className="w-[90vw] sm:w-96 p-0 border-none shadow-2xl bg-background/95 backdrop-blur-xl rounded-2xl overflow-hidden"
+                className="w-[90vw] sm:w-[400px] p-0 border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-[2.5rem] overflow-hidden animate-in slide-in-from-top-2 duration-500"
             >
                 {/* Header */}
-                <div className="px-4 py-3 border-b border-border/40 bg-muted/20">
+                <div className="px-8 py-6 border-b border-border/10 bg-muted/5">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h3 className="font-semibold text-sm">Notifications</h3>
-                            <p className="text-xs text-muted-foreground mt-0.5">
-                                {unreadCount > 0 ? `${unreadCount} unread` : 'All caught up!'}
+                            <h3 className="text-sm font-black uppercase italic tracking-wider text-foreground/80">Signal Array</h3>
+                            <p className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest mt-1">
+                                {unreadCount > 0 ? `${unreadCount} Active Pulses` : 'Matrix Synchronized'}
                             </p>
                         </div>
                         {unreadCount > 0 && (
@@ -106,80 +106,88 @@ export function NotificationsDropdown() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={markAllAsRead}
-                                className="h-7 text-xs rounded-lg hover:bg-muted/50"
+                                className="h-9 px-4 rounded-xl hover:bg-primary/10 hover:text-primary text-[9px] font-black uppercase tracking-widest transition-all"
                             >
-                                <Check className="h-3 w-3 mr-1" />
-                                Mark all
+                                <Check className="h-3 w-3 mr-2" />
+                                Clear All
                             </Button>
                         )}
                     </div>
                 </div>
 
                 {/* Notifications List */}
-                <div className="max-h-[60vh] sm:max-h-96 overflow-y-auto">
+                <div className="max-h-[60vh] sm:max-h-[450px] overflow-y-auto custom-scrollbar">
                     {notifications.length > 0 ? (
-                        <div className="divide-y divide-border/30">
+                        <div className="divide-y divide-border/5">
                             {notifications.map((notification) => (
                                 <div
                                     key={notification.id}
                                     className={cn(
-                                        "group px-4 py-3 transition-all duration-200 cursor-pointer",
-                                        !notification.read && "bg-primary/5",
-                                        "hover:bg-muted/30"
+                                        "group px-8 py-6 transition-all duration-300 cursor-pointer relative",
+                                        !notification.read && "bg-primary/[0.02]",
+                                        "hover:bg-primary/[0.04]"
                                     )}
                                     onClick={() => markAsRead(notification.id)}
                                 >
-                                    <div className="flex gap-3">
+                                    <div className="flex gap-5">
                                         {/* Type Indicator */}
                                         <div className={cn(
-                                            "mt-1 p-1.5 rounded-lg shrink-0",
+                                            "mt-1 size-10 rounded-2xl shrink-0 flex items-center justify-center transition-transform group-hover:scale-110 duration-500",
                                             getTypeColor(notification.type)
                                         )}>
-                                            <Bell className="h-3 w-3" />
+                                            <Bell className="size-4" />
                                         </div>
 
                                         {/* Content */}
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-start justify-between gap-2">
+                                        <div className="flex-1 min-w-0 space-y-1">
+                                            <div className="flex items-start justify-between gap-4">
                                                 <h4 className={cn(
-                                                    "text-sm font-medium truncate",
-                                                    !notification.read && "text-foreground",
-                                                    notification.read && "text-muted-foreground"
+                                                    "text-[13px] font-black uppercase italic tracking-tight transition-colors",
+                                                    !notification.read ? "text-foreground group-hover:text-primary" : "text-muted-foreground/60"
                                                 )}>
                                                     {notification.title}
                                                 </h4>
                                                 {!notification.read && (
-                                                    <span className="size-2 rounded-full bg-primary shrink-0 mt-1.5"></span>
+                                                    <div className="size-1.5 rounded-full bg-primary mt-1.5 shadow-lg shadow-primary/40 animate-pulse" />
                                                 )}
                                             </div>
-                                            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                                            <p className="text-[11px] font-bold text-muted-foreground/60 leading-relaxed line-clamp-2">
                                                 {notification.message}
                                             </p>
-                                            <span className="text-xs text-muted-foreground/70 mt-1 inline-block">
-                                                {notification.time}
-                                            </span>
+                                            <div className="flex items-center gap-2 pt-2">
+                                                <div className="size-1 rounded-full bg-border" />
+                                                <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 italic">
+                                                    {notification.time}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     ) : (
-                        <div className="px-4 py-12 text-center">
-                            <Bell className="h-12 w-12 mx-auto text-muted-foreground/30 mb-3" />
-                            <p className="text-sm text-muted-foreground">No notifications yet</p>
+                        <div className="py-24 text-center space-y-6">
+                            <div className="w-20 h-20 rounded-[2rem] bg-muted/20 mx-auto flex items-center justify-center border border-border/10 relative">
+                                <div className="absolute inset-0 bg-primary/5 blur-2xl rounded-full" />
+                                <Bell className="size-8 text-muted-foreground/20 relative z-10" />
+                            </div>
+                            <div className="space-y-1">
+                                <h3 className="text-lg font-black uppercase italic tracking-tight text-foreground/40">Signal Void</h3>
+                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/20 italic">No incoming data streams detected.</p>
+                            </div>
                         </div>
                     )}
                 </div>
 
                 {/* Footer */}
-                <div className="px-4 py-3 border-t border-border/40 bg-muted/20">
+                <div className="px-8 py-6 border-t border-border/10 bg-muted/5">
                     <Link to="/notifications">
                         <Button
                             variant="ghost"
-                            className="w-full rounded-xl text-xs font-medium hover:bg-primary/10 hover:text-primary transition-colors"
+                            className="w-full h-12 rounded-[1.25rem] bg-background border border-border/10 hover:border-primary/20 hover:text-primary text-[10px] font-black uppercase tracking-widest transition-all shadow-sm"
                         >
-                            View all notifications
-                            <ExternalLink className="ml-2 h-3 w-3" />
+                            Explore Pulse History
+                            <ExternalLink className="ml-2 h-3.5 w-3.5 opacity-40 group-hover:opacity-100" />
                         </Button>
                     </Link>
                 </div>

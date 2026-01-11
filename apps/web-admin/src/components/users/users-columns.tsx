@@ -1,8 +1,8 @@
 import { createColumnHelper } from '@tanstack/react-table';
 import type { UserResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
-import { Badge } from '@workspace/ui/components/badge';
-import { ArrowUpDown, MoreVertical, Pencil, Trash } from 'lucide-react';
+
+import { ArrowUpDown, Pencil, Trash, UserCircle, Mail, Clock, ShieldIcon } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -11,6 +11,8 @@ import {
     DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu';
 import { Can } from "@/lib/guard/can";
+import { formatDateTime } from "@/lib/format-utils";
+import { cn } from "@workspace/ui/lib/utils";
 
 const columnHelper = createColumnHelper<UserResponseDTO>();
 
@@ -26,10 +28,10 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
     // STT Column
     columnHelper.display({
         id: 'stt',
-        header: () => <div className="text-center font-semibold text-xs uppercase tracking-wider text-muted-foreground/70">#</div>,
+        header: () => <div className="text-center">#</div>,
         cell: ({ row }) => {
             const stt = (page - 1) * limit + row.index + 1;
-            return <div className="text-center font-medium text-xs text-muted-foreground tabular-nums">{stt}</div>;
+            return <div className="text-center font-black italic text-muted-foreground/30 tabular-nums text-[10px]">0{stt}</div>;
         },
         size: 60,
     }),
@@ -39,14 +41,21 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
                 <Button
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                    className="-ml-4 h-8 text-xs font-semibold uppercase tracking-wider hover:bg-transparent hover:text-foreground"
+                    className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group"
                 >
-                    Name
-                    <ArrowUpDown className="ml-2 h-3 w-3" />
+                    Identity Label
+                    <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
                 </Button>
             );
         },
-        cell: (info) => <div className="font-medium text-foreground">{info.getValue()}</div>,
+        cell: (info) => (
+            <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary transition-all group-hover/row:scale-110">
+                    <UserCircle className="size-4" />
+                </div>
+                <div className="font-black italic uppercase tracking-tight text-foreground">{info.getValue()}</div>
+            </div>
+        ),
     }),
     columnHelper.accessor('email', {
         header: ({ column }) => {
@@ -54,55 +63,87 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
                 <Button
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                    className="-ml-4 h-8 text-xs font-semibold uppercase tracking-wider hover:bg-transparent hover:text-foreground"
+                    className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group"
                 >
-                    Email
-                    <ArrowUpDown className="ml-2 h-3 w-3" />
+                    Secure Endpoint
+                    <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
                 </Button>
             );
         },
-        cell: (info) => <div className="text-sm text-muted-foreground">{info.getValue()}</div>,
+        cell: (info) => (
+            <div className="flex items-center gap-2 text-muted-foreground/60 italic text-[11px] font-bold">
+                <Mail className="size-3 opacity-20" />
+                {info.getValue()}
+            </div>
+        ),
     }),
     columnHelper.accessor('role', {
-        header: () => <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">Role</div>,
+        header: () => <div className="px-1">Access Protocol</div>,
         cell: (info) => {
-            const role = info.getValue();
-            const variant = role === 'admin' ? 'destructive' : role === 'staff' ? 'default' : 'secondary';
+            const role = info.getValue() as string;
+            const colors = {
+                admin: 'bg-rose-500/10 text-rose-500 border-rose-500/20',
+                staff: 'bg-primary/10 text-primary border-primary/20',
+                lecturer: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+                learner: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+            };
+            const colorClass = colors[role as keyof typeof colors] || 'bg-muted/10 text-muted-foreground border-border/20';
+
             return (
-                <Badge variant={variant} className="capitalize font-medium shadow-none rounded-md">
+                <div className={cn("inline-flex items-center px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] border", colorClass)}>
                     {role}
-                </Badge>
+                </div>
             );
         },
         size: 100,
     }),
     columnHelper.accessor(row => {
-        if (row.deletedAt) return 'deleted';
-        if (row.bannedUntil && new Date(row.bannedUntil) > new Date()) return 'banned';
-        if (!row.verifiedAt) return 'inactive';
-        return 'active';
+        if (row.deletedAt) return 'TRANSFERRED';
+        if (row.bannedUntil && new Date(row.bannedUntil) > new Date()) return 'SUSPENDED';
+        if (!row.verifiedAt) return 'PENDING-SYNC';
+        return 'ACTIVE';
     }, {
         id: 'status',
-        header: () => <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">Status</div>,
+        header: () => <div className="px-1">Registry Status</div>,
         cell: (info) => {
-            const status = info.getValue();
-            let variant: 'default' | 'secondary' | 'destructive' | 'outline' = 'outline';
-
-            if (status === 'active') variant = 'default';
-            else if (status === 'inactive') variant = 'secondary';
-            else variant = 'destructive';
+            const status = info.getValue() as string;
+            let dotColor = 'bg-emerald-500 shadow-emerald-500/50';
+            if (status !== 'ACTIVE') dotColor = 'bg-amber-500 shadow-amber-500/50';
+            if (status === 'TRANSFERRED' || status === 'SUSPENDED') dotColor = 'bg-rose-500 shadow-rose-500/50';
 
             return (
-                <Badge variant={variant} className="capitalize font-medium shadow-none rounded-md">
+                <div className="flex items-center gap-2 text-[10px] font-black tracking-widest text-foreground group">
+                    <div className={cn("size-1.5 rounded-full shadow-sm animate-pulse", dotColor)} />
                     {status}
-                </Badge>
+                </div>
             );
         },
         size: 100,
     }),
+    columnHelper.accessor('lastLoginAt', {
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+                    className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group"
+                >
+                    Temporal Marker
+                    <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
+                </Button>
+            );
+        },
+        cell: (info) => (
+            <div className="flex items-center gap-2 text-muted-foreground/40 tabular-nums text-[10px] font-bold italic">
+                <Clock className="size-3 opacity-40" />
+                {info.getValue() ? formatDateTime(info.getValue()) : 'NEVER_SYNCED'}
+            </div>
+        ),
+        size: 140,
+    }),
     columnHelper.display({
         id: 'actions',
-        header: () => <div className="text-center text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">Actions</div>,
+        header: () => <div className="text-center">Control</div>,
         cell: ({ row }) => {
             const user = row.original;
 
@@ -112,33 +153,33 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
                         <DropdownMenuTrigger asChild>
                             <Button
                                 variant="ghost"
-                                className="h-8 w-8 p-0 rounded-lg hover:bg-muted/50 transition-colors data-[state=open]:bg-muted"
+                                className="h-10 w-10 p-0 rounded-2xl hover:bg-primary/10 hover:text-primary transition-all data-[state=open]:bg-primary/20"
                             >
-                                <span className="sr-only">Open menu</span>
-                                <MoreVertical className="h-4 w-4 text-muted-foreground" />
+                                <span className="sr-only">Open Control Portal</span>
+                                <ShieldIcon className="h-4 w-4 opacity-40 group-hover:opacity-100" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
                             align="end"
-                            className="w-[180px] border-none shadow-xl bg-background/95 backdrop-blur-xl rounded-xl p-1"
+                            className="w-[200px] border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-2xl p-2"
                         >
                             <Can permission="user.manage">
                                 <DropdownMenuItem
                                     onClick={() => onEdit(user)}
-                                    className="rounded-lg cursor-pointer gap-2 focus:bg-primary/5"
+                                    className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
                                 >
-                                    <Pencil className="h-4 w-4" />
-                                    <span>Edit User</span>
+                                    <Pencil className="h-4 w-4 opacity-40" />
+                                    <span>Override Profile</span>
                                 </DropdownMenuItem>
 
-                                <DropdownMenuSeparator className="bg-border/50" />
+                                <DropdownMenuSeparator className="bg-border/20 mx-2" />
 
                                 <DropdownMenuItem
                                     onClick={() => onDelete(user)}
-                                    className="rounded-lg cursor-pointer gap-2 text-destructive focus:text-destructive focus:bg-destructive/10"
+                                    className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer flex gap-3"
                                 >
-                                    <Trash className="h-4 w-4" />
-                                    <span>Delete User</span>
+                                    <Trash className="h-4 w-4 opacity-40" />
+                                    <span>Terminate Hub</span>
                                 </DropdownMenuItem>
                             </Can>
                         </DropdownMenuContent>
@@ -146,7 +187,6 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
                 </div>
             );
         },
-        size: 80,
+        size: 100,
     }),
 ];
-

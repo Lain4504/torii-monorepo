@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Loader2, CheckCircle2, XCircle } from 'lucide-react';
+import { CheckCircle2, XCircle, Sparkles, ArrowRight, ShieldCheck, ShieldAlert } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { useTimeout } from '@workspace/ui/hooks/use-timeout';
 import { useAppDispatch } from '@/hooks/hooks';
 import { fetchProfile } from '@/store/slices/authSlice';
-
+import { Spinner } from '@workspace/ui/components/spinner';
 import { apiClient } from '@/api/api-client';
+import { cn } from '@workspace/ui/lib/utils';
 
 export function VerificationContent() {
     const searchParams = useSearchParams();
@@ -31,7 +32,6 @@ export function VerificationContent() {
             return;
         }
 
-        // Verify magic link token
         const verifyToken = async () => {
             try {
                 const response = await apiClient.post('/api/auth/verify-email', { token });
@@ -41,11 +41,8 @@ export function VerificationContent() {
                     setStatus('success');
                     setMessage('Email đã được xác thực thành công!');
 
-                    // Refresh user profile to update status
                     await dispatch(fetchProfile());
-
-                    // Redirect to home after 2 seconds
-                    setRedirectDelay(2000);
+                    setRedirectDelay(3000);
                 } else {
                     setStatus('error');
                     setMessage(data.message || 'Link xác thực không hợp lệ hoặc đã hết hạn');
@@ -61,28 +58,41 @@ export function VerificationContent() {
 
     if (status === 'loading') {
         return (
-            <div className="flex flex-col items-center justify-center space-y-4 py-12">
-                <Loader2 className="h-16 w-16 animate-spin text-primary" />
-                <h3 className="text-xl font-medium">Đang xác thực...</h3>
-                <p className="text-muted-foreground">Vui lòng đợi trong giây lát</p>
+            <div className="flex flex-col items-center justify-center space-y-8 py-16 text-center animate-in fade-in duration-500">
+                <Spinner className="h-14 w-14 text-primary" />
+                <div className="space-y-2">
+                    <h3 className="text-xl font-black uppercase tracking-tight italic">Đang <span className="text-primary not-italic">Xác thực...</span></h3>
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/30 italic">Establishing security tunnel</p>
+                </div>
             </div>
         );
     }
 
     if (status === 'success') {
         return (
-            <div className="flex flex-col items-center justify-center space-y-6 py-8 text-center">
-                <div className="rounded-full bg-green-100 p-4 dark:bg-green-900/30">
-                    <CheckCircle2 className="h-16 w-16 text-green-600 dark:text-green-400" />
+            <div className="flex flex-col items-center justify-center space-y-10 py-12 text-center animate-in fade-in zoom-in-95 duration-700">
+                <div className="relative group">
+                    <div className="absolute inset-0 bg-emerald-500/20 blur-2xl rounded-full animate-pulse" />
+                    <div className="relative w-24 h-24 rounded-[1.5rem] bg-white shadow-xl shadow-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                        <ShieldCheck className="h-12 w-12 text-emerald-500" />
+                        <Sparkles className="absolute -top-3 -right-3 w-6 h-6 text-amber-500" />
+                    </div>
                 </div>
-                <div className="space-y-2">
-                    <h3 className="text-2xl font-bold text-green-800 dark:text-green-200">
-                        Xác thực thành công!
+                <div className="space-y-4">
+                    <h3 className="text-3xl font-black uppercase tracking-tight italic text-foreground">
+                        Kích hoạt <span className="text-emerald-500 not-italic italic">Thành công!</span>
                     </h3>
-                    <p className="text-muted-foreground">{message}</p>
-                    <p className="text-sm text-muted-foreground">
-                        Đang chuyển hướng về trang chủ...
-                    </p>
+                    <div className="p-6 rounded-2xl bg-emerald-500/5 border border-emerald-500/10 max-w-sm">
+                        <p className="text-[11px] font-bold text-muted-foreground/80 leading-relaxed italic italic">
+                            Chào mừng bạn đến với cộng đồng Torii Nihongo. Tài khoản của bạn đã được xác minh toàn diện.
+                        </p>
+                    </div>
+                    <div className="pt-6 border-t border-border/20 flex flex-col items-center gap-4">
+                        <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.4em] text-muted-foreground/40">
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                            Redirecting to HQ in 3s
+                        </div>
+                    </div>
                 </div>
             </div>
         );
@@ -90,22 +100,32 @@ export function VerificationContent() {
 
     // Error state
     return (
-        <div className="flex flex-col items-center justify-center space-y-6 py-8 text-center">
-            <div className="rounded-full bg-red-100 p-4 dark:bg-red-900/30">
-                <XCircle className="h-16 w-16 text-red-600 dark:text-red-400" />
+        <div className="flex flex-col items-center justify-center space-y-10 py-12 text-center animate-in fade-in zoom-in-95 duration-700">
+            <div className="relative group">
+                <div className="absolute inset-0 bg-destructive/10 blur-2xl rounded-full" />
+                <div className="relative w-24 h-24 rounded-[1.5rem] bg-white shadow-xl shadow-destructive/5 flex items-center justify-center border border-destructive/10">
+                    <ShieldAlert className="h-12 w-12 text-destructive" />
+                </div>
             </div>
-            <div className="space-y-2">
-                <h3 className="text-2xl font-bold text-red-800 dark:text-red-200">
-                    Xác thực thất bại
+            <div className="space-y-4">
+                <h3 className="text-3xl font-black uppercase tracking-tight italic text-foreground">
+                    Xác thực <span className="text-destructive not-italic italic">Thất bại</span>
                 </h3>
-                <p className="text-muted-foreground">{message}</p>
+                <div className="p-6 rounded-2xl bg-destructive/5 border border-destructive/10 max-w-sm">
+                    <p className="text-[11px] font-bold text-muted-foreground/80 leading-relaxed italic italic">
+                        {message}
+                    </p>
+                </div>
+                <div className="pt-6 border-t border-border/20">
+                    <Button
+                        onClick={() => router.push('/')}
+                        className="w-full h-14 rounded-2xl bg-foreground text-background font-black uppercase tracking-[0.2em] text-[11px] transition-all active:scale-95 group"
+                    >
+                        Trở về trang chủ
+                        <ArrowRight className="ml-2 h-4 w-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                    </Button>
+                </div>
             </div>
-            <Button
-                onClick={() => router.push('/')}
-                className="w-full"
-            >
-                Về trang chủ
-            </Button>
         </div>
     );
 }

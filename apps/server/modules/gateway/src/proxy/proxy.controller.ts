@@ -40,6 +40,8 @@ export class ProxyController {
         '/api/lesson-materials': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
         '/api/wishlists': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
         '/api/reviews': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
+        '/api/enrollments': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
+        '/api/payments': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
 
         // Storage Domain
         '/api/storage': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
@@ -56,9 +58,7 @@ export class ProxyController {
         // Assessment Domain
         '/api/questions': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
         '/api/question-pools': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
-        '/api/v1/exams': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
-        '/api/v1/exams/attempts': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
-        '/api/v1/exams/sessions': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
+        '/api/exams': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
 
         // Gamification Domain
         '/api/gamification': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',

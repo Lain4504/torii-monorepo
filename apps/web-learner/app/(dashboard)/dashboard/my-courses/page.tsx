@@ -9,10 +9,11 @@ import {
     Search,
     PlayCircle,
     BookOpen,
-    Filter,
     Clock,
     Award,
     TrendingUp,
+    ChevronRight,
+    Filter
 } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -21,7 +22,6 @@ export default function MyCoursesPage() {
     const [searchQuery, setSearchQuery] = useState('')
     const [filter, setFilter] = useState<'all' | 'in-progress' | 'completed'>('all')
 
-    // Mock data - replace with actual API calls
     const courses = [
         {
             id: 1,
@@ -29,7 +29,6 @@ export default function MyCoursesPage() {
             title: 'Tiếng Nhật N5 - Khóa học toàn diện',
             instructor: 'Nguyễn Văn A',
             progress: 65,
-            thumbnail: '/api/placeholder/300/200',
             totalLessons: 120,
             completedLessons: 78,
             lastAccessed: '2 ngày trước',
@@ -41,7 +40,6 @@ export default function MyCoursesPage() {
             title: 'Ngữ pháp N4',
             instructor: 'Trần Thị B',
             progress: 30,
-            thumbnail: '/api/placeholder/300/200',
             totalLessons: 80,
             completedLessons: 24,
             lastAccessed: '1 tuần trước',
@@ -53,7 +51,6 @@ export default function MyCoursesPage() {
             title: 'Từ vựng N3',
             instructor: 'Lê Văn C',
             progress: 100,
-            thumbnail: '/api/placeholder/300/200',
             totalLessons: 100,
             completedLessons: 100,
             lastAccessed: '3 ngày trước',
@@ -65,7 +62,6 @@ export default function MyCoursesPage() {
             title: 'Kanji N2',
             instructor: 'Phạm Thị D',
             progress: 0,
-            thumbnail: '/api/placeholder/300/200',
             totalLessons: 150,
             completedLessons: 0,
             lastAccessed: 'Chưa bắt đầu',
@@ -82,110 +78,70 @@ export default function MyCoursesPage() {
         return matchesSearch && matchesFilter
     })
 
-    const stats = {
-        total: courses.length,
-        inProgress: courses.filter((c) => c.progress < 100).length,
-        completed: courses.filter((c) => c.progress === 100).length,
-        averageProgress: Math.round(
-            courses.reduce((sum, c) => sum + c.progress, 0) / courses.length
-        ),
-    }
+    const stats = [
+        { label: 'Tổng khóa học', value: '12', icon: BookOpen, color: 'text-blue-500' },
+        { label: 'Đang học', value: '4', icon: PlayCircle, color: 'text-primary' },
+        { label: 'Đã xong', value: '3', icon: Award, color: 'text-amber-500' },
+        { label: 'Tiến độ', value: '58%', icon: TrendingUp, color: 'text-purple-500' },
+    ]
 
     return (
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-            <div>
-                <h1 className="text-3xl font-bold text-foreground">Khóa học của tôi</h1>
-                <p className="text-muted-foreground mt-2">
-                    Quản lý và tiếp tục học các khóa học đã đăng ký
-                </p>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 max-w-6xl animate-in fade-in duration-500">
+            {/* Header */}
+            <div className="space-y-1">
+                <h1 className="text-2xl font-bold text-foreground tracking-tight">Khóa học của tôi</h1>
+                <p className="text-sm text-muted-foreground opacity-70">Tiếp tục hành trình chinh phục kiến thức của bạn</p>
             </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <Card className="cursor-pointer hover:shadow-md transition-shadow">
-                    <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-muted-foreground">Tổng khóa học</p>
-                                <p className="text-2xl font-bold text-foreground mt-1">{stats.total}</p>
-                            </div>
-                            <BookOpen className="w-8 h-8 text-muted-foreground" />
+            {/* Stats Row */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {stats.map((stat, index) => {
+                    const Icon = stat.icon
+                    return (
+                        <div key={index} className="p-4 rounded-2xl border border-border/50 bg-muted/5 flex flex-col items-center text-center space-y-1">
+                            <Icon className={`w-4 h-4 ${stat.color} opacity-80`} />
+                            <p className="text-xl font-bold">{stat.value}</p>
+                            <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest">{stat.label}</p>
                         </div>
-                    </CardContent>
-                </Card>
-                <Card className="cursor-pointer hover:shadow-md transition-shadow">
-                    <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-muted-foreground">Đang học</p>
-                                <p className="text-2xl font-bold text-foreground mt-1">
-                                    {stats.inProgress}
-                                </p>
-                            </div>
-                            <PlayCircle className="w-8 h-8 text-primary" />
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card className="cursor-pointer hover:shadow-md transition-shadow">
-                    <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-muted-foreground">Đã hoàn thành</p>
-                                <p className="text-2xl font-bold text-foreground mt-1">
-                                    {stats.completed}
-                                </p>
-                            </div>
-                            <Award className="w-8 h-8 text-primary" />
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card className="cursor-pointer hover:shadow-md transition-shadow">
-                    <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-muted-foreground">Tiến độ trung bình</p>
-                                <p className="text-2xl font-bold text-foreground mt-1">
-                                    {stats.averageProgress}%
-                                </p>
-                            </div>
-                            <TrendingUp className="w-8 h-8 text-primary" />
-                        </div>
-                    </CardContent>
-                </Card>
+                    )
+                })}
             </div>
 
-            {/* Search and Filter */}
-            <div className="flex flex-col sm:flex-row gap-4">
-                <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            {/* Actions Bar */}
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 py-2">
+                <div className="relative w-full md:w-80">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
                     <Input
-                        placeholder="Tìm kiếm khóa học..."
+                        placeholder="Tìm khóa học..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10"
+                        className="pl-9 h-10 bg-muted/20 border-border/50 focus:bg-background transition-all"
                     />
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-1.5 p-1 rounded-full bg-muted/20 border border-border/50">
                     <Button
-                        variant={filter === 'all' ? 'default' : 'outline'}
+                        variant={filter === 'all' ? 'secondary' : 'ghost'}
+                        size="sm"
                         onClick={() => setFilter('all')}
-                        className="cursor-pointer"
+                        className="rounded-full text-xs font-medium px-4 h-8 transition-all cursor-pointer"
                     >
                         Tất cả
                     </Button>
                     <Button
-                        variant={filter === 'in-progress' ? 'default' : 'outline'}
+                        variant={filter === 'in-progress' ? 'secondary' : 'ghost'}
+                        size="sm"
                         onClick={() => setFilter('in-progress')}
-                        className="cursor-pointer"
+                        className="rounded-full text-xs font-medium px-4 h-8 transition-all cursor-pointer"
                     >
                         Đang học
                     </Button>
                     <Button
-                        variant={filter === 'completed' ? 'default' : 'outline'}
+                        variant={filter === 'completed' ? 'secondary' : 'ghost'}
+                        size="sm"
                         onClick={() => setFilter('completed')}
-                        className="cursor-pointer"
+                        className="rounded-full text-xs font-medium px-4 h-8 transition-all cursor-pointer"
                     >
-                        Hoàn thành
+                        Đã xong
                     </Button>
                 </div>
             </div>
@@ -193,70 +149,53 @@ export default function MyCoursesPage() {
             {/* Courses Grid */}
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredCourses.map((course) => (
-                    <Card
-                        key={course.id}
-                        className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
-                    >
-                        <div className="relative">
-                            <div className="w-full h-40 bg-muted" />
+                    <Card key={course.id} className="border-border/50 shadow-none bg-card/30 hover:bg-card/50 transition-all group overflow-hidden cursor-pointer flex flex-col">
+                        <div className="relative aspect-video bg-muted/40 overflow-hidden">
+                            {/* Placeholder/Thumb */}
+                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-background/40 backdrop-blur-sm transition-all duration-300">
+                                <PlayCircle className="w-12 h-12 text-primary" />
+                            </div>
                             {course.progress === 100 && (
-                                <Badge className="absolute top-2 right-2 bg-primary">
-                                    <Award className="w-3 h-3 mr-1" />
-                                    Hoàn thành
+                                <Badge className="absolute top-3 right-3 bg-emerald-500 text-white border-none shadow-sm flex gap-1.5 items-center px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+                                    <Award className="w-3 h-3" /> Hoàn thành
                                 </Badge>
                             )}
-                            <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/20">
-                                <div
-                                    className="h-full bg-primary"
-                                    style={{ width: `${course.progress}%` }}
-                                />
+                            <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary/5">
+                                <div className="h-full bg-primary transition-all duration-1000" style={{ width: `${course.progress}%` }} />
                             </div>
                         </div>
-                        <CardContent className="p-4">
-                            <h3 className="font-semibold text-foreground line-clamp-2 mb-1">
-                                {course.title}
-                            </h3>
-                            <p className="text-sm text-muted-foreground mb-3">
-                                {course.instructor}
-                            </p>
+                        <CardContent className="p-5 space-y-4 flex-1 flex flex-col justify-between">
+                            <div className="space-y-1.5">
+                                <h3 className="font-bold text-foreground leading-tight line-clamp-2 group-hover:text-primary transition-colors">
+                                    {course.title}
+                                </h3>
+                                <p className="text-xs text-muted-foreground font-medium">{course.instructor}</p>
+                            </div>
 
-                            <div className="space-y-2 mb-4">
-                                <div className="flex items-center justify-between text-xs">
-                                    <span className="text-muted-foreground">Tiến độ</span>
-                                    <span className="font-medium text-foreground">
-                                        {course.progress}%
-                                    </span>
-                                </div>
-                                <Progress value={course.progress} className="h-2" />
-                                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                                    <span>
-                                        {course.completedLessons}/{course.totalLessons} bài học
-                                    </span>
-                                    <div className="flex items-center gap-1">
-                                        <Clock className="w-3 h-3" />
-                                        <span>{course.lastAccessed}</span>
+                            <div className="space-y-3">
+                                <div className="space-y-2">
+                                    <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
+                                        <span>Tiến độ học</span>
+                                        <span>{course.progress}%</span>
                                     </div>
+                                    <Progress value={course.progress} className="h-1.5 bg-primary/5" />
+                                </div>
+                                <div className="flex items-center justify-between text-[10px] font-bold text-muted-foreground/80 uppercase">
+                                    <span className="flex items-center gap-1">
+                                        <BookOpen className="w-3 h-3" />
+                                        {course.completedLessons}/{course.totalLessons} bài
+                                    </span>
+                                    <span className="flex items-center gap-1">
+                                        <Clock className="w-3 h-3" />
+                                        {course.lastAccessed}
+                                    </span>
                                 </div>
                             </div>
 
-                            <Link href={`/courses/${course.slug}/learn`}>
-                                <Button className="w-full cursor-pointer">
-                                    {course.progress === 0 ? (
-                                        <>
-                                            <PlayCircle className="mr-2 w-4 h-4" />
-                                            Bắt đầu học
-                                        </>
-                                    ) : course.progress === 100 ? (
-                                        <>
-                                            <Award className="mr-2 w-4 h-4" />
-                                            Xem lại
-                                        </>
-                                    ) : (
-                                        <>
-                                            <PlayCircle className="mr-2 w-4 h-4" />
-                                            Tiếp tục học
-                                        </>
-                                    )}
+                            <Link href={`/courses/${course.slug}/learn`} className="w-full pt-2">
+                                <Button variant="outline" className="w-full rounded-full h-9 text-xs font-bold uppercase tracking-widest border-border/50 hover:bg-primary hover:text-primary-foreground hover:border-primary group/btn transition-all cursor-pointer">
+                                    {course.progress === 0 ? 'Bắt đầu học' : course.progress === 100 ? 'Xem lại' : 'Tiếp tục học'}
+                                    <ChevronRight className="ml-1.5 w-3 h-3 group-hover/btn:translate-x-0.5 transition-transform" />
                                 </Button>
                             </Link>
                         </CardContent>
@@ -265,19 +204,16 @@ export default function MyCoursesPage() {
             </div>
 
             {filteredCourses.length === 0 && (
-                <Card>
-                    <CardContent className="p-12 text-center">
-                        <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                        <h3 className="text-lg font-semibold text-foreground mb-2">
-                            Không tìm thấy khóa học
-                        </h3>
-                        <p className="text-muted-foreground">
-                            Thử thay đổi bộ lọc hoặc tìm kiếm với từ khóa khác
-                        </p>
-                    </CardContent>
-                </Card>
+                <div className="py-20 text-center space-y-4 rounded-3xl border border-dashed border-border/50 bg-muted/5">
+                    <div className="w-16 h-16 bg-muted/10 rounded-full flex items-center justify-center mx-auto">
+                        <Search className="w-8 h-8 text-muted-foreground/30" />
+                    </div>
+                    <div>
+                        <h3 className="text-lg font-bold text-foreground">Không tìm thấy khóa học</h3>
+                        <p className="text-sm text-muted-foreground">Thử tìm kiếm với từ khóa khác</p>
+                    </div>
+                </div>
             )}
         </div>
     )
 }
-

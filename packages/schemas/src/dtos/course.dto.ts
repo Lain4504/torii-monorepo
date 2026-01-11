@@ -65,6 +65,19 @@ export type CourseQueryDTO = z.infer<typeof courseQueryDTOSchema>;
 export const courseResponseDTOSchema = courseSchema.extend({
     // Status is computed from approvedBy/approvedAt
     // featured is removed - can be added to aiMetadata if needed
+    instructors: z.array(z.object({
+        id: z.string().uuid(),
+        userId: z.string().uuid(),
+        courseId: z.string().uuid(),
+        isPrimary: z.boolean(),
+        assignedDate: z.date(),
+        user: z.object({
+            id: z.string().uuid(),
+            displayName: z.string(),
+            avatarUrl: z.string().optional().nullable(),
+            email: z.string(),
+        }),
+    })).optional().default([]),
 });
 
 // Export helper for deriving status

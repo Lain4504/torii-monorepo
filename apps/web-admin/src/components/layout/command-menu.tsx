@@ -16,7 +16,6 @@ import {
     Bell, // notifications
     Shield,
     FileSearch, // audit-logs
-    Lock, // permissions
     Search,
 } from "lucide-react"
 import { useNavigate } from "react-router-dom"
@@ -57,98 +56,127 @@ export function CommandMenu() {
         <>
             <button
                 onClick={() => setOpen(true)}
-                className="inline-flex items-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input hover:bg-accent hover:text-accent-foreground relative h-9 justify-start rounded-xl bg-background text-sm font-normal text-muted-foreground w-9 sm:w-auto sm:px-4 sm:py-2 sm:pr-12 md:w-40 lg:w-64"
+                className="inline-flex items-center gap-4 whitespace-nowrap transition-all focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 border border-border/20 hover:border-primary/20 hover:bg-primary/5 relative h-12 justify-start rounded-2xl bg-muted/20 text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground/40 w-12 sm:w-auto sm:px-6 md:w-48 lg:w-72 group"
             >
-                <Search className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline-flex lg:hidden">Search...</span>
-                <span className="hidden lg:inline-flex">Search or type</span>
-                <kbd className="pointer-events-none absolute right-[0.3rem] top-[0.3rem] hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
-                    <span className="text-xs">⌘</span>K
+                <Search className="size-4 sm:size-5 transition-transform group-hover:scale-110 group-hover:text-primary" />
+                <span className="hidden sm:inline-flex lg:hidden">Query...</span>
+                <span className="hidden lg:inline-flex group-hover:text-primary transition-colors">Access Registry...</span>
+                <kbd className="pointer-events-none absolute right-2 top-1.5 hidden h-9 select-none items-center gap-1 rounded-xl border border-border/10 bg-background/40 px-3 font-mono text-[9px] font-black opacity-100 sm:flex text-muted-foreground/20">
+                    <span className="text-[10px]">CTRL</span>K
                 </kbd>
             </button>
             <CommandDialog open={open} onOpenChange={setOpen}>
-                <CommandInput placeholder="Type a command or search..." />
-                <CommandList>
-                    <CommandEmpty>No results found.</CommandEmpty>
-                    <CommandGroup heading="General">
-                        <CommandItem onSelect={() => runCommand(() => navigate("/"))}>
-                            <LayoutDashboard className="mr-2 h-4 w-4" />
-                            <span>Dashboard</span>
-                        </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => navigate("/analytics"))}>
-                            <BarChart className="mr-2 h-4 w-4" />
-                            <span>Analytics</span>
-                        </CommandItem>
-                    </CommandGroup>
-                    <CommandGroup heading="Management">
-                        <CommandItem onSelect={() => runCommand(() => navigate("/users"))}>
-                            <User className="mr-2 h-4 w-4" />
-                            <span>Users</span>
-                        </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => navigate("/courses"))}>
-                            <BookOpen className="mr-2 h-4 w-4" />
-                            <span>Courses</span>
-                        </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => navigate("/modules"))}>
-                            <Layers className="mr-2 h-4 w-4" />
-                            <span>Modules</span>
-                        </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => navigate("/lessons"))}>
-                            <FileText className="mr-2 h-4 w-4" />
-                            <span>Lessons</span>
-                        </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => navigate("/question-bank/questions"))}>
-                            <FileQuestion className="mr-2 h-4 w-4" />
-                            <span>Question Bank - Questions</span>
-                        </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => navigate("/question-bank/pools"))}>
-                            <Database className="mr-2 h-4 w-4" />
-                            <span>Question Bank - Pools</span>
-                        </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => navigate("/rooms"))}>
-                            <Video className="mr-2 h-4 w-4" />
-                            <span>Virtual Rooms</span>
-                        </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => navigate("/blogs"))}>
-                            <FileEdit className="mr-2 h-4 w-4" />
-                            <span>Blogs</span>
-                        </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => navigate("/payments"))}>
-                            <DollarSign className="mr-2 h-4 w-4" />
-                            <span>Payments</span>
-                        </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => navigate("/ai-service"))}>
-                            <Bot className="mr-2 h-4 w-4" />
-                            <span>AI Service</span>
-                        </CommandItem>
-                    </CommandGroup>
-                    <CommandSeparator />
-                    <CommandGroup heading="Security & Audit">
-                        <CommandItem onSelect={() => runCommand(() => navigate("/authorization/permissions"))}>
-                            <Shield className="mr-2 h-4 w-4" />
-                            <span>Authorization Permissions</span>
-                        </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => navigate("/authorization/audit-logs"))}>
-                            <FileSearch className="mr-2 h-4 w-4" />
-                            <span>Audit Logs</span>
-                        </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => navigate("/permissions"))}>
-                            <Lock className="mr-2 h-4 w-4" />
-                            <span>Permissions List</span>
-                        </CommandItem>
-                    </CommandGroup>
-                    <CommandGroup heading="Settings">
-                        <CommandItem onSelect={() => runCommand(() => navigate("/notifications"))}>
-                            <Bell className="mr-2 h-4 w-4" />
-                            <span>Notifications</span>
-                        </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => navigate("/settings"))}>
-                            <Settings className="mr-2 h-4 w-4" />
-                            <span>Settings</span>
-                            <CommandShortcut>⌘S</CommandShortcut>
-                        </CommandItem>
-                    </CommandGroup>
-                </CommandList>
+                <div className="bg-background/80 backdrop-blur-3xl supports-[backdrop-filter]:bg-background/60">
+                    <CommandInput
+                        placeholder="SEARCH COMMAND REGISTRY..."
+                        className="h-16 text-[11px] font-bold uppercase tracking-[0.15em] placeholder:text-muted-foreground/40"
+                    />
+                    <CommandList className="max-h-[60vh] overflow-y-auto scrollbar-thin scrollbar-thumb-border/20 scrollbar-track-transparent p-2">
+                        <CommandEmpty className="py-10 text-center text-muted-foreground">
+                            <p className="text-[10px] font-bold uppercase tracking-widest">No matching directives found.</p>
+                        </CommandEmpty>
+
+                        <CommandGroup heading="Core Protocols" className="text-[9px] font-black text-muted-foreground/50 uppercase tracking-[0.2em] px-2 py-1.5">
+                            <CommandItem onSelect={() => runCommand(() => navigate("/"))} className="rounded-xl aria-selected:bg-primary/10 aria-selected:text-primary group cursor-pointer py-3">
+                                <LayoutDashboard className="mr-3 h-4 w-4 opacity-50 group-aria-selected:opacity-100 transition-opacity" />
+                                <span className="text-[11px] font-bold uppercase tracking-wider">Mission Control</span>
+                            </CommandItem>
+                            <CommandItem onSelect={() => runCommand(() => navigate("/analytics"))} className="rounded-xl aria-selected:bg-primary/10 aria-selected:text-primary group cursor-pointer py-3">
+                                <BarChart className="mr-3 h-4 w-4 opacity-50 group-aria-selected:opacity-100 transition-opacity" />
+                                <span className="text-[11px] font-bold uppercase tracking-wider">Data Analytics</span>
+                            </CommandItem>
+                        </CommandGroup>
+
+                        <CommandSeparator className="bg-border/10 my-1" />
+
+                        <CommandGroup heading="Entity Management" className="text-[9px] font-black text-muted-foreground/50 uppercase tracking-[0.2em] px-2 py-1.5">
+                            <CommandItem onSelect={() => runCommand(() => navigate("/users"))} className="rounded-xl aria-selected:bg-indigo-500/10 aria-selected:text-indigo-500 group cursor-pointer py-3">
+                                <User className="mr-3 h-4 w-4 opacity-50 group-aria-selected:opacity-100 transition-opacity" />
+                                <span className="text-[11px] font-bold uppercase tracking-wider">User Directory</span>
+                            </CommandItem>
+                            <CommandItem onSelect={() => runCommand(() => navigate("/courses"))} className="rounded-xl aria-selected:bg-emerald-500/10 aria-selected:text-emerald-500 group cursor-pointer py-3">
+                                <BookOpen className="mr-3 h-4 w-4 opacity-50 group-aria-selected:opacity-100 transition-opacity" />
+                                <span className="text-[11px] font-bold uppercase tracking-wider">Course Matrix</span>
+                            </CommandItem>
+                            <CommandItem onSelect={() => runCommand(() => navigate("/modules"))} className="rounded-xl aria-selected:bg-emerald-500/10 aria-selected:text-emerald-500 group cursor-pointer py-3">
+                                <Layers className="mr-3 h-4 w-4 opacity-50 group-aria-selected:opacity-100 transition-opacity" />
+                                <span className="text-[11px] font-bold uppercase tracking-wider">Modules</span>
+                            </CommandItem>
+                            <CommandItem onSelect={() => runCommand(() => navigate("/lessons"))} className="rounded-xl aria-selected:bg-emerald-500/10 aria-selected:text-emerald-500 group cursor-pointer py-3">
+                                <FileText className="mr-3 h-4 w-4 opacity-50 group-aria-selected:opacity-100 transition-opacity" />
+                                <span className="text-[11px] font-bold uppercase tracking-wider">Lessons</span>
+                            </CommandItem>
+                        </CommandGroup>
+
+                        <CommandSeparator className="bg-border/10 my-1" />
+
+                        <CommandGroup heading="Knowledge Base" className="text-[9px] font-black text-muted-foreground/50 uppercase tracking-[0.2em] px-2 py-1.5">
+                            <CommandItem onSelect={() => runCommand(() => navigate("/question-bank/questions"))} className="rounded-xl aria-selected:bg-orange-500/10 aria-selected:text-orange-500 group cursor-pointer py-3">
+                                <FileQuestion className="mr-3 h-4 w-4 opacity-50 group-aria-selected:opacity-100 transition-opacity" />
+                                <span className="text-[11px] font-bold uppercase tracking-wider">Question Repository</span>
+                            </CommandItem>
+                            <CommandItem onSelect={() => runCommand(() => navigate("/question-bank/pools"))} className="rounded-xl aria-selected:bg-orange-500/10 aria-selected:text-orange-500 group cursor-pointer py-3">
+                                <Database className="mr-3 h-4 w-4 opacity-50 group-aria-selected:opacity-100 transition-opacity" />
+                                <span className="text-[11px] font-bold uppercase tracking-wider">Question Pools</span>
+                            </CommandItem>
+                        </CommandGroup>
+
+                        <CommandSeparator className="bg-border/10 my-1" />
+
+                        <CommandGroup heading="Communication & Tools" className="text-[9px] font-black text-muted-foreground/50 uppercase tracking-[0.2em] px-2 py-1.5">
+                            <CommandItem onSelect={() => runCommand(() => navigate("/rooms"))} className="rounded-xl aria-selected:bg-blue-500/10 aria-selected:text-blue-500 group cursor-pointer py-3">
+                                <Video className="mr-3 h-4 w-4 opacity-50 group-aria-selected:opacity-100 transition-opacity" />
+                                <span className="text-[11px] font-bold uppercase tracking-wider">Virtual Rooms</span>
+                            </CommandItem>
+                            <CommandItem onSelect={() => runCommand(() => navigate("/blogs"))} className="rounded-xl aria-selected:bg-pink-500/10 aria-selected:text-pink-500 group cursor-pointer py-3">
+                                <FileEdit className="mr-3 h-4 w-4 opacity-50 group-aria-selected:opacity-100 transition-opacity" />
+                                <span className="text-[11px] font-bold uppercase tracking-wider">Blog Posts</span>
+                            </CommandItem>
+                            <CommandItem onSelect={() => runCommand(() => navigate("/ai-service"))} className="rounded-xl aria-selected:bg-purple-500/10 aria-selected:text-purple-500 group cursor-pointer py-3">
+                                <Bot className="mr-3 h-4 w-4 opacity-50 group-aria-selected:opacity-100 transition-opacity" />
+                                <span className="text-[11px] font-bold uppercase tracking-wider">AI Operations</span>
+                            </CommandItem>
+                        </CommandGroup>
+
+                        <CommandSeparator className="bg-border/10 my-1" />
+
+                        <CommandGroup heading="Finance" className="text-[9px] font-black text-muted-foreground/50 uppercase tracking-[0.2em] px-2 py-1.5">
+                            <CommandItem onSelect={() => runCommand(() => navigate("/payments"))} className="rounded-xl aria-selected:bg-green-500/10 aria-selected:text-green-500 group cursor-pointer py-3">
+                                <DollarSign className="mr-3 h-4 w-4 opacity-50 group-aria-selected:opacity-100 transition-opacity" />
+                                <span className="text-[11px] font-bold uppercase tracking-wider">Transactions</span>
+                            </CommandItem>
+                        </CommandGroup>
+
+                        <CommandSeparator className="bg-border/10 my-1" />
+
+                        <CommandGroup heading="Security & Systems" className="text-[9px] font-black text-muted-foreground/50 uppercase tracking-[0.2em] px-2 py-1.5">
+                            <CommandItem onSelect={() => runCommand(() => navigate("/authorization/permissions"))} className="rounded-xl aria-selected:bg-red-500/10 aria-selected:text-red-500 group cursor-pointer py-3">
+                                <Shield className="mr-3 h-4 w-4 opacity-50 group-aria-selected:opacity-100 transition-opacity" />
+                                <span className="text-[11px] font-bold uppercase tracking-wider">Authorization</span>
+                            </CommandItem>
+                            <CommandItem onSelect={() => runCommand(() => navigate("/authorization/audit-logs"))} className="rounded-xl aria-selected:bg-red-500/10 aria-selected:text-red-500 group cursor-pointer py-3">
+                                <FileSearch className="mr-3 h-4 w-4 opacity-50 group-aria-selected:opacity-100 transition-opacity" />
+                                <span className="text-[11px] font-bold uppercase tracking-wider">Audit Logs</span>
+                            </CommandItem>
+                            <CommandItem onSelect={() => runCommand(() => navigate("/notifications"))} className="rounded-xl aria-selected:bg-yellow-500/10 aria-selected:text-yellow-500 group cursor-pointer py-3">
+                                <Bell className="mr-3 h-4 w-4 opacity-50 group-aria-selected:opacity-100 transition-opacity" />
+                                <span className="text-[11px] font-bold uppercase tracking-wider">Notifications</span>
+                            </CommandItem>
+                            <CommandItem onSelect={() => runCommand(() => navigate("/settings"))} className="rounded-xl aria-selected:bg-stone-500/10 aria-selected:text-stone-500 group cursor-pointer py-3">
+                                <Settings className="mr-3 h-4 w-4 opacity-50 group-aria-selected:opacity-100 transition-opacity" />
+                                <span className="text-[11px] font-bold uppercase tracking-wider">System Settings</span>
+                                <CommandShortcut className="text-[9px] font-bold uppercase tracking-wider opacity-50">⌘S</CommandShortcut>
+                            </CommandItem>
+                        </CommandGroup>
+                        <div className="h-4" />
+                    </CommandList>
+                    <div className="border-t border-border/10 p-3 flex justify-between items-center bg-muted/10">
+                        <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/40">Torii Global Command</span>
+                        <div className="flex gap-2">
+                            <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/40">v2.4.0</span>
+                        </div>
+                    </div>
+                </div>
             </CommandDialog>
         </>
     )

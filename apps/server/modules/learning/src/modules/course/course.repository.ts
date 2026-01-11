@@ -161,4 +161,40 @@ export class CourseRepository implements ICourseRepository {
             data: updateData,
         });
     }
+
+    /**
+     * Get instructors for a course
+     * Manually joins CourseInstructor and User since relation is missing in Prisma schema
+     */
+    async getInstructors(courseId: string): Promise<any[]> {
+        // 1. Get CourseInstructors with lecturerId
+        const courseInstructors = await this.prisma.courseInstructor.findMany({
+            where: { courseId },
+        });
+
+        if (courseInstructors.length === 0) {
+            return [];
+        }
+
+        // 2. Get User details for each lecturer
+        const lecturerIds = courseInstructors.map(ci => ci.lecturerId);
+        const users = await this.prisma.user.findMany({
+            where: { id: { in: lecturerIds } },
+            select: {
+                id: true,
+                displayName: true,
+                avatarUrl: true,
+                email: true,
+            },
+        });
+
+        // 3. Merge data
+        return courseInstructors.map(ci => {
+            const user = users.find(u => u.id === ci.lecturerId);
+            return {
+                ...ci,
+                user,
+            };
+        }).filter(item => item.user); // Filter out if user not found
+    }
 }

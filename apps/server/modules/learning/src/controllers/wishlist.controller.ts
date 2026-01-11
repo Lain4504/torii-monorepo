@@ -58,5 +58,36 @@ export class WishlistController {
     async delete(@Param('id') id: string) {
         return this.wishlistService.delete(id);
     }
+
+    /**
+     * Toggle wishlist (add/remove course from wishlist)
+     */
+    @Post('toggle/:courseId')
+    async toggle(
+        @Param('courseId') courseId: string,
+        @Req() req: any,
+    ) {
+        const userId = req.user?.sub || req.user?.uid;
+        if (!userId) {
+            throw new Error('User ID not found in request');
+        }
+        return this.wishlistService.toggle(userId, courseId);
+    }
+
+    /**
+     * Check if course is in wishlist
+     */
+    @Get('check/:courseId')
+    async checkWishlist(
+        @Param('courseId') courseId: string,
+        @Req() req: any,
+    ) {
+        const userId = req.user?.sub || req.user?.uid;
+        if (!userId) {
+            return { isInWishlist: false };
+        }
+        const isInWishlist = await this.wishlistService.isInWishlist(userId, courseId);
+        return { isInWishlist };
+    }
 }
 

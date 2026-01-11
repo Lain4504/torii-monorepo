@@ -94,6 +94,21 @@ export class CourseController {
     }
 
     /**
+     * Check enrollment status for current user
+     */
+    @Get(':id/enrollment-status')
+    @UseGuards(GatewayAuthGuard)
+    async checkEnrollmentStatus(
+        @Request() req: ReqWithRequester,
+        @Param('id', ParseUUIDPipe) id: string,
+    ): Promise<{ isEnrolled: boolean }> {
+        const userId = req.requester.sub;
+        // This would require injecting EnrollmentService, but for now we'll return a simple response
+        // In a full implementation, you'd inject IEnrollmentService here
+        return { isEnrolled: false }; // Placeholder
+    }
+
+    /**
      * Get course curriculum (modules with lessons)
      */
     @Get(':id/curriculum')

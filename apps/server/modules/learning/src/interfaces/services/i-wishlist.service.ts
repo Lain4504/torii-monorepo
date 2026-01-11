@@ -29,5 +29,15 @@ export interface IWishlistService {
      * Delete wishlist by ID
      */
     delete(id: string): Promise<boolean>;
+
+    /**
+     * Toggle wishlist (add if not exists, remove if exists)
+     */
+    toggle(userId: string, courseId: string): Promise<{ isInWishlist: boolean; wishlist?: WishlistResponseDTO }>;
+
+    /**
+     * Check if course is in user's wishlist
+     */
+    isInWishlist(userId: string, courseId: string): Promise<boolean>;
 }
 

@@ -14,14 +14,15 @@ import {
     Settings,
     GraduationCap,
     TrendingUp,
+    ChevronRight,
 } from 'lucide-react'
 import { cn } from '@workspace/ui/lib/utils'
 import { Progress } from '@workspace/ui/components/progress'
 
 // Nhóm học tập - ưu tiên cao nhất
 const learningNav = [
-    { name: 'Khóa học của tôi', href: '/dashboard/my-courses', icon: BookOpen, badge: null },
     { name: 'Trang chủ', href: '/dashboard', icon: Home },
+    { name: 'Khóa học của tôi', href: '/dashboard/my-courses', icon: BookOpen, badge: null },
 ]
 
 // Nhóm tiến độ và thành tích
@@ -35,32 +36,19 @@ const progressNav = [
 // Nhóm tài khoản - ưu tiên thấp hơn
 const accountNav = [
     { name: 'Hồ sơ', href: '/dashboard/profile', icon: User },
-    { name: 'Thanh toán', href: '/dashboard/payment', icon: CreditCard },
+    { name: 'Lịch sử thanh toán', href: '/dashboard/payment', icon: CreditCard },
     { name: 'Cài đặt', href: '/dashboard/settings', icon: Settings },
 ]
 
-// Quick links - tính năng bổ sung
-const quickLinks = [
-    { name: 'Luyện thi JLPT', href: '/jlpt-practice', icon: GraduationCap },
-]
-
-// Mock data - sẽ được thay thế bằng API call
+// Mock data
 const continueLearning = [
     {
         id: 1,
         slug: 'tieng-nhat-n5-co-ban',
         title: 'Tiếng Nhật N5 - Cơ bản',
         progress: 65,
-        nextLesson: 'Bài 12: Ngữ pháp cơ bản',
+        nextLesson: 'Bài 12: Ngữ pháp',
         href: '/courses/tieng-nhat-n5-co-ban/learn',
-    },
-    {
-        id: 2,
-        slug: 'ngu-phap-n4',
-        title: 'Ngữ pháp N4',
-        progress: 30,
-        nextLesson: 'Bài 8: Động từ thể te',
-        href: '/courses/ngu-phap-n4/learn',
     },
 ]
 
@@ -76,42 +64,65 @@ interface NavGroupProps {
     items: NavItem[]
     pathname: string
     className?: string
+    isCollapsed?: boolean
 }
 
-function NavGroup({ title, items, pathname, className }: NavGroupProps) {
+function NavGroup({ title, items, pathname, className, isCollapsed }: NavGroupProps) {
     return (
-        <div className={cn('space-y-1', className)}>
-            {title && (
-                <h3 className="px-4 py-2 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider">
+        <div className={cn('space-y-1.5', className)}>
+            {title && !isCollapsed && (
+                <h3 className="px-5 py-2 text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.2em] animate-in fade-in duration-300">
                     {title}
                 </h3>
             )}
+            {/* Show Divider if collapsed and has title, to separate groups visually */}
+            {title && isCollapsed && (
+                <div className="h-px w-8 mx-auto bg-border/40 my-2" />
+            )}
+
             {items.map((item) => {
                 const Icon = item.icon
-                const isActive =
-                    pathname === item.href || pathname?.startsWith(item.href + '/')
+                const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname?.startsWith(item.href + '/'))
+
+                if (isCollapsed) {
+                    return (
+                        <Link
+                            key={item.name}
+                            href={item.href}
+                            className={cn(
+                                'group flex items-center justify-center w-12 h-12 mx-auto rounded-2xl transition-all duration-300 cursor-pointer border',
+                                isActive
+                                    ? 'bg-primary/10 border-primary/20 text-primary shadow-sm shadow-primary/5'
+                                    : 'border-transparent text-muted-foreground/70 hover:bg-muted/30 hover:text-foreground'
+                            )}
+                            title={item.name}
+                        >
+                            <Icon className="w-5 h-5 shrink-0" />
+                        </Link>
+                    )
+                }
+
                 return (
                     <Link
                         key={item.name}
                         href={item.href}
                         className={cn(
-                            'group flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer',
+                            'group flex items-center gap-3.5 px-5 py-2.5 rounded-2xl text-[11px] font-bold uppercase tracking-widest transition-all duration-300 cursor-pointer border border-transparent',
                             isActive
-                                ? 'bg-primary text-primary-foreground shadow-sm'
-                                : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                                ? 'bg-primary/5 text-primary border-primary/10 shadow-sm shadow-primary/5'
+                                : 'text-muted-foreground/70 hover:bg-muted/30 hover:text-foreground'
                         )}
                     >
-                        <Icon
-                            className={cn(
-                                'w-5 h-5 shrink-0 transition-colors',
-                                isActive
-                                    ? 'text-primary-foreground'
-                                    : 'text-muted-foreground group-hover:text-accent-foreground'
-                            )}
-                        />
-                        <span className="flex-1">{item.name}</span>
+                        <div className={cn(
+                            'flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-300',
+                            isActive ? 'bg-primary/10 text-primary scale-110' : 'bg-muted/10 group-hover:bg-muted/20'
+                        )}>
+                            <Icon className="w-4 h-4 shrink-0" />
+                        </div>
+                        <span className="flex-1 whitespace-nowrap">{item.name}</span>
+                        {isActive && <ChevronRight className="w-3 h-3 opacity-50" />}
                         {item.badge !== undefined && item.badge !== null && (
-                            <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-primary/10 text-primary">
+                            <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-primary/10 text-primary">
                                 {item.badge}
                             </span>
                         )}
@@ -126,34 +137,31 @@ function ContinueLearningSection() {
     if (continueLearning.length === 0) return null
 
     return (
-        <div className="mb-6 px-4">
-            <h3 className="text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider mb-3">
-                Tiếp tục học tập
+        <div className="mb-10 px-2">
+            <h3 className="px-3 py-2 text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.2em] mb-2">
+                Đang học
             </h3>
             <div className="space-y-3">
-                {continueLearning.slice(0, 2).map((course) => (
+                {continueLearning.slice(0, 1).map((course) => (
                     <Link
                         key={course.id}
                         href={course.href}
-                        className="group block p-3 rounded-lg bg-accent/50 hover:bg-accent transition-colors duration-200 cursor-pointer border border-border/50"
+                        className="group block p-4 rounded-3xl bg-primary/[0.03] hover:bg-primary/[0.06] transition-all duration-300 cursor-pointer border border-primary/5 hover:border-primary/10"
                     >
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                            <h4 className="text-sm font-medium text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+                        <div className="flex items-start justify-between gap-3 mb-3">
+                            <h4 className="text-[11px] font-bold text-foreground leading-relaxed uppercase tracking-tight group-hover:text-primary transition-colors">
                                 {course.title}
                             </h4>
-                            <PlayCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                        </div>
-                        <p className="text-xs text-muted-foreground mb-2 line-clamp-1">
-                            {course.nextLesson}
-                        </p>
-                        <div className="space-y-1.5">
-                            <Progress value={course.progress} className="h-1.5" />
-                            <div className="flex items-center justify-between">
-                                <span className="text-xs text-muted-foreground">
-                                    {course.progress}% hoàn thành
-                                </span>
-                                <span className="text-xs font-medium text-primary">Tiếp tục →</span>
+                            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                                <PlayCircle className="w-4 h-4 text-primary" />
                             </div>
+                        </div>
+                        <div className="space-y-2.5">
+                            <div className="flex items-center justify-between text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">
+                                <span>Tiến độ</span>
+                                <span>{course.progress}%</span>
+                            </div>
+                            <Progress value={course.progress} className="h-1 bg-primary/5" />
                         </div>
                     </Link>
                 ))}
@@ -162,45 +170,41 @@ function ContinueLearningSection() {
     )
 }
 
-export function DashboardSidebar() {
+interface DashboardSidebarProps {
+    isCollapsed?: boolean
+}
+
+export function DashboardSidebar({ isCollapsed = false }: DashboardSidebarProps) {
     const pathname = usePathname()
 
     return (
-        <aside className="fixed left-0 top-16 h-[calc(100vh-4rem)] w-64 border-r bg-background/95 backdrop-blur-sm overflow-y-auto hidden lg:block scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
-            <div className="p-4 space-y-6">
-                {/* Continue Learning Section - ưu tiên hiển thị đầu tiên */}
-                <ContinueLearningSection />
+        <aside className={cn(
+            "fixed left-0 top-16 h-[calc(100vh-4rem)] border-r border-border/40 bg-background/50 backdrop-blur-3xl overflow-y-auto hidden lg:block scrollbar-none transition-all duration-300",
+            isCollapsed ? "w-20" : "w-72"
+        )}>
+            <div className={cn("space-y-10", isCollapsed ? "p-4" : "p-6")}>
+                {/* Learning - Navigation chính */}
+                <NavGroup items={learningNav} pathname={pathname} isCollapsed={isCollapsed} />
 
-                {/* Học tập - Navigation chính */}
-                <NavGroup items={learningNav} pathname={pathname} />
+                {/* Continue Learning Section - Hide when collapsed */}
+                {!isCollapsed && <ContinueLearningSection />}
 
                 {/* Tiến độ & Thành tích */}
                 <NavGroup
-                    title="Tiến độ"
+                    title="Tiến độ học tập"
                     items={progressNav}
                     pathname={pathname}
-                    className="pt-4 border-t border-border/50"
+                    isCollapsed={isCollapsed}
                 />
-
-                {/* Quick Links */}
-                {quickLinks.length > 0 && (
-                    <NavGroup
-                        title="Tiện ích"
-                        items={quickLinks}
-                        pathname={pathname}
-                        className="pt-4 border-t border-border/50"
-                    />
-                )}
 
                 {/* Tài khoản - Đặt cuối cùng */}
                 <NavGroup
                     title="Tài khoản"
                     items={accountNav}
                     pathname={pathname}
-                    className="pt-4 border-t border-border/50"
+                    isCollapsed={isCollapsed}
                 />
             </div>
         </aside>
     )
 }
-

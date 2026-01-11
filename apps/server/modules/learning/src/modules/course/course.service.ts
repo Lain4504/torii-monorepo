@@ -250,7 +250,20 @@ export class CourseService implements ICourseService {
       throw new NotFoundException(`Course with id ${courseId} not found`);
     }
 
-    return this.toCourseResponseDTO(course);
+    const dto = this.toCourseResponseDTO(course);
+
+    // Fetch instructors
+    try {
+      const instructors = await this.courseRepository.getInstructors(course.id);
+      // @ts-ignore - Property 'instructors' does not exist on type 'CourseResponseDTO' until type definitions are fully propagated
+      dto.instructors = instructors;
+    } catch (error) {
+      this.logger.warn(`Failed to fetch instructors for course ${course.id}`, error);
+      // @ts-ignore
+      dto.instructors = [];
+    }
+
+    return dto;
   }
 
   /**
@@ -263,7 +276,20 @@ export class CourseService implements ICourseService {
       throw new NotFoundException(`Course with slug ${slug} not found`);
     }
 
-    return this.toCourseResponseDTO(course);
+    const dto = this.toCourseResponseDTO(course);
+
+    // Fetch instructors
+    try {
+      const instructors = await this.courseRepository.getInstructors(course.id);
+      // @ts-ignore - Property 'instructors' does not exist on type 'CourseResponseDTO' until type definitions are fully propagated
+      dto.instructors = instructors;
+    } catch (error) {
+      this.logger.warn(`Failed to fetch instructors for course ${course.id}`, error);
+      // @ts-ignore
+      dto.instructors = [];
+    }
+
+    return dto;
   }
 
   /**

@@ -17,6 +17,8 @@ export * from './models/flashcard-review.model';
 export * from './models/flashcard-review-session.model';
 export * from './models/review.model';
 export * from './models/exam.model';
+export * from './models/enrollment.model';
+export * from './models/payment.model';
 
 // DTOs (all types are now here with Zod schemas)
 export * from './dtos/user.dto';
@@ -37,11 +39,15 @@ export * from './dtos/post.dto';
 export * from './dtos/comment.dto';
 export * from './dtos/flashcard.dto';
 export * from './dtos/flashcard-deck.dto';
+export * from './dtos/flashcard-review.dto';
+export * from './dtos/flashcard-review-session.dto';
 export * from './dtos/review.dto';
 export * from './dtos/exam.dto';
 export * from './dtos/lesson-material.dto';
 export * from './dtos/course-instructor.dto';
 export * from './dtos/staff-dashboard.dto';
+export * from './dtos/enrollment.dto';
+export * from './dtos/payment.dto';
 
 // Interfaces (only internal/utility types)
 export * from './interfaces/auth.interface';

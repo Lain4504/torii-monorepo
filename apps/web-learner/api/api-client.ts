@@ -40,7 +40,7 @@ const extractErrorMessage = (error: AxiosError): string => {
             return data.message;
         }
     }
-    
+
     // 2. Network errors
     if (error.code === 'ECONNABORTED') {
         return 'Request timeout. Please try again.';
@@ -48,7 +48,7 @@ const extractErrorMessage = (error: AxiosError): string => {
     if (error.code === 'ERR_NETWORK' || !error.response) {
         return 'Network error. Please check your connection and try again.';
     }
-    
+
     // 3. Infrastructure errors (Gateway/Load Balancer - may not have standard format)
     const status = error.response?.status;
     if (status === 502) return 'Bad gateway. Please try again later.';
@@ -57,7 +57,7 @@ const extractErrorMessage = (error: AxiosError): string => {
     if (status === 500 && !error.response?.data) {
         return 'Server error. Please try again later.';
     }
-    
+
     // 4. Final fallback
     return error.message || 'An unexpected error occurred.';
 };
@@ -67,7 +67,7 @@ const extractErrorMessage = (error: AxiosError): string => {
  */
 const isPublicEndpoint = (url?: string): boolean => {
     if (!url) return false;
-    
+
     const publicEndpoints = [
         '/auth/login',
         '/auth/register',
@@ -83,10 +83,10 @@ const isPublicEndpoint = (url?: string): boolean => {
         '/auth/set-password',
         '/auth/me', // Auth check endpoint - 401 is expected when not authenticated (matches both /api/auth/me and /auth/me)
     ];
-    
+
     // Normalize URL by removing query params and hash for matching
-    const normalizedUrl = url.split('?')[0].split('#')[0];
-    
+    const normalizedUrl = url.split(/[?#]/)[0] ?? '';
+
     return publicEndpoints.some(endpoint => normalizedUrl.includes(endpoint));
 };
 
@@ -95,9 +95,9 @@ const isPublicEndpoint = (url?: string): boolean => {
  */
 const isPublicPage = (): boolean => {
     if (typeof window === 'undefined') return false;
-    
+
     const pathname = window.location.pathname;
-    
+
     const publicPages = [
         '/login',
         '/register',
@@ -106,13 +106,13 @@ const isPublicPage = (): boolean => {
         '/verify',
         '/verify-request',
     ];
-    
+
     // Home page is public
     if (pathname === '/') return true;
-    
+
     // Course pages are public (course listing and course detail)
     if (pathname.startsWith('/courses')) return true;
-    
+
     // Other public pages
     return publicPages.some(page => pathname.includes(page));
 };
@@ -194,7 +194,7 @@ apiClient.interceptors.response.use(
     (response) => response,
     async (error: AxiosError) => {
         const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
-        
+
         // If no config, pass through
         if (!originalRequest) {
             return Promise.reject(error);
@@ -224,7 +224,7 @@ apiClient.interceptors.response.use(
                 console.warn('Token refresh failed');
                 isRefreshing = false;
                 processQueue(error);
-                
+
                 // Only redirect if we're not on a public page
                 if (!isPublicPage()) {
                     redirectToLogin();
@@ -277,7 +277,7 @@ apiClient.interceptors.response.use(
                 console.error('Token refresh failed:', refreshError);
                 processQueue(refreshError);
                 isRefreshing = false;
-                
+
                 // Only redirect if we're not on a public page
                 if (!isPublicPage()) {
                     redirectToLogin();

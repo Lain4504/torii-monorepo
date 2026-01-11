@@ -1,9 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { Facebook, Youtube, Instagram, Mail, Phone, MapPin } from 'lucide-react'
+import { Facebook, Youtube, Instagram, Mail, Phone, MapPin, Sparkles, Send } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { useTranslation } from '@workspace/i18n'
+import { Input } from '@workspace/ui/components/input'
 
 export function Footer() {
     const { t } = useTranslation()
@@ -26,18 +27,7 @@ export function Footer() {
                 { nameKey: 'learner.footer.features.liveClassesWebRTC', href: '/live-classes' },
                 { nameKey: 'learner.footer.features.aiSensei', href: '/ai-sensei' },
                 { nameKey: 'learner.footer.features.smartFlashcards', href: '/flashcards' },
-                { nameKey: 'learner.footer.features.jlptPractice', href: '/jlpt-practice' },
                 { nameKey: 'learner.footer.features.learningCommunity', href: '/community' },
-            ],
-        },
-        resources: {
-            titleKey: 'learner.footer.sections.resources',
-            links: [
-                { nameKey: 'learner.footer.resources.japaneseBlog', href: '/blog' },
-                { nameKey: 'learner.footer.resources.grammarN5N1', href: '/grammar' },
-                { nameKey: 'learner.footer.resources.vocabularyTopics', href: '/vocabulary' },
-                { nameKey: 'learner.footer.resources.kanjiLookup', href: '/kanji' },
-                { nameKey: 'learner.footer.resources.faq', href: '/faq' },
             ],
         },
         company: {
@@ -46,7 +36,6 @@ export function Footer() {
                 { nameKey: 'learner.footer.company.introduction', href: '/about' },
                 { nameKey: 'learner.footer.company.instructors', href: '/instructors' },
                 { nameKey: 'learner.footer.company.contact', href: '/contact' },
-                { nameKey: 'learner.footer.company.careers', href: '/careers' },
                 { nameKey: 'learner.footer.company.privacy', href: '/privacy' },
                 { nameKey: 'learner.footer.company.terms', href: '/terms' },
             ],
@@ -54,208 +43,120 @@ export function Footer() {
     }
 
     return (
-        <footer className="bg-muted/50 border-t">
-            {/* Main Footer Content */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-12">
+        <footer className="relative bg-background pt-24 pb-12 overflow-hidden border-t border-border/40">
+            {/* Background Decorations */}
+            <div className="absolute inset-0 pointer-events-none opacity-50">
+                <div className="absolute bottom-0 left-0 w-96 h-96 bg-primary/5 rounded-full blur-[100px]" />
+                <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/5 rounded-full blur-[100px]" />
+            </div>
+
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-16 lg:gap-8 mb-20">
                     {/* Brand Column */}
-                    <div className="lg:col-span-2 space-y-6">
-                        {/* Logo */}
-                        <Link href="/" className="flex items-center gap-2 group">
-                            <div className="relative">
-                                <svg className="w-10 h-10 text-primary group-hover:opacity-80 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M3 10h18" strokeLinecap="round" />
-                                    <path d="M5 10v8" strokeLinecap="round" />
-                                    <path d="M19 10v8" strokeLinecap="round" />
-                                    <path d="M3 7c0-1 1-2 3-2h12c2 0 3 1 3 2" strokeLinecap="round" />
-                                </svg>
+                    <div className="lg:col-span-2 space-y-8">
+                        <Link href="/" className="flex items-center gap-3 group">
+                            <div className="w-12 h-12 rounded-[1.25rem] bg-primary flex items-center justify-center shadow-xl shadow-primary/20 group-hover:scale-105 transition-all duration-300">
+                                <Sparkles className="w-7 h-7 text-white" />
                             </div>
                             <div className="flex flex-col">
-                                <span className="font-bold text-xl text-foreground">
-                                    Torii Nihongo
-                                </span>
-                                <span className="text-xs text-muted-foreground font-medium">
-                                    日本語センター
-                                </span>
+                                <span className="font-black text-2xl tracking-tighter text-foreground">TORII</span>
+                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.3em] -mt-1 opacity-70">Nihongo Center</span>
                             </div>
                         </Link>
 
-                        {/* Description */}
-                        <p className="text-muted-foreground leading-relaxed">
+                        <p className="text-sm text-muted-foreground/80 leading-relaxed max-w-sm font-medium">
                             {t('learner.footer.platformDescription')}
                         </p>
 
-                        {/* Contact Info */}
-                        <div className="space-y-3">
-                            <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                                <Mail className="w-5 h-5 text-primary" />
-                                <a href="mailto:hello@torii-nihongo.vn" className="hover:text-primary transition-colors cursor-pointer">
-                                    hello@torii-nihongo.vn
-                                </a>
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-muted-foreground/60">
+                                <MapPin className="w-4 h-4 text-primary" />
+                                <span>Thủ Đức, TP. Hồ Chí Minh</span>
                             </div>
-                            <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                                <Phone className="w-5 h-5 text-primary" />
-                                <a href="tel:+84123456789" className="hover:text-primary transition-colors cursor-pointer">
-                                    (+84) 123 456 789
-                                </a>
-                            </div>
-                            <div className="flex items-start gap-3 text-sm text-muted-foreground">
-                                <MapPin className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                                <span>Số 1, Võ Văn Ngân, Linh Chiểu, Thủ Đức, TP.HCM</span>
+                            <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-muted-foreground/60">
+                                <Mail className="w-4 h-4 text-primary" />
+                                <span>hello@torii-nihongo.vn</span>
                             </div>
                         </div>
 
-                        {/* Social Links */}
-                        <div className="flex items-center gap-3">
-                            <a
-                                href="https://facebook.com/torii-nihongo"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer"
-                                aria-label="Facebook"
-                            >
-                                <Facebook className="w-5 h-5" />
-                            </a>
-                            <a
-                                href="https://youtube.com/@torii-nihongo"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center text-muted-foreground hover:bg-destructive hover:text-destructive-foreground transition-colors cursor-pointer"
-                                aria-label="YouTube"
-                            >
-                                <Youtube className="w-5 h-5" />
-                            </a>
-                            <a
-                                href="https://instagram.com/torii.nihongo"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer"
-                                aria-label="Instagram"
-                            >
-                                <Instagram className="w-5 h-5" />
-                            </a>
+                        <div className="flex items-center gap-3 pt-2">
+                            {[
+                                { icon: Facebook, href: '#', color: 'hover:bg-blue-500/10 hover:text-blue-600' },
+                                { icon: Youtube, href: '#', color: 'hover:bg-red-500/10 hover:text-red-600' },
+                                { icon: Instagram, href: '#', color: 'hover:bg-pink-500/10 hover:text-pink-600' }
+                            ].map((social, idx) => (
+                                <Link
+                                    key={idx}
+                                    href={social.href}
+                                    className={`w-10 h-10 rounded-xl bg-muted/40 flex items-center justify-center text-muted-foreground transition-all duration-300 ${social.color} hover:scale-110`}
+                                >
+                                    <social.icon className="w-5 h-5" />
+                                </Link>
+                            ))}
                         </div>
                     </div>
 
-                    {/* Courses Column */}
-                    <div className="space-y-4">
-                        <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
-                            {t(footerSections.courses.titleKey)}
-                        </h3>
-                        <ul className="space-y-3">
-                            {footerSections.courses.links.map((link) => (
-                                <li key={link.href}>
-                                    <Link
-                                        href={link.href}
-                                        className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer"
-                                    >
-                                        {t(link.nameKey)}
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    {/* Features Column */}
-                    <div className="space-y-4">
-                        <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
-                            {t(footerSections.features.titleKey)}
-                        </h3>
-                        <ul className="space-y-3">
-                            {footerSections.features.links.map((link) => (
-                                <li key={link.href}>
-                                    <Link
-                                        href={link.href}
-                                        className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer"
-                                    >
-                                        {t(link.nameKey)}
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    {/* Resources Column */}
-                    <div className="space-y-4">
-                        <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
-                            {t(footerSections.resources.titleKey)}
-                        </h3>
-                        <ul className="space-y-3">
-                            {footerSections.resources.links.map((link) => (
-                                <li key={link.href}>
-                                    <Link
-                                        href={link.href}
-                                        className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer"
-                                    >
-                                        {t(link.nameKey)}
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    {/* Company Column */}
-                    <div className="space-y-4">
-                        <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
-                            {t(footerSections.company.titleKey)}
-                        </h3>
-                        <ul className="space-y-3">
-                            {footerSections.company.links.map((link) => (
-                                <li key={link.href}>
-                                    <Link
-                                        href={link.href}
-                                        className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer"
-                                    >
-                                        {t(link.nameKey)}
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
+                    {/* Links Columns */}
+                    <div className="grid grid-cols-2 lg:grid-cols-3 lg:col-span-3 gap-12 sm:gap-8">
+                        {Object.entries(footerSections).map(([key, section]) => (
+                            <div key={key} className="space-y-6">
+                                <h3 className="text-[10px] font-bold text-foreground uppercase tracking-[0.25em] opacity-50">
+                                    {t(section.titleKey)}
+                                </h3>
+                                <ul className="space-y-4">
+                                    {section.links.map((link) => (
+                                        <li key={link.href}>
+                                            <Link
+                                                href={link.href}
+                                                className="text-[13px] font-bold text-muted-foreground/70 hover:text-primary transition-all flex items-center group cursor-pointer"
+                                            >
+                                                <span className="w-0 group-hover:w-3 h-[1px] bg-primary transition-all duration-300 mr-0 group-hover:mr-2 opacity-0 group-hover:opacity-100" />
+                                                {t(link.nameKey)}
+                                            </Link>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ))}
                     </div>
                 </div>
 
-                {/* Newsletter Section */}
-                <div className="mt-16 pt-12 border-t">
-                    <div className="max-w-2xl mx-auto text-center space-y-6">
-                        <div className="space-y-2">
-                            <h3 className="text-2xl font-bold text-foreground">
-                                {t('learner.footer.newsletter.title')}
+                {/* Newsletter Box */}
+                <div className="relative rounded-[2.5rem] bg-muted/30 border border-border/40 p-8 md:p-12 mb-20 overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-32 -mt-32 blur-[80px] group-hover:bg-primary/10 transition-all duration-700" />
+                    <div className="flex flex-col lg:flex-row items-center justify-between gap-12 relative z-10">
+                        <div className="max-w-md text-center lg:text-left space-y-3">
+                            <h3 className="text-2xl md:text-3xl font-black tracking-tight text-foreground">
+                                Sẵn sàng chinh phục tiếng Nhật?
                             </h3>
-                            <p className="text-muted-foreground">
-                                {t('learner.footer.newsletter.description')}
+                            <p className="text-sm font-medium text-muted-foreground">
+                                Đăng ký nhận tin để không bỏ lỡ các ưu đãi và tài liệu học tập mới nhất từ Torii.
                             </p>
                         </div>
-                        <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-                            <input
-                                type="email"
-                                placeholder={t('learner.footer.newsletter.emailPlaceholder')}
-                                className="flex-1 px-4 py-3 rounded-lg border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                            />
-                            <Button className="px-6">
-                                {t('learner.footer.newsletter.subscribe')}
-                            </Button>
-                        </form>
+                        <div className="w-full max-w-md">
+                            <div className="relative group">
+                                <Input
+                                    className="h-14 rounded-2xl bg-background border-border/40 pl-6 pr-16 text-sm font-bold placeholder:text-muted-foreground/40 shadow-none ring-0 focus-visible:ring-0"
+                                    placeholder="Địa chỉ email của bạn..."
+                                />
+                                <Button className="absolute right-2 top-2 h-10 w-10 rounded-xl bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 cursor-pointer">
+                                    <Send className="w-4 h-4 text-white" />
+                                </Button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            {/* Bottom Bar */}
-            <div className="border-t">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                        <p className="text-sm text-muted-foreground text-center md:text-left">
-                            © {currentYear} Torii Nihongo. {t('learner.footer.copyright.allRightsReserved')}. | SP26SE005
+                {/* Bottom Bar */}
+                <div className="pt-8 border-t border-border/20">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+                        <p className="text-[11px] font-bold text-muted-foreground/50 uppercase tracking-widest text-center md:text-left">
+                            © {currentYear} Torii Nihongo. All rights reserved. | Code: SP26SE005
                         </p>
-                        <div className="flex items-center gap-6 text-sm text-muted-foreground">
-                            <Link href="/privacy" className="hover:text-primary transition-colors cursor-pointer">
-                                {t('learner.footer.copyright.privacyPolicy')}
-                            </Link>
-                            <Link href="/terms" className="hover:text-primary transition-colors cursor-pointer">
-                                {t('learner.footer.copyright.termsOfUse')}
-                            </Link>
-                            <Link href="/cookies" className="hover:text-primary transition-colors cursor-pointer">
-                                {t('learner.footer.copyright.cookiePolicy')}
-                            </Link>
+                        <div className="flex items-center gap-8 text-[11px] font-bold text-muted-foreground/50 uppercase tracking-widest">
+                            <Link href="/privacy" className="hover:text-primary transition-colors cursor-pointer">Privacy</Link>
+                            <Link href="/terms" className="hover:text-primary transition-colors cursor-pointer">Terms</Link>
+                            <Link href="/cookies" className="hover:text-primary transition-colors cursor-pointer">Cookies</Link>
                         </div>
                     </div>
                 </div>
