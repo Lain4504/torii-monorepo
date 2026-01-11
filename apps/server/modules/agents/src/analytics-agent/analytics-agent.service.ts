@@ -1,139 +1,104 @@
 import { Injectable } from '@nestjs/common';
-import { AiService } from '../shared/ai.service';
+import { AiTemplateService } from '../shared/ai-template.service';
 
 @Injectable()
 export class AnalyticsAgentService {
-  constructor(private readonly aiService: AiService) {}
+  constructor(private readonly aiTemplateService: AiTemplateService) {}
 
   async trackProgress(userId: string, activity: string, score?: number): Promise<any> {
-    const prompt = `Analyze the following learning activity for user ${userId}: "${activity}"${score !== undefined ? ` with score: ${score}` : ''}.
-Provide insights on:
-1. Activity type and difficulty level
-2. Performance assessment
-3. Learning progress indicators
-4. Recommendations for next steps
-Format as JSON with: {"activityType": "...", "difficulty": "...", "performance": "...", "insights": "...", "recommendations": "..."}`;
+    const result = await this.aiTemplateService.executeTemplate('analytics.progress-analyze', {
+      progressData: JSON.stringify({ activity, score })
+    });
 
-    const response = await this.aiService.callGemini(prompt);
-    
-    // Strip markdown code blocks if present
-    let cleanResponse = response.trim();
-    if (cleanResponse.startsWith('```json')) {
-      cleanResponse = cleanResponse.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-    } else if (cleanResponse.startsWith('```')) {
-      cleanResponse = cleanResponse.replace(/^```\s*/, '').replace(/\s*```$/, '');
-    }
-    
-    try {
-      const parsed = JSON.parse(cleanResponse);
+    if (result.rawResponse) {
       return {
         userId,
         activity,
         score,
         timestamp: new Date(),
         status: 'analyzed',
-        ...parsed,
-      };
-    } catch (error) {
-      // Return raw AI response instead of mock data
-      return {
-        userId,
-        activity,
-        score,
-        timestamp: new Date(),
-        status: 'analyzed',
-        aiResponse: cleanResponse,
-        error: 'Failed to parse AI response as JSON, returning raw text',
+        aiResponse: result.rawResponse,
+        error: result.error,
       };
     }
+
+    return {
+      userId,
+      activity,
+      score,
+      timestamp: new Date(),
+      status: 'analyzed',
+      ...result,
+    };
   }
 
   async suggestStudyPath(userId: string): Promise<any> {
-    const prompt = `Create a personalized Japanese learning study path for user ${userId}.
-Consider typical learner progress and provide:
-1. Current assessment (beginner/intermediate/advanced)
-2. Recommended focus areas (vocabulary, grammar, kanji, listening, speaking)
-3. Daily/weekly study schedule
-4. Specific goals and milestones
-5. Resources and practice activities
-6. Estimated time commitment
-Format as JSON with: {"userLevel": "...", "focusAreas": [...], "schedule": {...}, "goals": [...], "resources": [...], "timeCommitment": "..."}`;
+    const result = await this.aiTemplateService.executeTemplate('analytics.study-path', {
+      targetLevel: 'unknown', // This should be passed as parameter
+      currentLevel: 'unknown', // This should be passed as parameter
+      weakAreas: 'unknown', // This should be passed as parameter
+      timePerWeek: 10 // Default value
+    });
 
-    const response = await this.aiService.callGemini(prompt);
-    
-    // Strip markdown code blocks if present
-    let cleanResponse = response.trim();
-    if (cleanResponse.startsWith('```json')) {
-      cleanResponse = cleanResponse.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-    } else if (cleanResponse.startsWith('```')) {
-      cleanResponse = cleanResponse.replace(/^```\s*/, '').replace(/\s*```$/, '');
-    }
-    
-    try {
-      const parsed = JSON.parse(cleanResponse);
+    if (result.rawResponse) {
       return {
         userId,
-        ...parsed,
-        generatedAt: new Date(),
-      };
-    } catch (error) {
-      // Return raw AI response instead of mock data
-      return {
-        userId,
-        aiResponse: cleanResponse,
-        error: 'Failed to parse AI response as JSON, returning raw text',
+        aiResponse: result.rawResponse,
+        error: result.error,
       };
     }
+
+    return {
+      userId,
+      ...result,
+      generatedAt: new Date(),
+    };
   }
 
   async identifyWeaknesses(userId: string): Promise<any> {
-    const prompt = `Analyze learning data for user ${userId} to identify weaknesses.
-Detect patterns in errors like recurring issues with polite forms, specific kanji radicals, etc.
-Format as JSON: {"userId": "...", "weaknesses": [{"area": "grammar/vocab/kanji", "specificIssue": "...", "frequency": "...", "recommendation": "..."}]}`;
+    const result = await this.aiTemplateService.executeTemplate('analytics.weaknesses-identify', {
+      userId
+    });
 
-    const response = await this.aiService.callGemini(prompt);
-    let cleanResponse = response.trim();
-    if (cleanResponse.startsWith('```json')) {
-      cleanResponse = cleanResponse.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+    if (result.rawResponse) {
+      return {
+        aiResponse: result.rawResponse,
+        error: result.error
+      };
     }
-    try {
-      return JSON.parse(cleanResponse);
-    } catch (error) {
-      return { aiResponse: cleanResponse, error: 'Failed to parse' };
-    }
+
+    return result;
   }
 
   async predictReadiness(userId: string, level: string): Promise<any> {
-    const prompt = `Predict JLPT ${level} readiness for user ${userId} based on learning trends.
-Estimate exam score and predict dropout risk.
-Format as JSON: {"userId": "...", "level": "...", "estimatedScore": "...", "readinessPercentage": "...", "dropoutRisk": "low/medium/high", "alerts": "..."}`;
+    const result = await this.aiTemplateService.executeTemplate('analytics.readiness-predict', {
+      userId,
+      level
+    });
 
-    const response = await this.aiService.callGemini(prompt);
-    let cleanResponse = response.trim();
-    if (cleanResponse.startsWith('```json')) {
-      cleanResponse = cleanResponse.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+    if (result.rawResponse) {
+      return {
+        aiResponse: result.rawResponse,
+        error: result.error
+      };
     }
-    try {
-      return JSON.parse(cleanResponse);
-    } catch (error) {
-      return { aiResponse: cleanResponse, error: 'Failed to parse' };
-    }
+
+    return result;
   }
 
   async generateReport(userId: string, reportType: string): Promise<any> {
-    const prompt = `Generate a ${reportType} report for user ${userId}.
-If instructor report, provide aggregated insights; if personal, focus on individual progress.
-Format as JSON: {"userId": "...", "reportType": "...", "summary": "...", "details": {...}, "exportable": true}`;
+    const result = await this.aiTemplateService.executeTemplate('analytics.report-generate', {
+      userId,
+      reportType
+    });
 
-    const response = await this.aiService.callGemini(prompt);
-    let cleanResponse = response.trim();
-    if (cleanResponse.startsWith('```json')) {
-      cleanResponse = cleanResponse.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+    if (result.rawResponse) {
+      return {
+        aiResponse: result.rawResponse,
+        error: result.error
+      };
     }
-    try {
-      return JSON.parse(cleanResponse);
-    } catch (error) {
-      return { aiResponse: cleanResponse, error: 'Failed to parse' };
-    }
+
+    return result;
   }
 }
