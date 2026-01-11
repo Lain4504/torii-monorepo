@@ -4,23 +4,23 @@ import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@workspace/ui/components/button'
 import { CheckCircle2, XCircle, Loader2, ArrowRight, RefreshCcw } from 'lucide-react'
-import { paymentApi } from '@/api/services/payment-api'
-import { PaymentStatus } from '@workspace/schemas'
+import { orderApi } from '@/api/services/order-api'
+import { OrderStatus } from '@workspace/schemas'
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { toast } from '@workspace/ui/components/sonner'
 
 export default function CheckoutReturnPage() {
     const router = useRouter()
     const searchParams = useSearchParams()
-    const paymentId = searchParams.get('payment_id')
+    const orderId = searchParams.get('order_id') || searchParams.get('payment_id') // Support both for transition
     const cancel = searchParams.get('cancel')
     const status = searchParams.get('status')
 
     const [verifying, setVerifying] = useState(true)
-    const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | null>(null)
+    const [orderStatus, setOrderStatus] = useState<OrderStatus | null>(null)
 
     useEffect(() => {
-        if (!paymentId) {
+        if (!orderId) {
             if (!cancel) {
                 // Invalid access
                 router.push('/dashboard')
@@ -31,32 +31,28 @@ export default function CheckoutReturnPage() {
 
         if (cancel === 'true' || status === 'CANCELLED') {
             setVerifying(false)
-            setPaymentStatus(PaymentStatus.CANCELLED)
+            setOrderStatus(OrderStatus.CANCELLED)
             return
         }
 
-        verifyPayment()
-    }, [paymentId, cancel, status])
+        verifyOrder()
+    }, [orderId, cancel, status])
 
-    const verifyPayment = async () => {
-        if (!paymentId) return
+    const verifyOrder = async () => {
+        if (!orderId) return
 
         try {
             setVerifying(true)
-            // Poll for status or just check once?
-            // PayOS webhook might take a few seconds.
-            // Let's check once, if pending, maybe wait and check again?
-            // For now, simple check.
-            const payment = await paymentApi.getPayment(paymentId)
-            setPaymentStatus(payment.status)
+            const order = await orderApi.getOrder(orderId)
+            setOrderStatus(order.status)
 
-            if (payment.status === PaymentStatus.COMPLETED) {
+            if (order.status === OrderStatus.COMPLETED) {
                 toast.success('Thanh toán thành công!')
             }
         } catch (error) {
-            console.error('Failed to verify payment:', error)
-            toast.error('Không thể xác minh thanh toán.')
-            setPaymentStatus(PaymentStatus.FAILED)
+            console.error('Failed to verify order:', error)
+            toast.error('Không thể xác minh đơn hàng.')
+            setOrderStatus(OrderStatus.FAILED)
         } finally {
             setVerifying(false)
         }
@@ -66,9 +62,9 @@ export default function CheckoutReturnPage() {
         return <PageLoading text="Đang xác minh giao dịch..." />
     }
 
-    const isSuccess = paymentStatus === PaymentStatus.COMPLETED
-    const isCancelled = paymentStatus === PaymentStatus.CANCELLED || cancel === 'true'
-    const isPending = paymentStatus === PaymentStatus.PENDING || paymentStatus === PaymentStatus.PROCESSING
+    const isSuccess = orderStatus === OrderStatus.COMPLETED
+    const isCancelled = orderStatus === OrderStatus.CANCELLED || cancel === 'true'
+    const isPending = orderStatus === OrderStatus.PENDING || orderStatus === OrderStatus.PROCESSING
 
     return (
         <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative overflow-hidden">
@@ -125,7 +121,7 @@ export default function CheckoutReturnPage() {
                                     <Button
                                         variant="outline"
                                         className="w-full h-12 rounded-xl font-bold uppercase tracking-wider"
-                                        onClick={verifyPayment}
+                                        onClick={verifyOrder}
                                     >
                                         <RefreshCcw className="w-4 h-4 mr-2" />
                                         Kiểm tra lại
@@ -144,7 +140,7 @@ export default function CheckoutReturnPage() {
 
                     {isSuccess && (
                         <p className="text-[10px] text-muted-foreground/60 font-medium uppercase tracking-widest mt-6">
-                            Mã giao dịch: <span className="text-foreground">{paymentId?.slice(0, 8)}</span>
+                            Mã giao dịch: <span className="text-foreground">{orderId?.slice(0, 8)}</span>
                         </p>
                     )}
                 </div>

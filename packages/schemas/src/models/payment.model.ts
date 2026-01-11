@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export enum PaymentStatus {
+export enum OrderStatus {
     PENDING = 'pending',
     PROCESSING = 'processing',
     COMPLETED = 'completed',
@@ -30,14 +30,14 @@ export enum PaymentGateway {
     MOCK = 'mock',
 }
 
-export enum PaymentType {
+export enum OrderType {
     COURSE_PURCHASE = 'course_purchase',
     SUBSCRIPTION = 'subscription',
     TOP_UP = 'top_up',
     GIFT = 'gift',
 }
 
-export const paymentSchema = z.object({
+export const orderSchema = z.object({
     id: z.string().uuid(),
     userId: z.string().uuid(),
     amount: z.number().min(0),
@@ -46,8 +46,8 @@ export const paymentSchema = z.object({
     paymentGateway: z.nativeEnum(PaymentGateway).optional(),
     transactionId: z.string().optional(),
     gatewayTransactionId: z.string().optional(),
-    status: z.nativeEnum(PaymentStatus).default(PaymentStatus.PENDING),
-    paymentType: z.nativeEnum(PaymentType).default(PaymentType.COURSE_PURCHASE),
+    status: z.nativeEnum(OrderStatus).default(OrderStatus.PENDING),
+    orderType: z.nativeEnum(OrderType).default(OrderType.COURSE_PURCHASE),
     enrollmentId: z.string().uuid().optional(),
     couponId: z.string().uuid().optional(),
     description: z.string().optional(),
@@ -58,6 +58,22 @@ export const paymentSchema = z.object({
     updatedAt: z.date(),
     checkoutUrl: z.string().optional(),
     qrCode: z.string().optional(),
+});
+
+export type Order = z.infer<typeof orderSchema>;
+
+// This represents the actual money movement / bank transaction
+export const paymentSchema = z.object({
+    id: z.string().uuid(),
+    orderId: z.string().uuid().optional(),
+    transactionId: z.string().optional(), // Bank transaction ID / SePay ID
+    gateway: z.string().optional(),
+    amount: z.number().optional(),
+    currency: z.string().default('VND'),
+    content: z.string().optional(),
+    status: z.string().optional(), // success/fail/orphan
+    rawResponse: z.any().optional(),
+    processedAt: z.date(),
 });
 
 export type Payment = z.infer<typeof paymentSchema>;

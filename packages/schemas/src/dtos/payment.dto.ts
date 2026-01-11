@@ -1,47 +1,47 @@
 import { z } from 'zod';
-import { paymentSchema, PaymentStatus, PaymentMethod, PaymentGateway, PaymentType } from '../models/payment.model';
+import { orderSchema, OrderStatus, PaymentMethod, PaymentGateway, OrderType } from '../models/payment.model';
 
-export const paymentResponseDTOSchema = paymentSchema;
+export const orderResponseDTOSchema = orderSchema;
 
-export type PaymentResponseDTO = z.infer<typeof paymentResponseDTOSchema>;
+export type OrderResponseDTO = z.infer<typeof orderResponseDTOSchema>;
 
-export const paymentCreateDTOSchema = z.object({
+export const orderCreateDTOSchema = z.object({
     courseId: z.string().uuid().optional(),
     paymentMethod: z.nativeEnum(PaymentMethod).default(PaymentMethod.MOCK),
     paymentGateway: z.nativeEnum(PaymentGateway).optional(),
-    paymentType: z.nativeEnum(PaymentType).default(PaymentType.COURSE_PURCHASE),
+    orderType: z.nativeEnum(OrderType).default(OrderType.COURSE_PURCHASE),
     description: z.string().optional(),
     metadata: z.record(z.any()).optional(),
 });
 
-export type PaymentCreateDTO = z.infer<typeof paymentCreateDTOSchema>;
+export type OrderCreateDTO = z.infer<typeof orderCreateDTOSchema>;
 
-export const paymentQueryDTOSchema = z.object({
+export const orderQueryDTOSchema = z.object({
     page: z.coerce.number().min(1).default(1),
     limit: z.coerce.number().min(1).default(10),
     userId: z.string().uuid().optional(),
     courseId: z.string().uuid().optional(),
-    status: z.nativeEnum(PaymentStatus).optional(),
+    status: z.nativeEnum(OrderStatus).optional(),
 });
 
-export type PaymentQueryDTO = z.infer<typeof paymentQueryDTOSchema>;
+export type OrderQueryDTO = z.infer<typeof orderQueryDTOSchema>;
 
-export const paymentConfirmDTOSchema = z.object({
-    paymentId: z.string().uuid(),
+export const orderConfirmDTOSchema = z.object({
+    orderId: z.string().uuid(),
     transactionId: z.string().optional(),
     gatewayTransactionId: z.string().optional(),
     metadata: z.record(z.any()).optional(),
 });
 
-export type PaymentConfirmDTO = z.infer<typeof paymentConfirmDTOSchema>;
+export type OrderConfirmDTO = z.infer<typeof orderConfirmDTOSchema>;
 
-export const paymentPaginatedResponseSchema = z.object({
-    data: z.array(paymentResponseDTOSchema),
+export const orderPaginatedResponseSchema = z.object({
+    data: z.array(orderResponseDTOSchema),
     total: z.number(),
     page: z.number(),
     limit: z.number(),
     totalPages: z.number(),
 });
 
-export type PaymentPaginatedResponse = z.infer<typeof paymentPaginatedResponseSchema>;
+export type OrderPaginatedResponse = z.infer<typeof orderPaginatedResponseSchema>;
 

@@ -47,7 +47,6 @@
     "@nestjs/core": "^11.0.1",
     "@nestjs/microservices": "^10.0.0",
     "@nestjs/platform-express": "^11.0.1",
-    "@payos/node": "^2.0.4",
     "@prisma/adapter-pg": "^7.1.0",
     "@prisma/client": "^7.1.0",
     "@types/cookie-parser": "^1.4.10",

@@ -41,8 +41,9 @@ export interface IEnrollmentService {
     updateProgress(enrollmentId: string, completionPercentage: number): Promise<EnrollmentResponseDTO>;
 
     /**
-     * Update enrollment payment ID (internal use)
+     * Update enrollment order ID (internal use)
      */
-    updatePaymentId(enrollmentId: string, paymentId: string): Promise<void>;
+    updateOrderId(enrollmentId: string, orderId: string): Promise<void>;
 }
+
 
