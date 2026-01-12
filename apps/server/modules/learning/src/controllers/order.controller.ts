@@ -29,7 +29,7 @@ import { ORDER_SERVICE_TOKEN } from '../interfaces/services';
  * Order HTTP Controller
  * Handles order and payment operations (formerly Payment Controller)
  */
-@Controller('payments') // Keeping the route as 'payments' for now to avoid broken FE
+@Controller('orders') // Keeping the route as 'payments' for now to avoid broken FE
 @UseGuards(GatewayAuthGuard)
 export class OrderController {
     constructor(@Inject(ORDER_SERVICE_TOKEN) private readonly orderService: IOrderService) { }
@@ -65,7 +65,7 @@ export class OrderController {
     /**
      * Handle SePay Webhook
      */
-    @Post('webhook/sepay')
+    @Post('sepay/webhook')
     @Public()
     @HttpCode(HttpStatus.OK)
     async handleSePayWebhook(

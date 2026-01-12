@@ -11,12 +11,12 @@ import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Search, RotateCcw, CreditCard, User } from 'lucide-react';
-import { paymentApi } from '@/api/services/payment-api';
+import { orderApi } from '@/api/services/order-api.ts';
 import { OrderStatus, type OrderResponseDTO } from '@workspace/schemas';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 
-export default function PaymentsPage() {
+export default function OrdersPage() {
   const [payments, setPayments] = useState<OrderResponseDTO[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -30,7 +30,7 @@ export default function PaymentsPage() {
   const loadPayments = async () => {
     try {
       setIsLoading(true);
-      const response = await paymentApi.getAllPayments({
+      const response = await orderApi.getAllPayments({
         page,
         limit: 10,
         // userId: search ? search : undefined, // Simple search mock

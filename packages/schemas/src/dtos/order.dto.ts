@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { orderSchema, OrderStatus, PaymentMethod, PaymentGateway, OrderType } from '../models/payment.model';
+import { orderSchema, OrderStatus, PaymentMethod, PaymentGateway, OrderType } from '../models/order.model';
 
 export const orderResponseDTOSchema = orderSchema;
 

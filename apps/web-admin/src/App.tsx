@@ -15,7 +15,7 @@ import CoursesPage from '@/routes/courses/courses-page.tsx'
 import CourseDetailPage from '@/routes/courses/course-detail-page.tsx'
 
 import RoomsPage from '@/routes/rooms/rooms-page.tsx'
-import PaymentsPage from '@/routes/finance/payments-page.tsx'
+import OrdersPage from '@/routes/finance/orders-page.tsx'
 import AIServicePage from '@/routes/ai/ai-service-page.tsx'
 import NotificationsPage from '@/routes/settings/notifications-page.tsx'
 import SettingsPage from '@/routes/settings/settings-page.tsx'
@@ -68,7 +68,7 @@ function App() {
 
                 {/* Pool detail page */}
                 <Route path="question-bank/pools/:id/questions" element={<PoolDetailPage />} />
-                <Route path="payments" element={<PaymentsPage />} />
+                <Route path="payments" element={<OrdersPage />} />
                 <Route path="analytics" element={<AnalyticsPage />} />
                 <Route path="ai-service" element={<AIServicePage />} />
                 <Route path="notifications" element={<NotificationsPage />} />

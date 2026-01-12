@@ -5,7 +5,7 @@ import type {
     PaginatedResponseDTO,
 } from '@workspace/schemas';
 
-export const paymentApi = {
+export const orderApi = {
     /**
      * Get all payments
      */
