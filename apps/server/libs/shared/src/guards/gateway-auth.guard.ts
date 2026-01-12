@@ -1,8 +1,9 @@
-
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException, Logger } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { JwtTokenProvider } from '../providers/jwt-token.provider';
 import { BlacklistService } from '../services/blacklist.service';
+import { IS_PUBLIC_KEY } from './public.decorator';
 
 @Injectable()
 export class GatewayAuthGuard implements CanActivate {
@@ -11,11 +12,33 @@ export class GatewayAuthGuard implements CanActivate {
     constructor(
         private readonly jwtTokenProvider: JwtTokenProvider,
         private readonly blacklistService: BlacklistService,
+        private readonly reflector: Reflector,
     ) { }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
+        const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+            context.getHandler(),
+            context.getClass(),
+        ]);
+
         const request = context.switchToHttp().getRequest<Request>();
         const token = this.extractToken(request);
+
+        if (isPublic) {
+            // Even if public, try to extract user info if token exists
+            if (token) {
+                try {
+                    const payload = await this.jwtTokenProvider.verifyToken(token);
+                    if (payload) {
+                        request['user'] = payload;
+                        request['requester'] = { sub: payload.sub, role: payload.role };
+                    }
+                } catch (e) {
+                    // Ignore error for public routes
+                }
+            }
+            return true;
+        }
 
         if (!token) {
             throw new UnauthorizedException('No token provided');

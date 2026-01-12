@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Patch, Post, Request, UseGuards, Res, HttpCode, HttpStatus, UnauthorizedException, Query, BadRequestException, Inject } from '@nestjs/common';
 import type { Response } from 'express';
-import { GatewayAuthGuard, VerifiedOnly, successResponse, errorResponse } from '@server/shared';
+import { GatewayAuthGuard, VerifiedOnly, successResponse, errorResponse, Public } from '@server/shared';
 import type { IAuthService, ISessionService } from '../interfaces/services';
 import { AUTH_SERVICE_TOKEN, SESSION_SERVICE_TOKEN } from '../interfaces/services';
 import type { ReqWithRequester, UserRegistrationDTO, UserLoginDTO, VerifyOTPDTO, ResendOTPDTO, ForgotPasswordDTO, LoginResponseDTO, LogoutDTO } from '@workspace/schemas';
@@ -624,14 +624,24 @@ export class AuthController {
     /**
      * Get authenticated user
      * GET /auth/me
+     * Public endpoint - returns user if authenticated, 401 if not
      */
     @Get('me')
+    @Public()
     @UseGuards(GatewayAuthGuard)
     async getMe(@Request() req: ReqWithRequester) {
         try {
+            // If no requester (not authenticated), return 401
+            if (!req.requester || !req.requester.sub) {
+                throw new UnauthorizedException('No token provided');
+            }
+            
             const user = await this.authService.getCurrentUser(req.requester.sub);
             return successResponse({ user });
         } catch (error: unknown) {
+            if (error instanceof UnauthorizedException) {
+                throw error; // Re-throw 401 to maintain expected behavior
+            }
             return errorResponse(
                 error instanceof Error ? error.message : 'Failed to get user'
             );

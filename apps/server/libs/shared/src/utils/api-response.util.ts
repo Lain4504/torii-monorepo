@@ -49,6 +49,7 @@ export function errorResponse(message: string, errors?: any[]): StandardApiRespo
 
 import type { PaginatedApiResponse } from '@workspace/schemas';
 
+
 /**
  * Create a success response for paginated data
  * Flattens pagination fields to top level to avoid nested data structure
@@ -82,4 +83,3 @@ export function successPaginatedResponse<T>(
 
     return response;
 }
-
