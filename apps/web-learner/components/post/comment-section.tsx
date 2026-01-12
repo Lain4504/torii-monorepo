@@ -27,7 +27,7 @@ export function CommentSection({ postId }: CommentSectionProps) {
     const fetchComments = async () => {
         try {
             setLoading(true)
-            const response = await postCommentApi.findAll({ postId, limit: 100 }) // Load many for nesting
+            const response = await postCommentApi.findAll({ page: 1, limit: 100, postId }) // Load many for nesting
             setComments(response.data)
         } catch (error: any) {
             console.error('Failed to fetch comments:', error)
@@ -58,7 +58,7 @@ export function CommentSection({ postId }: CommentSectionProps) {
             setSubmitting(true)
             await postCommentApi.create({
                 postId,
-                authorId: user.id,
+                userId: user.id,
                 content: commentText.trim(),
                 parentId: parentId || undefined
             })
@@ -89,64 +89,86 @@ export function CommentSection({ postId }: CommentSectionProps) {
             </div>
 
             {/* Comment Input */}
-            <div className="bg-card rounded-3xl p-6 border border-border shadow-sm">
-                {isAuthenticated ? (
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
-                                <User className="w-5 h-5 text-primary" />
+            {/* Comment Input */}
+            {/* Comment Input Trigger */}
+            <div className="flex justify-end">
+                {replyTo === 'ROOT' ? (
+                    <div className="w-full animate-in fade-in zoom-in-95 duration-300">
+                        <div className="flex gap-4">
+                            <div className="hidden sm:block flex-shrink-0 w-12 h-12 rounded-full ring-4 ring-background shadow-lg overflow-hidden">
+                                {(user as any)?.avatarUrl ? (
+                                    <img src={(user as any).avatarUrl} alt={user?.displayName} className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="w-full h-full bg-primary/10 flex items-center justify-center">
+                                        <User className="w-6 h-6 text-primary" />
+                                    </div>
+                                )}
                             </div>
-                            <span className="font-bold">{user?.displayName || user?.email}</span>
-                        </div>
-                        <Textarea 
-                            placeholder="Chia sẻ ý kiến của bạn về bài viết này..."
-                            className="min-h-[120px] bg-accent/5 border-none resize-none focus-visible:ring-primary/20 rounded-2xl p-4 text-lg"
-                            value={commentText}
-                            onChange={(e) => setCommentText(e.target.value)}
-                        />
-                        <div className="flex justify-end">
-                            <Button 
-                                onClick={() => handleSubmitComment()}
-                                disabled={submitting || !commentText.trim()}
-                                className="h-12 px-8 rounded-xl bg-primary shadow-lg shadow-primary/20 font-bold"
-                            >
-                                {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Gửi bình luận'}
-                            </Button>
+                            <div className="flex-1 space-y-4">
+                                <Textarea
+                                    placeholder="Viết bình luận của bạn..."
+                                    className="min-h-[120px] bg-background border-2 border-primary/10 resize-none focus-visible:ring-4 focus-visible:ring-primary/10 focus-visible:border-primary rounded-[2rem] p-6 text-base transition-all shadow-inner"
+                                    value={commentText}
+                                    onChange={(e) => setCommentText(e.target.value)}
+                                    autoFocus
+                                />
+                                <div className="flex justify-end gap-3">
+                                    <Button
+                                        variant="ghost"
+                                        onClick={() => {
+                                            setReplyTo(null)
+                                            setCommentText('')
+                                        }}
+                                        className="rounded-full px-6 h-11 font-bold hover:bg-destructive/10 hover:text-destructive transition-colors"
+                                    >
+                                        Hủy bỏ
+                                    </Button>
+                                    <Button
+                                        onClick={() => handleSubmitComment()}
+                                        disabled={submitting || !commentText.trim()}
+                                        className="rounded-full h-11 px-8 bg-primary font-bold shadow-lg shadow-primary/20 hover:scale-105 transition-transform"
+                                    >
+                                        {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Gửi bình luận'}
+                                    </Button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 ) : (
-                    <div className="py-8 text-center space-y-4">
-                        <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto">
-                            <LogIn className="w-8 h-8 text-muted-foreground" />
-                        </div>
-                        <div className="space-y-2">
-                             <h4 className="font-bold">Đăng nhập để bình luận</h4>
-                             <p className="text-muted-foreground text-sm">Hãy tham gia thảo luận cùng cộng đồng Torii Nihongo!</p>
-                        </div>
-                        <Link href="/login">
-                            <Button className="rounded-xl px-8 h-11 bg-primary font-bold shadow-lg shadow-primary/20">
-                                Đăng nhập ngay
-                            </Button>
-                        </Link>
-                    </div>
+                    <Button
+                        onClick={() => {
+                            if (!isAuthenticated) {
+                                toast.error('Vui lòng đăng nhập để bình luận')
+                                // Optional: Redirect or show login modal
+                                return
+                            }
+                            setReplyTo('ROOT')
+                            setCommentText('')
+                        }}
+                        className="rounded-full h-12 px-8 bg-primary font-bold shadow-xl shadow-primary/20 hover:shadow-primary/30 hover:scale-105 transition-all duration-300 gap-2"
+                    >
+                        <MessageCircle className="w-5 h-5" />
+                        Viết bình luận
+                    </Button>
                 )}
             </div>
 
             {/* Comment List */}
-            <div className="space-y-8">
+            <div className="space-y-10">
                 {loading ? (
                     <div className="py-20 flex justify-center">
-                        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                        <Loader2 className="w-10 h-10 text-primary animate-spin" />
                     </div>
                 ) : rootComments.length > 0 ? (
                     rootComments.map(comment => (
-                        <CommentItem 
-                            key={comment.id} 
-                            comment={comment} 
+                        <CommentItem
+                            key={comment.id}
+                            comment={comment}
                             replies={getReplies(comment.id)}
+                            allComments={comments}
                             isAuthenticated={isAuthenticated}
                             onReplyClick={(id) => setReplyTo(id)}
-                            isReplying={replyTo === comment.id}
+                            replyingToId={replyTo}
                             commentText={commentText}
                             setCommentText={setCommentText}
                             onReplySubmit={handleSubmitComment}
@@ -154,118 +176,167 @@ export function CommentSection({ postId }: CommentSectionProps) {
                         />
                     ))
                 ) : (
-                  <div className="py-12 text-center text-muted-foreground italic">
-                      Chưa có bình luận nào. Hãy là người đầu tiên chia sẻ cảm nghĩ nhé!
-                  </div>
+                    <div className="py-20 text-center space-y-4">
+                        <div className="w-16 h-16 rounded-full bg-accent/20 flex items-center justify-center mx-auto text-muted-foreground">
+                            <MessageCircle className="w-8 h-8" />
+                        </div>
+                        <div>
+                            <p className="font-bold text-lg text-foreground">Chưa có bình luận nào</p>
+                            <p className="text-muted-foreground">Hãy là người đầu tiên chia sẻ cảm nghĩ nhé!</p>
+                        </div>
+                    </div>
                 )}
             </div>
         </section>
     )
 }
 
-function CommentItem({ 
-    comment, 
-    replies, 
+function CommentItem({
+    comment,
+    replies,
+    allComments,
     isAuthenticated,
     onReplyClick,
-    isReplying,
+    replyingToId,
     commentText,
     setCommentText,
     onReplySubmit,
     submitting
-}: { 
-    comment: CommentResponseDTO, 
+}: {
+    comment: CommentResponseDTO,
     replies: CommentResponseDTO[],
+    allComments: CommentResponseDTO[],
     isAuthenticated: boolean,
     onReplyClick: (id: string) => void,
-    isReplying: boolean,
+    replyingToId: string | null,
     commentText: string,
     setCommentText: (t: string) => void,
     onReplySubmit: (parentId: string) => void,
     submitting: boolean
 }) {
+    const getNestedReplies = (parentId: string) => allComments.filter(c => c.parentId === parentId)
+
+    const isReplying = replyingToId === comment.id
+
+    const isRoot = !comment.parentId
+
+    // Get direct replies
+    // If we are Root, we want to render direct replies.
+    // If those replies have replies, we want to render them HERE, flatly? 
+    // Or does the user just mean "Visual Indentation Stop"?
+    // "không có vòng lặp vô hạn... chỉ có 2 cấp" -> likely visual 2 levels.
+
     return (
-        <div className="space-y-6">
-            <div className="flex gap-4 group">
-                <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-accent flex items-center justify-center border border-border shadow-sm">
-                    <User className="w-6 h-6 text-primary" />
+        <div className={`group animate-in fade-in slide-in-from-bottom-4 duration-500 ${!isRoot ? 'mt-6' : ''}`}>
+            <div className="flex gap-4 sm:gap-6">
+                <div className="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center border border-primary/10 shadow-sm overflow-hidden">
+                    {comment.author?.avatarUrl ? (
+                        <img src={comment.author.avatarUrl} alt={comment.author.displayName} className="w-full h-full object-cover" />
+                    ) : (
+                        <User className="w-6 h-6 text-primary" />
+                    )}
                 </div>
-                <div className="flex-1 space-y-2">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <span className="font-bold text-foreground">
-                                {comment.author?.displayName || 'Ẩn danh'}
-                            </span>
-                            <span className="text-[10px] text-muted-foreground font-medium bg-muted px-2 py-0.5 rounded-full">
-                                {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true, locale: vi })}
-                            </span>
+                <div className="flex-1 space-y-3">
+                    <div className="bg-card/50 backdrop-blur-sm p-6 rounded-[2rem] rounded-tl-none border border-border/40 shadow-sm hover:shadow-md transition-all duration-300">
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-3">
+                                <span className="font-bold text-base text-foreground">
+                                    {comment.author?.displayName || 'Ẩn danh'}
+                                </span>
+                                <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider bg-accent/30 px-2 py-1 rounded-full">
+                                    {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true, locale: vi })}
+                                </span>
+                            </div>
                         </div>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:bg-accent rounded-lg">
-                            <MoreHorizontal className="w-4 h-4" />
-                        </Button>
+                        <p className="text-foreground/80 leading-relaxed text-[15px]">
+                            {comment.parentId && !isRoot && (
+                                <span className="font-bold text-primary mr-1">
+                                    @{allComments.find(c => c.id === comment.parentId)?.author?.displayName || 'Người dùng'}
+                                </span>
+                            )}
+                            {comment.content}
+                        </p>
                     </div>
-                    <div className="text-muted-foreground bg-accent/5 p-4 rounded-2xl rounded-tl-none border border-border/50 text-base leading-relaxed">
-                        {comment.content}
-                    </div>
-                    <div className="flex items-center gap-6 pt-1">
-                        <button className={`flex items-center gap-1.5 text-xs font-bold transition-colors ${isAuthenticated ? 'text-muted-foreground hover:text-primary' : 'text-muted-foreground/30 cursor-not-allowed'}`}>
-                            <Heart className="w-4 h-4" />
-                            {comment.likeCount || 0}
+
+                    <div className="flex items-center gap-6 px-4">
+                        <button className={`flex items-center gap-2 text-xs font-bold transition-all group/btn ${isAuthenticated ? 'text-muted-foreground hover:text-primary' : 'text-muted-foreground/40 cursor-not-allowed'}`}>
+                            <div className="p-1.5 rounded-full group-hover/btn:bg-primary/10 transition-colors">
+                                <Heart className="w-4 h-4" />
+                            </div>
+                            {comment.likeCount || 0} Yêu thích
                         </button>
-                        <button 
+                        <button
                             onClick={() => isAuthenticated && onReplyClick(comment.id)}
-                            className={`flex items-center gap-1.5 text-xs font-bold transition-colors ${isAuthenticated ? 'text-muted-foreground hover:text-primary' : 'text-muted-foreground/30 cursor-not-allowed'}`}
+                            className={`flex items-center gap-2 text-xs font-bold transition-all group/btn ${isAuthenticated ? 'text-muted-foreground hover:text-primary' : 'text-muted-foreground/40 cursor-not-allowed'}`}
                         >
-                            <Reply className="w-4 h-4" />
+                            <div className="p-1.5 rounded-full group-hover/btn:bg-primary/10 transition-colors">
+                                <Reply className="w-4 h-4" />
+                            </div>
                             Trả lời
                         </button>
                     </div>
 
-                    {/* Reply Input */}
+                    {/* Reply Input Form */}
                     {isReplying && (
-                        <div className="mt-4 space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
-                            <Textarea 
-                                placeholder="Viết câu trả lời..."
-                                className="min-h-[80px] bg-accent/10 border-none resize-none focus-visible:ring-primary/20 rounded-xl"
-                                value={commentText}
-                                onChange={(e) => setCommentText(e.target.value)}
-                                autoFocus
-                            />
-                            <div className="flex justify-end gap-2">
-                                <Button variant="ghost" onClick={() => onReplyClick('')} className="rounded-lg">Hủy</Button>
-                                <Button 
-                                    size="sm"
-                                    onClick={() => onReplySubmit(comment.id)}
-                                    disabled={submitting || !commentText.trim()}
-                                    className="rounded-lg bg-primary font-bold shadow-lg shadow-primary/20"
-                                >
-                                    {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Gửi'}
-                                </Button>
+                        <div className="pt-2 animate-in zoom-in-95 ease-out duration-300">
+                            <div className="flex gap-4">
+                                <div className="flex-1 space-y-3">
+                                    <Textarea
+                                        placeholder={`Trả lời ${comment.author?.displayName}...`}
+                                        className="min-h-[100px] bg-background border-2 border-primary/10 resize-none focus-visible:ring-4 focus-visible:ring-primary/10 focus-visible:border-primary rounded-3xl p-4 text-sm transition-all shadow-inner"
+                                        value={commentText}
+                                        onChange={(e) => setCommentText(e.target.value)}
+                                        autoFocus
+                                    />
+                                    <div className="flex justify-end gap-3">
+                                        <Button
+                                            variant="ghost"
+                                            onClick={() => onReplyClick('')}
+                                            className="rounded-full px-6 hover:bg-destructive/10 hover:text-destructive font-bold"
+                                        >
+                                            Hủy bỏ
+                                        </Button>
+                                        <Button
+                                            onClick={() => {
+                                                onReplySubmit(comment.id)
+                                            }}
+                                            disabled={submitting || !commentText.trim()}
+                                            className="rounded-full px-8 bg-primary font-bold shadow-lg shadow-primary/20 hover:scale-105 transition-transform"
+                                        >
+                                            {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Gửi trả lời'}
+                                        </Button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     )}
                 </div>
             </div>
 
-            {/* Nested Replies */}
+            {/* Render direct replies if this is Root, OR if this is a reply, we DO NOT recurse indentation typically.
+                However, existing structure passed 'replies' prop. 
+                
+                Strategy:
+                1. If Root: Render a container with left border. Inside, map 'replies' and render them.
+                2. If Reply: Map 'replies' (which are Level 3) and render them directly below without extra padding/border, 
+                   effectively making them look like siblings in the Level 2 list.
+            */}
             {replies.length > 0 && (
-                <div className="pl-16 space-y-6 relative">
-                    <div className="absolute left-[24px] top-0 bottom-4 w-px bg-border/50" />
+                <div className={`${isRoot ? 'mt-6 pl-8 sm:pl-12 space-y-6 relative ml-6 sm:ml-7 border-l-2 border-border/40' : 'mt-6 space-y-6'}`}>
                     {replies.map(reply => (
-                        <div key={reply.id} className="relative">
-                            {/* Branch connector could be added here */}
-                            <CommentItem 
-                                comment={reply} 
-                                replies={[]} // For now max 2 levels or re-query for deeper
-                                isAuthenticated={isAuthenticated}
-                                onReplyClick={onReplyClick}
-                                isReplying={isReplying && false /* prevent recursive inputs unless needed */}
-                                commentText={commentText}
-                                setCommentText={setCommentText}
-                                onReplySubmit={onReplySubmit}
-                                submitting={submitting}
-                            />
-                        </div>
+                        <CommentItem
+                            key={reply.id}
+                            comment={reply}
+                            replies={getNestedReplies(reply.id)}
+                            allComments={allComments}
+                            isAuthenticated={isAuthenticated}
+                            onReplyClick={onReplyClick}
+                            replyingToId={replyingToId}
+                            commentText={commentText}
+                            setCommentText={setCommentText}
+                            onReplySubmit={onReplySubmit}
+                            submitting={submitting}
+                        />
                     ))}
                 </div>
             )}

@@ -6,7 +6,15 @@ import { PostSidebar } from '@/components/post/post-sidebar'
 import { CommentSection } from '@/components/post/comment-section'
 import type { PostResponseDTO } from '@workspace/schemas'
 import { TiptapEditor } from '@workspace/ui/components/tiptap-editor'
-import { Loader2, Calendar, User, Eye, Share2, Heart, Bookmark, ChevronLeft, Clock, List } from 'lucide-react'
+import {
+    Breadcrumb,
+    BreadcrumbList,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from '@workspace/ui/components/breadcrumb'
+import { Loader2, Calendar, User, Eye, Share2, Heart, Bookmark, Clock, List, Home, ChevronRight } from 'lucide-react'
 import { format } from 'date-fns'
 import { vi } from 'date-fns/locale'
 import Link from 'next/link'
@@ -31,7 +39,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                 ])
                 setPost(postData)
                 setRecentPosts(latestData.data.filter(p => p.id !== postData?.id))
-                
+
                 // Increment view count (only once per session)
                 const viewCountKey = `post_viewed_${id}`
                 if (!sessionStorage.getItem(viewCountKey)) {
@@ -65,7 +73,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                 <h1 className="text-2xl font-bold">Ôi! Không tìm thấy bài viết này</h1>
                 <p className="text-muted-foreground">Có vẻ như bài viết đã bị gỡ bỏ hoặc link không chính xác.</p>
                 <Link href="/post">
-                    <Button className="rounded-xl px-8 h-12 font-bold shadow-lg shadow-primary/20">
+                    <Button className="rounded-full px-8 h-12 font-bold shadow-lg shadow-primary/20">
                         Quay lại trang Posts
                     </Button>
                 </Link>
@@ -78,7 +86,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
     const readingTime = Math.ceil(wordCount / 200) || 1
 
     // Simple TOC generation
-    const headings = post.content ? 
+    const headings = post.content ?
         Array.from(post.content.matchAll(/<h([2-3])>(.*?)<\/h\1>/g)).map(m => ({
             level: parseInt(m[1] || '2', 10),
             text: (m[2] || '').replace(/<[^>]*>/g, ''),
@@ -89,12 +97,37 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
         <article className="min-h-screen pt-24 pb-20 bg-background">
             {/* Post Header */}
             <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 space-y-8">
-                <Link href="/post" className="inline-flex items-center gap-2 text-sm font-bold text-muted-foreground hover:text-primary transition-colors group">
-                    <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-                    Quay lại danh sách
-                </Link>
+                {/* Zen UI Breadcrumb */}
+                <div className="inline-flex">
+                    <Breadcrumb className="px-5 py-2.5 rounded-full bg-accent/30 border border-border/40 backdrop-blur-sm">
+                        <BreadcrumbList>
+                            <BreadcrumbItem>
+                                <BreadcrumbLink href="/" className="flex items-center gap-2 font-medium hover:text-primary transition-colors">
+                                    <Home className="w-4 h-4" />
+                                    <span className="hidden sm:inline">Trang chủ</span>
+                                </BreadcrumbLink>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator>
+                                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                            </BreadcrumbSeparator>
+                            <BreadcrumbItem>
+                                <BreadcrumbLink href="/post" className="font-medium hover:text-primary transition-colors">
+                                    Bài viết
+                                </BreadcrumbLink>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator>
+                                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                            </BreadcrumbSeparator>
+                            <BreadcrumbItem>
+                                <BreadcrumbPage className="font-bold text-foreground max-w-[200px] sm:max-w-xs md:max-w-md truncate">
+                                    {post.title}
+                                </BreadcrumbPage>
+                            </BreadcrumbItem>
+                        </BreadcrumbList>
+                    </Breadcrumb>
+                </div>
 
-                <div className="space-y-6 max-w-4xl">
+                <div className="space-y-6 max-w-5xl">
                     <div className="flex flex-wrap gap-2">
                         {post.tags?.map(tag => (
                             <Badge key={tag} className="px-3 py-1 rounded-full bg-primary/10 text-primary border-none text-[10px] font-bold uppercase tracking-widest hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer">
@@ -102,21 +135,13 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                             </Badge>
                         ))}
                     </div>
-                    
-                    <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight">
+
+                    <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight leading-[1.2] text-foreground">
                         {post.title}
                     </h1>
 
                     <div className="flex flex-wrap items-center gap-6 pt-4 border-t border-border">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
-                                <User className="w-5 h-5 text-primary" />
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="text-sm font-bold text-foreground">{post.author?.displayName || 'Torii Sensei'}</span>
-                                <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Tác giả bài viết</span>
-                            </div>
-                        </div>
+
 
                         <div className="flex items-center gap-6 text-xs text-muted-foreground font-medium">
                             <div className="flex items-center gap-2">
@@ -135,15 +160,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                     </div>
                 </div>
 
-                {/* Cover Image */}
-                <div className="relative aspect-[21/9] rounded-[48px] overflow-hidden border border-border shadow-2xl group">
-                    <img 
-                        src={post.coverImageUrl || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2000&auto=format&fit=crop'} 
-                        className="w-full h-full object-cover"
-                        alt={post.title}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-                </div>
+                {/* Cover Image Removed from header */}
             </header>
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -169,11 +186,20 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                             </div>
                         )}
 
+                        {/* Cover Image (Moved here) */}
+                        <div className="relative aspect-[16/9] rounded-3xl overflow-hidden border border-border/50 shadow-sm shadow-primary/5 group mb-8">
+                            <img
+                                src={post.coverImageUrl || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2000&auto=format&fit=crop'}
+                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                alt={post.title}
+                            />
+                        </div>
+
                         {/* Editor Content */}
                         <div className="prose prose-lg prose-primary dark:prose-invert max-w-none">
-                            <TiptapEditor 
-                                content={post.content} 
-                                mode="readonly" 
+                            <TiptapEditor
+                                content={post.content}
+                                mode="readonly"
                                 className="border-none p-0 bg-transparent shadow-none"
                             />
                         </div>
@@ -181,8 +207,8 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                         {/* Share & Actions */}
                         <div className="pt-12 border-t flex flex-col sm:flex-row items-center justify-between gap-6">
                             <div className="flex items-center gap-4">
-                                <Button 
-                                    variant="outline" 
+                                <Button
+                                    variant="outline"
                                     className={`rounded-full h-12 px-6 gap-2 border-primary/20 ${isAuthenticated ? 'hover:bg-primary/10' : 'opacity-50 cursor-not-allowed'}`}
                                     disabled={!isAuthenticated}
                                 >
@@ -214,12 +240,12 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
 
                     {/* Sidebar Area */}
                     <div className="lg:col-span-4">
-                        <div className="sticky top-28">
-                             <PostSidebar 
-                                author={post.author} 
+                        <div className="h-full">
+                            <PostSidebar
+
                                 recentPosts={recentPosts}
                                 popularTags={['JLPT', 'Tiếng Nhật sơ cấp', 'Luyện thi', 'Văn hóa']}
-                             />
+                            />
                         </div>
                     </div>
                 </div>

@@ -61,8 +61,15 @@ export class CommentController {
      */
     @Post()
     async createComment(@Body() dto: CommentCreateDTO, @Req() req: any) {
-        const userId = req.user.uid;
-        if (!dto.authorId) dto.authorId = userId;
+        const userId = req.user?.uid;
+
+        // Map userId from DTO to authorId if present (Fix for Schema mismatch)
+        if ((dto as any).userId && !dto.authorId) {
+            dto.authorId = (dto as any).userId;
+        }
+
+        if (!dto.authorId && userId) dto.authorId = userId;
+
         const comment = await this.commentService.createComment(dto);
         return successResponse(comment, 'Comment created successfully');
     }

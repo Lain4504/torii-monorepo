@@ -62,7 +62,7 @@ export default function DashboardLayout() {
                 <DashboardSidebar
                   isCollapsed={false}
                   toggleCollapse={() => setMobileOpen(false)}
-                  className="w-full h-full rounded-tr-[3rem] rounded-br-[3rem] overflow-hidden shadow-2xl"
+                  className="w-full h-full rounded-tr-3xl rounded-br-3xl overflow-hidden shadow-2xl"
                 />
               </SheetContent>
             </Sheet>

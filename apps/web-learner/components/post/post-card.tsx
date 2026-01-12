@@ -21,13 +21,13 @@ export function PostCard({ post }: PostCardProps) {
             <div className="group relative bg-card rounded-[32px] border border-border shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 overflow-hidden flex flex-col h-full">
                 {/* Image Container with Gradient Overlay */}
                 <div className="relative aspect-[16/10] overflow-hidden">
-                    <img 
-                        src={post.coverImageUrl || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop'} 
+                    <img
+                        src={post.coverImageUrl || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop'}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                         alt={post.title}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    
+
                     {/* Badge on Image */}
                     <div className="absolute top-4 left-4 flex gap-2">
                         {post.tags?.[0] && (
@@ -61,13 +61,8 @@ export function PostCard({ post }: PostCardProps) {
                     </p>
 
                     <div className="mt-auto pt-6 border-t border-border/50 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
-                                <User className="w-4 h-4 text-primary" />
-                            </div>
-                            <span className="text-xs font-bold">{post.author?.displayName || 'Torii Sensei'}</span>
-                        </div>
-                        
+
+
                         <div className="flex items-center gap-2 text-primary font-bold text-xs group/btn">
                             Xem thêm
                             <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />

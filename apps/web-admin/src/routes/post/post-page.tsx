@@ -55,7 +55,7 @@ export function PostPage() {
     if (error) {
         return (
             <div className="flex flex-col items-center justify-center p-20 space-y-4 bg-destructive/5 rounded-[3rem] border border-dashed border-destructive/20 text-center animate-in fade-in duration-500">
-                <div className="w-16 h-16 rounded-2xl bg-white shadow-xl flex items-center justify-center">
+                <div className="size-16 rounded-xl bg-white shadow-xl flex items-center justify-center">
                     <ShieldAlert className="size-8 text-destructive opacity-40" />
                 </div>
                 <div className="space-y-1">
@@ -169,7 +169,7 @@ export function PostPage() {
                     </div>
                     <Button
                         onClick={() => setShowCreateDialog(true)}
-                        className="w-full sm:w-auto h-14 px-8 rounded-2xl bg-primary text-white font-black uppercase tracking-[0.2em] text-[11px] shadow-xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-1 transition-all group"
+                        className="w-full sm:w-auto h-14 px-8 rounded-xl bg-primary text-white font-black uppercase tracking-[0.2em] text-[11px] shadow-xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-1 transition-all group"
                     >
                         Deploy New Article
                         <Plus className="ml-3 size-4 opacity-50 group-hover:opacity-100 transition-opacity" />
@@ -178,7 +178,7 @@ export function PostPage() {
             </div>
 
             {/* Main Table Container */}
-            <Card className="rounded-[2rem] bg-background/40 backdrop-blur-3xl border border-border/20 shadow-2xl shadow-primary/5 overflow-hidden group">
+            <Card className="rounded-3xl bg-background/40 backdrop-blur-3xl border border-border/20 shadow-2xl shadow-primary/5 overflow-hidden group">
                 <div className="p-3 lg:p-6 space-y-4">
                     <div className="flex flex-col lg:flex-row items-center justify-between gap-4 p-3 lg:p-4 rounded-3xl bg-muted/20 border border-border/20">
                         <div className="flex-1 w-full">

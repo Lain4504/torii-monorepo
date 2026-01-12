@@ -9,13 +9,13 @@ import BulletList from "@tiptap/extension-bullet-list"
 import OrderedList from "@tiptap/extension-ordered-list"
 import ListItem from "@tiptap/extension-list-item"
 import { cn } from "@workspace/ui/lib/utils"
-import { 
-  Bold, 
-  Italic, 
-  List, 
-  ListOrdered, 
-  Heading1, 
-  Heading2, 
+import {
+  Bold,
+  Italic,
+  List,
+  ListOrdered,
+  Heading1,
+  Heading2,
   Heading3,
   Undo,
   Redo,
@@ -155,7 +155,7 @@ export const TiptapEditor = React.memo(React.forwardRef<Editor, TiptapEditorProp
     // Debounce onChange callback
     const debouncedOnChange = React.useMemo(() => {
       if (!onChange) return undefined
-      
+
       let timeoutId: NodeJS.Timeout | null = null
       return (html: string) => {
         if (timeoutId) clearTimeout(timeoutId)
@@ -382,7 +382,7 @@ export const TiptapEditor = React.memo(React.forwardRef<Editor, TiptapEditorProp
 
       const handleImageUpload = async () => {
         if (!Image || !onImageUpload || !editor) return
-        
+
         const input = document.createElement('input')
         input.type = 'file'
         input.accept = 'image/*'
@@ -403,15 +403,15 @@ export const TiptapEditor = React.memo(React.forwardRef<Editor, TiptapEditorProp
 
       const handleLink = async () => {
         if (!Link) return
-        
+
         const previousUrl = editor.getAttributes('link').href
         const url = previousUrl || window.prompt('Enter URL:')
-        
+
         if (url === null) return
-        
+
         try {
           const finalUrl = onLinkCreate ? await onLinkCreate(url) : url
-          
+
           // cancelled
           if (url === '') {
             editor.chain().focus().extendMarkRange('link').unsetLink().run()
@@ -424,7 +424,7 @@ export const TiptapEditor = React.memo(React.forwardRef<Editor, TiptapEditorProp
       }
 
       return (
-        <div 
+        <div
           className="border-b border-border bg-muted/30 p-2 flex flex-wrap items-center gap-1 rounded-t-xl"
           role="toolbar"
           aria-label="Text formatting toolbar"
@@ -712,7 +712,7 @@ export const TiptapEditor = React.memo(React.forwardRef<Editor, TiptapEditorProp
 
     if (!editor) {
       return (
-        <div 
+        <div
           className={cn(
             "border-input dark:bg-input/30 rounded-xl border bg-transparent shadow-xs",
             "min-h-[200px] flex items-center justify-center",
@@ -731,9 +731,9 @@ export const TiptapEditor = React.memo(React.forwardRef<Editor, TiptapEditorProp
         <div
           className={cn(
             "border-input dark:bg-input/30 rounded-xl border bg-transparent shadow-xs transition-[color,box-shadow]",
-            "focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px]",
+            mode !== 'readonly' && "focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px]",
             ariaInvalid && "ring-destructive/20 dark:ring-destructive/40 border-destructive",
-            mode === 'readonly' && "bg-muted/20",
+            mode === 'readonly' && "bg-transparent border-none shadow-none",
             className
           )}
           style={{
@@ -752,7 +752,7 @@ export const TiptapEditor = React.memo(React.forwardRef<Editor, TiptapEditorProp
             <EditorContent editor={editor} />
           </div>
         </div>
-        
+
         {/* Character Count / Footer */}
         {(showCharacterCount || maxCharacters) && characterCount && (
           <div className="flex items-center justify-between text-xs text-muted-foreground px-2 py-1 border-t border-border/40">

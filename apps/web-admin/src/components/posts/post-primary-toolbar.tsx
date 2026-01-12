@@ -58,7 +58,7 @@ export function PostPrimaryToolbar({
                             <SelectValue placeholder="STATUS" />
                         </div>
                     </SelectTrigger>
-                    <SelectContent className="border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-[1.5rem] p-2">
+                    <SelectContent className="border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-2xl p-2">
                         <SelectItem value="all" className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer italic">ALL ARTICLES</SelectItem>
                         <SelectItem value="draft" className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">DRAFT</SelectItem>
                         <SelectItem value="published" className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">PUBLISHED</SelectItem>
@@ -77,7 +77,7 @@ export function PostPrimaryToolbar({
                             </div>
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48 border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-[1.5rem] p-2">
+                    <DropdownMenuContent align="end" className="w-48 border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-2xl p-2">
                         <DropdownMenuGroup>
                             <DropdownMenuItem onClick={() => onSortChange('publishedAt', 'desc')} className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">
                                 NEWEST FIRST

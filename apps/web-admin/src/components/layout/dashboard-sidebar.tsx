@@ -82,7 +82,7 @@ export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: Sid
       <Link
         to={item.url}
         className={cn(
-          "group relative flex items-center rounded-2xl px-4 py-3 text-[13px] font-bold transition-all duration-500 ease-out",
+          "group relative flex items-center rounded-xl px-4 py-3 text-[13px] font-bold transition-all duration-500 ease-out",
           isActive
             ? "bg-primary text-white shadow-xl shadow-primary/20"
             : "text-muted-foreground/60 hover:bg-primary/5 hover:text-primary",
@@ -150,7 +150,7 @@ export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: Sid
         {/* Header / Logo */}
         <div className="flex h-24 items-center px-8">
           <Link to="/" className={cn("flex items-center gap-4 group cursor-pointer", isCollapsed ? "justify-center w-full" : "")}>
-            <div className="flex size-11 shrink-0 items-center justify-center rounded-[1.25rem] bg-primary shadow-lg shadow-primary/20 text-white font-black transition-all duration-500 group-hover:scale-110 group-hover:rotate-[15deg]">
+            <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary shadow-lg shadow-primary/20 text-white font-black transition-all duration-500 group-hover:scale-110 group-hover:rotate-[15deg]">
               <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                 <path d="M3 10h18" strokeLinecap="round" />
                 <path d="M5 10v8" strokeLinecap="round" />
@@ -179,7 +179,7 @@ export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: Sid
         {/* User Profile Footer */}
         <div className="p-6">
           <div className={cn(
-            "flex items-center gap-3 p-3 rounded-[1.5rem] bg-muted/20 border border-border/30 transition-all duration-500 hover:bg-muted/40 group",
+            "flex items-center gap-3 p-3 rounded-2xl bg-muted/20 border border-border/30 transition-all duration-500 hover:bg-muted/40 group",
             isCollapsed ? "justify-center px-0 bg-transparent border-none" : "justify-between"
           )}>
             {!isCollapsed ? (
@@ -242,7 +242,7 @@ export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: Sid
                 variant="ghost"
                 size="icon"
                 onClick={toggleCollapse}
-                className="size-12 rounded-2xl text-muted-foreground/40 hover:text-primary hover:bg-primary/5 transition-all"
+                className="size-12 rounded-xl text-muted-foreground/40 hover:text-primary hover:bg-primary/5 transition-all"
               >
                 <PanelLeftOpen className="size-6" />
               </Button>

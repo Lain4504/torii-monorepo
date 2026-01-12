@@ -1,6 +1,6 @@
 'use client'
 
-import { Search, SlidersHorizontal, User, Tag as TagIcon, LayoutGrid, List, Sparkles } from 'lucide-react'
+import { Search, SlidersHorizontal, User, Tag as TagIcon, Sparkles } from 'lucide-react'
 import { useState } from 'react'
 import { Input } from '@workspace/ui/components/input'
 import { Button } from '@workspace/ui/components/button'
@@ -43,7 +43,7 @@ export function PostFilters({ onSearch, onTagChange, onAuthorChange, onSortChang
                         onChange={(e) => setSearchValue(e.target.value)}
                     />
                     <div className="pr-4 pl-2">
-                        <Button 
+                        <Button
                             type="submit"
                             className="h-12 px-8 rounded-2xl bg-primary text-white font-black hover:scale-[1.05] active:scale-95 transition-all shadow-lg shadow-primary/20 flex items-center gap-2"
                         >
@@ -93,14 +93,7 @@ export function PostFilters({ onSearch, onTagChange, onAuthorChange, onSortChang
                 </div>
 
                 {/* View Switcher */}
-                <div className="flex items-center bg-card p-1.5 rounded-2xl border border-border shadow-sm self-end h-14">
-                    <Button variant="ghost" size="icon" className="h-11 w-11 bg-primary text-white rounded-xl shadow-lg shadow-primary/20">
-                        <LayoutGrid className="w-5 h-5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-11 w-11 text-muted-foreground hover:text-primary transition-colors rounded-xl">
-                        <List className="w-5 h-5" />
-                    </Button>
-                </div>
+
             </div>
         </div>
     )
