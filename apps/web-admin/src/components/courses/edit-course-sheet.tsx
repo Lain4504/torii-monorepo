@@ -141,8 +141,8 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
             };
 
             await updateCourse.mutateAsync({ id: course.id, course: updateData });
-            toast.success('Course Re-calibrated', {
-                description: `Parameters for ${data.title} successfully updated.`,
+            toast.success('Course Updated', {
+                description: `Details for ${data.title} successfully updated.`,
             });
             onOpenChange(false);
         } catch (error: any) {
@@ -165,30 +165,29 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:w-[900px] sm:max-w-[900px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl overflow-hidden">
-                <SheetHeader className="px-8 pt-8 pb-6 border-b border-border/10 bg-muted/5 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-primary/5 blur-3xl opacity-50 pointer-events-none" />
+            <SheetContent className="w-full sm:max-w-[800px] flex flex-col p-0 gap-0 border-l border-border/10 shadow-2xl bg-background/95 backdrop-blur-xl overflow-hidden">
+                <SheetHeader className="px-8 py-6 border-b border-border/10 relative overflow-hidden">
                     <div className="relative flex items-center justify-between z-10">
                         <div className="flex items-center gap-4">
-                            <div className="p-3 rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-inner">
-                                <BookOpen className="h-6 w-6" />
+                            <div className="p-2.5 rounded-xl bg-primary/10 text-primary border border-primary/20 shadow-sm">
+                                <BookOpen className="h-5 w-5" />
                             </div>
-                            <div className="space-y-1">
-                                <SheetTitle className="text-2xl font-black uppercase tracking-tight italic">
-                                    Modify <span className="text-primary not-italic">Repository</span>
+                            <div className="space-y-0.5">
+                                <SheetTitle className="text-xl font-semibold tracking-tight text-foreground">
+                                    Edit Course
                                 </SheetTitle>
-                                <SheetDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2">
-                                    ID: <span className="font-mono text-primary">{course.id.substring(0, 8)}</span>
+                                <SheetDescription className="text-xs font-medium text-muted-foreground/60 leading-relaxed">
+                                    Update curriculum and metadata configuration.
                                 </SheetDescription>
                             </div>
                         </div>
                         <Badge
-                            variant="outline"
+                            variant="secondary"
                             className={cn(
-                                "px-3 py-1.5 uppercase tracking-widest text-[10px] font-black border-2",
+                                "px-2.5 py-0.5 rounded-full text-[10px] font-medium border uppercase tracking-wider",
                                 course.status === 'published'
-                                    ? "border-emerald-500/20 text-emerald-500 bg-emerald-500/10"
-                                    : "border-muted-foreground/20 text-muted-foreground bg-muted/10"
+                                    ? "border-emerald-500/20 text-emerald-600 bg-emerald-500/10"
+                                    : "border-muted-foreground/20 text-muted-foreground bg-muted/30"
                             )}>
                             {course.status}
                         </Badge>
@@ -200,25 +199,21 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                         <div className="px-8 py-10 space-y-10 animate-in fade-in slide-in-from-right-8 duration-500">
                             {/* Key Metrics */}
                             <div className="grid grid-cols-2 gap-4">
-                                <div className="p-5 rounded-3xl bg-muted/5 border border-border/10 hover:border-primary/20 hover:bg-muted/10 transition-all group">
-                                    <div className="flex items-center gap-3 text-muted-foreground mb-3">
-                                        <div className="p-2 rounded-xl bg-background/50 text-primary border border-border/10">
-                                            <Users className="h-4 w-4" />
-                                        </div>
-                                        <span className="text-[10px] font-black uppercase tracking-widest opacity-60">Active Users</span>
+                                <div className="p-4 rounded-2xl bg-muted/10 border border-border/5 transition-all">
+                                    <div className="flex items-center gap-2.5 text-muted-foreground/60 mb-2">
+                                        <Users className="h-3.5 w-3.5" />
+                                        <span className="text-[10px] font-medium uppercase tracking-wider">Active Students</span>
                                     </div>
-                                    <div className="text-4xl font-black text-foreground tracking-tight group-hover:text-primary transition-colors">
+                                    <div className="text-2xl font-semibold text-foreground tracking-tight">
                                         {course.totalStudents || 0}
                                     </div>
                                 </div>
-                                <div className="p-5 rounded-3xl bg-muted/5 border border-border/10 hover:border-primary/20 hover:bg-muted/10 transition-all group">
-                                    <div className="flex items-center gap-3 text-muted-foreground mb-3">
-                                        <div className="p-2 rounded-xl bg-background/50 text-blue-500 border border-border/10">
-                                            <Calendar className="h-4 w-4" />
-                                        </div>
-                                        <span className="text-[10px] font-black uppercase tracking-widest opacity-60">Last Updated</span>
+                                <div className="p-4 rounded-2xl bg-muted/10 border border-border/5 transition-all">
+                                    <div className="flex items-center gap-2.5 text-muted-foreground/60 mb-2">
+                                        <Calendar className="h-3.5 w-3.5" />
+                                        <span className="text-[10px] font-medium uppercase tracking-wider">Last Modified</span>
                                     </div>
-                                    <div className="text-xl font-bold text-foreground font-mono tracking-tight group-hover:text-blue-500 transition-colors pt-2">
+                                    <div className="text-lg font-medium text-foreground tracking-tight">
                                         {new Date(course.updatedAt).toLocaleDateString(undefined, {
                                             month: 'short',
                                             day: 'numeric',
@@ -234,8 +229,8 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                             <div className="space-y-6">
                                 <div className="flex items-center gap-3 pb-2 border-b border-border/20">
                                     <div className="h-px flex-1 bg-border/20" />
-                                    <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">
-                                        Core Specifications
+                                    <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground/50 text-center">
+                                        Basic Information
                                     </h3>
                                     <div className="h-px flex-1 bg-border/20" />
                                 </div>
@@ -244,16 +239,16 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                     control={control}
                                     name="title"
                                     render={({ field, fieldState }) => (
-                                        <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">Title</FieldLabel>
+                                        <Field className="space-y-1.5" data-invalid={fieldState.invalid}>
+                                            <FieldLabel htmlFor={field.name} className="text-xs font-medium text-muted-foreground/80 ml-1">Title</FieldLabel>
                                             <Input
                                                 id={field.name}
                                                 {...field}
-                                                placeholder="COURSE DESIGNATION"
-                                                className="h-14 px-5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all uppercase"
+                                                placeholder="Enter course title"
+                                                className="h-10 px-4 rounded-xl border-border/20 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all font-medium text-sm"
                                                 aria-invalid={fieldState.invalid}
                                             />
-                                            <FieldError errors={[fieldState.error]} className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2" />
+                                            <FieldError errors={[fieldState.error]} className="text-xs font-medium text-rose-500 pl-2" />
                                         </Field>
                                     )}
                                 />
@@ -263,15 +258,15 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                     name="description"
                                     render={({ field, fieldState }) => (
                                         <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">Description</FieldLabel>
+                                            <FieldLabel htmlFor={field.name} className="text-xs font-medium text-muted-foreground ml-1">Description</FieldLabel>
                                             <Textarea
                                                 id={field.name}
                                                 {...field}
-                                                placeholder="DETAILED SYLLABUS AND OBJECTIVES..."
-                                                className="min-h-[120px] rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all resize-none p-4"
+                                                placeholder="Enter detailed course description..."
+                                                className="min-h-[120px] rounded-xl bg-muted/20 border-border/20 hover:bg-muted/30 focus-visible:ring-primary/20 text-sm font-medium placeholder:text-muted-foreground/30 transition-all resize-none p-4"
                                                 aria-invalid={fieldState.invalid}
                                             />
-                                            <FieldError errors={[fieldState.error]} className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2" />
+                                            <FieldError errors={[fieldState.error]} className="text-xs font-medium text-rose-500 pl-2" />
                                         </Field>
                                     )}
                                 />
@@ -282,17 +277,17 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                         name="price"
                                         render={({ field, fieldState }) => (
                                             <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                                <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">Price (USD)</FieldLabel>
+                                                <FieldLabel htmlFor={field.name} className="text-xs font-medium text-muted-foreground ml-1">Price (USD)</FieldLabel>
                                                 <Input
                                                     id={field.name}
                                                     type="number"
                                                     {...field}
                                                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
                                                     placeholder="0.00"
-                                                    className="h-14 px-5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all font-mono"
+                                                    className="h-12 px-4 rounded-xl bg-muted/20 border-border/20 hover:bg-muted/30 focus-visible:ring-primary/20 text-sm font-medium placeholder:text-muted-foreground/30 transition-all font-mono"
                                                     aria-invalid={fieldState.invalid}
                                                 />
-                                                <FieldError errors={[fieldState.error]} className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2" />
+                                                <FieldError errors={[fieldState.error]} className="text-xs font-medium text-rose-500 pl-2" />
                                             </Field>
                                         )}
                                     />
@@ -302,18 +297,18 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                         name="jlptLevel"
                                         render={({ field, fieldState }) => (
                                             <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                                <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">JLPT Level</FieldLabel>
+                                                <FieldLabel htmlFor={field.name} className="text-xs font-medium text-muted-foreground ml-1">JLPT Level</FieldLabel>
                                                 <Select value={field.value || ''} onValueChange={field.onChange}>
-                                                    <SelectTrigger id={field.name} className="h-14 px-5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus:ring-primary/20 text-sm font-bold uppercase transition-all" aria-invalid={fieldState.invalid}>
-                                                        <SelectValue placeholder="SELECT LEVEL" />
+                                                    <SelectTrigger id={field.name} className="h-10 px-4 rounded-xl border-border/20 bg-muted/20 hover:bg-muted/30 focus:ring-primary/20 transition-all font-medium text-sm" aria-invalid={fieldState.invalid}>
+                                                        <SelectValue placeholder="Select Level" />
                                                     </SelectTrigger>
-                                                    <SelectContent className="border-border/10 shadow-2xl bg-background/95 backdrop-blur-3xl rounded-2xl overflow-hidden p-1">
+                                                    <SelectContent className="border-border/10 shadow-xl bg-background/95 backdrop-blur-3xl rounded-xl overflow-hidden p-1">
                                                         {Object.values(JlptLevel).map((level) => (
-                                                            <SelectItem key={level} value={level} className="rounded-xl cursor-pointer text-xs font-bold uppercase tracking-wide focus:bg-primary/10 focus:text-primary py-3">{level}</SelectItem>
+                                                            <SelectItem key={level} value={level} className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">{level}</SelectItem>
                                                         ))}
                                                     </SelectContent>
                                                 </Select>
-                                                <FieldError errors={[fieldState.error]} className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2" />
+                                                <FieldError errors={[fieldState.error]} className="text-xs font-medium text-rose-500 pl-2" />
                                             </Field>
                                         )}
                                     />
@@ -324,17 +319,17 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                     name="shortDescription"
                                     render={({ field, fieldState }) => (
                                         <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
+                                            <FieldLabel htmlFor={field.name} className="text-xs font-medium text-muted-foreground ml-1">
                                                 Short Description
                                             </FieldLabel>
                                             <Textarea
                                                 id={field.name}
                                                 {...field}
-                                                placeholder="BRIEF SUMMARY FOR CARDS..."
-                                                className="min-h-[80px] rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all resize-none p-4"
+                                                placeholder="Brief summary used for cards..."
+                                                className="min-h-[80px] rounded-xl bg-muted/20 border-border/20 hover:bg-muted/30 focus-visible:ring-primary/20 text-sm font-medium placeholder:text-muted-foreground/30 transition-all resize-none p-4"
                                                 aria-invalid={fieldState.invalid}
                                             />
-                                            <FieldError errors={[fieldState.error]} className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2" />
+                                            <FieldError errors={[fieldState.error]} className="text-xs font-medium text-rose-500 pl-2" />
                                         </Field>
                                     )}
                                 />
@@ -345,19 +340,19 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                         name="type"
                                         render={({ field, fieldState }) => (
                                             <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                                <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
+                                                <FieldLabel htmlFor={field.name} className="text-xs font-medium text-muted-foreground ml-1">
                                                     Course Type
                                                 </FieldLabel>
                                                 <Select value={field.value || ''} onValueChange={field.onChange}>
-                                                    <SelectTrigger id={field.name} className="h-14 px-5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus:ring-primary/20 text-sm font-bold uppercase transition-all" aria-invalid={fieldState.invalid}>
-                                                        <SelectValue placeholder="SELECT TYPE" />
+                                                    <SelectTrigger id={field.name} className="h-10 px-4 rounded-xl border-border/20 bg-muted/20 hover:bg-muted/30 focus:ring-primary/20 transition-all font-medium text-sm" aria-invalid={fieldState.invalid}>
+                                                        <SelectValue placeholder="Select Type" />
                                                     </SelectTrigger>
-                                                    <SelectContent className="border-border/10 shadow-2xl bg-background/95 backdrop-blur-3xl rounded-2xl overflow-hidden p-1">
-                                                        <SelectItem value="vod" className="rounded-xl cursor-pointer text-xs font-bold uppercase tracking-wide focus:bg-primary/10 focus:text-primary py-3">Video on demand</SelectItem>
-                                                        <SelectItem value="live" className="rounded-xl cursor-pointer text-xs font-bold uppercase tracking-wide focus:bg-primary/10 focus:text-primary py-3">Live Stream</SelectItem>
+                                                    <SelectContent className="border-border/10 shadow-xl bg-background/95 backdrop-blur-3xl rounded-xl overflow-hidden p-1">
+                                                        <SelectItem value="vod" className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">Video on Demand</SelectItem>
+                                                        <SelectItem value="live" className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">Live Stream</SelectItem>
                                                     </SelectContent>
                                                 </Select>
-                                                <FieldError errors={[fieldState.error]} className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2" />
+                                                <FieldError errors={[fieldState.error]} className="text-xs font-medium text-rose-500 pl-2" />
                                             </Field>
                                         )}
                                     />
@@ -367,18 +362,18 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                         name="isFree"
                                         render={({ field }) => (
                                             <Field className="space-y-2">
-                                                <FieldLabel htmlFor="isFree" className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
+                                                <FieldLabel htmlFor="isFree" className="text-xs font-medium text-muted-foreground ml-1">
                                                     Access Control
                                                 </FieldLabel>
-                                                <div className="flex items-center gap-3 mt-2 p-4 rounded-xl bg-muted/5 border border-border/10 cursor-pointer hover:bg-muted/10 transition-all" onClick={() => field.onChange(!field.value)}>
+                                                <div className="flex items-center gap-3 mt-2 p-3.5 rounded-xl bg-muted/20 border border-border/20 cursor-pointer hover:bg-muted/30 transition-all" onClick={() => field.onChange(!field.value)}>
                                                     <input
                                                         id="isFree"
                                                         type="checkbox"
                                                         checked={!!field.value}
                                                         onChange={(e) => field.onChange(e.target.checked)}
-                                                        className="h-5 w-5 rounded-md border-border/60 text-primary focus:ring-primary/20 cursor-pointer"
+                                                        className="h-4 w-4 rounded border-border/60 text-primary focus:ring-primary/20 cursor-pointer accent-primary"
                                                     />
-                                                    <span className="text-xs font-bold uppercase tracking-wide text-foreground/80">
+                                                    <span className="text-sm font-medium text-foreground/80">
                                                         Open Access / Free Course
                                                     </span>
                                                 </div>
@@ -393,7 +388,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                         name="discountPrice"
                                         render={({ field, fieldState }) => (
                                             <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                                <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
+                                                <FieldLabel htmlFor={field.name} className="text-xs font-medium text-muted-foreground ml-1">
                                                     Discount Price (USD)
                                                 </FieldLabel>
                                                 <Input
@@ -402,10 +397,10 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                     {...field}
                                                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
                                                     placeholder="0.00"
-                                                    className="h-14 px-5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all font-mono"
+                                                    className="h-12 px-4 rounded-xl bg-muted/20 border-border/20 hover:bg-muted/30 focus-visible:ring-primary/20 text-sm font-medium placeholder:text-muted-foreground/30 transition-all font-mono"
                                                     aria-invalid={fieldState.invalid}
                                                 />
-                                                <FieldError errors={[fieldState.error]} className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2" />
+                                                <FieldError errors={[fieldState.error]} className="text-xs font-medium text-rose-500 pl-2" />
                                             </Field>
                                         )}
                                     />
@@ -415,7 +410,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                         name="durationWeeks"
                                         render={({ field, fieldState }) => (
                                             <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                                <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
+                                                <FieldLabel htmlFor={field.name} className="text-xs font-medium text-muted-foreground ml-1">
                                                     Duration (weeks)
                                                 </FieldLabel>
                                                 <Input
@@ -424,10 +419,10 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                     {...field}
                                                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
                                                     placeholder="e.g. 8"
-                                                    className="h-14 px-5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all font-mono"
+                                                    className="h-10 px-4 rounded-xl border-border/20 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all font-mono font-medium text-sm"
                                                     aria-invalid={fieldState.invalid}
                                                 />
-                                                <FieldError errors={[fieldState.error]} className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2" />
+                                                <FieldError errors={[fieldState.error]} className="text-xs font-medium text-rose-500 pl-2" />
                                             </Field>
                                         )}
                                     />
@@ -436,8 +431,8 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                 <div className="space-y-6 pt-6">
                                     <div className="flex items-center gap-3 pb-2 border-b border-border/20">
                                         <div className="h-px flex-1 bg-border/20" />
-                                        <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">
-                                            Curriculum Metadata
+                                        <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground/50 text-center">
+                                            Curriculum Details
                                         </h3>
                                         <div className="h-px flex-1 bg-border/20" />
                                     </div>
@@ -447,7 +442,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                         name="tags"
                                         render={({ field }) => (
                                             <Field className="space-y-2">
-                                                <FieldLabel htmlFor="tags" className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
+                                                <FieldLabel htmlFor="tags" className="text-xs font-medium text-muted-foreground ml-1">
                                                     Tags
                                                 </FieldLabel>
                                                 <Input
@@ -461,8 +456,8 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                                 .filter(Boolean),
                                                         )
                                                     }
-                                                    placeholder="JLPT, GRAMMAR, BEGINNER (COMMA SEPARATED)"
-                                                    className="h-14 px-5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all uppercase"
+                                                    placeholder="e.g. JLPT, Grammar, Beginner (comma separated)"
+                                                    className="h-12 px-4 rounded-xl bg-muted/20 border-border/20 hover:bg-muted/30 focus-visible:ring-primary/20 text-sm font-medium placeholder:text-muted-foreground/30 transition-all"
                                                 />
                                             </Field>
                                         )}
@@ -473,7 +468,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                         name="learningOutcomes"
                                         render={({ field }) => (
                                             <Field className="space-y-2">
-                                                <FieldLabel htmlFor="learningOutcomes" className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
+                                                <FieldLabel htmlFor="learningOutcomes" className="text-xs font-medium text-muted-foreground ml-1">
                                                     Learning Outcomes
                                                 </FieldLabel>
                                                 <Textarea
@@ -487,9 +482,9 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                                 .filter(Boolean),
                                                         )
                                                     }
-                                                    placeholder="ONE OUTCOME PER LINE..."
+                                                    placeholder="Enter one outcome per line..."
                                                     rows={4}
-                                                    className="rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all resize-none p-4 uppercase"
+                                                    className="rounded-xl bg-muted/20 border-border/20 hover:bg-muted/30 focus-visible:ring-primary/20 text-sm font-medium placeholder:text-muted-foreground/30 transition-all resize-none p-4"
                                                 />
                                             </Field>
                                         )}
@@ -500,7 +495,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                         name="requirements"
                                         render={({ field }) => (
                                             <Field className="space-y-2">
-                                                <FieldLabel htmlFor="requirements" className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
+                                                <FieldLabel htmlFor="requirements" className="text-xs font-medium text-muted-foreground ml-1">
                                                     Requirements / Prerequisites
                                                 </FieldLabel>
                                                 <Textarea
@@ -514,9 +509,9 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                                 .filter(Boolean),
                                                         )
                                                     }
-                                                    placeholder="ONE REQUIREMENT PER LINE..."
+                                                    placeholder="Enter one requirement per line..."
                                                     rows={4}
-                                                    className="rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all resize-none p-4 uppercase"
+                                                    className="rounded-xl bg-muted/20 border-border/20 hover:bg-muted/30 focus-visible:ring-primary/20 text-sm font-medium placeholder:text-muted-foreground/30 transition-all resize-none p-4"
                                                 />
                                             </Field>
                                         )}
@@ -527,14 +522,14 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                 <div className="space-y-6 pt-6">
                                     <div className="flex items-center gap-3 pb-2 border-b border-border/20">
                                         <div className="h-px flex-1 bg-border/20" />
-                                        <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">
-                                            Data Assets (Optional)
+                                        <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground/50 text-center">
+                                            Course Media
                                         </h3>
                                         <div className="h-px flex-1 bg-border/20" />
                                     </div>
 
                                     <Field className="space-y-2">
-                                        <FieldLabel htmlFor="thumbnail-upload" className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">Thumbnail</FieldLabel>
+                                        <FieldLabel htmlFor="thumbnail-upload" className="text-xs font-medium text-muted-foreground ml-1">Thumbnail</FieldLabel>
                                         <div className="space-y-3">
                                             <div className="flex items-center gap-3">
                                                 <div className="relative flex-1">
@@ -543,7 +538,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                         type="file"
                                                         accept="image/*"
                                                         onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)}
-                                                        className="h-14 px-4 pt-3.5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-xs font-bold file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all"
+                                                        className="h-12 px-4 pt-2.5 rounded-xl bg-muted/20 border-border/20 hover:bg-muted/30 focus-visible:ring-primary/20 text-xs font-medium file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-medium file:uppercase file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all"
                                                     />
                                                     <UploadCloud className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50 pointer-events-none" />
                                                 </div>
@@ -574,7 +569,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                     </Field>
 
                                     <Field className="space-y-2">
-                                        <FieldLabel htmlFor="video-upload" className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">Preview Video</FieldLabel>
+                                        <FieldLabel htmlFor="video-upload" className="text-xs font-medium text-muted-foreground ml-1">Preview Video</FieldLabel>
                                         <div className="space-y-3">
                                             <div className="flex items-center gap-3">
                                                 <div className="relative flex-1">
@@ -583,7 +578,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                         type="file"
                                                         accept="video/*"
                                                         onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
-                                                        className="h-14 px-4 pt-3.5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-xs font-bold file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all"
+                                                        className="h-12 px-4 pt-2.5 rounded-xl bg-muted/20 border-border/20 hover:bg-muted/30 focus-visible:ring-primary/20 text-xs font-medium file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-medium file:uppercase file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all"
                                                     />
                                                     <Film className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50 pointer-events-none" />
                                                 </div>
@@ -593,7 +588,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                         variant="ghost"
                                                         size="icon"
                                                         onClick={() => setVideoFile(null)}
-                                                        className="h-12 w-12 rounded-2xl bg-destructive/10 text-destructive hover:bg-destructive/20"
+                                                        className="h-12 w-12 rounded-xl bg-destructive/10 text-destructive hover:bg-destructive/20"
                                                     >
                                                         <X className="h-4 w-4" />
                                                     </Button>
@@ -620,39 +615,39 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                 <div className="space-y-6 pt-6">
                                     <div className="flex items-center gap-3 pb-2 border-b border-border/20">
                                         <div className="h-px flex-1 bg-border/20" />
-                                        <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center flex items-center gap-2">
+                                        <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground/50 text-center flex items-center gap-2">
                                             <BrainCircuit className="h-3 w-3" />
-                                            Advanced Neural Parameters
+                                            <span>AI Analysis Settings</span>
                                         </h3>
                                         <div className="h-px flex-1 bg-border/20" />
                                     </div>
 
                                     <Field>
-                                        <FieldLabel htmlFor="aiSummary" className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
+                                        <FieldLabel htmlFor="aiSummary" className="text-xs font-medium text-muted-foreground ml-1">
                                             AI Summary
                                         </FieldLabel>
                                         <Textarea
                                             id="aiSummary"
                                             {...register('aiMetadata.summary')}
-                                            placeholder="SUMMARY FOR AI AGENTS..."
+                                            placeholder="Summary for AI agents..."
                                             rows={3}
-                                            className="rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all resize-none p-4"
+                                            className="rounded-xl bg-muted/20 border-border/20 hover:bg-muted/30 focus-visible:ring-primary/20 text-sm font-medium placeholder:text-muted-foreground/30 transition-all resize-none p-4"
                                         />
-                                        <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground/60 ml-2 mt-1 flex items-center gap-1">
+                                        <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground/60 ml-2 mt-1 flex items-center gap-1">
                                             <Database className="h-3 w-3" />
                                             Used by inference engine for content analysis.
                                         </p>
                                     </Field>
 
                                     <Field>
-                                        <FieldLabel htmlFor="aiKeywords" className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
+                                        <FieldLabel htmlFor="aiKeywords" className="text-xs font-medium text-muted-foreground ml-1">
                                             Keywords / Tags
                                         </FieldLabel>
                                         <Input
                                             id="aiKeywords"
                                             {...register('aiMetadata.keywords')}
-                                            placeholder="JLPT, GRAMMAR, N5, BEGINNER"
-                                            className="h-14 px-5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all uppercase"
+                                            placeholder="e.g. JLPT, Grammar, N5, Beginner"
+                                            className="h-12 px-4 rounded-xl bg-muted/20 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-medium placeholder:text-muted-foreground/30 transition-all"
                                         />
                                     </Field>
                                 </div>
@@ -665,20 +660,20 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                             type="button"
                             variant="ghost"
                             onClick={handleManageCurriculum}
-                            className="flex-1 rounded-xl h-12 bg-background/50 border border-border/20 text-[11px] font-black uppercase tracking-widest hover:bg-muted/30"
+                            className="flex-1 rounded-xl h-11 bg-muted/10 border border-border/5 text-[10px] font-semibold uppercase tracking-wider hover:bg-muted/20 transition-all text-muted-foreground/80 hover:text-foreground"
                         >
-                            <Layers className="mr-2 h-4 w-4" />
-                            Manage Curriculum
+                            <Layers className="mr-2 h-3.5 w-3.5" />
+                            Curriculum
                         </Button>
                         <Button
                             type="submit"
                             disabled={uploading || (!isDirty && !thumbnailFile && !videoFile)}
-                            className="flex-1 rounded-xl h-12 bg-primary text-primary-foreground text-[11px] font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-1 transition-all"
+                            className="flex-1 rounded-xl h-11 bg-primary text-primary-foreground text-[10px] font-semibold uppercase tracking-wider shadow-lg shadow-primary/10 hover:shadow-primary/20 hover:-translate-y-0.5 transition-all"
                         >
                             {uploading ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Syncing...
+                                    Saving...
                                 </>
                             ) : (
                                 <>

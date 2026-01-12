@@ -30,24 +30,8 @@ import { Button } from "@workspace/ui/components/button"
 
 // Import Text Align extension
 import TextAlign from "@tiptap/extension-text-align"
-
-// Try to import other optional extensions (will be undefined if not installed)
-let Link: any
-let Image: any
-
-try {
-  const linkModule = require("@tiptap/extension-link")
-  Link = linkModule.default || linkModule.Link
-} catch {
-  // Extension not installed
-}
-
-try {
-  const imageModule = require("@tiptap/extension-image")
-  Image = imageModule.default || imageModule.Image
-} catch {
-  // Extension not installed
-}
+import Link from "@tiptap/extension-link"
+import Image from "@tiptap/extension-image"
 
 export interface ToolbarConfig {
   bold?: boolean
@@ -156,7 +140,7 @@ export const TiptapEditor = React.memo(React.forwardRef<Editor, TiptapEditorProp
     const debouncedOnChange = React.useMemo(() => {
       if (!onChange) return undefined
 
-      let timeoutId: NodeJS.Timeout | null = null
+      let timeoutId: ReturnType<typeof setTimeout> | null = null
       return (html: string) => {
         if (timeoutId) clearTimeout(timeoutId)
         timeoutId = setTimeout(() => {

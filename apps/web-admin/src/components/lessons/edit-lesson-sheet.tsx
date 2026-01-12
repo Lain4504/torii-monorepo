@@ -1,13 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
     Sheet,
     SheetContent,
+    SheetDescription,
     SheetHeader,
     SheetTitle,
-    SheetDescription,
     SheetFooter,
 } from '@workspace/ui/components/sheet';
 import { Button } from '@workspace/ui/components/button';
@@ -21,38 +21,36 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { storageApi } from '@/api/services/storage-api.ts';
-import { LessonContentType, lessonCreateDTOSchema } from '@workspace/schemas';
+import { storageApi } from '@/api/services/storage-api';
+import { LessonContentType, lessonUpdateDTOSchema, type LessonResponseDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
-import { useCreateLesson } from "@/api/services/lesson";
-import { Loader2, Plus, Video, FileText, ClipboardList, BookOpen, Sparkles, LayoutDashboard, CloudUpload, Lock, Eye, BookMarked, FileType } from 'lucide-react';
+import { useUpdateLesson } from "@/api/services/lesson";
+import { Loader2, Video, FileText, ClipboardList, BookOpen, Box, LayoutDashboard, CloudUpload, Lock, Eye, FileType, Save } from 'lucide-react';
 
-const createLessonSchema = lessonCreateDTOSchema;
+const updateLessonSchema = lessonUpdateDTOSchema;
 
-type CreateLessonFormData = z.input<typeof createLessonSchema>;
+type UpdateLessonFormData = z.infer<typeof updateLessonSchema>;
 
-interface CreateLessonDialogProps {
+interface EditLessonDialogProps {
+    lesson: LessonResponseDTO | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    moduleId: string;
 }
 
-export function CreateLessonDialog({ open, onOpenChange, moduleId }: CreateLessonDialogProps) {
-    const createLesson = useCreateLesson();
+export function EditLessonSheet({ lesson, open, onOpenChange }: EditLessonDialogProps) {
+    const updateLesson = useUpdateLesson();
     const [videoFile, setVideoFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
 
     const {
         control,
-        register,
         handleSubmit,
         watch,
         reset,
         formState: { isDirty },
-    } = useForm<CreateLessonFormData>({
-        resolver: zodResolver(createLessonSchema),
+    } = useForm<UpdateLessonFormData>({
+        resolver: zodResolver(updateLessonSchema),
         defaultValues: {
-            moduleId: moduleId || '',
             title: '',
             contentType: LessonContentType.VIDEO,
             orderIndex: 0,
@@ -62,32 +60,66 @@ export function CreateLessonDialog({ open, onOpenChange, moduleId }: CreateLesso
         },
     });
 
-    const onSubmitForm = async (data: CreateLessonFormData) => {
+    useEffect(() => {
+        if (lesson) {
+            reset({
+                moduleId: lesson.moduleId,
+                title: lesson.title,
+                contentType: lesson.contentType as LessonContentType,
+                videoUrl: lesson.videoUrl,
+                articleContent: lesson.articleContent,
+                orderIndex: lesson.orderIndex,
+                isPreview: lesson.isPreview,
+                isUnlocked: lesson.isUnlocked,
+                aiMetadata: lesson.aiMetadata || {},
+            });
+        }
+    }, [lesson, reset]);
+
+    const handleFileUpload = async (file: File, module: string) => {
+        const uploadData = {
+            filename: file.name,
+            contentType: file.type,
+            module,
+        };
+        const { uploadUrl, fileId } = await storageApi.generateUploadUrl(uploadData);
+
+        await fetch(uploadUrl, {
+            method: 'PUT',
+            body: file,
+            headers: {
+                'Content-Type': file.type,
+            },
+        });
+
+        const confirmResult = await storageApi.confirmUpload({ fileId });
+        return confirmResult.fileUrl;
+    };
+
+    const onSubmitForm = async (data: UpdateLessonFormData) => {
+        if (!lesson) return;
+
         setUploading(true);
         try {
-            let videoUrl = data.videoUrl;
+            let videoUrl = data.videoUrl ?? lesson.videoUrl;
 
             if (videoFile) {
-                const uploadedVideo = await storageApi.uploadFile(videoFile, 'lesson-videos');
-                videoUrl = uploadedVideo.fileUrl;
+                videoUrl = await handleFileUpload(videoFile, 'lesson-videos');
             }
 
-            const payload = {
+            const updateData = {
                 ...data,
-                orderIndex: data.orderIndex ?? 0,
-                aiMetadata: data.aiMetadata ?? {},
-                isPreview: data.isPreview ?? false,
-                isUnlocked: data.isUnlocked ?? false,
                 videoUrl,
             };
 
-            await createLesson.mutateAsync(payload);
-            toast.success('Unit Initialized', {
-                description: `${data.title} successfully appended to module.`,
+            await updateLesson.mutateAsync({ id: lesson.id, lesson: updateData });
+            toast.success('Unit Reconfigured', {
+                description: `Modifications to ${data.title ?? lesson.title} applied globally.`,
             });
-            handleClose();
+            onOpenChange(false);
+            setVideoFile(null);
         } catch (error: any) {
-            toast.error('Initialization Failed', {
+            toast.error('Update Failed', {
                 description: error.response?.data?.error || error.message,
             });
         } finally {
@@ -95,33 +127,30 @@ export function CreateLessonDialog({ open, onOpenChange, moduleId }: CreateLesso
         }
     };
 
-    const handleClose = () => {
-        onOpenChange(false);
-        reset();
-        setVideoFile(null);
-    };
+    if (!lesson) return null;
 
     return (
-        <Sheet open={open} onOpenChange={handleClose}>
+        <Sheet open={open} onOpenChange={onOpenChange}>
             <SheetContent className="w-full sm:w-[800px] sm:max-w-[800px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/10 shadow-2xl bg-background/80 backdrop-blur-3xl overflow-hidden [&>button]:top-6 [&>button]:right-6 [&>button]:bg-background/20 [&>button]:rounded-xl [&>button]:w-10 [&>button]:h-10">
-                <SheetHeader className="px-8 py-8 border-b border-border/10 relative overflow-hidden flex-shrink-0">
-                    <div className="absolute inset-0 bg-primary/5 blur-3xl opacity-50" />
+
+                {/* Header Section with Ambient Glow */}
+                <SheetHeader className="px-6 py-6 border-b border-border/10 relative overflow-hidden flex-shrink-0">
                     <div className="relative z-10 space-y-2">
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="p-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary shadow-lg shadow-primary/5">
-                                <BookMarked className="size-5" />
+                        <div className="flex items-center gap-3 mb-1">
+                            <div className="p-2 rounded-lg bg-primary/10 border border-primary/20 text-primary">
+                                <Box className="size-4" />
                             </div>
                             <div className="space-y-0.5">
-                                <SheetTitle className="text-2xl font-black uppercase tracking-tight italic">
-                                    Append <span className="text-primary not-italic">Unit</span>
+                                <SheetTitle className="text-xl font-semibold tracking-tight">
+                                    Edit Unit
                                 </SheetTitle>
-                                <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">
-                                    Target Module: {moduleId.substring(0, 8)}...
+                                <p className="text-xs font-medium text-muted-foreground/60">
+                                    ID: {lesson.id.substring(0, 8)}...
                                 </p>
                             </div>
                         </div>
-                        <SheetDescription className="text-sm font-medium text-muted-foreground/80 leading-relaxed max-w-md">
-                            Initialize a new learning unit. Configure content type, media assets, and access permissions.
+                        <SheetDescription className="text-sm text-muted-foreground leading-relaxed">
+                            Update unit details and content configuration.
                         </SheetDescription>
                     </div>
                 </SheetHeader>
@@ -133,8 +162,8 @@ export function CreateLessonDialog({ open, onOpenChange, moduleId }: CreateLesso
                             <div className="space-y-6">
                                 <div className="flex items-center gap-2 pb-2 border-b border-border/10">
                                     <LayoutDashboard className="size-4 text-primary opacity-60" />
-                                    <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/70">
-                                        Core Specifications
+                                    <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                                        Details
                                     </h3>
                                 </div>
 
@@ -143,17 +172,17 @@ export function CreateLessonDialog({ open, onOpenChange, moduleId }: CreateLesso
                                     name="title"
                                     render={({ field, fieldState }) => (
                                         <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
-                                                Unit Designation
+                                            <FieldLabel htmlFor={field.name} className="text-xs font-medium text-muted-foreground ml-1">
+                                                Title
                                             </FieldLabel>
                                             <Input
                                                 id={field.name}
                                                 {...field}
-                                                placeholder="ENTER UNIT TITLE..."
-                                                className="h-14 pl-4 rounded-2xl border-border/20 bg-background/50 hover:bg-background/80 focus-visible:ring-primary/20 transition-all font-bold text-base"
+                                                placeholder="e.g. Introduction to Particles"
+                                                className="h-12 pl-4 rounded-xl border-border/20 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all font-medium text-sm"
                                                 aria-invalid={fieldState.invalid}
                                             />
-                                            <FieldError errors={[fieldState.error]} className="text-[10px] font-bold uppercase tracking-wider text-red-500 ml-1" />
+                                            <FieldError errors={[fieldState.error]} className="text-xs font-medium text-red-500 ml-1" />
                                         </Field>
                                     )}
                                 />
@@ -164,39 +193,39 @@ export function CreateLessonDialog({ open, onOpenChange, moduleId }: CreateLesso
                                         name="contentType"
                                         render={({ field, fieldState }) => (
                                             <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                                <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
-                                                    Format Type
+                                                <FieldLabel htmlFor={field.name} className="text-xs font-medium text-muted-foreground ml-1">
+                                                    Type
                                                 </FieldLabel>
                                                 <Select
                                                     value={field.value}
                                                     onValueChange={(value) => field.onChange(value as LessonContentType)}
                                                 >
-                                                    <SelectTrigger id={field.name} className="h-14 rounded-2xl border-border/20 bg-background/50 hover:bg-background/80 transition-all font-bold">
+                                                    <SelectTrigger id={field.name} className="h-12 rounded-xl border-border/20 bg-muted/20 hover:bg-muted/30 transition-all font-medium text-sm">
                                                         <SelectValue />
                                                     </SelectTrigger>
-                                                    <SelectContent className="border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-[1.5rem] p-2">
-                                                        <SelectItem value={LessonContentType.VIDEO} className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest cursor-pointer focus:bg-primary/5 focus:text-primary">
-                                                            <div className="flex items-center gap-3">
-                                                                <Video className="h-4 w-4 opacity-50" />
-                                                                Video Stream
+                                                    <SelectContent className="border-border/20 shadow-xl bg-background/95 backdrop-blur-xl rounded-xl p-1">
+                                                        <SelectItem value={LessonContentType.VIDEO} className="rounded-lg px-3 py-2.5 text-xs font-medium cursor-pointer focus:bg-primary/10 focus:text-primary">
+                                                            <div className="flex items-center gap-2">
+                                                                <Video className="h-3.5 w-3.5 opacity-70" />
+                                                                Video
                                                             </div>
                                                         </SelectItem>
-                                                        <SelectItem value={LessonContentType.ARTICLE} className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest cursor-pointer focus:bg-primary/5 focus:text-primary">
-                                                            <div className="flex items-center gap-3">
-                                                                <FileText className="h-4 w-4 opacity-50" />
-                                                                Text Article
+                                                        <SelectItem value={LessonContentType.ARTICLE} className="rounded-lg px-3 py-2.5 text-xs font-medium cursor-pointer focus:bg-primary/10 focus:text-primary">
+                                                            <div className="flex items-center gap-2">
+                                                                <FileText className="h-3.5 w-3.5 opacity-70" />
+                                                                Article
                                                             </div>
                                                         </SelectItem>
-                                                        <SelectItem value={LessonContentType.QUIZ} className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest cursor-pointer focus:bg-primary/5 focus:text-primary">
-                                                            <div className="flex items-center gap-3">
-                                                                <ClipboardList className="h-4 w-4 opacity-50" />
-                                                                Quiz Assessment
+                                                        <SelectItem value={LessonContentType.QUIZ} className="rounded-lg px-3 py-2.5 text-xs font-medium cursor-pointer focus:bg-primary/10 focus:text-primary">
+                                                            <div className="flex items-center gap-2">
+                                                                <ClipboardList className="h-3.5 w-3.5 opacity-70" />
+                                                                Quiz
                                                             </div>
                                                         </SelectItem>
-                                                        <SelectItem value={LessonContentType.ASSIGNMENT} className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest cursor-pointer focus:bg-primary/5 focus:text-primary">
-                                                            <div className="flex items-center gap-3">
-                                                                <BookOpen className="h-4 w-4 opacity-50" />
-                                                                Assignment Task
+                                                        <SelectItem value={LessonContentType.ASSIGNMENT} className="rounded-lg px-3 py-2.5 text-xs font-medium cursor-pointer focus:bg-primary/10 focus:text-primary">
+                                                            <div className="flex items-center gap-2">
+                                                                <BookOpen className="h-3.5 w-3.5 opacity-70" />
+                                                                Assignment
                                                             </div>
                                                         </SelectItem>
                                                     </SelectContent>
@@ -210,15 +239,15 @@ export function CreateLessonDialog({ open, onOpenChange, moduleId }: CreateLesso
                                         name="orderIndex"
                                         render={({ field, fieldState }) => (
                                             <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                                <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
-                                                    Sequence
+                                                <FieldLabel htmlFor={field.name} className="text-xs font-medium text-muted-foreground ml-1">
+                                                    Index
                                                 </FieldLabel>
                                                 <Input
                                                     id={field.name}
                                                     type="number"
                                                     {...field}
                                                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                                                    className="h-14 rounded-2xl border-border/20 bg-background/50 hover:bg-background/80 focus-visible:ring-primary/20 transition-all font-mono font-bold"
+                                                    className="h-12 rounded-xl border-border/20 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all font-mono font-medium text-sm"
                                                 />
                                             </Field>
                                         )}
@@ -236,23 +265,35 @@ export function CreateLessonDialog({ open, onOpenChange, moduleId }: CreateLesso
                                 </div>
 
                                 {watch('contentType') === LessonContentType.VIDEO && (
-                                    <div className="space-y-3 p-6 rounded-3xl bg-muted/5 border border-border/10">
+                                    <div className="space-y-3 p-6 rounded-2xl bg-muted/5 border border-border/10">
                                         <div className="flex justify-between items-center">
-                                            <label className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground flex items-center gap-2">
-                                                <CloudUpload className="size-3" />
-                                                Media Upload
+                                            <label className="text-xs font-medium text-muted-foreground flex items-center gap-2">
+                                                <CloudUpload className="size-3.5" />
+                                                Video Update
                                             </label>
-                                            <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/50">MP4, WebM • Max 50MB</span>
+                                            <span className="text-[10px] font-medium text-muted-foreground/50">Override Existing</span>
                                         </div>
                                         <div className="relative group/upload">
-                                            <div className="absolute inset-0 bg-primary/5 rounded-2xl opacity-0 group-hover/upload:opacity-100 transition-opacity pointer-events-none" />
+                                            <div className="absolute inset-0 bg-primary/5 rounded-xl opacity-0 group-hover/upload:opacity-100 transition-opacity pointer-events-none" />
                                             <Input
+                                                id="video-file"
                                                 type="file"
                                                 accept="video/*"
                                                 onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
-                                                className="h-20 border-2 border-dashed border-border/20 bg-background/50 file:bg-primary/10 file:text-primary file:border-0 file:rounded-xl file:mr-4 file:px-6 file:h-12 file:font-bold file:uppercase file:text-[10px] file:tracking-widest cursor-pointer rounded-2xl transition-all pt-3 pl-4 text-xs font-medium text-muted-foreground hover:border-primary/30"
+                                                className="h-16 border border-dashed border-border/20 bg-background/50 file:bg-primary/10 file:text-primary file:border-0 file:rounded-lg file:mr-4 file:px-4 file:h-10 file:font-medium file:text-xs cursor-pointer rounded-xl transition-all pt-2.5 pl-4 text-xs font-medium text-muted-foreground hover:border-primary/30"
                                             />
                                         </div>
+                                        {lesson.videoUrl && (
+                                            <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/10">
+                                                <div className="p-1.5 rounded-lg bg-primary/20 text-primary">
+                                                    <Video className="size-3" />
+                                                </div>
+                                                <div className="flex flex-col gap-0.5 min-w-0">
+                                                    <span className="text-[10px] font-bold uppercase tracking-wide text-primary/80">Active Protocol</span>
+                                                    <span className="text-[10px] font-medium text-muted-foreground truncate font-mono">{lesson.videoUrl}</span>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
 
@@ -262,17 +303,18 @@ export function CreateLessonDialog({ open, onOpenChange, moduleId }: CreateLesso
                                         name="articleContent"
                                         render={({ field, fieldState }) => (
                                             <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                                <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
-                                                    Text Content
+                                                <FieldLabel htmlFor={field.name} className="text-xs font-medium text-muted-foreground ml-1">
+                                                    Content
                                                 </FieldLabel>
                                                 <Textarea
                                                     id={field.name}
                                                     {...field}
-                                                    placeholder="HTML OR MARKDOWN CONTENT..."
-                                                    className="min-h-[240px] p-6 rounded-3xl border-border/20 bg-background/50 hover:bg-background/80 focus-visible:ring-primary/20 transition-all resize-none font-mono text-xs leading-relaxed"
+                                                    value={field.value || ''}
+                                                    placeholder="Markdown or HTML content..."
+                                                    className="min-h-[200px] p-4 rounded-xl border-border/20 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all resize-none font-mono text-xs leading-relaxed"
                                                     aria-invalid={fieldState.invalid}
                                                 />
-                                                <FieldError errors={[fieldState.error]} className="text-[10px] font-bold uppercase tracking-wider text-red-500 ml-1" />
+                                                <FieldError errors={[fieldState.error]} className="text-xs font-medium text-red-500 ml-1" />
                                             </Field>
                                         )}
                                     />
@@ -293,11 +335,11 @@ export function CreateLessonDialog({ open, onOpenChange, moduleId }: CreateLesso
                                                     />
                                                 </div>
                                                 <div className="flex flex-col gap-1">
-                                                    <label htmlFor={field.name} className="text-[11px] font-black uppercase tracking-wider text-foreground cursor-pointer select-none flex items-center gap-2">
-                                                        <Eye className="size-3 opacity-50" />
+                                                    <label htmlFor={field.name} className="text-xs font-medium text-foreground cursor-pointer select-none flex items-center gap-2">
+                                                        <Eye className="size-3.5 opacity-50" />
                                                         Public Preview
                                                     </label>
-                                                    <p className="text-[9px] font-semibold text-muted-foreground/60 uppercase tracking-widest">
+                                                    <p className="text-[10px] text-muted-foreground/60">
                                                         Accessible without enrollment
                                                     </p>
                                                 </div>
@@ -319,11 +361,11 @@ export function CreateLessonDialog({ open, onOpenChange, moduleId }: CreateLesso
                                                     />
                                                 </div>
                                                 <div className="flex flex-col gap-1">
-                                                    <label htmlFor={field.name} className="text-[11px] font-black uppercase tracking-wider text-foreground cursor-pointer select-none flex items-center gap-2">
-                                                        <Lock className="size-3 opacity-50" />
+                                                    <label htmlFor={field.name} className="text-xs font-medium text-foreground cursor-pointer select-none flex items-center gap-2">
+                                                        <Lock className="size-3.5 opacity-50" />
                                                         Open Access
                                                     </label>
-                                                    <p className="text-[9px] font-semibold text-muted-foreground/60 uppercase tracking-widest">
+                                                    <p className="text-[10px] text-muted-foreground/60">
                                                         Unlocked upon enrollment
                                                     </p>
                                                 </div>
@@ -332,67 +374,33 @@ export function CreateLessonDialog({ open, onOpenChange, moduleId }: CreateLesso
                                     />
                                 </div>
                             </div>
-
-                            {/* AI & Metadata */}
-                            <div className="space-y-6">
-                                <div className="flex items-center gap-2 pb-2 border-b border-border/10">
-                                    <Sparkles className="size-4 text-primary opacity-60" />
-                                    <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/70">
-                                        Data Enrichment
-                                    </h3>
-                                </div>
-
-                                <Field>
-                                    <FieldLabel htmlFor="aiSummary" className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
-                                        Agent Context (Summary)
-                                    </FieldLabel>
-                                    <Textarea
-                                        id="aiSummary"
-                                        {...register('aiMetadata.summary')}
-                                        placeholder="PROVIDE CONTEXT FOR AI AGENTS..."
-                                        className="min-h-[100px] p-4 rounded-2xl border-border/20 bg-background/50 hover:bg-background/80 focus-visible:ring-primary/20 transition-all resize-none font-medium leading-relaxed"
-                                    />
-                                </Field>
-
-                                <Field>
-                                    <FieldLabel htmlFor="aiKeywords" className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
-                                        Semantic Tags
-                                    </FieldLabel>
-                                    <Input
-                                        id="aiKeywords"
-                                        {...register('aiMetadata.keywords')}
-                                        placeholder="E.G. GRAMMAR, SYNTAX, N5, PARTICLES"
-                                        className="h-14 pl-4 rounded-2xl border-border/20 bg-background/50 hover:bg-background/80 focus-visible:ring-primary/20 transition-all font-bold text-sm"
-                                    />
-                                </Field>
-                            </div>
                         </div>
                     </ScrollArea>
 
-                    <SheetFooter className="px-8 py-6 border-t border-border/10 bg-muted/5 flex-shrink-0">
+                    <SheetFooter className="px-6 py-6 border-t border-border/10 bg-muted/5 flex-shrink-0">
                         <div className="flex w-full gap-4">
                             <Button
                                 type="button"
                                 variant="ghost"
-                                onClick={handleClose}
-                                className="flex-1 h-12 rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-muted/10 border border-transparent hover:border-border/10"
+                                onClick={() => onOpenChange(false)}
+                                className="flex-1 h-12 rounded-xl text-xs font-medium uppercase tracking-wider hover:bg-muted/10 border border-transparent hover:border-border/10"
                             >
                                 Cancel
                             </Button>
                             <Button
                                 type="submit"
                                 disabled={uploading || !isDirty}
-                                className="flex-[2] h-12 rounded-xl text-[11px] font-black uppercase tracking-widest bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-0.5"
+                                className="flex-[2] h-12 rounded-xl text-xs font-medium uppercase tracking-wider bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-0.5"
                             >
                                 {uploading ? (
                                     <>
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Processing Assets...
+                                        Syncing...
                                     </>
                                 ) : (
                                     <>
-                                        <Plus className="mr-2 h-4 w-4" />
-                                        Initialize Unit
+                                        <Save className="mr-2 h-4 w-4" />
+                                        Save Changes
                                     </>
                                 )}
                             </Button>

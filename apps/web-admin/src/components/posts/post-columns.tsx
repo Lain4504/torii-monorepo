@@ -1,7 +1,7 @@
 import { createColumnHelper } from '@tanstack/react-table';
 import type { PostResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
-import { ArrowUpDown, Pencil, Trash, Eye, FileText, Clock, Zap, Eye as EyeIcon } from 'lucide-react';
+import { ArrowUpDown, Pencil, Trash, FileText, Clock, Zap, Eye as EyeIcon } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,

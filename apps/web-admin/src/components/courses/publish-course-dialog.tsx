@@ -105,32 +105,31 @@ export function PublishCourseDialog({ open, onOpenChange, course }: PublishCours
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[600px] border-none shadow-2xl bg-background/80 backdrop-blur-3xl rounded-[2rem] p-0 overflow-hidden">
-                <DialogHeader className="p-8 pb-6 bg-muted/5 border-b border-border/10 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-primary/5 blur-3xl opacity-50 pointer-events-none" />
-                    <DialogTitle className="text-2xl font-black uppercase tracking-tight italic flex items-center gap-2 z-10 relative">
-                        Deploy <span className="text-primary not-italic">Repository</span>
+            <DialogContent className="sm:max-w-[540px] border-border/20 shadow-2xl bg-background/95 backdrop-blur-xl rounded-3xl p-0 overflow-hidden">
+                <DialogHeader className="px-8 py-6 border-b border-border/10">
+                    <DialogTitle className="text-xl font-semibold tracking-tight">
+                        Publish Course
                     </DialogTitle>
-                    <DialogDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60 z-10 relative">
-                        Pre-Launch Diagnostic Sequence for <span className="text-foreground">{course?.title}</span>
+                    <DialogDescription className="text-xs font-medium text-muted-foreground/60 mt-1">
+                        Review requirements for <span className="text-foreground">{course?.title}</span>
                     </DialogDescription>
                 </DialogHeader>
 
                 <div className="space-y-8 p-8 max-h-[60vh] overflow-y-auto">
                     {/* Critical Requirements */}
                     <div className="space-y-4">
-                        <div className="flex items-center justify-between pb-2 border-b border-border/20">
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-destructive flex items-center gap-2">
+                        <div className="flex items-center justify-between pb-2">
+                            <h4 className="text-[10px] font-semibold uppercase tracking-widest text-destructive/80 flex items-center gap-2">
                                 <AlertCircle className="h-3 w-3" />
-                                Critical Protocols
+                                Required Assets
                             </h4>
                             {allCriticalValid ? (
-                                <Badge variant="default" className="rounded-md text-[9px] uppercase tracking-widest font-black shadow-none bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 hover:bg-emerald-500/20">
-                                    Sequence Valid
+                                <Badge variant="secondary" className="rounded-full text-[9px] font-medium bg-emerald-500/10 text-emerald-600 border-emerald-500/20 shadow-none">
+                                    Validated
                                 </Badge>
                             ) : (
-                                <Badge variant="destructive" className="rounded-md text-[9px] uppercase tracking-widest font-black shadow-none bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive/20">
-                                    {criticalFailedCount} Errors Found
+                                <Badge variant="destructive" className="rounded-full text-[9px] font-medium bg-destructive/10 text-destructive border-destructive/20 shadow-none">
+                                    {criticalFailedCount} Missing
                                 </Badge>
                             )}
                         </div>
@@ -152,7 +151,7 @@ export function PublishCourseDialog({ open, onOpenChange, course }: PublishCours
                                         </div>
 
                                         <div className="flex-1 space-y-0.5">
-                                            <span className="text-xs font-bold uppercase tracking-wide text-foreground/90 block">{check.label}</span>
+                                            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/80 block">{check.label}</span>
                                         </div>
 
                                         {check.valid ? (
@@ -168,18 +167,18 @@ export function PublishCourseDialog({ open, onOpenChange, course }: PublishCours
 
                     {/* Recommended Checks */}
                     <div className="space-y-4 pt-2">
-                        <div className="flex items-center justify-between pb-2 border-b border-border/20">
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-orange-500 flex items-center gap-2">
+                        <div className="flex items-center justify-between pb-2 border-b border-border/10">
+                            <h4 className="text-[10px] font-semibold uppercase tracking-widest text-amber-600/80 flex items-center gap-2">
                                 <AlertTriangle className="h-3 w-3" />
-                                Optimization Protocols
+                                Recommended Optimizations
                             </h4>
                             {allRecommendedValid ? (
                                 <Badge variant="default" className="rounded-md text-[9px] uppercase tracking-widest font-black shadow-none bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20">
                                     Fully Optimized
                                 </Badge>
                             ) : (
-                                <Badge variant="secondary" className="rounded-md text-[9px] uppercase tracking-widest font-black shadow-none bg-orange-500/10 text-orange-500 border border-orange-500/20 hover:bg-orange-500/20">
-                                    {recommendedFailedCount} Improvements
+                                <Badge variant="secondary" className="rounded-full text-[9px] font-medium bg-amber-500/10 text-amber-600 border-amber-500/20 shadow-none">
+                                    {recommendedFailedCount} Pending
                                 </Badge>
                             )}
                         </div>
@@ -201,7 +200,7 @@ export function PublishCourseDialog({ open, onOpenChange, course }: PublishCours
                                         </div>
 
                                         <div className="flex-1 space-y-0.5">
-                                            <span className="text-xs font-bold uppercase tracking-wide text-foreground/90 block">{check.label}</span>
+                                            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/80 block">{check.label}</span>
                                         </div>
 
                                         {check.valid ? (
@@ -238,44 +237,44 @@ export function PublishCourseDialog({ open, onOpenChange, course }: PublishCours
                                 <ShieldCheck className="h-5 w-5 text-orange-500" />
                             </div>
                             <div className="space-y-1">
-                                <p className="text-xs font-black uppercase tracking-wide text-orange-500">
-                                    Optimization Pending
+                                <p className="text-xs font-semibold text-amber-600">
+                                    Optimization Recommended
                                 </p>
-                                <p className="text-[10px] font-bold text-orange-500/70 uppercase tracking-widest">
-                                    Launch feasible, but system performance can be improved.
+                                <p className="text-[10px] font-medium text-amber-600/60 uppercase tracking-wider">
+                                    Ready for launch, but performance can be improved.
                                 </p>
                             </div>
                         </div>
                     )}
                 </div>
 
-                <DialogFooter className="p-8 pt-6 bg-background/50 border-t border-border/10 backdrop-blur-md">
+                <DialogFooter className="p-6 bg-muted/5 border-t border-border/10 gap-3">
                     <Button
                         variant="ghost"
                         onClick={() => onOpenChange(false)}
-                        className="rounded-xl h-12 px-6 hover:bg-muted/20 text-[11px] font-black uppercase tracking-widest"
+                        className="rounded-xl h-10 px-6 hover:bg-muted/20 text-xs font-medium"
                     >
-                        Abort
+                        Back
                     </Button>
                     <Button
                         onClick={handlePublish}
                         disabled={!allCriticalValid || publishMutation.isPending}
                         className={cn(
-                            "rounded-xl h-12 px-8 text-[11px] font-black uppercase tracking-widest shadow-xl transition-all",
+                            "rounded-xl h-10 px-6 text-xs font-medium transition-all shadow-lg",
                             !allCriticalValid
-                                ? "opacity-50 cursor-not-allowed bg-muted text-muted-foreground"
-                                : "bg-emerald-500 text-white hover:bg-emerald-600 hover:scale-[1.02] shadow-emerald-500/20"
+                                ? "bg-muted text-muted-foreground opacity-50"
+                                : "bg-primary text-primary-foreground hover:bg-primary/90 shadow-primary/20 hover:shadow-primary/30"
                         )}
                     >
                         {publishMutation.isPending ? (
                             <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Deploying...
+                                <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                                Publishing...
                             </>
                         ) : (
                             <>
-                                <Rocket className="mr-2 h-4 w-4" />
-                                Initiate Launch
+                                <Rocket className="mr-2 h-3.5 w-3.5" />
+                                Publish Course
                             </>
                         )}
                     </Button>

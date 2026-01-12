@@ -166,7 +166,7 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
                                 <Field>
                                     <FieldLabel className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">Interaction Type *</FieldLabel>
                                     <Select value={field.value} onValueChange={field.onChange}>
-                                        <SelectTrigger className="h-14 px-5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus:ring-primary/20 text-sm font-bold uppercase transition-all">
+                                        <SelectTrigger className="h-10 px-5 rounded-xl bg-muted/10 border-border/20 hover:bg-muted/20 focus:ring-primary/20 text-sm font-bold uppercase transition-all">
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent className="border-border/10 shadow-2xl bg-background/95 backdrop-blur-3xl rounded-2xl overflow-hidden p-1">
@@ -296,7 +296,7 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
                                             value={options[key] || ''}
                                             onChange={(e) => setOptions({ ...options, [key]: e.target.value })}
                                             placeholder={`OPTION MARKER ${key}`}
-                                            className="h-14 px-5 rounded-2xl bg-background/50 border-border/20 hover:bg-background/80 focus:ring-primary/20 text-sm font-bold uppercase transition-all flex-1"
+                                            className="h-10 px-5 rounded-xl bg-background/50 border-border/20 hover:bg-background/80 focus:ring-primary/20 text-sm font-bold uppercase transition-all flex-1"
                                         />
                                         {optionKeys.length > 2 && (
                                             <Button
@@ -335,7 +335,7 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
                                         <Input
                                             {...field}
                                             placeholder={questionType === QuestionType.MULTIPLE_CHOICE ? "E.G., A" : "ENTER EXPECTED ANSWER"}
-                                            className="h-14 px-5 rounded-2xl bg-emerald-500/5 border-emerald-500/20 hover:bg-emerald-500/10 focus-visible:ring-emerald-500/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all uppercase"
+                                            className="h-10 px-5 rounded-xl bg-emerald-500/5 border-emerald-500/20 hover:bg-emerald-500/10 focus-visible:ring-emerald-500/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all uppercase"
                                         />
                                         <CheckCircle2 className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-500/30 pointer-events-none" />
                                     </div>
@@ -379,14 +379,14 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
                                 setOptionKeys(['A', 'B']);
                                 onOpenChange(false);
                             }}
-                            className="rounded-xl h-12 px-6 hover:bg-muted/20 text-[11px] font-black uppercase tracking-widest"
+                            className="rounded-xl h-10 px-6 hover:bg-muted/20 text-[11px] font-black uppercase tracking-widest"
                         >
                             Discard
                         </Button>
                         <Button
                             type="submit"
                             disabled={createQuestion.isPending}
-                            className="rounded-xl h-12 px-8 bg-primary text-primary-foreground text-[11px] font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-1 transition-all"
+                            className="rounded-xl h-10 px-8 bg-primary text-primary-foreground text-[11px] font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all"
                         >
                             {createQuestion.isPending ? (
                                 <>

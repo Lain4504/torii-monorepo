@@ -190,6 +190,14 @@ export const getCoursesColumns = ({ onEdit, onDelete, onManageInstructors, onPub
                             className="w-[220px] border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-2xl p-2"
                         >
                             <DropdownMenuItem
+                                onClick={() => onTitleClick(course)}
+                                className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
+                            >
+                                <BookOpen className="h-4 w-4 opacity-30" />
+                                <span>Access Repository</span>
+                            </DropdownMenuItem>
+
+                            <DropdownMenuItem
                                 onClick={() => onEdit(course)}
                                 className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
                             >

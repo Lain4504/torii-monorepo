@@ -4,14 +4,36 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="payos" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="rebuild UI">
+      <change beforePath="$PROJECT_DIR$/.agent/workflows/ui-ux-pro-max.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/charts.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/colors.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/landing.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/products.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/prompts.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/stacks/flutter.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/stacks/html-tailwind.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/stacks/nextjs.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/stacks/nuxt-ui.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/stacks/nuxtjs.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/stacks/react-native.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/stacks/react.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/stacks/svelte.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/stacks/swiftui.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/stacks/vue.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/styles.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/typography.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/ux-guidelines.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/scripts/core.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/scripts/search.py" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1108" />
+    <option name="cachedIndexableFilesCount" value="1106" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -150,7 +172,7 @@
     <option name="path" value="$PROJECT_DIR$/.github/workflows/qodana_code_quality.yml" />
   </component>
   <component name="QodanaCloudProjectLink">
-    <option name="lastReportId" value="ne817L" />
+    <option name="lastReportId" value="Eg8e9w" />
     <option name="linkedProjectId" value="Q6WDD" />
     <option name="linkedProjectName" value="Torii Monorepo" />
     <option name="organizationId" value="qbwwv" />
@@ -206,7 +228,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-WS-253.29346.242" />
+        <option value="bundled-jdk-30f59d01ecdd-26cb7f24e5b0-intellij.indexing.shared.core-IU-253.29346.138" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.29346.138" />
       </set>
     </attachedChunks>
   </component>
@@ -292,78 +315,7 @@
       <workItem from="1768073462770" duration="2244000" />
       <workItem from="1768199989867" duration="83000" />
       <workItem from="1768201864379" duration="7510000" />
-    </task>
-    <task id="LOCAL-00637" summary="post detail">
-      <option name="closed" value="true" />
-      <created>1768199634836</created>
-      <option name="number" value="00637" />
-      <option name="presentableId" value="LOCAL-00637" />
-      <option name="project" value="LOCAL" />
-      <updated>1768199634837</updated>
-    </task>
-    <task id="LOCAL-00638" summary="docker file build">
-      <option name="closed" value="true" />
-      <created>1768203517459</created>
-      <option name="number" value="00638" />
-      <option name="presentableId" value="LOCAL-00638" />
-      <option name="project" value="LOCAL" />
-      <updated>1768203517460</updated>
-    </task>
-    <task id="LOCAL-00639" summary="docker file build">
-      <option name="closed" value="true" />
-      <created>1768203877941</created>
-      <option name="number" value="00639" />
-      <option name="presentableId" value="LOCAL-00639" />
-      <option name="project" value="LOCAL" />
-      <updated>1768203877941</updated>
-    </task>
-    <task id="LOCAL-00640" summary="docker file build">
-      <option name="closed" value="true" />
-      <created>1768204105768</created>
-      <option name="number" value="00640" />
-      <option name="presentableId" value="LOCAL-00640" />
-      <option name="project" value="LOCAL" />
-      <updated>1768204105768</updated>
-    </task>
-    <task id="LOCAL-00641" summary="docker file build">
-      <option name="closed" value="true" />
-      <created>1768204529321</created>
-      <option name="number" value="00641" />
-      <option name="presentableId" value="LOCAL-00641" />
-      <option name="project" value="LOCAL" />
-      <updated>1768204529321</updated>
-    </task>
-    <task id="LOCAL-00642" summary="docker file build#2">
-      <option name="closed" value="true" />
-      <created>1768206321941</created>
-      <option name="number" value="00642" />
-      <option name="presentableId" value="LOCAL-00642" />
-      <option name="project" value="LOCAL" />
-      <updated>1768206321941</updated>
-    </task>
-    <task id="LOCAL-00643" summary="docker file build#2">
-      <option name="closed" value="true" />
-      <created>1768206460295</created>
-      <option name="number" value="00643" />
-      <option name="presentableId" value="LOCAL-00643" />
-      <option name="project" value="LOCAL" />
-      <updated>1768206460295</updated>
-    </task>
-    <task id="LOCAL-00644" summary="update nats_server.conf">
-      <option name="closed" value="true" />
-      <created>1768215388579</created>
-      <option name="number" value="00644" />
-      <option name="presentableId" value="LOCAL-00644" />
-      <option name="project" value="LOCAL" />
-      <updated>1768215388579</updated>
-    </task>
-    <task id="LOCAL-00645" summary="update nats_server.conf">
-      <option name="closed" value="true" />
-      <created>1768215910303</created>
-      <option name="number" value="00645" />
-      <option name="presentableId" value="LOCAL-00645" />
-      <option name="project" value="LOCAL" />
-      <updated>1768215910303</updated>
+      <workItem from="1768266718590" duration="1339000" />
     </task>
     <task id="LOCAL-00646" summary="update nats_server.conf">
       <option name="closed" value="true" />
@@ -685,7 +637,79 @@
       <option name="project" value="LOCAL" />
       <updated>1768240380052</updated>
     </task>
-    <option name="localTasksCounter" value="686" />
+    <task id="LOCAL-00686" summary="payos">
+      <option name="closed" value="true" />
+      <created>1768243386286</created>
+      <option name="number" value="00686" />
+      <option name="presentableId" value="LOCAL-00686" />
+      <option name="project" value="LOCAL" />
+      <updated>1768243386286</updated>
+    </task>
+    <task id="LOCAL-00687" summary="rebuild UI">
+      <option name="closed" value="true" />
+      <created>1768244112372</created>
+      <option name="number" value="00687" />
+      <option name="presentableId" value="LOCAL-00687" />
+      <option name="project" value="LOCAL" />
+      <updated>1768244112374</updated>
+    </task>
+    <task id="LOCAL-00688" summary="rebuild UI">
+      <option name="closed" value="true" />
+      <created>1768244727368</created>
+      <option name="number" value="00688" />
+      <option name="presentableId" value="LOCAL-00688" />
+      <option name="project" value="LOCAL" />
+      <updated>1768244727368</updated>
+    </task>
+    <task id="LOCAL-00689" summary="rebuild UI">
+      <option name="closed" value="true" />
+      <created>1768245961760</created>
+      <option name="number" value="00689" />
+      <option name="presentableId" value="LOCAL-00689" />
+      <option name="project" value="LOCAL" />
+      <updated>1768245961763</updated>
+    </task>
+    <task id="LOCAL-00690" summary="rebuild UI">
+      <option name="closed" value="true" />
+      <created>1768246105625</created>
+      <option name="number" value="00690" />
+      <option name="presentableId" value="LOCAL-00690" />
+      <option name="project" value="LOCAL" />
+      <updated>1768246105625</updated>
+    </task>
+    <task id="LOCAL-00691" summary="rebuild UI">
+      <option name="closed" value="true" />
+      <created>1768246251397</created>
+      <option name="number" value="00691" />
+      <option name="presentableId" value="LOCAL-00691" />
+      <option name="project" value="LOCAL" />
+      <updated>1768246251397</updated>
+    </task>
+    <task id="LOCAL-00692" summary="rebuild UI">
+      <option name="closed" value="true" />
+      <created>1768267592717</created>
+      <option name="number" value="00692" />
+      <option name="presentableId" value="LOCAL-00692" />
+      <option name="project" value="LOCAL" />
+      <updated>1768267592719</updated>
+    </task>
+    <task id="LOCAL-00693" summary="rebuild UI">
+      <option name="closed" value="true" />
+      <created>1768267695255</created>
+      <option name="number" value="00693" />
+      <option name="presentableId" value="LOCAL-00693" />
+      <option name="project" value="LOCAL" />
+      <updated>1768267695255</updated>
+    </task>
+    <task id="LOCAL-00694" summary="rebuild UI">
+      <option name="closed" value="true" />
+      <created>1768267919238</created>
+      <option name="number" value="00694" />
+      <option name="presentableId" value="LOCAL-00694" />
+      <option name="project" value="LOCAL" />
+      <updated>1768267919238</updated>
+    </task>
+    <option name="localTasksCounter" value="695" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -715,8 +739,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat(lms): restructure controllers and repositories for exams, questions, and storage modules&#10;&#10;- Migrated all exam-related controllers and repository logic to dedicated modules.&#10;- Removed obsolete question, question pool, and storage controllers.&#10;- Introduced interfaces for exam services and repositories for better abstraction.&#10;- Added exam admin controller for admin-specific operations (e.g., stats, publishing).&#10;- Improved logging and error handling across exam-related endpoints." />
-    <MESSAGE value="feat(course): integrate AutoMapper for Course entity mapping and update module structureè" />
     <MESSAGE value="feat(user): integrate AutoMapper for User entity mapping and update module structureè" />
     <MESSAGE value="feat(question-pools): add functionality to manage question pools with CRUD operations and filtering by course and JLPT level" />
     <MESSAGE value="feat(i18n): implement internationalization support with Vietnamese and English translations" />
@@ -739,8 +761,10 @@
     <MESSAGE value="renmae" />
     <MESSAGE value="fix order bug" />
     <MESSAGE value="fix sepay" />
+    <MESSAGE value="minimal zen ui" />
     <MESSAGE value="payos" />
-    <option name="LAST_COMMIT_MESSAGE" value="payos" />
+    <MESSAGE value="rebuild UI" />
+    <option name="LAST_COMMIT_MESSAGE" value="rebuild UI" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -4,10 +4,10 @@ import { SystemStasis } from '@/components/layout/system-stasis';
 export default function RoomsPage() {
   return (
     <SystemStasis
-      title="Space Protocols"
-      description="ROOM ALLOCATION AND TEMPORAL SCHEDULING UNIT. ENFORCING PHYSICAL LOGIC CONSTRAINTS. CURRENTLY DEFRAGMENTING SPATIAL SLOTS FOR NEXT SEMESTER ALIGNMENT."
+      title="Room Management"
+      description="Manage room allocation and scheduling for courses and events."
       icon={Box}
-      statusText="Spatial Re-Indexing"
+      statusText="Coming Soon"
     />
   );
 }

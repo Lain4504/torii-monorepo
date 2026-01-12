@@ -53,7 +53,7 @@ interface CreatePostDialogProps {
     onOpenChange: (open: boolean) => void;
 }
 
-export function CreatePostDialog({
+export function CreatePostSheet({
     open,
     onOpenChange,
 }: CreatePostDialogProps) {

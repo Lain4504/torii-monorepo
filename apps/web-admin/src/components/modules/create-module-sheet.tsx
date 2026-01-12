@@ -40,7 +40,7 @@ interface CreateModuleDialogProps {
     courseTitle?: string;
 }
 
-export function CreateModuleDialog({ open, onOpenChange, courseId, existingModules = [], courseTitle }: CreateModuleDialogProps) {
+export function CreateModuleSheet({ open, onOpenChange, courseId, existingModules = [], courseTitle }: CreateModuleDialogProps) {
     const createModule = useCreateModule();
 
     const existingTitles = existingModules.map((m) => m.title.trim());
@@ -89,24 +89,24 @@ export function CreateModuleDialog({ open, onOpenChange, courseId, existingModul
             <SheetContent className="w-full sm:w-[600px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/10 shadow-2xl bg-background/80 backdrop-blur-3xl overflow-hidden [&>button]:top-6 [&>button]:right-6 [&>button]:bg-background/20 [&>button]:rounded-xl [&>button]:w-10 [&>button]:h-10">
 
                 {/* Header Section with Ambient Glow */}
-                <SheetHeader className="px-8 py-8 border-b border-border/10 relative overflow-hidden flex-shrink-0">
-                    <div className="absolute inset-0 bg-primary/5 blur-3xl opacity-50" />
+                {/* Header Section */}
+                <SheetHeader className="px-6 py-6 border-b border-border/10 relative overflow-hidden flex-shrink-0">
                     <div className="relative z-10 space-y-2">
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="p-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary shadow-lg shadow-primary/5">
-                                <Box className="size-5" />
+                        <div className="flex items-center gap-3 mb-1">
+                            <div className="p-2 rounded-lg bg-primary/10 border border-primary/20 text-primary">
+                                <Box className="size-4" />
                             </div>
                             <div className="space-y-0.5">
-                                <SheetTitle className="text-2xl font-black uppercase tracking-tight italic">
-                                    Append <span className="text-primary not-italic">Module</span>
+                                <SheetTitle className="text-xl font-semibold tracking-tight">
+                                    Create Module
                                 </SheetTitle>
-                                <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">
-                                    Target: {courseTitle || 'Unknown Repository'}
+                                <p className="text-xs font-medium text-muted-foreground/60">
+                                    Course: {courseTitle || 'Untitled Course'}
                                 </p>
                             </div>
                         </div>
-                        <SheetDescription className="text-sm font-medium text-muted-foreground/80 leading-relaxed max-w-md">
-                            Define a new structural node for the learning path. Modules act as containers for lesson units.
+                        <SheetDescription className="text-sm text-muted-foreground leading-relaxed">
+                            Organize your course content by creating a new module.
                         </SheetDescription>
                     </div>
                 </SheetHeader>
@@ -121,18 +121,18 @@ export function CreateModuleDialog({ open, onOpenChange, courseId, existingModul
                                 name="title"
                                 render={({ field, fieldState }) => (
                                     <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                        <FieldLabel className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1 flex items-center gap-2">
-                                            <Layers className="size-3" />
-                                            Module Designation
+                                        <FieldLabel className="text-xs font-medium text-muted-foreground ml-1 flex items-center gap-2">
+                                            <Layers className="size-3.5" />
+                                            Module Title
                                         </FieldLabel>
                                         <div className="relative">
                                             <Input
                                                 {...field}
-                                                placeholder="ENTER MODULE TITLE..."
-                                                className="h-14 pl-4 pr-4 rounded-2xl border-border/20 bg-background/50 hover:bg-background/80 focus-visible:ring-primary/20 transition-all font-bold text-base"
+                                                placeholder="e.g. Introduction to Grammar"
+                                                className="h-10 pl-4 pr-4 rounded-xl border-border/20 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all font-medium text-sm"
                                             />
                                         </div>
-                                        <FieldError errors={[fieldState.error]} className="text-[10px] font-bold uppercase tracking-wider text-red-500 ml-1" />
+                                        <FieldError errors={[fieldState.error]} className="text-xs font-medium text-red-500 ml-1" />
                                     </Field>
                                 )}
                             />
@@ -142,16 +142,16 @@ export function CreateModuleDialog({ open, onOpenChange, courseId, existingModul
                                 name="description"
                                 render={({ field, fieldState }) => (
                                     <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                        <FieldLabel className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1 flex items-center gap-2">
-                                            <AlignLeft className="size-3" />
-                                            Content Overview
+                                        <FieldLabel className="text-xs font-medium text-muted-foreground ml-1 flex items-center gap-2">
+                                            <AlignLeft className="size-3.5" />
+                                            Description
                                         </FieldLabel>
                                         <Textarea
                                             {...field}
-                                            placeholder="DESCRIBE THE MODULE OBJECTIVES..."
-                                            className="min-h-[120px] p-4 rounded-2xl border-border/20 bg-background/50 hover:bg-background/80 focus-visible:ring-primary/20 transition-all resize-none font-medium leading-relaxed"
+                                            placeholder="Briefly describe what students will learn..."
+                                            className="min-h-[100px] p-4 rounded-xl border-border/20 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all resize-none font-medium text-sm leading-relaxed"
                                         />
-                                        <FieldError errors={[fieldState.error]} className="text-[10px] font-bold uppercase tracking-wider text-red-500 ml-1" />
+                                        <FieldError errors={[fieldState.error]} className="text-xs font-medium text-red-500 ml-1" />
                                     </Field>
                                 )}
                             />
@@ -162,17 +162,17 @@ export function CreateModuleDialog({ open, onOpenChange, courseId, existingModul
                                     name="orderIndex"
                                     render={({ field, fieldState }) => (
                                         <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                            <FieldLabel className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1 flex items-center gap-2">
-                                                <Hash className="size-3" />
-                                                Sequence Index
+                                            <FieldLabel className="text-xs font-medium text-muted-foreground ml-1 flex items-center gap-2">
+                                                <Hash className="size-3.5" />
+                                                Order Index
                                             </FieldLabel>
                                             <Input
                                                 type="number"
                                                 {...field}
                                                 onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                                                className="h-14 rounded-2xl border-border/20 bg-background/50 hover:bg-background/80 focus-visible:ring-primary/20 transition-all font-mono font-bold"
+                                                className="h-10 rounded-xl border-border/20 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all font-mono font-medium text-sm"
                                             />
-                                            <FieldError errors={[fieldState.error]} className="text-[10px] font-bold uppercase tracking-wider text-red-500 ml-1" />
+                                            <FieldError errors={[fieldState.error]} className="text-xs font-medium text-red-500 ml-1" />
                                         </Field>
                                     )}
                                 />
@@ -182,17 +182,17 @@ export function CreateModuleDialog({ open, onOpenChange, courseId, existingModul
                                     name="durationMinutes"
                                     render={({ field, fieldState }) => (
                                         <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                            <FieldLabel className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1 flex items-center gap-2">
-                                                <Clock className="size-3" />
-                                                Est. Duration (Min)
+                                            <FieldLabel className="text-xs font-medium text-muted-foreground ml-1 flex items-center gap-2">
+                                                <Clock className="size-3.5" />
+                                                Duration (min)
                                             </FieldLabel>
                                             <Input
                                                 type="number"
                                                 {...field}
                                                 onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                                                className="h-14 rounded-2xl border-border/20 bg-background/50 hover:bg-background/80 focus-visible:ring-primary/20 transition-all font-mono font-bold"
+                                                className="h-12 rounded-xl border-border/20 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all font-mono font-medium text-sm"
                                             />
-                                            <FieldError errors={[fieldState.error]} className="text-[10px] font-bold uppercase tracking-wider text-red-500 ml-1" />
+                                            <FieldError errors={[fieldState.error]} className="text-xs font-medium text-red-500 ml-1" />
                                         </Field>
                                     )}
                                 />
@@ -200,30 +200,30 @@ export function CreateModuleDialog({ open, onOpenChange, courseId, existingModul
                         </div>
                     </ScrollArea>
 
-                    <SheetFooter className="px-8 py-6 border-t border-border/10 bg-muted/5 flex-shrink-0">
+                    <SheetFooter className="px-6 py-6 border-t border-border/10 bg-muted/5 flex-shrink-0">
                         <div className="flex w-full gap-4">
                             <Button
                                 type="button"
                                 variant="ghost"
                                 onClick={handleClose}
-                                className="flex-1 h-12 rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-muted/10 border border-transparent hover:border-border/10"
+                                className="flex-1 h-10 rounded-xl text-xs font-medium uppercase tracking-wider hover:bg-muted/10 border border-transparent hover:border-border/10"
                             >
-                                Discard
+                                Cancel
                             </Button>
                             <Button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className="flex-[2] h-12 rounded-xl text-[11px] font-black uppercase tracking-widest bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-0.5"
+                                className="flex-[2] h-10 rounded-xl text-xs font-medium uppercase tracking-wider bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-0.5"
                             >
                                 {isSubmitting ? (
                                     <>
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Initializing...
+                                        Creating...
                                     </>
                                 ) : (
                                     <>
                                         <Plus className="mr-2 h-4 w-4" />
-                                        Create Module Node
+                                        Create Module
                                     </>
                                 )}
                             </Button>

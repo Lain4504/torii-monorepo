@@ -8,7 +8,6 @@ import {
     Plus,
     ChevronLeft,
     AlertCircle,
-    Sparkles,
     ShieldCheck,
     Fingerprint,
     Zap,
@@ -18,10 +17,10 @@ import { useCourse } from '@/api/services/courses';
 import { useModules } from '@/api/services/modules';
 import type { ModuleResponseDTO, LessonResponseDTO } from '@workspace/schemas';
 
-import { CreateModuleDialog } from '@/components/modules/create-module-dialog';
-import { EditModuleDialog } from '@/components/modules/edit-module-dialog';
-import { CreateLessonDialog } from '@/components/lessons/create-lesson-dialog';
-import { EditLessonDialog } from '@/components/lessons/edit-lesson-dialog';
+import { CreateModuleSheet } from '@/components/modules/create-module-sheet.tsx';
+import { EditModuleSheet } from '@/components/modules/edit-module-sheet.tsx';
+import { CreateLessonSheet } from '@/components/lessons/create-lesson-sheet.tsx';
+import { EditLessonSheet } from '@/components/lessons/edit-lesson-sheet.tsx';
 import { DeleteModuleDialog } from '@/components/modules/delete-module-dialog';
 import { DeleteLessonDialog } from '@/components/lessons/delete-lesson-dialog';
 import { ModuleItem } from '@/components/modules/module-item';
@@ -79,31 +78,31 @@ export default function CourseDetailPage() {
 
     if (isLoadingCourse) {
         return (
-            <PageLoading text="Accessing Knowledge Node..." className="min-h-[60vh]" />
+            <PageLoading text="Loading Course Data..." className="min-h-[60vh]" />
         );
     }
 
     if (!course) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-8 animate-in fade-in duration-700 max-w-lg mx-auto px-6">
-                <div className="p-8 rounded-[2.5rem] bg-destructive/5 border border-dashed border-destructive/20 relative group">
-                    <div className="absolute inset-0 bg-destructive/5 blur-3xl rounded-full opacity-50" />
-                    <AlertCircle className="size-16 text-destructive/40 relative z-10 mx-auto" />
+            <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6 animate-in fade-in duration-500 max-w-lg mx-auto px-6">
+                <div className="p-6 rounded-3xl bg-destructive/5 border border-destructive/20 relative group">
+                    <div className="absolute inset-0 bg-destructive/5 blur-xl rounded-full opacity-50" />
+                    <AlertCircle className="size-12 text-destructive/60 relative z-10 mx-auto" />
                 </div>
-                <div className="space-y-4 text-center relative z-10">
-                    <h2 className="text-5xl font-serif font-bold tracking-tight italic leading-none">Node Sync Failed</h2>
-                    <p className="text-[12px] font-bold text-muted-foreground/60 uppercase tracking-widest leading-relaxed">
-                        Hệ thống không tìm thấy định danh bài giảng được yêu cầu. <br />
-                        Có thể tài nguyên đã được di chuyển hoặc xóa bỏ khỏi <span className="font-serif italic text-foreground px-1">Torii Matrix</span>.
+                <div className="space-y-2 text-center relative z-10">
+                    <h2 className="text-2xl font-bold tracking-tight">Course Not Found</h2>
+                    <p className="text-xs font-medium text-muted-foreground leading-relaxed max-w-sm mx-auto">
+                        The course you requested could not be found. <br />
+                        It may have been moved, deleted, or you may not have permission to view it.
                     </p>
                 </div>
                 <Button
                     variant="outline"
-                    className="h-14 px-8 rounded-2xl border-border/20 bg-background/50 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group"
+                    className="h-10 px-6 rounded-xl border-border/20 bg-background/50 text-xs font-medium uppercase tracking-wider hover:bg-muted/10 transition-all"
                     onClick={() => navigate('/courses')}
                 >
-                    <ChevronLeft className="mr-2 size-4 group-hover:-translate-x-1 transition-transform" />
-                    Return to Control Center
+                    <ChevronLeft className="mr-2 size-3.5" />
+                    Back to Courses
                 </Button>
             </div>
         );
@@ -124,44 +123,44 @@ export default function CourseDetailPage() {
                         <Button
                             variant="ghost"
                             size="sm"
-                            className="h-8 px-0 text-muted-foreground/40 hover:text-primary gap-2 transition-all hover:bg-transparent"
+                            className="h-8 px-0 text-muted-foreground/60 hover:text-primary gap-2 transition-all hover:bg-transparent"
                             onClick={() => navigate('/courses')}
                         >
                             <ChevronLeft className="size-4" />
-                            <span className="text-[9px] font-black uppercase tracking-[0.3em]">Knowledge Hub</span>
+                            <span className="text-xs font-medium tracking-wide">Back to Courses</span>
                         </Button>
                         <div className="flex items-center gap-4 overflow-hidden">
-                            <h1 className="text-3xl sm:text-5xl font-serif font-bold tracking-tighter text-foreground italic truncate py-1">
+                            <h1 className="text-2xl sm:text-3xl font-serif font-bold tracking-tight text-foreground truncate py-1">
                                 {course.title}
                             </h1>
                             <div className={cn(
-                                "hidden sm:inline-flex items-center px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] border shadow-sm flex-shrink-0",
-                                course.status === 'published' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-amber-500/10 text-amber-500 border-amber-500/20'
+                                "hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border shadow-sm flex-shrink-0",
+                                course.status === 'published' ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' : 'bg-amber-500/10 text-amber-600 border-amber-500/20'
                             )}>
-                                <div className={cn("size-1 rounded-full mr-2", course.status === 'published' && 'bg-emerald-500 animate-pulse')} />
-                                {course.status}
+                                <div className={cn("size-1.5 rounded-full mr-2", course.status === 'published' && 'bg-emerald-500')} />
+                                {course.status === 'published' ? 'Published' : 'Draft'}
                             </div>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-4 flex-shrink-0">
-                        <div className="flex items-center gap-6 px-10 py-5 rounded-3xl bg-muted/20 border border-border/10 hidden lg:flex">
+                        <div className="flex items-center gap-6 px-6 py-3 rounded-2xl bg-muted/20 border border-border/10 hidden lg:flex">
                             <div className="text-center">
-                                <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 mb-1">Entities</p>
-                                <p className="text-3xl font-serif font-bold italic text-primary">{modules.length}</p>
+                                <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60 mb-0.5">Modules</p>
+                                <p className="text-xl font-bold text-foreground">{modules.length}</p>
                             </div>
-                            <div className="w-px h-10 bg-border/20 mx-4" />
+                            <div className="w-px h-8 bg-border/20 mx-2" />
                             <div className="text-center">
-                                <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 mb-1">Matrix</p>
-                                <p className="text-3xl font-serif font-bold italic text-foreground">{course.jlptLevel || 'N/A'}</p>
+                                <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60 mb-0.5">Level</p>
+                                <p className="text-xl font-bold text-foreground">{course.jlptLevel || 'N/A'}</p>
                             </div>
                         </div>
                         <Button
                             onClick={() => setCreateModuleOpen(true)}
-                            className="h-16 px-10 rounded-[1.5rem] bg-primary text-white font-black uppercase tracking-[0.2em] text-[11px] shadow-xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-1 transition-all group"
+                            className="h-12 px-6 rounded-xl bg-primary text-primary-foreground font-medium text-xs shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all group"
                         >
-                            Append Module
-                            <Plus className="ml-3 size-4 opacity-50 group-hover:opacity-100 transition-opacity" />
+                            Add Module
+                            <Plus className="ml-2 size-4 opacity-70 group-hover:opacity-100 transition-opacity" />
                         </Button>
                     </div>
                 </div>
@@ -171,43 +170,42 @@ export default function CourseDetailPage() {
             <div className="max-w-7xl mx-auto px-8 py-14">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
                     {/* Left Column: Curriculum */}
-                    <div className="lg:col-span-8 space-y-10">
-                        <div className="flex items-center justify-between px-2">
+                    <div className="lg:col-span-8 space-y-8">
+                        <div className="flex items-center justify-between px-1">
                             <div className="space-y-1">
-                                <h2 className="text-3xl font-serif font-bold tracking-tight italic flex items-center gap-4">
-                                    <Target className="size-7 text-primary" />
-                                    Knowledge <span className="text-primary not-italic">Architecture</span>
+                                <h2 className="text-xl font-semibold tracking-tight flex items-center gap-3">
+                                    <Target className="size-5 text-primary" />
+                                    Curriculum Structure
                                 </h2>
-                                <p className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-[0.2em] italic pl-9">Structural hierarchy of the learning repository.</p>
+                                <p className="text-xs font-medium text-muted-foreground pl-8">Organize lessons and modules for this course.</p>
                             </div>
                         </div>
 
                         {modules.length === 0 ? (
-                            <div className="p-20 text-center space-y-8 bg-muted/10 rounded-[3.5rem] border border-dashed border-border/20 relative overflow-hidden group">
+                            <div className="p-12 text-center space-y-6 bg-muted/10 rounded-3xl border border-dashed border-border/20 relative overflow-hidden group">
                                 <div className="absolute inset-0 bg-primary/[0.01] pointer-events-none" />
-                                <div className="w-24 h-24 rounded-[2rem] bg-white shadow-xl flex items-center justify-center mx-auto relative group-hover:scale-110 transition-transform duration-500">
-                                    <Layers className="size-10 text-primary opacity-20" />
-                                    <Sparkles className="absolute -top-2 -right-2 size-6 text-primary animate-pulse" />
+                                <div className="w-16 h-16 rounded-2xl bg-background shadow-sm flex items-center justify-center mx-auto relative group-hover:scale-105 transition-transform duration-500">
+                                    <Layers className="size-8 text-primary/40" />
                                 </div>
                                 <div className="space-y-2 relative z-10">
-                                    <h3 className="text-2xl font-black uppercase italic tracking-tight">System Initialization Required</h3>
-                                    <p className="text-[11px] font-bold text-muted-foreground/40 uppercase tracking-[0.2em] italic max-w-sm mx-auto">
-                                        Chu trình bài giảng chưa được cấu hình. <br />
-                                        Hãy khởi tạo Knowledge Node đầu tiên để hoàn thiện cấu trúc repository.
+                                    <h3 className="text-lg font-semibold text-foreground">Course is Empty</h3>
+                                    <p className="text-xs font-medium text-muted-foreground max-w-sm mx-auto leading-relaxed">
+                                        This course has no content yet. <br />
+                                        Create your first module to get started.
                                     </p>
                                 </div>
                                 <Button
                                     onClick={() => setCreateModuleOpen(true)}
-                                    className="h-14 px-10 rounded-2xl bg-foreground text-background font-black uppercase tracking-widest text-[10px] hover:-translate-y-1 transition-all shadow-xl"
+                                    className="h-10 px-6 rounded-xl bg-primary text-primary-foreground font-medium text-xs hover:-translate-y-0.5 transition-all shadow-lg shadow-primary/10"
                                 >
-                                    Deploy First Node
+                                    Create First Module
                                 </Button>
                             </div>
                         ) : (
-                            <Card className="rounded-[3.5rem] bg-background/40 backdrop-blur-3xl border border-border/20 shadow-2xl shadow-primary/5 overflow-hidden p-8 lg:p-12">
-                                <Accordion type="multiple" className="space-y-6">
+                            <Card className="rounded-3xl bg-background/50 backdrop-blur-3xl border border-border/20 shadow-xl shadow-black/5 overflow-hidden p-6 lg:p-8">
+                                <Accordion type="multiple" className="space-y-4">
                                     {modules.map((module, idx) => (
-                                        <div key={module.id} className="animate-in fade-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: `${idx * 100}ms` }}>
+                                        <div key={module.id} className="animate-in fade-in slide-in-from-bottom-2 duration-300" style={{ animationDelay: `${idx * 50}ms` }}>
                                             <ModuleItem
                                                 module={module}
                                                 onEditModule={handleEditModule}
@@ -224,48 +222,48 @@ export default function CourseDetailPage() {
                     </div>
 
                     {/* Right Column: Metadata & Details */}
-                    <div className="lg:col-span-4 space-y-8">
-                        <Card className="rounded-[3rem] bg-background/40 backdrop-blur-3xl border border-border/20 p-8 space-y-10 group">
-                            <div className="space-y-6">
+                    <div className="lg:col-span-4 space-y-6">
+                        <Card className="rounded-3xl bg-background/50 backdrop-blur-3xl border border-border/20 p-6 space-y-6">
+                            <div className="space-y-4">
                                 <div className="flex items-center gap-3">
-                                    <div className="p-2.5 rounded-xl bg-primary/10 text-primary">
-                                        <Fingerprint className="size-5" />
+                                    <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                                        <Fingerprint className="size-4" />
                                     </div>
-                                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] italic">Meta signatures</h3>
+                                    <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground">Course Info</h3>
                                 </div>
 
-                                <div className="space-y-6">
-                                    <div className="space-y-1 px-1">
-                                        <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 italic">Protocol Identifier</p>
-                                        <p className="text-[13px] font-black italic text-foreground truncate uppercase">{course.id}</p>
+                                <div className="space-y-4">
+                                    <div className="space-y-0.5 px-1">
+                                        <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60">ID</p>
+                                        <p className="text-xs font-mono font-medium text-foreground truncate select-all">{course.id}</p>
                                     </div>
-                                    <div className="space-y-1.5 px-1">
-                                        <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 italic">Valuation Sync</p>
-                                        <p className="text-4xl font-serif font-bold italic text-primary tracking-tighter">{formatCurrency(course.price)}</p>
+                                    <div className="space-y-0.5 px-1">
+                                        <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60">Price</p>
+                                        <p className="text-2xl font-bold text-foreground tracking-tight">{formatCurrency(course.price)}</p>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="pt-8 border-t border-border/10 space-y-6">
-                                <div className="flex items-center gap-3 text-muted-foreground/60 transition-colors group-hover:text-primary">
-                                    <Clock className="size-4 opacity-40" />
-                                    <p className="text-[9px] font-black uppercase tracking-widest italic">Last Registry Sync: {formatDateTime(course.updatedAt)}</p>
+                            <div className="pt-6 border-t border-border/10 space-y-4">
+                                <div className="flex items-center gap-2 text-muted-foreground/70 transition-colors hover:text-foreground">
+                                    <Clock className="size-3.5" />
+                                    <p className="text-xs font-medium">Updated: {formatDateTime(course.updatedAt)}</p>
                                 </div>
-                                <div className="flex items-center gap-3 text-muted-foreground/60">
-                                    <ShieldCheck className="size-4 opacity-40 text-emerald-500" />
-                                    <p className="text-[9px] font-black uppercase tracking-widest italic text-emerald-500/60">Verified Content Repository</p>
+                                <div className="flex items-center gap-2 text-emerald-600/80">
+                                    <ShieldCheck className="size-3.5" />
+                                    <p className="text-xs font-medium">Verified Content</p>
                                 </div>
                             </div>
                         </Card>
 
                         {/* Quick Guide / Help */}
-                        <div className="p-8 rounded-[2.5rem] bg-primary/5 border border-primary/10 space-y-4">
-                            <div className="flex items-center gap-3 text-primary">
+                        <div className="p-6 rounded-3xl bg-primary/5 border border-primary/10 space-y-3">
+                            <div className="flex items-center gap-2 text-primary">
                                 <Zap className="size-4" />
-                                <h4 className="text-[10px] font-black uppercase tracking-[0.2em]">Quick Operational Tip</h4>
+                                <h4 className="text-xs font-semibold uppercase tracking-wider">Quick Tip</h4>
                             </div>
-                            <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-[0.1em] italic leading-relaxed">
-                                Use high-impact cover images and meta-descriptions to increase the discoverability index in Torii Marketplace.
+                            <p className="text-xs font-medium text-muted-foreground/80 leading-relaxed">
+                                Use high-impact cover images and clear descriptions to improve course discoverability in the marketplace.
                             </p>
                         </div>
                     </div>
@@ -273,7 +271,7 @@ export default function CourseDetailPage() {
             </div>
 
             {/* Dialogs */}
-            <CreateModuleDialog
+            <CreateModuleSheet
                 open={createModuleOpen}
                 onOpenChange={setCreateModuleOpen}
                 courseId={id}
@@ -283,7 +281,7 @@ export default function CourseDetailPage() {
 
             {selectedModule && (
                 <>
-                    <EditModuleDialog
+                    <EditModuleSheet
                         open={editModuleOpen}
                         onOpenChange={setEditModuleOpen}
                         module={selectedModule}
@@ -299,16 +297,16 @@ export default function CourseDetailPage() {
             )}
 
             {selectedModuleIdForLesson && (
-                <CreateLessonDialog
+                <CreateLessonSheet
                     open={createLessonOpen}
                     onOpenChange={setCreateLessonOpen}
-                    moduleId={selectedModuleIdForLesson}
+                    moduleId={selectedModuleIdForLesson || ''}
                 />
             )}
 
             {selectedLesson && (
                 <>
-                    <EditLessonDialog
+                    <EditLessonSheet
                         open={editLessonOpen}
                         onOpenChange={setEditLessonOpen}
                         lesson={selectedLesson}
