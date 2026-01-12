@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="docker file build" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="docker file build">
+      <change beforePath="$PROJECT_DIR$/.env.example" beforeDir="false" afterPath="$PROJECT_DIR$/.env.example" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -291,23 +294,7 @@
       <workItem from="1768010492981" duration="681000" />
       <workItem from="1768073462770" duration="2244000" />
       <workItem from="1768199989867" duration="83000" />
-      <workItem from="1768201864379" duration="2064000" />
-    </task>
-    <task id="LOCAL-00591" summary="update ui course detail page">
-      <option name="closed" value="true" />
-      <created>1768064384376</created>
-      <option name="number" value="00591" />
-      <option name="presentableId" value="LOCAL-00591" />
-      <option name="project" value="LOCAL" />
-      <updated>1768064384376</updated>
-    </task>
-    <task id="LOCAL-00592" summary="update ui course detail page">
-      <option name="closed" value="true" />
-      <created>1768064514229</created>
-      <option name="number" value="00592" />
-      <option name="presentableId" value="LOCAL-00592" />
-      <option name="project" value="LOCAL" />
-      <updated>1768064514229</updated>
+      <workItem from="1768201864379" duration="4413000" />
     </task>
     <task id="LOCAL-00593" summary="update ui course detail page">
       <option name="closed" value="true" />
@@ -685,7 +672,23 @@
       <option name="project" value="LOCAL" />
       <updated>1768203877941</updated>
     </task>
-    <option name="localTasksCounter" value="640" />
+    <task id="LOCAL-00640" summary="docker file build">
+      <option name="closed" value="true" />
+      <created>1768204105768</created>
+      <option name="number" value="00640" />
+      <option name="presentableId" value="LOCAL-00640" />
+      <option name="project" value="LOCAL" />
+      <updated>1768204105768</updated>
+    </task>
+    <task id="LOCAL-00641" summary="docker file build">
+      <option name="closed" value="true" />
+      <created>1768204529321</created>
+      <option name="number" value="00641" />
+      <option name="presentableId" value="LOCAL-00641" />
+      <option name="project" value="LOCAL" />
+      <updated>1768204529321</updated>
+    </task>
+    <option name="localTasksCounter" value="642" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

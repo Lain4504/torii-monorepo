@@ -68,11 +68,11 @@ services:
   # ========================================
   # Application Services
   # ========================================
+  # NOTE: Using pre-built image from Docker Hub to save VPS disk space
+  # Image name is configured via DOCKER_USERNAME in .env
 
   gateway:
-    build:
-      context: .
-      dockerfile: apps/server/Dockerfile
+    image: ${DOCKER_USERNAME}/torii-backend:latest
     command: npm run prod:gateway
     restart: always
     env_file:
@@ -99,9 +99,7 @@ services:
       - agents
 
   identity:
-    build:
-      context: .
-      dockerfile: apps/server/Dockerfile
+    image: ${DOCKER_USERNAME}/torii-backend:latest
     command: npm run prod:identity
     restart: always
     env_file:
@@ -118,9 +116,7 @@ services:
       - redis
 
   learning:
-    build:
-      context: .
-      dockerfile: apps/server/Dockerfile
+    image: ${DOCKER_USERNAME}/torii-backend:latest
     command: npm run prod:learning
     restart: always
     env_file:
@@ -137,9 +133,7 @@ services:
       - redis
 
   meet:
-    build:
-      context: .
-      dockerfile: apps/server/Dockerfile
+    image: ${DOCKER_USERNAME}/torii-backend:latest
     command: npm run prod:meet
     restart: always
     env_file:
@@ -156,9 +150,7 @@ services:
       - redis
 
   agents:
-    build:
-      context: .
-      dockerfile: apps/server/Dockerfile
+    image: ${DOCKER_USERNAME}/torii-backend:latest
     command: npm run prod:agents
     restart: always
     env_file:
