@@ -10,14 +10,14 @@ import {
 import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
-import { Search, RotateCcw, CreditCard, Calendar, User, DollarSign, ExternalLink } from 'lucide-react';
+import { Search, RotateCcw, CreditCard, User } from 'lucide-react';
 import { paymentApi } from '@/api/services/payment-api';
-import { PaymentResponseDTO, PaymentStatus } from '@workspace/schemas';
+import { OrderStatus, type OrderResponseDTO } from '@workspace/schemas';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 
 export default function PaymentsPage() {
-  const [payments, setPayments] = useState<PaymentResponseDTO[]>([]);
+  const [payments, setPayments] = useState<OrderResponseDTO[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -44,14 +44,14 @@ export default function PaymentsPage() {
     }
   };
 
-  const getStatusColor = (status: PaymentStatus) => {
+  const getStatusColor = (status: OrderStatus) => {
     switch (status) {
-      case PaymentStatus.COMPLETED:
+      case OrderStatus.COMPLETED:
         return 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20';
-      case PaymentStatus.PENDING:
+      case OrderStatus.PENDING:
         return 'bg-amber-500/10 text-amber-500 border-amber-500/20';
-      case PaymentStatus.FAILED:
-      case PaymentStatus.CANCELLED:
+      case OrderStatus.FAILED:
+      case OrderStatus.CANCELLED:
         return 'bg-red-500/10 text-red-500 border-red-500/20';
       default:
         return 'bg-muted/10 text-muted-foreground border-border';

@@ -81,9 +81,9 @@ const isPublicEndpoint = (url?: string): boolean => {
         '/auth/verify-reset-token',
         '/auth/verify-invite-token',
         '/auth/set-password',
-        '/auth/me', // Auth check endpoint - 401 is expected when not authenticated (matches both /api/auth/me and /auth/me)
-        '/posts', 
-        '/comments', 
+        '/auth/logout',
+        '/posts',
+        '/comments',
     ];
 
     // Normalize URL by removing query params and hash for matching
@@ -127,8 +127,9 @@ const isPublicPage = (): boolean => {
  * Check if refresh token exists in cookies
  */
 const hasRefreshToken = (): boolean => {
-    if (typeof document === 'undefined') return false;
-    return document.cookie.includes('refresh_token=');
+    // We can't actually check HttpOnly cookies from JS.
+    // So we assume it might exist and let the backend decide.
+    return true;
 };
 
 /**
@@ -210,18 +211,13 @@ apiClient.interceptors.response.use(
         if (error.response?.status === 401 && !originalRequest._retry) {
             const url = originalRequest.url || '';
 
-            // Don't attempt refresh on public endpoints
+            // Don't attempt refresh on specific auth endpoints
             if (isPublicEndpoint(url)) {
-                // For login/register, return error so UI can handle it
-                if (url.includes('/auth/login') || url.includes('/auth/register')) {
+                // For login/register/logout, return error so UI can handle it
+                if (url.includes('/auth/login') || url.includes('/auth/register') || url.includes('/auth/logout')) {
                     return Promise.reject(error);
                 }
                 // For other public endpoints, just reject
-                return Promise.reject(error);
-            }
-
-            // Don't attempt refresh on public pages
-            if (isPublicPage()) {
                 return Promise.reject(error);
             }
 

@@ -1,7 +1,7 @@
 import { apiClient } from '../api-client';
 import type {
-    PaymentResponseDTO,
-    PaymentQueryDTO,
+    OrderResponseDTO,
+    OrderQueryDTO,
     PaginatedResponseDTO,
 } from '@workspace/schemas';
 
@@ -9,8 +9,8 @@ export const paymentApi = {
     /**
      * Get all payments
      */
-    async getAllPayments(query?: PaymentQueryDTO): Promise<PaginatedResponseDTO<PaymentResponseDTO>> {
-        const response = await apiClient.get<PaginatedResponseDTO<PaymentResponseDTO>>('/api/payments', {
+    async getAllPayments(query?: OrderQueryDTO): Promise<PaginatedResponseDTO<OrderResponseDTO>> {
+        const response = await apiClient.get<PaginatedResponseDTO<OrderResponseDTO>>('/api/payments', {
             params: query,
         });
         return response.data;
@@ -19,8 +19,8 @@ export const paymentApi = {
     /**
      * Get payment by ID
      */
-    async getPayment(id: string): Promise<PaymentResponseDTO> {
-        const response = await apiClient.get<PaymentResponseDTO>(`/api/payments/${id}`);
+    async getPayment(id: string): Promise<OrderResponseDTO> {
+        const response = await apiClient.get<OrderResponseDTO>(`/api/payments/${id}`);
         return response.data;
     },
 };

@@ -52,16 +52,16 @@ export function ViewPostSheet({
                                 post.status === 'published'
                                     ? "border-emerald-500/20 text-emerald-500 bg-emerald-500/10"
                                     : post.status === 'draft'
-                                    ? "border-blue-500/20 text-blue-500 bg-blue-500/10"
-                                    : "border-muted-foreground/20 text-muted-foreground bg-muted/10"
+                                        ? "border-blue-500/20 text-blue-500 bg-blue-500/10"
+                                        : "border-muted-foreground/20 text-muted-foreground bg-muted/10"
                             )}>
                             {post.status}
                         </Badge>
                     </div>
                 </SheetHeader>
 
-                <ScrollArea className="flex-1 overflow-y-auto px-8 py-8">
-                    <div className="space-y-8 animate-in fade-in slide-in-from-right-8 duration-500">
+                <ScrollArea className="flex-1 min-h-0">
+                    <div className="px-8 py-10 space-y-10 animate-in fade-in slide-in-from-right-8 duration-500">
 
                         {/* Key Metrics */}
                         <div className="grid grid-cols-3 gap-4">

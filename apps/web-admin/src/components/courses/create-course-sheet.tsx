@@ -7,6 +7,7 @@ import {
     SheetDescription,
     SheetHeader,
     SheetTitle,
+    SheetFooter,
 } from '@workspace/ui/components/sheet';
 
 import { Button } from '@workspace/ui/components/button';
@@ -168,9 +169,9 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                     </div>
                 </SheetHeader>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden relative z-10">
-                    <ScrollArea className="flex-1 overflow-y-auto px-8 py-8">
-                        <div className="space-y-8 animate-in fade-in slide-in-from-right-8 duration-500">
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0 overflow-hidden relative z-10">
+                    <ScrollArea className="flex-1 min-h-0">
+                        <div className="px-8 py-10 space-y-10 animate-in fade-in slide-in-from-right-8 duration-500">
 
                             {/* Basic Information */}
                             <div className="space-y-6">
@@ -581,7 +582,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                     </ScrollArea>
 
                     {/* Footer */}
-                    <div className="px-8 py-6 bg-background/50 backdrop-blur-xl border-t border-border/10 flex items-center justify-between gap-4 relative z-20">
+                    <SheetFooter className="px-8 py-6 bg-background/50 backdrop-blur-xl border-t border-border/10 flex flex-row items-center justify-between gap-4 relative z-20 flex-shrink-0">
                         <Button
                             type="button"
                             variant="ghost"
@@ -609,7 +610,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                 </>
                             )}
                         </Button>
-                    </div>
+                    </SheetFooter>
                 </form>
             </SheetContent>
         </Sheet>
