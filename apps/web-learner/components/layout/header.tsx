@@ -20,7 +20,8 @@ import {
     ChevronDown,
     LayoutDashboard,
     Search,
-    FileEdit
+    FileEdit,
+    Newspaper
 } from 'lucide-react'
 import { useState } from 'react'
 import { useTheme } from 'next-themes'
@@ -63,7 +64,7 @@ export function Header() {
     const navigation = [
         { nameKey: 'learner.header.courses', href: '/courses', icon: BookOpen },
         { nameKey: 'learner.header.liveClasses', href: '/live-classes', icon: Users },
-        { nameKey: 'learner.header.posts', href: '/posts', icon: FileEdit },
+        { nameKey: 'learner.header.post', href: '/post', icon: Newspaper },
     ]
 
     return (

@@ -8,39 +8,39 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@workspace/ui/components/alert-dialog';
-import { useDeleteBlog } from "@/api/services/blog.ts";
+import { useDeletePost } from "@/api/services/post.ts";
 import { toast } from '@workspace/ui/components/sonner';
 import type { PostResponseDTO } from '@workspace/schemas';
 import { Loader2 } from 'lucide-react';
 
-interface DeleteBlogDialogProps {
+interface DeletePostDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    blog: PostResponseDTO | null;
+    post: PostResponseDTO | null;
 }
 
-export function DeleteBlogDialog({
+export function DeletePostDialog({
     open,
     onOpenChange,
-    blog,
-}: DeleteBlogDialogProps) {
-    const deleteBlog = useDeleteBlog();
+    post,
+}: DeletePostDialogProps) {
+    const deletePost = useDeletePost();
 
     const handleDelete = async () => {
-        if (!blog) return;
+        if (!post) return;
 
         try {
-            await deleteBlog.mutateAsync(blog.id);
-            toast.success('Blog post deleted successfully');
+            await deletePost.mutateAsync(post.id);
+            toast.success('Post deleted successfully');
             onOpenChange(false);
         } catch (error: any) {
-            toast.error('Failed to delete blog post', {
+            toast.error('Failed to delete post', {
                 description: error.response?.data?.message || error.message,
             });
         }
     };
 
-    if (!blog) return null;
+    if (!post) return null;
 
     return (
         <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -48,21 +48,21 @@ export function DeleteBlogDialog({
                 <AlertDialogHeader>
                     <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                     <AlertDialogDescription>
-                        This action cannot be undone. This will permanently delete the blog post
-                        <strong> "{blog.title}"</strong>.
+                        This action cannot be undone. This will permanently delete the post
+                        <strong> "{post.title}"</strong>.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel disabled={deleteBlog.isPending}>
+                    <AlertDialogCancel disabled={deletePost.isPending}>
                         Cancel
                     </AlertDialogCancel>
                     <AlertDialogAction
                         onClick={handleDelete}
-                        disabled={deleteBlog.isPending}
+                        disabled={deletePost.isPending}
                         className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                     >
-                        {deleteBlog.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        {deleteBlog.isPending ? 'Deleting...' : 'Delete'}
+                        {deletePost.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        {deletePost.isPending ? 'Deleting...' : 'Delete'}
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>

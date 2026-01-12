@@ -1,4 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
+import { InjectMapper } from '@automapper/nestjs';
+import type { Mapper } from '@automapper/core';
 import { PrismaService } from '@server/shared';
 import type {
   CommentCreateDTO,
@@ -7,7 +9,7 @@ import type {
   CommentResponseDTO,
   CommentPaginatedResponse,
 } from '@workspace/schemas';
-import type { Prisma } from '@prisma/generated';
+import type { Comment, Prisma } from '@prisma/generated';
 import type { ICommentService } from '../../interfaces/services';
 import { CommentRepository } from './comment.repository';
 
@@ -22,6 +24,7 @@ export class CommentService implements ICommentService {
   constructor(
     private readonly commentRepository: CommentRepository,
     private readonly prisma: PrismaService,
+    @InjectMapper() private readonly mapper: Mapper,
   ) { }
 
   /**
@@ -92,57 +95,104 @@ export class CommentService implements ICommentService {
    * Find all comments with pagination and filters
    */
   async findAllComments(query: CommentQueryDTO): Promise<CommentPaginatedResponse> {
-    const page = query.page || 1;
-    const limit = query.limit || 20;
-    const skip = (page - 1) * limit;
+    try {
+      const page = typeof query.page === 'string' ? parseInt(query.page, 10) : (query.page || 1);
+      const limit = typeof query.limit === 'string' ? parseInt(query.limit, 10) : (query.limit || 20);
+      const skip = (page - 1) * limit;
 
-    const where: Prisma.CommentWhereInput = {
-      status: { not: 'deleted' },
-    };
+      const where: Prisma.CommentWhereInput = {
+        status: { not: 'deleted' },
+      };
 
-    if (query.postId) {
-      where.postId = query.postId;
+      if (query.postId) {
+        where.postId = query.postId;
+      }
+
+      if (query.parentId !== undefined) {
+        where.parentCommentId = query.parentId || null;
+      }
+
+      const orderBy: Prisma.CommentOrderByWithRelationInput = {};
+      if (query.sortBy) {
+        orderBy[query.sortBy] = query.sortOrder || 'desc';
+      } else {
+        orderBy.createdAt = 'desc';
+      }
+
+      const [comments, total] = await Promise.all([
+        this.commentRepository.findMany({
+          where,
+          skip,
+          take: limit,
+          orderBy,
+          includeReplyCount: true,
+        }),
+        this.commentRepository.count(where),
+      ]);
+
+      const formattedComments = await Promise.all(
+        comments.map(async (comment: any) => {
+          try {
+            if (!comment || !comment.id) {
+              this.logger.warn('Invalid comment data:', comment);
+              return null;
+            }
+            
+            const formatted = await this.formatCommentResponse(comment);
+            return {
+              ...formatted,
+              replyCount: comment._count?.replies || 0,
+            };
+          } catch (error: any) {
+            this.logger.error(`Error formatting comment ${comment?.id}: ${error.message}`, error.stack);
+            // Return a basic formatted comment without author info if formatting fails
+            // This ensures partial data is still returned even if one comment fails
+            try {
+              const basicDto = this.toCommentResponseDTO(comment);
+              return {
+                ...basicDto,
+                replyCount: comment._count?.replies || 0,
+                author: undefined,
+              };
+            } catch (fallbackError: any) {
+              this.logger.error(`Fallback mapping also failed for comment ${comment?.id}: ${fallbackError.message}`);
+              // Return minimal data to prevent complete failure
+              return {
+                id: comment?.id || 'unknown',
+                postId: comment?.postId || '',
+                userId: comment?.userId || '',
+                authorId: comment?.userId || '',
+                content: comment?.content || '',
+                parentCommentId: comment?.parentCommentId || undefined,
+                parentId: comment?.parentCommentId || undefined,
+                likeCount: comment?.likes || 0,
+                status: comment?.status || 'approved',
+                isDeleted: comment?.status === 'deleted',
+                isEdited: false,
+                createdAt: comment?.createdAt || new Date(),
+                updatedAt: comment?.updatedAt || new Date(),
+                replyCount: comment._count?.replies || 0,
+              } as CommentResponseDTO;
+            }
+          }
+        }),
+      );
+
+      // Filter out null comments
+      const validComments = formattedComments.filter((c): c is CommentResponseDTO => c !== null);
+
+      return {
+        data: validComments,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      };
+    } catch (error: any) {
+      this.logger.error(`Error in findAllComments: ${error.message}`, error.stack);
+      // Re-throw to let NestJS Exception Filter handle it
+      throw error;
     }
-
-    if (query.parentId !== undefined) {
-      where.parentCommentId = query.parentId || null;
-    }
-
-    const orderBy: Prisma.CommentOrderByWithRelationInput = {};
-    if (query.sortBy) {
-      orderBy[query.sortBy] = query.sortOrder || 'desc';
-    } else {
-      orderBy.createdAt = 'desc';
-    }
-
-    const [comments, total] = await Promise.all([
-      this.commentRepository.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy,
-        includeReplyCount: true,
-      }),
-      this.commentRepository.count(where),
-    ]);
-
-    const formattedComments = await Promise.all(
-      comments.map(async (comment: any) => {
-        const formatted = await this.formatCommentResponse(comment);
-        return {
-          ...formatted,
-          replyCount: comment._count?.replies || 0,
-        };
-      }),
-    );
-
-    return {
-      data: formattedComments,
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    };
   }
 
   /**
@@ -241,60 +291,88 @@ export class CommentService implements ICommentService {
         if (depth > 1) {
           return this.getCommentWithReplies(reply.id, depth - 1);
         }
-        return this.formatCommentResponse(reply);
+        return this.formatCommentResponse(reply as Comment & { _count?: { replies?: number } });
       }),
     );
 
     return {
       ...formatted,
-      replyCount: comment._count.replies,
-      replies: repliesWithNested.filter((r) => r !== null),
+      replyCount: comment._count?.replies || 0,
+      replies: repliesWithNested.filter((r) => r !== null) as CommentResponseDTO[],
     };
+  }
+
+  /**
+   * Map Comment entity to CommentResponseDTO using AutoMapper
+   */
+  private toCommentResponseDTO(comment: Comment | (Comment & { _count?: { replies?: number } })): CommentResponseDTO {
+    try {
+      return this.mapper.map<any, CommentResponseDTO>(comment, 'Comment', 'CommentResponseDTO');
+    } catch (error: any) {
+      this.logger.error(`AutoMapper error for comment ${comment?.id}: ${error.message}`, error.stack);
+      // Fallback: manual mapping if AutoMapper fails
+      return {
+        id: comment.id,
+        postId: comment.postId,
+        userId: comment.userId,
+        authorId: comment.userId,
+        content: comment.content,
+        parentCommentId: comment.parentCommentId || undefined,
+        parentId: comment.parentCommentId || undefined,
+        likeCount: comment.likes || 0,
+        status: comment.status,
+        isDeleted: comment.status === 'deleted',
+        isEdited: comment.updatedAt && comment.createdAt 
+          ? comment.updatedAt.getTime() > comment.createdAt.getTime() + 1000 
+          : false,
+        createdAt: comment.createdAt,
+        updatedAt: comment.updatedAt,
+      } as CommentResponseDTO;
+    }
   }
 
   /**
    * Format comment response with author info
    */
-  private async formatCommentResponse(comment: any): Promise<CommentResponseDTO> {
-    let authorInfo: { id: string; displayName: string; email: string } | null = null;
+  private async formatCommentResponse(comment: Comment & { _count?: { replies?: number } }): Promise<CommentResponseDTO> {
+    try {
+      const dto = this.toCommentResponseDTO(comment);
 
-    if (comment.userId) {
-      try {
-        const user = await this.prisma.user.findUnique({
-          where: { id: comment.userId },
-          select: {
-            id: true,
-            displayName: true,
-            email: true,
-          },
-        });
+      // Load author info separately
+      if (comment.userId) {
+        try {
+          const user = await this.prisma.user.findUnique({
+            where: { id: comment.userId },
+            select: {
+              id: true,
+              displayName: true,
+              email: true,
+              avatarUrl: true,
+            },
+          });
 
-        if (user) {
-          authorInfo = {
-            id: user.id,
-            displayName: user.displayName || user.email || 'Unknown',
-            email: user.email,
-          };
+          if (user) {
+            dto.author = {
+              id: user.id,
+              displayName: user.displayName || user.email || 'Unknown',
+              avatarUrl: user.avatarUrl || undefined,
+            };
+          }
+        } catch (error: any) {
+          this.logger.warn(`Failed to fetch author info for comment ${comment.id}: ${error.message}`);
         }
-      } catch (error: any) {
-        // Silent fail
       }
-    }
 
-    return {
-      id: comment.id,
-      postId: comment.postId,
-      authorId: comment.userId,
-      author: authorInfo,
-      content: comment.content,
-      parentId: comment.parentCommentId,
-      likeCount: comment.likes,
-      isEdited: false,
-      isDeleted: comment.status === 'deleted',
-      status: comment.status,
-      createdAt: comment.createdAt,
-      updatedAt: comment.updatedAt,
-    };
+      // Add replyCount if available
+      if (comment._count?.replies !== undefined) {
+        dto.replyCount = comment._count.replies;
+      }
+
+      return dto;
+    } catch (error: any) {
+      this.logger.error(`Error in formatCommentResponse for comment ${comment?.id}: ${error.message}`, error.stack);
+      throw error;
+    }
   }
 }
 

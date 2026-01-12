@@ -68,11 +68,11 @@ export const mainNavItems: NavItem[] = [
         descriptionKey: "navDescriptions.examsTests",
     },
     {
-        titleKey: "navigation.blog",
-        url: "/blogs",
+        titleKey: "navigation.post",
+        url: "/posts",
         icon: Newspaper,
-        anyPermission: ["blog.manage"],
-        descriptionKey: "navDescriptions.blog",
+        permission: "post.manage",
+        descriptionKey: "navDescriptions.post",
     },
 ];
 
