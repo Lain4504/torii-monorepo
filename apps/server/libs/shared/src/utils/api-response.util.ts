@@ -47,17 +47,8 @@ export function errorResponse(message: string, errors?: any[]): StandardApiRespo
     return response;
 }
 
-/**
- * Paginated API Response Format
- * Standard response for paginated endpoints with flattened structure
- * Combines StandardApiResponse with pagination metadata at top level
- */
-export interface PaginatedApiResponse<T> extends StandardApiResponse<T[]> {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-}
+import type { PaginatedApiResponse } from '@workspace/schemas';
+
 
 /**
  * Create a success response for paginated data
