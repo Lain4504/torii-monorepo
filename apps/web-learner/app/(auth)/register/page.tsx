@@ -41,7 +41,7 @@ export default function RegisterPage() {
                                 <Globe className="w-3 h-3" />
                                 <span>Global Classroom</span>
                             </div>
-                            <h2 className="text-6xl font-black tracking-[0.02em] leading-[0.85] text-foreground uppercase italic mb-8">
+                            <h2 className="text-6xl font-serif font-bold tracking-tight leading-[0.85] text-foreground uppercase italic mb-8">
                                 Gia nhập <br />
                                 <span className="text-primary/20 not-italic">Cộng đồng</span> <br />
                                 <span className="text-foreground">Tri thức Việt</span>
@@ -91,57 +91,59 @@ export default function RegisterPage() {
                 </div>
 
                 {/* Right Panel - Register Form */}
-                <div className="flex items-center justify-center p-8 lg:p-20 relative bg-background/20 lg:border-l border-border/20 overflow-y-auto">
-                    <div className="w-full max-w-[420px] space-y-12 animate-in fade-in slide-in-from-right-8 duration-700">
-                        {/* Header */}
-                        <div className="space-y-4">
-                            {/* Mobile Logo Only */}
-                            <div className="lg:hidden flex justify-center mb-10">
-                                <Link href="/" className="flex flex-col items-center gap-3">
-                                    <div className="w-12 h-12 bg-primary flex items-center justify-center rounded-2xl">
-                                        <svg className="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                            <path d="M3 10h18" strokeLinecap="round" />
-                                            <path d="M5 10v8" strokeLinecap="round" />
-                                            <path d="M19 10v8" strokeLinecap="round" />
-                                            <path d="M3 7c0-1 1-2 3-2h12c2 0 3 1 3 2" strokeLinecap="round" />
-                                        </svg>
-                                    </div>
-                                    <span className="text-xl font-black tracking-tighter uppercase italic leading-none">Torii <span className="text-primary not-italic">Nihongo</span></span>
-                                </Link>
+                <div className="relative bg-background/20 lg:border-l border-border/20 overflow-y-auto">
+                    <div className="min-h-full flex items-center justify-center p-8 lg:p-20">
+                        <div className="w-full max-w-[420px] space-y-12 animate-in fade-in slide-in-from-right-8 duration-700">
+                            {/* Header */}
+                            <div className="space-y-4">
+                                {/* Mobile Logo Only */}
+                                <div className="lg:hidden flex justify-center mb-10">
+                                    <Link href="/" className="flex flex-col items-center gap-3">
+                                        <div className="w-12 h-12 bg-primary flex items-center justify-center rounded-2xl">
+                                            <svg className="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                                <path d="M3 10h18" strokeLinecap="round" />
+                                                <path d="M5 10v8" strokeLinecap="round" />
+                                                <path d="M19 10v8" strokeLinecap="round" />
+                                                <path d="M3 7c0-1 1-2 3-2h12c2 0 3 1 3 2" strokeLinecap="round" />
+                                            </svg>
+                                        </div>
+                                        <span className="text-xl font-black tracking-tighter uppercase italic leading-none">Torii <span className="text-primary not-italic">Nihongo</span></span>
+                                    </Link>
+                                </div>
+
+                                <div className="space-y-3 text-center lg:text-left">
+                                    <h1 className="text-5xl font-serif font-bold tracking-tight uppercase italic text-foreground">Ghi danh <br /><span className="text-primary not-italic italic">Sáng tạo</span></h1>
+                                    <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Gia nhập đội ngũ học viên ưu tú Torii</p>
+                                </div>
                             </div>
 
-                            <div className="space-y-3 text-center lg:text-left">
-                                <h1 className="text-4xl font-black tracking-[0.02em] uppercase italic text-foreground">Ghi danh <br /><span className="text-primary not-italic italic">Sáng tạo</span></h1>
-                                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Gia nhập đội ngũ học viên ưu tú Torii</p>
-                            </div>
-                        </div>
+                            {/* Register Form */}
+                            <RegisterForm />
 
-                        {/* Register Form */}
-                        <RegisterForm />
+                            {/* Navigation Links */}
+                            <div className="space-y-6 pt-6 border-t border-border/20">
+                                <p className="text-center text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">
+                                    Đã có tài khoản?{" "}
+                                    <Link
+                                        href="/login"
+                                        className="text-primary hover:text-primary/80 transition-colors ml-2"
+                                    >
+                                        Đăng nhập
+                                    </Link>
+                                </p>
 
-                        {/* Navigation Links */}
-                        <div className="space-y-6 pt-6 border-t border-border/20">
-                            <p className="text-center text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">
-                                Đã có tài khoản?{" "}
+                                <p className="text-center text-[9px] font-bold text-muted-foreground/30 px-8 leading-relaxed">
+                                    Bằng cách nhấp vào đăng ký, bạn đồng ý với <Link href="/terms" className="underline underline-offset-4 hover:text-primary">Điều khoản dịch vụ</Link> và <Link href="/privacy" className="underline underline-offset-4 hover:text-primary">Chính sách bảo mật</Link>.
+                                </p>
+
                                 <Link
-                                    href="/login"
-                                    className="text-primary hover:text-primary/80 transition-colors ml-2"
+                                    href="/"
+                                    className="flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 hover:text-foreground transition-all group"
                                 >
-                                    Đăng nhập
+                                    <ChevronLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
+                                    Quay về trang chủ
                                 </Link>
-                            </p>
-
-                            <p className="text-center text-[9px] font-bold text-muted-foreground/30 px-8 leading-relaxed">
-                                Bằng cách nhấp vào đăng ký, bạn đồng ý với <Link href="/terms" className="underline underline-offset-4 hover:text-primary">Điều khoản dịch vụ</Link> và <Link href="/privacy" className="underline underline-offset-4 hover:text-primary">Chính sách bảo mật</Link>.
-                            </p>
-
-                            <Link
-                                href="/"
-                                className="flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 hover:text-foreground transition-all group"
-                            >
-                                <ChevronLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
-                                Quay về trang chủ
-                            </Link>
+                            </div>
                         </div>
                     </div>
                 </div>

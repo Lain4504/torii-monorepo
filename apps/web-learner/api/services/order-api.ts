@@ -12,7 +12,7 @@ export const orderApi = {
      * Get all orders
      */
     async getAllOrders(query?: OrderQueryDTO): Promise<PaginatedResponseDTO<OrderResponseDTO>> {
-        const response = await apiClient.get<PaginatedResponseDTO<OrderResponseDTO>>('/api/payments', {
+        const response = await apiClient.get<PaginatedResponseDTO<OrderResponseDTO>>('/api/orders', {
             params: query,
         });
         return response.data;
@@ -22,7 +22,7 @@ export const orderApi = {
      * Get order by ID
      */
     async getOrder(id: string): Promise<OrderResponseDTO> {
-        const response = await apiClient.get<OrderResponseDTO>(`/api/payments/${id}`);
+        const response = await apiClient.get<OrderResponseDTO>(`/api/orders/${id}`);
         return response.data;
     },
 
@@ -38,7 +38,7 @@ export const orderApi = {
                 courseId: data.courseId, // Store courseId in metadata for later enrollment creation
             },
         };
-        const response = await apiClient.post<OrderResponseDTO>('/api/payments', payload);
+        const response = await apiClient.post<OrderResponseDTO>('/api/orders', payload);
         return response.data;
     },
 
@@ -46,7 +46,7 @@ export const orderApi = {
      * Confirm order
      */
     async confirmOrder(orderId: string, data: OrderConfirmDTO): Promise<OrderResponseDTO> {
-        const response = await apiClient.post<OrderResponseDTO>(`/api/payments/${orderId}/confirm`, data);
+        const response = await apiClient.post<OrderResponseDTO>(`/api/orders/${orderId}/confirm`, data);
         return response.data;
     },
 };

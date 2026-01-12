@@ -83,8 +83,8 @@ export default function LoginPage() {
               </svg>
             </div>
             <div className="flex flex-col">
-              <span className="text-2xl font-black tracking-tighter uppercase italic leading-none">Torii <span className="text-primary not-italic text-sm">ADMIN</span></span>
-              <span className="text-[9px] font-black uppercase tracking-[0.4em] text-muted-foreground/30 mt-1.5">Intelligence Gateway</span>
+              <span className="text-2xl font-serif font-bold tracking-tighter text-foreground italic leading-none">Torii <span className="text-primary not-italic text-sm">ADMIN</span></span>
+              <span className="text-[9px] font-black uppercase tracking-[0.4em] text-muted-foreground/30 mt-2">Intelligence Gateway</span>
             </div>
           </div>
         </div>
@@ -96,9 +96,9 @@ export default function LoginPage() {
               <Sparkles className="size-3" />
               Cognitive Matrix Active
             </div>
-            <h1 className="text-7xl font-black tracking-tighter leading-[0.85] text-foreground uppercase italic px-1">
+            <h1 className="text-7xl font-serif font-bold tracking-tighter leading-[0.85] text-foreground italic px-1">
               Command <br />
-              <span className="text-primary not-italic">The Future</span>
+              <span className="text-primary not-italic text-6xl">The Future</span>
             </h1>
             <p className="text-[13px] font-bold text-muted-foreground/40 leading-relaxed max-w-md italic border-l-2 border-primary/20 pl-8 uppercase tracking-widest px-1">
               "Master the architecture of knowledge. Nurture the learning journey with absolute clarity and focus."
@@ -115,7 +115,7 @@ export default function LoginPage() {
                 <div className="size-2 rounded-full bg-emerald-500 animate-pulse" />
               </div>
               <h3 className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/40 mb-1">Pulse Sync</h3>
-              <p className="text-xl font-black italic">OPTIMAL</p>
+              <p className="text-2xl font-serif font-bold italic text-primary">OPTIMAL</p>
             </div>
 
             <div className="group p-6 rounded-[2rem] bg-background/40 backdrop-blur-3xl border border-border/20 transition-all duration-500 hover:border-primary/20 hover:shadow-2xl hover:shadow-primary/5">
@@ -126,7 +126,7 @@ export default function LoginPage() {
                 <div className="text-[9px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded-full">+12k</div>
               </div>
               <h3 className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/40 mb-1">Entity Load</h3>
-              <p className="text-xl font-black italic">BALANCED</p>
+              <p className="text-2xl font-serif font-bold italic text-foreground">BALANCED</p>
             </div>
           </div>
         </div>
@@ -152,7 +152,7 @@ export default function LoginPage() {
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-muted/20 text-muted-foreground/40 rounded-full text-[8px] font-black uppercase tracking-[0.3em] mb-2">
               Identity Protocol Verification
             </div>
-            <h2 className="text-5xl font-black tracking-tighter text-foreground uppercase italic px-1">Access <br /><span className="text-primary not-italic">Registry</span></h2>
+            <h2 className="text-5xl font-serif font-bold tracking-tighter text-foreground italic px-1">Access <br /><span className="text-primary not-italic text-4xl">Registry</span></h2>
             <p className="text-[11px] font-bold text-muted-foreground/30 uppercase tracking-[0.2em] italic ml-1">Establish secure uplink with Torii Core.</p>
           </div>
 

@@ -4,12 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update nats_server.conf">
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/proxy/proxy.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/proxy/proxy.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/controllers/order.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/controllers/order.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/services/payment-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/api/services/order-api.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/finance/payments-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/finance/payments-page.tsx" afterDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix order bug" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -298,126 +293,6 @@
       <workItem from="1768199989867" duration="83000" />
       <workItem from="1768201864379" duration="7510000" />
     </task>
-    <task id="LOCAL-00599" summary="rebuild ui admin">
-      <option name="closed" value="true" />
-      <created>1768066326386</created>
-      <option name="number" value="00599" />
-      <option name="presentableId" value="LOCAL-00599" />
-      <option name="project" value="LOCAL" />
-      <updated>1768066326386</updated>
-    </task>
-    <task id="LOCAL-00600" summary="rebuild ui admin">
-      <option name="closed" value="true" />
-      <created>1768066619502</created>
-      <option name="number" value="00600" />
-      <option name="presentableId" value="LOCAL-00600" />
-      <option name="project" value="LOCAL" />
-      <updated>1768066619502</updated>
-    </task>
-    <task id="LOCAL-00601" summary="rebuild ui admin">
-      <option name="closed" value="true" />
-      <created>1768067368819</created>
-      <option name="number" value="00601" />
-      <option name="presentableId" value="LOCAL-00601" />
-      <option name="project" value="LOCAL" />
-      <updated>1768067368819</updated>
-    </task>
-    <task id="LOCAL-00602" summary="rebuild ui admin">
-      <option name="closed" value="true" />
-      <created>1768067556733</created>
-      <option name="number" value="00602" />
-      <option name="presentableId" value="LOCAL-00602" />
-      <option name="project" value="LOCAL" />
-      <updated>1768067556734</updated>
-    </task>
-    <task id="LOCAL-00603" summary="rebuild ui admin">
-      <option name="closed" value="true" />
-      <created>1768067933787</created>
-      <option name="number" value="00603" />
-      <option name="presentableId" value="LOCAL-00603" />
-      <option name="project" value="LOCAL" />
-      <updated>1768067933787</updated>
-    </task>
-    <task id="LOCAL-00604" summary="rebuild ui admin">
-      <option name="closed" value="true" />
-      <created>1768068128113</created>
-      <option name="number" value="00604" />
-      <option name="presentableId" value="LOCAL-00604" />
-      <option name="project" value="LOCAL" />
-      <updated>1768068128113</updated>
-    </task>
-    <task id="LOCAL-00605" summary="rebuild ui admin">
-      <option name="closed" value="true" />
-      <created>1768068243300</created>
-      <option name="number" value="00605" />
-      <option name="presentableId" value="LOCAL-00605" />
-      <option name="project" value="LOCAL" />
-      <updated>1768068243300</updated>
-    </task>
-    <task id="LOCAL-00606" summary="rebuild ui admin">
-      <option name="closed" value="true" />
-      <created>1768068634314</created>
-      <option name="number" value="00606" />
-      <option name="presentableId" value="LOCAL-00606" />
-      <option name="project" value="LOCAL" />
-      <updated>1768068634315</updated>
-    </task>
-    <task id="LOCAL-00607" summary="rebuild ui admin">
-      <option name="closed" value="true" />
-      <created>1768069201017</created>
-      <option name="number" value="00607" />
-      <option name="presentableId" value="LOCAL-00607" />
-      <option name="project" value="LOCAL" />
-      <updated>1768069201018</updated>
-    </task>
-    <task id="LOCAL-00608" summary="rebuild ui admin">
-      <option name="closed" value="true" />
-      <created>1768069671018</created>
-      <option name="number" value="00608" />
-      <option name="presentableId" value="LOCAL-00608" />
-      <option name="project" value="LOCAL" />
-      <updated>1768069671019</updated>
-    </task>
-    <task id="LOCAL-00609" summary="flashcard and exam">
-      <option name="closed" value="true" />
-      <created>1768070527878</created>
-      <option name="number" value="00609" />
-      <option name="presentableId" value="LOCAL-00609" />
-      <option name="project" value="LOCAL" />
-      <updated>1768070527878</updated>
-    </task>
-    <task id="LOCAL-00610" summary="flashcard and exam">
-      <option name="closed" value="true" />
-      <created>1768070734374</created>
-      <option name="number" value="00610" />
-      <option name="presentableId" value="LOCAL-00610" />
-      <option name="project" value="LOCAL" />
-      <updated>1768070734374</updated>
-    </task>
-    <task id="LOCAL-00611" summary="flashcard and exam">
-      <option name="closed" value="true" />
-      <created>1768070965739</created>
-      <option name="number" value="00611" />
-      <option name="presentableId" value="LOCAL-00611" />
-      <option name="project" value="LOCAL" />
-      <updated>1768070965740</updated>
-    </task>
-    <task id="LOCAL-00612" summary="flashcard and exam">
-      <option name="closed" value="true" />
-      <created>1768071480196</created>
-      <option name="number" value="00612" />
-      <option name="presentableId" value="LOCAL-00612" />
-      <option name="project" value="LOCAL" />
-      <updated>1768071480197</updated>
-    </task>
-    <task id="LOCAL-00613" summary="flashcard and exam">
-      <option name="closed" value="true" />
-      <created>1768071682160</created>
-      <option name="number" value="00613" />
-      <option name="presentableId" value="LOCAL-00613" />
-      <option name="project" value="LOCAL" />
-      <updated>1768071682161</updated>
-    </task>
     <task id="LOCAL-00614" summary="flashcard and exam">
       <option name="closed" value="true" />
       <created>1768071794810</created>
@@ -690,7 +565,127 @@
       <option name="project" value="LOCAL" />
       <updated>1768217123399</updated>
     </task>
-    <option name="localTasksCounter" value="648" />
+    <task id="LOCAL-00648" summary="renmae">
+      <option name="closed" value="true" />
+      <created>1768217438643</created>
+      <option name="number" value="00648" />
+      <option name="presentableId" value="LOCAL-00648" />
+      <option name="project" value="LOCAL" />
+      <updated>1768217438643</updated>
+    </task>
+    <task id="LOCAL-00649" summary="fix order bug">
+      <option name="closed" value="true" />
+      <created>1768218366550</created>
+      <option name="number" value="00649" />
+      <option name="presentableId" value="LOCAL-00649" />
+      <option name="project" value="LOCAL" />
+      <updated>1768218366550</updated>
+    </task>
+    <task id="LOCAL-00650" summary="fix order bug">
+      <option name="closed" value="true" />
+      <created>1768219161595</created>
+      <option name="number" value="00650" />
+      <option name="presentableId" value="LOCAL-00650" />
+      <option name="project" value="LOCAL" />
+      <updated>1768219161595</updated>
+    </task>
+    <task id="LOCAL-00651" summary="fix order bug">
+      <option name="closed" value="true" />
+      <created>1768223194260</created>
+      <option name="number" value="00651" />
+      <option name="presentableId" value="LOCAL-00651" />
+      <option name="project" value="LOCAL" />
+      <updated>1768223194260</updated>
+    </task>
+    <task id="LOCAL-00652" summary="fix order bug">
+      <option name="closed" value="true" />
+      <created>1768223323295</created>
+      <option name="number" value="00652" />
+      <option name="presentableId" value="LOCAL-00652" />
+      <option name="project" value="LOCAL" />
+      <updated>1768223323295</updated>
+    </task>
+    <task id="LOCAL-00653" summary="fix order bug">
+      <option name="closed" value="true" />
+      <created>1768224305738</created>
+      <option name="number" value="00653" />
+      <option name="presentableId" value="LOCAL-00653" />
+      <option name="project" value="LOCAL" />
+      <updated>1768224305738</updated>
+    </task>
+    <task id="LOCAL-00654" summary="fix order bug">
+      <option name="closed" value="true" />
+      <created>1768224557119</created>
+      <option name="number" value="00654" />
+      <option name="presentableId" value="LOCAL-00654" />
+      <option name="project" value="LOCAL" />
+      <updated>1768224557129</updated>
+    </task>
+    <task id="LOCAL-00655" summary="fix order bug">
+      <option name="closed" value="true" />
+      <created>1768225269297</created>
+      <option name="number" value="00655" />
+      <option name="presentableId" value="LOCAL-00655" />
+      <option name="project" value="LOCAL" />
+      <updated>1768225269297</updated>
+    </task>
+    <task id="LOCAL-00656" summary="fix order bug">
+      <option name="closed" value="true" />
+      <created>1768225674430</created>
+      <option name="number" value="00656" />
+      <option name="presentableId" value="LOCAL-00656" />
+      <option name="project" value="LOCAL" />
+      <updated>1768225674431</updated>
+    </task>
+    <task id="LOCAL-00657" summary="fix order bug">
+      <option name="closed" value="true" />
+      <created>1768226155196</created>
+      <option name="number" value="00657" />
+      <option name="presentableId" value="LOCAL-00657" />
+      <option name="project" value="LOCAL" />
+      <updated>1768226155196</updated>
+    </task>
+    <task id="LOCAL-00658" summary="fix order bug">
+      <option name="closed" value="true" />
+      <created>1768226305446</created>
+      <option name="number" value="00658" />
+      <option name="presentableId" value="LOCAL-00658" />
+      <option name="project" value="LOCAL" />
+      <updated>1768226305446</updated>
+    </task>
+    <task id="LOCAL-00659" summary="fix order bug">
+      <option name="closed" value="true" />
+      <created>1768226740925</created>
+      <option name="number" value="00659" />
+      <option name="presentableId" value="LOCAL-00659" />
+      <option name="project" value="LOCAL" />
+      <updated>1768226740925</updated>
+    </task>
+    <task id="LOCAL-00660" summary="fix order bug">
+      <option name="closed" value="true" />
+      <created>1768226885951</created>
+      <option name="number" value="00660" />
+      <option name="presentableId" value="LOCAL-00660" />
+      <option name="project" value="LOCAL" />
+      <updated>1768226885952</updated>
+    </task>
+    <task id="LOCAL-00661" summary="fix order bug">
+      <option name="closed" value="true" />
+      <created>1768227031056</created>
+      <option name="number" value="00661" />
+      <option name="presentableId" value="LOCAL-00661" />
+      <option name="project" value="LOCAL" />
+      <updated>1768227031056</updated>
+    </task>
+    <task id="LOCAL-00662" summary="fix order bug">
+      <option name="closed" value="true" />
+      <created>1768227150803</created>
+      <option name="number" value="00662" />
+      <option name="presentableId" value="LOCAL-00662" />
+      <option name="project" value="LOCAL" />
+      <updated>1768227150803</updated>
+    </task>
+    <option name="localTasksCounter" value="663" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -707,7 +702,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="post-ui" />
+                        <option value="payos-integration" />
                       </list>
                     </value>
                   </entry>
@@ -720,8 +715,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat: add SQL functions and triggers for course aggregate fields" />
-    <MESSAGE value="vf" />
     <MESSAGE value="refactor: remove unused fields and update indexes in course schema" />
     <MESSAGE value="feat(lms): core rebuild with auth, schema, and service refactor (#59)" />
     <MESSAGE value="feat(lms): restructure controllers and repositories for exams, questions, and storage modules&#10;&#10;- Migrated all exam-related controllers and repository logic to dedicated modules.&#10;- Removed obsolete question, question pool, and storage controllers.&#10;- Introduced interfaces for exam services and repositories for better abstraction.&#10;- Added exam admin controller for admin-specific operations (e.g., stats, publishing).&#10;- Improved logging and error handling across exam-related endpoints." />
@@ -745,7 +738,9 @@
     <MESSAGE value="docker file build" />
     <MESSAGE value="docker file build#2" />
     <MESSAGE value="update nats_server.conf" />
-    <option name="LAST_COMMIT_MESSAGE" value="update nats_server.conf" />
+    <MESSAGE value="renmae" />
+    <MESSAGE value="fix order bug" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix order bug" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -160,8 +160,8 @@ export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: Sid
             </div>
             {!isCollapsed && (
               <div className="flex flex-col whitespace-nowrap animate-in fade-in slide-in-from-left-4 duration-700 delay-100">
-                <span className="text-xl font-black tracking-tighter uppercase italic leading-none">Torii <span className="text-primary not-italic text-sm">ADMIN</span></span>
-                <span className="text-[9px] font-black uppercase tracking-[0.4em] text-muted-foreground/30 mt-1.5">{t('sidebar.workspace')}</span>
+                <span className="text-2xl font-serif font-bold tracking-tighter text-foreground italic leading-none">Torii <span className="text-primary not-italic text-sm">ADMIN</span></span>
+                <span className="text-[9px] font-black uppercase tracking-[0.4em] text-muted-foreground/30 mt-2">{t('sidebar.workspace')}</span>
               </div>
             )}
           </Link>

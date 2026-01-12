@@ -80,7 +80,7 @@ export default function CoursesPage() {
           <ShieldAlert className="size-8 text-destructive opacity-40" />
         </div>
         <div className="space-y-1">
-          <h3 className="text-lg font-black uppercase tracking-tight italic">Registry Failure</h3>
+          <h3 className="text-xl font-serif font-bold italic tracking-tight uppercase">Registry Failure</h3>
           <p className="text-xs font-bold text-muted-foreground/60 italic uppercase tracking-widest">{error.message}</p>
         </div>
       </div>
@@ -165,9 +165,9 @@ export default function CoursesPage() {
             <BookOpen className="size-3" />
             Content Architecture
           </div>
-          <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-foreground uppercase italic leading-[0.85]">
+          <h1 className="text-4xl sm:text-6xl font-serif font-bold tracking-tight text-foreground italic leading-[0.85]">
             Learning <br />
-            <span className="text-primary not-italic text-4xl sm:text-5xl">Repositories</span>
+            <span className="text-primary not-italic text-5xl sm:text-6xl">Repositories</span>
           </h1>
           <p className="text-[11px] font-bold text-muted-foreground/40 uppercase tracking-[0.15em] italic border-l-2 border-primary/20 pl-6 mt-6">
             Kiến tạo và quản trị hệ sinh thái bài giảng, học liệu số hóa dành cho cộng đồng <span className="text-foreground">Torii Academy</span>.
@@ -177,7 +177,7 @@ export default function CoursesPage() {
           <div className="flex items-center gap-4 p-4 rounded-3xl bg-background/40 border border-border/20 backdrop-blur-xl hidden sm:flex">
             <div className="space-y-1">
               <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">Active Assets</p>
-              <h3 className="text-2xl font-black italic text-center">{meta?.total || 0}</h3>
+              <h3 className="text-3xl font-serif font-bold italic text-center text-primary">{meta?.total || 0}</h3>
             </div>
           </div>
           <Can permission="course.create">

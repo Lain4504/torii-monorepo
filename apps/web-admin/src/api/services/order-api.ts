@@ -10,7 +10,7 @@ export const orderApi = {
      * Get all payments
      */
     async getAllPayments(query?: OrderQueryDTO): Promise<PaginatedResponseDTO<OrderResponseDTO>> {
-        const response = await apiClient.get<PaginatedResponseDTO<OrderResponseDTO>>('/api/payments', {
+        const response = await apiClient.get<PaginatedResponseDTO<OrderResponseDTO>>('/api/orders', {
             params: query,
         });
         return response.data;
@@ -20,7 +20,7 @@ export const orderApi = {
      * Get payment by ID
      */
     async getPayment(id: string): Promise<OrderResponseDTO> {
-        const response = await apiClient.get<OrderResponseDTO>(`/api/payments/${id}`);
+        const response = await apiClient.get<OrderResponseDTO>(`/api/orders/${id}`);
         return response.data;
     },
 };

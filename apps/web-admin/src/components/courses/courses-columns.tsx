@@ -61,8 +61,8 @@ export const getCoursesColumns = ({ onEdit, onDelete, onManageInstructors, onPub
                     <BookOpen className="size-4" />
                 </div>
                 <div className="flex flex-col">
-                    <span className="font-black italic uppercase tracking-tight text-foreground group-hover/title:text-primary transition-colors line-clamp-1">{info.getValue()}</span>
-                    <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest">ID: {info.row.original.id.slice(0, 8)}</span>
+                    <span className="font-serif font-bold italic text-foreground text-lg group-hover/title:text-primary transition-colors line-clamp-1">{info.getValue()}</span>
+                    <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest mt-0.5">ID: {info.row.original.id.slice(0, 8)}</span>
                 </div>
             </div>
         ),
@@ -98,7 +98,7 @@ export const getCoursesColumns = ({ onEdit, onDelete, onManageInstructors, onPub
         cell: (info) => {
             const formatted = formatCurrency(info.getValue());
             return (
-                <div className="text-center font-black italic text-[14px] text-foreground tabular-nums tracking-tight">
+                <div className="text-center font-serif font-bold italic text-[16px] text-foreground tabular-nums tracking-tight">
                     {formatted}
                 </div>
             );
@@ -140,8 +140,8 @@ export const getCoursesColumns = ({ onEdit, onDelete, onManageInstructors, onPub
         },
         cell: (info) => (
             <div className="flex flex-col items-center">
-                <div className="font-black italic text-lg leading-none">{info.getValue() || 0}</div>
-                <div className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40 mt-1">Identifiers</div>
+                <div className="font-serif font-bold italic text-xl leading-none text-primary">{info.getValue() || 0}</div>
+                <div className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40 mt-1.5">Identifiers</div>
             </div>
         ),
         size: 100,

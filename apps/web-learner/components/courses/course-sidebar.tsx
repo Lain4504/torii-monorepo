@@ -81,7 +81,7 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
 
                         <div className="flex flex-col">
                             <div className="flex items-end gap-3">
-                                <span className="text-4xl font-black text-foreground tracking-tighter italic">
+                                <span className="text-5xl font-serif font-bold italic text-foreground tracking-tight leading-none">
                                     {course.isFree ? 'FREE' : (course.discountPrice ? formatPrice(Number(course.discountPrice)) : formatPrice(Number(course.price)))}
                                 </span>
                                 {course.discountPrice && !course.isFree && (

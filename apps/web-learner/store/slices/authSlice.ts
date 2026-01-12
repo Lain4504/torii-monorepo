@@ -235,6 +235,7 @@ export const authSlice = createSlice({
             .addCase(checkAuth.rejected, (state) => {
                 state.isAuthenticated = false;
                 state.user = null;
+                state.status = 'idle';
                 // Don't set error for auth check failures
             });
 

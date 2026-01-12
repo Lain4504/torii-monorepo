@@ -41,16 +41,16 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                             <div className="space-y-10 animate-in fade-in duration-700">
                                 <div className="flex items-center gap-3">
                                     <GraduationCap className="w-5 h-5 text-primary" />
-                                    <h2 className="text-xl font-black uppercase tracking-tight text-foreground">Bạn sẽ học được gì</h2>
+                                    <h2 className="text-3xl font-serif font-bold italic text-foreground tracking-tight">Bạn sẽ học được gì</h2>
                                 </div>
-                                <div className="grid md:grid-cols-2 gap-y-6 gap-x-12 p-10 rounded-[2.5rem] bg-primary/5 border border-primary/10 relative overflow-hidden group">
-                                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-primary/20 transition-all duration-700" />
+                                <div className="grid md:grid-cols-2 gap-y-6 gap-x-12 p-12 rounded-[3.5rem] bg-primary/5 border border-primary/10 relative overflow-hidden group">
+                                    <div className="absolute top-0 right-0 w-48 h-48 bg-primary/10 rounded-full -mr-24 -mt-24 blur-[80px] group-hover:bg-primary/20 transition-all duration-1000" />
                                     {learningOutcomes.map((item, index) => (
                                         <div key={index} className="flex gap-4 items-start group/item">
-                                            <div className="w-6 h-6 rounded-lg bg-background flex items-center justify-center border border-primary/20 group-hover/item:bg-primary group-hover/item:text-white transition-all shadow-sm">
-                                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                            <div className="w-7 h-7 rounded-xl bg-background flex items-center justify-center border border-primary/10 group-hover/item:bg-primary group-hover/item:text-white transition-all duration-500 shadow-sm">
+                                                <CheckCircle2 className="w-4 h-4" />
                                             </div>
-                                            <span className="text-sm font-bold text-muted-foreground/80 leading-relaxed group-hover/item:text-foreground transition-colors">{item}</span>
+                                            <span className="text-sm font-bold text-muted-foreground/80 leading-relaxed group-hover/item:text-foreground transition-all duration-300 italic">{item}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -62,10 +62,10 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                             <div className="space-y-10 animate-in fade-in duration-700">
                                 <div className="flex items-center gap-3">
                                     <BookOpen className="w-5 h-5 text-primary" />
-                                    <h2 className="text-xl font-black uppercase tracking-tight text-foreground">Giới thiệu khóa học</h2>
+                                    <h2 className="text-3xl font-serif font-bold italic text-foreground tracking-tight">Giới thiệu khóa học</h2>
                                 </div>
                                 <div
-                                    className="prose prose-neutral dark:prose-invert max-w-none text-muted-foreground/80 leading-relaxed font-bold italic border-l-4 border-primary/10 pl-8"
+                                    className="prose prose-neutral dark:prose-invert max-w-none text-muted-foreground/80 leading-relaxed font-bold italic border-l-4 border-primary/20 pl-10 py-2"
                                     dangerouslySetInnerHTML={{ __html: course.description }}
                                 />
                             </div>
@@ -76,7 +76,7 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                             <div className="space-y-10 animate-in fade-in duration-700">
                                 <div className="flex items-center gap-3">
                                     <Sparkles className="w-5 h-5 text-primary" />
-                                    <h2 className="text-xl font-black uppercase tracking-tight text-foreground">Yêu cầu đầu vào</h2>
+                                    <h2 className="text-3xl font-serif font-bold italic text-foreground tracking-tight">Yêu cầu đầu vào</h2>
                                 </div>
                                 <ul className="space-y-4 pl-1">
                                     {course.requirements.map((req: string, index: number) => (

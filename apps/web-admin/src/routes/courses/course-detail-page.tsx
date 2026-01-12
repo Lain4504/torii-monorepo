@@ -91,10 +91,10 @@ export default function CourseDetailPage() {
                     <AlertCircle className="size-16 text-destructive/40 relative z-10 mx-auto" />
                 </div>
                 <div className="space-y-4 text-center relative z-10">
-                    <h2 className="text-4xl font-black tracking-tight uppercase italic leading-none">Node Sync Failed</h2>
+                    <h2 className="text-5xl font-serif font-bold tracking-tight italic leading-none">Node Sync Failed</h2>
                     <p className="text-[12px] font-bold text-muted-foreground/60 uppercase tracking-widest leading-relaxed">
                         Hệ thống không tìm thấy định danh bài giảng được yêu cầu. <br />
-                        Có thể tài nguyên đã được di chuyển hoặc xóa bỏ khỏi <span className="text-foreground">Torii Matrix</span>.
+                        Có thể tài nguyên đã được di chuyển hoặc xóa bỏ khỏi <span className="font-serif italic text-foreground px-1">Torii Matrix</span>.
                     </p>
                 </div>
                 <Button
@@ -131,7 +131,7 @@ export default function CourseDetailPage() {
                             <span className="text-[9px] font-black uppercase tracking-[0.3em]">Knowledge Hub</span>
                         </Button>
                         <div className="flex items-center gap-4 overflow-hidden">
-                            <h1 className="text-3xl sm:text-4xl font-black tracking-tighter text-foreground uppercase italic truncate py-1">
+                            <h1 className="text-3xl sm:text-5xl font-serif font-bold tracking-tighter text-foreground italic truncate py-1">
                                 {course.title}
                             </h1>
                             <div className={cn(
@@ -145,15 +145,15 @@ export default function CourseDetailPage() {
                     </div>
 
                     <div className="flex items-center gap-4 flex-shrink-0">
-                        <div className="flex items-center gap-6 px-6 py-4 rounded-2xl bg-muted/20 border border-border/10 hidden lg:flex">
+                        <div className="flex items-center gap-6 px-10 py-5 rounded-3xl bg-muted/20 border border-border/10 hidden lg:flex">
                             <div className="text-center">
-                                <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40">Entities</p>
-                                <p className="text-xl font-black italic">{modules.length}</p>
+                                <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 mb-1">Entities</p>
+                                <p className="text-3xl font-serif font-bold italic text-primary">{modules.length}</p>
                             </div>
-                            <div className="w-px h-8 bg-border/20" />
+                            <div className="w-px h-10 bg-border/20 mx-4" />
                             <div className="text-center">
-                                <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40">Matrix</p>
-                                <p className="text-xl font-black italic">{course.jlptLevel || 'N/A'}</p>
+                                <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 mb-1">Matrix</p>
+                                <p className="text-3xl font-serif font-bold italic text-foreground">{course.jlptLevel || 'N/A'}</p>
                             </div>
                         </div>
                         <Button
@@ -174,9 +174,9 @@ export default function CourseDetailPage() {
                     <div className="lg:col-span-8 space-y-10">
                         <div className="flex items-center justify-between px-2">
                             <div className="space-y-1">
-                                <h2 className="text-2xl font-black uppercase tracking-tight italic flex items-center gap-3">
-                                    <Target className="size-6 text-primary" />
-                                    Knowledge Architecture
+                                <h2 className="text-3xl font-serif font-bold tracking-tight italic flex items-center gap-4">
+                                    <Target className="size-7 text-primary" />
+                                    Knowledge <span className="text-primary not-italic">Architecture</span>
                                 </h2>
                                 <p className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-[0.2em] italic pl-9">Structural hierarchy of the learning repository.</p>
                             </div>
@@ -239,9 +239,9 @@ export default function CourseDetailPage() {
                                         <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 italic">Protocol Identifier</p>
                                         <p className="text-[13px] font-black italic text-foreground truncate uppercase">{course.id}</p>
                                     </div>
-                                    <div className="space-y-1 px-1">
+                                    <div className="space-y-1.5 px-1">
                                         <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 italic">Valuation Sync</p>
-                                        <p className="text-2xl font-black italic text-primary uppercase">{formatCurrency(course.price)}</p>
+                                        <p className="text-4xl font-serif font-bold italic text-primary tracking-tighter">{formatCurrency(course.price)}</p>
                                     </div>
                                 </div>
                             </div>

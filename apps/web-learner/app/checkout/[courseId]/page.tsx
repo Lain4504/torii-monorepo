@@ -97,7 +97,9 @@ export default function CheckoutPage() {
 
     const calculateTotal = () => {
         if (!course) return 0
-        return course.discountPrice ? Number(course.discountPrice) : Number(course.price)
+        return (course.discountPrice !== null && course.discountPrice !== undefined)
+            ? Number(course.discountPrice)
+            : Number(course.price)
     }
 
     const handlePayment = async () => {
@@ -156,7 +158,7 @@ export default function CheckoutPage() {
     if (!course) return null
 
     const total = calculateTotal()
-    const discount = course.discountPrice
+    const discount = (course.discountPrice !== null && course.discountPrice !== undefined)
         ? ((Number(course.price) - Number(course.discountPrice)) / Number(course.price)) * 100
         : 0
 
@@ -402,7 +404,7 @@ export default function CheckoutPage() {
                         <div className="text-center space-y-2">
                             <p className="text-sm font-medium">Nội dung chuyển khoản:</p>
                             <div className="bg-muted/50 p-3 rounded-lg border border-white/5 select-all font-mono font-bold text-lg tracking-wider text-primary">
-                                {activeOrder?.ref ? `PAY ${activeOrder.ref}` : "..."}
+                                {activeOrder?.ref ? `${activeOrder.ref}` : "..."}
                             </div>
                             <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground mt-2">
                                 <Loader2 className="w-3 h-3 animate-spin text-primary" />

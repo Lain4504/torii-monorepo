@@ -79,7 +79,7 @@ export const mainNavItems: NavItem[] = [
 export const managementNavItems: NavItem[] = [
     {
         titleKey: "navigation.financials",
-        url: "/payments",
+        url: "/orders",
         icon: CreditCard,
         permission: "payment.manage",
         descriptionKey: "navDescriptions.financials",

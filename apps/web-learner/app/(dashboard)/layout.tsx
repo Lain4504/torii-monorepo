@@ -39,10 +39,11 @@ export default function DashboardLayout({
 
     return (
         <div className="min-h-screen bg-background selection:bg-primary/10 selection:text-primary">
-            {/* Soft Background Decorative elements */}
+            {/* Zen Ambient Background Elements */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px]" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[30%] h-[30%] bg-blue-500/5 rounded-full blur-[100px]" />
+                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/[0.03] rounded-full blur-[140px] animate-pulse duration-[8s]" />
+                <div className="absolute bottom-[-15%] right-[-10%] w-[40%] h-[40%] bg-primary/[0.02] rounded-full blur-[120px] animate-pulse duration-[10s]" />
+                <div className="absolute top-[20%] right-[10%] w-[20%] h-[20%] bg-primary/[0.04] rounded-full blur-[100px]" />
             </div>
 
             <DashboardHeader isCollapsed={isCollapsed} toggleSidebar={() => setIsCollapsed(!isCollapsed)} />

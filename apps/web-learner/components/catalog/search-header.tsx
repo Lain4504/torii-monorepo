@@ -24,11 +24,11 @@ export function SearchHeader({
                     <Search className="w-3 h-3" />
                     <span>Course Catalog</span>
                 </div>
-                <h1 className="text-5xl md:text-6xl font-black tracking-tighter text-foreground uppercase italic leading-none">
-                    Thư Viện <span className="text-primary not-italic">Khóa Học</span>
+                <h1 className="text-5xl md:text-7xl font-serif font-bold tracking-tight text-foreground uppercase italic leading-[0.9]">
+                    Thư Viện <br /> <span className="text-primary not-italic">Khóa Học</span>
                 </h1>
-                <p className="text-lg text-muted-foreground font-medium max-w-2xl opacity-60 leading-relaxed">
-                    Khám phá lộ trình học tập tối ưu được thiết kế riêng cho mục tiêu JLPT của bạn.
+                <p className="text-[11px] font-black uppercase tracking-[0.25em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-8 py-2">
+                    Lộ trình học tập tối ưu được thiết kế riêng cho mục tiêu JLPT.
                 </p>
             </div>
 

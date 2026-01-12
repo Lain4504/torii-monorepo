@@ -57,10 +57,10 @@ export function CourseHeader({ course }: CourseHeaderProps) {
 
                         {/* Title & Description */}
                         <div className="space-y-6">
-                            <h1 className="text-5xl md:text-6xl font-black tracking-tighter leading-[0.9] text-foreground uppercase italic">
+                            <h1 className="text-6xl md:text-7xl lg:text-8xl font-serif font-bold tracking-tight leading-[0.85] text-foreground uppercase italic">
                                 {course.title}
                             </h1>
-                            <p className="text-xl text-muted-foreground/80 font-bold leading-relaxed max-w-2xl">
+                            <p className="text-[11px] font-black uppercase tracking-[0.3em] text-primary/40 italic border-l-2 border-primary/20 pl-8 max-w-2xl py-1">
                                 {course.shortDescription || "Hành trình chinh phục trình độ " + course.jlptLevel + " với lộ trình tối ưu và công nghệ AI hiện đại."}
                             </p>
                         </div>
@@ -72,9 +72,9 @@ export function CourseHeader({ course }: CourseHeaderProps) {
                                     <div className="p-1.5 rounded-lg bg-primary/5 text-primary">
                                         <Users className="w-4 h-4" />
                                     </div>
-                                    <span className="text-lg font-black text-foreground tracking-tight">{course.totalStudents.toLocaleString()}+</span>
+                                    <span className="text-2xl font-serif font-bold italic text-foreground tracking-tight">{course.totalStudents.toLocaleString()}+</span>
                                 </div>
-                                <div className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 group-hover:text-primary transition-colors">Học viên tham gia</div>
+                                <div className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 group-hover:text-primary transition-colors">Học viên tham gia</div>
                             </div>
 
                             <div className="space-y-1.5 group">
@@ -82,9 +82,9 @@ export function CourseHeader({ course }: CourseHeaderProps) {
                                     <div className="p-1.5 rounded-lg bg-primary/5 text-primary">
                                         <Calendar className="w-4 h-4" />
                                     </div>
-                                    <span className="text-lg font-black text-foreground tracking-tight">{formatDate(course.updatedAt)}</span>
+                                    <span className="text-2xl font-serif font-bold italic text-foreground tracking-tight">{formatDate(course.updatedAt)}</span>
                                 </div>
-                                <div className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 group-hover:text-primary transition-colors">Cập nhật gần nhất</div>
+                                <div className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 group-hover:text-primary transition-colors">Cập nhật gần nhất</div>
                             </div>
 
                             <div className="space-y-1.5 group hidden sm:block">
@@ -92,9 +92,9 @@ export function CourseHeader({ course }: CourseHeaderProps) {
                                     <div className="p-1.5 rounded-lg bg-primary/5 text-primary">
                                         <Globe className="w-4 h-4" />
                                     </div>
-                                    <span className="text-lg font-black text-foreground tracking-tight">Tiếng Việt</span>
+                                    <span className="text-2xl font-serif font-bold italic text-foreground tracking-tight">Tiếng Việt</span>
                                 </div>
-                                <div className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 group-hover:text-primary transition-colors">Ngôn ngữ đào tạo</div>
+                                <div className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 group-hover:text-primary transition-colors">Ngôn ngữ đào tạo</div>
                             </div>
                         </div>
 

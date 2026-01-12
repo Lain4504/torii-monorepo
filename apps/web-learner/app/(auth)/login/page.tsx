@@ -41,7 +41,7 @@ export default function LoginPage() {
                                 <Sparkles className="w-3 h-3" />
                                 <span>Sensei Approved</span>
                             </div>
-                            <h2 className="text-6xl font-black tracking-[0.02em] leading-[0.85] text-foreground uppercase italic mb-8">
+                            <h2 className="text-6xl font-serif font-bold tracking-tight leading-[0.85] text-foreground uppercase italic mb-8">
                                 Học tiếng Nhật <br />
                                 <span className="text-primary/20 not-italic">Thông minh</span> <br />
                                 <span className="text-foreground">Hơn bao giờ hết</span>
@@ -99,7 +99,7 @@ export default function LoginPage() {
                             </div>
 
                             <div className="space-y-2 text-center lg:text-left">
-                                <h1 className="text-4xl font-black tracking-[0.02em] uppercase italic text-foreground">Hành trình <br /><span className="text-primary not-italic italic">Bản thân</span></h1>
+                                <h1 className="text-5xl font-serif font-bold tracking-tight uppercase italic text-foreground">Hành trình <br /><span className="text-primary not-italic italic">Bản thân</span></h1>
                                 <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Tiếp tục chinh phục mục tiêu JLPT</p>
                             </div>
                         </div>

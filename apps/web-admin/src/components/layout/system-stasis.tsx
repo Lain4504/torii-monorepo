@@ -39,12 +39,12 @@ export function SystemStasis({
                 </div>
 
                 <div className="space-y-3">
-                    <h2 className="text-5xl font-black tracking-tighter uppercase italic text-foreground/80 leading-none">
+                    <h2 className="text-5xl sm:text-7xl font-serif font-bold tracking-tight text-foreground italic leading-[0.9]">
                         {title.split(' ').map((word, i) => (
-                            <span key={i} className={i % 2 === 1 ? "text-primary not-italic" : ""}>{word} </span>
+                            <span key={i} className={cn(i % 2 === 1 ? "text-primary not-italic" : "")}>{word} </span>
                         ))}
                     </h2>
-                    <p className="text-[12px] font-bold text-muted-foreground/40 uppercase tracking-[0.2em] italic max-w-lg mx-auto leading-relaxed">
+                    <p className="text-[12px] font-bold text-muted-foreground/40 uppercase tracking-[0.2em] italic max-w-lg mx-auto leading-relaxed pt-3 border-t border-border/10">
                         {description}
                     </p>
                 </div>

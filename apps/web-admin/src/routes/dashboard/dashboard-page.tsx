@@ -45,7 +45,7 @@ function StatsCard({ title, value, sub, icon: Icon, trend, colorClass }: any) {
 
       <CardContent className="pb-8">
         <div className="flex items-baseline gap-2">
-          <h3 className="text-4xl font-black tracking-tight text-foreground uppercase italic">{value}</h3>
+          <h3 className="text-4xl font-serif font-bold tracking-tight text-foreground italic">{value}</h3>
           {trend && (
             <div className="flex items-center gap-1 text-[10px] font-black uppercase text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full mb-1">
               <ArrowUpRight className="size-3" />
@@ -109,7 +109,7 @@ function AdminDashboard() {
                 Growth Analytics
               </div>
             </div>
-            <CardTitle className="text-4xl font-black uppercase italic tracking-tight">Overview <br /><span className="text-primary not-italic">Data Visualization</span></CardTitle>
+            <CardTitle className="text-4xl font-serif font-bold italic tracking-tight text-foreground">Overview <br /><span className="text-primary not-italic">Data Visualization</span></CardTitle>
             <CardDescription className="text-[11px] font-bold text-muted-foreground/40 uppercase tracking-widest mt-2">Revenue & Enrollment metrics for Q1 2026</CardDescription>
           </CardHeader>
           <CardContent className="p-10 pt-0">
@@ -129,7 +129,7 @@ function AdminDashboard() {
               <DollarSign className="size-3" />
               Live Feed
             </div>
-            <CardTitle className="text-3xl font-black uppercase italic tracking-tight">Recent <span className="text-amber-500 not-italic">Sales</span></CardTitle>
+            <CardTitle className="text-3xl font-serif font-bold italic tracking-tight text-foreground">Recent <span className="text-amber-500 not-italic">Sales</span></CardTitle>
             <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 mt-2">Latest verified transactions</p>
           </CardHeader>
           <CardContent className="px-10 pb-10">
@@ -167,7 +167,7 @@ function StaffDashboard() {
               <Target className="size-3" />
               Task Manager
             </div>
-            <CardTitle className="text-3xl font-black uppercase italic tracking-tight">Operations <span className="text-primary not-italic">To-Dos</span></CardTitle>
+            <CardTitle className="text-3xl font-serif font-bold italic tracking-tight text-foreground">Operations <span className="text-primary not-italic">To-Dos</span></CardTitle>
             <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 mt-2">Daily control & validation tasks</p>
           </CardHeader>
           <CardContent className="px-8 pb-10 space-y-4">
@@ -183,7 +183,7 @@ function StaffDashboard() {
               <BookOpen className="size-3" />
               Latest Updates
             </div>
-            <CardTitle className="text-3xl font-black uppercase italic tracking-tight">Course <span className="text-amber-500 not-italic">Activity</span></CardTitle>
+            <CardTitle className="text-3xl font-serif font-bold italic tracking-tight text-foreground">Course <span className="text-amber-500 not-italic">Activity</span></CardTitle>
             <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 mt-2">Dynamic course status tracking</p>
           </CardHeader>
           <CardContent className="px-8 pb-10">
@@ -231,7 +231,7 @@ function LecturerDashboard() {
                 Sync Protocol: Active
               </div>
             </div>
-            <h2 className="text-6xl font-black tracking-tight text-foreground uppercase italic leading-[0.9]">N4 Conversation <br /><span className="text-primary/20 not-italic">Masterclass</span></h2>
+            <h2 className="text-6xl font-serif font-bold tracking-tight text-foreground italic leading-[0.9]">N4 Conversation <br /><span className="text-primary/20 not-italic">Masterclass</span></h2>
             <p className="text-sm font-bold text-muted-foreground/60 leading-relaxed italic border-l-2 border-primary/20 pl-8 max-w-lg hidden lg:block">
               "Chuẩn bị kỹ lưỡng cho buổi Kaiwa hôm nay. Tập trung vào cấu trúc câu phức và phản xạ ngữ pháp N4."
             </p>
@@ -260,7 +260,7 @@ function LecturerDashboard() {
         <Card className="rounded-[3rem] bg-background/40 backdrop-blur-3xl border border-border/20 shadow-sm p-4">
           <CardHeader className="p-8 pb-8">
             <div className="flex items-center justify-between mb-4">
-              <CardTitle className="text-2xl font-black uppercase italic tracking-tight italic">Teaching <span className="text-primary not-italic">Timeline</span></CardTitle>
+              <CardTitle className="text-2xl font-serif font-bold italic tracking-tight text-foreground">Teaching <span className="text-primary not-italic">Timeline</span></CardTitle>
               <div className="p-2 rounded-xl bg-muted/20"><Calendar className="size-4 text-muted-foreground/40" /></div>
             </div>
             <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30">Your upcoming instructional matrix</p>
@@ -287,7 +287,7 @@ function LecturerDashboard() {
         <Card className="rounded-[3rem] bg-background/40 backdrop-blur-3xl border border-border/20 shadow-sm p-4">
           <CardHeader className="p-8 pb-8">
             <div className="flex items-center justify-between mb-4">
-              <CardTitle className="text-2xl font-black uppercase italic tracking-tight italic">Assignment <span className="text-amber-500 not-italic">Queue</span></CardTitle>
+              <CardTitle className="text-2xl font-serif font-bold italic tracking-tight text-foreground">Assignment <span className="text-amber-500 not-italic">Queue</span></CardTitle>
               <div className="p-2 rounded-xl bg-muted/20"><Zap className="size-4 text-muted-foreground/40" /></div>
             </div>
             <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30">Evaluation protocols required</p>
@@ -333,7 +333,7 @@ function SaleItem({ name, email, amount }: any) {
         <p className="text-[12px] font-black uppercase tracking-tight text-foreground group-hover:text-primary transition-colors">{name}</p>
         <p className="text-[10px] font-bold text-muted-foreground/40 italic">{email}</p>
       </div>
-      <div className="ml-auto font-black italic tracking-tighter text-foreground text-lg">{amount}</div>
+      <div className="ml-auto font-serif font-bold italic tracking-tighter text-foreground text-2xl">{amount}</div>
     </div>
   )
 }
@@ -377,28 +377,28 @@ export default function DashboardPage() {
   return (
     <div className="space-y-12 pb-24 selection:bg-primary/20 selection:text-primary">
       {/* Header Greeting Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 relative px-1">
-        <div className="space-y-4 max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[9px] font-black uppercase tracking-[0.3em] mb-2">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 relative px-2">
+        <div className="space-y-6 max-w-3xl">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[9px] font-black uppercase tracking-[0.3em] mb-2 animate-in fade-in slide-in-from-left-4 duration-500">
             <Sparkles className="size-3" />
             Intelligence Gateway Core
           </div>
-          <h2 className="text-6xl font-black tracking-tight text-foreground uppercase italic leading-[0.85]">
+          <h2 className="text-7xl font-serif font-bold tracking-tight text-foreground uppercase italic leading-[0.8] animate-in fade-in slide-in-from-bottom-4 duration-700">
             {getGreeting()}, <br />
             <span className="text-primary not-italic">{user?.displayName?.split(' ')[0] || 'User'}</span>
           </h2>
-          <p className="text-sm font-bold text-muted-foreground/40 uppercase tracking-[0.1em] italic border-l-2 border-primary/20 pl-6 mt-6">
-            Hệ thống vận hành tối ưu. Tiếp tục quản trị hành trình tri thức tại <span className="text-foreground">Torii HQ</span>.
+          <p className="text-[11px] font-black uppercase tracking-[0.25em] italic border-l-2 border-primary/20 pl-8 mt-8 text-muted-foreground/40 leading-relaxed max-w-xl animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
+            Hệ thống vận hành tối ưu. Tiếp tục quản trị hành trình tri thức tại <span className="text-foreground/60">Torii Command Center</span>.
           </p>
         </div>
-        <div className="flex items-center gap-4 pt-4 md:pt-0">
-          <Button className="h-14 rounded-2xl bg-background border border-border/20 shadow-xl text-foreground font-black uppercase tracking-[0.2em] text-[10px] hover:bg-primary hover:text-white hover:border-primary transition-all duration-500 group">
-            System Analytics
+        <div className="flex items-center gap-4 pt-6 md:pt-0 animate-in fade-in zoom-in-95 duration-1000 delay-500">
+          <Button className="h-16 px-8 rounded-2xl bg-background border border-border/10 shadow-2xl text-foreground font-black uppercase tracking-[0.2em] text-[10px] hover:bg-primary/5 hover:text-primary transition-all duration-700 group">
+            Global Analytics
             <TrendingUp className="ml-3 size-4 opacity-40 group-hover:opacity-100 transition-all" />
           </Button>
-          <Button className="h-14 rounded-2xl bg-primary text-white font-black uppercase tracking-[0.2em] text-[10px] shadow-xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-1 transition-all duration-500 group">
-            Global Export
-            <ArrowUpRight className="ml-2 size-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+          <Button className="h-16 px-10 rounded-2xl bg-primary text-white font-black uppercase tracking-[0.2em] text-[10px] shadow-2xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-1 transition-all duration-700 group">
+            Export Ledger
+            <ArrowUpRight className="ml-2 size-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
           </Button>
         </div>
       </div>

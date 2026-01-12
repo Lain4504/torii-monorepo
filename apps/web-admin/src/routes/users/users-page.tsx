@@ -145,9 +145,9 @@ export function UsersPage() {
                         <UsersIcon className="size-3" />
                         Identity Management
                     </div>
-                    <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-foreground uppercase italic leading-[0.85]">
+                    <h1 className="text-4xl sm:text-6xl font-serif font-bold tracking-tight text-foreground italic leading-[0.85]">
                         System <br />
-                        <span className="text-primary not-italic">Users & Roles</span>
+                        <span className="text-primary not-italic text-5xl sm:text-6xl">Users & Roles</span>
                     </h1>
                     <p className="text-[11px] font-bold text-muted-foreground/40 uppercase tracking-[0.15em] italic border-l-2 border-primary/20 pl-6 mt-6">
                         Quản trị hạ tầng định danh, phân quyền và kiểm soát truy cập hệ thống <span className="text-foreground">Torii Global</span>.
@@ -157,7 +157,7 @@ export function UsersPage() {
                     <div className="flex items-center gap-4 p-4 rounded-3xl bg-background/40 border border-border/20 backdrop-blur-xl hidden sm:flex">
                         <div className="space-y-1">
                             <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">Entity Count</p>
-                            <h3 className="text-2xl font-black italic text-center">{total}</h3>
+                            <h3 className="text-3xl font-serif font-bold italic text-center text-primary">{total}</h3>
                         </div>
                     </div>
                     <Button

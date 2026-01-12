@@ -49,4 +49,9 @@ export interface IOrderRepository {
      * Create a payment log (transaction receipt)
      */
     createPayment(data: Prisma.PaymentCreateInput): Promise<Payment>;
+
+    /**
+     * Find payment by transaction ID
+     */
+    findPaymentByTransactionId(transactionId: string): Promise<Payment | null>;
 }

@@ -93,4 +93,13 @@ export class OrderRepository implements IOrderRepository {
             data,
         });
     }
+
+    /**
+     * Find payment by transaction ID
+     */
+    async findPaymentByTransactionId(transactionId: string): Promise<Payment | null> {
+        return this.prisma.payment.findFirst({
+            where: { transactionId },
+        });
+    }
 }

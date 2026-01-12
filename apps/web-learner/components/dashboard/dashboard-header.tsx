@@ -27,6 +27,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@workspace/ui/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
+import { NotificationsDropdown } from './notifications-dropdown'
 
 const navigation = [
     { name: 'Trang chủ', href: '/dashboard', icon: LayoutDashboard },
@@ -70,7 +71,7 @@ export function DashboardHeader({ isCollapsed, toggleSidebar }: DashboardHeaderP
                                         <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center">
                                             <Sparkles className="w-5 h-5 text-white" />
                                         </div>
-                                        <span className="font-bold text-lg tracking-tight">Torii Learner</span>
+                                        <span className="font-serif font-bold text-lg tracking-tight italic">Torii <span className="text-primary not-italic">Learner</span></span>
                                     </div>
                                     <nav className="space-y-1">
                                         {navigation.map((item) => {
@@ -112,7 +113,7 @@ export function DashboardHeader({ isCollapsed, toggleSidebar }: DashboardHeaderP
                             <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary transition-colors">
                                 <Sparkles className="w-4 h-4 text-primary group-hover:text-white transition-colors" />
                             </div>
-                            <span className="font-bold text-lg tracking-tight hidden md:block">Torii</span>
+                            <span className="font-serif font-bold text-lg tracking-tight hidden md:block italic">Torii</span>
                         </Link>
                     </div>
 
@@ -129,15 +130,7 @@ export function DashboardHeader({ isCollapsed, toggleSidebar }: DashboardHeaderP
 
                     {/* Right: Actions */}
                     <div className="flex items-center gap-2">
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="rounded-xl w-10 h-10 hover:bg-muted/50 text-muted-foreground hover:text-primary transition-all cursor-pointer relative"
-                            aria-label="Notifications"
-                        >
-                            <Bell className="w-5 h-5" />
-                            <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full border-2 border-background" />
-                        </Button>
+                        <NotificationsDropdown />
 
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>

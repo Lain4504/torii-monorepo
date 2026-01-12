@@ -126,16 +126,28 @@ export class OrderService implements IOrderService {
         let course: any = null;
 
         const courseId = input.courseId || input.metadata?.courseId;
+        let originalAmount: number | undefined;
+        let discountAmount: number | undefined;
+
         if (input.orderType === OrderType.COURSE_PURCHASE && courseId) {
             course = await this.courseRepository.findById(courseId);
             if (!course) {
+                this.logger.error(`Course not found: ${courseId}`);
                 throw new NotFoundException('Course not found');
             }
 
-            amount = course.discountPrice ? Number(course.discountPrice) : Number(course.price);
+            const hasDiscount = course.discountPrice !== null && course.discountPrice !== undefined;
+            amount = hasDiscount ? Number(course.discountPrice) : Number(course.price);
+
+            if (hasDiscount) {
+                originalAmount = Number(course.price);
+                discountAmount = originalAmount - amount;
+            }
+
+            this.logger.log(`Creating order for course ${courseId}: price=${course.price}, discountPrice=${course.discountPrice}, calculatedAmount=${amount}, isFree=${course.isFree}`);
 
             if (amount === 0 || course.isFree) {
-                this.logger.log(`Course ${courseId} is free, skipping order creation`);
+                this.logger.log(`Course ${courseId} is free, skipping order creation. calculatedAmount=${amount}, isFree=${course.isFree}`);
                 throw new BadRequestException('Free courses do not require payment');
             }
         } else if (!courseId && input.orderType === OrderType.COURSE_PURCHASE) {
@@ -143,18 +155,11 @@ export class OrderService implements IOrderService {
         }
 
         try {
-            const originalAmount = courseId && course?.discountPrice
-                ? Number(course.price)
-                : undefined;
-            const discountAmount = courseId && course?.discountPrice
-                ? Number(course.price) - Number(course.discountPrice)
-                : undefined;
-
             const metadata = {
                 ...input.metadata,
                 courseId: courseId,
-                ...(originalAmount && { originalAmount }),
-                ...(discountAmount && { discountAmount }),
+                ...(originalAmount !== undefined && { originalAmount }),
+                ...(discountAmount !== undefined && { discountAmount }),
             };
 
             const created = await this.orderRepository.create({
@@ -172,8 +177,10 @@ export class OrderService implements IOrderService {
             // If SePay payment method, create QR code
             if (input.paymentMethod === PaymentMethod.SEPAY) {
                 try {
-                    const paymentRef = created.id.split('-')[0].toUpperCase();
-                    const description = `PAY ${paymentRef}`;
+                    // Match SePay configuration from environment
+                    const prefix = process.env.SEPAY_PAYMENT_PREFIX || 'wajlc';
+                    const paymentRef = `${prefix}${created.id.split('-')[0].toUpperCase()}`;
+                    const description = `${paymentRef}`;
 
                     const qrCodeUrl = this.sePayService.generateQrCode({
                         amount: Number(created.amount),
@@ -287,19 +294,44 @@ export class OrderService implements IOrderService {
                 this.sePayService.verifyWebhook(webhookData, authHeader);
             }
 
-            const { content, transferAmount, referenceCode, id } = webhookData;
+            const { content, transferAmount, referenceCode, id, code, transferType } = webhookData;
 
-            const match = content?.match(/PAY\s+([A-Z0-9]+)/i);
-            const paymentRef = match ? match[1].toUpperCase() : 'UNKNOWN';
+            // 0. Only process 'in' (money in) transactions
+            if (transferType === 'out') {
+                this.logger.log(`Ignoring 'out' transaction (ID: ${id})`);
+                return { success: true, message: 'Ignore out transaction' };
+            }
+
+            // 1. Check for duplicate webhook (SePay Transaction ID)
+            const sepayId = id.toString();
+            const existingPayment = await this.orderRepository.findPaymentByTransactionId(sepayId);
+            if (existingPayment) {
+                this.logger.log(`Duplicate SePay webhook received (ID: ${sepayId}). Ignoring.`);
+                return { success: true, message: 'Duplicate transaction' };
+            }
+
+            // 2. Identify order
+            // Priority 1: Use the explicit 'code' field from SePay
+            // Priority 2: Fallback to regex matching on 'content'
+            let paymentRef = 'UNKNOWN';
+            if (code) {
+                paymentRef = code.toUpperCase();
+            } else {
+                const prefix = process.env.SEPAY_PAYMENT_PREFIX || 'wajlc';
+                const regex = new RegExp(`(${prefix}[A-Z0-9]+)`, 'i');
+                const match = content?.match(regex);
+                if (match) paymentRef = match[1].toUpperCase();
+            }
 
             // Find order by transactionId (short ref)
-            const order = match ? await this.orderRepository.findByTransactionId(paymentRef) : null;
+            const order = paymentRef !== 'UNKNOWN' ? await this.orderRepository.findByTransactionId(paymentRef) : null;
 
-            // Save actual Payment record (Transaction log)
+            // 3. Save actual Payment record (Transaction log)
             try {
                 await this.orderRepository.createPayment({
                     order: order ? { connect: { id: order.id } } : undefined,
-                    transactionId: referenceCode || id.toString(),
+                    user: order ? { connect: { id: order.userId } } : undefined,
+                    transactionId: sepayId, // Using the unique SePay ID for logging
                     gateway: 'sepay',
                     amount: transferAmount,
                     currency: 'VND',
@@ -313,11 +345,12 @@ export class OrderService implements IOrderService {
             }
 
             if (!order) {
-                this.logger.warn(`Order not found for SePay ref: ${paymentRef}`);
+                this.logger.warn(`Order not found for SePay ref: ${paymentRef} (SePay ID: ${sepayId})`);
                 return { success: true, message: 'Order not found' };
             }
 
             if (order.status === OrderStatus.COMPLETED) {
+                this.logger.log(`Order ${order.id} already completed. This might be a double payment (Ref: ${paymentRef})`);
                 return { success: true, message: 'Already completed' };
             }
 
@@ -326,11 +359,11 @@ export class OrderService implements IOrderService {
                 return { success: true, message: 'Amount mismatch' };
             }
 
-            // Confirm order
+            // 4. Confirm order
             await this.confirm(order.id, {
                 orderId: order.id,
-                transactionId: referenceCode || id.toString(),
-                gatewayTransactionId: id.toString(),
+                transactionId: referenceCode || sepayId,
+                gatewayTransactionId: sepayId,
                 metadata: {
                     ...webhookData,
                     sepayWebhookReceivedAt: new Date().toISOString()

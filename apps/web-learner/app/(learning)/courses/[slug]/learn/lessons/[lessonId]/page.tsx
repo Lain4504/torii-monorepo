@@ -183,7 +183,7 @@ export default function LessonDetailPage() {
                                 <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 truncate">
                                     {course.title}
                                 </p>
-                                <h1 className="text-sm font-bold text-foreground truncate max-w-[200px] sm:max-w-md mt-0.5 uppercase tracking-tight">
+                                <h1 className="text-xl font-serif font-bold text-foreground truncate max-w-[200px] sm:max-w-md mt-0.5 uppercase italic tracking-tight">
                                     {currentLesson.title}
                                 </h1>
                             </div>
@@ -300,14 +300,14 @@ export default function LessonDetailPage() {
 
                                 <TabsContent value="content" className="animate-in fade-in slide-in-from-bottom-3 duration-500 focus-visible:outline-none">
                                     <div className="prose prose-slate dark:prose-invert max-w-none">
-                                        <h3 className="text-2xl font-bold text-foreground mb-6 uppercase tracking-tight">Về bài học này</h3>
-                                        <div className="space-y-6 text-muted-foreground leading-relaxed text-base tracking-wide">
+                                        <h3 className="text-3xl font-serif font-bold text-foreground mb-6 uppercase italic tracking-tight">Về bài học này</h3>
+                                        <div className="space-y-6 text-muted-foreground/80 leading-relaxed text-base font-bold italic border-l-4 border-primary/20 pl-8 py-2">
                                             {currentLesson.description ? (
                                                 currentLesson.description.split('\n').map((para: string, i: number) => (
                                                     <p key={i}>{para}</p>
                                                 ))
                                             ) : (
-                                                <p className="italic opacity-60">Giảng viên hi vọng bạn sẽ có những giây phút học tập hiệu quả với nội dung này.</p>
+                                                <p className="opacity-60">Giảng viên hi vọng bạn sẽ có những giây phút học tập hiệu quả với nội dung này.</p>
                                             )}
                                         </div>
                                     </div>

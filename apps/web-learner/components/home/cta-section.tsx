@@ -22,13 +22,12 @@ export function CTASection() {
                             Đặc quyền học viên
                         </div>
 
-                        <h2 className="text-5xl md:text-7xl font-black text-background tracking-tighter leading-none uppercase italic">
-                            Sẵn Sàng <span className="text-primary not-italic">Chinh Phục</span> <br className="hidden md:block" /> Tiếng Nhật?
+                        <h2 className="text-6xl md:text-8xl font-serif font-bold text-background tracking-tight leading-[0.9] uppercase italic">
+                            Sẵn Sàng <br /> <span className="text-primary not-italic">Chinh Phục</span> <br className="hidden md:block" /> Tiếng Nhật?
                         </h2>
 
-                        <p className="text-lg md:text-xl text-background/60 font-bold max-w-2xl mx-auto leading-relaxed">
+                        <p className="text-[11px] font-black uppercase tracking-[0.3em] text-primary/40 italic">
                             Tham gia cùng hàng ngàn học viên đang thay đổi bản thân mỗi ngày tại Torii.
-                            Bắt đầu hôm nay để không bỏ lỡ tương lai của chính mình.
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-5 justify-center items-center">

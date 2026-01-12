@@ -53,7 +53,7 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
                 <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary transition-all group-hover/row:scale-110">
                     <UserCircle className="size-4" />
                 </div>
-                <div className="font-black italic uppercase tracking-tight text-foreground">{info.getValue()}</div>
+                <div className="font-serif font-bold italic text-foreground text-[14px]">{info.getValue()}</div>
             </div>
         ),
     }),
