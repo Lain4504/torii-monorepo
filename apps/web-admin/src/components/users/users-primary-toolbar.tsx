@@ -27,12 +27,12 @@ interface UsersPrimaryToolbarProps {
 }
 
 export function UsersPrimaryToolbar({
-    search,
-    onSearchChange,
-    filters,
-    onFilterChange,
-    onSortChange,
-}: UsersPrimaryToolbarProps) {
+                                        search,
+                                        onSearchChange,
+                                        filters,
+                                        onFilterChange,
+                                        onSortChange,
+                                    }: UsersPrimaryToolbarProps) {
     return (
         <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between w-full">
             {/* Zen Search Input */}

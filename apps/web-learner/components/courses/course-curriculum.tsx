@@ -80,8 +80,8 @@ export function CourseCurriculum({ curriculum, courseSlug }: CourseCurriculumPro
                         <Clock className="w-3 h-3" />
                         <span>Curriculum Timeline</span>
                     </div>
-                    <h2 className="text-3xl font-black tracking-tighter text-foreground uppercase italic underline decoration-primary/20 underline-offset-8">
-                        Lộ Trình <span className="text-primary not-italic">Đào Tạo</span>
+                    <h2 className="text-4xl md:text-5xl font-serif font-bold tracking-tight text-foreground uppercase italic leading-[0.9]">
+                        Academic <span className="text-primary not-italic">Syllabus</span>
                     </h2>
                     <div className="flex flex-wrap items-center gap-4 pt-1">
                         <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">
@@ -119,40 +119,40 @@ export function CourseCurriculum({ curriculum, courseSlug }: CourseCurriculumPro
                     <div
                         key={module.id}
                         className={cn(
-                            "rounded-[2rem] overflow-hidden border border-border/40 transition-all duration-500",
+                            "rounded-[1.5rem] md:rounded-[2rem] overflow-hidden border border-border/40 transition-all duration-500",
                             openChapters.includes(index) ? "bg-background shadow-2xl shadow-primary/5" : "bg-muted/10 hover:bg-muted/20"
                         )}
                     >
                         <button
                             onClick={() => toggleChapter(index)}
-                            className="w-full flex flex-col md:flex-row md:items-center justify-between p-8 text-left transition-colors cursor-pointer group"
+                            className="w-full flex flex-col md:flex-row md:items-center justify-between p-5 md:p-8 text-left transition-colors cursor-pointer group gap-4 md:gap-0"
                         >
-                            <div className="flex items-center gap-5">
+                            <div className="flex items-start md:items-center gap-4 md:gap-5">
                                 <div className={cn(
-                                    "w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500",
+                                    "w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl flex items-center justify-center transition-all duration-500 shrink-0",
                                     openChapters.includes(index) ? "bg-primary text-white shadow-lg shadow-primary/20 rotate-0" : "bg-background border border-border/40 text-muted-foreground group-hover:border-primary/40 group-hover:text-primary -rotate-3"
                                 )}>
-                                    <Sparkles className="w-6 h-6" />
+                                    <Sparkles className="w-5 h-5 md:w-6 md:h-6" />
                                 </div>
                                 <div className="space-y-1">
-                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 group-hover:text-primary transition-colors">Module 0{index + 1}</p>
-                                    <h3 className="text-lg font-black tracking-tight text-foreground uppercase">{module.title}</h3>
+                                    <p className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 group-hover:text-primary transition-colors">Phase 0{index + 1}</p>
+                                    <h3 className="text-xl md:text-2xl font-serif font-bold italic tracking-tight text-foreground uppercase line-clamp-2 md:line-clamp-none leading-[1.1]">{module.title}</h3>
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-6 mt-4 md:mt-0">
-                                <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">
-                                    <span>{module.lessons.length} bài giảng</span>
+                            <div className="flex items-center justify-between md:justify-end gap-6 w-full md:w-auto pl-14 md:pl-0">
+                                <div className="flex items-center gap-2 text-[9px] md:text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">
+                                    <span className="shrink-0">{module.lessons.length} bài giảng</span>
                                     {module.durationMinutes && (
                                         <>
-                                            <span className="w-1 h-1 rounded-full bg-border" />
-                                            <span>{formatDurationMinutes(module.durationMinutes)}</span>
+                                            <span className="w-1 h-1 rounded-full bg-border shrink-0" />
+                                            <span className="shrink-0">{formatDurationMinutes(module.durationMinutes)}</span>
                                         </>
                                     )}
                                 </div>
                                 <ChevronDown
                                     className={cn(
-                                        "w-5 h-5 text-muted-foreground transition-all duration-500",
+                                        "w-5 h-5 text-muted-foreground transition-all duration-500 shrink-0",
                                         openChapters.includes(index) ? "rotate-180 text-primary" : "group-hover:text-primary"
                                     )}
                                 />
@@ -164,45 +164,45 @@ export function CourseCurriculum({ curriculum, courseSlug }: CourseCurriculumPro
                             openChapters.includes(index) ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
                         )}>
                             <div className="overflow-hidden border-t border-border/20">
-                                <div className="px-8 pb-8 space-y-2 pt-4">
+                                <div className="px-5 md:px-8 pb-5 md:pb-8 space-y-2 pt-4">
                                     {module.lessons.map((lesson) => (
                                         <div
                                             key={lesson.id}
                                             className={cn(
-                                                "p-5 rounded-2xl flex items-center justify-between group/lesson transition-all duration-300",
+                                                "p-3 md:p-5 rounded-xl md:rounded-2xl flex items-center justify-between group/lesson transition-all duration-300 gap-3 md:gap-4",
                                                 lesson.isPreview ? "bg-primary/[0.03] border border-primary/10 cursor-pointer hover:bg-primary/5" : "bg-muted/20 border border-transparent grayscale select-none"
                                             )}
                                             onClick={() => handleLessonClick(lesson.id, lesson.isPreview)}
                                         >
-                                            <div className="flex items-center gap-4 flex-1">
+                                            <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
                                                 <div className={cn(
-                                                    "w-10 h-10 rounded-xl flex items-center justify-center transition-colors",
+                                                    "w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl flex items-center justify-center transition-colors shrink-0",
                                                     lesson.isPreview ? "bg-white text-primary shadow-sm group-hover/lesson:bg-primary group-hover/lesson:text-white" : "bg-background text-muted-foreground/40"
                                                 )}>
-                                                    {lesson.contentType === 'video' ? <PlayCircle className="w-5 h-5" /> : <FileText className="w-5 h-5" />}
+                                                    {lesson.contentType === 'video' ? <PlayCircle className="w-4 h-4 md:w-5 md:h-5" /> : <FileText className="w-4 h-4 md:w-5 md:h-5" />}
                                                 </div>
-                                                <div className="space-y-0.5">
+                                                <div className="space-y-0.5 min-w-0">
                                                     <h4 className={cn(
-                                                        "text-[11px] font-black uppercase tracking-tight transition-colors",
+                                                        "text-[10px] md:text-[11px] font-black uppercase tracking-tight transition-colors truncate",
                                                         lesson.isPreview ? "text-foreground" : "text-muted-foreground/60"
                                                     )}>
                                                         {lesson.title}
                                                     </h4>
-                                                    <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest">
+                                                    <span className="text-[8px] md:text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest block truncate">
                                                         {lesson.contentType === 'video' ? 'Video Lesson' : 'Learning Material'}
                                                     </span>
                                                 </div>
                                             </div>
 
-                                            <div className="flex items-center gap-4">
+                                            <div className="flex items-center gap-2 md:gap-4 shrink-0">
                                                 {lesson.isPreview && (
-                                                    <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-primary/10 text-primary">Free Preview</span>
+                                                    <span className="hidden sm:inline-block text-[8px] md:text-[9px] font-black uppercase tracking-widest px-2 md:px-3 py-1 rounded-full bg-primary/10 text-primary whitespace-nowrap">Free Preview</span>
                                                 )}
-                                                <div className="flex items-center justify-end min-w-[50px]">
+                                                <div className="flex items-center justify-end min-w-[40px] md:min-w-[50px]">
                                                     {lesson.isPreview && lesson.videoDuration ? (
-                                                        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">{formatDuration(lesson.videoDuration)}</span>
+                                                        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">{formatDuration(lesson.videoDuration)}</span>
                                                     ) : (
-                                                        <Lock className="w-4 h-4 text-muted-foreground/20" />
+                                                        <Lock className="w-3.5 h-3.5 md:w-4 md:h-4 text-muted-foreground/20" />
                                                     )}
                                                 </div>
                                             </div>

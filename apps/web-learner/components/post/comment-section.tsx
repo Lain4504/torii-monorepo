@@ -82,9 +82,9 @@ export function CommentSection({ postId }: CommentSectionProps) {
 
     return (
         <section className="space-y-12">
-            <div className="flex items-center justify-between">
-                <h3 className="text-2xl font-bold flex items-center gap-3">
-                    Bình luận ({comments.length})
+            <div className="flex items-center justify-between border-b border-border/40 pb-6">
+                <h3 className="text-3xl font-serif font-bold italic text-foreground uppercase tracking-tight">
+                    Bình luận <span className="text-primary/40 not-italic ml-2">({comments.length})</span>
                 </h3>
             </div>
 
@@ -145,10 +145,10 @@ export function CommentSection({ postId }: CommentSectionProps) {
                             setReplyTo('ROOT')
                             setCommentText('')
                         }}
-                        className="rounded-full h-12 px-8 bg-primary font-bold shadow-xl shadow-primary/20 hover:shadow-primary/30 hover:scale-105 transition-all duration-300 gap-2"
+                        className="rounded-full h-11 px-8 bg-primary/5 hover:bg-primary text-primary hover:text-white border border-primary/20 transition-all duration-300 gap-3 group/btn"
                     >
-                        <MessageCircle className="w-5 h-5" />
-                        Viết bình luận
+                        <MessageCircle className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em]">Viết bình luận</span>
                     </Button>
                 )}
             </div>
@@ -176,13 +176,13 @@ export function CommentSection({ postId }: CommentSectionProps) {
                         />
                     ))
                 ) : (
-                    <div className="py-20 text-center space-y-4">
-                        <div className="w-16 h-16 rounded-full bg-accent/20 flex items-center justify-center mx-auto text-muted-foreground">
-                            <MessageCircle className="w-8 h-8" />
+                    <div className="py-24 text-center space-y-4">
+                        <div className="w-20 h-20 rounded-full bg-accent/20 flex items-center justify-center mx-auto text-muted-foreground/30">
+                            <MessageCircle className="w-10 h-10" />
                         </div>
-                        <div>
-                            <p className="font-bold text-lg text-foreground">Chưa có bình luận nào</p>
-                            <p className="text-muted-foreground">Hãy là người đầu tiên chia sẻ cảm nghĩ nhé!</p>
+                        <div className="space-y-2">
+                            <p className="font-serif text-2xl font-bold italic text-foreground uppercase tracking-tight">Chưa có bình luận nào</p>
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Hãy là người đầu tiên chia sẻ cảm nghĩ nhé!</p>
                         </div>
                     </div>
                 )}
@@ -240,17 +240,17 @@ function CommentItem({
                     <div className="bg-card/50 backdrop-blur-sm p-6 rounded-[2rem] rounded-tl-none border border-border/40 shadow-sm hover:shadow-md transition-all duration-300">
                         <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-3">
-                                <span className="font-bold text-base text-foreground">
+                                <span className="font-serif text-lg font-bold italic text-foreground tracking-tight">
                                     {comment.author?.displayName || 'Ẩn danh'}
                                 </span>
-                                <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider bg-accent/30 px-2 py-1 rounded-full">
-                                    {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true, locale: vi })}
+                                <span className="text-[9px] text-muted-foreground/40 font-black uppercase tracking-[0.2em]">
+                                    • {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true, locale: vi })}
                                 </span>
                             </div>
                         </div>
-                        <p className="text-foreground/80 leading-relaxed text-[15px]">
+                        <p className="text-foreground/70 leading-relaxed text-[15px] font-medium">
                             {comment.parentId && !isRoot && (
-                                <span className="font-bold text-primary mr-1">
+                                <span className="text-[10px] font-black uppercase tracking-[0.1em] text-primary/60 mr-2 bg-primary/5 px-2 py-0.5 rounded-lg border border-primary/10">
                                     @{allComments.find(c => c.id === comment.parentId)?.author?.displayName || 'Người dùng'}
                                 </span>
                             )}
@@ -263,7 +263,7 @@ function CommentItem({
                             <div className="p-1.5 rounded-full group-hover/btn:bg-primary/10 transition-colors">
                                 <Heart className="w-4 h-4" />
                             </div>
-                            {comment.likeCount || 0} Yêu thích
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em]">{comment.likeCount || 0} Yêu thích</span>
                         </button>
                         <button
                             onClick={() => isAuthenticated && onReplyClick(comment.id)}
@@ -272,7 +272,7 @@ function CommentItem({
                             <div className="p-1.5 rounded-full group-hover/btn:bg-primary/10 transition-colors">
                                 <Reply className="w-4 h-4" />
                             </div>
-                            Trả lời
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Trả lời</span>
                         </button>
                     </div>
 

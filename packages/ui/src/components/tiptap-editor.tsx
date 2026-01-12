@@ -259,10 +259,10 @@ export const TiptapEditor = React.memo(React.forwardRef<Editor, TiptapEditorProp
             "tiptap-editor-content",
             "prose prose-sm dark:prose-invert max-w-none focus:outline-none",
             "px-3 py-2",
-            // Headings styling - Clear visual distinction
-            "[&_h1]:!text-3xl [&_h1]:!font-bold [&_h1]:!mt-6 [&_h1]:!mb-4 [&_h1]:!text-foreground [&_h1]:!leading-tight",
-            "[&_h2]:!text-2xl [&_h2]:!font-bold [&_h2]:!mt-5 [&_h2]:!mb-3 [&_h2]:!text-foreground [&_h2]:!leading-tight",
-            "[&_h3]:!text-xl [&_h3]:!font-semibold [&_h3]:!mt-4 [&_h3]:!mb-2 [&_h3]:!text-foreground [&_h3]:!leading-tight",
+            // Headings styling - ZEN UI SERIF STYLE
+            "[&_h1]:!text-3xl [&_h1]:!font-serif [&_h1]:!font-bold [&_h1]:!mt-8 [&_h1]:!mb-4 [&_h1]:!text-foreground [&_h1]:!leading-[1.1] [&_h1]:!uppercase [&_h1]:!italic",
+            "[&_h2]:!text-2xl [&_h2]:!font-serif [&_h2]:!font-bold [&_h2]:!mt-8 [&_h2]:!mb-3 [&_h2]:!text-foreground [&_h2]:!leading-tight",
+            "[&_h3]:!text-xl [&_h3]:!font-serif [&_h3]:!font-semibold [&_h3]:!mt-6 [&_h3]:!mb-2 [&_h3]:!text-foreground [&_h3]:!leading-tight",
             // Lists styling - Clear bullets and numbers
             "[&_ul]:!list-disc [&_ul]:!ml-6 [&_ul]:!my-2 [&_ul]:!pl-0 [&_ul_li]:!pl-2 [&_ul_li]:!list-item",
             "[&_ol]:!list-decimal [&_ol]:!ml-6 [&_ol]:!my-2 [&_ol]:!pl-0 [&_ol_li]:!pl-2 [&_ol_li]:!list-item",

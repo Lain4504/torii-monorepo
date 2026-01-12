@@ -14,7 +14,8 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from '@workspace/ui/components/breadcrumb'
-import { Loader2, Calendar, User, Eye, Share2, Heart, Bookmark, Clock, List, Home, ChevronRight } from 'lucide-react'
+import { PageLoading } from '@workspace/ui/components/page-loading'
+import { Loader2, Calendar, User, Eye, Share2, Heart, Bookmark, Clock, List, ChevronRight } from 'lucide-react'
 import { format } from 'date-fns'
 import { vi } from 'date-fns/locale'
 import Link from 'next/link'
@@ -26,6 +27,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
     const { id } = use(params)
     const [post, setPost] = useState<PostResponseDTO | null>(null)
     const [recentPosts, setRecentPosts] = useState<PostResponseDTO[]>([])
+    const [mostViewedPosts, setMostViewedPosts] = useState<PostResponseDTO[]>([])
     const [loading, setLoading] = useState(true)
     const { isAuthenticated } = useAppSelector(state => state.auth)
 
@@ -33,12 +35,14 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
         const fetchData = async () => {
             try {
                 setLoading(true)
-                const [postData, latestData] = await Promise.all([
+                const [postData, latestData, topData] = await Promise.all([
                     postApi.findById(id),
-                    postApi.findAll({ page: 1, limit: 5 })
+                    postApi.findAll({ page: 1, limit: 5 }),
+                    postApi.findAll({ page: 1, limit: 5, sortBy: 'viewCount', sortOrder: 'desc' })
                 ])
                 setPost(postData)
                 setRecentPosts(latestData.data.filter(p => p.id !== postData?.id))
+                setMostViewedPosts(topData.data)
 
                 // Increment view count (only once per session)
                 const viewCountKey = `post_viewed_${id}`
@@ -56,12 +60,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
     }, [id])
 
     if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center gap-4 flex-col">
-                <Loader2 className="w-12 h-12 text-primary animate-spin" />
-                <p className="text-muted-foreground font-medium animate-pulse">Cố lên, kiến thức đang đến...</p>
-            </div>
-        )
+        return <PageLoading text="Cố lên, kiến thức đang đến..." />
     }
 
     if (!post) {
@@ -98,28 +97,23 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
             {/* Post Header */}
             <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 space-y-8">
                 {/* Zen UI Breadcrumb */}
-                <div className="inline-flex">
-                    <Breadcrumb className="px-5 py-2.5 rounded-full bg-accent/30 border border-border/40 backdrop-blur-sm">
-                        <BreadcrumbList>
+                <div className="flex">
+                    <Breadcrumb>
+                        <BreadcrumbList className="gap-2 sm:gap-3 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">
                             <BreadcrumbItem>
-                                <BreadcrumbLink href="/" className="flex items-center gap-2 font-medium hover:text-primary transition-colors">
-                                    <Home className="w-4 h-4" />
-                                    <span className="hidden sm:inline">Trang chủ</span>
-                                </BreadcrumbLink>
+                                <BreadcrumbLink href="/" className="hover:text-primary transition-colors">Trang chủ</BreadcrumbLink>
                             </BreadcrumbItem>
-                            <BreadcrumbSeparator>
-                                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                            <BreadcrumbSeparator className="scale-75 opacity-20">
+                                <ChevronRight className="w-4 h-4" />
                             </BreadcrumbSeparator>
                             <BreadcrumbItem>
-                                <BreadcrumbLink href="/post" className="font-medium hover:text-primary transition-colors">
-                                    Bài viết
-                                </BreadcrumbLink>
+                                <BreadcrumbLink href="/post" className="hover:text-primary transition-colors">Bài viết</BreadcrumbLink>
                             </BreadcrumbItem>
-                            <BreadcrumbSeparator>
-                                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                            <BreadcrumbSeparator className="scale-75 opacity-20">
+                                <ChevronRight className="w-4 h-4" />
                             </BreadcrumbSeparator>
                             <BreadcrumbItem>
-                                <BreadcrumbPage className="font-bold text-foreground max-w-[200px] sm:max-w-xs md:max-w-md truncate">
+                                <BreadcrumbPage className="text-muted-foreground/70 font-bold max-w-[200px] sm:max-w-sm md:max-w-xl truncate normal-case tracking-tight">
                                     {post.title}
                                 </BreadcrumbPage>
                             </BreadcrumbItem>
@@ -130,31 +124,35 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                 <div className="space-y-6 max-w-5xl">
                     <div className="flex flex-wrap gap-2">
                         {post.tags?.map(tag => (
-                            <Badge key={tag} className="px-3 py-1 rounded-full bg-primary/10 text-primary border-none text-[10px] font-bold uppercase tracking-widest hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer">
+                            <Badge key={tag} className="px-3 py-1 rounded-full bg-primary/10 text-primary border-none text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary hover:text-primary-foreground transition-all cursor-pointer">
                                 {tag}
                             </Badge>
                         ))}
                     </div>
 
-                    <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight leading-[1.2] text-foreground">
+                    <h1 className="text-4xl md:text-5xl lg:text-7xl font-serif font-bold tracking-tight leading-[1.1] text-foreground uppercase italic mb-8">
                         {post.title}
                     </h1>
 
-                    <div className="flex flex-wrap items-center gap-6 pt-4 border-t border-border">
-
-
-                        <div className="flex items-center gap-6 text-xs text-muted-foreground font-medium">
-                            <div className="flex items-center gap-2">
-                                <Calendar className="w-4 h-4 text-primary" />
-                                {format(new Date(post.publishedAt || post.createdAt), 'dd MMMM, yyyy', { locale: vi })}
+                    <div className="flex flex-wrap items-center gap-8 pt-8 border-t border-border/40">
+                        <div className="flex items-center gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">
+                            <div className="flex items-center gap-2.5 group">
+                                <div className="p-1.5 rounded-lg bg-primary/5 text-primary group-hover:bg-primary group-hover:text-white transition-all">
+                                    <Calendar className="w-3.5 h-3.5" />
+                                </div>
+                                <span className="text-muted-foreground/60">{format(new Date(post.publishedAt || post.createdAt), 'dd MMMM, yyyy', { locale: vi })}</span>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <Clock className="w-4 h-4 text-primary" />
-                                {readingTime} phút đọc
+                            <div className="flex items-center gap-2.5 group">
+                                <div className="p-1.5 rounded-lg bg-primary/5 text-primary group-hover:bg-primary group-hover:text-white transition-all">
+                                    <Clock className="w-3.5 h-3.5" />
+                                </div>
+                                <span className="text-muted-foreground/60">{readingTime} phút đọc</span>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <Eye className="w-4 h-4 text-primary" />
-                                {post.viewCount || 0} lượt xem
+                            <div className="flex items-center gap-2.5 group hidden sm:flex">
+                                <div className="p-1.5 rounded-lg bg-primary/5 text-primary group-hover:bg-primary group-hover:text-white transition-all">
+                                    <Eye className="w-3.5 h-3.5" />
+                                </div>
+                                <span className="text-muted-foreground/60">{post.viewCount || 0} lượt xem</span>
                             </div>
                         </div>
                     </div>
@@ -242,8 +240,8 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                     <div className="lg:col-span-4">
                         <div className="h-full">
                             <PostSidebar
-
                                 recentPosts={recentPosts}
+                                mostViewedPosts={mostViewedPosts}
                                 popularTags={['JLPT', 'Tiếng Nhật sơ cấp', 'Luyện thi', 'Văn hóa']}
                             />
                         </div>

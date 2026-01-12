@@ -11,6 +11,8 @@ export const orderCreateDTOSchema = z.object({
     paymentGateway: z.nativeEnum(PaymentGateway).optional(),
     orderType: z.nativeEnum(OrderType).default(OrderType.COURSE_PURCHASE),
     description: z.string().optional(),
+    returnUrl: z.string().url().optional(),
+    cancelUrl: z.string().url().optional(),
     metadata: z.record(z.any()).optional(),
 });
 

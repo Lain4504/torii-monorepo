@@ -25,12 +25,12 @@ interface PostPrimaryToolbarProps {
 }
 
 export function PostPrimaryToolbar({
-    search,
-    onSearchChange,
-    statusFilter,
-    onStatusFilterChange,
-    onSortChange,
-}: PostPrimaryToolbarProps) {
+                                       search,
+                                       onSearchChange,
+                                       statusFilter,
+                                       onStatusFilterChange,
+                                       onSortChange,
+                                   }: PostPrimaryToolbarProps) {
     return (
         <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between w-full">
             {/* Zen Search Input */}

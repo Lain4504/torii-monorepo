@@ -32,7 +32,7 @@ export interface IOrderService {
     confirm(orderId: string, input: OrderConfirmDTO): Promise<OrderResponseDTO>;
 
     /**
-     * Handle SePay Webhook (which creates Payments and completes Orders)
+     * Handle Payment Webhook (e.g. PayOS)
      */
     handleWebhook(webhookData: any, authHeader?: string): Promise<any>;
 }

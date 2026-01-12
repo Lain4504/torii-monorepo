@@ -19,8 +19,8 @@ export function PostSidebar({ recentPosts, mostViewedPosts = [], popularTags }: 
 
             {/* Most Viewed Posts */}
             <div className="space-y-6">
-                <h3 className="text-lg font-bold flex items-center gap-2">
-                    <div className="w-1.5 h-6 bg-rose-500 rounded-full" />
+                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 flex items-center gap-3">
+                    <div className="w-8 h-[1px] bg-border" />
                     Xem nhiều nhất
                 </h3>
                 <div className="space-y-4">
@@ -32,18 +32,21 @@ export function PostSidebar({ recentPosts, mostViewedPosts = [], popularTags }: 
                                     className="w-full h-full object-cover transition-transform group-hover:scale-110"
                                     alt={post.title}
                                 />
-                                <div className="absolute top-0 left-0 w-6 h-6 bg-rose-500/90 text-white text-xs font-bold flex items-center justify-center rounded-br-xl backdrop-blur-sm">
+                                <div className="absolute top-0 left-0 w-6 h-6 bg-rose-500/90 text-white text-[10px] font-black flex items-center justify-center rounded-br-xl backdrop-blur-sm">
                                     {index + 1}
                                 </div>
                             </div>
-                            <div className="space-y-1.5 min-w-0">
-                                <h4 className="text-sm font-bold line-clamp-2 group-hover:text-primary transition-colors leading-tight">
+                            <div className="space-y-1.5 min-w-0 flex-1">
+                                <h4 className="text-sm font-bold line-clamp-2 group-hover:text-primary transition-colors leading-tight tracking-tight">
                                     {post.title}
                                 </h4>
-                                <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
-                                    <span className="flex items-center gap-1 font-medium text-rose-500">
-                                        <Eye className="w-3 h-3" />
-                                        {post.viewCount || 0}
+                                <p className="text-[11px] text-muted-foreground/70 line-clamp-2 leading-relaxed">
+                                    {post.content ? post.content.replace(/<[^>]*>?/gm, '') : 'Khám phá kiến thức tiếng Nhật mới nhất...'}
+                                </p>
+                                <div className="flex items-center gap-3 text-[9px] text-muted-foreground/60 font-black uppercase tracking-[0.1em] pt-1">
+                                    <span className="flex items-center gap-1">
+                                        <Eye className="w-3 h-3 text-rose-400" />
+                                        {post.viewCount || 0} lượt xem
                                     </span>
                                 </div>
                             </div>
@@ -55,8 +58,8 @@ export function PostSidebar({ recentPosts, mostViewedPosts = [], popularTags }: 
 
             {/* Recent Posts */}
             <div className="space-y-6">
-                <h3 className="text-lg font-bold flex items-center gap-2">
-                    <div className="w-1.5 h-6 bg-primary rounded-full" />
+                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 flex items-center gap-3">
+                    <div className="w-8 h-[1px] bg-border" />
                     Bài viết gần đây
                 </h3>
                 <div className="space-y-4">
@@ -70,15 +73,15 @@ export function PostSidebar({ recentPosts, mostViewedPosts = [], popularTags }: 
                                 />
                             </div>
                             <div className="space-y-1.5 min-w-0">
-                                <h4 className="text-sm font-bold line-clamp-2 group-hover:text-primary transition-colors leading-tight">
+                                <h4 className="text-sm font-bold line-clamp-2 group-hover:text-primary transition-colors leading-tight tracking-tight">
                                     {post.title}
                                 </h4>
-                                <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                                <p className="text-[11px] text-muted-foreground/70 line-clamp-2 leading-relaxed">
                                     {post.content ? post.content.replace(/<[^>]*>?/gm, '') : 'Không có nội dung mô tả...'}
                                 </p>
-                                <div className="flex items-center gap-3 text-[10px] text-muted-foreground/80 pt-1">
-                                    <span className="flex items-center gap-1 font-medium bg-accent/50 px-2 py-0.5 rounded-full">
-                                        <Clock className="w-3 h-3" />
+                                <div className="flex items-center gap-3 text-[9px] text-muted-foreground/60 font-black uppercase tracking-[0.1em] pt-1">
+                                    <span className="flex items-center gap-1">
+                                        <Clock className="w-3 h-3 text-primary/60" />
                                         {format(new Date(post.publishedAt || post.createdAt), 'dd/MM/yyyy', { locale: vi })}
                                     </span>
                                 </div>
@@ -90,15 +93,15 @@ export function PostSidebar({ recentPosts, mostViewedPosts = [], popularTags }: 
 
             {/* Tags Cloud */}
             <div className="space-y-6">
-                <h3 className="text-lg font-bold flex items-center gap-2">
-                    <div className="w-1.5 h-6 bg-primary rounded-full" />
+                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 flex items-center gap-3">
+                    <div className="w-8 h-[1px] bg-border" />
                     Chủ đề phổ biến
                 </h3>
                 <div className="flex flex-wrap gap-2">
                     {popularTags.map((tag) => (
                         <Link key={tag} href={`/post?tag=${tag}`}>
-                            <Badge variant="secondary" className="px-4 py-2 rounded-full bg-accent/50 hover:bg-primary hover:text-primary-foreground transition-all cursor-pointer border-none font-medium text-xs">
-                                #{tag}
+                            <Badge variant="secondary" className="px-3 py-1.5 rounded-full bg-accent/30 hover:bg-primary hover:text-primary-foreground transition-all cursor-pointer border-none font-bold text-[10px] uppercase tracking-wider text-muted-foreground/70">
+                                {tag}
                             </Badge>
                         </Link>
                     ))}
@@ -111,10 +114,11 @@ export function PostSidebar({ recentPosts, mostViewedPosts = [], popularTags }: 
                     <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
                         <MessageSquare className="w-6 h-6" />
                     </div>
-                    <h3 className="text-xl font-bold">Cần tư vấn học lộ trình?</h3>
-                    <p className="text-sm text-primary-foreground/80">Liên hệ với chúng tôi để được tư vấn lộ trình học từ N5 tới N1 miễn phí.</p>
-                    <Link href="/contact" className="inline-flex items-center gap-2 font-bold group-hover:gap-4 transition-all">
-                        Liên hệ ngay <ChevronRight className="w-4 h-4" />
+                    <h3 className="text-2xl font-serif font-bold italic uppercase tracking-tight leading-tight">Cần tư vấn <br /> lộ trình học?</h3>
+                    <p className="text-xs text-primary-foreground/70 leading-relaxed font-medium">Liên hệ với chúng tôi để được tư vấn lộ trình học từ N5 tới N1 miễn phí.</p>
+                    <Link href="/contact" className="inline-flex items-center gap-3 py-2 px-1 group-hover:gap-5 transition-all">
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Liên hệ ngay</span>
+                        <ChevronRight className="w-4 h-4 text-white/50" />
                     </Link>
                 </div>
                 {/* Background Decor */}

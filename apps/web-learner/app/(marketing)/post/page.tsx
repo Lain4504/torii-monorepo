@@ -8,6 +8,7 @@ import type { PostResponseDTO } from '@workspace/schemas'
 import { PostStatus } from '@workspace/schemas'
 import { Loader2, Newspaper } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
+import { ComponentLoading } from '@workspace/ui/components/component-loading'
 
 export default function PostListingPage() {
     const [posts, setPosts] = useState<PostResponseDTO[]>([])
@@ -70,16 +71,15 @@ export default function PostListingPage() {
             {/* Header / Hero Section */}
             <div className="relative mb-16 px-4">
                 <div className="max-w-7xl mx-auto text-center space-y-6">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/5 text-primary text-sm font-bold border border-primary/10 mb-2">
-                        <Newspaper className="w-4 h-4" />
-                        <span>Torii Nihongo Posts</span>
+                    <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-primary/5 text-primary text-[10px] font-black uppercase tracking-[0.2em] border border-primary/10 mb-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                        <span>Torii Nihongo Journal</span>
                     </div>
-                    <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">
-                        Kiến Thức & <span className="text-primary italic">Cảm Hứng</span>
+                    <h1 className="text-5xl md:text-7xl font-serif font-bold tracking-tight text-foreground uppercase italic leading-[1.1]">
+                        Kiến Thức & <span className="text-primary">Cảm Hứng</span>
                     </h1>
-                    <p className="text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed">
-                        Cập nhật mẹo học tiếng Nhật hiệu quả, thông tin kỳ thi JLPT
-                        và văn hóa Nhật Bản từ các chuyên gia tại Torii.
+                    <p className="text-[11px] md:text-xs font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-8 max-w-2xl mx-auto py-1 leading-relaxed">
+                        Cập nhật lộ trình học tiếng Nhật và văn hóa bản địa từ chuyên gia.
                     </p>
                 </div>
 
@@ -94,10 +94,7 @@ export default function PostListingPage() {
                     {/* Left Column: Post List */}
                     <div className="lg:col-span-8 space-y-12">
                         {loading && page === 1 ? (
-                            <div className="flex flex-col items-center justify-center py-24 gap-4">
-                                <Loader2 className="w-12 h-12 text-primary animate-spin" />
-                                <p className="text-muted-foreground font-medium animate-pulse">Đang tải bài viết...</p>
-                            </div>
+                            <ComponentLoading text="Đang tải bài viết..." className="py-24" />
                         ) : posts.length > 0 ? (
                             <div className="space-y-8">
                                 <div className="grid grid-cols-1 gap-8">
@@ -114,16 +111,16 @@ export default function PostListingPage() {
                                                 variant="ghost"
                                                 disabled={page === 1}
                                                 onClick={() => setPage(p => p - 1)}
-                                                className="rounded-xl h-11"
+                                                className="rounded-xl h-11 px-4 hover:bg-primary/5 transition-all group/btn"
                                             >
-                                                Trước
+                                                <span className="text-[10px] font-black uppercase tracking-[0.2em] group-hover:text-primary transition-colors">Trước</span>
                                             </Button>
 
                                             {[...Array(totalPages)].map((_, i) => (
                                                 <Button
                                                     key={i}
                                                     variant={page === i + 1 ? 'default' : 'ghost'}
-                                                    className={`w-11 h-11 rounded-xl font-bold ${page === i + 1 ? 'shadow-lg shadow-primary/20' : ''}`}
+                                                    className={`w-11 h-11 rounded-xl font-black text-xs ${page === i + 1 ? 'shadow-lg shadow-primary/20 bg-primary text-white' : 'text-muted-foreground/60'}`}
                                                     onClick={() => setPage(i + 1)}
                                                 >
                                                     {i + 1}
@@ -134,22 +131,26 @@ export default function PostListingPage() {
                                                 variant="ghost"
                                                 disabled={page === totalPages}
                                                 onClick={() => setPage(p => p + 1)}
-                                                className="rounded-xl h-11"
+                                                className="rounded-xl h-11 px-4 hover:bg-primary/5 transition-all group/btn"
                                             >
-                                                Tiếp
+                                                <span className="text-[10px] font-black uppercase tracking-[0.2em] group-hover:text-primary transition-colors">Tiếp</span>
                                             </Button>
                                         </div>
                                     </div>
                                 )}
                             </div>
                         ) : (
-                            <div className="text-center py-32 rounded-3xl bg-accent/5 border-2 border-dashed border-border flex flex-col items-center gap-6">
-                                <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center">
-                                    <Newspaper className="w-10 h-10 text-muted-foreground" />
+                            <div className="text-center py-40 rounded-[3rem] bg-accent/5 border-2 border-dashed border-border/40 flex flex-col items-center gap-8 animate-in fade-in duration-700">
+                                <div className="w-24 h-24 rounded-full bg-background border border-border flex items-center justify-center shadow-sm">
+                                    <Newspaper className="w-10 h-10 text-primary/20" />
                                 </div>
-                                <div className="space-y-2">
-                                    <h3 className="text-xl font-bold">Chưa có bài viết nào</h3>
-                                    <p className="text-muted-foreground">Hãy quay lại sau nhé!</p>
+                                <div className="space-y-3">
+                                    <h3 className="text-4xl font-serif font-bold italic text-foreground uppercase tracking-tight leading-tight">
+                                        Chưa có <br /> <span className="text-primary/40">bài viết nào</span>
+                                    </h3>
+                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 max-w-xs mx-auto">
+                                        Hãy quay lại thăm Torii sau khi chúng tôi cập nhật thêm nội dung nhé!
+                                    </p>
                                 </div>
                             </div>
                         )}

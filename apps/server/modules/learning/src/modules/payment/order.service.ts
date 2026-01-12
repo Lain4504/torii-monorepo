@@ -1,4 +1,5 @@
-import { Injectable, Logger, Inject, NotFoundException, BadRequestException, UnauthorizedException } from '@nestjs/common';
+
+import { Injectable, Logger, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
 import {
     type OrderCreateDTO,
     type OrderQueryDTO,
@@ -13,7 +14,7 @@ import type { IOrderService } from '../../interfaces/services';
 import { ORDER_SERVICE_TOKEN, ENROLLMENT_SERVICE_TOKEN } from '../../interfaces/services';
 import type { IEnrollmentService } from '../../interfaces/services';
 import { OrderRepository } from './order.repository';
-import { SePayService } from './sepay.service';
+import { PayOSService } from './payos.service';
 import { ICourseRepository, COURSE_REPOSITORY_TOKEN } from '../../interfaces/repositories';
 import type { Prisma } from '@prisma/generated';
 
@@ -31,7 +32,7 @@ export class OrderService implements IOrderService {
         private readonly courseRepository: ICourseRepository,
         @Inject(ENROLLMENT_SERVICE_TOKEN)
         private readonly enrollmentService: IEnrollmentService,
-        private readonly sePayService: SePayService,
+        private readonly payOSService: PayOSService,
     ) { }
 
     private toOrderDto(o: any): OrderResponseDTO {
@@ -174,36 +175,58 @@ export class OrderService implements IOrderService {
                 metadata,
             });
 
-            // If SePay payment method, create QR code
-            if (input.paymentMethod === PaymentMethod.SEPAY) {
+            // If PayOS payment method, create payment link
+            if (input.paymentMethod === PaymentMethod.PAYOS) {
                 try {
-                    // Match SePay configuration from environment
-                    const prefix = process.env.SEPAY_PAYMENT_PREFIX || 'wajlc';
-                    const paymentRef = `${prefix}${created.id.split('-')[0].toUpperCase()}`;
-                    const description = `${paymentRef}`;
+                    // Generate a unique order code for PayOS
+                    // PayOS requires integer orderCode (max 53-bit).
+                    // We use Date.now() (13 digits) slice(-10) to keep it safe and shorter (max 10 digits fit in int32 easily)
+                    const orderCode = Number(Date.now().toString().slice(-10));
 
-                    const qrCodeUrl = this.sePayService.generateQrCode({
+                    // PayOS description max length is 25 characters.
+                    const description = `Torii ${orderCode}`;
+
+                    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+
+                    // Prefer URLs from metadata, fallback to default
+                    const returnUrl = input.metadata?.returnUrl || (input as any).returnUrl || `${frontendUrl}/checkout/return?order_id=${created.id}`;
+                    const cancelUrl = input.metadata?.cancelUrl || (input as any).cancelUrl || `${frontendUrl}/checkout/return?order_id=${created.id}`;
+
+                    const paymentLinkData = await this.payOSService.createPaymentLink({
+                        orderCode: orderCode,
                         amount: Number(created.amount),
                         description: description,
+                        cancelUrl: cancelUrl,
+                        returnUrl: returnUrl,
+                        // items removed to prevent validation errors with PayOS
                     });
 
                     // Update order with transaction info
                     await this.orderRepository.update(created.id, {
-                        transactionId: paymentRef,
+                        transactionId: orderCode.toString(),
+                        gatewayTransactionId: orderCode.toString(), // Storing the numeric ID as string
                         metadata: {
                             ...(created.metadata as any),
-                            qrCode: qrCodeUrl,
-                            paymentRef: paymentRef,
+                            checkoutUrl: paymentLinkData.checkoutUrl,
+                            paymentLinkId: paymentLinkData.paymentLinkId,
+                            payOsOrderCode: orderCode, // Keep numeric reference too if needed
                         }
                     });
 
+                    this.logger.log(`Created PayOS payment link for order ${created.id}: ${paymentLinkData.checkoutUrl}`);
+
                     return {
                         ...this.toOrderDto(created),
-                        qrCode: qrCodeUrl,
-                        paymentMethod: PaymentMethod.SEPAY,
+                        transactionId: orderCode.toString(),
+                        metadata: {
+                            ...(created.metadata as any),
+                            checkoutUrl: paymentLinkData.checkoutUrl,
+                            paymentLinkId: paymentLinkData.paymentLinkId,
+                        },
+                        paymentMethod: PaymentMethod.PAYOS,
                     };
                 } catch (error: any) {
-                    this.logger.error(`Failed to create SePay QR: ${error.message}`);
+                    this.logger.error(`Failed to create PayOS payment link: ${error.message}`);
                     throw new BadRequestException(`Failed to initialize payment gateway: ${error.message}`);
                 }
             }
@@ -225,10 +248,13 @@ export class OrderService implements IOrderService {
         }
 
         if (order.status === OrderStatus.COMPLETED) {
-            throw new BadRequestException('Order already completed');
+            // Check if already completed to avoid error, just return it
+            return this.toOrderDto(order);
         }
 
         if (order.status === OrderStatus.FAILED || order.status === OrderStatus.CANCELLED) {
+            // If we are getting a success webhook for a failed order, we might want to "revive" it or just log.
+            // For now, strict check.
             throw new BadRequestException('Order cannot be confirmed in current status');
         }
 
@@ -286,61 +312,33 @@ export class OrderService implements IOrderService {
     }
 
     /**
-     * Handle SePay Webhook
+     * Handle PayOS Webhook
      */
-    async handleWebhook(webhookData: any, authHeader?: string): Promise<any> {
-        // Enforce API Key verification if configured in environment
-        const apiKey = process.env.SEPAY_API_KEY;
-        if (apiKey) {
-            if (!authHeader) {
-                this.logger.warn('Missing Authorization header for SePay webhook');
-                throw new UnauthorizedException('Missing Authorization header');
-            }
-            this.sePayService.verifyWebhook(webhookData, authHeader);
-        }
+    async handleWebhook(webhookData: any): Promise<any> {
+        // Data is already verified by controller
+        const { orderCode, amount, code, desc } = webhookData;
 
-        const { content, transferAmount, referenceCode, id, code, transferType } = webhookData;
-
-        // 0. Only process 'in' (money in) transactions
-        if (transferType === 'out') {
-            this.logger.log(`Ignoring 'out' transaction (ID: ${id})`);
-            return { success: true, message: 'Ignore out transaction' };
-        }
-
-        // 1. Check for duplicate webhook (SePay Transaction ID)
-        const sepayId = id.toString();
-        const existingPayment = await this.orderRepository.findPaymentByTransactionId(sepayId);
-        if (existingPayment) {
-            this.logger.log(`Duplicate SePay webhook received (ID: ${sepayId}). Ignoring.`);
-            return { success: true, message: 'Duplicate transaction' };
+        // 1. Check transaction status
+        if (code !== '00') {
+            this.logger.warn(`PayOS transaction failed/cancelled: ${desc} (Code: ${code}, OrderCode: ${orderCode})`);
+            // Optionally fail the order here
+            return { success: true, message: 'Transaction failed' };
         }
 
         // 2. Identify order
-        // Priority 1: Use the explicit 'code' field from SePay
-        // Priority 2: Fallback to regex matching on 'content'
-        let paymentRef = 'UNKNOWN';
-        if (code) {
-            paymentRef = code;
-        } else {
-            const prefix = process.env.SEPAY_PAYMENT_PREFIX || 'wajlc';
-            const regex = new RegExp(`(${prefix}[A-Z0-9]+)`, 'i');
-            const match = content?.match(regex);
-            if (match) paymentRef = match[1];
-        }
-
-        // Find order by transactionId (short ref)
-        const order = paymentRef !== 'UNKNOWN' ? await this.orderRepository.findByTransactionId(paymentRef) : null;
+        const payOsOrderCode = orderCode.toString();
+        const order = await this.orderRepository.findByTransactionId(payOsOrderCode);
 
         // 3. Save actual Payment record (Transaction log)
         try {
             await this.orderRepository.createPayment({
                 order: order ? { connect: { id: order.id } } : undefined,
                 user: order ? { connect: { id: order.userId } } : undefined,
-                transactionId: sepayId, // Using the unique SePay ID for logging
-                gateway: 'sepay',
-                amount: transferAmount,
+                transactionId: payOsOrderCode,
+                gateway: 'payos',
+                amount: amount.toString(),
                 currency: 'VND',
-                content: content,
+                content: desc || 'PayOS Webhook',
                 status: order ? (order.status === OrderStatus.COMPLETED ? 'duplicate' : 'success') : 'orphan',
                 rawResponse: webhookData,
                 processedAt: new Date(),
@@ -350,29 +348,25 @@ export class OrderService implements IOrderService {
         }
 
         if (!order) {
-            this.logger.warn(`Order not found for SePay ref: ${paymentRef} (SePay ID: ${sepayId})`);
+            this.logger.warn(`Order not found for PayOS OrderCode: ${payOsOrderCode}`);
             return { success: true, message: 'Order not found' };
         }
 
-        if (order.status === OrderStatus.COMPLETED) {
-            this.logger.log(`Order ${order.id} already completed. This might be a double payment (Ref: ${paymentRef})`);
-            return { success: true, message: 'Already completed' };
-        }
-
-        if (Number(transferAmount) < Number(order.amount)) {
-            this.logger.warn(`Payment amount mismatch for ${order.id}. Expected ${order.amount}, got ${transferAmount}`);
+        // 4. Validate Amount
+        if (Number(amount) < Number(order.amount)) {
+            this.logger.warn(`Payment amount mismatch for ${order.id}. Expected ${order.amount}, got ${amount}`);
             return { success: true, message: 'Amount mismatch' };
         }
 
-        // 4. Confirm order
+        // 5. Confirm order
         try {
             await this.confirm(order.id, {
                 orderId: order.id,
-                transactionId: referenceCode || sepayId,
-                gatewayTransactionId: sepayId,
+                transactionId: payOsOrderCode,
+                gatewayTransactionId: payOsOrderCode,
                 metadata: {
                     ...webhookData,
-                    sepayWebhookReceivedAt: new Date().toISOString()
+                    webhookReceivedAt: new Date().toISOString()
                 }
             });
 

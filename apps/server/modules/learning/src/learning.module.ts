@@ -51,7 +51,8 @@ import { WishlistController } from './controllers/wishlist.controller';
 import { ReviewController } from './controllers/review.controller';
 import { EnrollmentController } from './controllers/enrollment.controller';
 import { OrderController } from './controllers/order.controller';
-import { SepayController } from './controllers/sepay.controller';
+
+import { PayOSController } from './controllers/payos.controller';
 import { PostController } from './interfaces/http/post.controller';
 import { CommentController } from './interfaces/http/comment.controller';
 import { NotificationController } from './interfaces/http/notification.controller';
@@ -117,7 +118,7 @@ import { FlashcardReviewController } from './interfaces/http/flashcard-review.co
     ReviewController,
     EnrollmentController,
     OrderController,
-    SepayController,
+    PayOSController,
     PostController,
     CommentController,
     NotificationController,

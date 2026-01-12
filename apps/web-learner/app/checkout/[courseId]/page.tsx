@@ -1,68 +1,77 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { useParams, useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { useAppSelector } from '@/hooks/hooks'
 import { Button } from '@workspace/ui/components/button'
-import { Badge } from '@workspace/ui/components/badge'
-import { Loader2, ArrowLeft, CreditCard, CheckCircle2, ShieldCheck, Zap, Receipt, Sparkles, Wallet, QrCode } from 'lucide-react'
+import { Card, CardContent } from '@workspace/ui/components/card'
+import { Loader2, ShieldCheck, CreditCard, ArrowLeft, X, Lock, CheckCircle2 } from 'lucide-react'
+import { toast } from '@workspace/ui/components/sonner'
 import { courseApi } from '@/api/services/course-api'
 import { orderApi } from '@/api/services/order-api'
-import { useAppSelector } from '@/hooks/hooks'
-import { toast } from '@workspace/ui/components/sonner'
-import { CourseResponseDTO, PaymentMethod, OrderType, OrderStatus } from '@workspace/schemas'
+import { CourseResponseDTO } from '@workspace/schemas'
+import { PaymentMethod, OrderType } from '@workspace/schemas'
 import { PageLoading } from '@workspace/ui/components/page-loading'
-import { cn } from '@workspace/ui/lib/utils'
-import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
-import { Separator } from '@workspace/ui/components/separator'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@workspace/ui/components/dialog'
+import { usePayOS, PayOSConfig } from '@payos/payos-checkout'
 
 export default function CheckoutPage() {
     const params = useParams()
     const router = useRouter()
     const courseId = params.courseId as string
+    const user = useAppSelector((state) => state.auth.user)
 
     const [course, setCourse] = useState<CourseResponseDTO | null>(null)
     const [isLoading, setIsLoading] = useState(true)
-    const [isProcessing, setIsProcessing] = useState(false)
-    const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(PaymentMethod.SEPAY)
-    const [activeOrder, setActiveOrder] = useState<{ id: string, qrCode: string, ref: string } | null>(null)
-    const [isCheckingPayment, setIsCheckingPayment] = useState(false)
+    const [isCreatingLink, setIsCreatingLink] = useState(false)
+    const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-    const status = useAppSelector((state) => state.auth.status)
-    const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated)
-    const user = useAppSelector((state) => state.auth.user)
+    // PayOS Config State
+    const [payOSConfig, setPayOSConfig] = useState<PayOSConfig>({
+        RETURN_URL: typeof window !== 'undefined' ? window.location.href : '',
+        ELEMENT_ID: "payos-checkout-iframe",
+        CHECKOUT_URL: "",
+        embedded: true,
+        onSuccess: (event: any) => {
+            toast.success('Thanh toán thành công!')
+            setIsDialogOpen(false)
+            if (event?.orderCode) {
+                router.push(`/checkout/return?status=PAID&orderCode=${event.orderCode}`)
+            }
+        },
+        onCancel: (event: any) => {
+            toast.error('Đã hủy thanh toán')
+            setIsDialogOpen(false)
+        },
+        onExit: (event: any) => {
+            setIsDialogOpen(false)
+        }
+    })
 
-    const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    const { open, exit } = usePayOS(payOSConfig)
 
     useEffect(() => {
-        // Wait for auth check to complete
-        if (status === 'loading' || status === 'idle') return
-
-        if (!isAuthenticated) {
-            toast.error('Vui lòng đăng nhập để tiếp tục')
-            router.push('/login')
-            return
-        }
-
         loadCourse()
+        setPayOSConfig(prev => ({ ...prev, RETURN_URL: window.location.href }))
+    }, [courseId])
 
-        return () => {
-            if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-        };
-    }, [courseId, isAuthenticated, status])
+    // Effect to trigger open() when CHECKOUT_URL is populated AND Dialog is open
+    useEffect(() => {
+        if (payOSConfig.CHECKOUT_URL && payOSConfig.CHECKOUT_URL.trim() !== '' && isDialogOpen) {
+            // Short timeout to ensure Dialog content is mounted
+            const timer = setTimeout(() => {
+                open()
+            }, 100)
+            return () => clearTimeout(timer)
+        }
+    }, [payOSConfig.CHECKOUT_URL, open, isDialogOpen])
 
     const loadCourse = async () => {
         try {
             setIsLoading(true)
-            const courseData = await courseApi.getCourseById(courseId)
-            if (!courseData) {
-                toast.error('Khóa học không tồn tại')
-                router.push('/courses')
-                return
-            }
-            setCourse(courseData)
-        } catch (error: any) {
-            console.error('Failed to load course:', error)
+            const data = await courseApi.getCourseById(courseId)
+            setCourse(data)
+        } catch (error) {
             toast.error('Không thể tải thông tin khóa học')
             router.push('/courses')
         } finally {
@@ -70,360 +79,176 @@ export default function CheckoutPage() {
         }
     }
 
-    const checkPaymentStatus = async (orderId: string) => {
-        try {
-            const order = await orderApi.getOrder(orderId);
-            if (order.status === OrderStatus.COMPLETED) {
-                if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-                toast.success('Thanh toán thành công!');
-                router.push(`/checkout/return?order_id=${orderId}`);
-            }
-        } catch (error) {
-            console.error('Failed to check payment status:', error);
-        }
-    };
-
-    const startPolling = (orderId: string) => {
-        if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-        pollIntervalRef.current = setInterval(() => checkPaymentStatus(orderId), 3000);
-    };
-
-    const formatPrice = (price: number) => {
-        return new Intl.NumberFormat('vi-VN', {
-            style: 'currency',
-            currency: 'VND',
-        }).format(price)
-    }
-
-    const calculateTotal = () => {
-        if (!course) return 0
-        return (course.discountPrice !== null && course.discountPrice !== undefined)
-            ? Number(course.discountPrice)
-            : Number(course.price)
-    }
-
     const handlePayment = async () => {
         if (!course || !user) return
 
         try {
-            setIsProcessing(true)
+            setIsCreatingLink(true)
+            exit()
 
-            // Create Order
+            const description = `Thanh toan khoa hoc ${course.title}`.slice(0, 25)
+
             const order = await orderApi.createOrder({
                 courseId: course.id,
-                paymentMethod: paymentMethod,
+                paymentMethod: PaymentMethod.PAYOS,
                 orderType: OrderType.COURSE_PURCHASE,
-                description: `Thanh toán cho khóa học: ${course.title}`,
+                description: description,
+                metadata: {
+                    returnUrl: window.location.href,
+                    cancelUrl: window.location.href,
+                },
             })
 
-            // If SePay, show QR Code
-            if (paymentMethod === PaymentMethod.SEPAY) {
-                if (order.qrCode) {
-                    setActiveOrder({
-                        id: order.id,
-                        qrCode: order.qrCode,
-                        ref: order.metadata?.paymentRef || '',
-                    })
-                    toast.success('Đã tạo mã QR. Vui lòng quét để thanh toán.')
-                    startPolling(order.id);
-                } else {
-                    throw new Error('Không tìm thấy mã QR thanh toán')
-                }
+            if (order.metadata?.checkoutUrl) {
+                setPayOSConfig((oldConfig) => ({
+                    ...oldConfig,
+                    CHECKOUT_URL: order.metadata.checkoutUrl,
+                }))
+                setIsDialogOpen(true)
             } else {
-                // For Mock / Other methods
-                toast.success('Đang khởi tạo thanh toán...')
-                // Mock behavior: directly confirm after a delay or redirect
-                setTimeout(() => {
-                    router.push(`/checkout/return?order_id=${order.id}`)
-                }, 1500)
+                toast.error('Không thể tạo link thanh toán')
             }
-        } catch (error: any) {
-            console.error('Order creation failed:', error)
-            toast.error(error?.response?.data?.message || 'Thanh toán thất bại. Vui lòng thử lại.')
+        } catch (error) {
+            console.error(error)
+            toast.error('Có lỗi xảy ra khi tạo đơn hàng')
         } finally {
-            setIsProcessing(false)
+            setIsCreatingLink(false)
         }
     }
 
-    if (status === 'loading' || status === 'idle') {
-        return <PageLoading text="Đang xác thực thông tin..." />
-    }
-
-    if (!isAuthenticated) return null
-
-    if (isLoading) {
-        return <PageLoading text="Đang tải thông tin đơn hàng..." />
-    }
-
-    if (!course) return null
-
-    const total = calculateTotal()
-    const discount = (course.discountPrice !== null && course.discountPrice !== undefined)
-        ? ((Number(course.price) - Number(course.discountPrice)) / Number(course.price)) * 100
-        : 0
+    if (isLoading) return <PageLoading />
 
     return (
-        <div className="min-h-screen bg-background relative overflow-x-hidden">
-            {/* Background Atmosphere */}
-            <div className="fixed inset-0 pointer-events-none">
-                <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-primary/5 rounded-full blur-[150px]" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[30%] h-[30%] bg-blue-500/5 rounded-full blur-[120px]" />
-            </div>
-
-            <div className="relative z-10 container max-w-6xl mx-auto px-4 py-8 lg:py-12">
-                {/* Header Navigation */}
-                <div className="flex items-center gap-4 mb-8 lg:mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
-                    <Button
-                        variant="ghost"
-                        onClick={() => router.back()}
-                        className="rounded-xl px-4 h-10 hover:bg-muted/50 text-muted-foreground hover:text-foreground font-bold uppercase tracking-widest text-[10px]"
-                    >
-                        <ArrowLeft className="w-4 h-4 mr-2" />
-                        Quay lại
-                    </Button>
-                    <div className="h-4 w-px bg-border/40" />
-                    <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">Checkout</span>
-                        <span className="text-muted-foreground/30">/</span>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{course.slug || 'COURSE'}</span>
-                    </div>
+        <div className="container max-w-4xl mx-auto px-4 py-8 md:py-16 animate-in fade-in duration-500">
+            {/* Back Button */}
+            <Link href={`/courses/${courseId}`} className="group inline-flex items-center gap-4 mb-12 hover:opacity-70 transition-all">
+                <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:-translate-x-1 transition-transform">
+                    <ArrowLeft className="w-5 h-5 text-primary" />
                 </div>
+                <div className="space-y-0.5">
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40">Return to</span>
+                    <p className="text-[11px] font-black uppercase tracking-[0.1em] text-foreground">Course Overview</p>
+                </div>
+            </Link>
 
-                <div className="grid lg:grid-cols-12 gap-8 lg:gap-12">
-                    {/* Left Column: Payment Details */}
-                    <div className="lg:col-span-8 space-y-8 animate-in fade-in slide-in-from-left-4 duration-700 delay-100">
+            <div className="max-w-2xl mx-auto py-12">
+                <Card className="border-none shadow-[0_0_100px_rgba(0,0,0,0.05)] rounded-[3rem] overflow-hidden bg-background/60 backdrop-blur-3xl border border-white/5">
 
-                        {/* Course Overview Card */}
-                        <div className="rounded-[2.5rem] p-1 border border-white/5 bg-background/40 backdrop-blur-xl shadow-2xl shadow-black/5">
-                            <div className="rounded-[2.2rem] bg-background/50 p-6 lg:p-8 border border-white/5">
-                                <h2 className="text-xl lg:text-2xl font-black uppercase italic tracking-tighter flex items-center gap-3 mb-6">
-                                    <Sparkles className="w-5 h-5 text-primary" />
-                                    Thông tin khóa học
-                                </h2>
-
-                                <div className="flex flex-col md:flex-row gap-6">
-                                    <div className="w-full md:w-48 aspect-video md:aspect-[4/3] rounded-2xl overflow-hidden border border-white/10 shadow-lg shrink-0 relative group">
-                                        {course.thumbnailUrl ? (
-                                            <img
-                                                src={course.thumbnailUrl}
-                                                alt={course.title}
-                                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                            />
-                                        ) : (
-                                            <div className="w-full h-full bg-muted/20 flex items-center justify-center">
-                                                <Zap className="w-8 h-8 text-muted-foreground/20" />
-                                            </div>
-                                        )}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                                    </div>
-
-                                    <div className="flex-1 space-y-4">
-                                        <div>
-                                            {course.jlptLevel && (
-                                                <Badge variant="secondary" className="mb-2 bg-primary/10 text-primary border-0 rounded-md px-2 py-0.5 text-[9px] font-black uppercase tracking-widest">
-                                                    {course.jlptLevel}
-                                                </Badge>
-                                            )}
-                                            <h3 className="text-xl font-bold leading-tight">{course.title}</h3>
-                                            <p className="text-sm text-muted-foreground mt-2 line-clamp-2 md:line-clamp-3 leading-relaxed">
-                                                {course.shortDescription || course.description}
-                                            </p>
-                                        </div>
-
-                                        <div className="flex items-center gap-4 pt-2">
-                                            <div className="flex items-center gap-2">
-                                                <Avatar className="w-6 h-6 border border-white/10">
-                                                    <AvatarImage src={course.instructors?.[0]?.user.avatarUrl ?? undefined} />
-                                                    <AvatarFallback className="text-[9px] font-bold bg-muted text-muted-foreground">IN</AvatarFallback>
-                                                </Avatar>
-                                                <div className="flex flex-col">
-                                                    <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/50">Instructor</span>
-                                                    <span className="text-xs font-bold">{course.instructors?.[0]?.user.displayName || 'Torii Instructor'}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                    <CardContent className="p-0">
+                        {/* Header */}
+                        <div className="p-10 md:p-14 pb-8 space-y-4">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[9px] font-black uppercase tracking-[0.3em]">
+                                <ShieldCheck className="w-3 h-3" />
+                                <span>Secure Checkout</span>
                             </div>
+                            <h1 className="text-4xl md:text-5xl font-serif font-bold text-foreground tracking-tight uppercase italic leading-[0.9]">
+                                Confirm <br /> <span className="text-primary not-italic">Order</span>
+                            </h1>
+                            <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 italic border-l-2 border-primary/20 pl-6 py-1">
+                                Review your academic investment before final processing.
+                            </p>
                         </div>
 
-                        {/* Payment Method Section */}
-                        <div className="space-y-4">
-                            <h2 className="text-xl font-black uppercase italic tracking-tighter flex items-center gap-3 px-2">
-                                <Wallet className="w-5 h-5 text-primary" />
-                                Phương thức thanh toán
-                            </h2>
-
-                            <div className="grid gap-4">
-                                {/* SePay Option */}
-                                <div
-                                    onClick={() => setPaymentMethod(PaymentMethod.SEPAY)}
-                                    className={cn(
-                                        "relative group cursor-pointer transition-all duration-300 rounded-[1.5rem] border overflow-hidden",
-                                        paymentMethod === PaymentMethod.SEPAY
-                                            ? "bg-primary/5 border-primary/20 shadow-lg shadow-primary/5"
-                                            : "bg-background/40 border-white/5 hover:border-white/10 hover:bg-background/60"
-                                    )}
-                                >
-                                    <div className="p-5 flex items-center gap-4">
-                                        <div className={cn(
-                                            "w-12 h-12 rounded-2xl flex items-center justify-center transition-colors shrink-0",
-                                            paymentMethod === PaymentMethod.SEPAY ? "bg-emerald-500/20 text-emerald-500" : "bg-muted/10 text-muted-foreground"
-                                        )}>
-                                            <QrCode className="w-6 h-6" />
+                        {/* Content */}
+                        <div className="p-8">
+                            {course && (
+                                <div className="space-y-8">
+                                    {/* Product/Course Info */}
+                                    <div className="flex items-center gap-6 p-8 rounded-[2.5rem] bg-muted/20 border border-border/40 relative overflow-hidden group">
+                                        <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        <div className="h-20 w-20 rounded-3xl bg-background flex items-center justify-center shrink-0 border border-border/40 shadow-xl relative z-10 transition-transform group-hover:scale-110">
+                                            <CreditCard className="w-8 h-8 text-primary" />
                                         </div>
-                                        <div className="flex-1">
-                                            <div className="flex items-center justify-between mb-1">
-                                                <h4 className="font-bold text-foreground">SePay / QR Code</h4>
-                                                {paymentMethod === PaymentMethod.SEPAY && (
-                                                    <CheckCircle2 className="w-5 h-5 text-primary fill-primary/20" />
-                                                )}
-                                            </div>
-                                            <p className="text-xs text-muted-foreground font-medium leading-relaxed max-w-[90%]">
-                                                Quét mã QR để chuyển khoản nhanh chóng. Hỗ trợ VietQR.
-                                            </p>
+                                        <div className="space-y-1 relative z-10">
+                                            <p className="text-[9px] font-black text-primary uppercase tracking-[0.3em]">Academic Asset</p>
+                                            <h3 className="font-serif text-2xl font-bold text-foreground leading-none italic uppercase tracking-tight">
+                                                {course.title}
+                                            </h3>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
 
-                            {/* Placeholder for Real Payment (Disabled style) */}
-                            <div className="opacity-50 grayscale pointer-events-none rounded-[1.5rem] border border-white/5 bg-background/20 p-5 flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-2xl bg-muted/10 flex items-center justify-center shrink-0">
-                                    <CreditCard className="w-6 h-6 text-muted-foreground" />
-                                </div>
-                                <div>
-                                    <h4 className="font-bold text-foreground">Thẻ ghi nợ / Tín dụng</h4>
-                                    <p className="text-xs text-muted-foreground font-medium">Sắp ra mắt</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Right Column: Order Summary */}
-                    <div className="lg:col-span-4 animate-in fade-in slide-in-from-right-4 duration-700 delay-200">
-                        <div className="sticky top-24 space-y-6">
-                            <div className="rounded-[2rem] border border-white/5 bg-background/60 backdrop-blur-xl shadow-2xl shadow-black/5 overflow-hidden">
-                                <div className="p-6 lg:p-8 space-y-6">
-                                    <h3 className="text-lg font-black uppercase tracking-widest text-muted-foreground/80 flex items-center gap-2">
-                                        <Receipt className="w-4 h-4" />
-                                        Hóa đơn
-                                    </h3>
-
-                                    <div className="space-y-4">
-                                        <div className="flex justify-between items-center text-sm">
-                                            <span className="text-muted-foreground font-medium">Giá gốc</span>
-                                            <span className={cn("font-bold", discount > 0 && "line-through text-muted-foreground/50")}>
-                                                {formatPrice(Number(course.price))}
-                                            </span>
-                                        </div>
-
-                                        {discount > 0 && (
-                                            <div className="flex justify-between items-center text-sm">
-                                                <span className="text-emerald-500 font-medium flex items-center gap-1.5">
-                                                    <Zap className="w-3 h-3 fill-current" />
-                                                    Giảm giá ưu đãi
-                                                </span>
-                                                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-0 text-[10px] font-black uppercase tracking-wider">
-                                                    -{Math.round(discount)}%
-                                                </Badge>
+                                    {/* Pricing */}
+                                    <div className="space-y-6 pt-10 border-t border-border/20">
+                                        <div className="flex items-end justify-between">
+                                            <div className="space-y-1">
+                                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/30">Total Investment</span>
+                                                <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest flex items-center gap-1.5">
+                                                    <CheckCircle2 className="w-3.5 h-3.5" /> All taxes & fees included
+                                                </p>
                                             </div>
-                                        )}
-
-                                        <Separator className="bg-border/40" />
-
-                                        <div className="flex justify-between items-end pt-2">
-                                            <span className="text-sm font-bold uppercase tracking-wider text-foreground">Tổng thanh toán</span>
                                             <div className="text-right">
-                                                <span className="block text-3xl font-black text-primary tracking-tight">
-                                                    {formatPrice(total)}
+                                                <span className="block text-4xl md:text-5xl font-serif font-bold text-foreground italic tracking-tighter leading-none">
+                                                    {course.price.toLocaleString('vi-VN')} VNĐ
                                                 </span>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className="pt-4">
+                                    {/* Action */}
+                                    <div className="space-y-6 pt-6">
                                         <Button
-                                            className="w-full h-14 rounded-2xl text-sm font-black uppercase tracking-widest bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                                            className="w-full h-20 rounded-[2rem] text-[11px] font-black uppercase tracking-[0.3em] shadow-2xl shadow-primary/20 hover:shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-500 bg-primary text-white border-none"
                                             onClick={handlePayment}
-                                            disabled={isProcessing}
+                                            disabled={isCreatingLink}
                                         >
-                                            {isProcessing ? (
+                                            {isCreatingLink ? (
                                                 <>
-                                                    <Loader2 className="w-5 h-5 mr-3 animate-spin" />
-                                                    Đang xử lý...
+                                                    <Loader2 className="mr-3 h-5 w-5 animate-spin" />
+                                                    Generating Secure Link...
                                                 </>
                                             ) : (
                                                 <>
-                                                    <ShieldCheck className="w-5 h-5 mr-3" />
-                                                    Thanh toán ngay
+                                                    Initiate Payment <ArrowLeft className="ml-3 w-4 h-4 rotate-180" />
                                                 </>
                                             )}
                                         </Button>
-                                        <div className="mt-4 flex items-center justify-center gap-2 text-[10px] text-muted-foreground font-medium uppercase tracking-tight">
-                                            <ShieldCheck className="w-3 h-3" />
-                                            Bảo mật thanh toán 100%
+                                        <div className="flex items-center justify-center gap-3 py-4 rounded-2xl bg-muted/10 border border-border/40">
+                                            <Lock className="w-4 h-4 text-primary/40" />
+                                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">100% Encrypted Gateway Powered by PayOS</span>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="bg-muted/30 p-4 border-t border-white/5 text-center">
-                                    <p className="text-[10px] text-muted-foreground/60 leading-relaxed max-w-xs mx-auto">
-                                        Bằng việc hoàn tất thanh toán, bạn đồng ý với <span className="underline cursor-pointer hover:text-primary transition-colors">Điều khoản dịch vụ</span> của Torii.
-                                    </p>
+                            )}
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Custom Modal for PayOS with updated styling */}
+            {isDialogOpen && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-xl p-4 md:p-8 animate-in fade-in duration-500">
+                    <div
+                        className="bg-background w-full max-w-[900px] h-[750px] rounded-[2.5rem] border border-border/40 shadow-[0_0_100px_rgba(0,0,0,0.1)] overflow-hidden relative flex flex-col animate-in zoom-in-95 duration-500"
+                    >
+                        {/* Modal Header */}
+                        <div className="flex items-center justify-between px-10 py-6 border-b border-border/40 bg-muted/5">
+                            <div className="flex items-center gap-4">
+                                <div className="p-2 bg-white rounded-xl border border-border/40 shadow-sm">
+                                    <CreditCard className="w-6 h-6 text-primary" />
+                                </div>
+                                <div className="space-y-0.5">
+                                    <h3 className="text-xl font-serif font-bold italic uppercase tracking-tight text-foreground">Secure <span className="text-primary not-italic">Payment</span></h3>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Powered by PayOS Terminal</p>
                                 </div>
                             </div>
+                            <button
+                                onClick={() => setIsDialogOpen(false)}
+                                className="w-10 h-10 rounded-xl bg-muted/40 hover:bg-muted text-foreground flex items-center justify-center transition-all cursor-pointer active:scale-90"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        {/* Modal Content */}
+                        <div className="flex-1 relative bg-white">
+                            <div
+                                id="payos-checkout-iframe"
+                                className="w-full h-full"
+                            />
                         </div>
                     </div>
                 </div>
-            </div>
-
-            {/* QR Code Dialog */}
-            <Dialog open={!!activeOrder} onOpenChange={(open) => {
-                if (!open) {
-                    setActiveOrder(null)
-                    if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-                }
-            }}>
-                <DialogContent className="sm:max-w-md bg-background/95 backdrop-blur-xl border-white/10">
-                    <DialogHeader>
-                        <DialogTitle className="text-center text-xl font-bold uppercase tracking-tight">Quét mã thanh toán</DialogTitle>
-                        <DialogDescription className="text-center">
-                            Sử dụng ứng dụng ngân hàng của bạn để quét mã QR bên dưới.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="flex flex-col items-center justify-center p-6 space-y-4">
-                        {activeOrder && (
-                            <div className="relative p-2 bg-white rounded-xl shadow-xl">
-                                <img
-                                    src={activeOrder.qrCode}
-                                    alt="Payment QR Code"
-                                    className="w-64 h-64 object-contain"
-                                />
-                            </div>
-                        )}
-                        <div className="text-center space-y-2">
-                            <p className="text-sm font-medium">Nội dung chuyển khoản:</p>
-                            <div className="bg-muted/50 p-3 rounded-lg border border-white/5 select-all font-mono font-bold text-lg tracking-wider text-primary">
-                                {activeOrder?.ref ? `${activeOrder.ref}` : "..."}
-                            </div>
-                            <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground mt-2">
-                                <Loader2 className="w-3 h-3 animate-spin text-primary" />
-                                <span>Đang chờ thanh toán... Hệ thống sẽ tự động chuyển hướng.</span>
-                            </div>
-                        </div>
-                        <Button
-                            className="w-full mt-4"
-                            variant="outline"
-                            onClick={() => {
-                                if (activeOrder) checkPaymentStatus(activeOrder.id);
-                            }}
-                            disabled={isCheckingPayment}
-                        >
-                            {isCheckingPayment ? "Đang kiểm tra..." : "Tôi đã thanh toán"}
-                        </Button>
-                    </div>
-                </DialogContent>
-            </Dialog>
+            )}
         </div>
     )
 }
