@@ -1,4 +1,4 @@
-import { Injectable, Logger, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger, Inject, NotFoundException, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import {
     type OrderCreateDTO,
     type OrderQueryDTO,
@@ -289,77 +289,83 @@ export class OrderService implements IOrderService {
      * Handle SePay Webhook
      */
     async handleWebhook(webhookData: any, authHeader?: string): Promise<any> {
+        // Enforce API Key verification if configured in environment
+        const apiKey = process.env.SEPAY_API_KEY;
+        if (apiKey) {
+            if (!authHeader) {
+                this.logger.warn('Missing Authorization header for SePay webhook');
+                throw new UnauthorizedException('Missing Authorization header');
+            }
+            this.sePayService.verifyWebhook(webhookData, authHeader);
+        }
+
+        const { content, transferAmount, referenceCode, id, code, transferType } = webhookData;
+
+        // 0. Only process 'in' (money in) transactions
+        if (transferType === 'out') {
+            this.logger.log(`Ignoring 'out' transaction (ID: ${id})`);
+            return { success: true, message: 'Ignore out transaction' };
+        }
+
+        // 1. Check for duplicate webhook (SePay Transaction ID)
+        const sepayId = id.toString();
+        const existingPayment = await this.orderRepository.findPaymentByTransactionId(sepayId);
+        if (existingPayment) {
+            this.logger.log(`Duplicate SePay webhook received (ID: ${sepayId}). Ignoring.`);
+            return { success: true, message: 'Duplicate transaction' };
+        }
+
+        // 2. Identify order
+        // Priority 1: Use the explicit 'code' field from SePay
+        // Priority 2: Fallback to regex matching on 'content'
+        let paymentRef = 'UNKNOWN';
+        if (code) {
+            paymentRef = code;
+        } else {
+            const prefix = process.env.SEPAY_PAYMENT_PREFIX || 'wajlc';
+            const regex = new RegExp(`(${prefix}[A-Z0-9]+)`, 'i');
+            const match = content?.match(regex);
+            if (match) paymentRef = match[1];
+        }
+
+        // Find order by transactionId (short ref)
+        const order = paymentRef !== 'UNKNOWN' ? await this.orderRepository.findByTransactionId(paymentRef) : null;
+
+        // 3. Save actual Payment record (Transaction log)
         try {
-            if (authHeader) {
-                this.sePayService.verifyWebhook(webhookData, authHeader);
-            }
+            await this.orderRepository.createPayment({
+                order: order ? { connect: { id: order.id } } : undefined,
+                user: order ? { connect: { id: order.userId } } : undefined,
+                transactionId: sepayId, // Using the unique SePay ID for logging
+                gateway: 'sepay',
+                amount: transferAmount,
+                currency: 'VND',
+                content: content,
+                status: order ? (order.status === OrderStatus.COMPLETED ? 'duplicate' : 'success') : 'orphan',
+                rawResponse: webhookData,
+                processedAt: new Date(),
+            });
+        } catch (txError) {
+            this.logger.error(`Failed to save payment transaction log: ${txError}`);
+        }
 
-            const { content, transferAmount, referenceCode, id, code, transferType } = webhookData;
+        if (!order) {
+            this.logger.warn(`Order not found for SePay ref: ${paymentRef} (SePay ID: ${sepayId})`);
+            return { success: true, message: 'Order not found' };
+        }
 
-            // 0. Only process 'in' (money in) transactions
-            if (transferType === 'out') {
-                this.logger.log(`Ignoring 'out' transaction (ID: ${id})`);
-                return { success: true, message: 'Ignore out transaction' };
-            }
+        if (order.status === OrderStatus.COMPLETED) {
+            this.logger.log(`Order ${order.id} already completed. This might be a double payment (Ref: ${paymentRef})`);
+            return { success: true, message: 'Already completed' };
+        }
 
-            // 1. Check for duplicate webhook (SePay Transaction ID)
-            const sepayId = id.toString();
-            const existingPayment = await this.orderRepository.findPaymentByTransactionId(sepayId);
-            if (existingPayment) {
-                this.logger.log(`Duplicate SePay webhook received (ID: ${sepayId}). Ignoring.`);
-                return { success: true, message: 'Duplicate transaction' };
-            }
+        if (Number(transferAmount) < Number(order.amount)) {
+            this.logger.warn(`Payment amount mismatch for ${order.id}. Expected ${order.amount}, got ${transferAmount}`);
+            return { success: true, message: 'Amount mismatch' };
+        }
 
-            // 2. Identify order
-            // Priority 1: Use the explicit 'code' field from SePay
-            // Priority 2: Fallback to regex matching on 'content'
-            let paymentRef = 'UNKNOWN';
-            if (code) {
-                paymentRef = code.toUpperCase();
-            } else {
-                const prefix = process.env.SEPAY_PAYMENT_PREFIX || 'wajlc';
-                const regex = new RegExp(`(${prefix}[A-Z0-9]+)`, 'i');
-                const match = content?.match(regex);
-                if (match) paymentRef = match[1].toUpperCase();
-            }
-
-            // Find order by transactionId (short ref)
-            const order = paymentRef !== 'UNKNOWN' ? await this.orderRepository.findByTransactionId(paymentRef) : null;
-
-            // 3. Save actual Payment record (Transaction log)
-            try {
-                await this.orderRepository.createPayment({
-                    order: order ? { connect: { id: order.id } } : undefined,
-                    user: order ? { connect: { id: order.userId } } : undefined,
-                    transactionId: sepayId, // Using the unique SePay ID for logging
-                    gateway: 'sepay',
-                    amount: transferAmount,
-                    currency: 'VND',
-                    content: content,
-                    status: order ? (order.status === OrderStatus.COMPLETED ? 'duplicate' : 'success') : 'orphan',
-                    rawResponse: webhookData,
-                    processedAt: new Date(),
-                });
-            } catch (txError) {
-                this.logger.error(`Failed to save payment transaction log: ${txError}`);
-            }
-
-            if (!order) {
-                this.logger.warn(`Order not found for SePay ref: ${paymentRef} (SePay ID: ${sepayId})`);
-                return { success: true, message: 'Order not found' };
-            }
-
-            if (order.status === OrderStatus.COMPLETED) {
-                this.logger.log(`Order ${order.id} already completed. This might be a double payment (Ref: ${paymentRef})`);
-                return { success: true, message: 'Already completed' };
-            }
-
-            if (Number(transferAmount) < Number(order.amount)) {
-                this.logger.warn(`Payment amount mismatch for ${order.id}. Expected ${order.amount}, got ${transferAmount}`);
-                return { success: true, message: 'Amount mismatch' };
-            }
-
-            // 4. Confirm order
+        // 4. Confirm order
+        try {
             await this.confirm(order.id, {
                 orderId: order.id,
                 transactionId: referenceCode || sepayId,

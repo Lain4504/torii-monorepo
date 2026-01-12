@@ -27,7 +27,12 @@ export class OrderRepository implements IOrderRepository {
      */
     async findByTransactionId(transactionId: string): Promise<Order | null> {
         return this.prisma.order.findFirst({
-            where: { transactionId },
+            where: {
+                transactionId: {
+                    equals: transactionId,
+                    mode: 'insensitive',
+                },
+            },
         });
     }
 

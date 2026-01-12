@@ -62,18 +62,7 @@ export class OrderController {
         return this.orderService.create(userId, input);
     }
 
-    /**
-     * Handle SePay Webhook
-     */
-    @Post('sepay/webhook')
-    @Public()
-    @HttpCode(HttpStatus.OK)
-    async handleSePayWebhook(
-        @Body() webhookData: any,
-        @RequestHeaders('authorization') authHeader: string,
-    ): Promise<any> {
-        return this.orderService.handleWebhook(webhookData, authHeader);
-    }
+
 
     /**
      * Confirm/complete order
