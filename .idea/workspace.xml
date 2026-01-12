@@ -4,18 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="post detail">
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/post/[id]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/post/[id]/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/post/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/post/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/post/post-sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/post/post-sidebar.tsx" afterDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="docker file build" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1103" />
+    <option name="cachedIndexableFilesCount" value="1108" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -131,7 +127,7 @@
     "javascript.preferred.runtime.type.id": "node",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "E:/projectdev/bmap-capstone/torii-monorepo/packages/ui",
+    "last_opened_file_path": "E:/projectdev/bmap-capstone/torii-monorepo/apps/server",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -162,11 +158,11 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\projectdev\bmap-capstone\torii-monorepo\apps\server" />
       <recent name="E:\Ky8\bmap-capstone\torii-monorepo\apps\web-learner\components\layout" />
       <recent name="E:\Ky8\bmap-capstone\torii-monorepo" />
       <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\billing\src\modules" />
       <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\billing\src\infrastructure" />
-      <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\meet\src\redis" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="E:\projectdev\bmap-capstone\torii-monorepo\apps\server\modules\identity\src\modules" />
@@ -294,30 +290,8 @@
       <workItem from="1767970155935" duration="4593000" />
       <workItem from="1768010492981" duration="681000" />
       <workItem from="1768073462770" duration="2244000" />
-    </task>
-    <task id="LOCAL-00588" summary="update ui course detail page">
-      <option name="closed" value="true" />
-      <created>1768062803281</created>
-      <option name="number" value="00588" />
-      <option name="presentableId" value="LOCAL-00588" />
-      <option name="project" value="LOCAL" />
-      <updated>1768062803283</updated>
-    </task>
-    <task id="LOCAL-00589" summary="update ui course detail page">
-      <option name="closed" value="true" />
-      <created>1768064107030</created>
-      <option name="number" value="00589" />
-      <option name="presentableId" value="LOCAL-00589" />
-      <option name="project" value="LOCAL" />
-      <updated>1768064107031</updated>
-    </task>
-    <task id="LOCAL-00590" summary="update ui course detail page">
-      <option name="closed" value="true" />
-      <created>1768064329783</created>
-      <option name="number" value="00590" />
-      <option name="presentableId" value="LOCAL-00590" />
-      <option name="project" value="LOCAL" />
-      <updated>1768064329785</updated>
+      <workItem from="1768199989867" duration="83000" />
+      <workItem from="1768201864379" duration="2064000" />
     </task>
     <task id="LOCAL-00591" summary="update ui course detail page">
       <option name="closed" value="true" />
@@ -687,7 +661,31 @@
       <option name="project" value="LOCAL" />
       <updated>1768199004744</updated>
     </task>
-    <option name="localTasksCounter" value="637" />
+    <task id="LOCAL-00637" summary="post detail">
+      <option name="closed" value="true" />
+      <created>1768199634836</created>
+      <option name="number" value="00637" />
+      <option name="presentableId" value="LOCAL-00637" />
+      <option name="project" value="LOCAL" />
+      <updated>1768199634837</updated>
+    </task>
+    <task id="LOCAL-00638" summary="docker file build">
+      <option name="closed" value="true" />
+      <created>1768203517459</created>
+      <option name="number" value="00638" />
+      <option name="presentableId" value="LOCAL-00638" />
+      <option name="project" value="LOCAL" />
+      <updated>1768203517460</updated>
+    </task>
+    <task id="LOCAL-00639" summary="docker file build">
+      <option name="closed" value="true" />
+      <created>1768203877941</created>
+      <option name="number" value="00639" />
+      <option name="presentableId" value="LOCAL-00639" />
+      <option name="project" value="LOCAL" />
+      <updated>1768203877941</updated>
+    </task>
+    <option name="localTasksCounter" value="640" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -717,7 +715,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat(users): enhance create-user-dialog with multi-step flow and role selection&#10;&#10;- Added multi-step form flow for user creation (details &gt; role selection).&#10;- Introduced UI updates for better usability and visual consistency.&#10;- Implemented support for staff role variants with descriptive labels.&#10;- Improved form validation and error handling logic." />
     <MESSAGE value="style: update button styles and improve dialog handling" />
     <MESSAGE value="Merge branch 'web-leanrer-build-ui' into lms-rebuild&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml" />
     <MESSAGE value="feat: add SQL functions and triggers for course aggregate fields" />
@@ -742,7 +739,8 @@
     <MESSAGE value="feat(order): refactor payment service to order service with updated models and endpoints" />
     <MESSAGE value="update error page" />
     <MESSAGE value="post detail" />
-    <option name="LAST_COMMIT_MESSAGE" value="post detail" />
+    <MESSAGE value="docker file build" />
+    <option name="LAST_COMMIT_MESSAGE" value="docker file build" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

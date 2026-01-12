@@ -3,7 +3,7 @@
     "compilerOptions": {
         "declaration": false,
         "rootDir": "../../",
-        "outDir": "../../dist/modules/cortex"
+        "outDir": "../../dist/modules/agents"
     },
     "include": [
         "src/**/*",
