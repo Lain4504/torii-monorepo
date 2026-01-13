@@ -8,4 +8,4 @@ import { AiTemplateService } from './ai-template.service';
   providers: [AiService, AiTemplateService],
   exports: [AiService, AiTemplateService],
 })
-export class SharedModule { }
+export class SharedModule {}

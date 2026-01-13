@@ -1,0 +1,1 @@
+Schedule a JLPT {{level}} practice test for user {{userId}} on {{date}}. Provide a confirmation message, test preparation recommendations, study tips for the remaining time, and what to expect on test day.

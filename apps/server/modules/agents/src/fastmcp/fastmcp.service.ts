@@ -4,7 +4,11 @@ import { z } from 'zod';
 import type { ISenseiAgentService } from '../interfaces/services';
 import type { IAssessmentAgentService } from '../interfaces/services';
 import type { IAnalyticsAgentService } from '../interfaces/services';
-import { SENSEI_AGENT_SERVICE_TOKEN, ASSESSMENT_AGENT_SERVICE_TOKEN, ANALYTICS_AGENT_SERVICE_TOKEN } from '../interfaces/services';
+import {
+  SENSEI_AGENT_SERVICE_TOKEN,
+  ASSESSMENT_AGENT_SERVICE_TOKEN,
+  ANALYTICS_AGENT_SERVICE_TOKEN,
+} from '../interfaces/services';
 
 @Injectable()
 export class FastMcpService implements OnModuleInit {
@@ -72,7 +76,11 @@ export class FastMcpService implements OnModuleInit {
         example: z.string().optional(),
       }),
       execute: async ({ word, meaning, example }) => {
-        const flashcard = await this.senseiService.createFlashcard(word, meaning, example);
+        const flashcard = await this.senseiService.createFlashcard(
+          word,
+          meaning,
+          example,
+        );
         return `Flashcard created: ${JSON.stringify(flashcard)}`;
       },
     });
@@ -89,7 +97,11 @@ export class FastMcpService implements OnModuleInit {
         questionCount: z.number().min(1).max(50),
       }),
       execute: async ({ level, type, questionCount }) => {
-        const test = await this.assessmentService.generateJlptTest(level, type, questionCount);
+        const test = await this.assessmentService.generateJlptTest(
+          level,
+          type,
+          questionCount,
+        );
         return `Test generated: ${JSON.stringify(test)}`;
       },
     });
@@ -102,7 +114,10 @@ export class FastMcpService implements OnModuleInit {
         answers: z.record(z.string()),
       }),
       execute: async ({ testId, answers }) => {
-        const result = await this.assessmentService.evaluateTest(testId, answers);
+        const result = await this.assessmentService.evaluateTest(
+          testId,
+          answers,
+        );
         return `Evaluation result: ${JSON.stringify(result)}`;
       },
     });
@@ -119,7 +134,11 @@ export class FastMcpService implements OnModuleInit {
         score: z.number().optional(),
       }),
       execute: async ({ userId, activity, score }) => {
-        const progress = await this.analyticsService.trackProgress(userId, activity, score);
+        const progress = await this.analyticsService.trackProgress(
+          userId,
+          activity,
+          score,
+        );
         return `Progress tracked: ${JSON.stringify(progress)}`;
       },
     });

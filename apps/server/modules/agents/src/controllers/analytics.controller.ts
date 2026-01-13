@@ -1,5 +1,11 @@
 import { Controller, Post, Body, Logger, Inject } from '@nestjs/common';
-import { TrackProgressDto, SuggestPathDto, IdentifyWeaknessesDto, PredictReadinessDto, GenerateReportDto } from '../dtos/analytics.dto';
+import {
+  TrackProgressDto,
+  SuggestPathDto,
+  IdentifyWeaknessesDto,
+  PredictReadinessDto,
+  GenerateReportDto,
+} from '../dtos/analytics.dto';
 import type { IAnalyticsAgentService } from '../interfaces/services';
 import { ANALYTICS_AGENT_SERVICE_TOKEN } from '../interfaces/services';
 
@@ -14,8 +20,14 @@ export class AnalyticsController {
 
   @Post('progress/track')
   async trackProgress(@Body() body: TrackProgressDto) {
-    this.logger.log(`Progress tracking for user: ${body.userId}, activity: ${body.activity}`);
-    return await this.analyticsService.trackProgress(body.userId, body.activity, body.score);
+    this.logger.log(
+      `Progress tracking for user: ${body.userId}, activity: ${body.activity}`,
+    );
+    return await this.analyticsService.trackProgress(
+      body.userId,
+      body.activity,
+      body.score,
+    );
   }
 
   @Post('path/suggest')
@@ -32,13 +44,23 @@ export class AnalyticsController {
 
   @Post('readiness/predict')
   async predictReadiness(@Body() body: PredictReadinessDto) {
-    this.logger.log(`Readiness prediction for user: ${body.userId} at JLPT ${body.level}`);
-    return await this.analyticsService.predictReadiness(body.userId, body.level);
+    this.logger.log(
+      `Readiness prediction for user: ${body.userId} at JLPT ${body.level}`,
+    );
+    return await this.analyticsService.predictReadiness(
+      body.userId,
+      body.level,
+    );
   }
 
   @Post('report/generate')
   async generateReport(@Body() body: GenerateReportDto) {
-    this.logger.log(`Report generation for user: ${body.userId}, type: ${body.reportType}`);
-    return await this.analyticsService.generateReport(body.userId, body.reportType);
+    this.logger.log(
+      `Report generation for user: ${body.userId}, type: ${body.reportType}`,
+    );
+    return await this.analyticsService.generateReport(
+      body.userId,
+      body.reportType,
+    );
   }
 }

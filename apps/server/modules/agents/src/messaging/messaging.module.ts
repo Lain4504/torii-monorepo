@@ -8,6 +8,10 @@ import { AnalyticsAgentModule } from '../analytics-agent/analytics-agent.module'
 
 @Module({
   imports: [SenseiAgentModule, AssessmentAgentModule, AnalyticsAgentModule],
-  controllers: [SenseiAgentController, AssessmentAgentController, AnalyticsAgentController],
+  controllers: [
+    SenseiAgentController,
+    AssessmentAgentController,
+    AnalyticsAgentController,
+  ],
 })
 export class MessagingModule {}

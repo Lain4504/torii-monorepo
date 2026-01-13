@@ -1,0 +1,1 @@
+Check the grammar of this Japanese text: "{{text}}". Provide corrections, explanations for any errors, and suggest improvements. Respond in a helpful, educational format.

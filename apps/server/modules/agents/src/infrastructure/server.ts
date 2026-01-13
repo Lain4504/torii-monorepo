@@ -295,5 +295,5 @@ server.addTool({
 
 // Start the server
 server.start({
-  transportType: "stdio",
+  transportType: 'stdio',
 });

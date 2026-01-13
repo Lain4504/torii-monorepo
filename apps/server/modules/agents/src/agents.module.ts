@@ -23,4 +23,4 @@ import { AnalyticsController } from './controllers/analytics.controller';
   controllers: [SenseiController, AssessmentController, AnalyticsController],
   providers: [],
 })
-export class AgentsModule { }
+export class AgentsModule {}

@@ -1,0 +1,1 @@
+Recommend learning resources for the Japanese language concept "{{concept}}" at JLPT {{level}} level. Include textbooks, online resources, videos, practice websites, and study tips. Explain why each resource is helpful.

@@ -1,0 +1,1 @@
+Generate {{drillType}} practice drills for JLPT {{level}} level{{#if topic}} focusing on the topic: "{{topic}}"{{/if}}. Include 5-7 exercises such as fill-in-the-gaps, sentence building, or multiple-choice questions. Provide answers and explanations.

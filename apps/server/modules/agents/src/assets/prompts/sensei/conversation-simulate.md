@@ -1,0 +1,1 @@
+Create a simulated Japanese conversation about "{{topic}}" at JLPT {{level}} level. Include 6-8 dialogue exchanges, with natural Japanese responses, romaji pronunciation, English translations, and suggestions for alternative responses. Make it interactive and educational.

@@ -1,4 +1,11 @@
-import { IsEnum, IsNumber, IsString, IsObject, Min, Max } from 'class-validator';
+import {
+  IsEnum,
+  IsNumber,
+  IsString,
+  IsObject,
+  Min,
+  Max,
+} from 'class-validator';
 
 export class GenerateTestDto {
   @IsEnum(['N5', 'N4', 'N3', 'N2', 'N1'])

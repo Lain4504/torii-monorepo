@@ -10,5 +10,7 @@ export * from './i-analytics-agent.service';
 
 // Injection tokens for dependency injection
 export const SENSEI_AGENT_SERVICE_TOKEN = Symbol('SENSEI_AGENT_SERVICE');
-export const ASSESSMENT_AGENT_SERVICE_TOKEN = Symbol('ASSESSMENT_AGENT_SERVICE');
+export const ASSESSMENT_AGENT_SERVICE_TOKEN = Symbol(
+  'ASSESSMENT_AGENT_SERVICE',
+);
 export const ANALYTICS_AGENT_SERVICE_TOKEN = Symbol('ANALYTICS_AGENT_SERVICE');
