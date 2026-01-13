@@ -57,7 +57,7 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
     const discount = calculateDiscount()
 
     return (
-        <div className="static lg:sticky lg:top-24 space-y-6 lg:translate-y-[-120px] relative z-20 w-full max-w-full">
+        <div className="sticky top-32 space-y-6 relative z-20 w-full max-w-full">
             {/* Video Preview Section */}
             <div className="rounded-[2rem] md:rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-background bg-background p-1 md:p-1.5">
                 <CourseVideoPreview

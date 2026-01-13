@@ -13,7 +13,8 @@ import {
     Award,
     TrendingUp,
     ChevronRight,
-    Filter
+    Filter,
+    Sparkles
 } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -88,9 +89,17 @@ export default function MyCoursesPage() {
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 max-w-6xl animate-in fade-in duration-500">
             {/* Header */}
-            <div className="space-y-4">
-                <h1 className="text-5xl font-serif font-bold text-foreground tracking-tight italic">Khóa học của tôi</h1>
-                <p className="text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-6">Tiếp tục hành trình chinh phục kiến thức của bạn</p>
+            <div className="space-y-6 mb-12">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[9px] font-black uppercase tracking-[0.3em] animate-in fade-in slide-in-from-bottom-2 duration-500">
+                    <Sparkles className="w-3 h-3" />
+                    <span>Learning Dashboard</span>
+                </div>
+                <h1 className="text-5xl md:text-6xl font-serif font-bold tracking-tight text-foreground uppercase italic leading-[0.9] animate-in fade-in slide-in-from-bottom-3 duration-700">
+                    Khóa học <span className="text-primary not-italic">Của Tôi</span>
+                </h1>
+                <p className="text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-6 py-1 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                    Tiếp tục hành trình chinh phục kiến thức của bạn
+                </p>
             </div>
 
             {/* Stats Row */}

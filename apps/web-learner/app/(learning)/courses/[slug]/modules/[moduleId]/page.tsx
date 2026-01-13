@@ -8,7 +8,7 @@ import { Button } from '@workspace/ui/components/button'
 import { Progress } from '@workspace/ui/components/progress'
 import { Badge } from '@workspace/ui/components/badge'
 import { ArrowLeft, Play, Clock, CheckCircle2, Circle } from 'lucide-react'
-import { courseApi } from '@/api/services/course-api'
+import { courseApi } from '@/apis/services/course-api'
 
 export default function ModulePage() {
     const params = useParams()

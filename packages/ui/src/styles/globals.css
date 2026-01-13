@@ -8,62 +8,65 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Japanese Zen Palette - Refined (Less Cream, More Porcelain) */
-  --background: oklch(0.99 0.005 260);
-  /* Porcelain White - Cooler & Cleaner */
-  --foreground: oklch(0.20 0.02 260);
-  /* Sumi-iro (Ink Dark) - Slightly Sharper */
+  /* Japanese Zen Palette - Education Focused */
+  /* Gofun-iro (Shell White) - Warmer, less clinical than pure white */
+  --background: oklch(0.985 0.002 100);
+  /* Sumi-iro (Ink) - Softer than pure black for better reading experience */
+  --foreground: oklch(0.25 0.02 260);
 
+  /* Pure White for cards to pop against Gofun background */
   --card: oklch(1.00 0 0);
-  --card-foreground: oklch(0.20 0.02 260);
+  --card-foreground: oklch(0.25 0.02 260);
 
-  --popover: oklch(0.99 0.005 260);
-  --popover-foreground: oklch(0.20 0.02 260);
+  --popover: oklch(1.00 0 0);
+  --popover-foreground: oklch(0.25 0.02 260);
 
-  --primary: oklch(0.42 0.12 260);
-  /* Aizome (Indigo) */
+  /* Ruri-kon (Lapis Indigo) - Intellectual, deep, good for focus */
+  --primary: oklch(0.48 0.14 265);
   --primary-foreground: oklch(1.00 0 0);
 
-  --secondary: oklch(0.96 0.01 260);
-  /* Cleaner Gray */
-  --secondary-foreground: oklch(0.42 0.12 260);
+  /* Mist Gray - Subtle structure */
+  --secondary: oklch(0.96 0.005 260);
+  --secondary-foreground: oklch(0.48 0.14 265);
 
   --muted: oklch(0.97 0.01 260);
-  --muted-foreground: oklch(0.50 0.03 260);
+  --muted-foreground: oklch(0.55 0.03 260);
 
-  --accent: oklch(0.85 0.05 160);
-  /* Seiji (Celadon) */
-  --accent-foreground: oklch(0.20 0.02 260);
+  /* Yanagi (Willow Green) - Encouraging, positive reinforcement */
+  --accent: oklch(0.92 0.06 140);
+  --accent-foreground: oklch(0.25 0.02 260);
 
-  --destructive: oklch(0.60 0.18 25);
+  /* Coral Red - Alert but not alarming */
+  --destructive: oklch(0.65 0.18 25);
   --destructive-foreground: oklch(1.00 0 0);
 
-  --border: oklch(0.89 0.01 260);
-  --input: oklch(0.89 0.01 260);
-  --ring: oklch(0.42 0.12 260);
+  --border: oklch(0.92 0.01 260);
+  --input: oklch(0.92 0.01 260);
+  /* Matching primary for focus rings */
+  --ring: oklch(0.48 0.14 265);
 
-  --chart-1: oklch(0.42 0.12 260);
-  --chart-2: oklch(0.82 0.08 160);
-  --chart-3: oklch(0.75 0.12 45);
-  --chart-4: oklch(0.65 0.10 210);
-  --chart-5: oklch(0.55 0.05 100);
+  --chart-1: oklch(0.48 0.14 265);
+  --chart-2: oklch(0.65 0.18 25);
+  --chart-3: oklch(0.75 0.15 85);
+  --chart-4: oklch(0.60 0.12 210);
+  --chart-5: oklch(0.85 0.10 140);
 
-  --sidebar: oklch(0.995 0.003 260);
-  --sidebar-foreground: oklch(0.20 0.02 260);
-  --sidebar-primary: oklch(0.42 0.12 260);
+  --sidebar: oklch(0.99 0.002 100);
+  --sidebar-foreground: oklch(0.25 0.02 260);
+  --sidebar-primary: oklch(0.48 0.14 265);
   --sidebar-primary-foreground: oklch(1.00 0 0);
-  --sidebar-accent: oklch(0.95 0.01 260);
-  --sidebar-accent-foreground: oklch(0.42 0.12 260);
+  --sidebar-accent: oklch(0.95 0.005 260);
+  --sidebar-accent-foreground: oklch(0.48 0.14 265);
   --sidebar-border: oklch(0.94 0.01 260);
-  --sidebar-ring: oklch(0.42 0.12 260);
+  --sidebar-ring: oklch(0.48 0.14 265);
 
   /* Zen UI Specs */
   --radius: 0.5rem;
-  --shadow-sm: 0px 2px 4px -1px oklch(0 0 0 / 0.02);
-  --shadow: 0px 4px 12px -2px oklch(0.20 0.04 260 / 0.04);
-  --shadow-md: 0px 8px 16px -4px oklch(0.20 0.04 260 / 0.06);
-  --shadow-lg: 0px 12px 24px -12px oklch(0.20 0.04 260 / 0.10);
-  --shadow-xl: 0px 20px 40px -20px oklch(0.20 0.04 260 / 0.14);
+  --shadow-sm: 0px 1px 2px oklch(0 0 0 / 0.05);
+  --shadow: 0px 4px 6px -1px oklch(0 0 0 / 0.05), 0px 2px 4px -1px oklch(0 0 0 / 0.03);
+  --shadow-md: 0px 6px 16px -4px oklch(0 0 0 / 0.08);
+  --shadow-lg: 0px 10px 32px -8px oklch(0 0 0 / 0.10);
+  --shadow-xl: 0px 20px 40px -12px oklch(0 0 0 / 0.12);
 
   --font-sans: var(--font-heading), "Inter", -apple-system, sans-serif;
   --font-serif: var(--font-serif), "Source Serif 4", "Noto Serif JP", serif;
@@ -71,46 +74,53 @@
 }
 
 .dark {
-  /* Japanese Night Palette - Dark Mode */
-  --background: oklch(0.20 0.02 260);
-  /* Kurochi (Deep Ink) */
-  --foreground: oklch(0.94 0.02 85);
+  /* Japanese Night Palette - Temple at Midnight */
+  /* Kuro-tsurubami (Deep Charcoal) - Not pitch black, easier on eyes */
+  --background: oklch(0.18 0.015 260);
+  /* Moonlight - Soft white */
+  --foreground: oklch(0.95 0.005 100);
 
-  --card: oklch(0.24 0.02 260);
-  --card-foreground: oklch(0.94 0.02 85);
+  --card: oklch(0.22 0.02 260);
+  --card-foreground: oklch(0.95 0.005 100);
 
   --popover: oklch(0.22 0.02 260);
-  --popover-foreground: oklch(0.94 0.02 85);
+  --popover-foreground: oklch(0.95 0.005 100);
 
-  --primary: oklch(0.65 0.10 260);
-  /* Muted Indigo Glow */
-  --primary-foreground: oklch(0.15 0.02 260);
+  /* Brighter Indigo for visibility in dark mode */
+  --primary: oklch(0.65 0.12 265);
+  --primary-foreground: oklch(0.18 0.015 260);
 
   --secondary: oklch(0.28 0.03 260);
-  --secondary-foreground: oklch(0.94 0.02 85);
+  --secondary-foreground: oklch(0.95 0.005 100);
 
   --muted: oklch(0.28 0.02 260);
-  --muted-foreground: oklch(0.65 0.03 260);
+  --muted-foreground: oklch(0.70 0.03 260);
 
-  --accent: oklch(0.35 0.05 160);
   /* Dark Celadon */
-  --accent-foreground: oklch(0.94 0.02 85);
+  --accent: oklch(0.30 0.05 140);
+  --accent-foreground: oklch(0.95 0.005 100);
 
-  --destructive: oklch(0.45 0.15 25);
-  --destructive-foreground: oklch(0.94 0.02 85);
+  --destructive: oklch(0.55 0.15 25);
+  --destructive-foreground: oklch(0.95 0.005 100);
 
-  --border: oklch(0.35 0.03 260);
-  --input: oklch(0.35 0.03 260);
-  --ring: oklch(0.65 0.10 260);
+  --border: oklch(0.30 0.03 260);
+  --input: oklch(0.30 0.03 260);
+  --ring: oklch(0.65 0.12 265);
 
-  --sidebar: oklch(0.18 0.02 260);
-  --sidebar-foreground: oklch(0.94 0.02 85);
-  --sidebar-primary: oklch(0.65 0.10 260);
-  --sidebar-primary-foreground: oklch(0.15 0.02 260);
+  --chart-1: oklch(0.65 0.12 265);
+  --chart-2: oklch(0.55 0.15 25);
+  --chart-3: oklch(0.75 0.15 85);
+  --chart-4: oklch(0.60 0.12 210);
+  --chart-5: oklch(0.85 0.10 140);
+
+  --sidebar: oklch(0.16 0.015 260);
+  --sidebar-foreground: oklch(0.95 0.005 100);
+  --sidebar-primary: oklch(0.65 0.12 265);
+  --sidebar-primary-foreground: oklch(0.18 0.015 260);
   --sidebar-accent: oklch(0.25 0.03 260);
-  --sidebar-accent-foreground: oklch(0.94 0.02 85);
+  --sidebar-accent-foreground: oklch(0.95 0.005 100);
   --sidebar-border: oklch(0.26 0.03 260);
-  --sidebar-ring: oklch(0.65 0.10 260);
+  --sidebar-ring: oklch(0.65 0.12 265);
 }
 
 @theme inline {

@@ -10,7 +10,7 @@ import { Field, FieldLabel, FieldError } from '@workspace/ui/components/field'
 import { toast } from '@workspace/ui/components/sonner'
 import { Spinner } from '@workspace/ui/components/spinner'
 import { Mail, Send, CheckCircle2, Sparkles, MessageSquare } from 'lucide-react'
-import { apiClient } from '@/api/api-client'
+import { apiClient } from '@/apis/api-client'
 import { cn } from '@workspace/ui/lib/utils'
 
 const forgotPasswordSchema = z.object({

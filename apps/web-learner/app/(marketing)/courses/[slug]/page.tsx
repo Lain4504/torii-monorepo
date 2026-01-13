@@ -4,7 +4,7 @@ import { CourseInstructor } from "@/components/courses/course-instructor"
 import { CourseReviews } from "@/components/courses/course-reviews"
 import { CourseSidebar } from "@/components/courses/course-sidebar"
 import { CheckCircle2, Sparkles, BookOpen, GraduationCap } from "lucide-react"
-import { courseApi } from "@/api/services/course-api"
+import { courseApi } from "@/apis/services/course-api"
 import { notFound } from "next/navigation"
 import { cn } from "@workspace/ui/lib/utils"
 
@@ -28,7 +28,7 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
         : []
 
     return (
-        <div className="min-h-screen bg-background pb-20 md:pb-32 selection:bg-primary/10 selection:text-primary overflow-x-hidden">
+        <div className="min-h-screen bg-background pb-20 md:pb-32 selection:bg-primary/10 selection:text-primary">
             <CourseHeader course={course} />
 
             <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 md:mt-12 relative z-10">

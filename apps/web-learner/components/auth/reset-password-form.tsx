@@ -11,7 +11,7 @@ import { toast } from '@workspace/ui/components/sonner'
 import { Spinner } from '@workspace/ui/components/spinner'
 import { Lock, Eye, EyeOff, CheckCircle2, AlertCircle, Sparkles, ShieldAlert, Key } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { apiClient } from '@/api/api-client'
+import { apiClient } from '@/apis/api-client'
 import Link from 'next/link'
 import { cn } from '@workspace/ui/lib/utils'
 

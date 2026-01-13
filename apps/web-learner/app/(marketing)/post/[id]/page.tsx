@@ -1,7 +1,7 @@
 'use client'
 
 import { use, useEffect, useState } from 'react'
-import { postApi } from '@/api/services/post-api'
+import { postApi } from '@/apis/services/post-api'
 import { PostSidebar } from '@/components/post/post-sidebar'
 import { CommentSection } from '@/components/post/comment-section'
 import type { PostResponseDTO } from '@workspace/schemas'

@@ -41,9 +41,9 @@ export default function RegisterPage() {
                                 <Globe className="w-3.5 h-3.5" />
                                 <span>Global Classroom</span>
                             </div>
-                            <h2 className="text-4xl lg:text-5xl font-bold tracking-tight text-foreground leading-[1.1]">
+                            <h2 className="text-4xl lg:text-5xl font-serif font-bold tracking-tight text-foreground leading-[0.9] uppercase italic">
                                 Gia nhập <br />
-                                <span className="text-primary">Cộng đồng Tri thức.</span>
+                                <span className="text-primary not-italic">Cộng đồng Tri thức.</span>
                             </h2>
                             <p className="text-base text-muted-foreground/80 leading-relaxed font-medium">
                                 Trở thành một phần của hệ sinh thái học tiếng Nhật chuyên nghiệp với 5000+ học viên.
@@ -73,18 +73,18 @@ export default function RegisterPage() {
                     {/* Stats */}
                     <div className="relative z-20 mt-auto flex gap-12 items-center border-t border-border/20 pt-8 animate-in fade-in slide-in-from-bottom-4 duration-1200">
                         <div className="flex flex-col">
-                            <span className="text-3xl font-bold text-foreground tracking-tight">5K+</span>
-                            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/50 mt-1">Students</span>
+                            <span className="text-3xl font-serif font-bold text-foreground tracking-tight italic">5K+</span>
+                            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 mt-1">Students</span>
                         </div>
                         <div className="w-px h-8 bg-border/40" />
                         <div className="flex flex-col">
-                            <span className="text-3xl font-bold text-foreground tracking-tight">200+</span>
-                            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/50 mt-1">Courses</span>
+                            <span className="text-3xl font-serif font-bold text-foreground tracking-tight italic">200+</span>
+                            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 mt-1">Courses</span>
                         </div>
                         <div className="w-px h-8 bg-border/40" />
                         <div className="flex flex-col">
-                            <span className="text-3xl font-bold text-primary tracking-tight">4.9</span>
-                            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/50 mt-1">Rating</span>
+                            <span className="text-3xl font-serif font-bold text-primary tracking-tight italic">4.9</span>
+                            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 mt-1">Rating</span>
                         </div>
                     </div>
                 </div>

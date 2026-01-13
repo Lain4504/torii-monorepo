@@ -132,7 +132,7 @@ export default function LiveClassesPage() {
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background opacity-50" />
                 <div className="container relative z-10 px-4 mx-auto max-w-7xl">
                     <div className="flex flex-col items-center text-center space-y-8 animate-in fade-in zoom-in-95 duration-1000">
-                        <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-primary/10 bg-primary/5 text-primary text-[10px] font-black uppercase tracking-[0.2em] mb-4">
+                        <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-primary/10 bg-primary/5 text-primary text-[9px] font-black uppercase tracking-[0.3em] mb-4">
                             <div className="relative flex h-2 w-2">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>

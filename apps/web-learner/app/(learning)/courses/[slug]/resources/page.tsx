@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/componen
 import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
 import { ArrowLeft, Download, FileText, Video, Image, BookOpen } from 'lucide-react'
-import { courseApi } from '@/api/services/course-api'
+import { courseApi } from '@/apis/services/course-api'
 
 export default function CourseResourcesPage() {
     const params = useParams()

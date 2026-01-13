@@ -34,7 +34,7 @@ import {
     Layout,
     Sparkles
 } from 'lucide-react'
-import { courseApi } from '@/api/services/course-api'
+import { courseApi } from '@/apis/services/course-api'
 import { LearningSidebar } from '@/components/courses/learning-sidebar'
 import { cn } from '@workspace/ui/lib/utils'
 import { PageLoading } from '@workspace/ui/components/page-loading'

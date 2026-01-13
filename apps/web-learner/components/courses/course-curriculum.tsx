@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { ChevronDown, PlayCircle, FileText, Lock, Sparkles, Clock, Layers } from 'lucide-react'
 import { cn } from '@workspace/ui/lib/utils'
-import type { CurriculumResponse } from '@/api/services/course-api'
+import type { CurriculumResponse } from '@/apis/services/course-api'
 
 interface CourseCurriculumProps {
     curriculum: CurriculumResponse
