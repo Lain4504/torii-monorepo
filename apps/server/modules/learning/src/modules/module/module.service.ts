@@ -1,4 +1,4 @@
-import { Injectable, Logger, Inject, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { Injectable, Logger, Inject, NotFoundException, BadRequestException, ForbiddenException, forwardRef } from '@nestjs/common';
 import type { Module as CourseModule } from '@prisma/generated';
 
 import { UserRole } from '@workspace/schemas';
@@ -11,9 +11,10 @@ import type {
   Requester,
 } from '@workspace/schemas';
 
-import type { IModuleService } from '../../interfaces/services';
+import type { IModuleService, ICourseService } from '../../interfaces/services';
 import type { IModuleRepository } from '../../interfaces/repositories';
 import { MODULE_REPOSITORY_TOKEN } from '../../interfaces/repositories';
+import { COURSE_SERVICE_TOKEN } from '../../interfaces/services';
 
 /**
  * Module Service
@@ -26,8 +27,13 @@ export class ModuleService implements IModuleService {
   constructor(
     @Inject(MODULE_REPOSITORY_TOKEN)
     private readonly moduleRepository: IModuleRepository,
+    @Inject(forwardRef(() => COURSE_SERVICE_TOKEN))
+    private readonly courseService: ICourseService,
   ) { }
 
+  /**
+   * Map Module entity to ModuleResponseDTO
+   */
   /**
    * Map Module entity to ModuleResponseDTO
    */
@@ -39,6 +45,7 @@ export class ModuleService implements IModuleService {
       description: module.description || undefined,
       aiMetadata: (module.aiMetadata as any) || undefined,
       orderIndex: module.orderIndex,
+      status: (module as any).status || 'published',
       durationMinutes: module.durationMinutes || undefined,
       createdBy: module.createdBy || undefined,
       createdAt: module.createdAt,
@@ -107,8 +114,12 @@ export class ModuleService implements IModuleService {
   /**
    * Find all modules for a specific course
    */
-  async findByCourseId(courseId: string): Promise<ModuleResponseDTO[]> {
-    const modules = await this.moduleRepository.findByCourseId(courseId);
+  async findByCourseId(courseId: string, requester?: Requester): Promise<ModuleResponseDTO[]> {
+    let includeDrafts = false;
+    if (requester && [UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
+      includeDrafts = true;
+    }
+    const modules = await this.moduleRepository.findByCourseId(courseId, includeDrafts);
     return modules.map(module => this.toModuleResponseDTO(module));
   }
 
@@ -135,11 +146,16 @@ export class ModuleService implements IModuleService {
         description: dto.description || null,
         aiMetadata: dto.aiMetadata || {},
         orderIndex,
+        status: (dto as any).status || 'published',
         durationMinutes: dto.durationMinutes || null,
         createdBy: requester.sub,
       };
 
       const module = await this.moduleRepository.create(data);
+
+      // Update course stats
+      await this.courseService.recalculateStats(dto.courseId);
+
       return this.toModuleResponseDTO(module);
     } catch (error: any) {
       this.logger.error('Error creating module', error);
@@ -170,12 +186,19 @@ export class ModuleService implements IModuleService {
       if (dto.aiMetadata !== undefined) updateData.aiMetadata = dto.aiMetadata;
       if (dto.orderIndex !== undefined) updateData.orderIndex = dto.orderIndex;
       if (dto.durationMinutes !== undefined) updateData.durationMinutes = dto.durationMinutes;
+      if ((dto as any).status !== undefined) updateData.status = (dto as any).status;
 
       if (Object.keys(updateData).length === 0) {
         return this.toModuleResponseDTO(existing);
       }
 
       const module = await this.moduleRepository.update(moduleId, updateData);
+
+      // Update course stats if status changed
+      if ((dto as any).status !== undefined && (dto as any).status !== (existing as any).status) {
+        await this.courseService.recalculateStats(existing.courseId);
+      }
+
       return this.toModuleResponseDTO(module);
     } catch (error: any) {
       this.logger.error('Error updating module', error);
@@ -204,6 +227,9 @@ export class ModuleService implements IModuleService {
       else {
         await this.moduleRepository.softDelete(moduleId);
       }
+
+      // Update course stats
+      await this.courseService.recalculateStats(existing.courseId);
 
       return { message: 'Module deleted successfully' };
     }

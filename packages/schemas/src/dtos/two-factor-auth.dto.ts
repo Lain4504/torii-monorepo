@@ -17,7 +17,7 @@ export type EnableTotpDTO = z.infer<typeof enableTotpDTOSchema>;
  */
 export const verify2FADTOSchema = z.object({
     tempToken: z.string().min(1, 'Temporary token is required'),
-    code: z.string().length(6, 'Code must be exactly 6 digits'),
+    code: z.string().min(6, 'Code must be at least 6 characters').max(8, 'Code is too long'),
     backupCode: z.boolean().optional(),
 });
 

@@ -592,4 +592,30 @@ export class CourseService implements ICourseService {
       modules: modulesWithLessons,
     };
   }
+
+  /**
+   * Recalculate course statistics (totalLessons, totalQuizzes)
+   * Only counts published items
+   */
+  async recalculateStats(courseId: string): Promise<void> {
+    try {
+      const totalLessons = await this.lessonRepository.count({
+        module: {
+          courseId,
+          status: 'published',
+          deletedAt: null
+        },
+        deletedAt: null,
+        status: 'published',
+      } as any);
+
+      // totalQuizzes calculation logic could be added here if needed
+      // Currently focusing on the published lesson count as per user request
+
+      await this.courseRepository.updateStats(courseId, { totalLessons });
+      this.logger.log(`Recalculated stats for course ${courseId}: totalLessons=${totalLessons}`);
+    } catch (error: any) {
+      this.logger.error(`Failed to recalculate stats for course ${courseId}`, error);
+    }
+  }
 }

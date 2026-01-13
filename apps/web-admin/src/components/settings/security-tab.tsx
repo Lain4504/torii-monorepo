@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Shield, Smartphone, Download, RefreshCw, AlertTriangle } from 'lucide-react';
+import { Shield, Smartphone, RefreshCw, AlertTriangle } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { Card } from '@workspace/ui/components/card';
 import { use2FAStatus } from '@/api/services/two-factor-auth';
@@ -43,8 +43,8 @@ export function SecurityTab() {
                             </p>
                         </div>
                         <div className={`rounded-full px-3 py-1 text-xs font-medium ${isEnabled
-                                ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                                : 'bg-muted/50 text-muted-foreground/60'
+                            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                            : 'bg-muted/50 text-muted-foreground/60'
                             }`}>
                             {isEnabled ? 'Enabled' : 'Disabled'}
                         </div>

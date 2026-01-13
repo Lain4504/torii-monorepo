@@ -13,7 +13,32 @@ import { useAppDispatch } from '@/hooks/hooks';
 import { setAuthenticated, setUser } from '@/store/slices/auth-slice';
 
 const verifyCodeSchema = z.object({
-    code: z.string().length(6, 'Code must be 6 digits').regex(/^\d+$/, 'Code must contain only numbers'),
+    code: z.string().min(1, 'Code is required'),
+    isBackup: z.boolean(),
+}).superRefine((data, ctx) => {
+    if (data.isBackup) {
+        if (data.code.length !== 8) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: 'Backup code must be 8 characters',
+                path: ['code'],
+            });
+        }
+    } else {
+        if (data.code.length !== 6) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: 'Verification code must be 6 digits',
+                path: ['code'],
+            });
+        } else if (!/^\d+$/.test(data.code)) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: 'Code must contain only numbers',
+                path: ['code'],
+            });
+        }
+    }
 });
 
 type VerifyCodeForm = z.infer<typeof verifyCodeSchema>;
@@ -34,7 +59,10 @@ export default function TwoFactorVerifyPage() {
 
     const form = useForm<VerifyCodeForm>({
         resolver: zodResolver(verifyCodeSchema),
-        defaultValues: { code: '' },
+        defaultValues: {
+            code: '',
+            isBackup: false,
+        },
     });
 
     // Redirect if no temp token
@@ -198,8 +226,12 @@ export default function TwoFactorVerifyPage() {
                             <button
                                 type="button"
                                 onClick={() => {
-                                    setUseBackupCode(!useBackupCode);
-                                    form.reset();
+                                    const nextState = !useBackupCode;
+                                    setUseBackupCode(nextState);
+                                    form.reset({
+                                        code: '',
+                                        isBackup: nextState,
+                                    });
                                 }}
                                 className="text-xs font-medium text-primary hover:text-primary/80 transition-colors"
                             >

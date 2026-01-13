@@ -7,6 +7,7 @@ export const moduleSchema = z.object({
     description: z.string().optional(),
     aiMetadata: z.record(z.any()).default({}), // JSONB
     orderIndex: z.number().default(0),
+    status: z.enum(['published', 'draft']).default('published'),
     durationMinutes: z.number().optional(),
     createdBy: z.string().uuid().optional(),
     createdAt: z.date(),

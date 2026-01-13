@@ -59,23 +59,19 @@ export class LearningProgressService implements ILearningProgressService {
         const data = await Promise.all(enrollments.map(async (e: any) => {
             const completedLessons = await this.progressRepo.countCompletedLessons(e.id);
 
-            // Fix totalLessons if 0
-            let totalLessons = e.course.totalLessons;
-            if (totalLessons === 0) {
-                // Recalculate if 0 using lesson repo
-                // Note: We need to cast 'where' to any if necessary or ensure LessonWhereInput supports module relation
-                totalLessons = await this.lessonRepo.count({
-                    module: {
-                        courseId: e.course.id
-                    },
+            // Get strict count of published lessons for accurate progress
+            const totalPublishedLessons = await this.lessonRepo.count({
+                module: {
+                    courseId: e.course.id,
+                    status: 'published',
                     deletedAt: null
-                } as any);
+                },
+                deletedAt: null,
+                status: 'published'
+            } as any);
 
-                // Update course stats asynchronously if corrected
-                if (totalLessons > 0) {
-                    this.courseRepo.updateStats(e.course.id, { totalLessons }).catch(console.error);
-                }
-            }
+            // Use this strictly for progress calculation
+            const totalLessons = totalPublishedLessons;
 
             // Auto-correct percentage if needed
             let progress = Number(e.completionPercentage);
@@ -87,7 +83,7 @@ export class LearningProgressService implements ILearningProgressService {
                     this.enrollmentRepo.update(e.id, { completionPercentage: progress }).catch(console.error);
                 }
             } else {
-                // If total lessons is actually 0, progress should be 0 (or 100 if completed? No 0 is safer)
+                // If total lessons is actually 0, progress should be 0 
                 progress = 0;
             }
 
@@ -96,7 +92,7 @@ export class LearningProgressService implements ILearningProgressService {
                 slug: e.course.slug,
                 title: e.course.title,
                 thumbnailUrl: e.course.thumbnailUrl,
-                instructor: "Top Instructor", // Placeholder until relation fixed
+                instructor: "Top Instructor",
                 progress: progress,
                 totalLessons: totalLessons,
                 completedLessons: completedLessons,
@@ -105,7 +101,13 @@ export class LearningProgressService implements ILearningProgressService {
             };
         }));
 
-        return data;
+        // Sort data: Recently accessed first, nulls last
+        return data.sort((a, b) => {
+            if (!a.lastAccessed && !b.lastAccessed) return 0;
+            if (!a.lastAccessed) return 1;
+            if (!b.lastAccessed) return -1;
+            return new Date(b.lastAccessed).getTime() - new Date(a.lastAccessed).getTime();
+        });
     }
 
     async trackLessonProgress(userId: string, lessonId: string, seconds: number, totalSeconds: number) {
@@ -152,18 +154,33 @@ export class LearningProgressService implements ILearningProgressService {
         );
 
         // 5. Update Course Progress
-        const course = await this.courseRepo.findById(courseId);
-        if (course && course.totalLessons > 0) {
-            const completedCount = await this.progressRepo.countCompletedLessons(enrollment.id);
-            const percentage = Math.min(100, Math.round((completedCount / course.totalLessons) * 100));
+        // 5. Update Course Progress
+        // Use strict published count
+        const totalPublishedLessons = await this.lessonRepo.count({
+            module: {
+                courseId: courseId,
+                status: 'published',
+                deletedAt: null
+            },
+            deletedAt: null,
+            status: 'published'
+        } as any);
 
-            await this.enrollmentRepo.update(enrollment.id, {
-                completionPercentage: percentage,
-                lastAccessedAt: new Date(),
-                completionStatus: percentage >= 100 ? EnrollmentStatus.COMPLETED : EnrollmentStatus.IN_PROGRESS,
-                completedAt: percentage >= 100 ? new Date() : null
-            });
+        const totalLessons = totalPublishedLessons;
+        let percentage = 0;
+
+        if (totalLessons > 0) {
+            const completedCount = await this.progressRepo.countCompletedLessons(enrollment.id);
+            percentage = Math.min(100, Math.round((completedCount / totalLessons) * 100));
         }
+
+        // Always update lastAccessedAt
+        await this.enrollmentRepo.update(enrollment.id, {
+            completionPercentage: percentage,
+            lastAccessedAt: new Date(),
+            completionStatus: percentage >= 100 ? EnrollmentStatus.COMPLETED : EnrollmentStatus.IN_PROGRESS,
+            completedAt: percentage >= 100 ? (enrollment.completedAt || new Date()) : null
+        });
 
         return { success: true };
     }

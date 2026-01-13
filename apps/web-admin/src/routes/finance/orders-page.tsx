@@ -56,7 +56,7 @@ export default function OrdersPage() {
   const loadPayments = async () => {
     try {
       setIsLoading(true);
-      const response = await orderApi.getAllPayments({
+      const response = await orderApi.getAllOrders({
         page,
         limit: 10,
       });
@@ -503,9 +503,21 @@ export default function OrdersPage() {
               </div>
 
               {/* Sheet Footer */}
-              <div className="p-8 border-t border-border/10 shrink-0">
+              <div className="p-8 border-t border-border/10 shrink-0 space-y-3">
                 <Button
-                  className="w-full h-12 rounded-lg bg-primary text-primary-foreground font-medium uppercase tracking-wide text-xs shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all group"
+                  variant="outline"
+                  className="w-full h-12 rounded-lg border-primary/20 text-primary font-medium uppercase tracking-wide text-xs hover:bg-primary/5 transition-all flex items-center justify-center gap-2"
+                  onClick={() => {
+                    setIsSheetOpen(false);
+                    // Navigate to transactions with orderId filter
+                    window.location.href = `/transactions?orderId=${selectedOrder.id}`;
+                  }}
+                >
+                  <Database className="size-3.5" />
+                  View Transaction Logs
+                </Button>
+                <Button
+                  className="w-full h-12 rounded-lg bg-primary text-primary-foreground font-medium uppercase tracking-wide text-xs shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all"
                   onClick={() => setIsSheetOpen(false)}
                 >
                   Close Details

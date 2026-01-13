@@ -13,6 +13,7 @@ export const lessonCreateDTOSchema = lessonSchema
         orderIndex: true,
         isPreview: true,
         isUnlocked: true,
+        status: true,
         createdBy: true,
     });
 
@@ -30,6 +31,7 @@ export const lessonUpdateDTOSchema = lessonSchema
         orderIndex: true,
         isPreview: true,
         isUnlocked: true,
+        status: true,
     })
     .extend({
         updatedBy: z.string().uuid().optional(),
@@ -44,6 +46,7 @@ export const lessonQueryDTOSchema = z.object({
     moduleId: z.string().uuid().optional(),
     contentType: z.nativeEnum(LessonContentType).optional(),
     search: z.string().optional(),
+    status: z.enum(['published', 'draft']).optional(),
 });
 
 export type LessonQueryDTO = z.infer<typeof lessonQueryDTOSchema>;

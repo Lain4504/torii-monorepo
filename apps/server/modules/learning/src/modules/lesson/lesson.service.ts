@@ -1,4 +1,4 @@
-import { Injectable, Logger, Inject, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { Injectable, Logger, Inject, NotFoundException, BadRequestException, ForbiddenException, forwardRef } from '@nestjs/common';
 import type { Lesson } from '@prisma/generated';
 
 import { UserRole } from '@workspace/schemas';
@@ -11,9 +11,10 @@ import type {
   Requester,
 } from '@workspace/schemas';
 
-import type { ILessonService } from '../../interfaces/services';
-import type { ILessonRepository } from '../../interfaces/repositories';
-import { LESSON_REPOSITORY_TOKEN } from '../../interfaces/repositories';
+import type { ILessonService, ICourseService } from '../../interfaces/services';
+import type { ILessonRepository, IModuleRepository } from '../../interfaces/repositories';
+import { LESSON_REPOSITORY_TOKEN, MODULE_REPOSITORY_TOKEN } from '../../interfaces/repositories';
+import { COURSE_SERVICE_TOKEN } from '../../interfaces/services';
 
 /**
  * Lesson Service
@@ -26,7 +27,25 @@ export class LessonService implements ILessonService {
   constructor(
     @Inject(LESSON_REPOSITORY_TOKEN)
     private readonly lessonRepository: ILessonRepository,
+    @Inject(MODULE_REPOSITORY_TOKEN)
+    private readonly moduleRepository: IModuleRepository,
+    @Inject(forwardRef(() => COURSE_SERVICE_TOKEN))
+    private readonly courseService: ICourseService,
   ) { }
+
+  /**
+   * Helper to trigger course stats update
+   */
+  private async triggerStatsUpdate(moduleId: string) {
+    try {
+      const module = await this.moduleRepository.findById(moduleId);
+      if (module) {
+        await this.courseService.recalculateStats(module.courseId);
+      }
+    } catch (error) {
+      this.logger.error('Failed to trigger stats update from LessonService', error);
+    }
+  }
 
   /**
    * Map Lesson entity to LessonResponseDTO
@@ -44,6 +63,7 @@ export class LessonService implements ILessonService {
       orderIndex: lesson.orderIndex,
       isPreview: lesson.isPreview,
       isUnlocked: lesson.isUnlocked,
+      status: (lesson as any).status || 'published',
       createdBy: lesson.createdBy || undefined,
       createdAt: lesson.createdAt,
       updatedAt: lesson.updatedAt,
@@ -62,6 +82,10 @@ export class LessonService implements ILessonService {
       const where: any = {
         deletedAt: null,
       };
+
+      // Add filtering for status if needed, currently findAll used by Admin likely
+      // If we want to strictly filter published for non-admins here, we'd need requester in findAll too
+      // But keeping it flexible for now.
 
       if (search) {
         where.OR = [
@@ -111,8 +135,14 @@ export class LessonService implements ILessonService {
   /**
    * Find all lessons for a specific module
    */
-  async findByModuleId(moduleId: string): Promise<LessonResponseDTO[]> {
-    const lessons = await this.lessonRepository.findByModuleId(moduleId);
+  async findByModuleId(moduleId: string, requester?: Requester): Promise<LessonResponseDTO[]> {
+    let includeDrafts = false;
+    if (requester && [UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
+      includeDrafts = true;
+    }
+
+    // Explicitly pass boolean to repo method which accepts it as optional
+    const lessons = await this.lessonRepository.findByModuleId(moduleId, includeDrafts);
     return lessons.map(lesson => this.toLessonResponseDTO(lesson));
   }
 
@@ -152,10 +182,15 @@ export class LessonService implements ILessonService {
         orderIndex,
         isPreview: dto.isPreview ?? false,
         isUnlocked: dto.isUnlocked ?? true,
+        status: (dto as any).status || 'published',
         createdBy: requester.sub,
       };
 
       const lesson = await this.lessonRepository.create(data);
+
+      // Update course stats
+      await this.triggerStatsUpdate(dto.moduleId);
+
       return this.toLessonResponseDTO(lesson);
     } catch (error: any) {
       this.logger.error('Error creating lesson', error);
@@ -190,12 +225,19 @@ export class LessonService implements ILessonService {
       if (dto.orderIndex !== undefined) updateData.orderIndex = dto.orderIndex;
       if (dto.isPreview !== undefined) updateData.isPreview = dto.isPreview;
       if (dto.isUnlocked !== undefined) updateData.isUnlocked = dto.isUnlocked;
+      if ((dto as any).status !== undefined) updateData.status = (dto as any).status;
 
       if (Object.keys(updateData).length === 0) {
         return this.toLessonResponseDTO(existing);
       }
 
       const lesson = await this.lessonRepository.update(lessonId, updateData);
+
+      // Update course stats if status changed
+      if ((dto as any).status !== undefined && (dto as any).status !== (existing as any).status) {
+        await this.triggerStatsUpdate(existing.moduleId);
+      }
+
       return this.toLessonResponseDTO(lesson);
     } catch (error: any) {
       this.logger.error('Error updating lesson', error);
@@ -224,6 +266,9 @@ export class LessonService implements ILessonService {
       else {
         await this.lessonRepository.softDelete(lessonId);
       }
+
+      // Update course stats
+      await this.triggerStatsUpdate(existing.moduleId);
 
       return { message: 'Lesson deleted successfully' };
     }

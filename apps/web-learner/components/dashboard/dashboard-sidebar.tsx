@@ -137,9 +137,8 @@ function NavGroup({ title, items, pathname, className, isCollapsed }: NavGroupPr
 function ContinueLearningSection() {
     const { data: courses, isLoading } = useMyCourses();
 
-    // Filter courses that are in progress (progress > 0 and < 100) or just take the first one that is active
-    // The API returns courses ordered by lastAccessed desc.
-    const activeCourse = courses?.find(c => c.progress < 100);
+    // Get the most recently accessed course (first item since API sorts by lastAccessed desc)
+    const activeCourse = courses?.[0];
 
     if (isLoading || !activeCourse) return null
 

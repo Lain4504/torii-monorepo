@@ -107,4 +107,30 @@ export class OrderRepository implements IOrderRepository {
             where: { transactionId },
         });
     }
+
+    /**
+     * Find all payments with pagination and filters
+     */
+    async findManyPayments(options: {
+        skip: number;
+        take: number;
+        where?: Prisma.PaymentWhereInput;
+        orderBy?: Prisma.PaymentOrderByWithRelationInput;
+    }): Promise<Payment[]> {
+        return this.prisma.payment.findMany({
+            where: options.where,
+            skip: options.skip,
+            take: options.take,
+            orderBy: options.orderBy || { processedAt: 'desc' },
+        });
+    }
+
+    /**
+     * Count payments with optional filter
+     */
+    async countPayments(where?: Prisma.PaymentWhereInput): Promise<number> {
+        return this.prisma.payment.count({
+            where,
+        });
+    }
 }
