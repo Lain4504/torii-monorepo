@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../api-client';
 
 export interface MyCourseResponse {
@@ -40,5 +41,21 @@ export const learningProgressApi = {
     async getStats(): Promise<LearningStats> {
         const response = await apiClient.get<LearningStats>('/api/learning-progress/stats');
         return response.data;
+    },
+
+    async getCompletedLessons(courseId: string): Promise<string[]> {
+        const response = await apiClient.get<string[]>(`/api/learning-progress/completed-lessons/${courseId}`);
+        return response.data;
     }
+}
+
+/**
+ * Hook: Get completed lessons for a course
+ */
+export function useCompletedLessons(courseId?: string) {
+    return useQuery({
+        queryKey: ['completed-lessons', courseId],
+        queryFn: () => learningProgressApi.getCompletedLessons(courseId!),
+        enabled: !!courseId,
+    });
 }

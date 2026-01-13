@@ -31,7 +31,7 @@ export const login = createAsyncThunk(
     async (credentials: UserLoginDTO, { rejectWithValue }) => {
         try {
             const response = await apiClient.post('/api/auth/admin/login', credentials);
-            
+
             // Check if response is successful
             if (response.data.success && response.data.data?.user) {
                 return response.data.data.user;
@@ -80,7 +80,7 @@ export const checkAuth = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             const response = await apiClient.get('/api/auth/me');
-            
+
             if (response.data.success && response.data.data?.user) {
                 return response.data.data.user;
             }

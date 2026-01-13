@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UseGuards, Request, Inject } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Request, Inject, Param } from '@nestjs/common';
 import { GatewayAuthGuard } from '@server/shared';
 import { ILearningProgressService, LEARNING_PROGRESS_SERVICE_TOKEN } from '../../interfaces/services';
 
@@ -26,5 +26,11 @@ export class LearningProgressController {
     async getStats(@Request() req: any) {
         const userId = req.requester.sub;
         return this.service.getUserLearningStats(userId);
+    }
+
+    @Get('completed-lessons/:courseId')
+    async getCompletedLessons(@Request() req: any, @Param('courseId') courseId: string) {
+        const userId = req.requester.sub;
+        return this.service.getCompletedLessons(userId, courseId);
     }
 }

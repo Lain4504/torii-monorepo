@@ -5,4 +5,5 @@ export interface ILearningProgressService {
     getMyCourses(userId: string): Promise<any[]>;
     trackLessonProgress(userId: string, lessonId: string, seconds: number, totalSeconds: number): Promise<{ success: boolean }>;
     getUserLearningStats(userId: string): Promise<any>;
+    getCompletedLessons(userId: string, courseId: string): Promise<string[]>;
 }

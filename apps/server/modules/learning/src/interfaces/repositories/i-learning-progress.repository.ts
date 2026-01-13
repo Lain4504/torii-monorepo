@@ -18,4 +18,9 @@ export interface ILearningProgressRepository {
      * Get total learning seconds for a list of enrollments
      */
     getTotalLearningSeconds(enrollmentIds: string[]): Promise<number>;
+
+    /**
+     * Get all completed lesson IDs for an enrollment
+     */
+    getCompletedLessonIds(enrollmentId: string): Promise<string[]>;
 }

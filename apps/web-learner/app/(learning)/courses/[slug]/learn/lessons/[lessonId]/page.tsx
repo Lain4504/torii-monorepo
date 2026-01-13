@@ -1,16 +1,17 @@
 
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@workspace/ui/components/button'
 import {
     BookOpen,
+    FileText,
 } from 'lucide-react'
-import { courseApi } from '@/apis/services/course-api'
-import { learningProgressApi } from '@/apis/services/learning-progress-api'
-import { lessonApi } from '@/apis/services/lesson-api'
+import { useCourseBySlug, useCurriculum } from '@/apis/services/course-api'
+import { learningProgressApi, useCompletedLessons } from '@/apis/services/learning-progress-api'
+import { useLesson } from '@/apis/services/lesson-api'
 import { LearningSidebar } from '@/components/courses/learning-sidebar'
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { toast } from '@workspace/ui/components/sonner'
@@ -26,53 +27,18 @@ export default function LessonDetailPage() {
     const router = useRouter()
     const slug = params.slug as string
     const lessonId = params.lessonId as string
-    const [course, setCourse] = useState<any>(null)
-    const [curriculum, setCurriculum] = useState<any[]>([])
-    const [currentLesson, setCurrentLesson] = useState<any>(null)
-    const [loading, setLoading] = useState(true)
     const [sidebarOpen, setSidebarOpen] = useState(true)
     const lastProgressUpdate = useRef<number>(0)
     const videoDurationRef = useRef<number>(0)
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setLoading(true)
-                const courseData = await courseApi.getCourseBySlug(slug)
-                if (courseData) {
-                    setCourse(courseData)
-                    const curriculumData = await courseApi.getCurriculum(courseData.id)
-                    setCurriculum(curriculumData.modules || [])
+    // TanStack Query Hooks
+    const { data: course, isLoading: isLoadingCourse } = useCourseBySlug(slug)
+    const { data: curriculumData, isLoading: isLoadingCurriculum } = useCurriculum(course?.id)
+    const { data: currentLesson, isLoading: isLoadingLesson } = useLesson(lessonId)
+    const { data: completedLessonIds = [], refetch: refetchCompleted } = useCompletedLessons(course?.id)
 
-                    // Fetch detailed lesson data
-                    if (lessonId) {
-                        try {
-                            const lessonData = await lessonApi.getLesson(lessonId)
-                            setCurrentLesson(lessonData)
-                        } catch (err) {
-                            console.error('Failed to fetch lesson details:', err)
-                            // Fallback to curriculum data if lesson detail fails
-                            for (const module of curriculumData.modules || []) {
-                                const lesson = module.lessons?.find((l: any) => l.id === lessonId)
-                                if (lesson) {
-                                    setCurrentLesson(lesson)
-                                    break
-                                }
-                            }
-                        }
-                    }
-                }
-            } catch (error) {
-                console.error('Error fetching data:', error)
-            } finally {
-                setLoading(false)
-            }
-        }
-
-        if (slug && lessonId) {
-            fetchData()
-        }
-    }, [slug, lessonId])
+    const loading = isLoadingCourse || isLoadingCurriculum || isLoadingLesson
+    const curriculum = curriculumData?.modules || []
 
     const findPreviousLesson = () => {
         let found = false
@@ -159,6 +125,7 @@ export default function LessonDetailPage() {
                 duration
             ).then(() => {
                 toast.success('Đã hoàn thành bài học!')
+                refetchCompleted()
             }).catch(err => console.error('Failed to complete lesson', err))
         }
     }, [lessonId])
@@ -188,76 +155,101 @@ export default function LessonDetailPage() {
     }
 
     const totalLessons = curriculum.reduce((sum, module) => sum + (module.lessons?.length || 0), 0)
-    const completedLessons = 0 // TODO: Get from API
+    const completedLessons = completedLessonIds.length
     const progress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0
     const videoUrl = currentLesson.videoUrl || "https://stream.mux.com/VZtzUzGRv02OhRnZCxcNg49OilvolTqdnFLEqBsTwaxU/low.mp4"
 
     return (
         <div className="flex h-screen bg-background overflow-hidden font-sans">
-            {/* Main Content Area */}
             <div className="flex-1 flex flex-col overflow-hidden relative">
-
                 <LessonHeader
                     courseTitle={course.title}
                     lessonTitle={currentLesson.title}
                     progress={progress}
+                    isCompleted={completedLessonIds.includes(lessonId)}
                     sidebarOpen={sidebarOpen}
                     onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
                 />
 
-                {/* Scrollable Content Viewport */}
                 <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
                     <div className="max-w-6xl mx-auto pb-20">
-                        {/* Player Hero Section */}
                         {currentLesson.contentType === 'video' ? (
-                            <LessonVideoPlayer
-                                videoUrl={videoUrl}
-                                onTimeUpdate={handleTimeUpdate}
-                                onEnded={handleVideoEnded}
-                            />
+                            <>
+                                <LessonVideoPlayer
+                                    videoUrl={videoUrl}
+                                    onTimeUpdate={handleTimeUpdate}
+                                    onEnded={handleVideoEnded}
+                                />
+                                <div className="px-6 py-10 md:px-12">
+                                    <LessonNavigation
+                                        duration={currentLesson.videoDuration || 0}
+                                        order={currentLesson.orderIndex || currentLesson.order || 0}
+                                        hasPrevious={!!findPreviousLesson()}
+                                        hasNext={!!findNextLesson()}
+                                        onPrevious={handlePrevious}
+                                        onNext={handleNext}
+                                    />
+                                    <Separator className="bg-border/30 mb-12" />
+                                    <LessonContent description={currentLesson.description} />
+                                </div>
+                            </>
                         ) : (
-                            <div className="bg-muted/10 aspect-video flex items-center justify-center border-b border-border/50">
-                                <div className="text-center space-y-4 max-w-lg px-4">
-                                    <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                                        <BookOpen className="w-8 h-8 text-primary" />
+                            <div className="px-6 py-10 md:px-12 space-y-12">
+                                {/* Navigation for non-video */}
+                                <LessonNavigation
+                                    duration={0}
+                                    order={currentLesson.orderIndex || currentLesson.order || 0}
+                                    hasPrevious={!!findPreviousLesson()}
+                                    hasNext={!!findNextLesson()}
+                                    onPrevious={handlePrevious}
+                                    onNext={handleNext}
+                                />
+
+                                <div className="space-y-8 max-w-4xl mx-auto">
+                                    <div className="flex items-center gap-4 text-primary">
+                                        <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center">
+                                            <FileText className="w-6 h-6" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50">Reading Lesson</span>
+                                            <h2 className="text-3xl font-serif font-bold italic tracking-tight">{currentLesson.title}</h2>
+                                        </div>
                                     </div>
-                                    <h2 className="text-2xl font-serif font-bold italic text-foreground">
-                                        Lesson: {currentLesson.title}
-                                    </h2>
-                                    <p className="text-sm text-muted-foreground">
-                                        This lesson is an article. Please read the content below.
-                                    </p>
+
+                                    <div className="prose prose-slate dark:prose-invert max-w-none">
+                                        <div dangerouslySetInnerHTML={{ __html: currentLesson.articleContent || currentLesson.description || '' }} className="text-foreground/80 leading-relaxed text-lg" />
+                                    </div>
+
+                                    {/* Action button - Mark as completed */}
+                                    <div className="pt-8 flex justify-center">
+                                        <Button
+                                            size="lg"
+                                            className="h-14 px-10 rounded-2xl text-xs font-bold uppercase tracking-widest shadow-xl shadow-primary/20"
+                                            onClick={() => {
+                                                learningProgressApi.trackProgress(lessonId, 1, 1)
+                                                    .then(() => {
+                                                        toast.success('Đã hoàn thành bài học!')
+                                                        refetchCompleted()
+                                                    })
+                                                    .catch(() => toast.error('Lỗi khi lưu tiến trình'))
+                                            }}
+                                        >
+                                            Đánh dấu đã hoàn thành
+                                        </Button>
+                                    </div>
                                 </div>
                             </div>
                         )}
-
-                        {/* Content Area */}
-                        <div className="px-6 py-10 md:px-12">
-                            {/* Navigation & Lesson Actions */}
-                            <LessonNavigation
-                                duration={currentLesson.videoDuration}
-                                order={currentLesson.order}
-                                hasPrevious={!!findPreviousLesson()}
-                                hasNext={!!findNextLesson()}
-                                onPrevious={handlePrevious}
-                                onNext={handleNext}
-                            />
-
-                            <Separator className="bg-border/30 mb-12" />
-
-                            {/* Simplified Tabs Section */}
-                            <LessonContent description={currentLesson.description} />
-                        </div>
                     </div>
                 </div>
             </div>
 
-            {/* Sidebar with Zen UI style */}
             <LearningSidebar
                 courseTitle={course.title}
                 curriculum={curriculum}
                 progress={progress}
                 completedLessons={completedLessons}
+                completedLessonIds={completedLessonIds}
                 totalLessons={totalLessons}
                 currentLessonId={lessonId}
                 isOpen={sidebarOpen}

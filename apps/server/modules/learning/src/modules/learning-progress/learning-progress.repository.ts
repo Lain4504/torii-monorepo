@@ -63,4 +63,18 @@ export class LearningProgressRepository implements ILearningProgressRepository {
 
         return result._sum?.watchedDuration || 0;
     }
+
+    async getCompletedLessonIds(enrollmentId: string): Promise<string[]> {
+        const completedLessons = await this.prisma.lessonProgress.findMany({
+            where: {
+                enrollmentId,
+                status: 'completed',
+            },
+            select: {
+                lessonId: true,
+            },
+        });
+
+        return completedLessons.map(lesson => lesson.lessonId);
+    }
 }

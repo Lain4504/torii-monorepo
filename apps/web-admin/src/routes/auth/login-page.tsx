@@ -53,12 +53,25 @@ export default function LoginPage() {
 
       toast.success(`Welcome back, ${user.displayName || 'Admin'}`);
       navigate('/', { replace: true });
-    } catch (err: unknown) {
+    } catch (err: any) {
+      // Check for 2FA requirement in rejection payload
+      if (err && typeof err === 'object' && err.requiresTwoFactor) {
+        navigate('/auth/verify-2fa', {
+          state: {
+            tempToken: err.tempToken,
+            twoFactorMethod: err.twoFactorMethod,
+          },
+          replace: true,
+        });
+        return;
+      }
+
       // Error message already extracted by extractErrorMessage in auth-slice
-      const errorMessage = typeof err === 'string' ? err : 'Authentication failed';
+      const errorMessage = typeof err === 'string' ? err : (err?.message || 'Authentication failed');
       toast.error(errorMessage);
     }
   };
+
 
   return (
     <div className="flex min-h-screen w-full bg-background antialiased selection:bg-primary/20 selection:text-primary">

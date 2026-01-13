@@ -59,15 +59,36 @@ export class LearningProgressService implements ILearningProgressService {
         const data = await Promise.all(enrollments.map(async (e: any) => {
             const completedLessons = await this.progressRepo.countCompletedLessons(e.id);
 
+            // Fix totalLessons if 0
+            let totalLessons = e.course.totalLessons;
+            if (totalLessons === 0) {
+                // Recalculate if 0 using lesson repo
+                // Note: We need to cast 'where' to any if necessary or ensure LessonWhereInput supports module relation
+                totalLessons = await this.lessonRepo.count({
+                    module: {
+                        courseId: e.course.id
+                    },
+                    deletedAt: null
+                } as any);
+
+                // Update course stats asynchronously if corrected
+                if (totalLessons > 0) {
+                    this.courseRepo.updateStats(e.course.id, { totalLessons }).catch(console.error);
+                }
+            }
+
             // Auto-correct percentage if needed
             let progress = Number(e.completionPercentage);
-            if (e.course.totalLessons > 0) {
-                const calculated = Math.round((completedLessons / e.course.totalLessons) * 100);
+            if (totalLessons > 0) {
+                const calculated = Math.round((completedLessons / totalLessons) * 100);
                 if (Math.abs(calculated - progress) > 5) {
                     progress = calculated;
                     // Async update correction
                     this.enrollmentRepo.update(e.id, { completionPercentage: progress }).catch(console.error);
                 }
+            } else {
+                // If total lessons is actually 0, progress should be 0 (or 100 if completed? No 0 is safer)
+                progress = 0;
             }
 
             return {
@@ -77,7 +98,7 @@ export class LearningProgressService implements ILearningProgressService {
                 thumbnailUrl: e.course.thumbnailUrl,
                 instructor: "Top Instructor", // Placeholder until relation fixed
                 progress: progress,
-                totalLessons: e.course.totalLessons,
+                totalLessons: totalLessons,
                 completedLessons: completedLessons,
                 lastAccessed: e.lastAccessedAt ? e.lastAccessedAt.toISOString() : null,
                 status: e.completionStatus,
@@ -177,5 +198,17 @@ export class LearningProgressService implements ILearningProgressService {
             currentStreak: 0, // Placeholder
             totalCertificates: completedCourses
         };
+    }
+
+    async getCompletedLessons(userId: string, courseId: string): Promise<string[]> {
+        // Find enrollment for this user and course
+        const enrollment = await this.enrollmentRepo.findByUserAndCourse(userId, courseId);
+
+        if (!enrollment) {
+            return [];
+        }
+
+        // Get all completed lesson IDs using repository method
+        return await this.progressRepo.getCompletedLessonIds(enrollment.id);
     }
 }
