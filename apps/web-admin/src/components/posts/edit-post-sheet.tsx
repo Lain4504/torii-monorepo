@@ -29,7 +29,7 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { Loader2, UploadCloud, X, FileText, Save, Calendar, Eye, MessageCircle, Users } from 'lucide-react';
+import { Loader2, UploadCloud, X, FileText, Save, Calendar, Eye, MessageCircle } from 'lucide-react';
 import { postUpdateDTOSchema, PostStatus, type PostUpdateDTO, type PostResponseDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
 import { storageApi } from '@/api/services/storage-api.ts';
@@ -177,8 +177,8 @@ export function EditPostSheet({
             };
 
             await updatePost.mutateAsync(dto);
-            toast.success('Post Re-calibrated', {
-                description: `Parameters for ${data.title} successfully updated.`,
+            toast.success('Post Updated', {
+                description: `Post "${data.title}" successfully updated.`,
             });
             onOpenChange(false);
         } catch (error: any) {
@@ -194,7 +194,7 @@ export function EditPostSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:w-[900px] sm:max-w-[900px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl overflow-hidden">
+            <SheetContent className="w-full sm:w-[900px] sm:max-w-[900px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background overflow-hidden">
                 <SheetHeader className="px-8 pt-8 pb-6 border-b border-border/10 bg-muted/5 relative overflow-hidden">
                     <div className="absolute inset-0 bg-primary/5 blur-3xl opacity-50 pointer-events-none" />
                     <div className="relative flex items-center justify-between z-10">
@@ -203,8 +203,8 @@ export function EditPostSheet({
                                 <FileText className="h-6 w-6" />
                             </div>
                             <div className="space-y-1">
-                                <SheetTitle className="text-2xl font-black uppercase tracking-tight italic">
-                                    Modify <span className="text-primary not-italic">Repository</span>
+                                <SheetTitle className="text-2xl font-medium tracking-tight">
+                                    Edit <span className="text-primary italic">Post</span>
                                 </SheetTitle>
                                 <SheetDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2">
                                     ID: <span className="font-mono text-primary">{post.id.substring(0, 8)}</span>
@@ -218,17 +218,17 @@ export function EditPostSheet({
                                 post.status === 'published'
                                     ? "border-emerald-500/20 text-emerald-500 bg-emerald-500/10"
                                     : post.status === 'draft'
-                                    ? "border-blue-500/20 text-blue-500 bg-blue-500/10"
-                                    : "border-muted-foreground/20 text-muted-foreground bg-muted/10"
+                                        ? "border-blue-500/20 text-blue-500 bg-blue-500/10"
+                                        : "border-muted-foreground/20 text-muted-foreground bg-muted/10"
                             )}>
                             {post.status}
                         </Badge>
                     </div>
                 </SheetHeader>
 
-                <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col flex-1 overflow-hidden relative z-10">
-                    <ScrollArea className="flex-1 overflow-y-auto px-8 py-8">
-                        <div className="space-y-8 animate-in fade-in slide-in-from-right-8 duration-500">
+                <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col flex-1 min-h-0 overflow-hidden relative z-10">
+                    <ScrollArea className="flex-1 min-h-0">
+                        <div className="px-8 py-10 space-y-10 animate-in fade-in slide-in-from-right-8 duration-500">
 
                             {/* Key Metrics */}
                             <div className="grid grid-cols-3 gap-4">
@@ -510,19 +510,20 @@ export function EditPostSheet({
                         </div>
                     </ScrollArea>
 
-                    <SheetFooter className="flex-shrink-0 px-8 py-6 border-t border-border/10 bg-background/50 backdrop-blur-md flex-row gap-4 relative z-20">
+                    <SheetFooter className="px-8 py-6 bg-background border-t border-border/10 flex flex-row items-center justify-between gap-4 relative z-20 flex-shrink-0">
                         <Button
                             type="button"
                             variant="ghost"
                             onClick={() => onOpenChange(false)}
-                            className="flex-1 rounded-xl h-12 bg-background/50 border border-border/20 text-[11px] font-black uppercase tracking-widest hover:bg-muted/30"
+                            className="rounded-xl h-12 px-6 text-[11px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground hover:bg-muted/20 group"
                         >
-                            Cancel
+                            <X className="mr-2 h-4 w-4 transition-transform group-hover:rotate-90" />
+                            Discard
                         </Button>
                         <Button
                             type="submit"
                             disabled={uploading || (!isDirty && !coverImageFile)}
-                            className="flex-1 rounded-xl h-12 bg-primary text-primary-foreground text-[11px] font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-1 transition-all"
+                            className="rounded-xl h-12 px-8 bg-primary text-primary-foreground text-[11px] font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-1 transition-all"
                         >
                             {uploading ? (
                                 <>

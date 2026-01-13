@@ -331,6 +331,7 @@ model User {
   wishlists               Wishlist[]
   reviews                 Review[]
   enrollments             Enrollment[]
+  orders                  Order[]
   payments                Payment[]
   giftEnrollments         Enrollment[]              @relation("GiftEnrollments")
 
@@ -1008,6 +1009,7 @@ model Enrollment {
   lastAccessedAt      DateTime? @map("last_accessed_at")
   completedAt         DateTime? @map("completed_at")
   paymentId           String?   @unique @map("payment_id") @db.Uuid
+  orderId             String?   @unique @map("order_id") @db.Uuid
   couponAppliedId     String?   @map("coupon_applied_id") @db.Uuid
   finalPrice          Decimal   @map("final_price") @db.Decimal(10, 2)
   isGift              Boolean   @default(false) @map("is_gift")
@@ -1019,7 +1021,7 @@ model Enrollment {
   // Relations
   user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   course  Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  payment Payment? @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+  order   Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
   sender  User?    @relation("GiftEnrollments", fields: [senderId], references: [id], onDelete: SetNull)
 
   @@unique([userId, courseId]) // Mỗi user chỉ enroll 1 lần cho 1 course
@@ -1030,7 +1032,7 @@ model Enrollment {
   @@map("enrollments")
 }
 
-enum PaymentStatus {
+enum OrderStatus {
   pending
   processing
   completed
@@ -1044,6 +1046,7 @@ enum PaymentMethod {
   momo
   zalopay
   vnpay
+  sepay
   mock // For testing
 }
 
@@ -1052,19 +1055,19 @@ enum PaymentGateway {
   paypal
   vnpay
   momo
+  sepay
   mock // For testing
 }
 
-enum PaymentType {
+enum OrderType {
   course_purchase
   subscription
   top_up
   gift
 }
 
-// Payment - Payment transactions for course purchases
-// Based on database.sql and database-design-schema-part2.md
-model Payment {
+// Order - Business entity representing a purchase intent (Invoice)
+model Order {
   id                    String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId                String        @map("user_id") @db.Uuid
   amount                Decimal       @db.Decimal(10, 2)
@@ -1073,8 +1076,8 @@ model Payment {
   paymentGateway        String?       @map("payment_gateway") @db.VarChar(50) // stripe, paypal, vnpay, momo
   transactionId         String?       @unique @map("transaction_id") @db.VarChar(100) // Internal transaction ID
   gatewayTransactionId  String?       @map("gateway_transaction_id") @db.VarChar(100) // Gateway transaction ID
-  status                PaymentStatus @default(pending)
-  paymentType           PaymentType   @default(course_purchase) @map("payment_type")
+  status                OrderStatus   @default(pending)
+  orderType             OrderType     @default(course_purchase) @map("order_type")
   enrollmentId          String?       @map("enrollment_id") @db.Uuid
   couponId              String?       @map("coupon_id") @db.Uuid
   description           String?       @db.Text
@@ -1086,14 +1089,37 @@ model Payment {
 
   // Relations
   user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  enrollment Enrollment? // Relation defined on Enrollment side (via paymentId)
-  // Note: Coupon relation will be added when Coupon model is created
+  enrollment Enrollment? // Relation defined on Enrollment side (via orderId)
+  payments   Payment[]
 
   @@index([userId])
   @@index([status])
-  @@index([paymentType])
+  @@index([orderType])
   @@index([enrollmentId])
   @@index([createdAt])
   @@index([transactionId])
+  @@map("orders")
+}
+
+// Payment - Actual money movement / bank transaction (Receipt)
+model Payment {
+  id                    String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId               String?       @map("order_id") @db.Uuid
+  transactionId         String?       @map("transaction_id") @db.VarChar(100) // SePay ID or Ref
+  gateway               String?       @db.VarChar(50) // "sepay"
+  amount                Decimal?      @db.Decimal(10, 2)
+  currency              String        @default("VND") @db.VarChar(3)
+  content               String?       @db.Text
+  status                String?       @db.VarChar(50) // success/fail
+  rawResponse           Json?         @map("raw_response") // Full webhook data
+  processedAt           DateTime      @default(now()) @map("processed_at")
+
+  order                 Order?        @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  user                  User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId                String?       @map("user_id") @db.Uuid
+
+  @@index([orderId])
+  @@index([transactionId])
   @@map("payments")
 }
+

@@ -146,14 +146,14 @@ function ContinueLearningSection() {
                     <Link
                         key={course.id}
                         href={course.href}
-                        className="group block p-4 rounded-3xl bg-primary/[0.03] hover:bg-primary/[0.06] transition-all duration-300 cursor-pointer border border-primary/5 hover:border-primary/10"
+                        className="group block p-5 rounded-[2rem] bg-background/40 hover:bg-background/60 backdrop-blur-3xl transition-all duration-300 cursor-pointer border border-border/10 hover:border-primary/20 shadow-sm hover:shadow-xl hover:shadow-primary/5"
                     >
-                        <div className="flex items-start justify-between gap-3 mb-3">
-                            <h4 className="text-[11px] font-bold text-foreground leading-relaxed uppercase tracking-tight group-hover:text-primary transition-colors">
+                        <div className="flex items-start justify-between gap-3 mb-4">
+                            <h4 className="text-sm font-serif font-bold text-foreground leading-snug group-hover:text-primary transition-colors italic">
                                 {course.title}
                             </h4>
-                            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                                <PlayCircle className="w-4 h-4 text-primary" />
+                            <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all">
+                                <PlayCircle className="w-4 h-4" />
                             </div>
                         </div>
                         <div className="space-y-2.5">

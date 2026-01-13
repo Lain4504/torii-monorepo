@@ -37,21 +37,22 @@ export function DeleteQuestionPoolDialog({ open, onOpenChange, pool }: DeleteQue
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-md border-none shadow-2xl bg-background/95 backdrop-blur-xl rounded-2xl">
-                <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2 text-destructive">
+            <DialogContent className="max-w-md border border-border/50 shadow-2xl bg-background rounded-3xl p-0 overflow-hidden">
+                <DialogHeader className="p-8 pb-4 bg-red-500/5 border-b border-red-500/10">
+                    <DialogTitle className="flex items-center gap-2 text-destructive text-xl font-semibold tracking-tight">
                         <AlertTriangle className="h-5 w-5" />
-                        Delete Question Pool
+                        Delete Pool
                     </DialogTitle>
-                    <DialogDescription className="pt-2">
-                        Are you sure you want to delete <span className="font-semibold">{pool.name}</span>?
-                        This action cannot be undone. Questions in this pool will not be deleted, but they will no longer be associated with this pool.
+                    <DialogDescription className="text-sm font-medium text-muted-foreground/60 leading-relaxed mt-2">
+                        Are you sure you want to delete <span className="text-foreground font-semibold">"{pool.name}"</span>?
+                        This action cannot be undone.
                     </DialogDescription>
                 </DialogHeader>
 
-                <DialogFooter className="gap-2 sm:gap-0">
+                <DialogFooter className="p-6 bg-background border-t border-border/10 gap-3">
                     <Button
-                        variant="outline"
+                        variant="ghost"
+                        className="rounded-xl h-11 px-6"
                         onClick={() => onOpenChange(false)}
                         disabled={deletePool.isPending}
                     >
@@ -59,11 +60,15 @@ export function DeleteQuestionPoolDialog({ open, onOpenChange, pool }: DeleteQue
                     </Button>
                     <Button
                         variant="destructive"
+                        className="rounded-xl h-11 px-8"
                         onClick={handleDelete}
                         disabled={deletePool.isPending}
                     >
-                        {deletePool.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Delete
+                        {deletePool.isPending ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                            "Delete Pool"
+                        )}
                     </Button>
                 </DialogFooter>
             </DialogContent>

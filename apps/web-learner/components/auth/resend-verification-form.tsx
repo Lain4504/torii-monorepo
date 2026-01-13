@@ -60,16 +60,16 @@ export function ResendVerificationForm() {
     if (emailSent) {
         return (
             <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500">
-                <div className="flex flex-col items-center text-center space-y-6 p-10 bg-primary/5 rounded-[2.5rem] border border-primary/10 relative overflow-hidden">
-                    <div className="w-20 h-20 rounded-[1.5rem] bg-white shadow-xl shadow-primary/5 flex items-center justify-center relative z-10">
-                        <CheckCircle2 className="w-10 h-10 text-primary" />
+                <div className="flex flex-col items-center text-center space-y-4 p-8 bg-primary/5 rounded-3xl border border-primary/10">
+                    <div className="w-16 h-16 rounded-2xl bg-background shadow-sm flex items-center justify-center">
+                        <CheckCircle2 className="w-8 h-8 text-primary" />
                     </div>
-                    <div className="space-y-3 relative z-10">
-                        <h3 className="text-xl font-black uppercase tracking-tight text-foreground italic">
-                            Xác thực <span className="text-primary not-italic">Đã Gửi Lại</span>
+                    <div className="space-y-2">
+                        <h3 className="text-lg font-semibold text-foreground">
+                            Đã Gửi Lại
                         </h3>
-                        <p className="text-[11px] font-bold text-muted-foreground/60 leading-relaxed italic">
-                            Mã kích hoạt mới đã được gửi tới hòm thư của bạn.
+                        <p className="text-sm text-muted-foreground/80">
+                            Mã xác thực mới đã được gửi tới email của bạn.
                         </p>
                     </div>
                 </div>
@@ -84,34 +84,33 @@ export function ResendVerificationForm() {
                     control={form.control}
                     name="email"
                     render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid} className="space-y-2.5">
-                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 ml-1">Identity Access</FieldLabel>
+                        <Field data-invalid={fieldState.invalid} className="space-y-1.5">
+                            <FieldLabel htmlFor={field.name} className="text-xs font-medium text-foreground">Email</FieldLabel>
                             <div className="relative group">
-                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 transition-colors group-focus-within:text-primary" />
+                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50 transition-colors group-focus-within:text-primary" />
                                 <Input
                                     {...field}
                                     id={field.name}
                                     placeholder="your-registered-email@domain.com"
-                                    className="pl-12 h-14 rounded-2xl bg-muted/20 border-border/40 focus:bg-background focus:ring-0 text-sm font-bold transition-all placeholder:text-muted-foreground/30"
+                                    className="pl-9 h-11 rounded-xl bg-muted/5 border-border/20 focus:bg-background focus:border-primary/20 focus:ring-2 focus:ring-primary/10 text-sm font-medium transition-all placeholder:text-muted-foreground/40"
                                     aria-invalid={fieldState.invalid}
                                 />
                             </div>
-                            {fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-[10px] font-bold uppercase" />}
+                            {fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-xs font-medium text-destructive mt-1" />}
                         </Field>
                     )}
                 />
 
                 <Button
                     type="submit"
-                    className="w-full h-14 rounded-2xl bg-primary text-white font-black uppercase tracking-[0.2em] text-[11px] shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all active:scale-95 group"
+                    className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all"
                     disabled={isLoading}
                 >
                     {isLoading ? (
-                        <Spinner className="mr-2" />
+                        <Spinner className="mr-2 h-4 w-4" />
                     ) : (
                         <>
                             Gửi lại mã xác thực
-                            <RefreshCcw className="ml-2.5 h-4 w-4 opacity-0 group-hover:opacity-100 transition-all group-hover:rotate-180" />
                         </>
                     )}
                 </Button>

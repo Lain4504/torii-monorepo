@@ -106,19 +106,19 @@ export function RegisterForm() {
                     control={form.control}
                     name="email"
                     render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid} className="space-y-2.5">
-                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 ml-1">Identity Gateway</FieldLabel>
+                        <Field data-invalid={fieldState.invalid} className="space-y-1.5">
+                            <FieldLabel htmlFor={field.name} className="text-xs font-medium text-foreground">Email</FieldLabel>
                             <div className="relative group">
-                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 transition-colors group-focus-within:text-primary" />
+                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50 transition-colors group-focus-within:text-primary" />
                                 <Input
                                     {...field}
                                     id={field.name}
                                     placeholder="futurehero@torii.jp"
-                                    className="pl-12 h-14 rounded-2xl bg-muted/20 border-border/40 focus:bg-background focus:ring-0 text-sm font-bold transition-all placeholder:text-muted-foreground/30"
+                                    className="pl-9 h-11 rounded-xl bg-muted/5 border-border/20 focus:bg-background focus:border-primary/20 focus:ring-2 focus:ring-primary/10 text-sm font-medium transition-all placeholder:text-muted-foreground/40"
                                     aria-invalid={fieldState.invalid}
                                 />
                             </div>
-                            {fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-[10px] font-bold uppercase" />}
+                            {fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-xs font-medium text-destructive mt-1" />}
                         </Field>
                     )}
                 />
@@ -127,48 +127,42 @@ export function RegisterForm() {
                     control={form.control}
                     name="password"
                     render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid} className="space-y-2.5">
-                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 ml-1">Tạo mật khẩu</FieldLabel>
+                        <Field data-invalid={fieldState.invalid} className="space-y-1.5">
+                            <FieldLabel htmlFor={field.name} className="text-xs font-medium text-foreground">Tạo mật khẩu</FieldLabel>
                             <div className="relative group">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 transition-colors group-focus-within:text-primary" />
+                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50 transition-colors group-focus-within:text-primary" />
                                 <Input
                                     {...field}
                                     id={field.name}
                                     type={showPassword ? 'text' : 'password'}
                                     placeholder="••••••••••••"
-                                    className="pl-12 pr-12 h-14 rounded-2xl bg-muted/20 border-border/40 focus:bg-background focus:ring-0 text-sm font-bold transition-all placeholder:text-muted-foreground/30"
+                                    className="pl-9 pr-9 h-11 rounded-xl bg-muted/5 border-border/20 focus:bg-background focus:border-primary/20 focus:ring-2 focus:ring-primary/10 text-sm font-medium transition-all placeholder:text-muted-foreground/40"
                                     aria-invalid={fieldState.invalid}
                                 />
                                 <button
                                     type="button"
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-foreground cursor-pointer transition-colors"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-foreground cursor-pointer transition-colors"
                                     onClick={() => setShowPassword(!showPassword)}
                                 >
                                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                 </button>
                             </div>
                             {password && (
-                                <div className="mt-4 p-5 rounded-2xl bg-muted/20 border border-border/40 space-y-3 animate-in fade-in slide-in-from-top-2">
-                                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Security Integrity Check</span>
-                                    <div className="grid grid-cols-2 gap-y-2 gap-x-4">
+                                <div className="mt-2 text-xs">
+                                    <div className="flex flex-wrap gap-x-4 gap-y-1">
                                         {requirements.map((req, index) => (
-                                            <div key={index} className="flex items-center gap-2 group">
+                                            <div key={index} className={cn("flex items-center gap-1.5", req.valid ? "text-emerald-600" : "text-muted-foreground/50")}>
                                                 <div className={cn(
-                                                    "w-1.5 h-1.5 rounded-full transition-all duration-500",
-                                                    req.valid ? "bg-emerald-500 scale-125 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-muted-foreground/20"
+                                                    "w-1 h-1 rounded-full",
+                                                    req.valid ? "bg-emerald-500" : "bg-muted-foreground/30"
                                                 )} />
-                                                <span className={cn(
-                                                    "text-[10px] font-black uppercase tracking-wider transition-colors",
-                                                    req.valid ? "text-emerald-500/80" : "text-muted-foreground/40"
-                                                )}>
-                                                    {req.label}
-                                                </span>
+                                                <span className="text-[10px] font-medium">{req.label}</span>
                                             </div>
                                         ))}
                                     </div>
                                 </div>
                             )}
-                            {fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-[10px] font-bold uppercase" />}
+                            {fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-xs font-medium text-destructive mt-1" />}
                         </Field>
                     )}
                 />
@@ -177,51 +171,48 @@ export function RegisterForm() {
                     control={form.control}
                     name="confirmPassword"
                     render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid} className="space-y-2.5">
-                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 ml-1">Xác nhận bảo mật</FieldLabel>
+                        <Field data-invalid={fieldState.invalid} className="space-y-1.5">
+                            <FieldLabel htmlFor={field.name} className="text-xs font-medium text-foreground">Xác nhận mật khẩu</FieldLabel>
                             <div className="relative group">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 transition-colors group-focus-within:text-primary" />
+                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50 transition-colors group-focus-within:text-primary" />
                                 <Input
                                     {...field}
                                     id={field.name}
                                     type={showConfirmPassword ? 'text' : 'password'}
                                     placeholder="••••••••••••"
-                                    className="pl-12 pr-12 h-14 rounded-2xl bg-muted/20 border-border/40 focus:bg-background focus:ring-0 text-sm font-bold transition-all placeholder:text-muted-foreground/30"
+                                    className="pl-9 pr-9 h-11 rounded-xl bg-muted/5 border-border/20 focus:bg-background focus:border-primary/20 focus:ring-2 focus:ring-primary/10 text-sm font-medium transition-all placeholder:text-muted-foreground/40"
                                     aria-invalid={fieldState.invalid}
                                 />
                                 <button
                                     type="button"
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-foreground cursor-pointer transition-colors"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-foreground cursor-pointer transition-colors"
                                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                 >
                                     {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                 </button>
                             </div>
-                            {fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-[10px] font-bold uppercase" />}
+                            {fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-xs font-medium text-destructive mt-1" />}
                         </Field>
                     )}
                 />
 
                 {error && (
-                    <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-destructive bg-destructive/5 p-4 rounded-2xl border border-destructive/20 animate-in fade-in zoom-in-95">
-                        <div className="w-6 h-6 rounded-lg bg-destructive/10 flex items-center justify-center">
-                            <XCircle className="h-3 w-3" />
-                        </div>
+                    <div className="flex items-center gap-2 text-sm font-medium text-destructive bg-destructive/5 p-4 rounded-xl border border-destructive/10 animate-in fade-in zoom-in-95">
+                        <XCircle className="h-4 w-4 shrink-0" />
                         {error}
                     </div>
                 )}
 
                 <Button
                     type="submit"
-                    className="w-full h-14 rounded-2xl bg-primary text-white font-black uppercase tracking-[0.2em] text-[11px] shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all active:scale-95 group"
+                    className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all"
                     disabled={isLoading}
                 >
                     {isLoading ? (
-                        <Spinner className="mr-2" />
+                        <Spinner className="mr-2 h-4 w-4" />
                     ) : (
                         <>
-                            Bắt đầu hành trình
-                            <Sparkles className="ml-2.5 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            Đăng ký
                         </>
                     )}
                 </Button>

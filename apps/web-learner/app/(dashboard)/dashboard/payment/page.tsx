@@ -86,79 +86,60 @@ export default function PaymentHistoryPage() {
 
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 max-w-7xl animate-in fade-in duration-500">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-border/40">
+            {/* Simplified Header */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-border/10">
                 <div className="space-y-2">
-                    <h1 className="text-3xl font-black uppercase italic tracking-tighter text-foreground flex items-center gap-3">
-                        <Receipt className="w-8 h-8 text-primary" />
-                        Lịch sử thanh toán
-                    </h1>
-                    <p className="text-sm font-medium text-muted-foreground/80 tracking-wide">
-                        Theo dõi và quản lý các giao dịch học tập
+                    <h1 className="text-3xl font-serif font-bold text-foreground italic">Giao dịch & Thanh toán</h1>
+                    <p className="text-xs text-muted-foreground/60 font-medium tracking-wide">
+                        Lịch sử ghi danh và các hóa đơn đào tạo của bạn
                     </p>
                 </div>
 
-                <div className="flex items-center gap-3 w-full md:w-auto">
+                <div className="flex items-center gap-2 w-full md:w-auto">
                     <div className="relative flex-1 md:flex-initial">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/30" />
                         <Input
-                            placeholder="Tìm mã giao dịch..."
-                            className="pl-10 h-10 w-full md:w-64 bg-background/50 border-border/40 focus:bg-background focus:border-primary/20 rounded-xl transition-all font-medium text-xs placeholder:text-muted-foreground/50 shadow-sm"
+                            placeholder="Mã giao dịch..."
+                            className="pl-9 h-9 w-full md:w-56 bg-muted/5 border-border/10 rounded-lg text-xs placeholder:text-muted-foreground/40 focus:ring-1 ring-primary/20"
                         />
                     </div>
-                    <Button variant="outline" size="icon" className="h-10 w-10 border-border/40 rounded-xl hover:bg-muted/50 cursor-pointer text-muted-foreground">
-                        <Filter className="w-4 h-4" />
-                    </Button>
                 </div>
             </div>
 
-            {/* Transactions Table */}
-            <div className="rounded-[1.5rem] border border-border/40 bg-background/40 backdrop-blur-xl overflow-hidden shadow-sm">
-                <Table>
-                    <TableHeader className="bg-muted/30 border-b border-white/5">
-                        <TableRow className="hover:bg-transparent border-white/5">
-                            <TableHead className="w-[120px] text-[10px] font-black uppercase tracking-widest text-muted-foreground py-5">Mã Giao Dịch</TableHead>
-                            <TableHead className="text-[10px] font-black uppercase tracking-widest text-muted-foreground py-5">Khóa Học / Nội Dung</TableHead>
-                            <TableHead className="w-[140px] text-[10px] font-black uppercase tracking-widest text-muted-foreground py-5">Ngày</TableHead>
-                            <TableHead className="w-[150px] text-[10px] font-black uppercase tracking-widest text-muted-foreground py-5 text-right">Số Tiền</TableHead>
-                            <TableHead className="w-[150px] text-[10px] font-black uppercase tracking-widest text-muted-foreground py-5 text-center">Trạng Thái</TableHead>
-                            <TableHead className="w-[50px] py-5"></TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {payments.map((payment) => (
-                            <TableRow key={payment.id} className="group hover:bg-primary/[0.02] border-white/5 transition-colors">
-                                <TableCell className="font-bold text-xs text-muted-foreground/80 py-4">
-                                    <span className="font-mono text-primary/80">{payment.id}</span>
-                                </TableCell>
-                                <TableCell className="py-4">
-                                    <div className="flex flex-col">
-                                        <span className="font-bold text-sm text-foreground group-hover:text-primary transition-colors">{payment.course}</span>
-                                        <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-tight mt-0.5">{payment.method}</span>
-                                    </div>
-                                </TableCell>
-                                <TableCell className="py-4 text-xs font-semibold text-muted-foreground">
-                                    {new Date(payment.date).toLocaleDateString('vi-VN')}
-                                </TableCell>
-                                <TableCell className="py-4 text-right">
-                                    <span className="font-black text-sm text-foreground">
-                                        {payment.amount.toLocaleString('vi-VN')}₫
-                                    </span>
-                                </TableCell>
-                                <TableCell className="py-4 text-center">
-                                    <div className="flex justify-center">
-                                        {getStatusBadge(payment.status)}
-                                    </div>
-                                </TableCell>
-                                <TableCell className="py-4 text-right pr-4">
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-all opacity-0 group-hover:opacity-100 cursor-pointer">
-                                        <ExternalLink className="w-4 h-4" />
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+            {/* Simplified Table Content */}
+            <div className="space-y-4">
+                <div className="hidden md:grid grid-cols-6 px-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40">
+                    <div className="col-span-1">ID</div>
+                    <div className="col-span-2">Khóa học</div>
+                    <div className="col-span-1">Ngày</div>
+                    <div className="col-span-1 text-right">Số tiền</div>
+                    <div className="col-span-1 text-center">Trạng thái</div>
+                </div>
+                <div className="divide-y divide-border/5 border-y border-border/10">
+                    {payments.map((p) => (
+                        <div key={p.id} className="grid grid-cols-1 md:grid-cols-6 items-center p-4 hover:bg-muted/5 transition-colors group">
+                            <div className="col-span-1 text-xs font-mono text-primary/60 mb-2 md:mb-0">#{p.id.split('-')[1]}</div>
+                            <div className="col-span-2">
+                                <p className="text-sm font-bold text-foreground truncate">{p.course}</p>
+                                <p className="text-[10px] text-muted-foreground/40 font-medium uppercase">{p.method}</p>
+                            </div>
+                            <div className="col-span-1 text-xs text-muted-foreground font-medium md:table-cell hidden">
+                                {new Date(p.date).toLocaleDateString('vi-VN')}
+                            </div>
+                            <div className="col-span-1 text-right text-sm font-bold text-foreground">
+                                {p.amount.toLocaleString('vi-VN')}₫
+                            </div>
+                            <div className="col-span-1 flex justify-center mt-3 md:mt-0">
+                                <span className={cn(
+                                    "px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border",
+                                    p.status === 'completed' ? "bg-emerald-500/5 text-emerald-600 border-emerald-500/10" : "bg-red-500/5 text-red-600 border-red-500/10"
+                                )}>
+                                    {p.status === 'completed' ? 'Thành công' : 'Thất bại'}
+                                </span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
 
             {/* Pagination / Load More */}

@@ -17,9 +17,9 @@ export default function CourseCatalogPage() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-12">
-            <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <SearchHeader 
+        <div className="min-h-screen bg-background py-16 animate-in fade-in duration-700">
+            <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+                <SearchHeader
                     searchQuery={searchQuery}
                     onSearchChange={(q) => {
                         setSearchQuery(q)
@@ -33,7 +33,7 @@ export default function CourseCatalogPage() {
                     {/* Sidebar Filters */}
                     <aside className="hidden lg:block lg:col-span-1">
                         <div className="sticky top-24">
-                            <FilterSidebar 
+                            <FilterSidebar
                                 selectedLevels={selectedLevels}
                                 onLevelChange={(levels) => {
                                     setSelectedLevels(levels)
@@ -50,7 +50,7 @@ export default function CourseCatalogPage() {
 
                     {/* Main Content */}
                     <main className="lg:col-span-3">
-                        <CourseGrid 
+                        <CourseGrid
                             searchQuery={searchQuery}
                             selectedLevels={selectedLevels}
                             priceFilter={priceFilter}

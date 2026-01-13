@@ -13,7 +13,7 @@ import { ReviewModule } from './modules/review/review.module';
 import { CourseInstructorModule } from './modules/course-instructor/course-instructor.module';
 import { LessonMaterialModule } from './modules/lesson-material/lesson-material.module';
 import { EnrollmentModule } from './modules/enrollment/enrollment.module';
-import { PaymentModule } from './modules/payment/payment.module';
+import { OrderModule } from './modules/payment/order.module';
 
 // Community Modules
 import { PostModule } from './modules/post/post.module';
@@ -35,7 +35,7 @@ import { GamificationModule } from './modules/gamification/gamification.module';
 // Storage Module
 import { StorageModule } from './modules/storage/storage.module';
 
-// Controllers (new structure - following identity pattern)
+// Controllers
 import { CourseController } from './controllers/course.controller';
 import { ModuleController } from './controllers/module.controller';
 import { LessonController } from './controllers/lesson.controller';
@@ -47,12 +47,12 @@ import { ExamAdminController } from './controllers/exam-admin.controller';
 import { QuestionController } from './controllers/question.controller';
 import { QuestionPoolController } from './controllers/question-pool.controller';
 import { StorageController } from './controllers/storage.controller';
-
-// Controllers (keeping existing ones from interfaces/http for now)
 import { WishlistController } from './controllers/wishlist.controller';
 import { ReviewController } from './controllers/review.controller';
 import { EnrollmentController } from './controllers/enrollment.controller';
-import { PaymentController } from './controllers/payment.controller';
+import { OrderController } from './controllers/order.controller';
+
+import { PayOSController } from './controllers/payos.controller';
 import { PostController } from './interfaces/http/post.controller';
 import { CommentController } from './interfaces/http/comment.controller';
 import { NotificationController } from './interfaces/http/notification.controller';
@@ -80,7 +80,7 @@ import { FlashcardReviewController } from './interfaces/http/flashcard-review.co
     CourseInstructorModule,
     LessonMaterialModule,
     EnrollmentModule,
-    PaymentModule,
+    OrderModule,
 
     // Community Domain
     PostModule,
@@ -117,7 +117,8 @@ import { FlashcardReviewController } from './interfaces/http/flashcard-review.co
     WishlistController,
     ReviewController,
     EnrollmentController,
-    PaymentController,
+    OrderController,
+    PayOSController,
     PostController,
     CommentController,
     NotificationController,

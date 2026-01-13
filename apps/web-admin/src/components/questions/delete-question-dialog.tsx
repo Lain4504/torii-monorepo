@@ -30,8 +30,8 @@ export function DeleteQuestionDialog({
     const handleDelete = async () => {
         try {
             await deleteQuestion.mutateAsync(question.id);
-            toast.success('Item Deleted', {
-                description: 'Question permanently removed from the database.',
+            toast.success('Question Deleted', {
+                description: 'Question has been removed.',
             });
             onOpenChange(false);
         } catch (error: any) {
@@ -43,7 +43,7 @@ export function DeleteQuestionDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[500px] border-none shadow-2xl bg-background/80 backdrop-blur-3xl rounded-[2rem] p-0 overflow-hidden">
+            <DialogContent className="sm:max-w-[500px] border border-border/50 shadow-2xl bg-background rounded-3xl p-0 overflow-hidden">
                 <DialogHeader className="p-8 pb-6 bg-red-500/5 border-b border-red-500/10 relative overflow-hidden">
                     <div className="absolute inset-0 bg-red-500/5 blur-3xl opacity-50 pointer-events-none" />
                     <div className="relative z-10 flex flex-col gap-4">
@@ -54,8 +54,8 @@ export function DeleteQuestionDialog({
                             <DialogTitle className="text-xl font-black uppercase tracking-tight text-red-500">
                                 Confirm Deletion
                             </DialogTitle>
-                            <DialogDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-red-500/60">
-                                Irreversible Action Warning
+                            <DialogDescription className="text-xs font-medium text-red-500/60">
+                                This action cannot be undone.
                             </DialogDescription>
                         </div>
                     </div>
@@ -78,7 +78,7 @@ export function DeleteQuestionDialog({
                         <div className="flex flex-col gap-2 p-4 rounded-2xl bg-muted/5 border border-border/10">
                             <div className="flex items-center gap-2 mb-2">
                                 <FileText className="h-3 w-3 text-muted-foreground/50" />
-                                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Target Item</span>
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">Question Content</span>
                             </div>
                             <div className="text-sm font-bold text-foreground line-clamp-2 italic">
                                 "{question.questionText}"
@@ -90,7 +90,7 @@ export function DeleteQuestionDialog({
                     </div>
                 </div>
 
-                <DialogFooter className="p-6 pt-4 bg-muted/5 border-t border-border/10">
+                <DialogFooter className="p-6 pt-4 bg-background border-t border-border/10">
                     <Button
                         variant="ghost"
                         onClick={() => onOpenChange(false)}

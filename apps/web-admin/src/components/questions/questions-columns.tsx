@@ -38,11 +38,11 @@ const getStatusColor = (status: QuestionStatus) => {
 
 const getTypeLabel = (type: QuestionType) => {
     const labels: Record<QuestionType, string> = {
-        multiple_choice: 'MCQ UNIT',
-        true_false: 'POLAR LOGIC',
-        fill_blank: 'GAPS SYNC',
-        matching: 'NODE PAIR',
-        essay: 'FREE FORM',
+        multiple_choice: 'Multiple Choice',
+        true_false: 'True/False',
+        fill_blank: 'Fill in Blank',
+        matching: 'Matching',
+        essay: 'Essay',
     };
     return labels[type] || type.toUpperCase();
 };
@@ -76,14 +76,14 @@ export const getQuestionsColumns = ({
                         onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
                         className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group"
                     >
-                        Prompt Architecture
+                        Question Content
                         <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
                     </Button>
                 );
             },
             cell: (info) => (
                 <div className="flex items-center gap-3 group/text cursor-pointer max-w-[400px]" onClick={() => onView(info.row.original)}>
-                    <div className="w-8 h-8 rounded-lg bg-primary/5 border border-primary/10 flex items-center justify-center text-primary group-hover/text:bg-primary group-hover/text:text-white transition-all">
+                    <div className="w-8 h-8 rounded-md bg-primary/5 border border-primary/10 flex items-center justify-center text-primary group-hover/text:bg-primary group-hover/text:text-white transition-all">
                         <BrainCircuit className="size-4" />
                     </div>
                     <div className="flex flex-col min-w-0">
@@ -94,7 +94,7 @@ export const getQuestionsColumns = ({
             ),
         }),
         columnHelper.accessor('questionType', {
-            header: () => <div className="px-1 text-center">Unit Type</div>,
+            header: () => <div className="px-1 text-center">Type</div>,
             cell: (info) => (
                 <div className="flex justify-center">
                     <div className="inline-flex items-center px-2 py-0.5 rounded-md bg-muted/10 border border-border/10 text-[8px] font-black uppercase tracking-widest text-muted-foreground">
@@ -104,12 +104,12 @@ export const getQuestionsColumns = ({
             ),
         }),
         columnHelper.accessor('jlptLevel', {
-            header: () => <div className="px-1 text-center">Matrix</div>,
+            header: () => <div className="px-1 text-center">Level</div>,
             cell: (info) => {
                 const level = info.getValue() as QuestionJlptLevel | null;
                 return (
                     <div className="flex justify-center">
-                        <div className="w-8 h-8 rounded-full border border-primary/20 flex items-center justify-center text-[10px] font-black italic text-primary">
+                        <div className="w-8 h-8 rounded-md border border-primary/20 flex items-center justify-center text-[10px] font-black italic text-primary">
                             {level || '??'}
                         </div>
                     </div>
@@ -117,7 +117,7 @@ export const getQuestionsColumns = ({
             },
         }),
         columnHelper.accessor('difficulty', {
-            header: () => <div className="px-1 text-center">Stress Level</div>,
+            header: () => <div className="px-1 text-center">Difficulty</div>,
             cell: (info) => {
                 const difficulty = info.getValue() as QuestionDifficultyLevel | null;
                 const colors: Record<QuestionDifficultyLevel, string> = {
@@ -127,7 +127,7 @@ export const getQuestionsColumns = ({
                 };
                 return (
                     <div className="flex justify-center">
-                        <div className={cn("inline-flex items-center px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border", difficulty ? colors[difficulty] : 'bg-muted/10 border-border/10 text-muted-foreground')}>
+                        <div className={cn("inline-flex items-center px-3 py-1 rounded-md text-[8px] font-black uppercase tracking-widest border", difficulty ? colors[difficulty] : 'bg-muted/10 border-border/10 text-muted-foreground')}>
                             {difficulty || 'N/A'}
                         </div>
                     </div>
@@ -135,13 +135,13 @@ export const getQuestionsColumns = ({
             },
         }),
         columnHelper.accessor('status', {
-            header: () => <div className="px-1 text-center">Core Status</div>,
+            header: () => <div className="px-1 text-center">Status</div>,
             cell: (info) => {
                 const status = info.getValue() as QuestionStatus;
                 const colorClass = getStatusColor(status);
                 return (
                     <div className="flex justify-center">
-                        <div className={cn("inline-flex items-center px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-[0.2em] border shadow-sm", colorClass)}>
+                        <div className={cn("inline-flex items-center px-3 py-1 rounded-md text-[8px] font-black uppercase tracking-[0.2em] border shadow-sm", colorClass)}>
                             <div className={cn("size-1 rounded-full mr-2", status === 'active' ? 'bg-emerald-500 animate-pulse' : 'bg-current')} />
                             {status}
                         </div>
@@ -157,7 +157,7 @@ export const getQuestionsColumns = ({
                         onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
                         className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group w-full justify-center"
                     >
-                        Sync Rate
+                        Used In
                         <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
                     </Button>
                 );
@@ -165,13 +165,13 @@ export const getQuestionsColumns = ({
             cell: (info) => (
                 <div className="flex flex-col items-center">
                     <div className="font-black italic text-[14px] leading-none">{info.getValue() || 0}</div>
-                    <div className="text-[7px] font-black uppercase tracking-widest text-muted-foreground/40 mt-1">OPERATIONS</div>
+                    <div className="text-[7px] font-black uppercase tracking-widest text-muted-foreground/40 mt-1">Times Used</div>
                 </div>
             ),
         }),
         columnHelper.display({
             id: 'actions',
-            header: () => <div className="text-center">Protocol</div>,
+            header: () => <div className="text-center">Manage</div>,
             cell: ({ row }) => {
                 const question = row.original;
                 const status = question.status as QuestionStatus;
@@ -182,28 +182,28 @@ export const getQuestionsColumns = ({
                             <DropdownMenuTrigger asChild>
                                 <Button
                                     variant="ghost"
-                                    className="h-10 w-10 p-0 rounded-2xl hover:bg-primary/10 hover:text-primary transition-all data-[state=open]:bg-primary/20"
+                                    className="h-10 w-10 p-0 rounded-lg hover:bg-primary/10 hover:text-primary transition-all data-[state=open]:bg-primary/20"
                                 >
                                     <Zap className="h-4 w-4 opacity-40 group-hover:opacity-100" />
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent
                                 align="end"
-                                className="w-[200px] border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-2xl p-2"
+                                className="w-[200px] border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-lg p-2"
                             >
                                 <DropdownMenuItem
                                     onClick={() => onView(question)}
-                                    className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
+                                    className="rounded-md px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
                                 >
                                     <Eye className="h-4 w-4 opacity-30" />
-                                    <span>Inspect Logic</span>
+                                    <span>View Details</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                     onClick={() => onEdit(question)}
-                                    className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
+                                    className="rounded-md px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
                                 >
                                     <Pencil className="h-4 w-4 opacity-30" />
-                                    <span>Calibrate Unit</span>
+                                    <span>Edit Question</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator className="bg-border/20 mx-2" />
                                 {status === 'review' && (
@@ -213,14 +213,14 @@ export const getQuestionsColumns = ({
                                             className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest text-emerald-500 focus:text-emerald-600 focus:bg-emerald-500/10 cursor-pointer flex gap-3"
                                         >
                                             <CheckCircle className="h-4 w-4 opacity-60" />
-                                            <span>Authorize</span>
+                                            <span>Approve</span>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
                                             onClick={() => onReject(question)}
                                             className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest text-rose-500 focus:text-rose-600 focus:bg-rose-500/10 cursor-pointer flex gap-3"
                                         >
                                             <Archive className="h-4 w-4 opacity-60" />
-                                            <span>Decline Node</span>
+                                            <span>Reject Question</span>
                                         </DropdownMenuItem>
                                     </>
                                 )}
@@ -230,16 +230,16 @@ export const getQuestionsColumns = ({
                                         className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest text-amber-500 focus:text-amber-600 focus:bg-amber-500/10 cursor-pointer flex gap-3"
                                     >
                                         <XCircle className="h-4 w-4 opacity-60" />
-                                        <span>Kill Sequence</span>
+                                        <span>Deactivate</span>
                                     </DropdownMenuItem>
                                 )}
                                 {(status === 'active' || status === 'inactive') && (
                                     <DropdownMenuItem
                                         onClick={() => onSendForReview(question)}
-                                        className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
+                                        className="rounded-md px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
                                     >
                                         <Clock className="h-4 w-4 opacity-30" />
-                                        <span>Request Audit</span>
+                                        <span>Submit for Review</span>
                                     </DropdownMenuItem>
                                 )}
                                 <DropdownMenuSeparator className="bg-border/20 mx-2" />
@@ -248,7 +248,7 @@ export const getQuestionsColumns = ({
                                     className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer flex gap-3"
                                 >
                                     <Trash className="h-4 w-4 opacity-30" />
-                                    <span>Purge Asset</span>
+                                    <span>Delete Question</span>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>

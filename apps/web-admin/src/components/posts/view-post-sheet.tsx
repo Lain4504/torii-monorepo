@@ -28,7 +28,7 @@ export function ViewPostSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:w-[900px] sm:max-w-[900px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl overflow-hidden">
+            <SheetContent className="w-full sm:w-[900px] sm:max-w-[900px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background overflow-hidden">
                 <SheetHeader className="px-8 pt-8 pb-6 border-b border-border/10 bg-muted/5 relative overflow-hidden">
                     <div className="absolute inset-0 bg-primary/5 blur-3xl opacity-50 pointer-events-none" />
                     <div className="relative flex items-center justify-between z-10">
@@ -37,8 +37,8 @@ export function ViewPostSheet({
                                 <FileText className="h-6 w-6" />
                             </div>
                             <div className="space-y-1">
-                                <SheetTitle className="text-2xl font-black uppercase tracking-tight italic">
-                                    View <span className="text-primary not-italic">Repository</span>
+                                <SheetTitle className="text-2xl font-medium tracking-tight">
+                                    View <span className="text-primary italic">Post</span>
                                 </SheetTitle>
                                 <SheetDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2">
                                     ID: <span className="font-mono text-primary">{post.id.substring(0, 8)}</span>
@@ -52,16 +52,16 @@ export function ViewPostSheet({
                                 post.status === 'published'
                                     ? "border-emerald-500/20 text-emerald-500 bg-emerald-500/10"
                                     : post.status === 'draft'
-                                    ? "border-blue-500/20 text-blue-500 bg-blue-500/10"
-                                    : "border-muted-foreground/20 text-muted-foreground bg-muted/10"
+                                        ? "border-blue-500/20 text-blue-500 bg-blue-500/10"
+                                        : "border-muted-foreground/20 text-muted-foreground bg-muted/10"
                             )}>
                             {post.status}
                         </Badge>
                     </div>
                 </SheetHeader>
 
-                <ScrollArea className="flex-1 overflow-y-auto px-8 py-8">
-                    <div className="space-y-8 animate-in fade-in slide-in-from-right-8 duration-500">
+                <ScrollArea className="flex-1 min-h-0">
+                    <div className="px-8 py-10 space-y-10 animate-in fade-in slide-in-from-right-8 duration-500">
 
                         {/* Key Metrics */}
                         <div className="grid grid-cols-3 gap-4">
@@ -110,8 +110,8 @@ export function ViewPostSheet({
                         <div className="space-y-6">
                             <div className="flex items-center gap-3 pb-2 border-b border-border/20">
                                 <div className="h-px flex-1 bg-border/20" />
-                                <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">
-                                    Core Specifications
+                                <h3 className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground/40 text-center">
+                                    Post Details
                                 </h3>
                                 <div className="h-px flex-1 bg-border/20" />
                             </div>

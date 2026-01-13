@@ -30,11 +30,11 @@ export function ViewQuestionPoolDialog({ open, onOpenChange, pool, onEdit }: Vie
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-2xl border-none shadow-2xl bg-background/95 backdrop-blur-xl rounded-2xl p-0 overflow-hidden">
-                <DialogHeader className="p-8 pb-4 bg-muted/30">
-                    <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent flex items-center gap-2">
-                        <Database className="h-6 w-6" />
-                        Question Pool Details
+            <DialogContent className="max-w-2xl border border-border/50 shadow-2xl bg-background rounded-3xl p-0 overflow-hidden">
+                <DialogHeader className="p-8 pb-4 bg-muted/5 border-b border-border/10">
+                    <DialogTitle className="text-2xl font-semibold tracking-tight flex items-center gap-2">
+                        <Database className="h-6 w-6 text-primary" />
+                        Pool Details
                     </DialogTitle>
                 </DialogHeader>
 
@@ -96,28 +96,30 @@ export function ViewQuestionPoolDialog({ open, onOpenChange, pool, onEdit }: Vie
                         </div>
                     </div>
 
-                    <div className="flex justify-end gap-3 pt-4 border-t">
+                    <div className="flex justify-end gap-3 pt-6 border-t border-border/10">
                         <Button
-                            variant="outline"
+                            variant="ghost"
+                            className="rounded-xl h-12 px-6"
                             onClick={() => onOpenChange(false)}
                         >
                             Close
                         </Button>
                         <Button
                             variant="outline"
+                            className="rounded-xl h-12 px-6"
                             onClick={() => {
                                 onOpenChange(false);
                                 onEdit(pool);
                             }}
                         >
-                            Edit Pool
+                            Edit
                         </Button>
                         <Button
                             onClick={handleViewQuestions}
-                            className="flex items-center gap-2"
+                            className="rounded-xl h-12 px-8 flex items-center gap-2 font-semibold"
                         >
                             <FileQuestion className="h-4 w-4" />
-                            View Questions
+                            Questions
                         </Button>
                     </div>
                 </div>

@@ -16,56 +16,50 @@ export default function VerifyRequestPage() {
 
             <div className="container relative z-10 max-w-xl mx-auto space-y-8 animate-in fade-in zoom-in-95 duration-700">
                 {/* Logo & Branding */}
-                <div className="flex justify-center mb-12">
-                    <Link href="/" className="flex flex-col items-center gap-4 group cursor-pointer text-center">
-                        <div className="w-14 h-14 bg-primary flex items-center justify-center rounded-[1.25rem] shadow-xl shadow-primary/20 group-hover:rotate-[15deg] transition-all duration-500">
-                            <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <div className="flex justify-center mb-8">
+                    <Link href="/" className="flex flex-col items-center gap-3 group cursor-pointer text-center">
+                        <div className="w-12 h-12 bg-primary flex items-center justify-center rounded-xl shadow-lg shadow-primary/20 group-hover:scale-105 transition-all duration-500">
+                            <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                                 <path d="M3 10h18" strokeLinecap="round" />
                                 <path d="M5 10v8" strokeLinecap="round" />
                                 <path d="M19 10v8" strokeLinecap="round" />
                                 <path d="M3 7c0-1 1-2 3-2h12c2 0 3 1 3 2" strokeLinecap="round" />
                             </svg>
                         </div>
-                        <div className="flex flex-col items-center">
-                            <span className="text-2xl font-black tracking-tighter uppercase italic leading-none">Torii <span className="text-primary not-italic">Nihongo</span></span>
-                            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground/30 mt-2">Nihongo Center</span>
-                        </div>
+                        <span className="text-xl font-bold tracking-tight leading-none">Torii <span className="text-primary">Nihongo</span></span>
                     </Link>
                 </div>
 
                 {/* Verification Card */}
-                <div className="relative p-12 bg-background/40 backdrop-blur-3xl rounded-[3rem] border border-border/40 shadow-2xl shadow-primary/5 text-center overflow-hidden">
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-primary/[0.03] blur-3xl -z-10" />
-
-                    <div className="mx-auto mb-10 flex h-20 w-20 items-center justify-center rounded-[1.5rem] bg-primary/5 border border-primary/10 shadow-sm relative group">
-                        <Mail className="h-10 w-10 text-primary group-hover:scale-110 transition-transform duration-500" />
-                        <Sparkles className="absolute -top-2 -right-2 w-5 h-5 text-amber-500 animate-pulse" />
+                <div className="relative p-8 md:p-12 bg-card rounded-3xl border border-border/50 shadow-sm text-center">
+                    <div className="mx-auto mb-8 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                        <Mail className="h-8 w-8" />
                     </div>
 
-                    <div className="space-y-4 mb-12">
-                        <h1 className="text-4xl font-black tracking-tight text-foreground uppercase italic leading-none">
-                            Check <span className="text-primary not-italic italic">Inbox</span>
+                    <div className="space-y-2 mb-8">
+                        <h1 className="text-2xl font-bold tracking-tight text-foreground">
+                            Kiểm tra hộp thư
                         </h1>
-                        <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic">
+                        <p className="text-sm text-muted-foreground/80 font-medium">
                             Email xác thực đã được gửi tới hòm thư của bạn
                         </p>
                     </div>
 
-                    <div className="p-8 rounded-[2rem] bg-muted/20 border border-border/20 mb-12">
-                        <p className="text-sm font-bold text-muted-foreground/60 leading-relaxed italic">
+                    <div className="p-6 rounded-xl bg-muted/30 border border-border/20 mb-8 max-w-sm mx-auto">
+                        <p className="text-sm text-muted-foreground/70 leading-relaxed">
                             Chúng tôi đã gửi một liên kết bảo mật. Vui lòng kiểm tra hộp thư đến (và cả thư mục Spam) để hoàn tất kích hoạt tài khoản.
                         </p>
                     </div>
 
-                    <div className="flex flex-col gap-6">
-                        <Button asChild className="w-full h-14 rounded-2xl bg-primary text-white font-black uppercase tracking-[0.2em] text-[11px] shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all active:scale-95 group">
-                            <Link href="/login" className="flex items-center justify-center gap-3">
+                    <div className="flex flex-col gap-4 max-w-sm mx-auto">
+                        <Button asChild className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-semibold text-sm shadow-md hover:shadow-lg transition-all">
+                            <Link href="/login" className="flex items-center justify-center gap-2">
                                 Đăng nhập ngay
-                                <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                                <ArrowRight className="w-4 h-4" />
                             </Link>
                         </Button>
 
-                        <div className="flex items-center justify-center gap-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">
+                        <div className="flex items-center justify-center gap-2 text-xs font-medium text-muted-foreground/60">
                             Không nhận được email?
                             <Link href="/resend-verification" className="text-primary hover:text-primary/70 transition-colors underline underline-offset-4 cursor-pointer">
                                 Gửi lại mã
@@ -75,12 +69,12 @@ export default function VerifyRequestPage() {
                 </div>
 
                 {/* Footer Back Link */}
-                <div className="flex justify-center pt-8 border-t border-border/20">
+                <div className="flex justify-center pt-8">
                     <Link
                         href="/"
-                        className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 hover:text-foreground transition-all group"
+                        className="flex items-center gap-2 text-xs font-medium text-muted-foreground/50 hover:text-foreground transition-all group"
                     >
-                        <ChevronLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
+                        <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                         Về trang chủ
                     </Link>
                 </div>

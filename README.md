@@ -255,3 +255,124 @@ pnpm --filter @workspace/schemas run build # Sau khi thay đổi nội dung sche
 ```
 
 **Happy Coding! 🚀**
+
+---
+
+## 🐳 Docker Deployment Guide
+
+Hướng dẫn chi tiết quy trình deploy hệ thống Microservices lên VPS sử dụng Docker và Docker Compose.
+
+### 1. Prerequisites (Yêu cầu)
+- **VPS Server**: Đã cài đặt Docker và Docker Compose.
+- **Docker Hub Account**: Để chứa Docker Images (giúp tiết kiệm tài nguyên build trên VPS).
+- **Local Machine**: Máy tính cá nhân để build image.
+
+### 2. Workflow Overview (Quy trình)
+Để tối ưu hiệu suất và dung lượng ổ cứng cho VPS, chúng ta sẽ áp dụng quy trình:
+1.  **Chỉnh sửa Code** ở máy local.
+2.  **Build Image** ở máy local.
+3.  **Push Image** lên Docker Hub.
+4.  **Pull Image** về VPS và chạy.
+
+---
+
+### 3. Step-by-Step Deployment
+
+#### Bước 1: Setup trên Local Machine (Lần đầu & khi cập nhật code)
+
+1.  **Đăng nhập Docker Hub:**
+    ```bash
+    docker login
+    # Nhập username và password Docker Hub của bạn
+    ```
+
+2.  **Build Docker Image:**
+    Lệnh này sẽ build một image duy nhất chứa toàn bộ code backend (monorepo).
+    Thay `your_username` bằng tên tài khoản Docker Hub của bạn.
+    ```bash
+    # Tại thư mục gốc (torii-monorepo)
+    docker build -t your_username/torii-backend:latest -f apps/server/Dockerfile .
+    ```
+
+3.  **Push Image lên Docker Hub:**
+    ```bash
+    docker push your_username/torii-backend:latest
+    ```
+
+#### Bước 2: Setup trên VPS (Lần đầu tiên)
+
+1.  **Clone code hoặc copy các file config cần thiết:**
+    Thực tế bạn chỉ cần các file sau trên VPS:
+    - `docker-compose.yml`
+    - `.env`
+    - `nats_server.conf`
+    - `livekit.yaml`
+
+2.  **Cấu hình biến môi trường (`.env`):**
+    Tạo file `.env` trên VPS và đảm bảo có biến `DOCKER_USERNAME`:
+    ```bash
+    # ... Các biến môi trường khác ...
+    DOCKER_USERNAME=your_username  # <-- QUAN TRỌNG: Để docker-compose biết tải image từ đâu
+    ```
+
+3.  **Database Migration (Quan trọng!):**
+    Khi mới deploy lần đầu, database sẽ trống rỗng. Bạn cần chạy migration để tạo các bảng.
+    
+    *Cách 1: Chạy lệnh one-off từ container (Khuyên dùng)*
+    Sau khi đã chạy `docker-compose up` (xem bước 3 bên dưới), hãy chạy lệnh này để đồng bộ schema vào DB:
+    ```bash
+    # Chạy lệnh này trên VPS
+    docker-compose exec identity npx prisma db push
+    ```
+    *(Lưu ý: Chỉ cần chạy ở 1 service bất kỳ như `identity` vì chúng dùng chung DB và Source Code)*
+
+    *Cách 2: Nếu reset database*
+    Nếu bạn muốn xóa sạch dữ liệu và làm lại từ đầu:
+    ```bash
+    docker-compose down -v  # Xóa cả volumes chứa dữ liệu
+    docker-compose up -d
+    docker-compose exec identity npx prisma db push
+    ```
+
+#### Bước 3: Deploy / Update trên VPS
+
+Mỗi khi bạn đã push image mới lên Docker Hub (Bước 1), hãy chạy các lệnh sau trên VPS để cập nhật:
+
+```bash
+# 1. Tải image mới nhất về
+docker-compose pull
+
+# 2. Re-create các container với image mới
+docker-compose up -d
+
+# 3. (Tuỳ chọn) Dọn dẹp image cũ cho đỡ chật ổ cứng
+docker system prune -f
+```
+
+---
+
+### 4. Data Persistence (Dữ liệu lưu ở đâu?)
+
+Bạn không cần lo lắng về việc mất dữ liệu khi restart container hay deploy image mới. Dữ liệu được lưu trữ an toàn trong các **Docker Volumes**:
+
+- **PostgreSQL Data**: Lưu tại volume `pgdata`.
+- **Redis Data**: Lưu tại volume `redisdata`.
+- **NATS Stream Data**: Lưu tại volume `natsdata`.
+- **LiveKit Data**: Lưu tại volume `livekitdata`.
+
+Các volumes này nằm trên ổ cứng của VPS (thường ở `/var/lib/docker/volumes/`) và độc lập với vòng đời của Container. Chỉ khi nào bạn chạy lệnh `docker-compose down -v` (có cờ `-v`) thì dữ liệu mới bị xóa.
+
+---
+
+### 5. Troubleshooting (Gỡ lỗi)
+
+**Lỗi "No space left on device":**
+Ổ cứng VPS bị đầy do chứa quá nhiều image cũ hoặc cache build.
+-> Chạy: `docker system prune -a --volumes -f` để dọn dẹp sạch sẽ.
+
+**Lỗi Service không start được:**
+Chạy `docker-compose logs --tail 100 [service_name]` để xem log chi tiết.
+Ví dụ: `docker-compose logs --tail 100 gateway`.
+
+**Kiểm tra kết nối nội bộ:**
+Nếu các service không nhìn thấy nhau, hãy chắc chắn file `docker-compose.yml` ở root đã định nghĩa các biến `SERVICE_URL` trỏ vào tên service (vd: `http://identity:8081`) chứ không phải `localhost`.

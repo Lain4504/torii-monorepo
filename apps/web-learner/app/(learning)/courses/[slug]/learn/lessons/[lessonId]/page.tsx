@@ -31,7 +31,8 @@ import {
     FileText,
     MessageSquare,
     CheckCircle2,
-    Layout
+    Layout,
+    Sparkles
 } from 'lucide-react'
 import { courseApi } from '@/api/services/course-api'
 import { LearningSidebar } from '@/components/courses/learning-sidebar'
@@ -183,7 +184,7 @@ export default function LessonDetailPage() {
                                 <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 truncate">
                                     {course.title}
                                 </p>
-                                <h1 className="text-sm font-bold text-foreground truncate max-w-[200px] sm:max-w-md mt-0.5 uppercase tracking-tight">
+                                <h1 className="text-xl font-serif font-bold text-foreground truncate max-w-[200px] sm:max-w-md mt-0.5 uppercase italic tracking-tight">
                                     {currentLesson.title}
                                 </h1>
                             </div>
@@ -276,9 +277,9 @@ export default function LessonDetailPage() {
 
                             <Separator className="bg-border/30 mb-12" />
 
-                            {/* Detailed Info Tabs */}
+                            {/* Simplified Tabs Section */}
                             <Tabs defaultValue="content" className="w-full">
-                                <TabsList className="w-full justify-start overflow-x-auto bg-transparent border-b border-border/30 h-auto p-0 gap-8 mb-8 no-scrollbar">
+                                <TabsList className="bg-muted/20 border-none w-auto inline-flex h-auto p-1.5 gap-2 rounded-full">
                                     {[
                                         { id: 'content', label: 'Bài học', icon: BookOpen },
                                         { id: 'resources', label: 'Tài liệu', icon: FileText, badge: 1 },
@@ -287,66 +288,87 @@ export default function LessonDetailPage() {
                                         <TabsTrigger
                                             key={tab.id}
                                             value={tab.id}
-                                            className="px-2 py-4 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none text-[13px] font-bold uppercase tracking-widest text-muted-foreground/60 data-[state=active]:text-foreground transition-all flex items-center gap-2.5"
+                                            className="px-6 py-3 rounded-full border-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 transition-all flex items-center gap-2 hover:bg-background/40 hover:text-primary"
                                         >
-                                            <tab.icon className="w-4 h-4" />
+                                            <tab.icon className="w-3.5 h-3.5" />
                                             {tab.label}
                                             {tab.badge && (
-                                                <span className="ml-1 px-1.5 py-0.5 text-[9px] bg-primary/10 text-primary rounded-full">{tab.badge}</span>
+                                                <span className={cn(
+                                                    "ml-1 text-[9px] font-black rounded-full px-1.5 py-0.5",
+                                                    "bg-background/20 text-current"
+                                                )}>
+                                                    {tab.badge}
+                                                </span>
                                             )}
                                         </TabsTrigger>
                                     ))}
                                 </TabsList>
 
-                                <TabsContent value="content" className="animate-in fade-in slide-in-from-bottom-3 duration-500 focus-visible:outline-none">
-                                    <div className="prose prose-slate dark:prose-invert max-w-none">
-                                        <h3 className="text-2xl font-bold text-foreground mb-6 uppercase tracking-tight">Về bài học này</h3>
-                                        <div className="space-y-6 text-muted-foreground leading-relaxed text-base tracking-wide">
-                                            {currentLesson.description ? (
-                                                currentLesson.description.split('\n').map((para: string, i: number) => (
-                                                    <p key={i}>{para}</p>
-                                                ))
-                                            ) : (
-                                                <p className="italic opacity-60">Giảng viên hi vọng bạn sẽ có những giây phút học tập hiệu quả với nội dung này.</p>
-                                            )}
+                                <TabsContent value="content" className="animate-in fade-in slide-in-from-bottom-2 duration-500 outline-none">
+                                    <div className="space-y-8">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-1 h-5 bg-primary/40 rounded-full" />
+                                            <h3 className="text-xl font-serif font-bold italic text-foreground uppercase tracking-tight">
+                                                Nội dung bài học
+                                            </h3>
+                                        </div>
+
+                                        <div className="p-8 rounded-2xl border border-border/10 bg-muted/5">
+                                            <div className="space-y-4 text-foreground/80 leading-relaxed text-sm font-medium italic">
+                                                {currentLesson.description ? (
+                                                    currentLesson.description.split('\n').map((para: string, i: number) => (
+                                                        <p key={i}>{para}</p>
+                                                    ))
+                                                ) : (
+                                                    <p className="text-muted-foreground/40 font-black uppercase tracking-[0.2em] text-sm">
+                                                        The faculty has designated this sesson as self-explanatory. Focus on the visual components provided in our premium player.
+                                                    </p>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 </TabsContent>
 
-                                <TabsContent value="resources" className="animate-in fade-in slide-in-from-bottom-3 duration-500 focus-visible:outline-none">
-                                    <div className="grid gap-4">
-                                        <div className="group flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 rounded-3xl border border-border/50 bg-muted/5 hover:bg-muted/10 transition-all hover:border-primary/20 cursor-pointer">
-                                            <div className="flex items-center gap-5">
-                                                <div className="w-14 h-14 bg-primary/10 text-primary rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                                                    <FileText className="w-7 h-7" />
+                                <TabsContent value="resources" className="animate-in fade-in slide-in-from-bottom-4 duration-700 outline-none">
+                                    <div className="grid gap-6">
+                                        <div className="group flex flex-col sm:flex-row items-center justify-between gap-6 p-8 rounded-[2.5rem] border border-border/20 bg-muted/5 hover:bg-background hover:shadow-2xl hover:shadow-primary/5 transition-all cursor-pointer relative overflow-hidden">
+                                            <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                            <div className="flex items-center gap-6 relative z-10">
+                                                <div className="w-16 h-16 bg-background rounded-2xl flex items-center justify-center shrink-0 border border-border/20 shadow-xl group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-500">
+                                                    <FileText className="w-8 h-8" />
                                                 </div>
                                                 <div className="space-y-1">
-                                                    <p className="font-bold text-base text-foreground uppercase tracking-tight">Giáo trình bài học PDF</p>
-                                                    <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest flex items-center gap-2">
-                                                        <span>PDF</span> <span className="w-1 h-1 bg-border rounded-full" /> <span>4.2 MB</span>
+                                                    <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">Available Asset</p>
+                                                    <h4 className="text-2xl font-serif font-bold italic text-foreground tracking-tight uppercase leading-none">Lesson Manuscript PDF</h4>
+                                                    <p className="text-[10px] text-muted-foreground/30 font-black uppercase tracking-[0.2em] flex items-center gap-2">
+                                                        <span>PDF FORMAT</span> <div className="w-1 h-1 bg-primary/40 rounded-full" /> <span>4.2 MB SIZE</span>
                                                     </p>
                                                 </div>
                                             </div>
-                                            <Button variant="outline" className="rounded-full px-6 h-10 text-[10px] font-bold uppercase tracking-widest border-border/50 hover:bg-primary hover:text-white hover:border-primary transition-all ml-auto">
-                                                <Download className="w-3.5 h-3.5 mr-2" /> Tải về
+                                            <Button className="h-14 rounded-2xl px-8 text-[11px] font-black uppercase tracking-[0.2em] bg-primary text-white hover:opacity-90 transition-all relative z-10 shadow-lg shadow-primary/20">
+                                                <Download className="w-4 h-4 mr-3" /> Fetch Asset
                                             </Button>
                                         </div>
                                     </div>
                                 </TabsContent>
 
-                                <TabsContent value="comments" className="animate-in fade-in slide-in-from-bottom-3 duration-500 focus-visible:outline-none">
-                                    <div className="flex flex-col items-center justify-center py-20 text-center space-y-6 rounded-3xl border border-dashed border-border/40 bg-muted/5">
-                                        <div className="w-16 h-16 bg-background rounded-full flex items-center justify-center shadow-sm border border-border/20">
-                                            <MessageSquare className="w-6 h-6 text-muted-foreground/40" />
+                                <TabsContent value="comments" className="animate-in fade-in slide-in-from-bottom-4 duration-700 outline-none">
+                                    <div className="flex flex-col items-center justify-center p-20 text-center space-y-8 rounded-[3rem] border border-border/10 bg-muted/5 backdrop-blur-sm relative overflow-hidden">
+                                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+                                        <div className="w-24 h-24 bg-background rounded-3xl flex items-center justify-center shadow-2xl border border-border/10 group">
+                                            <MessageSquare className="w-10 h-10 text-primary/20 group-hover:text-primary transition-colors duration-500" />
                                         </div>
-                                        <div className="space-y-2">
-                                            <h4 className="text-sm font-bold uppercase tracking-widest">Cộng đồng thảo luận</h4>
-                                            <p className="text-xs text-muted-foreground font-medium max-w-[320px] mx-auto opacity-70">
-                                                Đặt câu hỏi hoặc chia sẻ cảm nghĩ của bạn về bài học để cùng nhau tiến bộ!
+                                        <div className="space-y-3">
+                                            <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-primary">Academic Forum</h4>
+                                            <p className="text-3xl font-serif font-bold italic text-foreground tracking-tight uppercase max-w-md mx-auto leading-none">
+                                                Join the Global <span className="text-primary not-italic">Discussion</span>
+                                            </p>
+                                            <p className="text-[11px] text-muted-foreground/50 font-black uppercase tracking-[0.1em] max-w-sm mx-auto">
+                                                Collaborate with fellow students and faculty experts in our encrypted learning channel.
                                             </p>
                                         </div>
-                                        <Button variant="outline" className="rounded-full px-8 h-10 text-[10px] font-bold uppercase tracking-widest border-border/50 hover:bg-muted cursor-pointer transition-all">
-                                            Viết bình luận
+                                        <Button className="h-16 rounded-2xl px-12 text-[11px] font-black uppercase tracking-[0.3em] bg-muted/10 text-foreground border border-border/40 hover:bg-primary hover:text-white hover:border-primary transition-all duration-500">
+                                            Initiate Conversation
                                         </Button>
                                     </div>
                                 </TabsContent>

@@ -88,9 +88,9 @@ export default function MyCoursesPage() {
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 max-w-6xl animate-in fade-in duration-500">
             {/* Header */}
-            <div className="space-y-1">
-                <h1 className="text-2xl font-bold text-foreground tracking-tight">Khóa học của tôi</h1>
-                <p className="text-sm text-muted-foreground opacity-70">Tiếp tục hành trình chinh phục kiến thức của bạn</p>
+            <div className="space-y-4">
+                <h1 className="text-5xl font-serif font-bold text-foreground tracking-tight italic">Khóa học của tôi</h1>
+                <p className="text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-6">Tiếp tục hành trình chinh phục kiến thức của bạn</p>
             </div>
 
             {/* Stats Row */}
@@ -98,10 +98,14 @@ export default function MyCoursesPage() {
                 {stats.map((stat, index) => {
                     const Icon = stat.icon
                     return (
-                        <div key={index} className="p-4 rounded-2xl border border-border/50 bg-muted/5 flex flex-col items-center text-center space-y-1">
-                            <Icon className={`w-4 h-4 ${stat.color} opacity-80`} />
-                            <p className="text-xl font-bold">{stat.value}</p>
-                            <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest">{stat.label}</p>
+                        <div key={index} className="p-8 rounded-[2.5rem] border border-border/10 bg-background/40 backdrop-blur-3xl group hover:border-primary/20 transition-all duration-700 shadow-sm hover:shadow-2xl hover:shadow-primary/5">
+                            <div className="flex items-center justify-between mb-6">
+                                <div className={`p-3 rounded-2xl bg-muted/20 text-muted-foreground group-hover:bg-primary group-hover:text-white transition-all duration-500`}>
+                                    <Icon className="w-4 h-4" />
+                                </div>
+                            </div>
+                            <p className="text-4xl font-serif font-bold italic tracking-tighter">{stat.value}</p>
+                            <p className="text-[10px] text-muted-foreground/40 font-black uppercase tracking-[0.2em] mt-2 italic">{stat.label}</p>
                         </div>
                     )
                 })}
@@ -166,7 +170,7 @@ export default function MyCoursesPage() {
                         </div>
                         <CardContent className="p-5 space-y-4 flex-1 flex flex-col justify-between">
                             <div className="space-y-1.5">
-                                <h3 className="font-bold text-foreground leading-tight line-clamp-2 group-hover:text-primary transition-colors">
+                                <h3 className="text-xl font-serif font-bold text-foreground leading-tight line-clamp-2 group-hover:text-primary transition-colors italic">
                                     {course.title}
                                 </h3>
                                 <p className="text-xs text-muted-foreground font-medium">{course.instructor}</p>

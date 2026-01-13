@@ -207,19 +207,14 @@ export default function QuestionsPage() {
                     </p>
                 </div>
                 <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto pt-6 sm:pt-0">
-                    <div className="flex items-center gap-6 p-6 rounded-[2rem] bg-background/40 border border-border/20 backdrop-blur-xl hidden sm:flex">
-                        <div className="space-y-1">
-                            <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">Active Data</p>
-                            <h3 className="text-2xl font-black italic text-center">{meta?.total || 0}</h3>
-                        </div>
-                    </div>
+
                     <Can permission="question.create">
                         <Button
                             onClick={() => setShowCreateDialog(true)}
-                            className="w-full sm:w-auto h-16 px-10 rounded-[1.5rem] bg-primary text-white font-black uppercase tracking-[0.2em] text-[11px] shadow-xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-1 transition-all group"
+                            className="w-full sm:w-auto h-11 px-8 rounded-xl bg-primary text-primary-foreground font-bold uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all group"
                         >
                             Forge New Logic
-                            <Plus className="ml-3 size-4 opacity-50 group-hover:opacity-100 transition-opacity" />
+                            <Plus className="ml-2 size-3.5 opacity-50 group-hover:opacity-100 transition-opacity" />
                         </Button>
                     </Can>
                 </div>
@@ -293,7 +288,7 @@ export default function QuestionsPage() {
                                                     setPage(p => Math.max(1, p - 1));
                                                 }}
                                                 className={cn(
-                                                    "h-12 px-6 rounded-2xl bg-muted/20 border border-border/20 text-[10px] font-black uppercase tracking-widest transition-all",
+                                                    "h-10 px-4 rounded-xl bg-muted/20 border border-border/20 text-[10px] font-black uppercase tracking-widest transition-all",
                                                     page === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/10 hover:text-primary cursor-pointer active:scale-95"
                                                 )}
                                             />
@@ -310,7 +305,7 @@ export default function QuestionsPage() {
                                                     setPage(p => Math.min(meta.totalPages, p + 1));
                                                 }}
                                                 className={cn(
-                                                    "h-12 px-6 rounded-2xl bg-muted/20 border border-border/20 text-[10px] font-black uppercase tracking-widest transition-all",
+                                                    "h-10 px-4 rounded-xl bg-muted/20 border border-border/20 text-[10px] font-black uppercase tracking-widest transition-all",
                                                     page === meta.totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/10 hover:text-primary cursor-pointer active:scale-95"
                                                 )}
                                             />

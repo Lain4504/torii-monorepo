@@ -87,16 +87,16 @@ importers:
         version: 19.2.3(@types/react@19.2.7)
       '@vitejs/plugin-react':
         specifier: ^4.3.4
-        version: 4.7.0(vite@6.4.1(@types/node@24.10.2)(jiti@1.21.7)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2))
+        version: 4.7.0(vite@6.4.1(@types/node@24.10.2)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2))
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.23(postcss@8.5.6)
       eslint:
         specifier: ^9.39.1
-        version: 9.39.1(jiti@1.21.7)
+        version: 9.39.1(jiti@2.6.1)
       eslint-plugin-react-hooks:
         specifier: ^7.0.1
-        version: 7.0.1(eslint@9.39.1(jiti@1.21.7))
+        version: 7.0.1(eslint@9.39.1(jiti@2.6.1))
       globals:
         specifier: ^16.5.0
         version: 16.5.0
@@ -114,10 +114,10 @@ importers:
         version: 5.9.3
       typescript-eslint:
         specifier: ^8.46.4
-        version: 8.49.0(eslint@9.39.1(jiti@1.21.7))(typescript@5.9.3)
+        version: 8.49.0(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)
       vite:
         specifier: ^6.0.6
-        version: 6.4.1(@types/node@24.10.2)(jiti@1.21.7)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2)
+        version: 6.4.1(@types/node@24.10.2)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2)
 
   apps/server:
     dependencies:
@@ -172,6 +172,9 @@ importers:
       '@nestjs/platform-express':
         specifier: ^11.0.1
         version: 11.1.9(@nestjs/common@11.1.9(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.9)
+      '@payos/node':
+        specifier: ^2.0.4
+        version: 2.0.4
       '@prisma/adapter-pg':
         specifier: ^7.1.0
         version: 7.1.0
@@ -413,6 +416,9 @@ importers:
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
+      framer-motion:
+        specifier: ^12.25.0
+        version: 12.25.0(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       lucide-react:
         specifier: ^0.475.0
         version: 0.475.0(react@19.2.1)
@@ -449,16 +455,16 @@ importers:
         version: 19.2.3(@types/react@19.2.7)
       '@vitejs/plugin-react':
         specifier: ^4.3.4
-        version: 4.7.0(vite@6.4.1(@types/node@24.10.2)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2))
+        version: 4.7.0(vite@6.4.1(@types/node@24.10.2)(jiti@1.21.7)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2))
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.23(postcss@8.5.6)
       eslint:
         specifier: ^9.39.1
-        version: 9.39.1(jiti@2.6.1)
+        version: 9.39.1(jiti@1.21.7)
       eslint-plugin-react-hooks:
         specifier: ^7.0.1
-        version: 7.0.1(eslint@9.39.1(jiti@2.6.1))
+        version: 7.0.1(eslint@9.39.1(jiti@1.21.7))
       globals:
         specifier: ^16.5.0
         version: 16.5.0
@@ -476,16 +482,19 @@ importers:
         version: 5.9.3
       typescript-eslint:
         specifier: ^8.46.4
-        version: 8.49.0(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)
+        version: 8.49.0(eslint@9.39.1(jiti@1.21.7))(typescript@5.9.3)
       vite:
         specifier: ^6.0.6
-        version: 6.4.1(@types/node@24.10.2)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2)
+        version: 6.4.1(@types/node@24.10.2)(jiti@1.21.7)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2)
 
   apps/web-learner:
     dependencies:
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.69.0(react@19.2.1))
+      '@payos/payos-checkout':
+        specifier: ^1.0.8
+        version: 1.0.8
       '@reduxjs/toolkit':
         specifier: ^2.11.2
         version: 2.11.2(react-redux@9.2.0(@types/react@19.2.7)(react@19.2.1)(redux@5.0.1))(react@19.2.1)
@@ -2491,6 +2500,12 @@ packages:
 
   '@paralleldrive/cuid2@2.3.1':
     resolution: {integrity: sha512-XO7cAxhnTZl0Yggq6jOgjiOHhbgcO4NqFqwSmQpjK3b6TEE6Uj/jfSk6wzYyemh3+I0sHirKSetjQwn5cZktFw==}
+
+  '@payos/node@2.0.4':
+    resolution: {integrity: sha512-ZJ5jgKVJDx2OBfOrhLqjWBZwC4JCidEFgHXz8k3CkhfmyZImd0raL85+DtKCJABMLrMLM6Sb0G8Xsru7HFxInA==}
+
+  '@payos/payos-checkout@1.0.8':
+    resolution: {integrity: sha512-9h2sZ/QeOIsOR3+6LDswDMYPfRGQ9kXiWJC4yrWFbpAzUYoI3gH84oFRHlAmx4CRFh2SCBKE1Q2pdzJ1atPRCA==}
 
   '@phc/format@1.0.0':
     resolution: {integrity: sha512-m7X9U6BG2+J+R1lSOdCiITLLrxm+cWlNI3HUFA92oLO77ObGNzaKdh8pMLqdZcshtkKuV84olNNXDfMc4FezBQ==}
@@ -11209,6 +11224,10 @@ snapshots:
     dependencies:
       '@noble/hashes': 1.8.0
 
+  '@payos/node@2.0.4': {}
+
+  '@payos/payos-checkout@1.0.8': {}
+
   '@phc/format@1.0.0': {}
 
   '@pkgjs/parseargs@0.11.0':
@@ -15021,7 +15040,7 @@ snapshots:
       strict-event-emitter-types: 2.0.0
       undici: 7.16.0
       uri-templates: 0.2.0
-      xsschema: 0.4.0-beta.5(effect@3.18.4)(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@4.3.5)
+      xsschema: 0.4.0-beta.5(effect@3.18.4)(zod-to-json-schema@3.25.1(zod@4.3.5))(zod@4.3.5)
       yargs: 18.0.0
       zod: 4.3.5
       zod-to-json-schema: 3.25.1(zod@4.3.5)
@@ -17340,7 +17359,7 @@ snapshots:
     optionalDependencies:
       typescript: 5.7.3
 
-    react-i18next@16.5.1(i18next@25.7.4(typescript@5.9.3))(react@19.2.1)(typescript@5.9.3):
+  react-i18next@16.5.1(i18next@25.7.4(typescript@5.9.3))(react@19.2.1)(typescript@5.9.3):
     dependencies:
       '@babel/runtime': 7.28.4
       html-parse-stringify: 3.0.1
@@ -18644,7 +18663,7 @@ snapshots:
       imurmurhash: 0.1.4
       signal-exit: 4.1.0
 
-  xsschema@0.4.0-beta.5(effect@3.18.4)(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@4.3.5):
+  xsschema@0.4.0-beta.5(effect@3.18.4)(zod-to-json-schema@3.25.1(zod@4.3.5))(zod@4.3.5):
     optionalDependencies:
       effect: 3.18.4
       zod: 4.3.5

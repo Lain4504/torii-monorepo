@@ -59,8 +59,8 @@ export function Footer() {
                                 <Sparkles className="w-7 h-7 text-white" />
                             </div>
                             <div className="flex flex-col">
-                                <span className="font-black text-2xl tracking-tighter text-foreground">TORII</span>
-                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.3em] -mt-1 opacity-70">Nihongo Center</span>
+                                <span className="font-serif font-bold text-2xl tracking-tighter text-foreground italic">TORII</span>
+                                <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mt-1 opacity-70">Nihongo Center</span>
                             </div>
                         </Link>
 
@@ -125,9 +125,9 @@ export function Footer() {
                 <div className="relative rounded-[2.5rem] bg-muted/30 border border-border/40 p-8 md:p-12 mb-20 overflow-hidden group">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-32 -mt-32 blur-[80px] group-hover:bg-primary/10 transition-all duration-700" />
                     <div className="flex flex-col lg:flex-row items-center justify-between gap-12 relative z-10">
-                        <div className="max-w-md text-center lg:text-left space-y-3">
-                            <h3 className="text-2xl md:text-3xl font-black tracking-tight text-foreground">
-                                Sẵn sàng chinh phục tiếng Nhật?
+                        <div className="max-w-md text-center lg:text-left space-y-4">
+                            <h3 className="text-3xl md:text-4xl font-serif font-bold tracking-tight text-foreground italic leading-tight">
+                                Sẵn sàng chinh phục <br /> <span className="text-primary not-italic">tiếng Nhật?</span>
                             </h3>
                             <p className="text-sm font-medium text-muted-foreground">
                                 Đăng ký nhận tin để không bỏ lỡ các ưu đãi và tài liệu học tập mới nhất từ Torii.

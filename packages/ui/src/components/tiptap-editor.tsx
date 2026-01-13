@@ -9,13 +9,13 @@ import BulletList from "@tiptap/extension-bullet-list"
 import OrderedList from "@tiptap/extension-ordered-list"
 import ListItem from "@tiptap/extension-list-item"
 import { cn } from "@workspace/ui/lib/utils"
-import { 
-  Bold, 
-  Italic, 
-  List, 
-  ListOrdered, 
-  Heading1, 
-  Heading2, 
+import {
+  Bold,
+  Italic,
+  List,
+  ListOrdered,
+  Heading1,
+  Heading2,
   Heading3,
   Undo,
   Redo,
@@ -30,24 +30,8 @@ import { Button } from "@workspace/ui/components/button"
 
 // Import Text Align extension
 import TextAlign from "@tiptap/extension-text-align"
-
-// Try to import other optional extensions (will be undefined if not installed)
-let Link: any
-let Image: any
-
-try {
-  const linkModule = require("@tiptap/extension-link")
-  Link = linkModule.default || linkModule.Link
-} catch {
-  // Extension not installed
-}
-
-try {
-  const imageModule = require("@tiptap/extension-image")
-  Image = imageModule.default || imageModule.Image
-} catch {
-  // Extension not installed
-}
+import Link from "@tiptap/extension-link"
+import Image from "@tiptap/extension-image"
 
 export interface ToolbarConfig {
   bold?: boolean
@@ -155,8 +139,8 @@ export const TiptapEditor = React.memo(React.forwardRef<Editor, TiptapEditorProp
     // Debounce onChange callback
     const debouncedOnChange = React.useMemo(() => {
       if (!onChange) return undefined
-      
-      let timeoutId: NodeJS.Timeout | null = null
+
+      let timeoutId: ReturnType<typeof setTimeout> | null = null
       return (html: string) => {
         if (timeoutId) clearTimeout(timeoutId)
         timeoutId = setTimeout(() => {
@@ -259,10 +243,10 @@ export const TiptapEditor = React.memo(React.forwardRef<Editor, TiptapEditorProp
             "tiptap-editor-content",
             "prose prose-sm dark:prose-invert max-w-none focus:outline-none",
             "px-3 py-2",
-            // Headings styling - Clear visual distinction
-            "[&_h1]:!text-3xl [&_h1]:!font-bold [&_h1]:!mt-6 [&_h1]:!mb-4 [&_h1]:!text-foreground [&_h1]:!leading-tight",
-            "[&_h2]:!text-2xl [&_h2]:!font-bold [&_h2]:!mt-5 [&_h2]:!mb-3 [&_h2]:!text-foreground [&_h2]:!leading-tight",
-            "[&_h3]:!text-xl [&_h3]:!font-semibold [&_h3]:!mt-4 [&_h3]:!mb-2 [&_h3]:!text-foreground [&_h3]:!leading-tight",
+            // Headings styling - ZEN UI SERIF STYLE
+            "[&_h1]:!text-3xl [&_h1]:!font-serif [&_h1]:!font-bold [&_h1]:!mt-8 [&_h1]:!mb-4 [&_h1]:!text-foreground [&_h1]:!leading-[1.1] [&_h1]:!uppercase [&_h1]:!italic",
+            "[&_h2]:!text-2xl [&_h2]:!font-serif [&_h2]:!font-bold [&_h2]:!mt-8 [&_h2]:!mb-3 [&_h2]:!text-foreground [&_h2]:!leading-tight",
+            "[&_h3]:!text-xl [&_h3]:!font-serif [&_h3]:!font-semibold [&_h3]:!mt-6 [&_h3]:!mb-2 [&_h3]:!text-foreground [&_h3]:!leading-tight",
             // Lists styling - Clear bullets and numbers
             "[&_ul]:!list-disc [&_ul]:!ml-6 [&_ul]:!my-2 [&_ul]:!pl-0 [&_ul_li]:!pl-2 [&_ul_li]:!list-item",
             "[&_ol]:!list-decimal [&_ol]:!ml-6 [&_ol]:!my-2 [&_ol]:!pl-0 [&_ol_li]:!pl-2 [&_ol_li]:!list-item",
@@ -382,7 +366,7 @@ export const TiptapEditor = React.memo(React.forwardRef<Editor, TiptapEditorProp
 
       const handleImageUpload = async () => {
         if (!Image || !onImageUpload || !editor) return
-        
+
         const input = document.createElement('input')
         input.type = 'file'
         input.accept = 'image/*'
@@ -403,15 +387,15 @@ export const TiptapEditor = React.memo(React.forwardRef<Editor, TiptapEditorProp
 
       const handleLink = async () => {
         if (!Link) return
-        
+
         const previousUrl = editor.getAttributes('link').href
         const url = previousUrl || window.prompt('Enter URL:')
-        
+
         if (url === null) return
-        
+
         try {
           const finalUrl = onLinkCreate ? await onLinkCreate(url) : url
-          
+
           // cancelled
           if (url === '') {
             editor.chain().focus().extendMarkRange('link').unsetLink().run()
@@ -424,7 +408,7 @@ export const TiptapEditor = React.memo(React.forwardRef<Editor, TiptapEditorProp
       }
 
       return (
-        <div 
+        <div
           className="border-b border-border bg-muted/30 p-2 flex flex-wrap items-center gap-1 rounded-t-xl"
           role="toolbar"
           aria-label="Text formatting toolbar"
@@ -712,7 +696,7 @@ export const TiptapEditor = React.memo(React.forwardRef<Editor, TiptapEditorProp
 
     if (!editor) {
       return (
-        <div 
+        <div
           className={cn(
             "border-input dark:bg-input/30 rounded-xl border bg-transparent shadow-xs",
             "min-h-[200px] flex items-center justify-center",
@@ -731,9 +715,9 @@ export const TiptapEditor = React.memo(React.forwardRef<Editor, TiptapEditorProp
         <div
           className={cn(
             "border-input dark:bg-input/30 rounded-xl border bg-transparent shadow-xs transition-[color,box-shadow]",
-            "focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px]",
+            mode !== 'readonly' && "focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px]",
             ariaInvalid && "ring-destructive/20 dark:ring-destructive/40 border-destructive",
-            mode === 'readonly' && "bg-muted/20",
+            mode === 'readonly' && "bg-transparent border-none shadow-none",
             className
           )}
           style={{
@@ -752,7 +736,7 @@ export const TiptapEditor = React.memo(React.forwardRef<Editor, TiptapEditorProp
             <EditorContent editor={editor} />
           </div>
         </div>
-        
+
         {/* Character Count / Footer */}
         {(showCharacterCount || maxCharacters) && characterCount && (
           <div className="flex items-center justify-between text-xs text-muted-foreground px-2 py-1 border-t border-border/40">

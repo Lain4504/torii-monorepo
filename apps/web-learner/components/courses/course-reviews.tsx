@@ -131,12 +131,12 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                 <div className="flex-1 space-y-4">
                     <div className="flex justify-between items-start">
                         <div className="space-y-1">
-                            <h4 className="text-sm font-black uppercase tracking-tight text-foreground">
+                            <h4 className="text-[11px] font-serif font-bold italic uppercase tracking-tight text-foreground bg-primary/5 px-2 py-0.5 rounded-sm inline-block">
                                 {review.user.displayName}
                             </h4>
                             <div className="flex items-center gap-3">
                                 {renderStars(review.rating, false, 3)}
-                                <span className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest">
+                                <span className="text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.2em]">
                                     Verified Learner
                                 </span>
                             </div>
@@ -210,29 +210,29 @@ export function CourseReviews({ course }: CourseReviewsProps) {
 
     return (
         <div className="space-y-12 animate-in fade-in duration-700" id="reviews">
-            <div className="flex items-center gap-3">
-                <MessageSquare className="w-5 h-5 text-primary" />
-                <h2 className="text-xl font-black uppercase tracking-tight text-foreground">Phản hồi từ học viên</h2>
+            <div className="flex items-center gap-4">
+                <MessageSquare className="w-5 h-5 text-primary/40" />
+                <h2 className="text-2xl md:text-3xl font-serif font-bold italic text-foreground uppercase tracking-tight">Student Perspectives</h2>
             </div>
 
-            <div className="rounded-[2.5rem] bg-muted/20 border border-border/40 overflow-hidden">
-                <div className="p-10 lg:p-14 space-y-14">
+            <div className="rounded-[2rem] md:rounded-[2.5rem] bg-muted/20 border border-border/40 overflow-hidden">
+                <div className="p-6 md:p-10 lg:p-14 space-y-10 md:space-y-14">
                     {/* Review Summary */}
-                    <div className="flex flex-col lg:flex-row lg:items-center gap-12 lg:gap-24">
+                    <div className="flex flex-col lg:flex-row lg:items-center gap-8 lg:gap-24">
                         <div className="flex flex-col items-center lg:items-start gap-4">
-                            <span className="text-7xl font-black text-foreground tracking-tighter italic leading-none">
+                            <span className="text-7xl md:text-9xl font-serif font-bold text-foreground tracking-tighter italic leading-[0.8]">
                                 {roundedRating}
                             </span>
                             <div className="space-y-2 text-center lg:text-left">
                                 <div className="flex justify-center lg:justify-start">
-                                    {renderStars(averageRating, false, 4)}
+                                    {renderStars(averageRating, false, 5)}
                                 </div>
-                                <div className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Average Course Rating</div>
-                                <div className="text-[10px] font-bold text-primary italic uppercase tracking-widest">{totalReviews} Verified Subscriptions</div>
+                                <div className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/40">Collective Academic Score</div>
+                                <div className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{totalReviews} Verified Subscriptions</div>
                             </div>
                         </div>
 
-                        <div className="flex-1 max-w-md w-full">
+                        <div className="flex-1 max-w-md w-full mx-auto lg:mx-0">
                             <RatingBreakdown />
                         </div>
 
@@ -245,61 +245,64 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                     </div>
 
                     {/* Content */}
-                    <div className="space-y-10 pt-10 border-t border-border/20">
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                            <div className="flex items-center gap-4">
-                                <div className="relative group">
+                    <div className="space-y-8 md:space-y-10 pt-8 md:pt-10 border-t border-border/20">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
+                            <div className="flex items-center gap-3 md:gap-4 w-full md:w-auto">
+                                <div className="relative group flex-1 md:flex-none">
                                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/40" />
                                     <input
                                         type="text"
-                                        placeholder="Tìm kiếm đánh giá..."
-                                        className="h-12 pl-12 pr-6 rounded-xl bg-background border-border/40 focus:border-primary/40 focus:ring-0 text-xs font-bold w-full md:w-64 transition-all"
+                                        placeholder="Tìm kiếm..."
+                                        className="h-10 md:h-12 pl-10 md:pl-12 pr-6 rounded-xl bg-background border-border/40 focus:border-primary/40 focus:ring-0 text-xs font-bold w-full md:w-64 transition-all"
                                     />
                                 </div>
-                                <Button variant="outline" className="h-12 w-12 rounded-xl border-border/40">
-                                    <SlidersHorizontal className="w-4 h-4 text-muted-foreground/40" />
+                                <Button variant="outline" className="h-10 w-10 md:h-12 md:w-12 rounded-xl border-border/40 shrink-0">
+                                    <SlidersHorizontal className="w-3.5 h-3.5 md:w-4 md:h-4 text-muted-foreground/40" />
                                 </Button>
                             </div>
 
                             {isAuthenticated && !userReview && (
                                 <Dialog open={showReviewForm} onOpenChange={setShowReviewForm}>
                                     <DialogTrigger asChild>
-                                        <Button className="h-12 px-8 rounded-xl bg-primary text-white font-black uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20 cursor-pointer active:scale-95 transition-all">
-                                            <Plus className="mr-2.5 h-4 w-4" />
-                                            Viết đánh giá
+                                        <Button className="h-14 px-10 rounded-2xl bg-primary text-white font-black uppercase tracking-widest text-[10px] shadow-2xl shadow-primary/20 cursor-pointer active:scale-95 transition-all w-full md:w-auto">
+                                            <Plus className="mr-3 h-4 w-4" />
+                                            Submit Evaluation
                                         </Button>
                                     </DialogTrigger>
-                                    <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-10 gap-8">
-                                        <DialogHeader>
-                                            <DialogTitle className="text-2xl font-black uppercase tracking-tighter italic">Đánh giá <span className="text-primary italic not-italic">Khóa Học</span></DialogTitle>
-                                            <DialogDescription className="text-sm font-bold text-muted-foreground/60 leading-relaxed">
-                                                Cảm nhận chân thực của bạn giúp cộng đồng học viên Torii phát triển bền vững.
-                                            </DialogDescription>
-                                        </DialogHeader>
-                                        <div className="space-y-10">
-                                            <div className="flex flex-col items-center gap-4 py-4 bg-muted/30 rounded-[2rem] border border-border/40">
-                                                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Mức độ hài lòng của bạn</label>
-                                                {renderStars(newRating, true, 8)}
-                                                <span className="text-[10px] font-black uppercase tracking-widest text-primary h-4">
-                                                    {newRating > 0 ? ['Rất tệ', 'Tệ', 'Bình thường', 'Tốt', 'Tuyệt vời'][newRating - 1] : 'Hãy chọn điểm số'}
-                                                </span>
+                                    <DialogContent className="sm:max-w-2xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
+                                        <div className="p-10 space-y-10">
+                                            <DialogHeader>
+                                                <DialogTitle className="text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase">Rate <span className="text-primary not-italic">Course</span></DialogTitle>
+                                                <DialogDescription className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 mt-4 leading-relaxed">
+                                                    Your authentic perspective helps the Torii community maintain academic excellence.
+                                                </DialogDescription>
+                                            </DialogHeader>
+                                            <div className="space-y-8">
+                                                <div className="flex flex-col items-center gap-6 py-10 bg-muted/20 rounded-[2.5rem] border border-border/40 relative overflow-hidden group/star">
+                                                    <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover/star:opacity-100 transition-opacity" />
+                                                    <label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 relative z-10">Linguistic Satisfaction Level</label>
+                                                    <div className="relative z-10">{renderStars(newRating, true, 10)}</div>
+                                                    <span className="text-[11px] font-serif font-bold italic text-primary uppercase tracking-[0.2em] h-5 relative z-10">
+                                                        {newRating > 0 ? ['Lacking', 'Passable', 'Professional', 'Excellent', 'Superior Experience'][newRating - 1] : 'Quantify your experience'}
+                                                    </span>
+                                                </div>
+                                                <div className="space-y-4">
+                                                    <label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 ml-4">Detailed Insights</label>
+                                                    <Textarea
+                                                        value={newComment}
+                                                        onChange={(e) => setNewComment(e.target.value)}
+                                                        placeholder="Share your thoughts on the curriculum, faculty support, or technical experience..."
+                                                        className="min-h-[180px] rounded-[2rem] bg-muted/20 border-border/40 p-8 text-sm font-bold focus:bg-background focus:ring-0 resize-none transition-all placeholder:text-muted-foreground/20 leading-relaxed italic"
+                                                    />
+                                                </div>
                                             </div>
-                                            <div className="space-y-4">
-                                                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50 pl-2">Nhận xét chi tiết</label>
-                                                <Textarea
-                                                    value={newComment}
-                                                    onChange={(e) => setNewComment(e.target.value)}
-                                                    placeholder="Bạn thích nhất điều gì ở giáo trình, hay Sensei hỗ trợ ra sao?..."
-                                                    className="min-h-[160px] rounded-[1.5rem] bg-muted/20 border-border/40 p-6 text-sm font-bold focus:bg-background focus:ring-0 resize-none transition-all placeholder:text-muted-foreground/30"
-                                                />
-                                            </div>
+                                            <DialogFooter className="gap-4 pt-4">
+                                                <Button variant="ghost" onClick={() => setShowReviewForm(false)} className="rounded-xl font-black uppercase tracking-[0.2em] text-[10px] h-14 px-8 border-border/40 hover:bg-muted/40 transition-all">Cancel</Button>
+                                                <Button onClick={handleSubmitReview} disabled={submitting || newRating === 0} className="flex-1 rounded-xl h-14 bg-primary text-white font-black uppercase tracking-[0.2em] text-[10px] shadow-2xl shadow-primary/20 active:scale-95 transition-all">
+                                                    {submitting ? 'Transmitting...' : 'Post Evaluation'}
+                                                </Button>
+                                            </DialogFooter>
                                         </div>
-                                        <DialogFooter className="pt-4">
-                                            <Button variant="ghost" onClick={() => setShowReviewForm(false)} className="rounded-xl font-black uppercase tracking-widest text-[10px] h-12 px-6">Hủy</Button>
-                                            <Button onClick={handleSubmitReview} disabled={submitting || newRating === 0} className="rounded-xl h-12 px-10 bg-primary text-white font-black uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20 active:scale-95 transition-all">
-                                                {submitting ? 'Đang gửi...' : 'Gửi đánh giá'}
-                                            </Button>
-                                        </DialogFooter>
                                     </DialogContent>
                                 </Dialog>
                             )}
@@ -319,14 +322,14 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                         </div>
 
                         {reviews.length > 5 && (
-                            <div className="pt-10 flex justify-center">
+                            <div className="pt-6 md:pt-10 flex justify-center">
                                 <Button
                                     variant="outline"
-                                    className="h-14 px-12 rounded-2xl border-border/40 text-[10px] font-black uppercase tracking-widest hover:bg-background transition-all"
+                                    className="h-12 md:h-14 px-8 md:px-12 rounded-2xl border-border/40 text-[9px] md:text-[10px] font-black uppercase tracking-widest hover:bg-background transition-all"
                                     onClick={() => setShowAllReviews(true)}
                                 >
                                     Xem tất cả đánh giá
-                                    <ChevronRight className="ml-2 w-4 h-4 opacity-40" />
+                                    <ChevronRight className="ml-2 w-3.5 h-3.5 md:w-4 md:h-4 opacity-40" />
                                 </Button>
                             </div>
                         )}
