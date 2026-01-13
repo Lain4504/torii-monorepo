@@ -37,7 +37,7 @@ export default function ForgotPasswordPage() {
                     </div>
 
                     <div className="flex flex-col space-y-2 mb-8">
-                        <h1 className="text-2xl font-bold tracking-tight text-foreground">
+                        <h1 className="text-2xl font-serif font-bold tracking-tight text-foreground uppercase italic pb-1">
                             Quên mật khẩu?
                         </h1>
                         <p className="text-sm text-muted-foreground/80">

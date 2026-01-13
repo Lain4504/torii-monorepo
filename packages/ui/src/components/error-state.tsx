@@ -34,20 +34,24 @@ export function ErrorState({
 
     const variants = {
         "404": {
-            quote: "Wabi-sabi: Finding beauty in the lost and the incomplete.",
-            suggestion: "Our Neural Core suggests returning to the path of knowledge."
+            japanese: "空",
+            subtitle: "Path Not Found",
+            suggestion: "Return to the path of knowledge and seek another way."
         },
         "403": {
-            quote: "The gate is closed to those who do not carry the sacred key.",
-            suggestion: "Authentication protocol mismatch. Verify your credentials."
+            japanese: "門",
+            subtitle: "Access Denied",
+            suggestion: "The gate is closed. Verification of your character is required."
         },
         "500": {
-            quote: "Even the strongest stone may crack under the pressure of the mountain.",
-            suggestion: "System anomaly detected. Synchronization is being restored."
+            japanese: "壊",
+            subtitle: "Server Anomaly",
+            suggestion: "A ripple in the neural flow. We are restoring balance."
         },
         "default": {
-            quote: "An unexpected ripple in the digital stream.",
-            suggestion: "Return to center and try again."
+            japanese: "無",
+            subtitle: "Unseen Error",
+            suggestion: "An unexpected event has occurred. Centering the system..."
         }
     }
 
@@ -56,100 +60,102 @@ export function ErrorState({
     return (
         <div
             className={cn(
-                "relative min-h-[80vh] w-full flex flex-col items-center justify-center p-6 text-center overflow-hidden selection:bg-primary/20",
+                "relative min-h-[85vh] w-full flex flex-col items-center justify-center p-6 text-center overflow-hidden selection:bg-primary/20 bg-background",
                 className
             )}
             {...props}
         >
-            {/* Zen Ambient Background */}
+            {/* Minimal Zen Background */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                <div className="absolute top-[20%] left-[10%] w-[40%] h-[40%] bg-primary/3 rounded-full blur-[140px] animate-pulse duration-[10s]" />
-                <div className="absolute bottom-[20%] right-[10%] w-[30%] h-[30%] bg-accent/5 rounded-full blur-[120px] animate-pulse duration-[8s]" />
+                <div className="absolute top-[15%] left-[10%] w-[35%] h-[35%] bg-primary/[0.03] rounded-full blur-[100px] animate-pulse duration-[8s]" />
+                <div className="absolute bottom-[15%] right-[10%] w-[30%] h-[30%] bg-accent/[0.04] rounded-full blur-[80px] animate-pulse duration-[12s]" />
+
+                {/* Large Background Japanese Character */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[18rem] md:text-[22rem] font-serif font-black text-foreground/[0.015] select-none pointer-events-none">
+                    {activeVariant.japanese}
+                </div>
             </div>
 
-            <div className="relative z-10 max-w-2xl space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-                {/* Error Code */}
-                <div className="relative inline-block">
-                    <span className="text-[12rem] md:text-[18rem] font-serif font-bold text-foreground/5 leading-none select-none tracking-tighter italic">
+            <div className="relative z-10 max-w-2xl space-y-8 md:space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-1000">
+                {/* Error Code & Indicator */}
+                <div className="relative group">
+                    <div className="absolute -inset-6 bg-primary/5 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+                    <span className="text-[9rem] md:text-[12rem] font-serif font-black text-primary/[0.03] leading-none select-none tracking-tighter italic">
                         {code}
                     </span>
-                    <div className="absolute inset-0 flex items-center justify-center group">
-                        <div className="p-4 rounded-full bg-background/40 backdrop-blur-3xl border border-border/10 shadow-2xl group-hover:scale-110 transition-transform duration-700">
-                            <div className="size-16 flex items-center justify-center text-primary animate-pulse">
-                                <Sparkles className="size-8" />
-                            </div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="size-20 rounded-full bg-background/40 backdrop-blur-md border border-border/20 shadow-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-700">
+                            <Sparkles className="size-8 text-primary animate-pulse" />
                         </div>
                     </div>
                 </div>
 
-                {/* Narrative */}
+                {/* Narrative Section */}
                 <div className="space-y-6">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[9px] font-black uppercase tracking-[0.3em] mb-4">
-                        System Protocol Error
-                    </div>
-                    <h1 className="text-4xl md:text-5xl font-serif font-bold italic text-foreground tracking-tight leading-tight">
-                        {title}
-                    </h1>
-                    <p className="text-sm md:text-md text-muted-foreground/60 italic font-medium max-w-lg mx-auto leading-relaxed">
-                        "{description}"
-                    </p>
-                </div>
-
-                {/* AI Insight */}
-                <div className="p-8 rounded-[2.5rem] border border-border/10 bg-background/40 backdrop-blur-3xl space-y-4 max-w-md mx-auto">
-                    <p className="text-[10px] font-black uppercase tracking-[0.25em] text-primary/60 italic">
-                        Cognitive Insight
-                    </p>
-                    <p className="text-xs font-medium text-foreground italic">
-                        {activeVariant.suggestion}
-                    </p>
-                    <div className="pt-4 border-t border-border/5">
-                        <p className="text-[9px] text-muted-foreground/40 font-black uppercase tracking-[0.15em]">
-                            {activeVariant.quote}
+                    <div className="inline-flex flex-col items-center">
+                        <span className="text-[9px] font-black uppercase tracking-[0.4em] text-primary/60 mb-3 bg-primary/5 px-3 py-1 rounded-full border border-primary/10">
+                            {activeVariant.subtitle}
+                        </span>
+                        <h1 className="text-4xl md:text-5xl font-serif font-bold italic text-foreground tracking-tight leading-none mb-4">
+                            {title}
+                        </h1>
+                        <p className="text-sm md:text-base text-muted-foreground/60 font-medium max-w-md mx-auto leading-relaxed">
+                            {description}
                         </p>
                     </div>
                 </div>
 
-                {/* Actions */}
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
+                {/* AI Zen Insight */}
+                <div className="relative max-w-sm mx-auto px-6 py-5 rounded-[1.5rem] border border-border/30 bg-background/40 backdrop-blur-xl group hover:border-primary/20 transition-colors duration-500">
+                    <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-background border border-border/30 rounded-full">
+                        <span className="text-[8px] font-black uppercase tracking-[0.3em] text-primary/80">Insight</span>
+                    </div>
+                    <p className="text-xs md:text-sm font-medium text-foreground/80 tracking-tight italic leading-relaxed">
+                        "{activeVariant.suggestion}"
+                    </p>
+                </div>
+
+                {/* Action Buttons - Compact (h-12) */}
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
                     {showBack && (
                         <Button
-                            variant="ghost"
-                            size="lg"
-                            className="px-8 h-14 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] border border-border/10 hover:bg-primary/5 hover:text-primary transition-all group"
+                            variant="outline"
+                            className="h-12 px-8 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl border-border/50 hover:bg-muted transition-all active:scale-95 group"
                             onClick={onBack}
                         >
-                            <ArrowLeft className="mr-2 size-4 group-hover:-translate-x-1 transition-transform" />
-                            Retrace Steps
+                            <ArrowLeft className="mr-2.5 size-3.5 group-hover:-translate-x-1 transition-transform" />
+                            Go Back
                         </Button>
                     )}
 
                     {onAction ? (
                         <Button
-                            size="lg"
-                            className="px-8 h-14 rounded-2xl bg-primary text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 hover:shadow-primary/40 transition-all"
+                            className="h-12 px-10 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl bg-primary text-white shadow-lg shadow-primary/10 hover:bg-primary/90 transition-all active:scale-95"
                             onClick={onAction}
                         >
-                            <RefreshCcw className="mr-2 size-4" />
-                            {actionLabel || "Retry Connection"}
+                            <RefreshCcw className="mr-2.5 size-3.5" />
+                            {actionLabel}
                         </Button>
                     ) : (
                         showHome && (
                             <Button
-                                size="lg"
-                                className="px-10 h-14 rounded-2xl bg-primary text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 hover:shadow-primary/40 transition-all group"
+                                className="h-12 px-10 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl bg-primary text-white shadow-lg shadow-primary/10 hover:bg-primary/90 transition-all active:scale-95"
                                 onClick={onHome}
                             >
-                                <Home className="mr-2 size-4 group-hover:scale-110 transition-transform" />
-                                Return to Center
+                                <Home className="mr-2.5 size-3.5" />
+                                Return Home
                             </Button>
                         )
                     )}
                 </div>
             </div>
 
-            <div className="mt-24 text-[9px] font-black uppercase tracking-[0.4em] text-muted-foreground/20 italic">
-                Torii Neural Intelligence Platform • Error Log: {code}
+            {/* Footer Tag */}
+            <div className="absolute bottom-8 left-0 right-0 flex flex-col items-center gap-3">
+                <div className="h-10 w-px bg-gradient-to-b from-transparent via-border/30 to-transparent" />
+                <span className="text-[8px] font-black uppercase tracking-[0.5em] text-muted-foreground/15">
+                    Torii Architecture • Node {code}
+                </span>
             </div>
         </div>
     )

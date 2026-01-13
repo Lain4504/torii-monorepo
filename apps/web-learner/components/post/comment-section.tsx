@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAppSelector } from '@/hooks/hooks'
-import { postCommentApi } from '@/api/services/post-comment-api'
+import { postCommentApi } from '@/apis/services/post-comment-api'
 import type { CommentResponseDTO } from '@workspace/schemas'
 import { Button } from '@workspace/ui/components/button'
 import { Textarea } from '@workspace/ui/components/textarea'

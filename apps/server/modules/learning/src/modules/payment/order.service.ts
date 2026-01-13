@@ -6,6 +6,8 @@ import {
     type OrderResponseDTO,
     type OrderConfirmDTO,
     type PaginatedResponseDTO,
+    PaymentQueryDTO,
+    PaymentResponseDTO,
     OrderStatus,
     OrderType,
     PaymentMethod,
@@ -58,6 +60,21 @@ export class OrderService implements IOrderService {
         };
     }
 
+    private toPaymentDto(p: any): PaymentResponseDTO {
+        return {
+            id: p.id,
+            orderId: p.orderId || undefined,
+            transactionId: p.transactionId || undefined,
+            gateway: p.gateway || undefined,
+            amount: p.amount ? Number(p.amount) : undefined,
+            currency: p.currency,
+            content: p.content || undefined,
+            status: p.status || undefined,
+            rawResponse: p.rawResponse || {},
+            processedAt: p.processedAt,
+        };
+    }
+
     /**
      * Find all orders with pagination and filters
      */
@@ -95,6 +112,55 @@ export class OrderService implements IOrderService {
             };
         } catch (error: any) {
             this.logger.error(`Error fetching orders: ${error.message}`, error.stack);
+            return {
+                data: [],
+                total: 0,
+                page: 1,
+                limit: 10,
+                totalPages: 0,
+            };
+        }
+    }
+
+    /**
+     * Find all payments with pagination and filters
+     */
+    async findAllPayments(query: PaymentQueryDTO): Promise<PaginatedResponseDTO<PaymentResponseDTO>> {
+        try {
+            const { page = 1, limit = 10, userId, orderId, status, transactionId } = query;
+            const pageNum = typeof page === 'string' ? parseInt(page, 10) : Number(page) || 1;
+            const limitNum = typeof limit === 'string' ? parseInt(limit, 10) : Number(limit) || 10;
+            const validPage = pageNum > 0 ? pageNum : 1;
+            const validLimit = limitNum > 0 ? limitNum : 10;
+            const skip = (validPage - 1) * validLimit;
+
+            const whereClause: Prisma.PaymentWhereInput = {};
+            if (userId) whereClause.userId = userId;
+            if (orderId) whereClause.orderId = orderId;
+            if (status) whereClause.status = status;
+            if (transactionId) whereClause.transactionId = transactionId;
+
+            const [total, items] = await Promise.all([
+                this.orderRepository.countPayments(whereClause),
+                this.orderRepository.findManyPayments({
+                    where: whereClause,
+                    take: validLimit,
+                    skip,
+                    orderBy: { processedAt: 'desc' },
+                }),
+            ]);
+
+            const totalPages = Math.ceil(total / validLimit);
+
+            return {
+                data: items.map((i) => this.toPaymentDto(i)),
+                total,
+                page: validPage,
+                limit: validLimit,
+                totalPages,
+            };
+        } catch (error: any) {
+            this.logger.error(`Error fetching payments: ${error.message}`, error.stack);
             return {
                 data: [],
                 total: 0,

@@ -54,4 +54,19 @@ export interface IOrderRepository {
      * Find payment by transaction ID
      */
     findPaymentByTransactionId(transactionId: string): Promise<Payment | null>;
+
+    /**
+     * Find all payments with pagination and filters
+     */
+    findManyPayments(options: {
+        skip: number;
+        take: number;
+        where?: Prisma.PaymentWhereInput;
+        orderBy?: Prisma.PaymentOrderByWithRelationInput;
+    }): Promise<Payment[]>;
+
+    /**
+     * Count payments with optional filter
+     */
+    countPayments(where?: Prisma.PaymentWhereInput): Promise<number>;
 }

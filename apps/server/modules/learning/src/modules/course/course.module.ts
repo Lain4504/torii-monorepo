@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { NatsClientModule } from '@server/shared';
 import { CourseService } from './course.service';
 import { CourseRepository } from './course.repository';
@@ -13,7 +13,11 @@ import { COURSE_SERVICE_TOKEN } from '../../interfaces/services';
  * Handles course management operations
  */
 @Module({
-  imports: [NatsClientModule, ModuleModule, LessonModule],
+  imports: [
+    NatsClientModule,
+    forwardRef(() => ModuleModule),
+    forwardRef(() => LessonModule),
+  ],
   providers: [
     {
       provide: COURSE_REPOSITORY_TOKEN,

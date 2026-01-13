@@ -1,7 +1,7 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
-import { flashcardApi } from '@/api/services/flashcard-api'
+import { flashcardApi } from '@/apis/services/flashcard-api'
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { Button } from '@workspace/ui/components/button'
 import { Card } from '@workspace/ui/components/card'

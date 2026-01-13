@@ -1,7 +1,7 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
-import { examApi } from '@/api/services/exam-api'
+import { examApi } from '@/apis/services/exam-api'
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { Card } from '@workspace/ui/components/card'
 import { Button } from '@workspace/ui/components/button'

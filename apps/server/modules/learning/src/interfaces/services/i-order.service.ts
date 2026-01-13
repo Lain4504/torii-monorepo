@@ -4,6 +4,8 @@ import type {
     OrderResponseDTO,
     OrderConfirmDTO,
     PaginatedResponseDTO,
+    PaymentQueryDTO,
+    PaymentResponseDTO,
 } from '@workspace/schemas';
 
 /**
@@ -15,6 +17,11 @@ export interface IOrderService {
      * Find all orders with pagination and filters
      */
     findAll(query: OrderQueryDTO): Promise<PaginatedResponseDTO<OrderResponseDTO>>;
+
+    /**
+     * Find all payments with pagination and filters
+     */
+    findAllPayments(query: PaymentQueryDTO): Promise<PaginatedResponseDTO<PaymentResponseDTO>>;
 
     /**
      * Find order by ID

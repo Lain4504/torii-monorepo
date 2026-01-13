@@ -47,3 +47,32 @@ export const orderPaginatedResponseSchema = z.object({
 
 export type OrderPaginatedResponse = z.infer<typeof orderPaginatedResponseSchema>;
 
+/**
+ * Payment (Transaction) DTOs
+ */
+import { paymentSchema } from '../models/order.model';
+
+export const paymentResponseDTOSchema = paymentSchema;
+export type PaymentResponseDTO = z.infer<typeof paymentResponseDTOSchema>;
+
+export const paymentQueryDTOSchema = z.object({
+    page: z.coerce.number().min(1).default(1),
+    limit: z.coerce.number().min(1).default(10),
+    orderId: z.string().uuid().optional(),
+    userId: z.string().uuid().optional(),
+    status: z.string().optional(),
+    transactionId: z.string().optional(),
+});
+
+export type PaymentQueryDTO = z.infer<typeof paymentQueryDTOSchema>;
+
+export const paymentPaginatedResponseSchema = z.object({
+    data: z.array(paymentResponseDTOSchema),
+    total: z.number(),
+    page: z.number(),
+    limit: z.number(),
+    totalPages: z.number(),
+});
+
+export type PaymentPaginatedResponse = z.infer<typeof paymentPaginatedResponseSchema>;
+

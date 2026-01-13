@@ -20,6 +20,8 @@ import type {
     OrderQueryDTO,
     OrderConfirmDTO,
     PaginatedResponseDTO,
+    PaymentQueryDTO,
+    PaymentResponseDTO,
     ReqWithRequester,
 } from '@workspace/schemas';
 import type { IOrderService } from '../interfaces/services';
@@ -40,6 +42,14 @@ export class OrderController {
     @Get()
     async findAll(@Query() query: OrderQueryDTO): Promise<PaginatedResponseDTO<OrderResponseDTO>> {
         return this.orderService.findAll(query);
+    }
+
+    /**
+     * Get all payments (transactions) with pagination
+     */
+    @Get('transactions')
+    async findAllPayments(@Query() query: PaymentQueryDTO): Promise<PaginatedResponseDTO<PaymentResponseDTO>> {
+        return this.orderService.findAllPayments(query);
     }
 
     /**

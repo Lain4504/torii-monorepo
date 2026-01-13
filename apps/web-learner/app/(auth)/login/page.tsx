@@ -41,9 +41,9 @@ export default function LoginPage() {
                                 <Sparkles className="w-3.5 h-3.5" />
                                 <span>Sensei Approved</span>
                             </div>
-                            <h2 className="text-4xl lg:text-5xl font-bold tracking-tight text-foreground leading-[1.1]">
+                            <h2 className="text-4xl lg:text-5xl font-serif font-bold tracking-tight text-foreground leading-[0.9] uppercase italic">
                                 Học tiếng Nhật <br />
-                                <span className="text-primary">Thông minh hơn.</span>
+                                <span className="text-primary not-italic">Thông minh hơn.</span>
                             </h2>
                             <p className="text-base text-muted-foreground/80 leading-relaxed font-medium">
                                 Kết hợp sức mạnh của WebRTC và AI Sensei để chinh phục JLPT từ N5 tới N1.
@@ -98,8 +98,8 @@ export default function LoginPage() {
                             </div>
 
                             <div className="space-y-2 text-center lg:text-left">
-                                <h1 className="text-3xl font-bold tracking-tight text-foreground">Đăng nhập</h1>
-                                <p className="text-sm font-medium text-muted-foreground/60">Chào mừng quay trở lại Torii Nihongo</p>
+                                <h1 className="text-4xl font-serif font-bold italic uppercase tracking-tight text-foreground">Đăng nhập</h1>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Chào mừng quay trở lại Torii Nihongo</p>
                             </div>
                         </div>
 

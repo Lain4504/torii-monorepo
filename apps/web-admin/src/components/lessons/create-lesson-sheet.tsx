@@ -74,6 +74,7 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
 
             const payload = {
                 ...data,
+                status: (data as any).status ?? 'draft',
                 orderIndex: data.orderIndex ?? 0,
                 aiMetadata: data.aiMetadata ?? {},
                 isPreview: data.isPreview ?? false,

@@ -155,6 +155,7 @@ export class EnrollmentService implements IEnrollmentService {
                 user: { connect: { id: userId } },
                 course: { connect: { id: input.courseId } },
                 enrollmentDate: new Date(),
+                lastAccessedAt: new Date(),
                 completionStatus: EnrollmentStatus.IN_PROGRESS,
                 completionPercentage: 0,
                 finalPrice,

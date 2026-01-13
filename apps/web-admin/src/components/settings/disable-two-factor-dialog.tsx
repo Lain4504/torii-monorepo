@@ -1,0 +1,137 @@
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@workspace/ui/components/dialog';
+import { Button } from '@workspace/ui/components/button';
+import { Input } from '@workspace/ui/components/input';
+import { toast } from '@workspace/ui/components/sonner';
+import { AlertTriangle, Lock, Loader2 } from 'lucide-react';
+import { useDisableTotp } from '@/api/services/two-factor-auth';
+
+const disableSchema = z.object({
+    password: z.string().min(1, 'Password is required'),
+});
+
+type DisableForm = z.infer<typeof disableSchema>;
+
+interface DisableTwoFactorDialogProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+}
+
+export function DisableTwoFactorDialog({ open, onOpenChange }: DisableTwoFactorDialogProps) {
+    const disableMutation = useDisableTotp();
+
+    const form = useForm<DisableForm>({
+        resolver: zodResolver(disableSchema),
+        defaultValues: { password: '' },
+    });
+
+    const onSubmit = async (data: DisableForm) => {
+        try {
+            await disableMutation.mutateAsync({ password: data.password });
+            toast.success('Two-factor authentication has been disabled');
+            onOpenChange(false);
+            form.reset();
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : 'Failed to disable 2FA');
+        }
+    };
+
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="max-w-md">
+                <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2 text-xl font-serif">
+                        <AlertTriangle className="size-5 text-rose-600 dark:text-rose-400" />
+                        Disable Two-Factor Authentication
+                    </DialogTitle>
+                    <DialogDescription className="text-sm text-muted-foreground/60">
+                        This will make your account less secure
+                    </DialogDescription>
+                </DialogHeader>
+
+                <div className="space-y-6 py-4">
+                    {/* Warning */}
+                    <div className="rounded-lg border border-rose-500/20 bg-rose-500/5 p-4">
+                        <div className="flex gap-3">
+                            <AlertTriangle className="size-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+                            <div className="space-y-1">
+                                <p className="text-sm font-medium text-foreground">
+                                    Are you sure?
+                                </p>
+                                <p className="text-xs text-muted-foreground/60 leading-relaxed">
+                                    Disabling two-factor authentication will make your account more vulnerable to unauthorized access. We strongly recommend keeping it enabled.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Password Form */}
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-foreground">
+                                Confirm your password
+                            </label>
+                            <Controller
+                                name="password"
+                                control={form.control}
+                                render={({ field, fieldState }) => (
+                                    <div className="space-y-1">
+                                        <div className="relative">
+                                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40" />
+                                            <Input
+                                                {...field}
+                                                type="password"
+                                                placeholder="Enter your password"
+                                                className="pl-10 rounded-lg"
+                                                autoComplete="current-password"
+                                            />
+                                        </div>
+                                        {fieldState.error && (
+                                            <p className="text-xs text-rose-500">{fieldState.error.message}</p>
+                                        )}
+                                    </div>
+                                )}
+                            />
+                        </div>
+
+                        <div className="flex gap-3">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => {
+                                    onOpenChange(false);
+                                    form.reset();
+                                }}
+                                className="flex-1 rounded-lg"
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="submit"
+                                disabled={disableMutation.isPending}
+                                className="flex-1 gap-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white"
+                            >
+                                {disableMutation.isPending ? (
+                                    <>
+                                        <Loader2 className="size-4 animate-spin" />
+                                        Disabling...
+                                    </>
+                                ) : (
+                                    'Disable 2FA'
+                                )}
+                            </Button>
+                        </div>
+                    </form>
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+}

@@ -10,7 +10,8 @@ interface LearningSidebarProps {
     courseTitle: string
     curriculum: any[]
     progress: number
-    completedLessons: number
+    completedLessons: number // Keep for backward compat or just remove if I update usage
+    completedLessonIds?: string[]
     totalLessons: number
     currentLessonId: string | null
     isOpen: boolean
@@ -23,6 +24,7 @@ export function LearningSidebar({
     curriculum,
     progress,
     completedLessons,
+    completedLessonIds = [],
     totalLessons,
     currentLessonId,
     isOpen,
@@ -147,7 +149,7 @@ export function LearningSidebar({
                                                             ? `${Math.floor(lesson.videoDuration / 60)}:${(lesson.videoDuration % 60).toString().padStart(2, '0')}`
                                                             : 'Session'}
                                                     </p>
-                                                    {lesson.completed && (
+                                                    {(lesson.completed || completedLessonIds.includes(lesson.id)) && (
                                                         <CheckCircle2 className="w-3 h-3 text-emerald-500/60" />
                                                     )}
                                                 </div>

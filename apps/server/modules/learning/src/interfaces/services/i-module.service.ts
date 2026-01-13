@@ -32,7 +32,7 @@ export interface IModuleService {
      * @param courseId - The course's unique identifier
      * @returns Array of modules ordered by orderIndex
      */
-    findByCourseId(courseId: string): Promise<ModuleResponseDTO[]>;
+    findByCourseId(courseId: string, requester?: Requester): Promise<ModuleResponseDTO[]>;
 
     /**
      * Create a new module

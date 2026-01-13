@@ -72,6 +72,7 @@ model Module {
   title           String    @db.VarChar(255)
   description     String?   @db.Text
   aiMetadata      Json?     @default("{}") @map("ai_metadata")
+  status          String    @default("published") @db.VarChar(20) // published, draft
   orderIndex      Int       @default(0) @map("order_index")
   durationMinutes Int?      @map("duration_minutes")
   createdBy       String?   @map("created_by") @db.Uuid
@@ -96,6 +97,7 @@ model Lesson {
   videoDuration  Int?      @map("video_duration")
   articleContent String?   @map("article_content") @db.Text
   aiMetadata     Json?     @default("{}") @map("ai_metadata")
+  status         String    @default("published") @db.VarChar(20) // published, draft
   orderIndex     Int       @default(0) @map("order_index")
   isPreview      Boolean   @default(false) @map("is_preview")
   isUnlocked     Boolean   @default(true) @map("is_unlocked")
@@ -107,9 +109,31 @@ model Lesson {
   module Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   quizzes Quiz[]
   materials LessonMaterial[]
+  lessonProgress LessonProgress[]
 
   @@index([moduleId])
   @@map("lessons")
+}
+
+// Lesson Progress - Tracks progress for each lesson within an enrollment
+model LessonProgress {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  enrollmentId    String    @map("enrollment_id") @db.Uuid
+  lessonId        String    @map("lesson_id") @db.Uuid
+  status          String    @default("not_started") @db.VarChar(20) // not_started, in_progress, completed
+  watchedDuration Int       @default(0) @map("watched_duration")
+  totalDuration   Int       @map("total_duration")
+  lastWatchedAt   DateTime  @default(now()) @map("last_watched_at")
+  completedAt     DateTime? @map("completed_at")
+  notes           String?   @db.Text
+
+  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  lesson     Lesson     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([enrollmentId, lessonId])
+  @@index([enrollmentId])
+  @@index([lessonId])
+  @@map("lesson_progress")
 }
 
 // Course Instructor - Junction table linking courses to lecturers
@@ -1023,6 +1047,7 @@ model Enrollment {
   course  Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   order   Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
   sender  User?    @relation("GiftEnrollments", fields: [senderId], references: [id], onDelete: SetNull)
+  lessonProgress LessonProgress[]
 
   @@unique([userId, courseId]) // Mỗi user chỉ enroll 1 lần cho 1 course
   @@index([userId])

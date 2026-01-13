@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import { Star, ThumbsUp, MessageSquare, Plus, Search, Sparkles, SlidersHorizontal, ChevronRight, X } from 'lucide-react'
+import { Star, ThumbsUp, MessageSquare, Plus, Search, Sparkles, ChevronRight, X } from 'lucide-react'
 import { Progress } from '@workspace/ui/components/progress'
 import { Button } from '@workspace/ui/components/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Textarea } from '@workspace/ui/components/textarea'
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty'
 import type { CourseResponseDTO } from '@workspace/schemas'
-import { reviewApi, type ReviewResponse, type RatingDistribution } from '@/api/services/review-api'
+import { reviewApi, type ReviewResponse, type RatingDistribution } from '@/apis/services/review-api'
 import { useAppSelector } from '@/hooks/hooks'
 import { toast } from '@workspace/ui/components/sonner'
 import { cn } from '@workspace/ui/lib/utils'
@@ -120,39 +120,39 @@ export function CourseReviews({ course }: CourseReviewsProps) {
     }
 
     const ReviewItem = ({ review }: { review: ReviewResponse }) => (
-        <div className="py-8 border-b border-border/20 last:border-0 group animate-in fade-in duration-500">
-            <div className="flex gap-6">
-                <Avatar className="h-12 w-12 rounded-[1rem] border border-border/40 shadow-sm shrink-0">
+        <div className="p-6 rounded-3xl bg-background border border-border/40 hover:border-border transition-colors group">
+            <div className="flex gap-4">
+                <Avatar className="h-10 w-10 rounded-xl border border-border/40 shadow-sm shrink-0">
                     <AvatarImage src={review.user.avatarUrl} className="object-cover" />
-                    <AvatarFallback className="bg-primary/5 text-primary text-sm font-black uppercase">
+                    <AvatarFallback className="bg-primary/5 text-primary text-xs font-black uppercase">
                         {review.user.displayName ? review.user.displayName.charAt(0).toUpperCase() : 'U'}
                     </AvatarFallback>
                 </Avatar>
-                <div className="flex-1 space-y-4">
+                <div className="flex-1 space-y-3">
                     <div className="flex justify-between items-start">
                         <div className="space-y-1">
-                            <h4 className="text-[11px] font-serif font-bold italic uppercase tracking-tight text-foreground bg-primary/5 px-2 py-0.5 rounded-sm inline-block">
+                            <h4 className="text-[11px] font-bold text-foreground">
                                 {review.user.displayName}
                             </h4>
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2">
                                 {renderStars(review.rating, false, 3)}
                                 <span className="text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.2em]">
-                                    Verified Learner
+                                    Verified
                                 </span>
                             </div>
                         </div>
                     </div>
 
                     {review.comment && (
-                        <p className="text-sm font-bold text-muted-foreground/80 leading-relaxed italic">
+                        <p className="text-sm text-muted-foreground/80 leading-relaxed font-medium">
                             "{review.comment}"
                         </p>
                     )}
 
-                    <div className="flex items-center gap-6 pt-2">
-                        <button className="flex items-center gap-2 group/btn cursor-pointer">
-                            <ThumbsUp className="w-3.5 h-3.5 text-muted-foreground/40 group-hover/btn:text-primary transition-colors" />
-                            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 group-hover/btn:text-foreground transition-colors">Helpful</span>
+                    <div className="flex items-center gap-4 pt-1">
+                        <button className="flex items-center gap-1.5 group/btn cursor-pointer">
+                            <ThumbsUp className="w-3 h-3 text-muted-foreground/40 group-hover/btn:text-primary transition-colors" />
+                            <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 group-hover/btn:text-foreground transition-colors">Helpful</span>
                         </button>
                     </div>
                 </div>
@@ -215,8 +215,8 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                 <h2 className="text-2xl md:text-3xl font-serif font-bold italic text-foreground uppercase tracking-tight">Student Perspectives</h2>
             </div>
 
-            <div className="rounded-[2rem] md:rounded-[2.5rem] bg-muted/20 border border-border/40 overflow-hidden">
-                <div className="p-6 md:p-10 lg:p-14 space-y-10 md:space-y-14">
+            <div>
+                <div className="space-y-10 md:space-y-14">
                     {/* Review Summary */}
                     <div className="flex flex-col lg:flex-row lg:items-center gap-8 lg:gap-24">
                         <div className="flex flex-col items-center lg:items-start gap-4">
@@ -247,20 +247,6 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                     {/* Content */}
                     <div className="space-y-8 md:space-y-10 pt-8 md:pt-10 border-t border-border/20">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
-                            <div className="flex items-center gap-3 md:gap-4 w-full md:w-auto">
-                                <div className="relative group flex-1 md:flex-none">
-                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/40" />
-                                    <input
-                                        type="text"
-                                        placeholder="Tìm kiếm..."
-                                        className="h-10 md:h-12 pl-10 md:pl-12 pr-6 rounded-xl bg-background border-border/40 focus:border-primary/40 focus:ring-0 text-xs font-bold w-full md:w-64 transition-all"
-                                    />
-                                </div>
-                                <Button variant="outline" className="h-10 w-10 md:h-12 md:w-12 rounded-xl border-border/40 shrink-0">
-                                    <SlidersHorizontal className="w-3.5 h-3.5 md:w-4 md:h-4 text-muted-foreground/40" />
-                                </Button>
-                            </div>
-
                             {isAuthenticated && !userReview && (
                                 <Dialog open={showReviewForm} onOpenChange={setShowReviewForm}>
                                     <DialogTrigger asChild>
@@ -308,9 +294,9 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                             )}
                         </div>
 
-                        <div className="grid gap-2">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {reviews.length === 0 ? (
-                                <div className="py-12 flex flex-col items-center justify-center text-center space-y-4 opacity-40 grayscale">
+                                <div className="col-span-full py-12 flex flex-col items-center justify-center text-center space-y-4 opacity-40 grayscale">
                                     <MessageSquare className="w-12 h-12" />
                                     <p className="text-[10px] font-black uppercase tracking-[0.2em]">Hãy là người đầu tiên cảm nhận</p>
                                 </div>

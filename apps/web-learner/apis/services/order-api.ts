@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../api-client';
 import type {
     OrderResponseDTO,
@@ -50,6 +51,27 @@ export const orderApi = {
         return response.data;
     },
 };
+
+/**
+ * Hook: Get paginated orders
+ */
+export function useOrders(query?: OrderQueryDTO) {
+    return useQuery({
+        queryKey: ['orders', query],
+        queryFn: () => orderApi.getAllOrders(query),
+    });
+}
+
+/**
+ * Hook: Get single order detail
+ */
+export function useOrder(id: string) {
+    return useQuery({
+        queryKey: ['orders', id],
+        queryFn: () => orderApi.getOrder(id),
+        enabled: !!id,
+    });
+}
 
 // Legacy Export for transient phase
 export const paymentApi = orderApi;

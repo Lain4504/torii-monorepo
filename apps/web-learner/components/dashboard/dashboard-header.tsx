@@ -1,7 +1,7 @@
 'use client'
 
 import { useAppSelector } from '@/hooks/hooks'
-import { Bell, Search, Menu, ChevronDown, User, Settings, LogOut, Sparkles } from 'lucide-react'
+import { Bell, Search, Menu, ChevronDown, User, Settings, LogOut, Sparkles, Sun, Moon } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { Input } from '@workspace/ui/components/input'
 import {
@@ -15,7 +15,7 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from '@workspace/ui/components/sheet'
 import { useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import {
     LayoutDashboard,
     BookOpen,
@@ -28,6 +28,8 @@ import {
 import { cn } from '@workspace/ui/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
 import { NotificationsDropdown } from './notifications-dropdown'
+import { useTheme } from 'next-themes'
+import { authApi } from '@/apis/services/auth-api'
 
 const navigation = [
     { name: 'Trang chủ', href: '/dashboard', icon: LayoutDashboard },
@@ -47,6 +49,20 @@ export function DashboardHeader({ isCollapsed, toggleSidebar }: DashboardHeaderP
     const { user } = useAppSelector((state) => state.auth)
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const pathname = usePathname()
+    const { theme, setTheme } = useTheme()
+    const router = useRouter()
+
+    const handleLogout = async () => {
+        try {
+            await authApi.logout()
+            // Clear any local state if necessary
+            router.push('/login')
+            router.refresh()
+        } catch (error) {
+            console.error("Logout failed", error)
+            router.push('/login') // Force redirect anyway
+        }
+    }
 
     return (
         <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
@@ -130,6 +146,18 @@ export function DashboardHeader({ isCollapsed, toggleSidebar }: DashboardHeaderP
 
                     {/* Right: Actions */}
                     <div className="flex items-center gap-2">
+                        {/* Theme Toggle */}
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                            className="rounded-xl h-10 w-10 hover:bg-muted/50 transition-colors"
+                        >
+                            <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-amber-500" />
+                            <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-blue-400" />
+                            <span className="sr-only">Toggle theme</span>
+                        </Button>
+
                         <NotificationsDropdown />
 
                         <DropdownMenu>
@@ -175,7 +203,10 @@ export function DashboardHeader({ isCollapsed, toggleSidebar }: DashboardHeaderP
                                 </div>
                                 <DropdownMenuSeparator className="bg-border/40 mx-2" />
                                 <div className="p-1">
-                                    <DropdownMenuItem className="rounded-xl px-3 py-2.5 text-xs font-bold uppercase tracking-widest text-destructive hover:bg-destructive/5 transition-colors cursor-pointer focus:bg-destructive/5 focus:text-destructive">
+                                    <DropdownMenuItem
+                                        onClick={handleLogout}
+                                        className="rounded-xl px-3 py-2.5 text-xs font-bold uppercase tracking-widest text-destructive hover:bg-destructive/5 transition-colors cursor-pointer focus:bg-destructive/5 focus:text-destructive"
+                                    >
                                         <LogOut className="w-4 h-4 mr-3 opacity-70" />
                                         Đăng xuất
                                     </DropdownMenuItem>

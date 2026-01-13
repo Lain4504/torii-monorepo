@@ -1,6 +1,6 @@
 'use client'
 
-import { postApi } from '@/api/services/post-api'
+import { postApi } from '@/apis/services/post-api'
 import { PostCard } from '@/components/post/post-card'
 import { PostSidebar } from '@/components/post/post-sidebar'
 import { useEffect, useState } from 'react'
@@ -71,7 +71,7 @@ export default function PostListingPage() {
             {/* Header / Hero Section */}
             <div className="relative mb-16 px-4">
                 <div className="max-w-7xl mx-auto text-center space-y-6">
-                    <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-primary/5 text-primary text-[10px] font-black uppercase tracking-[0.2em] border border-primary/10 mb-2">
+                    <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-primary/5 text-primary text-[9px] font-black uppercase tracking-[0.3em] border border-primary/10 mb-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                         <span>Torii Nihongo Journal</span>
                     </div>
@@ -111,7 +111,7 @@ export default function PostListingPage() {
                                                 variant="ghost"
                                                 disabled={page === 1}
                                                 onClick={() => setPage(p => p - 1)}
-                                                className="rounded-xl h-11 px-4 hover:bg-primary/5 transition-all group/btn"
+                                                className="rounded-full h-11 px-4 hover:bg-primary/5 transition-all group/btn"
                                             >
                                                 <span className="text-[10px] font-black uppercase tracking-[0.2em] group-hover:text-primary transition-colors">Trước</span>
                                             </Button>
@@ -120,7 +120,7 @@ export default function PostListingPage() {
                                                 <Button
                                                     key={i}
                                                     variant={page === i + 1 ? 'default' : 'ghost'}
-                                                    className={`w-11 h-11 rounded-xl font-black text-xs ${page === i + 1 ? 'shadow-lg shadow-primary/20 bg-primary text-white' : 'text-muted-foreground/60'}`}
+                                                    className={`w-11 h-11 rounded-full font-black text-xs ${page === i + 1 ? 'shadow-lg shadow-primary/20 bg-primary text-white' : 'text-muted-foreground/60'}`}
                                                     onClick={() => setPage(i + 1)}
                                                 >
                                                     {i + 1}
@@ -131,7 +131,7 @@ export default function PostListingPage() {
                                                 variant="ghost"
                                                 disabled={page === totalPages}
                                                 onClick={() => setPage(p => p + 1)}
-                                                className="rounded-xl h-11 px-4 hover:bg-primary/5 transition-all group/btn"
+                                                className="rounded-full h-11 px-4 hover:bg-primary/5 transition-all group/btn"
                                             >
                                                 <span className="text-[10px] font-black uppercase tracking-[0.2em] group-hover:text-primary transition-colors">Tiếp</span>
                                             </Button>

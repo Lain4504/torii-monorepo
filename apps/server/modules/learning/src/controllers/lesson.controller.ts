@@ -53,8 +53,11 @@ export class LessonController {
      * Get all lessons for a module
      */
     @Get('by-module/:moduleId')
-    async findByModuleId(@Param('moduleId') moduleId: string): Promise<LessonResponseDTO[]> {
-        return this.lessonService.findByModuleId(moduleId);
+    async findByModuleId(
+        @Request() req: ReqWithRequester,
+        @Param('moduleId') moduleId: string
+    ): Promise<LessonResponseDTO[]> {
+        return this.lessonService.findByModuleId(moduleId, req.requester);
     }
 
     /**

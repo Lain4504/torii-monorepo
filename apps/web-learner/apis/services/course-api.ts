@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../api-client';
 import type { CourseResponseDTO, PaginatedResponseDTO } from '@workspace/schemas';
 
@@ -84,6 +85,28 @@ export const courseApi = {
     return response.data;
   },
 };
+
+/**
+ * Hook: Get course by slug
+ */
+export function useCourseBySlug(slug: string) {
+  return useQuery({
+    queryKey: ['courses', 'slug', slug],
+    queryFn: () => courseApi.getCourseBySlug(slug),
+    enabled: !!slug,
+  });
+}
+
+/**
+ * Hook: Get curriculum
+ */
+export function useCurriculum(courseId?: string) {
+  return useQuery({
+    queryKey: ['curriculum', courseId],
+    queryFn: () => courseApi.getCurriculum(courseId!),
+    enabled: !!courseId,
+  });
+}
 
 
 

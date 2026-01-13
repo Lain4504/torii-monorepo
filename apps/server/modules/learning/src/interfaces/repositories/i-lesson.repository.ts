@@ -13,7 +13,7 @@ export interface ILessonRepository {
     /**
      * Find all lessons for a module
      */
-    findByModuleId(moduleId: string): Promise<Lesson[]>;
+    findByModuleId(moduleId: string, includeDrafts?: boolean): Promise<Lesson[]>;
 
     /**
      * Find all lessons with pagination and filtering

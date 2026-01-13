@@ -25,11 +25,12 @@ export class ModuleRepository implements IModuleRepository {
     /**
      * Find all modules for a course
      */
-    async findByCourseId(courseId: string): Promise<CourseModule[]> {
+    async findByCourseId(courseId: string, includeDrafts: boolean = false): Promise<CourseModule[]> {
         return this.prisma.module.findMany({
             where: {
                 courseId,
                 deletedAt: null,
+                ...(includeDrafts ? {} : { status: 'published' }),
             },
             orderBy: { orderIndex: 'asc' },
         });

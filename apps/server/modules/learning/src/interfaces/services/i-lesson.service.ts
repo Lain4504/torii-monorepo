@@ -32,7 +32,7 @@ export interface ILessonService {
      * @param moduleId - The module's unique identifier
      * @returns Array of lessons ordered by orderIndex
      */
-    findByModuleId(moduleId: string): Promise<LessonResponseDTO[]>;
+    findByModuleId(moduleId: string, requester?: Requester): Promise<LessonResponseDTO[]>;
 
     /**
      * Find preview lessons for a course
