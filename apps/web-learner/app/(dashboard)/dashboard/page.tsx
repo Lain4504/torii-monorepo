@@ -16,39 +16,31 @@ import {
     Target
 } from 'lucide-react'
 import Link from 'next/link'
+import { useQuery } from '@tanstack/react-query'
+import { learningProgressApi, useMyCourses } from '@/apis/services/learning-progress-api'
 
 import { PageLoading } from '@workspace/ui/components/page-loading'
 
 export default function DashboardPage() {
-    const { user, status } = useAppSelector((state) => state.auth)
+    const { user, status: authStatus } = useAppSelector((state) => state.auth)
+    const { data: courses, isLoading: coursesLoading } = useMyCourses()
+    const { data: statsData, isLoading: statsLoading } = useQuery({
+        queryKey: ['learning-stats'],
+        queryFn: learningProgressApi.getStats
+    })
 
-    if (status === 'loading') {
+    if (authStatus === 'loading' || coursesLoading || statsLoading) {
         return <PageLoading text="Đang tải dữ liệu..." />
     }
 
     const stats = [
-        { label: 'Khóa học', value: '12', subValue: '5 hoàn thành', icon: BookOpen, color: 'text-blue-500' },
-        { label: 'Giờ học', value: '48h', subValue: 'Tổng thời gian', icon: Clock, color: 'text-emerald-500' },
-        { label: 'Chứng chỉ', value: '3', subValue: 'Đã nhận được', icon: Award, color: 'text-amber-500' },
-        { label: 'Tiến độ', value: '58%', subValue: 'Trung bình', icon: TrendingUp, color: 'text-purple-500' },
+        { label: 'Khóa học', value: statsData?.totalCourses || 0, subValue: `${statsData?.completedCourses || 0} hoàn thành`, icon: BookOpen, color: 'text-blue-500' },
+        { label: 'Giờ học', value: `${statsData?.totalLearningHours || 0}h`, subValue: 'Tổng thời gian', icon: Clock, color: 'text-emerald-500' },
+        { label: 'Chứng chỉ', value: statsData?.completedCourses || 0, subValue: 'Đã nhận được', icon: Award, color: 'text-amber-500' },
+        { label: 'Tiến độ', value: `${statsData?.averageProgress || 0}%`, subValue: 'Trung bình', icon: TrendingUp, color: 'text-purple-500' },
     ]
 
-    const recentCourses = [
-        {
-            id: 1,
-            slug: 'tieng-nhat-n5-co-ban',
-            title: 'Tiếng Nhật N5 - Cơ bản',
-            progress: 65,
-            instructor: 'Nguyễn Văn A',
-        },
-        {
-            id: 2,
-            slug: 'ngu-phap-n4',
-            title: 'Ngữ pháp N4',
-            progress: 30,
-            instructor: 'Trần Thị B',
-        },
-    ]
+    const recentCourses = courses?.slice(0, 3) || []
 
     const upcomingClasses = [
         {
@@ -73,7 +65,7 @@ export default function DashboardPage() {
                     Chào mừng trở lại, <span className="text-primary not-italic">{user?.displayName || 'Học viên'}</span>
                 </h1>
                 <p className="text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 mt-4 italic border-l-2 border-primary/20 pl-6">
-                    Hệ thống vận hành tối ưu. Bạn đã học được <span className="text-foreground">12 giờ</span> trong tuần này.
+                    Hệ thống đã sẵn sàng. Bạn đã học được <span className="text-foreground">{statsData?.totalLearningHours || 0} giờ</span>.
                 </p>
             </div>
 
@@ -111,18 +103,18 @@ export default function DashboardPage() {
                         <div className="relative z-10">
                             <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[9px] font-black uppercase tracking-[0.3em] mb-4">
                                 <Target className="size-3" />
-                                Memory Protocol
+                                Luyện trí nhớ
                             </div>
-                            <h3 className="text-4xl font-serif font-bold italic tracking-tight text-foreground mb-2">Neural Memory <br /><span className="text-primary not-italic">Banks</span></h3>
-                            <p className="text-[11px] font-medium text-muted-foreground/60 max-w-[80%] italic leading-relaxed">Spaced Repetition System (SRS) active. Enhance long-term retention via cognitive optimization.</p>
+                            <h3 className="text-4xl font-serif font-bold italic tracking-tight text-foreground mb-2">Thẻ nhớ <br /><span className="text-primary not-italic">Flashcards</span></h3>
+                            <p className="text-[11px] font-medium text-muted-foreground/60 max-w-[80%] italic leading-relaxed">Hệ thống lặp lại ngắt quãng (SRS) giúp tối ưu hóa khả năng ghi nhớ dài hạn.</p>
                         </div>
                         <div className="relative z-10 flex items-center justify-between mt-8 pt-6 border-t border-border/10">
                             <div className="flex items-center gap-2">
                                 <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500/80">Synchronized</span>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500/80">Đồng bộ</span>
                             </div>
                             <Button size="sm" variant="ghost" className="rounded-xl px-4 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all">
-                                Establish Link <ArrowRight className="ml-2 w-3.5 h-3.5" />
+                                Bắt đầu học <ArrowRight className="ml-2 w-3.5 h-3.5" />
                             </Button>
                         </div>
                     </div>
@@ -136,18 +128,18 @@ export default function DashboardPage() {
                         <div className="relative z-10">
                             <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/5 text-blue-500 rounded-full text-[9px] font-black uppercase tracking-[0.3em] mb-4">
                                 <Award className="size-3" />
-                                Competency Check
+                                Kiểm tra năng lực
                             </div>
-                            <h3 className="text-4xl font-serif font-bold italic tracking-tight text-foreground mb-2">Examination <br /><span className="text-blue-500 not-italic">Protocols</span></h3>
-                            <p className="text-[11px] font-medium text-muted-foreground/60 max-w-[80%] italic leading-relaxed">Standardized competency assessments. Validate your linguistic proficiency across JLPT matrices.</p>
+                            <h3 className="text-4xl font-serif font-bold italic tracking-tight text-foreground mb-2">Thi thử <br /><span className="text-blue-500 not-italic">JLPT</span></h3>
+                            <p className="text-[11px] font-medium text-muted-foreground/60 max-w-[80%] italic leading-relaxed">Các bài thi chuẩn hóa giúp đánh giá trình độ ngôn ngữ chính xác.</p>
                         </div>
                         <div className="relative z-10 flex items-center justify-between mt-8 pt-6 border-t border-border/10">
                             <div className="flex items-center gap-2">
                                 <span className="inline-flex h-2 w-2 rounded-full bg-blue-500 animate-pulse"></span>
-                                <span className="text-[10px] font-black uppercase tracking-widest text-blue-500/80">Grid Online</span>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-blue-500/80">Sẵn sàng</span>
                             </div>
                             <Button size="sm" variant="ghost" className="rounded-xl px-4 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-blue-500/5 hover:text-blue-500 transition-all">
-                                Initiate Grid <ArrowRight className="ml-2 w-3.5 h-3.5" />
+                                Làm bài thi <ArrowRight className="ml-2 w-3.5 h-3.5" />
                             </Button>
                         </div>
                     </div>
@@ -164,57 +156,71 @@ export default function DashboardPage() {
                                 <div className="p-2 rounded-xl bg-primary/5">
                                     <PlayCircle className="w-5 h-5 text-primary" />
                                 </div>
-                                <h2 className="text-2xl font-serif font-bold tracking-tight italic">Active <span className="text-primary not-italic">Learning</span></h2>
+                                <h2 className="text-2xl font-serif font-bold tracking-tight italic">Đang <span className="text-primary not-italic">Học</span></h2>
                             </div>
                             <Link href="/dashboard/my-courses">
                                 <Button variant="ghost" size="sm" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 hover:text-primary transition-all">
-                                    Global Catalog <ChevronRight className="w-4 h-4 ml-1" />
+                                    Tất cả khóa học <ChevronRight className="w-4 h-4 ml-1" />
                                 </Button>
                             </Link>
                         </div>
 
                         <div className="grid gap-6">
                             {recentCourses.map((course, idx) => (
-                                <Card
-                                    key={course.id}
-                                    className="rounded-[2.5rem] border border-border/10 bg-background/40 backdrop-blur-3xl hover:border-primary/20 transition-all duration-700 group cursor-pointer overflow-hidden shadow-sm hover:shadow-xl hover:shadow-primary/5 animate-in fade-in slide-in-from-left-4 fill-mode-both"
-                                    style={{ animationDelay: `${700 + (idx * 150)}ms` }}
-                                >
-                                    <CardContent className="p-8">
-                                        <div className="flex flex-col sm:flex-row sm:items-center gap-8">
-                                            <div className="w-full sm:w-44 h-28 rounded-2xl bg-muted/20 border border-border/5 flex-shrink-0 relative overflow-hidden group-hover:bg-primary/5 transition-all duration-700">
-                                                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-700 group-hover:scale-110">
-                                                    <div className="p-4 rounded-full bg-primary text-white shadow-2xl">
-                                                        <PlayCircle className="w-8 h-8" />
+                                <Link key={course.id} href={`/courses/${course.slug}/learn`}>
+                                    <Card
+                                        className="rounded-[2.5rem] border border-border/10 bg-background/40 backdrop-blur-3xl hover:border-primary/20 transition-all duration-700 group cursor-pointer overflow-hidden shadow-sm hover:shadow-xl hover:shadow-primary/5 animate-in fade-in slide-in-from-left-4 fill-mode-both"
+                                        style={{ animationDelay: `${700 + (idx * 150)}ms` }}
+                                    >
+                                        <CardContent className="p-8">
+                                            <div className="flex flex-col sm:flex-row sm:items-center gap-8">
+                                                <div className="w-full sm:w-44 h-28 rounded-2xl bg-muted/20 border border-border/5 flex-shrink-0 relative overflow-hidden group-hover:bg-primary/5 transition-all duration-700">
+                                                    {course.thumbnailUrl ? (
+                                                        <img src={course.thumbnailUrl} alt={course.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                                                    ) : (
+                                                        <div className="w-full h-full bg-muted flex items-center justify-center">
+                                                            <BookOpen className="w-8 h-8 text-muted-foreground/20" />
+                                                        </div>
+                                                    )}
+                                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-700">
+                                                        <div className="p-4 rounded-full bg-primary text-white shadow-2xl">
+                                                            <PlayCircle className="w-8 h-8" />
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div className="flex-1 min-w-0 space-y-4">
-                                                <div>
-                                                    <h3 className="text-xl font-serif font-bold text-foreground truncate group-hover:text-primary transition-all duration-500 italic">
-                                                        {course.title}
-                                                    </h3>
-                                                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 mt-1 italic">Instructor: <span className="text-foreground/60">{course.instructor}</span></p>
-                                                </div>
-                                                <div className="space-y-3">
-                                                    <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/30">
-                                                        <span>Progress Matrix</span>
-                                                        <span className="text-primary">{course.progress}%</span>
+                                                <div className="flex-1 min-w-0 space-y-4">
+                                                    <div>
+                                                        <h3 className="text-xl font-serif font-bold text-foreground truncate group-hover:text-primary transition-all duration-500 italic">
+                                                            {course.title}
+                                                        </h3>
+                                                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 mt-1 italic">Giảng viên: <span className="text-foreground/60">{course.instructor}</span></p>
                                                     </div>
-                                                    <Progress value={course.progress} className="h-2 bg-primary/5" />
+                                                    <div className="space-y-3">
+                                                        <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/30">
+                                                            <span>Tiến độ học tập</span>
+                                                            <span className="text-primary">{course.progress}%</span>
+                                                        </div>
+                                                        <Progress value={course.progress} className="h-2 bg-primary/5" />
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="flex shrink-0">
-                                                <Link href={`/courses/${course.slug}/learn`}>
+                                                <div className="flex shrink-0">
                                                     <Button size="icon" variant="ghost" className="rounded-2xl w-14 h-14 border border-border/10 hover:bg-primary hover:text-white hover:border-primary transition-all duration-500 group-hover:rotate-6">
                                                         <ChevronRight className="w-6 h-6" />
                                                     </Button>
-                                                </Link>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
+                                        </CardContent>
+                                    </Card>
+                                </Link>
                             ))}
+                            {recentCourses.length === 0 && (
+                                <div className="p-8 rounded-[2.5rem] border border-border/10 bg-background/40 backdrop-blur-3xl text-center">
+                                    <p className="text-muted-foreground italic">Bạn chưa tham gia khóa học nào.</p>
+                                    <Link href="/courses">
+                                        <Button variant="outline" className="mt-4 rounded-xl">Khám phá khóa học</Button>
+                                    </Link>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -227,7 +233,7 @@ export default function DashboardPage() {
                             <div className="p-2 rounded-xl bg-orange-500/5">
                                 <Calendar className="w-4 h-4 text-orange-500" />
                             </div>
-                            <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground/60 italic">Live Events</h3>
+                            <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground/60 italic">Lịch học trực tuyến</h3>
                         </div>
                         <div className="space-y-4">
                             {upcomingClasses.map((classItem) => (
@@ -242,7 +248,7 @@ export default function DashboardPage() {
                                 </div>
                             ))}
                         </div>
-                        <Button variant="ghost" className="w-full h-12 rounded-2xl border border-border/10 text-[9px] font-black uppercase tracking-[0.2em] opacity-40 hover:opacity-100 transition-opacity">Schedule Access</Button>
+                        <Button variant="ghost" className="w-full h-12 rounded-2xl border border-border/10 text-[9px] font-black uppercase tracking-[0.2em] opacity-40 hover:opacity-100 transition-opacity">Xem lịch chi tiết</Button>
                     </div>
 
                     {/* Weekly Goals */}
@@ -251,25 +257,25 @@ export default function DashboardPage() {
                             <div className="p-2 rounded-xl bg-emerald-500/5">
                                 <Target className="w-4 h-4 text-emerald-500" />
                             </div>
-                            <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground/60 italic">Zen Goals</h3>
+                            <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground/60 italic">Mục tiêu tuần</h3>
                         </div>
                         <div className="space-y-6">
                             <div className="px-2">
-                                <p className="text-lg font-serif font-bold italic text-foreground leading-tight">Mastery Path</p>
-                                <p className="text-[10px] font-medium text-muted-foreground/60 mt-2 italic leading-relaxed">"A journey of a thousand miles begins with a single step."</p>
+                                <p className="text-lg font-serif font-bold italic text-foreground leading-tight">Lộ trình học tập</p>
+                                <p className="text-[10px] font-medium text-muted-foreground/60 mt-2 italic leading-relaxed">"Hành trình vạn dặm bắt đầu từ một bước chân."</p>
                             </div>
                             <div className="space-y-4 pt-4 border-t border-emerald-500/10">
                                 <div className="space-y-3">
                                     <div className="flex justify-between text-[9px] font-black uppercase tracking-[0.3em] text-emerald-500/60">
-                                        <span>Curriculum Units</span>
-                                        <span>66%</span>
+                                        <span>Bài học hoàn thành</span>
+                                        <span>{statsData?.averageProgress || 0}%</span>
                                     </div>
-                                    <Progress value={66} className="h-2 bg-emerald-500/10" />
+                                    <Progress value={statsData?.averageProgress || 0} className="h-2 bg-emerald-500/10" />
                                 </div>
-                                <p className="text-[10px] font-black uppercase tracking-widest text-center text-emerald-500/40">2/3 Modules Completed</p>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-center text-emerald-500/40">{statsData?.completedCourses || 0} khóa học hoàn thành</p>
                             </div>
                         </div>
-                        <Button className="w-full h-14 rounded-2xl bg-emerald-500 text-white font-black uppercase tracking-[0.2em] text-[10px] shadow-xl shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all">Optimize Focus</Button>
+                        <Button className="w-full h-14 rounded-2xl bg-emerald-500 text-white font-black uppercase tracking-[0.2em] text-[10px] shadow-xl shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all">Tối ưu hóa tập trung</Button>
                     </div>
                 </div>
             </div>

@@ -23,6 +23,17 @@ export interface LearningStats {
     currentStreak: number; // Placeholder
 }
 
+export interface HistoryItem {
+    id: string;
+    courseTitle: string;
+    lessonTitle: string;
+    timestamp: string;
+    duration: number;
+    slug: string;
+    lessonId: string;
+    courseId: string;
+}
+
 export const learningProgressApi = {
     async getMyCourses(): Promise<MyCourseResponse[]> {
         const response = await apiClient.get<MyCourseResponse[]>('/api/learning-progress/my-courses');
@@ -46,6 +57,11 @@ export const learningProgressApi = {
     async getCompletedLessons(courseId: string): Promise<string[]> {
         const response = await apiClient.get<string[]>(`/api/learning-progress/completed-lessons/${courseId}`);
         return response.data;
+    },
+
+    async getHistory(): Promise<HistoryItem[]> {
+        const response = await apiClient.get<HistoryItem[]>('/api/learning-progress/history');
+        return response.data;
     }
 }
 
@@ -57,5 +73,19 @@ export function useCompletedLessons(courseId?: string) {
         queryKey: ['completed-lessons', courseId],
         queryFn: () => learningProgressApi.getCompletedLessons(courseId!),
         enabled: !!courseId,
+    });
+}
+
+export function useMyCourses() {
+    return useQuery({
+        queryKey: ['my-courses'],
+        queryFn: learningProgressApi.getMyCourses,
+    });
+}
+
+export function useLearningHistory() {
+    return useQuery({
+        queryKey: ['learning-history'],
+        queryFn: learningProgressApi.getHistory,
     });
 }

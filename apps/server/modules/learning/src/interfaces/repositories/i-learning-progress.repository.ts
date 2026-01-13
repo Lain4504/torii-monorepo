@@ -23,4 +23,6 @@ export interface ILearningProgressRepository {
      * Get all completed lesson IDs for an enrollment
      */
     getCompletedLessonIds(enrollmentId: string): Promise<string[]>;
+
+    findRecentProgress(userId: string, limit: number): Promise<any[]>;
 }

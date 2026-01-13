@@ -211,4 +211,22 @@ export class LearningProgressService implements ILearningProgressService {
         // Get all completed lesson IDs using repository method
         return await this.progressRepo.getCompletedLessonIds(enrollment.id);
     }
+
+    async getLearningHistory(userId: string) {
+        const history = await this.progressRepo.findRecentProgress(userId, 50);
+
+        return history.map((item: any) => ({
+            id: item.lessonId, // Use unique ID, lessonId might repeat if re-enrolled but that's rare. Better use progress ID if available, but item ID is usually composite in repo return? Prisma returns object. 
+            // Wait, findRecentProgress returns LessonProgress. It has composite key `enrollmentId_lessonId` usually.
+            // Let's use a combination or just index if needed, but frontend expects unique ID.
+            // item is LessonProgress.
+            courseTitle: item.enrollment.course.title,
+            lessonTitle: item.lesson.title,
+            timestamp: item.lastWatchedAt,
+            duration: item.watchedDuration, // In seconds
+            slug: item.enrollment.course.slug,
+            lessonId: item.lessonId,
+            courseId: item.enrollment.course.id
+        }));
+    }
 }

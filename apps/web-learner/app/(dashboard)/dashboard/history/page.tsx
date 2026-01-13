@@ -4,33 +4,43 @@ import { Card, CardContent } from '@workspace/ui/components/card'
 import { Clock, PlayCircle, ChevronRight, Calendar, BookOpen } from 'lucide-react'
 import Link from 'next/link'
 
+import { useLearningHistory } from '../../../../apis/services/learning-progress-api'
+import { Button } from '@workspace/ui/components/button'
+import { format } from 'date-fns'
+import { vi } from 'date-fns/locale'
+
+function formatDuration(seconds: number) {
+    const minutes = Math.floor(seconds / 60)
+    return `${minutes} phút`
+}
+
 export default function HistoryPage() {
-    const historyItems = [
-        {
-            id: 1,
-            courseTitle: 'Tiếng Nhật N5 - Cơ bản',
-            lessonTitle: 'Bài 12: Ngữ pháp cơ bản (Phần 2)',
-            timestamp: 'Hôm nay, 14:30',
-            duration: '45 phút',
-            slug: 'tieng-nhat-n5-co-ban'
-        },
-        {
-            id: 2,
-            courseTitle: 'Tiếng Nhật N5 - Cơ bản',
-            lessonTitle: 'Bài 11: Từ vựng về gia đình',
-            timestamp: 'Hôm qua, 20:15',
-            duration: '30 phút',
-            slug: 'tieng-nhat-n5-co-ban'
-        },
-        {
-            id: 3,
-            courseTitle: 'Ngữ pháp N4',
-            lessonTitle: 'Bài 5: Thể điều kiện',
-            timestamp: '08/01/2026, 09:00',
-            duration: '60 phút',
-            slug: 'ngu-phap-n4'
-        }
-    ]
+    const { data: history, isLoading } = useLearningHistory()
+
+    const historyItems = history?.map(item => ({
+        id: item.id,
+        courseTitle: item.courseTitle,
+        lessonTitle: item.lessonTitle,
+        timestamp: format(new Date(item.timestamp), "d MMM, yyyy HH:mm", { locale: vi }),
+        duration: formatDuration(item.duration),
+        slug: item.slug
+    })) || []
+
+    if (isLoading) {
+        return (
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 max-w-4xl">
+                <div className="space-y-1">
+                    <div className="h-8 w-48 bg-muted/20 animate-pulse rounded-md" />
+                    <div className="h-4 w-64 bg-muted/20 animate-pulse rounded-md" />
+                </div>
+                <div className="space-y-6">
+                    {[1, 2, 3].map(i => (
+                        <div key={i} className="h-32 bg-muted/10 animate-pulse rounded-xl" />
+                    ))}
+                </div>
+            </div>
+        )
+    }
 
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 max-w-4xl animate-in fade-in duration-500">
@@ -90,4 +100,3 @@ export default function HistoryPage() {
         </div>
     )
 }
-import { Button } from '@workspace/ui/components/button'

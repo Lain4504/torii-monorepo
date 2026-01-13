@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@workspace/ui/lib/utils'
 import { Progress } from '@workspace/ui/components/progress'
+import { useMyCourses } from '../../apis/services/learning-progress-api'
 
 // Nhóm học tập - ưu tiên cao nhất
 const learningNav = [
@@ -134,7 +135,13 @@ function NavGroup({ title, items, pathname, className, isCollapsed }: NavGroupPr
 }
 
 function ContinueLearningSection() {
-    if (continueLearning.length === 0) return null
+    const { data: courses, isLoading } = useMyCourses();
+
+    // Filter courses that are in progress (progress > 0 and < 100) or just take the first one that is active
+    // The API returns courses ordered by lastAccessed desc.
+    const activeCourse = courses?.find(c => c.progress < 100);
+
+    if (isLoading || !activeCourse) return null
 
     return (
         <div className="mb-10 px-2">
@@ -142,29 +149,26 @@ function ContinueLearningSection() {
                 Đang học
             </h3>
             <div className="space-y-3">
-                {continueLearning.slice(0, 1).map((course) => (
-                    <Link
-                        key={course.id}
-                        href={course.href}
-                        className="group block p-5 rounded-[2rem] bg-background/40 hover:bg-background/60 backdrop-blur-3xl transition-all duration-300 cursor-pointer border border-border/10 hover:border-primary/20 shadow-sm hover:shadow-xl hover:shadow-primary/5"
-                    >
-                        <div className="flex items-start justify-between gap-3 mb-4">
-                            <h4 className="text-sm font-serif font-bold text-foreground leading-snug group-hover:text-primary transition-colors italic">
-                                {course.title}
-                            </h4>
-                            <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all">
-                                <PlayCircle className="w-4 h-4" />
-                            </div>
+                <Link
+                    href={`/courses/${activeCourse.slug}/learn`}
+                    className="group block p-5 rounded-[2rem] bg-background/40 hover:bg-background/60 backdrop-blur-3xl transition-all duration-300 cursor-pointer border border-border/10 hover:border-primary/20 shadow-sm hover:shadow-xl hover:shadow-primary/5"
+                >
+                    <div className="flex items-start justify-between gap-3 mb-4">
+                        <h4 className="text-sm font-serif font-bold text-foreground leading-snug group-hover:text-primary transition-colors italic">
+                            {activeCourse.title}
+                        </h4>
+                        <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all">
+                            <PlayCircle className="w-4 h-4" />
                         </div>
-                        <div className="space-y-2.5">
-                            <div className="flex items-center justify-between text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">
-                                <span>Tiến độ</span>
-                                <span>{course.progress}%</span>
-                            </div>
-                            <Progress value={course.progress} className="h-1 bg-primary/5" />
+                    </div>
+                    <div className="space-y-2.5">
+                        <div className="flex items-center justify-between text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">
+                            <span>Tiến độ</span>
+                            <span>{activeCourse.progress}%</span>
                         </div>
-                    </Link>
-                ))}
+                        <Progress value={activeCourse.progress} className="h-1 bg-primary/5" />
+                    </div>
+                </Link>
             </div>
         </div>
     )

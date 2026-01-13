@@ -33,4 +33,10 @@ export class LearningProgressController {
         const userId = req.requester.sub;
         return this.service.getCompletedLessons(userId, courseId);
     }
+
+    @Get('history')
+    async getHistory(@Request() req: any) {
+        const userId = req.requester.sub;
+        return this.service.getLearningHistory(userId);
+    }
 }

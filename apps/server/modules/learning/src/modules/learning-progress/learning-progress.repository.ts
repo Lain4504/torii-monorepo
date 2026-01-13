@@ -77,4 +77,37 @@ export class LearningProgressRepository implements ILearningProgressRepository {
 
         return completedLessons.map(lesson => lesson.lessonId);
     }
+
+    async findRecentProgress(userId: string, limit: number): Promise<any[]> {
+        return this.prisma.lessonProgress.findMany({
+            where: {
+                enrollment: {
+                    userId,
+                },
+            },
+            orderBy: {
+                lastWatchedAt: 'desc',
+            },
+            take: limit,
+            include: {
+                lesson: {
+                    select: {
+                        id: true,
+                        title: true,
+                    }
+                },
+                enrollment: {
+                    include: {
+                        course: {
+                            select: {
+                                id: true,
+                                title: true,
+                                slug: true,
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
 }
