@@ -1,43 +1,25 @@
+
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import {
-    VideoPlayer,
-    VideoPlayerControlBar,
-    VideoPlayerPlayButton,
-    VideoPlayerSeekBackwardButton,
-    VideoPlayerSeekForwardButton,
-    VideoPlayerTimeRange,
-    VideoPlayerTimeDisplay,
-    VideoPlayerMuteButton,
-    VideoPlayerVolumeRange,
-    VideoPlayerContent,
-    VideoPlayerFullscreenButton,
-} from '@workspace/ui/components/ui/shadcn-io/video-player'
 import { Button } from '@workspace/ui/components/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card'
-import { Separator } from '@workspace/ui/components/separator'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs'
 import {
-    ArrowLeft,
-    ChevronLeft,
-    ChevronRight,
-    Download,
     BookOpen,
-    Clock,
-    Menu,
-    FileText,
-    MessageSquare,
-    CheckCircle2,
-    Layout,
-    Sparkles
 } from 'lucide-react'
 import { courseApi } from '@/apis/services/course-api'
+import { learningProgressApi } from '@/apis/services/learning-progress-api'
+import { lessonApi } from '@/apis/services/lesson-api'
 import { LearningSidebar } from '@/components/courses/learning-sidebar'
-import { cn } from '@workspace/ui/lib/utils'
 import { PageLoading } from '@workspace/ui/components/page-loading'
+import { toast } from '@workspace/ui/components/sonner'
+
+import { LessonHeader } from '@/components/courses/lesson-header'
+import { LessonVideoPlayer } from '@/components/courses/lesson-video-player'
+import { LessonNavigation } from '@/components/courses/lesson-navigation'
+import { LessonContent } from '@/components/courses/lesson-content'
+import { Separator } from '@workspace/ui/components/separator'
 
 export default function LessonDetailPage() {
     const params = useParams()
@@ -49,6 +31,8 @@ export default function LessonDetailPage() {
     const [currentLesson, setCurrentLesson] = useState<any>(null)
     const [loading, setLoading] = useState(true)
     const [sidebarOpen, setSidebarOpen] = useState(true)
+    const lastProgressUpdate = useRef<number>(0)
+    const videoDurationRef = useRef<number>(0)
 
     useEffect(() => {
         const fetchData = async () => {
@@ -60,12 +44,21 @@ export default function LessonDetailPage() {
                     const curriculumData = await courseApi.getCurriculum(courseData.id)
                     setCurriculum(curriculumData.modules || [])
 
-                    // Find current lesson
-                    for (const module of curriculumData.modules || []) {
-                        const lesson = module.lessons?.find((l: any) => l.id === lessonId)
-                        if (lesson) {
-                            setCurrentLesson(lesson)
-                            break
+                    // Fetch detailed lesson data
+                    if (lessonId) {
+                        try {
+                            const lessonData = await lessonApi.getLesson(lessonId)
+                            setCurrentLesson(lessonData)
+                        } catch (err) {
+                            console.error('Failed to fetch lesson details:', err)
+                            // Fallback to curriculum data if lesson detail fails
+                            for (const module of curriculumData.modules || []) {
+                                const lesson = module.lessons?.find((l: any) => l.id === lessonId)
+                                if (lesson) {
+                                    setCurrentLesson(lesson)
+                                    break
+                                }
+                            }
                         }
                     }
                 }
@@ -137,6 +130,39 @@ export default function LessonDetailPage() {
         }
     }
 
+    const handleTimeUpdate = useCallback((e: React.SyntheticEvent<HTMLVideoElement>) => {
+        const video = e.currentTarget
+        const currentTime = video.currentTime
+        const duration = video.duration || 0
+        videoDurationRef.current = duration
+
+        if (duration > 0) {
+            // Update progress every 15 seconds
+            if (currentTime - lastProgressUpdate.current > 15) {
+                lastProgressUpdate.current = currentTime
+
+                learningProgressApi.trackProgress(
+                    lessonId,
+                    currentTime,
+                    duration
+                ).catch(err => console.error('Failed to track progress', err))
+            }
+        }
+    }, [lessonId])
+
+    const handleVideoEnded = useCallback(() => {
+        const duration = videoDurationRef.current
+        if (duration > 0) {
+            learningProgressApi.trackProgress(
+                lessonId,
+                duration,
+                duration
+            ).then(() => {
+                toast.success('Đã hoàn thành bài học!')
+            }).catch(err => console.error('Failed to complete lesson', err))
+        }
+    }, [lessonId])
+
     if (loading) {
         return (
             <div className="h-screen bg-background">
@@ -171,214 +197,62 @@ export default function LessonDetailPage() {
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col overflow-hidden relative">
 
-                {/* Learning Header */}
-                <header className="sticky top-0 z-40 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
-                    <div className="px-4 h-16 flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-4 min-w-0">
-                            <Link href={`/dashboard/my-courses`}>
-                                <Button variant="ghost" size="icon" className="rounded-xl hover:bg-muted/50 cursor-pointer">
-                                    <ArrowLeft className="w-4 h-4" />
-                                </Button>
-                            </Link>
-                            <div className="min-w-0">
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 truncate">
-                                    {course.title}
-                                </p>
-                                <h1 className="text-xl font-serif font-bold text-foreground truncate max-w-[200px] sm:max-w-md mt-0.5 uppercase italic tracking-tight">
-                                    {currentLesson.title}
-                                </h1>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-primary/5 rounded-full border border-primary/10">
-                                <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                                <span className="text-[10px] font-bold text-primary uppercase tracking-widest">{progress}% hoàn thành</span>
-                            </div>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => setSidebarOpen(!sidebarOpen)}
-                                className={cn("rounded-xl hover:bg-muted/50 cursor-pointer transition-all", sidebarOpen && "bg-primary/5 text-primary")}
-                            >
-                                <Layout className="w-5 h-5" />
-                            </Button>
-                        </div>
-                    </div>
-                </header>
+                <LessonHeader
+                    courseTitle={course.title}
+                    lessonTitle={currentLesson.title}
+                    progress={progress}
+                    sidebarOpen={sidebarOpen}
+                    onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+                />
 
                 {/* Scrollable Content Viewport */}
                 <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
                     <div className="max-w-6xl mx-auto pb-20">
                         {/* Player Hero Section */}
-                        <div className="bg-black/5 relative group p-2 md:p-6 lg:p-8">
-                            <VideoPlayer className="w-full aspect-video bg-black/90 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl border border-white/5 ring-1 ring-white/5 ring-inset">
-                                <VideoPlayerContent
-                                    slot="media"
-                                    src={videoUrl}
-                                    className="h-full w-full object-cover"
-                                />
-                                <VideoPlayerControlBar>
-                                    <VideoPlayerPlayButton />
-                                    <VideoPlayerSeekBackwardButton />
-                                    <VideoPlayerSeekForwardButton />
-                                    <VideoPlayerTimeRange />
-                                    <VideoPlayerTimeDisplay />
-                                    <VideoPlayerMuteButton />
-                                    <VideoPlayerVolumeRange />
-                                    <VideoPlayerFullscreenButton />
-                                </VideoPlayerControlBar>
-                            </VideoPlayer>
-                        </div>
+                        {currentLesson.contentType === 'video' ? (
+                            <LessonVideoPlayer
+                                videoUrl={videoUrl}
+                                onTimeUpdate={handleTimeUpdate}
+                                onEnded={handleVideoEnded}
+                            />
+                        ) : (
+                            <div className="bg-muted/10 aspect-video flex items-center justify-center border-b border-border/50">
+                                <div className="text-center space-y-4 max-w-lg px-4">
+                                    <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <BookOpen className="w-8 h-8 text-primary" />
+                                    </div>
+                                    <h2 className="text-2xl font-serif font-bold italic text-foreground">
+                                        Lesson: {currentLesson.title}
+                                    </h2>
+                                    <p className="text-sm text-muted-foreground">
+                                        This lesson is an article. Please read the content below.
+                                    </p>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Content Area */}
                         <div className="px-6 py-10 md:px-12">
                             {/* Navigation & Lesson Actions */}
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
-                                <div className="flex items-center gap-6 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/50">
-                                    <div className="flex items-center gap-2">
-                                        <Clock className="w-3.5 h-3.5" />
-                                        <span>
-                                            {currentLesson.videoDuration
-                                                ? `${Math.floor(currentLesson.videoDuration / 60)}:${(currentLesson.videoDuration % 60).toString().padStart(2, '0')}`
-                                                : '00:00'}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <BookOpen className="w-3.5 h-3.5" />
-                                        <span>Bài học #{currentLesson.order || 1}</span>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={handlePrevious}
-                                        disabled={!findPreviousLesson()}
-                                        className="rounded-full h-10 px-5 text-xs font-bold uppercase tracking-widest border-border/50 hover:bg-muted cursor-pointer transition-all"
-                                    >
-                                        <ChevronLeft className="w-4 h-4 mr-2" />
-                                        Trước
-                                    </Button>
-                                    <Button
-                                        size="sm"
-                                        onClick={handleNext}
-                                        disabled={!findNextLesson() && false} // Allow redirect to completion
-                                        className="rounded-full h-10 px-6 text-xs font-bold uppercase tracking-widest bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 cursor-pointer transition-all active:scale-95"
-                                    >
-                                        {findNextLesson() ? (
-                                            <>Bài Tiếp <ChevronRight className="w-4 h-4 ml-2" /></>
-                                        ) : (
-                                            <>Hoàn thành <CheckCircle2 className="w-4 h-4 ml-2" /></>
-                                        )}
-                                    </Button>
-                                </div>
-                            </div>
+                            <LessonNavigation
+                                duration={currentLesson.videoDuration}
+                                order={currentLesson.order}
+                                hasPrevious={!!findPreviousLesson()}
+                                hasNext={!!findNextLesson()}
+                                onPrevious={handlePrevious}
+                                onNext={handleNext}
+                            />
 
                             <Separator className="bg-border/30 mb-12" />
 
                             {/* Simplified Tabs Section */}
-                            <Tabs defaultValue="content" className="w-full">
-                                <TabsList className="bg-muted/20 border-none w-auto inline-flex h-auto p-1.5 gap-2 rounded-full">
-                                    {[
-                                        { id: 'content', label: 'Bài học', icon: BookOpen },
-                                        { id: 'resources', label: 'Tài liệu', icon: FileText, badge: 1 },
-                                        { id: 'comments', label: 'Thảo luận', icon: MessageSquare }
-                                    ].map((tab) => (
-                                        <TabsTrigger
-                                            key={tab.id}
-                                            value={tab.id}
-                                            className="px-6 py-3 rounded-full border-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 transition-all flex items-center gap-2 hover:bg-background/40 hover:text-primary"
-                                        >
-                                            <tab.icon className="w-3.5 h-3.5" />
-                                            {tab.label}
-                                            {tab.badge && (
-                                                <span className={cn(
-                                                    "ml-1 text-[9px] font-black rounded-full px-1.5 py-0.5",
-                                                    "bg-background/20 text-current"
-                                                )}>
-                                                    {tab.badge}
-                                                </span>
-                                            )}
-                                        </TabsTrigger>
-                                    ))}
-                                </TabsList>
-
-                                <TabsContent value="content" className="animate-in fade-in slide-in-from-bottom-2 duration-500 outline-none">
-                                    <div className="space-y-8">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-1 h-5 bg-primary/40 rounded-full" />
-                                            <h3 className="text-xl font-serif font-bold italic text-foreground uppercase tracking-tight">
-                                                Nội dung bài học
-                                            </h3>
-                                        </div>
-
-                                        <div className="p-8 rounded-2xl border border-border/10 bg-muted/5">
-                                            <div className="space-y-4 text-foreground/80 leading-relaxed text-sm font-medium italic">
-                                                {currentLesson.description ? (
-                                                    currentLesson.description.split('\n').map((para: string, i: number) => (
-                                                        <p key={i}>{para}</p>
-                                                    ))
-                                                ) : (
-                                                    <p className="text-muted-foreground/40 font-black uppercase tracking-[0.2em] text-sm">
-                                                        The faculty has designated this sesson as self-explanatory. Focus on the visual components provided in our premium player.
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </TabsContent>
-
-                                <TabsContent value="resources" className="animate-in fade-in slide-in-from-bottom-4 duration-700 outline-none">
-                                    <div className="grid gap-6">
-                                        <div className="group flex flex-col sm:flex-row items-center justify-between gap-6 p-8 rounded-[2.5rem] border border-border/20 bg-muted/5 hover:bg-background hover:shadow-2xl hover:shadow-primary/5 transition-all cursor-pointer relative overflow-hidden">
-                                            <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                            <div className="flex items-center gap-6 relative z-10">
-                                                <div className="w-16 h-16 bg-background rounded-2xl flex items-center justify-center shrink-0 border border-border/20 shadow-xl group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-500">
-                                                    <FileText className="w-8 h-8" />
-                                                </div>
-                                                <div className="space-y-1">
-                                                    <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">Available Asset</p>
-                                                    <h4 className="text-2xl font-serif font-bold italic text-foreground tracking-tight uppercase leading-none">Lesson Manuscript PDF</h4>
-                                                    <p className="text-[10px] text-muted-foreground/30 font-black uppercase tracking-[0.2em] flex items-center gap-2">
-                                                        <span>PDF FORMAT</span> <div className="w-1 h-1 bg-primary/40 rounded-full" /> <span>4.2 MB SIZE</span>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <Button className="h-14 rounded-2xl px-8 text-[11px] font-black uppercase tracking-[0.2em] bg-primary text-white hover:opacity-90 transition-all relative z-10 shadow-lg shadow-primary/20">
-                                                <Download className="w-4 h-4 mr-3" /> Fetch Asset
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </TabsContent>
-
-                                <TabsContent value="comments" className="animate-in fade-in slide-in-from-bottom-4 duration-700 outline-none">
-                                    <div className="flex flex-col items-center justify-center p-20 text-center space-y-8 rounded-[3rem] border border-border/10 bg-muted/5 backdrop-blur-sm relative overflow-hidden">
-                                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-                                        <div className="w-24 h-24 bg-background rounded-3xl flex items-center justify-center shadow-2xl border border-border/10 group">
-                                            <MessageSquare className="w-10 h-10 text-primary/20 group-hover:text-primary transition-colors duration-500" />
-                                        </div>
-                                        <div className="space-y-3">
-                                            <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-primary">Academic Forum</h4>
-                                            <p className="text-3xl font-serif font-bold italic text-foreground tracking-tight uppercase max-w-md mx-auto leading-none">
-                                                Join the Global <span className="text-primary not-italic">Discussion</span>
-                                            </p>
-                                            <p className="text-[11px] text-muted-foreground/50 font-black uppercase tracking-[0.1em] max-w-sm mx-auto">
-                                                Collaborate with fellow students and faculty experts in our encrypted learning channel.
-                                            </p>
-                                        </div>
-                                        <Button className="h-16 rounded-2xl px-12 text-[11px] font-black uppercase tracking-[0.3em] bg-muted/10 text-foreground border border-border/40 hover:bg-primary hover:text-white hover:border-primary transition-all duration-500">
-                                            Initiate Conversation
-                                        </Button>
-                                    </div>
-                                </TabsContent>
-                            </Tabs>
+                            <LessonContent description={currentLesson.description} />
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Sidebar with Zen UI style (Updated component handles this) */}
+            {/* Sidebar with Zen UI style */}
             <LearningSidebar
                 courseTitle={course.title}
                 curriculum={curriculum}

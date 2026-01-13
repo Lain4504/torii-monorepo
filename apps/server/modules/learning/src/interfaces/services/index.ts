@@ -11,6 +11,7 @@ export * from './i-enrollment.service';
 export * from './i-order.service';
 export * from './i-comment.service';
 export * from './i-post.service';
+export * from './i-learning-progress.service';
 
 // Injection tokens for services
 export const COURSE_SERVICE_TOKEN = Symbol('COURSE_SERVICE');

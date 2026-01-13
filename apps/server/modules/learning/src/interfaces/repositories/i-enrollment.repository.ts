@@ -23,6 +23,7 @@ export interface IEnrollmentRepository {
         take: number;
         where?: Prisma.EnrollmentWhereInput;
         orderBy?: Prisma.EnrollmentOrderByWithRelationInput;
+        include?: Prisma.EnrollmentInclude;
     }): Promise<Enrollment[]>;
 
     /**

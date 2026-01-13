@@ -14,6 +14,7 @@ import { CourseInstructorModule } from './modules/course-instructor/course-instr
 import { LessonMaterialModule } from './modules/lesson-material/lesson-material.module';
 import { EnrollmentModule } from './modules/enrollment/enrollment.module';
 import { OrderModule } from './modules/payment/order.module';
+import { LearningProgressModule } from './modules/learning-progress/learning-progress.module';
 
 // Community Modules
 import { PostModule } from './modules/post/post.module';
@@ -81,6 +82,7 @@ import { FlashcardReviewController } from './interfaces/http/flashcard-review.co
     LessonMaterialModule,
     EnrollmentModule,
     OrderModule,
+    LearningProgressModule,
 
     // Community Domain
     PostModule,

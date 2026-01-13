@@ -42,6 +42,7 @@ export class ProxyController {
         '/api/reviews': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
         '/api/enrollments': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
         '/api/orders': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
+        '/api/learning-progress': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
         '/payos/webhook': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
 
         // Storage Domain

@@ -579,6 +579,7 @@ export class CourseService implements ICourseService {
             title: lesson.title,
             contentType: lesson.contentType,
             videoDuration: lesson.videoDuration || undefined,
+            videoUrl: lesson.videoUrl || undefined, // Add videoUrl here
             order: lesson.orderIndex,
             isPreview: lesson.isPreview,
             isUnlocked: lesson.isUnlocked,
