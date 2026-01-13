@@ -69,9 +69,9 @@ export function CreateQuestionPoolDialog({ open, onOpenChange }: CreateQuestionP
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-2xl border-none shadow-2xl bg-background/95 backdrop-blur-xl rounded-2xl p-0 overflow-hidden max-h-[90vh] overflow-y-auto">
-                <DialogHeader className="p-8 pb-4 bg-muted/30">
-                    <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">
+            <DialogContent className="max-w-2xl border border-border/50 shadow-2xl bg-background rounded-3xl p-0 overflow-hidden max-h-[90vh] overflow-y-auto">
+                <DialogHeader className="p-8 pb-4 bg-muted/5 border-b border-border/10">
+                    <DialogTitle className="text-2xl font-semibold tracking-tight">
                         Create Question Pool
                     </DialogTitle>
                 </DialogHeader>
@@ -167,10 +167,11 @@ export function CreateQuestionPoolDialog({ open, onOpenChange }: CreateQuestionP
                         </div>
                     )}
 
-                    <div className="flex justify-end gap-3 pt-4">
+                    <div className="flex justify-end gap-3 pt-6 border-t border-border/10">
                         <Button
                             type="button"
-                            variant="outline"
+                            variant="ghost"
+                            className="rounded-xl h-12 px-6"
                             onClick={() => {
                                 reset();
                                 onOpenChange(false);
@@ -178,7 +179,7 @@ export function CreateQuestionPoolDialog({ open, onOpenChange }: CreateQuestionP
                         >
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={createPool.isPending}>
+                        <Button type="submit" disabled={createPool.isPending} className="rounded-xl h-12 px-8">
                             {createPool.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             Create Pool
                         </Button>

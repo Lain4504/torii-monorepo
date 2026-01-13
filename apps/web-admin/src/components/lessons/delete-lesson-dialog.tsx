@@ -46,12 +46,12 @@ export function DeleteLessonDialog({ lesson, open, onOpenChange }: DeleteLessonD
         setIsDeleting(true);
         try {
             await deleteLesson.mutateAsync(lesson.id);
-            toast.success('Unit De-initialized', {
-                description: `Instructional unit ${lesson.title} has been removed.`,
+            toast.success('Lesson Deleted', {
+                description: `${lesson.title} has been removed.`,
             });
             onOpenChange(false);
         } catch (error: any) {
-            toast.error('Purge Failed', {
+            toast.error('Deletion Failed', {
                 description: error.response?.data?.error || error.message,
             });
         } finally {
@@ -63,7 +63,7 @@ export function DeleteLessonDialog({ lesson, open, onOpenChange }: DeleteLessonD
 
     return (
         <AlertDialog open={open} onOpenChange={onOpenChange}>
-            <AlertDialogContent className="sm:max-w-[480px] p-0 gap-0 overflow-hidden border-border/20 bg-background/95 backdrop-blur-xl shadow-2xl flex flex-col rounded-3xl">
+            <AlertDialogContent className="sm:max-w-[480px] p-0 gap-0 overflow-hidden border border-border/50 bg-background shadow-2xl flex flex-col rounded-3xl">
                 <div className="p-6 pb-0">
                     <div className="flex items-start gap-5">
                         <div className="p-3 rounded-2xl bg-destructive/10 border border-destructive/20 shadow-inner flex-shrink-0">
@@ -72,7 +72,7 @@ export function DeleteLessonDialog({ lesson, open, onOpenChange }: DeleteLessonD
                         <div className="space-y-1.5 pt-1">
                             <AlertDialogHeader className="space-y-1.5 text-left">
                                 <AlertDialogTitle className="text-lg font-semibold tracking-tight text-foreground">
-                                    Delete Unit?
+                                    Delete Lesson?
                                 </AlertDialogTitle>
                                 <AlertDialogDescription className="text-sm font-medium text-muted-foreground leading-relaxed">
                                     Are you sure you want to delete <span className="text-foreground font-semibold">"{lesson.title}"</span>?
@@ -98,7 +98,7 @@ export function DeleteLessonDialog({ lesson, open, onOpenChange }: DeleteLessonD
                     </div>
                 </div>
 
-                <AlertDialogFooter className="p-6 mt-4 bg-muted/5 border-t border-border/10 gap-3">
+                <AlertDialogFooter className="p-6 mt-4 bg-background border-t border-border/10 gap-3">
                     <AlertDialogCancel
                         disabled={isDeleting}
                         className="rounded-xl h-11 text-xs font-medium border-border/20 bg-background hover:bg-muted/50 hover:text-foreground shadow-sm"
@@ -118,7 +118,7 @@ export function DeleteLessonDialog({ lesson, open, onOpenChange }: DeleteLessonD
                         ) : (
                             <>
                                 <Trash className="mr-2 h-3.5 w-3.5" />
-                                Delete Unit
+                                Delete Lesson
                             </>
                         )}
                     </AlertDialogAction>

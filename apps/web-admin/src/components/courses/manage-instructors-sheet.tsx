@@ -54,8 +54,8 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                 lecturerId: selectedLecturerId,
                 isPrimary: isPrimary.value,
             });
-            toast.success('Personnel Assigned', {
-                description: 'Lecturer successfully allocated to course repository.',
+            toast.success('Instructor Assigned', {
+                description: 'Instructor successfully added to the course.',
             });
             setSelectedLecturerId('');
             isPrimary.setFalse();
@@ -69,8 +69,8 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
     const handleUnassign = async (id: string) => {
         try {
             await unassignMutation.mutateAsync(id);
-            toast.success('Personnel Removed', {
-                description: 'Lecturer access revoked from course repository.',
+            toast.success('Instructor Removed', {
+                description: 'Instructor has been removed from the course.',
             });
         } catch (error: any) {
             toast.error('Removal Failed', {
@@ -99,7 +99,7 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:max-w-[800px] flex flex-col p-0 gap-0 border-l border-border/10 shadow-2xl bg-background/95 backdrop-blur-xl overflow-hidden">
+            <SheetContent className="w-full sm:w-[800px] sm:max-w-[800px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background overflow-hidden [&>button]:top-6 [&>button]:right-6 [&>button]:bg-background/20 [&>button]:rounded-xl [&>button]:w-10 [&>button]:h-10 relative overflow-hidden">
                 <SheetHeader className="px-8 py-6 border-b border-border/10 relative overflow-hidden">
                     <div className="relative flex items-center gap-4 z-10">
                         <div className="p-2.5 rounded-xl bg-primary/10 text-primary border border-primary/20 shadow-sm">
@@ -127,7 +127,7 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                             </h4>
 
                             {loadingInstructors ? (
-                                <div className="flex items-center justify-center py-12 rounded-3xl border border-border/20 bg-muted/5">
+                                <div className="flex items-center justify-center py-12 rounded-3xl border border-border/40 bg-muted/5">
                                     <Loader2 className="h-6 w-6 animate-spin text-muted-foreground/50" />
                                 </div>
                             ) : !instructors || instructors.length === 0 ? (
@@ -203,7 +203,7 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                                         value={selectedLecturerId}
                                         onValueChange={setSelectedLecturerId}
                                     >
-                                        <SelectTrigger id="lecturer-select" className="h-10 border-border/20 bg-background/50 hover:bg-muted/50 focus:ring-primary/20 rounded-xl transition-all">
+                                        <SelectTrigger id="lecturer-select" className="h-10 border-border/40 bg-background/50 hover:bg-muted/50 focus:ring-primary/20 rounded-xl transition-all">
                                             <SelectValue placeholder="Select a lecturer..." />
                                         </SelectTrigger>
                                         <SelectContent className="border-border/10 shadow-xl bg-background/95 backdrop-blur-xl rounded-xl overflow-hidden p-1">

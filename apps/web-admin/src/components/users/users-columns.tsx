@@ -43,14 +43,14 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
                     className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group"
                 >
-                    Identity Label
+                    Full Name
                     <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
                 </Button>
             );
         },
         cell: (info) => (
             <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary transition-all group-hover/row:scale-110">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary transition-all group-hover/row:scale-110">
                     <UserCircle className="size-4" />
                 </div>
                 <div className="font-serif font-bold italic text-foreground text-[14px]">{info.getValue()}</div>
@@ -65,7 +65,7 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
                     className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group"
                 >
-                    Secure Endpoint
+                    Email Address
                     <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
                 </Button>
             );
@@ -78,7 +78,7 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
         ),
     }),
     columnHelper.accessor('role', {
-        header: () => <div className="px-1">Access Protocol</div>,
+        header: () => <div className="px-1">User Role</div>,
         cell: (info) => {
             const role = info.getValue() as string;
             const colors = {
@@ -90,7 +90,7 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
             const colorClass = colors[role as keyof typeof colors] || 'bg-muted/10 text-muted-foreground border-border/20';
 
             return (
-                <div className={cn("inline-flex items-center px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] border", colorClass)}>
+                <div className={cn("inline-flex items-center px-3 py-1 rounded-md text-[9px] font-black uppercase tracking-[0.2em] border", colorClass)}>
                     {role}
                 </div>
             );
@@ -98,18 +98,18 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
         size: 100,
     }),
     columnHelper.accessor(row => {
-        if (row.deletedAt) return 'TRANSFERRED';
-        if (row.bannedUntil && new Date(row.bannedUntil) > new Date()) return 'SUSPENDED';
-        if (!row.verifiedAt) return 'PENDING-SYNC';
+        if (row.deletedAt) return 'DELETED';
+        if (row.bannedUntil && new Date(row.bannedUntil) > new Date()) return 'BANNED';
+        if (!row.verifiedAt) return 'UNVERIFIED';
         return 'ACTIVE';
     }, {
         id: 'status',
-        header: () => <div className="px-1">Registry Status</div>,
+        header: () => <div className="px-1">Status</div>,
         cell: (info) => {
             const status = info.getValue() as string;
             let dotColor = 'bg-emerald-500 shadow-emerald-500/50';
             if (status !== 'ACTIVE') dotColor = 'bg-amber-500 shadow-amber-500/50';
-            if (status === 'TRANSFERRED' || status === 'SUSPENDED') dotColor = 'bg-rose-500 shadow-rose-500/50';
+            if (status === 'DELETED' || status === 'BANNED') dotColor = 'bg-rose-500 shadow-rose-500/50';
 
             return (
                 <div className="flex items-center gap-2 text-[10px] font-black tracking-widest text-foreground group">
@@ -128,7 +128,7 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
                     className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group"
                 >
-                    Temporal Marker
+                    Last Login
                     <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
                 </Button>
             );
@@ -136,14 +136,14 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
         cell: (info) => (
             <div className="flex items-center gap-2 text-muted-foreground/40 tabular-nums text-[10px] font-bold italic">
                 <Clock className="size-3 opacity-40" />
-                {info.getValue() ? formatDateTime(info.getValue()) : 'NEVER_SYNCED'}
+                {info.getValue() ? formatDateTime(info.getValue()) : 'NEVER'}
             </div>
         ),
         size: 140,
     }),
     columnHelper.display({
         id: 'actions',
-        header: () => <div className="text-center">Control</div>,
+        header: () => <div className="text-center">Manage</div>,
         cell: ({ row }) => {
             const user = row.original;
 
@@ -153,23 +153,23 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
                         <DropdownMenuTrigger asChild>
                             <Button
                                 variant="ghost"
-                                className="h-10 w-10 p-0 rounded-2xl hover:bg-primary/10 hover:text-primary transition-all data-[state=open]:bg-primary/20"
+                                className="h-10 w-10 p-0 rounded-lg hover:bg-primary/10 hover:text-primary transition-all data-[state=open]:bg-primary/20"
                             >
-                                <span className="sr-only">Open Control Portal</span>
+                                <span className="sr-only">Open User Menu</span>
                                 <ShieldIcon className="h-4 w-4 opacity-40 group-hover:opacity-100" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
                             align="end"
-                            className="w-[200px] border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-2xl p-2"
+                            className="w-[200px] border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-lg p-2"
                         >
                             <Can permission="user.manage">
                                 <DropdownMenuItem
                                     onClick={() => onEdit(user)}
-                                    className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
+                                    className="rounded-md px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
                                 >
                                     <Pencil className="h-4 w-4 opacity-40" />
-                                    <span>Override Profile</span>
+                                    <span>Edit Profile</span>
                                 </DropdownMenuItem>
 
                                 <DropdownMenuSeparator className="bg-border/20 mx-2" />
@@ -179,7 +179,7 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
                                     className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer flex gap-3"
                                 >
                                     <Trash className="h-4 w-4 opacity-40" />
-                                    <span>Terminate Hub</span>
+                                    <span>Delete Account</span>
                                 </DropdownMenuItem>
                             </Can>
                         </DropdownMenuContent>

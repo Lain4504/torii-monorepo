@@ -83,8 +83,8 @@ export function EditModuleSheet({ module, open, onOpenChange, existingModules = 
 
         try {
             await updateModule.mutateAsync({ id: module.id, module: data });
-            toast.success('Module Reconfigured', {
-                description: `Changes to ${data.title || module.title} have been saved to the matrix.`,
+            toast.success('Module Updated', {
+                description: `Changes to ${data.title || module.title} have been saved.`,
             });
             onOpenChange(false);
         } catch (error: any) {
@@ -98,7 +98,7 @@ export function EditModuleSheet({ module, open, onOpenChange, existingModules = 
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:w-[600px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/10 shadow-2xl bg-background/80 backdrop-blur-3xl overflow-hidden [&>button]:top-6 [&>button]:right-6 [&>button]:bg-background/20 [&>button]:rounded-xl [&>button]:w-10 [&>button]:h-10">
+            <SheetContent className="w-full sm:w-[600px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background overflow-hidden [&>button]:top-6 [&>button]:right-6 [&>button]:bg-background/20 [&>button]:rounded-xl [&>button]:w-10 [&>button]:h-10">
 
                 {/* Header Section with Ambient Glow */}
                 {/* Header Section */}
@@ -227,7 +227,7 @@ export function EditModuleSheet({ module, open, onOpenChange, existingModules = 
                         </div>
                     </ScrollArea>
 
-                    <SheetFooter className="px-6 py-6 border-t border-border/10 bg-muted/5 flex-shrink-0">
+                    <SheetFooter className="px-6 py-6 border-t border-border/10 bg-background flex-shrink-0">
                         <div className="flex w-full gap-4">
                             <Button
                                 type="button"

@@ -39,15 +39,15 @@ function AuditLogDetailsDialog({ log }: { log: AuditLog }) {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-10 w-10 p-0 rounded-xl hover:bg-primary/10 hover:text-primary transition-all">
+                <Button variant="ghost" size="sm" className="h-10 w-10 p-0 rounded-lg hover:bg-primary/10 hover:text-primary transition-all">
                     <Eye className="size-4 opacity-40 group-hover:opacity-100" />
                 </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto border-border/20 shadow-2xl bg-background/95 backdrop-blur-3xl rounded-3xl p-0 overflow-hidden">
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto border-border/20 shadow-2xl bg-background/95 backdrop-blur-3xl rounded-xl p-0 overflow-hidden">
                 <div className="absolute inset-0 bg-primary/[0.01] pointer-events-none" />
                 <DialogHeader className="p-8 pb-6 border-b border-border/10">
                     <div className="flex items-center gap-4 mb-4">
-                        <div className="p-3 rounded-2xl bg-primary/10 text-primary">
+                        <div className="p-3 rounded-xl bg-primary/10 text-primary">
                             <ShieldCheck className="size-5" />
                         </div>
                         <div className="space-y-1">
@@ -62,14 +62,14 @@ function AuditLogDetailsDialog({ log }: { log: AuditLog }) {
                 </DialogHeader>
 
                 <div className="p-8 space-y-8">
-                    {/* Identification Matrix */}
+                    {/* Summary */}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                         <div className="space-y-1">
                             <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/40">User</p>
                             <p className="text-sm font-medium text-foreground truncate">{log.userEmail}</p>
                         </div>
                         <div className="space-y-1">
-                            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/40">Access Level</p>
+                            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/40">Role</p>
                             <div className="pt-1">
                                 <Badge variant="outline" className="text-[10px] font-medium bg-primary/5 border-primary/20 text-primary rounded-full px-2.5">
                                     {log.userRole}
@@ -88,25 +88,25 @@ function AuditLogDetailsDialog({ log }: { log: AuditLog }) {
                         </div>
                     </div>
 
-                    {/* Operational Summary */}
+                    {/* Action Description */}
                     <div className="space-y-3">
                         <div className="flex items-center gap-2">
                             <Activity className="size-3.5 text-primary opacity-50" />
-                            <h4 className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Description</h4>
+                            <h4 className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Action Details</h4>
                         </div>
-                        <div className="p-5 rounded-2xl bg-muted/10 border border-border/10 leading-relaxed text-sm font-medium text-foreground/80">
+                        <div className="p-5 rounded-xl bg-muted/10 border border-border/10 leading-relaxed text-sm font-medium text-foreground/80">
                             {log.description}
                         </div>
                     </div>
 
-                    {/* Data Stream Analysis */}
+                    {/* Technical Data */}
                     {Object.keys(log.metadata || {}).length > 0 && (
                         <div className="space-y-3">
                             <div className="flex items-center gap-2">
                                 <Terminal className="size-3.5 text-primary opacity-50" />
                                 <h4 className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Metadata</h4>
                             </div>
-                            <pre className="text-xs bg-muted/20 p-6 rounded-2xl overflow-x-auto border border-border/10 font-mono text-muted-foreground/80 leading-relaxed custom-scrollbar">
+                            <pre className="text-xs bg-muted/20 p-6 rounded-xl overflow-x-auto border border-border/10 font-mono text-muted-foreground/80 leading-relaxed custom-scrollbar">
                                 {JSON.stringify(log.metadata, null, 2)}
                             </pre>
                         </div>
@@ -118,7 +118,7 @@ function AuditLogDetailsDialog({ log }: { log: AuditLog }) {
                             {log.oldValues && (
                                 <div className="space-y-3">
                                     <h4 className="text-[10px] font-medium uppercase tracking-wider text-rose-500/70 ml-1">Previous State</h4>
-                                    <pre className="text-xs bg-rose-500/[0.02] p-5 rounded-2xl overflow-x-auto max-h-80 border border-rose-500/10 font-mono text-rose-500/70 leading-relaxed custom-scrollbar">
+                                    <pre className="text-xs bg-rose-500/[0.02] p-5 rounded-xl overflow-x-auto max-h-80 border border-rose-500/10 font-mono text-rose-500/70 leading-relaxed custom-scrollbar">
                                         {JSON.stringify(log.oldValues, null, 2)}
                                     </pre>
                                 </div>
@@ -126,7 +126,7 @@ function AuditLogDetailsDialog({ log }: { log: AuditLog }) {
                             {log.newValues && (
                                 <div className="space-y-3">
                                     <h4 className="text-[10px] font-medium uppercase tracking-wider text-emerald-500/70 ml-1">New State</h4>
-                                    <pre className="text-xs bg-emerald-500/[0.02] p-5 rounded-2xl overflow-x-auto max-h-80 border border-emerald-500/10 font-mono text-emerald-500/70 leading-relaxed custom-scrollbar">
+                                    <pre className="text-xs bg-emerald-500/[0.02] p-5 rounded-xl overflow-x-auto max-h-80 border border-emerald-500/10 font-mono text-emerald-500/70 leading-relaxed custom-scrollbar">
                                         {JSON.stringify(log.newValues, null, 2)}
                                     </pre>
                                 </div>
@@ -199,7 +199,7 @@ export function AuditLogsPage() {
                 <PaginationItem key={1}>
                     <PaginationLink
                         onClick={() => setPage(1)}
-                        className="rounded-xl h-10 w-10 text-xs font-medium hover:bg-primary/10 transition-all cursor-pointer"
+                        className="rounded-lg h-10 w-10 text-xs font-medium hover:bg-primary/10 transition-all cursor-pointer"
                     >
                         1
                     </PaginationLink>
@@ -215,7 +215,7 @@ export function AuditLogsPage() {
                         isActive={page === i}
                         onClick={() => setPage(i)}
                         className={cn(
-                            "rounded-xl h-10 w-10 text-xs font-medium transition-all cursor-pointer",
+                            "rounded-lg h-10 w-10 text-xs font-medium transition-all cursor-pointer",
                             page === i ? "bg-primary text-white shadow-lg shadow-primary/20" : "hover:bg-primary/10 text-muted-foreground/60 hover:text-primary"
                         )}
                     >
@@ -231,7 +231,7 @@ export function AuditLogsPage() {
                 <PaginationItem key={data.totalPages}>
                     <PaginationLink
                         onClick={() => setPage(data.totalPages)}
-                        className="rounded-xl h-10 w-10 text-xs font-medium hover:bg-primary/10 transition-all cursor-pointer"
+                        className="rounded-lg h-10 w-10 text-xs font-medium hover:bg-primary/10 transition-all cursor-pointer"
                     >
                         {data.totalPages}
                     </PaginationLink>
@@ -249,7 +249,7 @@ export function AuditLogsPage() {
                 <div className="space-y-4 max-w-2xl text-center sm:text-left">
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-medium tracking-wide">
                         <Activity className="size-3.5" />
-                        Audit & Compliance
+                        Auditing
                     </div>
                     <h1 className="text-3xl sm:text-5xl font-serif font-medium tracking-tight text-foreground leading-[1.1]">
                         System <span className="text-primary italic">Audit Logs</span>
@@ -261,14 +261,14 @@ export function AuditLogsPage() {
 
                 <div className="flex items-center gap-6 p-6 rounded-2xl bg-background/60 border border-border/20 backdrop-blur-xl hidden sm:flex shadow-sm">
                     <div className="space-y-1">
-                        <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60 text-center">Total Entries</p>
+                        <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60 text-center">Total Logs</p>
                         <h3 className="text-3xl font-serif font-medium text-center leading-none text-primary">{data?.total || 0}</h3>
                     </div>
                 </div>
             </div>
 
-            {/* Matrix Filters */}
-            <Card className="rounded-[2.5rem] bg-background/50 backdrop-blur-3xl border border-white/20 p-8 lg:p-10 shadow-xl shadow-black/5">
+            {/* Filters */}
+            <Card className="rounded-2xl bg-background/50 backdrop-blur-3xl border border-white/20 p-8 lg:p-10 shadow-xl shadow-black/5">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div className="space-y-2">
                         <label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60 flex items-center gap-2 ml-1">
@@ -281,7 +281,7 @@ export function AuditLogsPage() {
                                 placeholder="Search actions..."
                                 value={action}
                                 onChange={(e) => setAction(e.target.value)}
-                                className="h-11 pl-10 rounded-xl border-border/10 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-xs font-medium placeholder:text-muted-foreground/40"
+                                className="h-11 pl-10 rounded-lg border-border/10 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-xs font-medium placeholder:text-muted-foreground/40"
                             />
                         </div>
                     </div>
@@ -296,7 +296,7 @@ export function AuditLogsPage() {
                                 placeholder="Search entities..."
                                 value={entity}
                                 onChange={(e) => setEntity(e.target.value)}
-                                className="h-11 pl-10 rounded-xl border-border/10 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-xs font-medium placeholder:text-muted-foreground/40"
+                                className="h-11 pl-10 rounded-lg border-border/10 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-xs font-medium placeholder:text-muted-foreground/40"
                             />
                         </div>
                     </div>
@@ -309,7 +309,7 @@ export function AuditLogsPage() {
                             type="date"
                             value={dateRange.startDate}
                             onChange={(e) => setDateRange(prev => ({ ...prev, startDate: e.target.value }))}
-                            className="h-11 rounded-xl border-border/10 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-xs font-medium [color-scheme:dark]"
+                            className="h-11 rounded-lg border-border/10 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-xs font-medium [color-scheme:dark]"
                         />
                     </div>
                     <div className="space-y-2">
@@ -321,14 +321,14 @@ export function AuditLogsPage() {
                             type="date"
                             value={dateRange.endDate}
                             onChange={(e) => setDateRange(prev => ({ ...prev, endDate: e.target.value }))}
-                            className="h-11 rounded-xl border-border/10 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-xs font-medium [color-scheme:dark]"
+                            className="h-11 rounded-lg border-border/10 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-xs font-medium [color-scheme:dark]"
                         />
                     </div>
                 </div>
             </Card>
 
-            {/* Registry Table */}
-            <Card className="rounded-[3rem] bg-background/40 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-primary/5 overflow-hidden">
+            {/* Audit History */}
+            <Card className="rounded-2xl bg-background/40 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-primary/5 overflow-hidden">
                 <div className="overflow-x-auto">
                     <Table className="min-w-[1000px] border-collapse bg-transparent">
                         <TableHeader className="bg-muted/10 border-b border-border/10">
@@ -360,7 +360,7 @@ export function AuditLogsPage() {
                                 <TableRow className="hover:bg-transparent">
                                     <TableCell colSpan={5} className="h-64 text-center">
                                         <div className="flex flex-col items-center justify-center p-12 space-y-4">
-                                            <div className="w-16 h-16 rounded-2xl bg-muted/10 flex items-center justify-center border border-white/10 relative">
+                                            <div className="w-16 h-16 rounded-xl bg-muted/10 flex items-center justify-center border border-white/10 relative">
                                                 <div className="absolute inset-0 bg-primary/5 blur-2xl rounded-full" />
                                                 <ShieldAlert className="size-8 text-muted-foreground/30 relative z-10" />
                                             </div>
@@ -426,7 +426,7 @@ export function AuditLogsPage() {
                                         <PaginationPrevious
                                             onClick={() => setPage(p => Math.max(1, p - 1))}
                                             className={cn(
-                                                "h-10 px-4 rounded-xl bg-background/50 border border-border/20 text-xs font-medium transition-all cursor-pointer",
+                                                "h-10 px-4 rounded-lg bg-background/50 border border-border/20 text-xs font-medium transition-all cursor-pointer",
                                                 page === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary active:scale-95"
                                             )}
                                         />
@@ -440,7 +440,7 @@ export function AuditLogsPage() {
                                         <PaginationNext
                                             onClick={() => setPage(p => Math.min(data.totalPages, p + 1))}
                                             className={cn(
-                                                "h-10 px-4 rounded-xl bg-background/50 border border-border/20 text-xs font-medium transition-all cursor-pointer",
+                                                "h-10 px-4 rounded-lg bg-background/50 border border-border/20 text-xs font-medium transition-all cursor-pointer",
                                                 page === data.totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary active:scale-95"
                                             )}
                                         />

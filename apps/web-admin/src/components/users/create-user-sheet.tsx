@@ -108,8 +108,8 @@ export function CreateUserSheet({
     const onSubmit = async (data: FormValues) => {
         try {
             await createInternalUser.mutateAsync(data);
-            toast.success('Invitation Protocol Initiated', {
-                description: `Secure uplink established for ${data.displayName}.`,
+            toast.success('User Created', {
+                description: `${data.displayName} has been added to the system.`,
             });
             form.reset();
             setShowStaffVariants(false);
@@ -117,7 +117,7 @@ export function CreateUserSheet({
             onOpenChange(false);
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : 'Failed to create user';
-            toast.error('Protocol Failure', {
+            toast.error('Creation Failed', {
                 description: errorMessage,
             });
         }
@@ -170,25 +170,25 @@ export function CreateUserSheet({
 
     return (
         <Sheet open={open} onOpenChange={handleOpenChange}>
-            <SheetContent className="sm:max-w-[600px] p-0 flex flex-col overflow-hidden bg-background/80 backdrop-blur-3xl border-l border-border/20 shadow-2xl">
+            <SheetContent className="sm:max-w-[600px] p-0 flex flex-col overflow-hidden bg-background border-l border-border/50 shadow-2xl">
                 {/* Header */}
                 <SheetHeader className="px-8 pt-8 pb-6 border-b border-border/10 bg-muted/5 relative overflow-hidden">
                     <div className="absolute inset-0 bg-primary/5 blur-3xl opacity-50 pointer-events-none" />
                     <div className="relative flex items-center gap-4 z-10">
-                        <div className="p-3 rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-inner">
+                        <div className="p-3 rounded-lg bg-primary/10 text-primary border border-primary/20 shadow-inner">
                             <ScanFace className="h-6 w-6" />
                         </div>
                         <div className="flex-1 space-y-1">
-                            <SheetTitle className="text-2xl font-black uppercase tracking-tight italic">
-                                Initialize <span className="text-primary not-italic">Identity</span>
+                            <SheetTitle className="text-2xl font-medium tracking-tight">
+                                Add New <span className="text-primary italic">User</span>
                             </SheetTitle>
-                            <SheetDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">
+                            <SheetDescription className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground/60">
                                 {currentStep === 1
-                                    ? 'Step 01: Identity Parameters'
-                                    : 'Step 02: Access Level Assignment'}
+                                    ? 'Step 01: Profile Information'
+                                    : 'Step 02: Assign User Role'}
                             </SheetDescription>
                         </div>
-                        <div className="flex items-center gap-1.5 px-3 py-1 bg-background/50 backdrop-blur-md rounded-full border border-border/20">
+                        <div className="flex items-center gap-1.5 px-3 py-1 bg-background rounded-full border border-border/40">
                             <span className={cn("size-2 rounded-full", currentStep === 1 ? "bg-primary animate-pulse" : "bg-primary/30")} />
                             <span className={cn("size-2 rounded-full", currentStep === 2 ? "bg-primary animate-pulse" : "bg-muted")} />
                         </div>
@@ -221,19 +221,19 @@ export function CreateUserSheet({
                                     control={form.control}
                                     render={({ field, fieldState }) => (
                                         <Field data-invalid={fieldState.invalid} className="space-y-3 group">
-                                            <FieldLabel htmlFor={field.name} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground group-focus-within:text-primary transition-colors">
+                                            <FieldLabel htmlFor={field.name} className="flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground group-focus-within:text-primary transition-colors">
                                                 <User className="size-3" />
-                                                Entity Name
+                                                Full Name
                                             </FieldLabel>
                                             <Input
                                                 {...field}
                                                 id={field.name}
                                                 autoFocus
-                                                placeholder="ENTER FULL DESIGNATION"
+                                                placeholder="Enter display name"
                                                 aria-invalid={fieldState.invalid}
                                                 className={cn(
-                                                    "h-14 px-5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20",
-                                                    "text-sm font-bold placeholder:text-muted-foreground/20 transition-all uppercase"
+                                                    "h-14 px-5 rounded-lg bg-muted/10 border-border/40 hover:bg-muted/20 focus-visible:ring-primary/20",
+                                                    "text-sm font-medium placeholder:text-muted-foreground/40 transition-all"
                                                 )}
                                             />
                                             {fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2" />}
@@ -246,20 +246,20 @@ export function CreateUserSheet({
                                     control={form.control}
                                     render={({ field, fieldState }) => (
                                         <Field data-invalid={fieldState.invalid} className="space-y-3 group">
-                                            <FieldLabel htmlFor={field.name} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground group-focus-within:text-primary transition-colors">
+                                            <FieldLabel htmlFor={field.name} className="flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground group-focus-within:text-primary transition-colors">
                                                 <Mail className="size-3" />
-                                                Communication Node
+                                                Email Address
                                             </FieldLabel>
                                             <div className="relative">
                                                 <Input
                                                     {...field}
                                                     id={field.name}
                                                     type="email"
-                                                    placeholder="NAME@TORII.NETWORK"
+                                                    placeholder="name@example.com"
                                                     aria-invalid={fieldState.invalid}
                                                     className={cn(
-                                                        "h-14 px-5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20",
-                                                        "text-sm font-bold placeholder:text-muted-foreground/20 transition-all uppercase"
+                                                        "h-14 px-5 rounded-lg bg-muted/10 border-border/40 hover:bg-muted/20 focus-visible:ring-primary/20",
+                                                        "text-sm font-medium placeholder:text-muted-foreground/40 transition-all"
                                                     )}
                                                 />
                                             </div>
@@ -269,12 +269,12 @@ export function CreateUserSheet({
                                 />
 
                                 {/* Info Box */}
-                                <div className="p-5 rounded-2xl bg-primary/5 border border-primary/10 flex items-start gap-3">
+                                <div className="p-5 rounded-lg bg-primary/5 border border-primary/10 flex items-start gap-3">
                                     <Sparkles className="size-4 text-primary shrink-0 mt-0.5" />
                                     <div className="space-y-1">
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-primary/80">System Notification</p>
+                                        <p className="text-[10px] font-medium uppercase tracking-widest text-primary/80">Notification</p>
                                         <p className="text-xs text-muted-foreground leading-relaxed font-medium">
-                                            An encrypted invitation key will be transmitted to the provided communication node for immediate synchronization.
+                                            An verification link will be sent to the user's email address for account activation.
                                         </p>
                                     </div>
                                 </div>
@@ -303,16 +303,16 @@ export function CreateUserSheet({
                                                         }
                                                     }}
                                                     className={cn(
-                                                        "relative group cursor-pointer rounded-[1.5rem] p-1 transition-all duration-300",
+                                                        "relative group cursor-pointer rounded-xl p-1 transition-all duration-300",
                                                         isSelected ? "bg-gradient-to-br from-primary via-primary/50 to-transparent p-[2px]" : "bg-transparent hover:bg-muted/20"
                                                     )}
                                                 >
                                                     <div className={cn(
-                                                        "relative flex items-center gap-5 p-5 w-full h-full rounded-[1.4rem]",
+                                                        "relative flex items-center gap-5 p-5 w-full h-full rounded-xl",
                                                         isSelected ? "bg-background/90" : "bg-muted/10 border border-border/10"
                                                     )}>
                                                         <div className={cn(
-                                                            "p-3 rounded-2xl transition-all duration-300",
+                                                            "p-3 rounded-xl transition-all duration-300",
                                                             isSelected
                                                                 ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30 scale-110"
                                                                 : "bg-background/50 text-muted-foreground group-hover:bg-background group-hover:text-foreground"
@@ -322,7 +322,7 @@ export function CreateUserSheet({
                                                         <div className="flex-1 min-w-0">
                                                             <div className="flex items-center justify-between">
                                                                 <span className={cn(
-                                                                    "font-black uppercase tracking-tight text-sm",
+                                                                    "font-medium uppercase tracking-tight text-sm",
                                                                     isSelected ? "text-primary italic" : "text-foreground"
                                                                 )}>
                                                                     {role.label}
@@ -354,10 +354,10 @@ export function CreateUserSheet({
                                             variant="ghost"
                                             size="sm"
                                             onClick={handleBackToRoles}
-                                            className="mb-2 h-9 px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground hover:bg-muted/30 rounded-xl group"
+                                            className="mb-2 h-9 px-4 text-[10px] font-medium uppercase tracking-widest text-muted-foreground hover:text-foreground hover:bg-muted/30 rounded-lg group"
                                         >
                                             <ArrowLeft className="h-3 w-3 mr-2 transition-transform group-hover:-translate-x-1" />
-                                            Return to Origin
+                                            Go Back
                                         </Button>
 
                                         <div className="grid gap-3">
@@ -378,10 +378,10 @@ export function CreateUserSheet({
                                                             }
                                                         }}
                                                         className={cn(
-                                                            "w-full cursor-pointer rounded-2xl p-4 transition-all duration-300 border bg-muted/5 hover:bg-muted/10",
+                                                            "w-full cursor-pointer rounded-xl p-4 transition-all duration-300 border bg-muted/5 hover:bg-muted/10",
                                                             isSelected
                                                                 ? "border-primary/50 ring-1 ring-primary/20 shadow-[0_0_20px_-10px_rgba(var(--primary),0.3)]"
-                                                                : "border-border/20 text-muted-foreground hover:border-border/40"
+                                                                : "border-border/40 text-muted-foreground hover:border-border/40"
                                                         )}
                                                     >
                                                         <div className="flex items-center gap-4">
@@ -421,16 +421,16 @@ export function CreateUserSheet({
                     </div>
 
                     {/* Fixed Footer */}
-                    <div className="px-8 py-6 bg-background/50 backdrop-blur-xl border-t border-border/10 flex items-center justify-between gap-4 relative z-20">
+                    <div className="px-8 py-6 bg-background border-t border-border/10 flex items-center justify-between gap-4 relative z-20">
                         {currentStep === 1 ? (
                             <>
                                 <Button
                                     type="button"
                                     variant="ghost"
                                     onClick={() => handleOpenChange(false)}
-                                    className="rounded-xl h-12 px-6 text-[11px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground hover:bg-muted/20"
+                                    className="rounded-lg h-12 px-6 text-[11px] font-medium uppercase tracking-widest text-muted-foreground hover:text-foreground hover:bg-muted/20"
                                 >
-                                    Abort
+                                    Cancel
                                 </Button>
                                 <Button
                                     type="button"
@@ -440,9 +440,9 @@ export function CreateUserSheet({
                                         handleNextToRole();
                                     }}
                                     disabled={!detailsValid}
-                                    className="rounded-xl h-12 px-8 bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground text-[11px] font-black uppercase tracking-widest transition-all shadow-lg shadow-primary/5 hover:shadow-primary/20 group"
+                                    className="rounded-lg h-12 px-8 bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground text-[11px] font-medium uppercase tracking-widest transition-all shadow-lg shadow-primary/5 hover:shadow-primary/20 group"
                                 >
-                                    Define Privileges
+                                    Continue
                                     <ChevronRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                                 </Button>
                             </>
@@ -453,7 +453,7 @@ export function CreateUserSheet({
                                     variant="ghost"
                                     onClick={handleBackToDetails}
                                     disabled={createInternalUser.isPending}
-                                    className="rounded-xl h-12 px-6 text-[11px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground hover:bg-muted/20 group"
+                                    className="rounded-lg h-12 px-6 text-[11px] font-medium uppercase tracking-widest text-muted-foreground hover:text-foreground hover:bg-muted/20 group"
                                 >
                                     <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />
                                     Details
@@ -461,14 +461,14 @@ export function CreateUserSheet({
                                 <Button
                                     type="submit"
                                     disabled={createInternalUser.isPending}
-                                    className="rounded-xl h-12 px-8 bg-primary text-primary-foreground text-[11px] font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-1 transition-all"
+                                    className="rounded-lg h-12 px-8 bg-primary text-primary-foreground text-[11px] font-medium uppercase tracking-widest shadow-xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-1 transition-all"
                                 >
                                     {createInternalUser.isPending ? (
                                         <>
                                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                            Authorizing...
+                                            Creating...
                                         </>
-                                    ) : 'Execute Creation'}
+                                    ) : 'Create User'}
                                 </Button>
                             </>
                         )}

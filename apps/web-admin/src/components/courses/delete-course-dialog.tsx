@@ -43,7 +43,7 @@ export function DeleteCourseDialog({
 
     return (
         <AlertDialog open={open} onOpenChange={onOpenChange}>
-            <AlertDialogContent className="sm:max-w-[480px] p-0 gap-0 overflow-hidden border-border/20 shadow-2xl bg-background/95 backdrop-blur-xl rounded-3xl">
+            <AlertDialogContent className="sm:max-w-[480px] p-0 gap-0 overflow-hidden border border-border/50 shadow-2xl bg-background rounded-3xl">
                 <AlertDialogHeader className="px-8 py-6 border-b border-border/10">
                     <div className="flex items-start gap-5">
                         <div className="p-3 rounded-2xl bg-destructive/10 border border-destructive/20 shadow-sm flex-shrink-0">
@@ -66,7 +66,7 @@ export function DeleteCourseDialog({
                     </p>
                 </div>
 
-                <AlertDialogFooter className="p-6 mt-2 bg-muted/5 border-t border-border/10 gap-3">
+                <AlertDialogFooter className="p-6 mt-2 bg-background border-t border-border/10 gap-3">
                     <AlertDialogCancel
                         className="rounded-xl h-10 text-xs font-medium border-border/10 bg-background hover:bg-muted/50 hover:text-foreground shadow-sm"
                     >

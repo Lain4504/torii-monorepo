@@ -39,12 +39,12 @@ export function PublishCourseDialog({ open, onOpenChange, course }: PublishCours
 
         try {
             await publishMutation.mutateAsync(course.id);
-            toast.success('System Deployed', {
-                description: 'Course repository successfully published to live environment.',
+            toast.success('Course Published', {
+                description: 'Course has been successfully made live.',
             });
             onOpenChange(false);
         } catch (error: any) {
-            toast.error('Deployment Failed', {
+            toast.error('Publication Failed', {
                 description: error.response?.data?.message || 'System error during publication sequence.',
             });
         }
@@ -105,7 +105,7 @@ export function PublishCourseDialog({ open, onOpenChange, course }: PublishCours
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[540px] border-border/20 shadow-2xl bg-background/95 backdrop-blur-xl rounded-3xl p-0 overflow-hidden">
+            <DialogContent className="sm:max-w-[540px] border border-border/50 shadow-2xl bg-background rounded-3xl p-0 overflow-hidden">
                 <DialogHeader className="px-8 py-6 border-b border-border/10">
                     <DialogTitle className="text-xl font-semibold tracking-tight">
                         Publish Course
@@ -248,7 +248,7 @@ export function PublishCourseDialog({ open, onOpenChange, course }: PublishCours
                     )}
                 </div>
 
-                <DialogFooter className="p-6 bg-muted/5 border-t border-border/10 gap-3">
+                <DialogFooter className="p-6 bg-background border-t border-border/10 gap-3">
                     <Button
                         variant="ghost"
                         onClick={() => onOpenChange(false)}

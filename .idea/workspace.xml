@@ -4,28 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="rebuild UI">
-      <change beforePath="$PROJECT_DIR$/.agent/workflows/ui-ux-pro-max.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/charts.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/colors.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/landing.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/products.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/prompts.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/stacks/flutter.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/stacks/html-tailwind.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/stacks/nextjs.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/stacks/nuxt-ui.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/stacks/nuxtjs.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/stacks/react-native.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/stacks/react.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/stacks/svelte.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/stacks/swiftui.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/stacks/vue.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/styles.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/typography.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/ux-guidelines.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/scripts/core.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/scripts/search.py" beforeDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="build aadmin">
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/layout/system-stasis.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/layout/system-stasis.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/posts/post-columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/posts/post-columns.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/question-pools/pool-detail-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/question-pools/pool-detail-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/question-pools/question-pools-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/question-pools/question-pools-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/exams/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/exams/page.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -315,55 +299,7 @@
       <workItem from="1768073462770" duration="2244000" />
       <workItem from="1768199989867" duration="83000" />
       <workItem from="1768201864379" duration="7510000" />
-      <workItem from="1768266718590" duration="1339000" />
-    </task>
-    <task id="LOCAL-00646" summary="update nats_server.conf">
-      <option name="closed" value="true" />
-      <created>1768217058980</created>
-      <option name="number" value="00646" />
-      <option name="presentableId" value="LOCAL-00646" />
-      <option name="project" value="LOCAL" />
-      <updated>1768217058982</updated>
-    </task>
-    <task id="LOCAL-00647" summary="update nats_server.conf">
-      <option name="closed" value="true" />
-      <created>1768217123399</created>
-      <option name="number" value="00647" />
-      <option name="presentableId" value="LOCAL-00647" />
-      <option name="project" value="LOCAL" />
-      <updated>1768217123399</updated>
-    </task>
-    <task id="LOCAL-00648" summary="renmae">
-      <option name="closed" value="true" />
-      <created>1768217438643</created>
-      <option name="number" value="00648" />
-      <option name="presentableId" value="LOCAL-00648" />
-      <option name="project" value="LOCAL" />
-      <updated>1768217438643</updated>
-    </task>
-    <task id="LOCAL-00649" summary="fix order bug">
-      <option name="closed" value="true" />
-      <created>1768218366550</created>
-      <option name="number" value="00649" />
-      <option name="presentableId" value="LOCAL-00649" />
-      <option name="project" value="LOCAL" />
-      <updated>1768218366550</updated>
-    </task>
-    <task id="LOCAL-00650" summary="fix order bug">
-      <option name="closed" value="true" />
-      <created>1768219161595</created>
-      <option name="number" value="00650" />
-      <option name="presentableId" value="LOCAL-00650" />
-      <option name="project" value="LOCAL" />
-      <updated>1768219161595</updated>
-    </task>
-    <task id="LOCAL-00651" summary="fix order bug">
-      <option name="closed" value="true" />
-      <created>1768223194260</created>
-      <option name="number" value="00651" />
-      <option name="presentableId" value="LOCAL-00651" />
-      <option name="project" value="LOCAL" />
-      <updated>1768223194260</updated>
+      <workItem from="1768266718590" duration="2263000" />
     </task>
     <task id="LOCAL-00652" summary="fix order bug">
       <option name="closed" value="true" />
@@ -709,7 +645,55 @@
       <option name="project" value="LOCAL" />
       <updated>1768267919238</updated>
     </task>
-    <option name="localTasksCounter" value="695" />
+    <task id="LOCAL-00695" summary="rebuild UI">
+      <option name="closed" value="true" />
+      <created>1768268120367</created>
+      <option name="number" value="00695" />
+      <option name="presentableId" value="LOCAL-00695" />
+      <option name="project" value="LOCAL" />
+      <updated>1768268120368</updated>
+    </task>
+    <task id="LOCAL-00696" summary="rebuild UI">
+      <option name="closed" value="true" />
+      <created>1768268127447</created>
+      <option name="number" value="00696" />
+      <option name="presentableId" value="LOCAL-00696" />
+      <option name="project" value="LOCAL" />
+      <updated>1768268127447</updated>
+    </task>
+    <task id="LOCAL-00697" summary="build aadmin">
+      <option name="closed" value="true" />
+      <created>1768271152033</created>
+      <option name="number" value="00697" />
+      <option name="presentableId" value="LOCAL-00697" />
+      <option name="project" value="LOCAL" />
+      <updated>1768271152033</updated>
+    </task>
+    <task id="LOCAL-00698" summary="build aadmin">
+      <option name="closed" value="true" />
+      <created>1768271978056</created>
+      <option name="number" value="00698" />
+      <option name="presentableId" value="LOCAL-00698" />
+      <option name="project" value="LOCAL" />
+      <updated>1768271978056</updated>
+    </task>
+    <task id="LOCAL-00699" summary="build aadmin">
+      <option name="closed" value="true" />
+      <created>1768272196113</created>
+      <option name="number" value="00699" />
+      <option name="presentableId" value="LOCAL-00699" />
+      <option name="project" value="LOCAL" />
+      <updated>1768272196114</updated>
+    </task>
+    <task id="LOCAL-00700" summary="build aadmin">
+      <option name="closed" value="true" />
+      <created>1768272689801</created>
+      <option name="number" value="00700" />
+      <option name="presentableId" value="LOCAL-00700" />
+      <option name="project" value="LOCAL" />
+      <updated>1768272689806</updated>
+    </task>
+    <option name="localTasksCounter" value="701" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -739,7 +723,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat(user): integrate AutoMapper for User entity mapping and update module structureè" />
     <MESSAGE value="feat(question-pools): add functionality to manage question pools with CRUD operations and filtering by course and JLPT level" />
     <MESSAGE value="feat(i18n): implement internationalization support with Vietnamese and English translations" />
     <MESSAGE value="feat(flashcards): add advanced search functionality and new tracking models for user progress and review sessions" />
@@ -764,7 +747,8 @@
     <MESSAGE value="minimal zen ui" />
     <MESSAGE value="payos" />
     <MESSAGE value="rebuild UI" />
-    <option name="LAST_COMMIT_MESSAGE" value="rebuild UI" />
+    <MESSAGE value="build aadmin" />
+    <option name="LAST_COMMIT_MESSAGE" value="build aadmin" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

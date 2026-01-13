@@ -29,42 +29,41 @@ export default function LoginPage() {
                             </svg>
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-xl font-black tracking-tighter uppercase italic leading-none">Torii <span className="text-primary not-italic">Nihongo</span></span>
-                            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 mt-1">Nihongo Center</span>
+                            <span className="text-lg font-bold tracking-tight leading-none text-foreground">Torii <span className="text-primary">Nihongo</span></span>
+                            <span className="text-[10px] font-medium tracking-widest text-muted-foreground/60 mt-0.5">Japanese Learning Platform</span>
                         </div>
                     </Link>
 
                     {/* Center Content - Value Props */}
                     <div className="relative z-20 flex-1 flex flex-col justify-center max-w-md">
                         <div className="space-y-6 mb-16 animate-in fade-in slide-in-from-left-8 duration-700">
-                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[9px] font-black uppercase tracking-[0.3em]">
-                                <Sparkles className="w-3 h-3" />
+                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium tracking-wide">
+                                <Sparkles className="w-3.5 h-3.5" />
                                 <span>Sensei Approved</span>
                             </div>
-                            <h2 className="text-6xl font-serif font-bold tracking-tight leading-[0.85] text-foreground uppercase italic mb-8">
+                            <h2 className="text-4xl lg:text-5xl font-bold tracking-tight text-foreground leading-[1.1]">
                                 Học tiếng Nhật <br />
-                                <span className="text-primary/20 not-italic">Thông minh</span> <br />
-                                <span className="text-foreground">Hơn bao giờ hết</span>
+                                <span className="text-primary">Thông minh hơn.</span>
                             </h2>
-                            <p className="text-sm font-bold text-muted-foreground/60 leading-relaxed italic border-l-2 border-primary/20 pl-6">
-                                "Kết hợp sức mạnh của WebRTC và AI Sensei 先生 để phá đảo JLPT từ N5 tới N1."
+                            <p className="text-base text-muted-foreground/80 leading-relaxed font-medium">
+                                Kết hợp sức mạnh của WebRTC và AI Sensei để chinh phục JLPT từ N5 tới N1.
                             </p>
                         </div>
 
                         {/* Feature Cards Grid */}
-                        <div className="grid gap-6 animate-in fade-in slide-in-from-left-12 duration-1000">
+                        <div className="grid gap-4 animate-in fade-in slide-in-from-left-12 duration-1000">
                             {[
                                 { icon: Video, title: 'WebRTC Live', desc: 'Tương tác thời gian thực' },
                                 { icon: Brain, title: 'AI Sensei', desc: 'Trợ lý học tập 24/7' },
                                 { icon: GraduationCap, title: 'JLPT Mastery', desc: 'Lộ trình chuẩn quốc tế' }
                             ].map((f, i) => (
-                                <div key={i} className="group flex items-center gap-6 p-6 rounded-[2rem] bg-background/40 border border-border/20 hover:border-primary/20 hover:bg-background transition-all duration-500 shadow-sm hover:shadow-xl hover:shadow-primary/5">
-                                    <div className="w-14 h-14 rounded-2xl bg-muted/30 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
-                                        <f.icon className="w-6 h-6" />
+                                <div key={i} className="group flex items-center gap-4 p-4 rounded-2xl bg-background/60 border border-border/40 hover:border-primary/20 hover:bg-background transition-all">
+                                    <div className="w-10 h-10 rounded-xl bg-primary/5 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
+                                        <f.icon className="w-5 h-5" />
                                     </div>
-                                    <div className="space-y-1">
-                                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em]">{f.title}</h3>
-                                        <p className="text-[10px] font-bold text-muted-foreground/40">{f.desc}</p>
+                                    <div className="space-y-0.5">
+                                        <h3 className="text-sm font-semibold">{f.title}</h3>
+                                        <p className="text-xs text-muted-foreground/60">{f.desc}</p>
                                     </div>
                                 </div>
                             ))}
@@ -99,8 +98,8 @@ export default function LoginPage() {
                             </div>
 
                             <div className="space-y-2 text-center lg:text-left">
-                                <h1 className="text-5xl font-serif font-bold tracking-tight uppercase italic text-foreground">Hành trình <br /><span className="text-primary not-italic italic">Bản thân</span></h1>
-                                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Tiếp tục chinh phục mục tiêu JLPT</p>
+                                <h1 className="text-3xl font-bold tracking-tight text-foreground">Đăng nhập</h1>
+                                <p className="text-sm font-medium text-muted-foreground/60">Chào mừng quay trở lại Torii Nihongo</p>
                             </div>
                         </div>
 
@@ -109,7 +108,7 @@ export default function LoginPage() {
 
                         {/* Navigation Links */}
                         <div className="space-y-6 pt-6 border-t border-border/20">
-                            <p className="text-center text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">
+                            <p className="text-center text-xs font-medium text-muted-foreground/60">
                                 Chưa có tài khoản?{" "}
                                 <Link
                                     href="/register"
@@ -121,9 +120,9 @@ export default function LoginPage() {
 
                             <Link
                                 href="/"
-                                className="flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 hover:text-foreground transition-all group"
+                                className="flex items-center justify-center gap-2 text-xs font-medium text-muted-foreground/50 hover:text-foreground transition-all group"
                             >
-                                <ChevronLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
+                                <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                                 Quay về trang chủ
                             </Link>
                         </div>

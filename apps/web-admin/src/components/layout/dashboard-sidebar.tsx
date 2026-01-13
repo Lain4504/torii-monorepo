@@ -61,7 +61,7 @@ export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: Sid
   const NavGroup = ({ title, items }: { title: string; items: NavItem[] }) => (
     <div className="py-2">
       {!isCollapsed && (
-        <h4 className="px-5 py-3 text-[10px] font-medium uppercase tracking-wider text-muted-foreground/50 animate-in fade-in duration-500">
+        <h4 className="px-5 py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/50 animate-in fade-in duration-500">
           {title}
         </h4>
       )}
@@ -82,21 +82,21 @@ export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: Sid
       <Link
         to={item.url}
         className={cn(
-          "group relative flex items-center rounded-xl px-4 py-3 text-[13px] font-medium transition-all duration-300 ease-out",
+          "group relative flex items-center rounded-xl px-4 py-3 text-[13px] font-medium transition-all duration-300 ease-out border border-transparent",
           isActive
-            ? "bg-primary text-white shadow-md shadow-primary/20"
-            : "text-muted-foreground/70 hover:bg-primary/5 hover:text-primary",
+            ? "bg-primary/10 text-primary border-primary/20 shadow-sm shadow-primary/5"
+            : "text-muted-foreground/70 hover:bg-muted/50 hover:text-foreground",
           isCollapsed ? "justify-center px-0" : "justify-start"
         )}
       >
-        <item.icon className={cn("size-5 shrink-0 transition-transform duration-300", isActive && "scale-105", !isActive && "group-hover:scale-105")} />
+        <item.icon className={cn("size-5 shrink-0 transition-transform duration-300", isActive && "text-primary scale-110", !isActive && "group-hover:scale-110 group-hover:text-primary")} />
         {!isCollapsed && (
-          <span className="ml-4 truncate animate-in fade-in slide-in-from-left-2 duration-500">
+          <span className="ml-4 truncate animate-in fade-in slide-in-from-left-2 duration-500 tracking-wide">
             {t(item.titleKey)}
           </span>
         )}
         {!isCollapsed && isActive && (
-          <Sparkles className="ml-auto size-3 opacity-50 animate-pulse text-white/50" />
+          <Sparkles className="ml-auto size-3 text-primary opacity-50 animate-pulse" />
         )}
 
         {isActive && !isCollapsed && (
@@ -148,7 +148,7 @@ export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: Sid
         {/* Header / Logo */}
         <div className="flex h-24 items-center px-8">
           <Link to="/" className={cn("flex items-center gap-4 group cursor-pointer", isCollapsed ? "justify-center w-full" : "")}>
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary shadow-md shadow-primary/20 text-white transition-all duration-300 group-hover:scale-105">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary shadow-md shadow-primary/20 text-white transition-all duration-300 group-hover:scale-105">
               <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                 <path d="M3 10h18" strokeLinecap="round" />
                 <path d="M5 10v8" strokeLinecap="round" />
@@ -177,7 +177,7 @@ export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: Sid
         {/* User Profile Footer */}
         <div className="p-6">
           <div className={cn(
-            "flex items-center gap-3 p-3 rounded-2xl bg-muted/20 border border-border/30 transition-all duration-500 hover:bg-muted/40 group",
+            "flex items-center gap-3 p-3 rounded-xl bg-muted/20 border border-border/30 transition-all duration-500 hover:bg-muted/40 group",
             isCollapsed ? "justify-center px-0 bg-transparent border-none" : "justify-between"
           )}>
             {!isCollapsed ? (
@@ -219,13 +219,13 @@ export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: Sid
                     <MoreVertical className="size-4 opacity-40" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-2xl p-2">
-                  <DropdownMenuItem onClick={toggleCollapse} className="rounded-xl px-4 py-2 text-xs font-medium cursor-pointer">
+                <DropdownMenuContent align="end" className="w-56 border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-xl p-2">
+                  <DropdownMenuItem onClick={toggleCollapse} className="rounded-lg px-4 py-2 text-xs font-medium cursor-pointer">
                     {isCollapsed ? <PanelLeftOpen className="mr-2 size-4 text-primary" /> : <PanelLeftClose className="mr-2 size-4 text-primary" />}
                     {isCollapsed ? t('sidebar.expandSidebar') : t('sidebar.collapseSidebar')}
                   </DropdownMenuItem>
                   <div className="h-px bg-border/40 my-1 mx-2" />
-                  <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive rounded-xl px-4 py-2 text-xs font-medium cursor-pointer" onClick={handleLogout}>
+                  <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive rounded-lg px-4 py-2 text-xs font-medium cursor-pointer" onClick={handleLogout}>
                     <LogOut className="mr-2 size-4" />
                     {t('navigation.logout')}
                   </DropdownMenuItem>
@@ -240,7 +240,7 @@ export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: Sid
                 variant="ghost"
                 size="icon"
                 onClick={toggleCollapse}
-                className="size-12 rounded-xl text-muted-foreground/40 hover:text-primary hover:bg-primary/5 transition-all"
+                className="size-12 rounded-lg text-muted-foreground/40 hover:text-primary hover:bg-primary/5 transition-all"
               >
                 <PanelLeftOpen className="size-6" />
               </Button>

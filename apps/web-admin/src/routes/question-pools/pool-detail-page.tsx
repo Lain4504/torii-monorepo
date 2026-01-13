@@ -254,7 +254,7 @@ export default function PoolDetailPage() {
                                                         </div>
                                                     </TableCell>
                                                     <TableCell className="px-6">
-                                                        <div className="inline-flex items-center px-2 py-0.5 rounded-md bg-muted/10 border border-border/10 text-[8px] font-black uppercase tracking-widest text-muted-foreground">
+                                                        <div className="inline-flex items-center px-2 py-0.5 rounded-full bg-muted/10 border border-border/10 text-[8px] font-black uppercase tracking-widest text-muted-foreground">
                                                             {question.questionType}
                                                         </div>
                                                     </TableCell>

@@ -31,7 +31,7 @@ import { cn } from "@workspace/ui/lib/utils"
 
 function StatsCard({ title, value, sub, icon: Icon, trend, colorClass }: any) {
   return (
-    <Card className="group relative overflow-hidden rounded-[2rem] bg-background/50 backdrop-blur-3xl border border-white/20 hover:border-primary/30 transition-all duration-700 shadow-sm hover:shadow-xl hover:shadow-primary/5 cursor-pointer">
+    <Card className="group relative overflow-hidden rounded-xl bg-background/50 backdrop-blur-3xl border border-white/20 hover:border-primary/30 transition-all duration-700 shadow-sm hover:shadow-xl hover:shadow-primary/5 cursor-pointer">
       <div className={cn("absolute top-0 right-0 w-32 h-32 blur-[80px] -z-10 rounded-full opacity-5 transition-opacity group-hover:opacity-10", colorClass)} />
 
       <CardHeader className="flex flex-row items-center justify-between pb-4 space-y-0">
@@ -75,7 +75,7 @@ function AdminDashboard() {
           colorClass="bg-emerald-500"
         />
         <StatsCard
-          title="Active Learners"
+          title="Active Students"
           value="2,350"
           sub="High concurrent active users"
           icon={Users}
@@ -83,14 +83,14 @@ function AdminDashboard() {
           colorClass="bg-blue-500"
         />
         <StatsCard
-          title="Course Catalog"
+          title="Total Courses"
           value="12K"
           sub="Optimized lecture content available"
           icon={BookOpen}
           colorClass="bg-primary"
         />
         <StatsCard
-          title="System Status"
+          title="System Health"
           value="99.9%"
           sub="All services operating normally"
           icon={Activity}
@@ -101,20 +101,20 @@ function AdminDashboard() {
       {/* Main Content Area */}
       <div className="grid gap-6 md:grid-cols-7 animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-200">
         {/* Big Chart Area */}
-        <Card className="col-span-4 rounded-[2.5rem] bg-background/50 backdrop-blur-3xl border border-white/20 shadow-sm overflow-hidden group">
+        <Card className="col-span-4 rounded-2xl bg-background/50 backdrop-blur-3xl border border-white/20 shadow-sm overflow-hidden group">
           <CardHeader className="p-8 pb-4">
             <div className="flex items-center justify-between mb-2">
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-medium tracking-wide">
                 <TrendingUp className="size-3.5" />
-                Growth Analytics
+                Growth Stats
               </div>
             </div>
-            <CardTitle className="text-2xl font-serif font-medium tracking-tight text-foreground">Overview <span className="text-primary italic">Statistics</span></CardTitle>
+            <CardTitle className="text-2xl font-serif font-medium tracking-tight text-foreground">Performance <span className="text-primary italic">Overview</span></CardTitle>
             <CardDescription className="text-xs font-medium text-muted-foreground/50 mt-1">Revenue & Enrollment metrics for Q1 2026</CardDescription>
           </CardHeader>
           <CardContent className="p-8 pt-0">
-            <div className="h-[300px] flex flex-col items-center justify-center text-center space-y-4 bg-muted/10 rounded-[2rem] border border-dashed border-border/40 m-2 group-hover:bg-primary/[0.02] transition-colors duration-500 p-8">
-              <div className="p-4 rounded-2xl bg-background/50 shadow-sm">
+            <div className="h-[300px] flex flex-col items-center justify-center text-center space-y-4 bg-muted/10 rounded-xl border border-dashed border-border/40 m-2 group-hover:bg-primary/[0.02] transition-colors duration-500 p-8">
+              <div className="p-4 rounded-lg bg-background/50 shadow-sm">
                 <Activity className="size-6 text-primary/40 animate-pulse" />
               </div>
               <p className="text-xs font-medium text-muted-foreground/40">Loading Chart Data...</p>
@@ -123,13 +123,13 @@ function AdminDashboard() {
         </Card>
 
         {/* Recent Transactions */}
-        <Card className="col-span-3 rounded-[2.5rem] bg-background/50 backdrop-blur-3xl border border-white/20 shadow-sm">
+        <Card className="col-span-3 rounded-2xl bg-background/50 backdrop-blur-3xl border border-white/20 shadow-sm">
           <CardHeader className="p-8 pb-6">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/10 text-amber-500 rounded-full text-[10px] font-medium tracking-wide mb-4">
               <DollarSign className="size-3.5" />
               Recent Activity
             </div>
-            <CardTitle className="text-2xl font-serif font-medium tracking-tight text-foreground">Latest <span className="text-amber-500 italic">Transactions</span></CardTitle>
+            <CardTitle className="text-2xl font-serif font-medium tracking-tight text-foreground">Latest <span className="text-amber-500 italic">Payments</span></CardTitle>
             <p className="text-xs font-medium text-muted-foreground/50 mt-1">Verified purchases & enrollments</p>
           </CardHeader>
           <CardContent className="px-8 pb-8">
@@ -139,8 +139,8 @@ function AdminDashboard() {
               <SaleItem name="Bob Jones" email="VIP Membership Renew" amount="+$299.00" />
               <SaleItem name="Elena Vance" email="Private Tutoring Session" amount="+$150.00" />
             </div>
-            <Button variant="ghost" className="w-full mt-8 h-12 rounded-xl border border-border/20 text-xs font-medium uppercase tracking-wide hover:bg-primary/5 hover:text-primary transition-all group">
-              View All Transactions
+            <Button variant="ghost" className="w-full mt-8 h-12 rounded-lg border border-border/20 text-xs font-medium uppercase tracking-wide hover:bg-primary/5 hover:text-primary transition-all group">
+              View All Payments
               <ChevronRight className="ml-2 size-3.5 group-hover:translate-x-1 transition-transform" />
             </Button>
           </CardContent>
@@ -161,13 +161,13 @@ function StaffDashboard() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 animate-in fade-in slide-in-from-bottom-12 duration-1000">
-        <Card className="rounded-[2.5rem] bg-background/50 backdrop-blur-3xl border border-white/20 shadow-sm p-2">
+        <Card className="rounded-2xl bg-background/50 backdrop-blur-3xl border border-white/20 shadow-sm p-2">
           <CardHeader className="p-8 pb-6">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-medium tracking-wide mb-4">
               <Target className="size-3.5" />
               Tasks
             </div>
-            <CardTitle className="text-2xl font-serif font-medium tracking-tight text-foreground">Pending <span className="text-primary italic">Actions</span></CardTitle>
+            <CardTitle className="text-2xl font-serif font-medium tracking-tight text-foreground">Required <span className="text-primary italic">Actions</span></CardTitle>
             <p className="text-xs font-medium text-muted-foreground/50 mt-1">Daily operational tasks</p>
           </CardHeader>
           <CardContent className="px-6 pb-8 space-y-3">
@@ -177,7 +177,7 @@ function StaffDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-[2.5rem] bg-background/50 backdrop-blur-3xl border border-white/20 shadow-sm p-2">
+        <Card className="rounded-2xl bg-background/50 backdrop-blur-3xl border border-white/20 shadow-sm p-2">
           <CardHeader className="p-8 pb-6">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/10 text-amber-500 rounded-full text-[10px] font-medium tracking-wide mb-4">
               <BookOpen className="size-3.5" />
@@ -193,7 +193,7 @@ function StaffDashboard() {
                 { name: "N2 Listening Pro", update: "Videos Uploaded", time: "5h ago", status: "LIVE" },
                 { name: "Kaiwa Masterclass", update: "Thumbnail Updated", time: "8h ago", status: "REVIEW" }
               ].map((c, i) => (
-                <div key={i} className="flex items-center justify-between p-4 rounded-2xl hover:bg-muted/30 transition-all duration-300 border border-transparent hover:border-border/20 group cursor-pointer">
+                <div key={i} className="flex items-center justify-between p-4 rounded-xl hover:bg-muted/30 transition-all duration-300 border border-transparent hover:border-border/20 group cursor-pointer">
                   <div className="space-y-1 min-w-0">
                     <h4 className="text-xs font-medium uppercase tracking-wide truncate group-hover:text-primary transition-colors">{c.name}</h4>
                     <p className="text-[10px] text-muted-foreground/60">{c.update} • <span className="text-foreground/40">{c.time}</span></p>
@@ -205,7 +205,7 @@ function StaffDashboard() {
               ))}
             </div>
             <Button className="w-full mt-8 h-12 rounded-xl bg-foreground text-background font-medium uppercase tracking-wide text-[10px] shadow-lg hover:shadow-xl transition-all active:scale-[0.98] group">
-              Open Content Repository
+              Browse Courses
               <ChevronRight className="ml-2 size-3.5 group-hover:translate-x-1 transition-transform" />
             </Button>
           </CardContent>
@@ -219,7 +219,7 @@ function LecturerDashboard() {
   return (
     <div className="space-y-8">
       {/* Hero Section - Zen Style */}
-      <div className="relative group rounded-[3rem] border border-primary/10 bg-background/50 backdrop-blur-3xl p-8 lg:p-12 overflow-hidden shadow-xl shadow-primary/5 animate-in fade-in zoom-in-95 duration-1000">
+      <div className="relative group rounded-2xl border border-primary/10 bg-background/50 backdrop-blur-3xl p-8 lg:p-12 overflow-hidden shadow-xl shadow-primary/5 animate-in fade-in zoom-in-95 duration-1000">
         <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/5 blur-[120px] -z-10 rounded-full" />
         <div className="absolute bottom-0 left-0 w-[200px] h-[200px] bg-blue-500/5 blur-[100px] -z-10 rounded-full" />
 
@@ -248,7 +248,7 @@ function LecturerDashboard() {
           </div>
           <div className="relative">
             <div className="absolute inset-0 bg-primary blur-3xl opacity-10 animate-pulse rounded-full" />
-            <Button size="lg" className="relative h-16 px-10 rounded-[2rem] bg-primary text-white font-medium uppercase tracking-wide text-xs shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all duration-500 group">
+            <Button size="lg" className="relative h-16 px-10 rounded-2xl bg-primary text-white font-medium uppercase tracking-wide text-xs shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all duration-500 group">
               Join Now
               <ArrowUpRight className="ml-2 size-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
             </Button>
@@ -257,7 +257,7 @@ function LecturerDashboard() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 animate-in fade-in slide-in-from-bottom-12 duration-1000">
-        <Card className="rounded-[2.5rem] bg-background/50 backdrop-blur-3xl border border-white/20 shadow-sm p-4">
+        <Card className="rounded-2xl bg-background/50 backdrop-blur-3xl border border-white/20 shadow-sm p-4">
           <CardHeader className="p-8 pb-6">
             <div className="flex items-center justify-between mb-4">
               <CardTitle className="text-2xl font-serif font-medium tracking-tight text-foreground">Teaching <span className="text-primary italic">Timeline</span></CardTitle>
@@ -271,7 +271,7 @@ function LecturerDashboard() {
               { title: "N3 Reading Synthesis", time: "Wed, 10:00 AM", level: "N3", color: "text-blue-500" },
               { title: "Weekly Kaiwa Club", time: "Fri, 18:00 PM", level: "ALL", color: "text-primary" }
             ].map((s, i) => (
-              <div key={i} className="group flex items-center justify-between p-5 rounded-[1.5rem] hover:bg-primary/5 transition-all duration-300 cursor-pointer border border-transparent hover:border-primary/10">
+              <div key={i} className="group flex items-center justify-between p-5 rounded-xl hover:bg-primary/5 transition-all duration-300 cursor-pointer border border-transparent hover:border-primary/10">
                 <div className="space-y-1">
                   <h4 className="text-sm font-medium tracking-tight group-hover:text-primary transition-colors">{s.title}</h4>
                   <p className="text-[10px] text-muted-foreground/50 flex items-center gap-2">
@@ -284,7 +284,7 @@ function LecturerDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-[2.5rem] bg-background/50 backdrop-blur-3xl border border-white/20 shadow-sm p-4">
+        <Card className="rounded-2xl bg-background/50 backdrop-blur-3xl border border-white/20 shadow-sm p-4">
           <CardHeader className="p-8 pb-6">
             <div className="flex items-center justify-between mb-4">
               <CardTitle className="text-2xl font-serif font-medium tracking-tight text-foreground">Assignment <span className="text-amber-500 italic">Queue</span></CardTitle>
@@ -299,9 +299,9 @@ function LecturerDashboard() {
                 { name: "Sarah Chen", task: "N3 Ethics Essay", time: "Submitted 5h ago", avatar: "SC" },
                 { name: "Tanaka Ken", task: "N2 Business Mail", time: "Submitted 1d ago", avatar: "TK" }
               ].map((a, i) => (
-                <div key={i} className="flex items-center justify-between p-4 rounded-[1.5rem] hover:bg-muted/30 transition-all duration-300 group group cursor-pointer border border-transparent hover:border-border/30">
+                <div key={i} className="flex items-center justify-between p-4 rounded-xl hover:bg-muted/30 transition-all duration-300 group group cursor-pointer border border-transparent hover:border-border/30">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-600 font-medium text-[10px] transition-all group-hover:scale-105">
+                    <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-600 font-medium text-[10px] transition-all group-hover:scale-105">
                       {a.avatar}
                     </div>
                     <div className="space-y-0.5">
@@ -325,8 +325,8 @@ function LecturerDashboard() {
 
 function SaleItem({ name, email, amount }: any) {
   return (
-    <div className="flex items-center group cursor-pointer transition-all duration-500 hover:bg-primary/5 rounded-2xl p-3 -mx-2 border border-transparent hover:border-primary/5">
-      <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-medium text-[10px] mr-4 transition-all duration-500 border border-primary/5">
+    <div className="flex items-center group cursor-pointer transition-all duration-500 hover:bg-primary/5 rounded-xl p-3 -mx-2 border border-transparent hover:border-primary/5">
+      <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-medium text-[10px] mr-4 transition-all duration-500 border border-primary/5">
         {name[0]}
       </div>
       <div className="space-y-0.5 flex-1">
@@ -341,9 +341,9 @@ function SaleItem({ name, email, amount }: any) {
 function TaskItem({ title, status, code }: { title: string, status: string, code: string }) {
   const isUrgent = status === 'Urgent';
   return (
-    <div className="flex items-center gap-4 p-4 rounded-2xl bg-muted/20 hover:bg-primary/5 transition-all duration-300 cursor-pointer group border border-border/10 hover:border-primary/20">
+    <div className="flex items-center gap-4 p-4 rounded-xl bg-muted/20 hover:bg-primary/5 transition-all duration-300 cursor-pointer group border border-border/10 hover:border-primary/20">
       <div className={cn(
-        "w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-105",
+        "w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-300 group-hover:scale-105",
         isUrgent ? "bg-rose-500/10 text-rose-500" : "bg-primary/10 text-primary"
       )}>
         <CheckCircle2 className="h-4 w-4" />
@@ -412,7 +412,7 @@ export default function DashboardPage() {
         {role === 'lecturer' && <LecturerDashboard />}
 
         {!['admin', 'staff', 'lecturer'].includes(role || '') && (
-          <div className="p-20 text-center space-y-4 bg-muted/10 rounded-[3rem] border border-dashed border-border/40">
+          <div className="p-20 text-center space-y-4 bg-muted/10 rounded-2xl border border-dashed border-border/40">
             <ShieldAlert className="size-12 text-muted-foreground/20 mx-auto" strokeWidth={1} />
             <div className="space-y-1">
               <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/40">Access Restricted</p>

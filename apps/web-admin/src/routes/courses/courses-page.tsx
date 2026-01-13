@@ -24,7 +24,7 @@ import {
 import { toast } from '@workspace/ui/components/sonner';
 import { cn } from '@workspace/ui/lib/utils';
 import { BookOpen, Plus, Sparkles, ShieldAlert } from 'lucide-react';
-import { Card } from '@workspace/ui/components/card';
+
 
 export default function CoursesPage() {
   const navigate = useNavigate();
@@ -191,91 +191,88 @@ export default function CoursesPage() {
         </div>
       </div>
 
-      {/* Main Table Container */}
-      <Card className="rounded-[2.5rem] bg-background/50 backdrop-blur-3xl border border-white/20 shadow-xl shadow-black/5 overflow-hidden group">
-        <div className="p-4 lg:p-8 space-y-6">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-4 p-1 rounded-2xl">
-            <div className="flex-1 w-full">
-              <CoursesPrimaryToolbar
-                search={search}
-                onSearchChange={setSearch}
-                statusFilter={statusFilter}
-                onStatusFilterChange={setStatusFilter}
-                jlptLevelFilter={jlptLevelFilter}
-                onJlptLevelFilterChange={setJlptLevelFilter}
-              />
-            </div>
-          </div>
-
-          <div className="rounded-3xl border border-white/20 bg-background/40 overflow-hidden relative shadow-sm">
-            <div className="absolute inset-0 bg-primary/[0.02] pointer-events-none" />
-            <CoursesTable
-              data={courses}
-              onEdit={setEditingCourse}
-              onDelete={setDeletingCourse}
-              onView={setEditingCourse}
-              onTitleClick={(course) => navigate(`/courses/${course.id}`)}
-              onModules={setEditingCourse}
-              onManageInstructors={setManagingInstructorsCourse}
-              onPublish={setPublishingCourse}
-              onUnpublish={handleUnpublish}
-              page={page}
-              limit={queryParams.limit || 10}
-              isLoading={isLoading}
+      <div className="space-y-6 px-2">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+          <div className="flex-1 w-full">
+            <CoursesPrimaryToolbar
+              search={search}
+              onSearchChange={setSearch}
+              statusFilter={statusFilter}
+              onStatusFilterChange={setStatusFilter}
+              jlptLevelFilter={jlptLevelFilter}
+              onJlptLevelFilterChange={setJlptLevelFilter}
             />
           </div>
-
-          {/* Pagination */}
-          {meta && (
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-4 pt-2">
-              <div className="flex flex-col lg:flex-row lg:items-center gap-4 text-xs text-muted-foreground font-medium text-center lg:text-left pl-2">
-                <div className="inline-flex items-center gap-2">
-                  <Sparkles className="size-3.5 text-primary/70" />
-                  <span>Total Courses: <span className="text-foreground">{meta.total}</span></span>
-                </div>
-                <div className="hidden lg:block w-1 h-1 rounded-full bg-border" />
-                <div>Page {page} of {meta.totalPages}</div>
-              </div>
-
-              {meta.totalPages > 1 && (
-                <Pagination>
-                  <PaginationContent className="flex items-center gap-2">
-                    <PaginationItem>
-                      <PaginationPrevious
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setPage(p => Math.max(1, p - 1));
-                        }}
-                        className={cn(
-                          "h-10 px-4 rounded-xl bg-background/50 border border-border/20 text-xs font-medium transition-all",
-                          page === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary cursor-pointer"
-                        )}
-                      />
-                    </PaginationItem>
-
-                    <div className="hidden md:flex items-center gap-1 mx-2">
-                      {renderPaginationItems()}
-                    </div>
-
-                    <PaginationItem>
-                      <PaginationNext
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setPage(p => Math.min(meta.totalPages, p + 1));
-                        }}
-                        className={cn(
-                          "h-10 px-4 rounded-xl bg-background/50 border border-border/20 text-xs font-medium transition-all",
-                          page === meta.totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary cursor-pointer"
-                        )}
-                      />
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
-              )}
-            </div>
-          )}
         </div>
-      </Card>
+
+        <div className="rounded-3xl border border-white/20 bg-background/50 backdrop-blur-3xl overflow-hidden relative shadow-sm">
+          <div className="absolute inset-0 bg-primary/[0.02] pointer-events-none" />
+          <CoursesTable
+            data={courses}
+            onEdit={setEditingCourse}
+            onDelete={setDeletingCourse}
+            onView={setEditingCourse}
+            onTitleClick={(course) => navigate(`/courses/${course.id}`)}
+            onModules={setEditingCourse}
+            onManageInstructors={setManagingInstructorsCourse}
+            onPublish={setPublishingCourse}
+            onUnpublish={handleUnpublish}
+            page={page}
+            limit={queryParams.limit || 10}
+            isLoading={isLoading}
+          />
+        </div>
+
+        {/* Pagination */}
+        {meta && (
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-4 pt-2">
+            <div className="flex flex-col lg:flex-row lg:items-center gap-4 text-xs text-muted-foreground font-medium text-center lg:text-left pl-2">
+              <div className="inline-flex items-center gap-2">
+                <Sparkles className="size-3.5 text-primary/70" />
+                <span>Total Courses: <span className="text-foreground">{meta.total}</span></span>
+              </div>
+              <div className="hidden lg:block w-1 h-1 rounded-full bg-border" />
+              <div>Page {page} of {meta.totalPages}</div>
+            </div>
+
+            {meta.totalPages > 1 && (
+              <Pagination>
+                <PaginationContent className="flex items-center gap-2">
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setPage(p => Math.max(1, p - 1));
+                      }}
+                      className={cn(
+                        "h-10 px-4 rounded-xl bg-background/50 border border-border/20 text-xs font-medium transition-all",
+                        page === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary cursor-pointer"
+                      )}
+                    />
+                  </PaginationItem>
+
+                  <div className="hidden md:flex items-center gap-1 mx-2">
+                    {renderPaginationItems()}
+                  </div>
+
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setPage(p => Math.min(meta.totalPages, p + 1));
+                      }}
+                      className={cn(
+                        "h-10 px-4 rounded-xl bg-background/50 border border-border/20 text-xs font-medium transition-all",
+                        page === meta.totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary cursor-pointer"
+                      )}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* Dialogs & Sheets */}
       <CreateCourseSheet

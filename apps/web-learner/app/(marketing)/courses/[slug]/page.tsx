@@ -28,11 +28,11 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
         : []
 
     return (
-        <div className="min-h-screen bg-background pb-20 md:pb-32 selection:bg-primary/10 selection:text-primary">
+        <div className="min-h-screen bg-background pb-20 md:pb-32 selection:bg-primary/10 selection:text-primary overflow-x-hidden">
             <CourseHeader course={course} />
 
             <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 md:mt-12 relative z-10">
-                <div className="grid lg:grid-cols-3 gap-8 lg:gap-16">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-16">
                     {/* Main Content Column */}
                     <div className="lg:col-span-2 space-y-12 md:space-y-24 order-2 lg:order-1">
 

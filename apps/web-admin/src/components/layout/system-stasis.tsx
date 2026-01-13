@@ -30,7 +30,7 @@ export function SystemStasis({
             </div>
 
             <div className="text-center space-y-4 relative px-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-[10px] font-medium tracking-wide text-primary">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-[9px] font-black uppercase tracking-[0.2em] text-primary">
                     <Sparkles className="size-3" />
                     {statusText}
                 </div>

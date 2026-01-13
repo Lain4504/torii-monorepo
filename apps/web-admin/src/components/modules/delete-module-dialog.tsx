@@ -30,12 +30,12 @@ export function DeleteModuleDialog({ module, open, onOpenChange }: DeleteModuleD
         setIsDeleting(true);
         try {
             await deleteModule.mutateAsync(module.id);
-            toast.success('Module Node Purged', {
-                description: `Structure ${module.title} has been permanently removed.`,
+            toast.success('Module Deleted', {
+                description: `${module.title} has been removed.`,
             });
             onOpenChange(false);
         } catch (error: any) {
-            toast.error('Purge Failed', {
+            toast.error('Deletion Failed', {
                 description: error.response?.data?.error || error.message,
             });
         } finally {
@@ -47,7 +47,7 @@ export function DeleteModuleDialog({ module, open, onOpenChange }: DeleteModuleD
 
     return (
         <AlertDialog open={open} onOpenChange={onOpenChange}>
-            <AlertDialogContent className="sm:max-w-[480px] p-0 gap-0 overflow-hidden border-border/20 bg-background/95 backdrop-blur-xl shadow-2xl flex flex-col rounded-3xl">
+            <AlertDialogContent className="sm:max-w-[480px] p-0 gap-0 overflow-hidden border border-border/50 bg-background shadow-2xl flex flex-col rounded-3xl">
                 <div className="p-6 pb-0">
                     <div className="flex items-start gap-5">
                         <div className="p-3 rounded-2xl bg-destructive/10 border border-destructive/20 shadow-inner flex-shrink-0">
@@ -79,7 +79,7 @@ export function DeleteModuleDialog({ module, open, onOpenChange }: DeleteModuleD
                     </div>
                 </div>
 
-                <AlertDialogFooter className="p-6 mt-4 bg-muted/5 border-t border-border/10 gap-3">
+                <AlertDialogFooter className="p-6 mt-4 bg-background border-t border-border/10 gap-3">
                     <AlertDialogCancel
                         disabled={isDeleting}
                         className="rounded-xl h-11 text-xs font-medium border-border/20 bg-background hover:bg-muted/50 hover:text-foreground shadow-sm"

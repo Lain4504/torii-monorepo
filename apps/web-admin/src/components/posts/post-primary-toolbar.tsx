@@ -25,12 +25,12 @@ interface PostPrimaryToolbarProps {
 }
 
 export function PostPrimaryToolbar({
-                                       search,
-                                       onSearchChange,
-                                       statusFilter,
-                                       onStatusFilterChange,
-                                       onSortChange,
-                                   }: PostPrimaryToolbarProps) {
+    search,
+    onSearchChange,
+    statusFilter,
+    onStatusFilterChange,
+    onSortChange,
+}: PostPrimaryToolbarProps) {
     return (
         <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between w-full">
             {/* Zen Search Input */}
@@ -40,7 +40,7 @@ export function PostPrimaryToolbar({
                     placeholder="ENTER POST TITLE OR ARTICLE IDENTIFIER..."
                     value={search}
                     onChange={(e) => onSearchChange(e.target.value)}
-                    className="h-12 pl-12 rounded-xl border-border/20 bg-background/50 hover:bg-background/80 focus-visible:ring-primary/20 transition-all text-[11px] font-black uppercase tracking-[0.15em] placeholder:text-muted-foreground/20"
+                    className="h-12 pl-12 rounded-xl border-border/40 bg-background/50 hover:bg-background/80 focus-visible:ring-primary/20 transition-all text-[11px] font-black uppercase tracking-[0.15em] placeholder:text-muted-foreground/20"
                 />
             </div>
 
@@ -52,13 +52,13 @@ export function PostPrimaryToolbar({
                         onStatusFilterChange(value === 'all' ? '' : value)
                     }
                 >
-                    <SelectTrigger className="h-12 w-full md:w-[180px] rounded-xl border-border/20 bg-background/50 hover:bg-background/80 transition-all text-[10px] font-black uppercase tracking-widest focus:ring-primary/20">
+                    <SelectTrigger className="h-12 w-full md:w-[180px] rounded-xl border-border/40 bg-background/50 hover:bg-background/80 transition-all text-[10px] font-black uppercase tracking-widest focus:ring-primary/20">
                         <div className="flex items-center gap-2">
                             <Layers className="size-3.5 opacity-30" />
                             <SelectValue placeholder="STATUS" />
                         </div>
                     </SelectTrigger>
-                    <SelectContent className="border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-2xl p-2">
+                    <SelectContent className="border-border/40 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-2xl p-2">
                         <SelectItem value="all" className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer italic">ALL ARTICLES</SelectItem>
                         <SelectItem value="draft" className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">DRAFT</SelectItem>
                         <SelectItem value="published" className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">PUBLISHED</SelectItem>
@@ -69,7 +69,7 @@ export function PostPrimaryToolbar({
                 {/* Sort Dropdown */}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="h-12 w-full md:w-[180px] justify-start rounded-xl border-border/20 bg-background/50 hover:bg-background/80 transition-all text-[10px] font-black uppercase tracking-widest focus:ring-primary/20">
+                        <Button variant="outline" className="h-12 w-full md:w-[180px] justify-start rounded-xl border-border/40 bg-background/50 hover:bg-background/80 transition-all text-[10px] font-black uppercase tracking-widest focus:ring-primary/20">
                             <div className="flex items-center gap-2">
                                 <ArrowUpDown className="size-3.5 opacity-30" />
                                 <span className="hidden sm:inline">SORT BY</span>
@@ -77,7 +77,7 @@ export function PostPrimaryToolbar({
                             </div>
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48 border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-2xl p-2">
+                    <DropdownMenuContent align="end" className="w-48 border-border/40 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-2xl p-2">
                         <DropdownMenuGroup>
                             <DropdownMenuItem onClick={() => onSortChange('publishedAt', 'desc')} className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">
                                 NEWEST FIRST

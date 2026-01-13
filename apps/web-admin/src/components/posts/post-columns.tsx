@@ -42,7 +42,7 @@ export const getPostColumns = ({ onView, onEdit, onDelete, page, limit }: PostCo
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
                     className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group"
                 >
-                    Article Title
+                    Title
                     <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
                 </Button>
             );
@@ -60,7 +60,7 @@ export const getPostColumns = ({ onView, onEdit, onDelete, page, limit }: PostCo
         ),
     }),
     columnHelper.accessor('author', {
-        header: () => <div className="px-1">Author Node</div>,
+        header: () => <div className="px-1">Author</div>,
         cell: (info) => {
             const author = info.getValue();
             return (
@@ -72,7 +72,7 @@ export const getPostColumns = ({ onView, onEdit, onDelete, page, limit }: PostCo
         size: 120,
     }),
     columnHelper.accessor('status', {
-        header: () => <div className="px-1">Operational Status</div>,
+        header: () => <div className="px-1">Status</div>,
         cell: (info) => {
             const status = info.getValue() as string;
             const colors = {
@@ -107,7 +107,7 @@ export const getPostColumns = ({ onView, onEdit, onDelete, page, limit }: PostCo
         cell: (info) => (
             <div className="flex flex-col items-center">
                 <div className="font-serif font-bold italic text-xl leading-none text-primary">{info.getValue() || 0}</div>
-                <div className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40 mt-1.5">Metrics</div>
+                <div className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40 mt-1.5">Views</div>
             </div>
         ),
         size: 100,
@@ -128,7 +128,7 @@ export const getPostColumns = ({ onView, onEdit, onDelete, page, limit }: PostCo
         cell: (info) => (
             <div className="flex flex-col items-center">
                 <div className="font-serif font-bold italic text-xl leading-none text-amber-500">{info.getValue() || 0}</div>
-                <div className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40 mt-1.5">Threads</div>
+                <div className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40 mt-1.5">Comments</div>
             </div>
         ),
         size: 100,
@@ -141,7 +141,7 @@ export const getPostColumns = ({ onView, onEdit, onDelete, page, limit }: PostCo
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
                     className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group w-full justify-center"
                 >
-                    Sync Cycle
+                    Published At
                     <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
                 </Button>
             );
@@ -159,7 +159,7 @@ export const getPostColumns = ({ onView, onEdit, onDelete, page, limit }: PostCo
     }),
     columnHelper.display({
         id: 'actions',
-        header: () => <div className="text-center">Protocol</div>,
+        header: () => <div className="text-center">Manage</div>,
         cell: ({ row }) => {
             const post = row.original;
 
@@ -169,19 +169,19 @@ export const getPostColumns = ({ onView, onEdit, onDelete, page, limit }: PostCo
                         <DropdownMenuTrigger asChild>
                             <Button
                                 variant="ghost"
-                                className="h-10 w-10 p-0 rounded-2xl hover:bg-primary/10 hover:text-primary transition-all data-[state=open]:bg-primary/20"
+                                className="h-10 w-10 p-0 rounded-lg hover:bg-primary/10 hover:text-primary transition-all data-[state=open]:bg-primary/20"
                             >
-                                <span className="sr-only">Open Control Portal</span>
+                                <span className="sr-only">Open Post Menu</span>
                                 <Zap className="h-4 w-4 opacity-40 group-hover:opacity-100" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
                             align="end"
-                            className="w-[220px] border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-2xl p-2"
+                            className="w-[220px] border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-lg p-2"
                         >
                             <DropdownMenuItem
                                 onClick={() => onView(post)}
-                                className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
+                                className="rounded-md px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
                             >
                                 <EyeIcon className="h-4 w-4 opacity-30" />
                                 <span>View Details</span>
@@ -190,10 +190,10 @@ export const getPostColumns = ({ onView, onEdit, onDelete, page, limit }: PostCo
                             <Can permission="post.manage">
                                 <DropdownMenuItem
                                     onClick={() => onEdit(post)}
-                                    className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
+                                    className="rounded-md px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
                                 >
                                     <Pencil className="h-4 w-4 opacity-30" />
-                                    <span>Modify Structure</span>
+                                    <span>Edit Content</span>
                                 </DropdownMenuItem>
 
                                 <DropdownMenuSeparator className="bg-border/20 mx-2" />
@@ -203,7 +203,7 @@ export const getPostColumns = ({ onView, onEdit, onDelete, page, limit }: PostCo
                                     className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer flex gap-3"
                                 >
                                     <Trash className="h-4 w-4 opacity-30" />
-                                    <span>Purge Asset</span>
+                                    <span>Delete Post</span>
                                 </DropdownMenuItem>
                             </Can>
                         </DropdownMenuContent>

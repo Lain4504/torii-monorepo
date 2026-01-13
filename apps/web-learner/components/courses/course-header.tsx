@@ -57,7 +57,7 @@ export function CourseHeader({ course }: CourseHeaderProps) {
 
                         {/* Title & Description */}
                         <div className="space-y-4 md:space-y-6">
-                            <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-serif font-bold tracking-tight leading-[1.1] md:leading-[0.85] text-foreground uppercase italic break-words">
+                            <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-serif font-bold tracking-tight leading-[1.1] md:leading-[0.85] text-foreground uppercase italic break-words hyphens-auto">
                                 {course.title}
                             </h1>
                             <p className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-primary/40 italic border-l-2 border-primary/20 pl-4 md:pl-8 max-w-2xl py-1 leading-relaxed">

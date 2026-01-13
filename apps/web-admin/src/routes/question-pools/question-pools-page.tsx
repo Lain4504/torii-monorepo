@@ -397,7 +397,7 @@ function PoolRow({
             </TableCell>
             <TableCell className="px-6">
                 <div className="flex items-center gap-2.5">
-                    <div className="p-2 rounded-lg bg-muted/20 text-muted-foreground/40 group-hover:text-primary group-hover:bg-primary/5 transition-all">
+                    <div className="p-2 rounded-xl bg-muted/20 text-muted-foreground/40 group-hover:text-primary group-hover:bg-primary/5 transition-all">
                         <FileQuestion className="size-4" />
                     </div>
                     <div className="flex flex-col">

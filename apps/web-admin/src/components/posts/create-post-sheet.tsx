@@ -197,7 +197,7 @@ export function CreatePostSheet({
 
     return (
         <Sheet open={open} onOpenChange={handleClose}>
-            <SheetContent className="w-full sm:w-[900px] sm:max-w-[900px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl overflow-hidden">
+            <SheetContent className="w-full sm:w-[900px] sm:max-w-[900px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background overflow-hidden">
                 <SheetHeader className="px-8 pt-8 pb-6 border-b border-border/10 bg-muted/5 relative overflow-hidden">
                     <div className="absolute inset-0 bg-primary/5 blur-3xl opacity-50 pointer-events-none" />
                     <div className="relative flex items-center gap-4 z-10">
@@ -205,14 +205,14 @@ export function CreatePostSheet({
                             <FileText className="h-6 w-6" />
                         </div>
                         <div className="flex-1 space-y-1">
-                            <SheetTitle className="text-2xl font-black uppercase tracking-tight italic">
-                                Initialize <span className="text-primary not-italic">Article</span>
+                            <SheetTitle className="text-2xl font-medium tracking-tight">
+                                Create New <span className="text-primary italic">Post</span>
                             </SheetTitle>
-                            <SheetDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">
-                                Step 01: Define Post Specifications
+                            <SheetDescription className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground/60">
+                                Write and configure your new article
                             </SheetDescription>
                         </div>
-                        <div className="p-2 bg-background/50 backdrop-blur-md rounded-full border border-border/20 text-muted-foreground">
+                        <div className="p-2 bg-background/50 backdrop-blur-md rounded-full border border-border/40 text-muted-foreground">
                             <Sparkles className="size-4 animate-pulse text-primary" />
                         </div>
                     </div>
@@ -223,10 +223,10 @@ export function CreatePostSheet({
                         <div className="px-8 py-10 space-y-10 animate-in fade-in slide-in-from-right-8 duration-500">
                             {/* Basic Information */}
                             <div className="space-y-6">
-                                <div className="flex items-center gap-3 pb-2 border-b border-border/20">
+                                <div className="flex items-center gap-3 pb-2 border-b border-border/40">
                                     <div className="h-px flex-1 bg-border/20" />
-                                    <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">
-                                        Core Specifications
+                                    <h3 className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground/40 text-center">
+                                        General Information
                                     </h3>
                                     <div className="h-px flex-1 bg-border/20" />
                                 </div>
@@ -243,7 +243,7 @@ export function CreatePostSheet({
                                                 id={field.name}
                                                 {...field}
                                                 placeholder="ARTICLE DESIGNATION"
-                                                className="h-14 px-5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all uppercase"
+                                                className="h-14 px-5 rounded-2xl bg-muted/10 border-border/40 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all uppercase"
                                                 aria-invalid={fieldState.invalid}
                                             />
                                             {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
@@ -265,7 +265,7 @@ export function CreatePostSheet({
                                                 value={field.value || ''}
                                                 placeholder="BRIEF SUMMARY FOR CARDS..."
                                                 rows={3}
-                                                className="rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all resize-none p-4"
+                                                className="rounded-2xl bg-muted/10 border-border/40 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all resize-none p-4"
                                                 aria-invalid={fieldState.invalid}
                                             />
                                             {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
@@ -308,7 +308,7 @@ export function CreatePostSheet({
                                                     value={field.value}
                                                     onValueChange={(value) => field.onChange(value as PostStatus)}
                                                 >
-                                                    <SelectTrigger id={field.name} className="h-14 px-5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus:ring-primary/20 text-sm font-bold uppercase transition-all">
+                                                    <SelectTrigger id={field.name} className="h-14 px-5 rounded-2xl bg-muted/10 border-border/40 hover:bg-muted/20 focus:ring-primary/20 text-sm font-bold uppercase transition-all">
                                                         <SelectValue placeholder="SELECT STATUS" />
                                                     </SelectTrigger>
                                                     <SelectContent className="border-border/10 shadow-2xl bg-background/95 backdrop-blur-3xl rounded-2xl overflow-hidden p-1">
@@ -335,7 +335,7 @@ export function CreatePostSheet({
                                                     type="datetime-local"
                                                     {...field}
                                                     value={field.value || ''}
-                                                    className="h-14 px-5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold transition-all font-mono"
+                                                    className="h-14 px-5 rounded-2xl bg-muted/10 border-border/40 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold transition-all font-mono"
                                                     aria-invalid={fieldState.invalid}
                                                 />
                                                 {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
@@ -357,7 +357,7 @@ export function CreatePostSheet({
                                                 {...field}
                                                 value={field.value || ''}
                                                 placeholder="BLOG, NEWS, TUTORIAL (COMMA SEPARATED)"
-                                                className="h-14 px-5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all uppercase"
+                                                className="h-14 px-5 rounded-2xl bg-muted/10 border-border/40 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all uppercase"
                                                 aria-invalid={fieldState.invalid}
                                             />
                                             {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
@@ -368,7 +368,7 @@ export function CreatePostSheet({
 
                             {/* Media Files */}
                             <div className="space-y-6 pt-6">
-                                <div className="flex items-center gap-3 pb-2 border-b border-border/20">
+                                <div className="flex items-center gap-3 pb-2 border-b border-border/40">
                                     <div className="h-px flex-1 bg-border/20" />
                                     <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">
                                         Data Assets (Optional)
@@ -388,7 +388,7 @@ export function CreatePostSheet({
                                                     type="file"
                                                     accept="image/*"
                                                     onChange={handleCoverImageChange}
-                                                    className="h-14 px-4 pt-3.5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-xs font-bold file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all"
+                                                    className="h-14 px-4 pt-3.5 rounded-2xl bg-muted/10 border-border/40 hover:bg-muted/20 focus-visible:ring-primary/20 text-xs font-bold file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all"
                                                 />
                                                 <UploadCloud className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50 pointer-events-none" />
                                             </div>
@@ -416,7 +416,7 @@ export function CreatePostSheet({
                                             </div>
                                         )}
                                         {coverImagePreview && (
-                                            <div className="relative rounded-2xl overflow-hidden border border-border/20">
+                                            <div className="relative rounded-2xl overflow-hidden border border-border/40">
                                                 <img
                                                     src={coverImagePreview}
                                                     alt="Cover preview"
@@ -430,7 +430,7 @@ export function CreatePostSheet({
 
                             {/* SEO Metadata */}
                             <div className="space-y-6 pt-6">
-                                <div className="flex items-center gap-3 pb-2 border-b border-border/20">
+                                <div className="flex items-center gap-3 pb-2 border-b border-border/40">
                                     <div className="h-px flex-1 bg-border/20" />
                                     <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">
                                         SEO Metadata
@@ -451,7 +451,7 @@ export function CreatePostSheet({
                                                 {...field}
                                                 value={field.value || ''}
                                                 placeholder="SEO TITLE FOR SEARCH ENGINES..."
-                                                className="h-14 px-5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all uppercase"
+                                                className="h-14 px-5 rounded-2xl bg-muted/10 border-border/40 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all uppercase"
                                                 aria-invalid={fieldState.invalid}
                                             />
                                             {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
@@ -473,7 +473,7 @@ export function CreatePostSheet({
                                                 value={field.value || ''}
                                                 placeholder="SEO DESCRIPTION FOR SEARCH ENGINES..."
                                                 rows={3}
-                                                className="rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all resize-none p-4"
+                                                className="rounded-2xl bg-muted/10 border-border/40 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all resize-none p-4"
                                                 aria-invalid={fieldState.invalid}
                                             />
                                             {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
@@ -485,7 +485,7 @@ export function CreatePostSheet({
                     </ScrollArea>
 
                     {/* Footer */}
-                    <SheetFooter className="px-8 py-6 bg-background/50 backdrop-blur-xl border-t border-border/10 flex flex-row items-center justify-between gap-4 relative z-20 flex-shrink-0">
+                    <SheetFooter className="px-8 py-6 bg-background border-t border-border/10 flex flex-row items-center justify-between gap-4 relative z-20 flex-shrink-0">
                         <Button
                             type="button"
                             variant="ghost"
@@ -494,7 +494,7 @@ export function CreatePostSheet({
                             className="rounded-xl h-12 px-6 text-[11px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground hover:bg-muted/20 group"
                         >
                             <X className="mr-2 h-4 w-4 transition-transform group-hover:rotate-90" />
-                            Discard
+                            Cancel
                         </Button>
                         <Button
                             type="submit"
@@ -504,12 +504,12 @@ export function CreatePostSheet({
                             {uploading || createPost.isPending ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Initializing...
+                                    Saving...
                                 </>
                             ) : (
                                 <>
                                     <UploadCloud className="mr-2 h-4 w-4" />
-                                    Initialize Post
+                                    Create Post
                                 </>
                             )}
                         </Button>

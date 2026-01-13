@@ -82,12 +82,12 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
             };
 
             await createLesson.mutateAsync(payload);
-            toast.success('Unit Initialized', {
-                description: `${data.title} successfully appended to module.`,
+            toast.success('Unit Created', {
+                description: `${data.title} successfully added to module.`,
             });
             handleClose();
         } catch (error: any) {
-            toast.error('Initialization Failed', {
+            toast.error('Creation Failed', {
                 description: error.response?.data?.error || error.message,
             });
         } finally {
@@ -103,7 +103,7 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
 
     return (
         <Sheet open={open} onOpenChange={handleClose}>
-            <SheetContent className="w-full sm:w-[800px] sm:max-w-[800px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/10 shadow-2xl bg-background/80 backdrop-blur-3xl overflow-hidden [&>button]:top-6 [&>button]:right-6 [&>button]:bg-background/20 [&>button]:rounded-xl [&>button]:w-10 [&>button]:h-10">
+            <SheetContent className="w-full sm:w-[800px] sm:max-w-[800px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background overflow-hidden [&>button]:top-6 [&>button]:right-6 [&>button]:bg-background/20 [&>button]:rounded-xl [&>button]:w-10 [&>button]:h-10">
                 <SheetHeader className="px-6 py-6 border-b border-border/10 relative overflow-hidden flex-shrink-0">
                     <div className="relative z-10 space-y-2">
                         <div className="flex items-center gap-3 mb-1">
@@ -368,7 +368,7 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
                         </div>
                     </ScrollArea>
 
-                    <SheetFooter className="px-6 py-6 border-t border-border/10 bg-muted/5 flex-shrink-0">
+                    <SheetFooter className="px-6 py-6 border-t border-border/10 bg-background flex-shrink-0">
                         <div className="flex w-full gap-4">
                             <Button
                                 type="button"

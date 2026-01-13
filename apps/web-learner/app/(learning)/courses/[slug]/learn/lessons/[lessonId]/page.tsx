@@ -279,7 +279,7 @@ export default function LessonDetailPage() {
 
                             {/* Simplified Tabs Section */}
                             <Tabs defaultValue="content" className="w-full">
-                                <TabsList className="bg-transparent border-b border-border/10 w-full justify-start h-auto p-0 gap-8 mb-10 overflow-x-auto no-scrollbar rounded-none">
+                                <TabsList className="bg-muted/20 border-none w-auto inline-flex h-auto p-1.5 gap-2 rounded-full">
                                     {[
                                         { id: 'content', label: 'Bài học', icon: BookOpen },
                                         { id: 'resources', label: 'Tài liệu', icon: FileText, badge: 1 },
@@ -288,12 +288,17 @@ export default function LessonDetailPage() {
                                         <TabsTrigger
                                             key={tab.id}
                                             value={tab.id}
-                                            className="px-0 py-4 bg-transparent border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none text-[11px] font-bold uppercase tracking-widest text-muted-foreground/40 data-[state=active]:text-primary transition-all flex items-center gap-2 rounded-none"
+                                            className="px-6 py-3 rounded-full border-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 transition-all flex items-center gap-2 hover:bg-background/40 hover:text-primary"
                                         >
-                                            <tab.icon className="w-4 h-4" />
+                                            <tab.icon className="w-3.5 h-3.5" />
                                             {tab.label}
                                             {tab.badge && (
-                                                <span className="ml-1 text-[10px] font-bold text-primary/60">({tab.badge})</span>
+                                                <span className={cn(
+                                                    "ml-1 text-[9px] font-black rounded-full px-1.5 py-0.5",
+                                                    "bg-background/20 text-current"
+                                                )}>
+                                                    {tab.badge}
+                                                </span>
                                             )}
                                         </TabsTrigger>
                                     ))}

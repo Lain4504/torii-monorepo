@@ -47,7 +47,7 @@ export function PostTable({ data, onView, onEdit, onDelete, page, limit, isLoadi
 
     return (
         <Table className="min-w-[1000px] border-collapse bg-transparent">
-            <TableHeader className="bg-muted/10 border-b border-border/20">
+            <TableHeader className="bg-muted/10 border-b border-border/40">
                 {table.getHeaderGroups().map((headerGroup) => (
                     <TableRow key={headerGroup.id} className="border-none hover:bg-transparent">
                         {headerGroup.headers.map((header) => {
@@ -81,7 +81,7 @@ export function PostTable({ data, onView, onEdit, onDelete, page, limit, isLoadi
                         <TableRow
                             key={row.id}
                             data-state={row.getIsSelected() && 'selected'}
-                            className="border-b border-border/10 hover:bg-primary/[0.02] transition-all duration-500 group"
+                            className="border-b border-border/20 hover:bg-primary/[0.02] transition-all duration-500 group"
                         >
                             {row.getVisibleCells().map((cell) => (
                                 <TableCell key={cell.id} className="py-2.5 px-3 text-[13px] font-bold text-foreground/80 whitespace-nowrap group-hover:text-primary transition-colors">

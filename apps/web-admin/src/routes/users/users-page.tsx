@@ -21,7 +21,7 @@ import {
     PaginationPrevious,
 } from "@workspace/ui/components/pagination";
 import { UserPlus, ShieldCheck, Users as UsersIcon, Sparkles } from 'lucide-react';
-import { Card } from "@workspace/ui/components/card";
+
 
 export function UsersPage() {
     const [page, setPage] = useState(1);
@@ -169,90 +169,87 @@ export function UsersPage() {
                 </div>
             </div>
 
-            {/* Main Table Container */}
-            <Card className="rounded-[2.5rem] bg-background/50 backdrop-blur-3xl border border-white/20 shadow-xl shadow-black/5 overflow-hidden group">
-                <div className="p-4 lg:p-8 space-y-6">
-                    <div className="flex flex-col lg:flex-row items-center justify-between gap-4 p-1 rounded-2xl">
-                        <div className="flex-1 w-full">
-                            <UsersPrimaryToolbar
-                                search={search}
-                                onSearchChange={setSearch}
-                                filters={filters}
-                                onFilterChange={setFilters}
-                                sortBy={sortBy}
-                                sortOrder={sortOrder}
-                                onSortChange={(field, order) => {
-                                    setSortBy(field);
-                                    setSortOrder(order);
-                                }}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="rounded-3xl border border-white/20 bg-background/40 overflow-hidden relative group/table shadow-sm">
-                        <div className="absolute inset-0 bg-primary/[0.02] pointer-events-none" />
-                        <UsersTable
-                            data={users}
-                            onEdit={setEditingUser}
-                            onDelete={setDeletingUser}
-                            onView={setViewingUser}
-                            page={page}
-                            limit={limit}
-                            isLoading={isLoading}
+            <div className="space-y-6 px-2">
+                <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+                    <div className="flex-1 w-full">
+                        <UsersPrimaryToolbar
+                            search={search}
+                            onSearchChange={setSearch}
+                            filters={filters}
+                            onFilterChange={setFilters}
+                            sortBy={sortBy}
+                            sortOrder={sortOrder}
+                            onSortChange={(field, order) => {
+                                setSortBy(field);
+                                setSortOrder(order);
+                            }}
                         />
                     </div>
-
-                    {/* Pagination */}
-                    {(total > 0 || isLoading) && (
-                        <div className="flex flex-col lg:flex-row items-center justify-between gap-4 pt-2">
-                            <div className="flex flex-col lg:flex-row lg:items-center gap-4 text-xs text-muted-foreground font-medium text-center lg:text-left pl-2">
-                                <div className="inline-flex items-center gap-2">
-                                    <Sparkles className="size-3.5 text-primary/70" />
-                                    <span>Total: <span className="text-foreground">{total} Registered Users</span></span>
-                                </div>
-                                <div className="hidden lg:block w-1 h-1 rounded-full bg-border" />
-                                <div>Page {page} of {totalPages}</div>
-                            </div>
-
-                            {totalPages > 1 && (
-                                <Pagination>
-                                    <PaginationContent className="flex items-center gap-2">
-                                        <PaginationItem>
-                                            <PaginationPrevious
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    setPage(p => Math.max(1, p - 1));
-                                                }}
-                                                className={cn(
-                                                    "h-10 px-4 rounded-xl bg-background/50 border border-border/20 text-xs font-medium transition-all",
-                                                    page === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary cursor-pointer"
-                                                )}
-                                            />
-                                        </PaginationItem>
-
-                                        <div className="hidden md:flex items-center gap-1 mx-2">
-                                            {renderPaginationItems()}
-                                        </div>
-
-                                        <PaginationItem>
-                                            <PaginationNext
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    setPage(p => Math.min(totalPages, p + 1));
-                                                }}
-                                                className={cn(
-                                                    "h-10 px-4 rounded-xl bg-background/50 border border-border/20 text-xs font-medium transition-all",
-                                                    page === totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary cursor-pointer"
-                                                )}
-                                            />
-                                        </PaginationItem>
-                                    </PaginationContent>
-                                </Pagination>
-                            )}
-                        </div>
-                    )}
                 </div>
-            </Card>
+
+                <div className="rounded-3xl border border-white/20 bg-background/50 backdrop-blur-3xl overflow-hidden relative group/table shadow-sm">
+                    <div className="absolute inset-0 bg-primary/[0.02] pointer-events-none" />
+                    <UsersTable
+                        data={users}
+                        onEdit={setEditingUser}
+                        onDelete={setDeletingUser}
+                        onView={setViewingUser}
+                        page={page}
+                        limit={limit}
+                        isLoading={isLoading}
+                    />
+                </div>
+
+                {/* Pagination */}
+                {(total > 0 || isLoading) && (
+                    <div className="flex flex-col lg:flex-row items-center justify-between gap-4 pt-2">
+                        <div className="flex flex-col lg:flex-row lg:items-center gap-4 text-xs text-muted-foreground font-medium text-center lg:text-left pl-2">
+                            <div className="inline-flex items-center gap-2">
+                                <Sparkles className="size-3.5 text-primary/70" />
+                                <span>Total: <span className="text-foreground">{total} Registered Users</span></span>
+                            </div>
+                            <div className="hidden lg:block w-1 h-1 rounded-full bg-border" />
+                            <div>Page {page} of {totalPages}</div>
+                        </div>
+
+                        {totalPages > 1 && (
+                            <Pagination>
+                                <PaginationContent className="flex items-center gap-2">
+                                    <PaginationItem>
+                                        <PaginationPrevious
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                setPage(p => Math.max(1, p - 1));
+                                            }}
+                                            className={cn(
+                                                "h-10 px-4 rounded-xl bg-background/50 border border-border/20 text-xs font-medium transition-all",
+                                                page === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary cursor-pointer"
+                                            )}
+                                        />
+                                    </PaginationItem>
+
+                                    <div className="hidden md:flex items-center gap-1 mx-2">
+                                        {renderPaginationItems()}
+                                    </div>
+
+                                    <PaginationItem>
+                                        <PaginationNext
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                setPage(p => Math.min(totalPages, p + 1));
+                                            }}
+                                            className={cn(
+                                                "h-10 px-4 rounded-xl bg-background/50 border border-border/20 text-xs font-medium transition-all",
+                                                page === totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary cursor-pointer"
+                                            )}
+                                        />
+                                    </PaginationItem>
+                                </PaginationContent>
+                            </Pagination>
+                        )}
+                    </div>
+                )}
+            </div>
 
             {/* Sheets & Dialogs */}
             <CreateUserSheet

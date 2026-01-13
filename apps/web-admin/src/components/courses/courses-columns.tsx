@@ -47,7 +47,7 @@ export const getCoursesColumns = ({ onEdit, onDelete, onManageInstructors, onPub
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
                     className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group"
                 >
-                    Repository Title
+                    Course Name
                     <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
                 </Button>
             );
@@ -57,7 +57,7 @@ export const getCoursesColumns = ({ onEdit, onDelete, onManageInstructors, onPub
                 className="flex items-center gap-3 group/title cursor-pointer"
                 onClick={() => onTitleClick(info.row.original)}
             >
-                <div className="w-10 h-10 rounded-xl bg-primary/5 border border-primary/10 flex items-center justify-center text-primary group-hover/title:bg-primary group-hover/title:text-white transition-all">
+                <div className="w-10 h-10 rounded-lg bg-primary/5 border border-primary/10 flex items-center justify-center text-primary group-hover/title:bg-primary group-hover/title:text-white transition-all">
                     <BookOpen className="size-4" />
                 </div>
                 <div className="flex flex-col">
@@ -68,12 +68,12 @@ export const getCoursesColumns = ({ onEdit, onDelete, onManageInstructors, onPub
         ),
     }),
     columnHelper.accessor('jlptLevel', {
-        header: () => <div className="px-1 text-center">Matrix Level</div>,
+        header: () => <div className="px-1 text-center">Course Level</div>,
         cell: (info) => {
             const level = info.getValue() || 'N/A';
             return (
                 <div className="flex justify-center">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted/20 border border-border/20 text-[9px] font-black uppercase tracking-widest text-muted-foreground">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-muted/20 border border-border/20 text-[9px] font-black uppercase tracking-widest text-muted-foreground">
                         <Target className="size-3 opacity-40 text-primary" />
                         {level}
                     </div>
@@ -90,7 +90,7 @@ export const getCoursesColumns = ({ onEdit, onDelete, onManageInstructors, onPub
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
                     className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group w-full justify-center"
                 >
-                    Valuation
+                    Pricing
                     <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
                 </Button>
             );
@@ -106,7 +106,7 @@ export const getCoursesColumns = ({ onEdit, onDelete, onManageInstructors, onPub
         size: 120,
     }),
     columnHelper.accessor('status', {
-        header: () => <div className="px-1">Operational Status</div>,
+        header: () => <div className="px-1">Visibility</div>,
         cell: (info) => {
             const status = info.getValue() as string;
             const colors = {
@@ -117,7 +117,7 @@ export const getCoursesColumns = ({ onEdit, onDelete, onManageInstructors, onPub
             const colorClass = colors[status as keyof typeof colors] || 'bg-muted/10 text-muted-foreground border-border/20';
 
             return (
-                <div className={cn("inline-flex items-center px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] border shadow-sm", colorClass)}>
+                <div className={cn("inline-flex items-center px-3 py-1 rounded-md text-[9px] font-black uppercase tracking-[0.2em] border shadow-sm", colorClass)}>
                     <div className={cn("size-1 rounded-full mr-2", status === 'published' ? 'bg-emerald-500 animate-pulse' : 'bg-current')} />
                     {status}
                 </div>
@@ -133,7 +133,7 @@ export const getCoursesColumns = ({ onEdit, onDelete, onManageInstructors, onPub
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
                     className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group w-full justify-center"
                 >
-                    Enrollment
+                    Enrolled
                     <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
                 </Button>
             );
@@ -141,7 +141,7 @@ export const getCoursesColumns = ({ onEdit, onDelete, onManageInstructors, onPub
         cell: (info) => (
             <div className="flex flex-col items-center">
                 <div className="font-serif font-bold italic text-xl leading-none text-primary">{info.getValue() || 0}</div>
-                <div className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40 mt-1.5">Identifiers</div>
+                <div className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40 mt-1.5">Students</div>
             </div>
         ),
         size: 100,
@@ -154,7 +154,7 @@ export const getCoursesColumns = ({ onEdit, onDelete, onManageInstructors, onPub
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
                     className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group w-full justify-center"
                 >
-                    Sync Cycle
+                    Last Updated
                     <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
                 </Button>
             );
@@ -169,7 +169,7 @@ export const getCoursesColumns = ({ onEdit, onDelete, onManageInstructors, onPub
     }),
     columnHelper.display({
         id: 'actions',
-        header: () => <div className="text-center">Protocol</div>,
+        header: () => <div className="text-center">Manage</div>,
         cell: ({ row }) => {
             const course = row.original;
 
@@ -179,38 +179,38 @@ export const getCoursesColumns = ({ onEdit, onDelete, onManageInstructors, onPub
                         <DropdownMenuTrigger asChild>
                             <Button
                                 variant="ghost"
-                                className="h-10 w-10 p-0 rounded-2xl hover:bg-primary/10 hover:text-primary transition-all data-[state=open]:bg-primary/20"
+                                className="h-10 w-10 p-0 rounded-lg hover:bg-primary/10 hover:text-primary transition-all data-[state=open]:bg-primary/20"
                             >
-                                <span className="sr-only">Open Control Portal</span>
+                                <span className="sr-only">Open Course Menu</span>
                                 <Zap className="h-4 w-4 opacity-40 group-hover:opacity-100" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
                             align="end"
-                            className="w-[220px] border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-2xl p-2"
+                            className="w-[220px] border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-lg p-2"
                         >
                             <DropdownMenuItem
                                 onClick={() => onTitleClick(course)}
-                                className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
+                                className="rounded-md px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
                             >
                                 <BookOpen className="h-4 w-4 opacity-30" />
-                                <span>Access Repository</span>
+                                <span>View Details</span>
                             </DropdownMenuItem>
 
                             <DropdownMenuItem
                                 onClick={() => onEdit(course)}
-                                className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
+                                className="rounded-md px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
                             >
                                 <Pencil className="h-4 w-4 opacity-30" />
-                                <span>Modify Structure</span>
+                                <span>Edit Course</span>
                             </DropdownMenuItem>
 
                             <DropdownMenuItem
                                 onClick={() => onManageInstructors(course)}
-                                className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
+                                className="rounded-md px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
                             >
                                 <Users className="h-4 w-4 opacity-30" />
-                                <span>Assign Nodes</span>
+                                <span>Instructors</span>
                             </DropdownMenuItem>
 
                             <DropdownMenuSeparator className="bg-border/20 mx-2" />
@@ -221,7 +221,7 @@ export const getCoursesColumns = ({ onEdit, onDelete, onManageInstructors, onPub
                                     className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest text-emerald-500 focus:text-emerald-600 focus:bg-emerald-500/10 cursor-pointer flex gap-3"
                                 >
                                     <CheckCircle className="h-4 w-4 opacity-60" />
-                                    <span>Initiate Sync</span>
+                                    <span>Publish</span>
                                 </DropdownMenuItem>
                             ) : course.status === 'published' ? (
                                 <DropdownMenuItem
@@ -229,7 +229,7 @@ export const getCoursesColumns = ({ onEdit, onDelete, onManageInstructors, onPub
                                     className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest text-amber-500 focus:text-amber-600 focus:bg-amber-500/10 cursor-pointer flex gap-3"
                                 >
                                     <XCircle className="h-4 w-4 opacity-60" />
-                                    <span>Revoke Visibility</span>
+                                    <span>Unpublish</span>
                                 </DropdownMenuItem>
                             ) : null}
 
@@ -240,7 +240,7 @@ export const getCoursesColumns = ({ onEdit, onDelete, onManageInstructors, onPub
                                 className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer flex gap-3"
                             >
                                 <Trash className="h-4 w-4 opacity-30" />
-                                <span>Purge Asset</span>
+                                <span>Delete Course</span>
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>

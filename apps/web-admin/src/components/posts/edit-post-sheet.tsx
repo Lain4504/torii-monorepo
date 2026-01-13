@@ -177,8 +177,8 @@ export function EditPostSheet({
             };
 
             await updatePost.mutateAsync(dto);
-            toast.success('Post Re-calibrated', {
-                description: `Parameters for ${data.title} successfully updated.`,
+            toast.success('Post Updated', {
+                description: `Post "${data.title}" successfully updated.`,
             });
             onOpenChange(false);
         } catch (error: any) {
@@ -194,7 +194,7 @@ export function EditPostSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:w-[900px] sm:max-w-[900px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl overflow-hidden">
+            <SheetContent className="w-full sm:w-[900px] sm:max-w-[900px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background overflow-hidden">
                 <SheetHeader className="px-8 pt-8 pb-6 border-b border-border/10 bg-muted/5 relative overflow-hidden">
                     <div className="absolute inset-0 bg-primary/5 blur-3xl opacity-50 pointer-events-none" />
                     <div className="relative flex items-center justify-between z-10">
@@ -203,8 +203,8 @@ export function EditPostSheet({
                                 <FileText className="h-6 w-6" />
                             </div>
                             <div className="space-y-1">
-                                <SheetTitle className="text-2xl font-black uppercase tracking-tight italic">
-                                    Modify <span className="text-primary not-italic">Repository</span>
+                                <SheetTitle className="text-2xl font-medium tracking-tight">
+                                    Edit <span className="text-primary italic">Post</span>
                                 </SheetTitle>
                                 <SheetDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2">
                                     ID: <span className="font-mono text-primary">{post.id.substring(0, 8)}</span>
@@ -510,7 +510,7 @@ export function EditPostSheet({
                         </div>
                     </ScrollArea>
 
-                    <SheetFooter className="px-8 py-6 bg-background/50 backdrop-blur-xl border-t border-border/10 flex flex-row items-center justify-between gap-4 relative z-20 flex-shrink-0">
+                    <SheetFooter className="px-8 py-6 bg-background border-t border-border/10 flex flex-row items-center justify-between gap-4 relative z-20 flex-shrink-0">
                         <Button
                             type="button"
                             variant="ghost"

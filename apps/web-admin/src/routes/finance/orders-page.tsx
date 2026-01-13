@@ -15,12 +15,9 @@ import {
   Zap,
   Clock,
   Eye,
-  ExternalLink,
-  ShieldAlert,
   Hash,
   Database,
   Globe,
-
   CalendarDays,
   CreditCard, RotateCcw, ShieldCheck, TrendingUp, Activity, Search, User, Sparkles
 } from 'lucide-react';
@@ -135,7 +132,7 @@ export default function OrdersPage() {
         <PaginationItem key={totalPages}>
           <PaginationLink
             onClick={(e) => { e.preventDefault(); setPage(totalPages); }}
-            className="rounded-xl h-10 w-10 text-xs font-medium hover:bg-primary/10 transition-all"
+            className="rounded-lg h-10 w-10 text-xs font-medium hover:bg-primary/10 transition-all"
           >
             {totalPages}
           </PaginationLink>
@@ -157,7 +154,7 @@ export default function OrdersPage() {
             Finance & Revenue
           </div>
           <h1 className="text-3xl sm:text-5xl font-serif font-medium tracking-tight text-foreground leading-[1.1]">
-            Financial <span className="text-primary italic">Overview</span>
+            Financials & <span className="text-primary italic">Revenue</span>
           </h1>
           <p className="text-sm text-muted-foreground/80 leading-relaxed max-w-lg border-l-2 border-primary/20 pl-4 mt-4">
             Monitor cash flow, manage transactions, and optimize financial performance for <span
@@ -169,7 +166,7 @@ export default function OrdersPage() {
           <div
             className="flex items-center gap-4 p-4 rounded-2xl bg-background/60 border border-border/20 backdrop-blur-xl hidden sm:flex shadow-sm">
             <div className="space-y-0.5">
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium text-center">Total Transactions</p>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium text-center">Total Payments</p>
               <h3 className="text-2xl font-serif font-medium text-center text-primary">{total}</h3>
             </div>
           </div>
@@ -178,7 +175,7 @@ export default function OrdersPage() {
             disabled={isLoading}
             className="w-full sm:w-auto h-12 px-6 rounded-xl bg-primary text-primary-foreground font-medium text-sm shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all group"
           >
-            Refresh Data
+            Refresh
             <RotateCcw className={cn("ml-2 size-4 opacity-70 group-hover:opacity-100 transition-all", isLoading && "animate-spin")} />
           </Button>
         </div>
@@ -198,10 +195,10 @@ export default function OrdersPage() {
           }
         ].map((stat, i) => (
           <div key={i}
-            className="group p-6 rounded-[2rem] bg-background/50 backdrop-blur-3xl border border-white/20 hover:border-primary/20 transition-all duration-500 shadow-sm">
+            className="group p-6 rounded-2xl bg-background/50 backdrop-blur-3xl border border-white/20 hover:border-primary/20 transition-all duration-500 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div
-                className={cn("p-3 rounded-2xl bg-muted/20 group-hover:scale-105 transition-transform", `text-${stat.color}`)}>
+                className={cn("p-3 rounded-xl bg-muted/20 group-hover:scale-105 transition-transform", `text-${stat.color}`)}>
                 <stat.icon className="size-5" />
               </div>
               <div className="size-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -217,7 +214,7 @@ export default function OrdersPage() {
 
       {/* Main Table Container */}
       <Card
-        className="rounded-[2.5rem] bg-background/50 backdrop-blur-3xl border border-white/20 shadow-xl shadow-black/5 overflow-hidden group">
+        className="rounded-2xl bg-background/50 backdrop-blur-3xl border border-white/20 shadow-xl shadow-black/5 overflow-hidden group">
         <div className="p-4 lg:p-8 space-y-6">
           <div
             className="flex flex-col lg:flex-row items-center justify-between gap-4 p-1 rounded-2xl">
@@ -225,15 +222,15 @@ export default function OrdersPage() {
               <Search
                 className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
               <Input
-                placeholder="Search transactions (ID, User...)"
-                className="pl-11 h-11 w-full bg-background/40 border-border/20 focus:border-primary/20 rounded-xl transition-all text-sm font-medium placeholder:text-muted-foreground/40 shadow-none ring-0 focus-visible:ring-0"
+                placeholder="Search payments (ID, User...)"
+                className="pl-11 h-11 w-full bg-background/40 border-border/20 focus:border-primary/20 rounded-lg transition-all text-sm font-medium placeholder:text-muted-foreground/40 shadow-none ring-0 focus-visible:ring-0"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
           </div>
 
-          <div className="rounded-3xl border border-white/20 bg-background/40 overflow-hidden relative shadow-sm">
+          <div className="rounded-xl border border-white/20 bg-background/40 overflow-hidden relative shadow-sm">
             <div className="absolute inset-0 bg-primary/[0.02] pointer-events-none" />
             <Table>
               <TableHeader className="bg-muted/5 border-b border-border/10">
@@ -270,7 +267,7 @@ export default function OrdersPage() {
                           <CreditCard className="size-8 text-muted-foreground/30 relative z-10" />
                         </div>
                         <div className="space-y-1">
-                          <h3 className="text-lg font-medium text-foreground/60">No Transactions Found</h3>
+                          <h3 className="text-lg font-medium text-foreground/60">No Payments Found</h3>
                           <p className="text-xs text-muted-foreground/40">
                             No transaction records available.
                           </p>
@@ -402,7 +399,7 @@ export default function OrdersPage() {
       {/* Order Detail Sheet */}
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         <SheetContent
-          className="sm:max-w-xl p-0 border-l border-white/10 bg-background/95 backdrop-blur-3xl rounded-l-[2rem]">
+          className="sm:max-w-xl p-0 border-l border-white/10 bg-background/95 backdrop-blur-3xl rounded-l-2xl">
           {selectedOrder && (
             <div className="h-full flex flex-col">
               {/* Sheet Header Overlay */}
@@ -462,14 +459,14 @@ export default function OrdersPage() {
                 </div>
 
                 {/* Financial Stats */}
-                <div className="p-6 rounded-[2rem] bg-muted/30 border border-white/10 space-y-4">
+                <div className="p-6 rounded-2xl bg-muted/30 border border-white/10 space-y-4">
                   <div className="flex items-center justify-between border-b border-white/10 pb-4">
                     <div className="space-y-1">
                       <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Transaction Type</p>
                       <h4 className="text-sm font-medium text-foreground italic">Course Subscription</h4>
                     </div>
                     <div
-                      className={cn("px-3 py-1.5 rounded-xl text-[10px] font-medium uppercase tracking-wide border shadow-sm flex items-center gap-2", getStatusColor(selectedOrder.status))}>
+                      className={cn("px-3 py-1.5 rounded-lg text-[10px] font-medium uppercase tracking-wide border shadow-sm flex items-center gap-2", getStatusColor(selectedOrder.status))}>
                       <div
                         className={cn("size-1.5 rounded-full", selectedOrder.status === OrderStatus.COMPLETED ? 'bg-emerald-500' : 'bg-current')} />
                       {selectedOrder.status}
@@ -508,7 +505,7 @@ export default function OrdersPage() {
               {/* Sheet Footer */}
               <div className="p-8 border-t border-border/10 shrink-0">
                 <Button
-                  className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-medium uppercase tracking-wide text-xs shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all group"
+                  className="w-full h-12 rounded-lg bg-primary text-primary-foreground font-medium uppercase tracking-wide text-xs shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all group"
                   onClick={() => setIsSheetOpen(false)}
                 >
                   Close Details
