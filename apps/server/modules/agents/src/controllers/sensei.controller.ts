@@ -25,13 +25,13 @@ export class SenseiController {
     this.logger.log(
       `Grammar check request for: ${body.text.substring(0, 50)}...`,
     );
-    return await this.senseiService.checkGrammar(body.text);
+    return await this.senseiService.checkGrammar(body.text, body.userId);
   }
 
   @Post('translate')
   async translate(@Body() body: TranslateDto) {
     this.logger.log(`Translation request: ${body.from} -> ${body.to}`);
-    return await this.senseiService.translate(body.text, body.from, body.to);
+    return await this.senseiService.translate(body.text, body.from, body.to, body.userId);
   }
 
   @Post('flashcard')
@@ -41,6 +41,7 @@ export class SenseiController {
       body.word,
       body.meaning,
       body.example,
+      body.userId,
     );
   }
 
@@ -53,6 +54,7 @@ export class SenseiController {
       body.drillType,
       body.level,
       body.topic,
+      body.userId,
     );
   }
 
@@ -64,6 +66,7 @@ export class SenseiController {
     return await this.senseiService.simulateConversation(
       body.topic,
       body.level,
+      body.userId,
     );
   }
 
@@ -75,6 +78,7 @@ export class SenseiController {
     return await this.senseiService.recommendResources(
       body.concept,
       body.level,
+      body.userId,
     );
   }
 }

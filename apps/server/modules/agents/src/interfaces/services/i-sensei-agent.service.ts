@@ -3,18 +3,20 @@
  * Defines the contract for AI-powered tutoring operations
  */
 export interface ISenseiAgentService {
-  checkGrammar(text: string): Promise<any>;
-  translate(text: string, from: string, to: string): Promise<any>;
+  checkGrammar(text: string, userId: string): Promise<any>;
+  translate(text: string, from: string, to: string, userId: string): Promise<any>;
   createFlashcard(
     word: string,
     meaning: string,
-    example?: string,
+    example: string | undefined,
+    userId: string,
   ): Promise<any>;
   generatePracticeDrill(
     drillType: string,
     level: string,
-    topic?: string,
+    topic: string | undefined,
+    userId: string,
   ): Promise<any>;
-  simulateConversation(scenario: string, level: string): Promise<any>;
-  recommendResources(topic: string, level: string): Promise<any>;
+  simulateConversation(scenario: string, level: string, userId: string): Promise<any>;
+  recommendResources(topic: string, level: string, userId: string): Promise<any>;
 }

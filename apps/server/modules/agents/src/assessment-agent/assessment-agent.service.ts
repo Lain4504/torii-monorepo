@@ -4,10 +4,14 @@ import * as path from 'path';
 import { z } from 'zod';
 import { AiTemplateService, AiExecutionResult } from '../shared/ai-template.service';
 import { TestQuestionSchema, TestEvaluationSchema, ProgressBenchmarkSchema, TestGenerateInputSchema, TestEvaluateInputSchema, ProgressBenchmarkInputSchema } from '../shared/interfaces/template.interface';
+import { PrismaService } from '@server/shared';
 
 @Injectable()
 export class AssessmentAgentService implements OnModuleInit {
-  constructor(private readonly aiTemplateService: AiTemplateService) {}
+  constructor(
+    private readonly aiTemplateService: AiTemplateService,
+    private readonly prisma: PrismaService,
+  ) {}
 
   onModuleInit() {
     // Use process.cwd() to get the project root, then navigate to the source assets
@@ -50,13 +54,16 @@ export class AssessmentAgentService implements OnModuleInit {
     level: string,
     type: string,
     questionCount: number,
+    userId: string,
   ): Promise<any> {
+    const userContext = await this.getUserContext(userId);
     const result = await this.aiTemplateService.executeTemplate(
       'assessment.test-generate',
       {
         level,
         type,
         questionCount,
+        ...userContext,
       },
     );
 
@@ -87,12 +94,15 @@ export class AssessmentAgentService implements OnModuleInit {
   async evaluateTest(
     testId: string,
     answers: Record<string, string>,
+    userId: string,
   ): Promise<any> {
+    const userContext = await this.getUserContext(userId);
     const result = await this.aiTemplateService.executeTemplate(
       'assessment.evaluate',
       {
         testId,
         answers: JSON.stringify(answers),
+        ...userContext,
       },
     );
 
@@ -149,6 +159,29 @@ export class AssessmentAgentService implements OnModuleInit {
     }
 
     return this.isExecutionResult(result) ? result.data : result;
+  }
+
+  private async getUserContext(userId: string): Promise<any> {
+    // Fetch user's enrolled courses and their aiMetadata
+    const enrollments = await this.prisma.enrollment.findMany({
+      where: { userId },
+      include: {
+        course: {
+          select: { id: true, title: true, aiMetadata: true, jlptLevel: true },
+        },
+      },
+    });
+
+    const courseMetadata = enrollments.map(e => e.course.aiMetadata).filter(Boolean);
+    const courseTitles = enrollments.map(e => e.course.title);
+    const jlptLevels = [...new Set(enrollments.map(e => e.course.jlptLevel))];
+
+    return {
+      userId,
+      enrolledCourses: courseTitles,
+      jlptLevels,
+      aiMetadata: courseMetadata, // Array of JSON objects
+    };
   }
 
   private isExecutionResult(obj: any): obj is AiExecutionResult {

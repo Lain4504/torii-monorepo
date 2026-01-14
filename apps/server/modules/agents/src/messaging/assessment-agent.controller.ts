@@ -26,7 +26,7 @@ export class AssessmentAgentController {
    */
   @MessagePattern('agents.assessment.test.generate')
   async generateJLPTTest(
-    @Payload() data: { level: string; type: string; questionCount: number },
+    @Payload() data: { level: string; type: string; questionCount: number; userId: string },
   ) {
     try {
       this.logger.log('AI Test generate request received');
@@ -34,6 +34,7 @@ export class AssessmentAgentController {
         data.level,
         data.type,
         data.questionCount,
+        data.userId,
       );
       return {
         success: true,
@@ -53,12 +54,13 @@ export class AssessmentAgentController {
    * Pattern: agents.assessment.test.evaluate
    */
   @MessagePattern('agents.assessment.test.evaluate')
-  async evaluateTest(@Payload() data: { testId: string; answers: any }) {
+  async evaluateTest(@Payload() data: { testId: string; answers: any; userId: string }) {
     try {
       this.logger.log('AI Test evaluate request received');
       const result = await this.assessmentService.evaluateTest(
         data.testId,
         data.answers,
+        data.userId,
       );
       return {
         success: true,

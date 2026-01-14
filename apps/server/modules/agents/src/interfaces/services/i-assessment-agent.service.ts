@@ -7,8 +7,9 @@ export interface IAssessmentAgentService {
     level: string,
     type: string,
     questionCount: number,
+    userId: string,
   ): Promise<any>;
-  evaluateTest(testId: string, answers: any): Promise<any>;
+  evaluateTest(testId: string, answers: any, userId: string): Promise<any>;
   getProgressBenchmark(userId: string, level: string): Promise<any>;
   scheduleTest(userId: string, level: string, date: string): Promise<any>;
 }

@@ -27,11 +27,11 @@ export class SenseiAgentController {
    * Pattern: agents.ai.grammar.check
    */
   @MessagePattern('agents.ai.grammar.check')
-  async checkGrammar(@Payload() data: { text: string }) {
+  async checkGrammar(@Payload() data: { text: string; userId: string }) {
     try {
       this.logger.log('AI Grammar check request received');
       console.log('Received grammar check request for:', data.text);
-      const result = await this.senseiService.checkGrammar(data.text);
+      const result = await this.senseiService.checkGrammar(data.text, data.userId);
       return {
         success: true,
         data: result,
@@ -50,13 +50,14 @@ export class SenseiAgentController {
    * Pattern: agents.ai.translate
    */
   @MessagePattern('agents.ai.translate')
-  async translate(@Payload() data: { text: string; from: string; to: string }) {
+  async translate(@Payload() data: { text: string; from: string; to: string; userId: string }) {
     try {
       this.logger.log('AI Translate request received');
       const result = await this.senseiService.translate(
         data.text,
         data.from,
         data.to,
+        data.userId,
       );
       return {
         success: true,
@@ -77,7 +78,7 @@ export class SenseiAgentController {
    */
   @MessagePattern('agents.ai.flashcard.create')
   async createFlashcard(
-    @Payload() data: { word: string; meaning: string; example?: string },
+    @Payload() data: { word: string; meaning: string; example?: string; userId: string },
   ) {
     try {
       this.logger.log('AI Flashcard create request received');
@@ -85,6 +86,7 @@ export class SenseiAgentController {
         data.word,
         data.meaning,
         data.example,
+        data.userId,
       );
       return {
         success: true,
@@ -105,7 +107,7 @@ export class SenseiAgentController {
    */
   @MessagePattern('agents.ai.drill.generate')
   async generatePracticeDrill(
-    @Payload() data: { drillType: string; level: string; topic?: string },
+    @Payload() data: { drillType: string; level: string; topic?: string; userId: string },
   ) {
     try {
       this.logger.log('AI Drill generate request received');
@@ -113,6 +115,7 @@ export class SenseiAgentController {
         data.drillType,
         data.level,
         data.topic,
+        data.userId,
       );
       return {
         success: true,
@@ -133,13 +136,14 @@ export class SenseiAgentController {
    */
   @MessagePattern('agents.ai.conversation.simulate')
   async simulateConversation(
-    @Payload() data: { topic: string; level: string },
+    @Payload() data: { scenario: string; level: string; userId: string },
   ) {
     try {
       this.logger.log('AI Conversation simulate request received');
       const result = await this.senseiService.simulateConversation(
-        data.topic,
+        data.scenario,
         data.level,
+        data.userId,
       );
       return {
         success: true,
@@ -160,13 +164,14 @@ export class SenseiAgentController {
    */
   @MessagePattern('agents.ai.resources.recommend')
   async recommendResources(
-    @Payload() data: { concept: string; level: string },
+    @Payload() data: { topic: string; level: string; userId: string },
   ) {
     try {
       this.logger.log('AI Resources recommend request received');
       const result = await this.senseiService.recommendResources(
-        data.concept,
+        data.topic,
         data.level,
+        data.userId,
       );
       return {
         success: true,

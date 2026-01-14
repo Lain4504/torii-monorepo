@@ -48,9 +48,10 @@ export class FastMcpService implements OnModuleInit {
       description: 'Check grammar in Japanese text',
       parameters: z.object({
         text: z.string(),
+        userId: z.string(),
       }),
-      execute: async ({ text }) => {
-        return await this.senseiService.checkGrammar(text);
+      execute: async ({ text, userId }) => {
+        return await this.senseiService.checkGrammar(text, userId);
       },
     });
 
@@ -61,9 +62,10 @@ export class FastMcpService implements OnModuleInit {
         text: z.string(),
         from: z.enum(['ja', 'en']),
         to: z.enum(['ja', 'en']),
+        userId: z.string(),
       }),
-      execute: async ({ text, from, to }) => {
-        return await this.senseiService.translate(text, from, to);
+      execute: async ({ text, from, to, userId }) => {
+        return await this.senseiService.translate(text, from, to, userId);
       },
     });
 
@@ -74,12 +76,14 @@ export class FastMcpService implements OnModuleInit {
         word: z.string(),
         meaning: z.string(),
         example: z.string().optional(),
+        userId: z.string(),
       }),
-      execute: async ({ word, meaning, example }) => {
+      execute: async ({ word, meaning, example, userId }) => {
         const flashcard = await this.senseiService.createFlashcard(
           word,
           meaning,
           example,
+          userId,
         );
         return `Flashcard created: ${JSON.stringify(flashcard)}`;
       },
@@ -95,12 +99,14 @@ export class FastMcpService implements OnModuleInit {
         level: z.enum(['N5', 'N4', 'N3', 'N2', 'N1']),
         type: z.enum(['vocabulary', 'grammar', 'reading', 'listening']),
         questionCount: z.number().min(1).max(50),
+        userId: z.string(),
       }),
-      execute: async ({ level, type, questionCount }) => {
+      execute: async ({ level, type, questionCount, userId }) => {
         const test = await this.assessmentService.generateJlptTest(
           level,
           type,
           questionCount,
+          userId,
         );
         return `Test generated: ${JSON.stringify(test)}`;
       },
@@ -112,11 +118,13 @@ export class FastMcpService implements OnModuleInit {
       parameters: z.object({
         testId: z.string(),
         answers: z.record(z.string()),
+        userId: z.string(),
       }),
-      execute: async ({ testId, answers }) => {
+      execute: async ({ testId, answers, userId }) => {
         const result = await this.assessmentService.evaluateTest(
           testId,
           answers,
+          userId,
         );
         return `Evaluation result: ${JSON.stringify(result)}`;
       },

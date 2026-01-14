@@ -5,6 +5,7 @@ import {
   IsObject,
   Min,
   Max,
+  IsUUID,
 } from 'class-validator';
 
 export class GenerateTestDto {
@@ -18,6 +19,9 @@ export class GenerateTestDto {
   @Min(1)
   @Max(50)
   questionCount: number;
+
+  @IsUUID()
+  userId: string;
 }
 
 export class EvaluateTestDto {
@@ -26,6 +30,9 @@ export class EvaluateTestDto {
 
   @IsObject()
   answers: Record<string, string>;
+
+  @IsUUID()
+  userId: string;
 }
 
 export class GetBenchmarkDto {

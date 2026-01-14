@@ -3,9 +3,10 @@ import { SenseiAgentService } from './sensei-agent.service';
 import { SharedModule } from '../shared/shared.module';
 import { SENSEI_AGENT_SERVICE_TOKEN } from '../interfaces/services';
 import { SenseiAgentController } from '../messaging/sensei-agent.controller';
+import { PrismaModule } from '@server/shared';
 
 @Module({
-  imports: [SharedModule],
+  imports: [SharedModule, PrismaModule],
   controllers: [SenseiAgentController],
   providers: [
     {

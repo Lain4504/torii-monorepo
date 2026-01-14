@@ -27,13 +27,14 @@ export class AssessmentController {
       body.level,
       body.type,
       body.questionCount,
+      body.userId,
     );
   }
 
   @Post('test/evaluate')
   async evaluateTest(@Body() body: EvaluateTestDto) {
     this.logger.log(`Test evaluation for: ${body.testId}`);
-    return await this.assessmentService.evaluateTest(body.testId, body.answers);
+    return await this.assessmentService.evaluateTest(body.testId, body.answers, body.userId);
   }
 
   @Post('benchmark/get')

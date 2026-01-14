@@ -8,6 +8,9 @@ import { AiService } from './ai.service';
 Handlebars.registerHelper('eq', function(a, b) {
   return a === b;
 });
+Handlebars.registerHelper('json', function(obj) {
+  return JSON.stringify(obj, null, 2);
+});
 
 export interface AiExecutionResult<T = any> {
   success: boolean;

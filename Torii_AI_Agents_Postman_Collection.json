@@ -1,0 +1,356 @@
+{
+  "info": {
+    "name": "Torii AI Agents API Testing",
+    "description": "Postman collection for testing all AI agent features in Torii monorepo",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8090",
+      "type": "string"
+    },
+    {
+      "key": "test_user_id",
+      "value": "123e4567-e89b-12d3-a456-426614174000",
+      "type": "string"
+    },
+    {
+      "key": "test_id",
+      "value": "jlpt-N5-vocabulary-1768211471315",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Sensei Agent",
+      "item": [
+        {
+          "name": "Grammar Check",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"私はりんごを食べます\",\n  \"userId\": \"{{test_user_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/agents/grammar-check",
+              "host": ["{{base_url}}"],
+              "path": ["agents", "grammar-check"]
+            }
+          }
+        },
+        {
+          "name": "Translate",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Hello, how are you?\",\n  \"from\": \"en\",\n  \"to\": \"ja\",\n  \"userId\": \"{{test_user_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/agents/translate",
+              "host": ["{{base_url}}"],
+              "path": ["agents", "translate"]
+            }
+          }
+        },
+        {
+          "name": "Create Flashcard",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"word\": \"食べる\",\n  \"meaning\": \"to eat\",\n  \"example\": \"私はりんごを食べます\",\n  \"userId\": \"{{test_user_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/agents/flashcard",
+              "host": ["{{base_url}}"],
+              "path": ["agents", "flashcard"]
+            }
+          }
+        },
+        {
+          "name": "Generate Practice Drill",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"drillType\": \"grammar\",\n  \"level\": \"N5\",\n  \"topic\": \"particles\",\n  \"userId\": \"{{test_user_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/agents/drill/generate",
+              "host": ["{{base_url}}"],
+              "path": ["agents", "drill", "generate"]
+            }
+          }
+        },
+        {
+          "name": "Simulate Conversation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"topic\": \"ordering food\",\n  \"level\": \"N5\",\n  \"userId\": \"{{test_user_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/agents/conversation/simulate",
+              "host": ["{{base_url}}"],
+              "path": ["agents", "conversation", "simulate"]
+            }
+          }
+        },
+        {
+          "name": "Resources Recommend",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"concept\": \"grammar\",\n  \"level\": \"N5\",\n  \"userId\": \"{{test_user_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/agents/resources/recommend",
+              "host": ["{{base_url}}"],
+              "path": ["agents", "resources", "recommend"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Assessment Agent",
+      "item": [
+        {
+          "name": "Test Generate",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"level\": \"N5\",\n  \"type\": \"vocabulary\",\n  \"questionCount\": 5,\n  \"userId\": \"{{test_user_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/agents/test/generate",
+              "host": ["{{base_url}}"],
+              "path": ["agents", "test", "generate"]
+            }
+          }
+        },
+        {
+          "name": "Test Evaluate",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"testId\": \"{{test_id}}\",\n  \"answers\": {\n    \"1\": \"A\",\n    \"2\": \"B\",\n    \"3\": \"C\",\n    \"4\": \"A\",\n    \"5\": \"B\"\n  },\n  \"userId\": \"{{test_user_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/agents/test/evaluate",
+              "host": ["{{base_url}}"],
+              "path": ["agents", "test", "evaluate"]
+            }
+          }
+        },
+        {
+          "name": "Benchmark Get",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{test_user_id}}\",\n  \"level\": \"N5\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/agents/benchmark/get",
+              "host": ["{{base_url}}"],
+              "path": ["agents", "benchmark", "get"]
+            }
+          }
+        },
+        {
+          "name": "Test Schedule",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{test_user_id}}\",\n  \"level\": \"N5\",\n  \"date\": \"2026-01-15\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/agents/test/schedule",
+              "host": ["{{base_url}}"],
+              "path": ["agents", "test", "schedule"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analytics Agent",
+      "item": [
+        {
+          "name": "Progress Track",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{test_user_id}}\",\n  \"activity\": \"vocabulary_quiz\",\n  \"score\": 85\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/agents/progress/track",
+              "host": ["{{base_url}}"],
+              "path": ["agents", "progress", "track"]
+            }
+          }
+        },
+        {
+          "name": "Path Suggest",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{test_user_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/agents/path/suggest",
+              "host": ["{{base_url}}"],
+              "path": ["agents", "path", "suggest"]
+            }
+          }
+        },
+        {
+          "name": "Weaknesses Identify",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{test_user_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/agents/weaknesses/identify",
+              "host": ["{{base_url}}"],
+              "path": ["agents", "weaknesses", "identify"]
+            }
+          }
+        },
+        {
+          "name": "Readiness Predict",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{test_user_id}}\",\n  \"level\": \"N5\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/agents/readiness/predict",
+              "host": ["{{base_url}}"],
+              "path": ["agents", "readiness", "predict"]
+            }
+          }
+        },
+        {
+          "name": "Report Generate",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{test_user_id}}\",\n  \"reportType\": \"overall\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/agents/report/generate",
+              "host": ["{{base_url}}"],
+              "path": ["agents", "report", "generate"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

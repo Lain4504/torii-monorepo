@@ -3,10 +3,14 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { AiTemplateService, AiExecutionResult } from '../shared/ai-template.service';
 import { ProgressAnalysisSchema, StudyPathSchema, WeaknessesAnalysisSchema, ReadinessPredictionSchema, ProgressReportSchema, ProgressTrackInputSchema, ReadinessPredictInputSchema, WeaknessesIdentifyInputSchema, ReportGenerateInputSchema } from '../shared/interfaces/template.interface';
+import { PrismaService } from '@server/shared';
 
 @Injectable()
 export class AnalyticsAgentService implements OnModuleInit {
-  constructor(private readonly aiTemplateService: AiTemplateService) {}
+  constructor(
+    private readonly aiTemplateService: AiTemplateService,
+    private readonly prisma: PrismaService,
+  ) {}
 
   onModuleInit() {
     // Use process.cwd() to get the project root, then navigate to the source assets
@@ -56,12 +60,14 @@ export class AnalyticsAgentService implements OnModuleInit {
     activity: string,
     score?: number,
   ): Promise<any> {
+    const userContext = await this.getUserContext(userId);
     const result = await this.aiTemplateService.executeTemplate(
       'analytics.progress-analyze',
       {
         userId,
         activity,
         score,
+        ...userContext,
       },
     );
 
@@ -89,10 +95,12 @@ export class AnalyticsAgentService implements OnModuleInit {
   }
 
   async suggestStudyPath(userId: string): Promise<any> {
+    const userContext = await this.getUserContext(userId);
     const result = await this.aiTemplateService.executeTemplate(
       'analytics.study-path',
       {
         userId,
+        ...userContext,
       },
     );
 
@@ -107,16 +115,18 @@ export class AnalyticsAgentService implements OnModuleInit {
     const data = this.isExecutionResult(result) ? result.data : result;
     return {
       userId,
-      ...data,
+      path: data,
       generatedAt: new Date(),
     };
   }
 
   async identifyWeaknesses(userId: string): Promise<any> {
+    const userContext = await this.getUserContext(userId);
     const result = await this.aiTemplateService.executeTemplate(
       'analytics.weaknesses-identify',
       {
         userId,
+        ...userContext,
       },
     );
 
@@ -131,11 +141,13 @@ export class AnalyticsAgentService implements OnModuleInit {
   }
 
   async predictReadiness(userId: string, level: string): Promise<any> {
+    const userContext = await this.getUserContext(userId);
     const result = await this.aiTemplateService.executeTemplate(
       'analytics.readiness-predict',
       {
         userId,
         level,
+        ...userContext,
       },
     );
 
@@ -150,11 +162,13 @@ export class AnalyticsAgentService implements OnModuleInit {
   }
 
   async generateReport(userId: string, reportType: string): Promise<any> {
+    const userContext = await this.getUserContext(userId);
     const result = await this.aiTemplateService.executeTemplate(
       'analytics.report-generate',
       {
         userId,
         reportType,
+        ...userContext,
       },
     );
 
@@ -166,6 +180,29 @@ export class AnalyticsAgentService implements OnModuleInit {
     }
 
     return this.isExecutionResult(result) ? result.data : result;
+  }
+
+  private async getUserContext(userId: string): Promise<any> {
+    // Fetch user's enrolled courses and their aiMetadata
+    const enrollments = await this.prisma.enrollment.findMany({
+      where: { userId },
+      include: {
+        course: {
+          select: { id: true, title: true, aiMetadata: true, jlptLevel: true },
+        },
+      },
+    });
+
+    const courseMetadata = enrollments.map(e => e.course.aiMetadata).filter(Boolean);
+    const courseTitles = enrollments.map(e => e.course.title);
+    const jlptLevels = [...new Set(enrollments.map(e => e.course.jlptLevel))];
+
+    return {
+      userId,
+      enrolledCourses: courseTitles,
+      jlptLevels,
+      aiMetadata: courseMetadata, // Array of JSON objects
+    };
   }
 
   private isExecutionResult(obj: any): obj is AiExecutionResult {
