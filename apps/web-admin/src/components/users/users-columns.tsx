@@ -120,7 +120,7 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
         },
         size: 100,
     }),
-    columnHelper.accessor('lastLoginAt', {
+    columnHelper.accessor('lastSignInAt', {
         header: ({ column }) => {
             return (
                 <Button

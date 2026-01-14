@@ -132,7 +132,7 @@ export function ViewUserSheet({
                                     { label: 'Member Since', value: user.createdAt, icon: Fingerprint, color: 'text-blue-500' },
                                     { label: 'Last Updated', value: user.updatedAt, icon: Terminal, color: 'text-violet-500' },
                                     user.verifiedAt && { label: 'Verification', value: user.verifiedAt, icon: Shield, color: 'text-emerald-500' },
-                                    user.lastLoginAt && { label: 'Last Login', value: user.lastLoginAt, icon: Clock, color: 'text-amber-500' },
+                                    user.lastSignInAt && { label: 'Last Login', value: user.lastSignInAt, icon: Clock, color: 'text-amber-500' },
                                     user.bannedUntil && new Date(user.bannedUntil) > new Date() && { label: 'Suspension Lift', value: user.bannedUntil, icon: Lock, color: 'text-orange-500' },
                                     user.deletedAt && { label: 'Account Deleted', value: user.deletedAt, icon: AlertTriangle, color: 'text-red-500' }
                                 ]
