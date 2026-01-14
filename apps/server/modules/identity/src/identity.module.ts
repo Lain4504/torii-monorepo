@@ -25,6 +25,9 @@ import { EMAIL_SERVICE_TOKEN } from './interfaces/services';
 // Filters
 import { IdentityHttpExceptionFilter } from './filters/http-exception.filter';
 
+// Services
+import { DefaultAdminService } from './services/default-admin.service';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -56,6 +59,8 @@ import { IdentityHttpExceptionFilter } from './filters/http-exception.filter';
       provide: APP_FILTER,
       useClass: IdentityHttpExceptionFilter,
     },
+    // Default admin creation service
+    DefaultAdminService,
   ],
   exports: [
     AuthModule,
