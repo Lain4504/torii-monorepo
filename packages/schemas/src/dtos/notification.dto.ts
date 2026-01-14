@@ -17,9 +17,9 @@ export const notificationResponseDTOSchema = z.object({
 export type NotificationResponseDTO = z.infer<typeof notificationResponseDTOSchema>;
 
 export const notificationQueryDTOSchema = z.object({
-    page: z.number().min(1).optional().default(1),
-    limit: z.number().min(1).max(100).optional().default(10),
-    isRead: z.boolean().optional(),
+    page: z.coerce.number().min(1).optional().default(1),
+    limit: z.coerce.number().min(1).max(100).optional().default(10),
+    isRead: z.coerce.boolean().optional(), // Use coerce to convert string "true"/"false" to boolean
 });
 
 export type NotificationQueryDTO = z.infer<typeof notificationQueryDTOSchema>;

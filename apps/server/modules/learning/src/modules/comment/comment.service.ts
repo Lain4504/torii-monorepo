@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Logger, Inject } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import { InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/core';
 import { PrismaService } from '@server/shared';
@@ -25,6 +26,8 @@ export class CommentService implements ICommentService {
     private readonly commentRepository: CommentRepository,
     private readonly prisma: PrismaService,
     @InjectMapper() private readonly mapper: Mapper,
+    @Inject('NATS_SERVICE')
+    private readonly natsClient: ClientProxy,
   ) { }
 
   /**
@@ -50,8 +53,9 @@ export class CommentService implements ICommentService {
     }
 
     // If parentId is provided, verify parent comment exists
+    let parentComment: Comment | null = null;
     if (dto.parentId) {
-      const parentComment = await this.commentRepository.findById(dto.parentId);
+      parentComment = await this.commentRepository.findById(dto.parentId);
 
       if (!parentComment) {
         throw new NotFoundException(`Parent comment with id "${dto.parentId}" not found`);
@@ -87,6 +91,74 @@ export class CommentService implements ICommentService {
         },
       },
     });
+
+    // If this is a reply (parentId exists), emit event to notify the person being replied to
+    if (dto.parentId && parentComment) {
+      try {
+        // Get post author to exclude from notification
+        const post = await this.prisma.post.findUnique({
+          where: { id: dto.postId },
+          select: { authorId: true },
+        });
+
+        // Get parent comment author (person being replied to)
+        const parentCommentAuthorId = parentComment.userId;
+        const replyAuthorId = dto.authorId;
+
+        // Business Rules: Send notification if:
+        // - Recipient ≠ reply author (not replying to self)
+        // - Recipient ≠ post author (not staff/blog owner)
+        // Skip if: replying to self or replying to staff
+
+        const isReplyingSelf = parentCommentAuthorId === replyAuthorId;
+        const isReplyingStaff = post && parentCommentAuthorId === post.authorId;
+
+        if (!isReplyingSelf && !isReplyingStaff) {
+          // Get post and user info to format notification message
+          const postForNotification = await this.prisma.post.findUnique({
+            where: { id: dto.postId },
+            select: { title: true },
+          });
+
+          const replyAuthor = await this.prisma.user.findUnique({
+            where: { id: replyAuthorId },
+            select: { displayName: true, email: true },
+          });
+
+          const authorName = replyAuthor?.displayName || replyAuthor?.email || 'Someone';
+          const postTitle = postForNotification?.title || 'post';
+
+          this.logger.log(`Emitting send_notification event for comment reply ${comment.id} - Replied to user: ${parentCommentAuthorId}`);
+          this.natsClient.emit(
+            { cmd: 'send_notification' },
+            {
+              recipientId: parentCommentAuthorId,
+              type: 'COMMENT_REPLY',
+              payload: {
+                title: 'New reply to your comment',
+                body: `${authorName} replied to your comment on "${postTitle}"`,
+                metadata: {
+                  commentId: comment.id,
+                  postId: dto.postId,
+                  parentCommentId: dto.parentId,
+                  replyAuthorId: replyAuthorId,
+                },
+              },
+            },
+          );
+        } else {
+          if (isReplyingSelf) {
+            this.logger.log(`Skipping notification: User ${replyAuthorId} is replying to their own comment`);
+          }
+          if (isReplyingStaff) {
+            this.logger.log(`Skipping notification: User ${parentCommentAuthorId} is the blog owner (staff)`);
+          }
+        }
+      } catch (error: any) {
+        this.logger.error(`Failed to emit comment.reply event: ${error?.message}`, error);
+        // Don't throw - event emission failure should not break comment creation
+      }
+    }
 
     return this.formatCommentResponse(comment);
   }

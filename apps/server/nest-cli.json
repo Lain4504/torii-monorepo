@@ -60,6 +60,16 @@
         "tsConfigPath": "modules/agents/tsconfig.app.json",
         "webpack": false
       }
+    },
+    "communication": {
+      "type": "application",
+      "root": "modules/communication",
+      "entryFile": "main",
+      "sourceRoot": "modules/communication/src",
+      "compilerOptions": {
+        "tsConfigPath": "modules/communication/tsconfig.app.json",
+        "webpack": false
+      }
     }
   }
 }
