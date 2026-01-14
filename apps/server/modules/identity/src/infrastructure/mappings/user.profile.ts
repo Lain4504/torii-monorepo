@@ -9,7 +9,7 @@ import { UserRole } from '@workspace/schemas';
 /**
  * User AutoMapper Profile
  * Maps User entity (Prisma) to UserResponseDTO
- * Excludes password and salt fields for security
+ * Excludes password field for security
  */
 @Injectable()
 export class UserProfile extends AutomapperProfile {
@@ -41,6 +41,30 @@ export class UserProfile extends AutomapperProfile {
           mapFrom((src: User) => src.role as UserRole),
         ),
         forMember(
+          (dest: UserResponseDTO) => dest.avatarUrl,
+          mapFrom((src: User) => src.avatarUrl || undefined),
+        ),
+        forMember(
+          (dest: UserResponseDTO) => dest.appMetadata,
+          mapFrom((src: User) => {
+            if (!src.appMetadata) return undefined;
+            if (typeof src.appMetadata === 'object' && src.appMetadata !== null && !Array.isArray(src.appMetadata)) {
+              return src.appMetadata as Record<string, unknown>;
+            }
+            return undefined;
+          }),
+        ),
+        forMember(
+          (dest: UserResponseDTO) => dest.userMetadata,
+          mapFrom((src: User) => {
+            if (!src.userMetadata) return undefined;
+            if (typeof src.userMetadata === 'object' && src.userMetadata !== null && !Array.isArray(src.userMetadata)) {
+              return src.userMetadata as Record<string, unknown>;
+            }
+            return undefined;
+          }),
+        ),
+        forMember(
           (dest: UserResponseDTO) => dest.verifiedAt,
           mapFrom((src: User) => src.verifiedAt || undefined),
         ),
@@ -49,7 +73,7 @@ export class UserProfile extends AutomapperProfile {
           mapFrom((src: User) => src.bannedUntil || undefined),
         ),
         forMember(
-          (dest: UserResponseDTO) => dest.lastLoginAt,
+          (dest: UserResponseDTO) => dest.lastSignInAt,
           mapFrom((src: User) => src.lastSignInAt || undefined),
         ),
         forMember(

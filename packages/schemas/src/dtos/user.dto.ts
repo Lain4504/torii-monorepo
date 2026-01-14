@@ -78,10 +78,9 @@ export const userCondDTOSchema = userSchema
 
 export type UserCondDTO = z.infer<typeof userCondDTOSchema>;
 
-// Response DTO (safe for client - no password/salt)
+// Response DTO (safe for client - no password)
 export const userResponseDTOSchema = userSchema.omit({
     password: true,
-    salt: true,
 });
 
 export type UserResponseDTO = z.infer<typeof userResponseDTOSchema>;

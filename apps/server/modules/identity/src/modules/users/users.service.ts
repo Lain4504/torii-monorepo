@@ -191,7 +191,7 @@ export class UsersService implements IUsersService {
             role: user.role as UserRole,
             verifiedAt: user.verifiedAt,
             bannedUntil: null,
-            lastLoginAt: null,
+            lastSignInAt: null,
             createdAt: user.createdAt,
             updatedAt: user.updatedAt,
             deletedAt: null,

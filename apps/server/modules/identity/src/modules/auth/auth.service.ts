@@ -92,6 +92,11 @@ export class AuthService implements IAuthService {
             throw new ConflictException('Email already exists');
         }
 
+        // Validate password is provided
+        if (!dto.password) {
+            throw new BadRequestException('Password is required for registration');
+        }
+
         // Hash password
         const hashedPassword = await argon2.hash(dto.password);
 
