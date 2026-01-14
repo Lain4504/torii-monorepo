@@ -312,40 +312,56 @@ Hướng dẫn chi tiết quy trình deploy hệ thống Microservices lên VPS 
     Tạo file `.env` trên VPS và đảm bảo có biến `DOCKER_USERNAME`:
     ```bash
     # ... Các biến môi trường khác ...
-    DOCKER_USERNAME=your_username  # <-- QUAN TRỌNG: Để docker-compose biết tải image từ đâu
+    DOCKER_USERNAME=your_username  # <-- QUAN TRỌNG: Để docker compose biết tải image từ đâu
     ```
 
 3.  **Database Migration (Quan trọng!):**
     Khi mới deploy lần đầu, database sẽ trống rỗng. Bạn cần chạy migration để tạo các bảng.
     
-    *Cách 1: Chạy lệnh one-off từ container (Khuyên dùng)*
-    Sau khi đã chạy `docker-compose up` (xem bước 3 bên dưới), hãy chạy lệnh này để đồng bộ schema vào DB:
+    *Cách 1: Tự động qua CI/CD (Khuyên dùng)*
+    Quy trình này đã được tích hợp vào GitHub Actions. Mỗi khi bạn push code lên branch `main`, workflow sẽ tự động chạy lệnh này sau khi khởi chạy container.
+
+    *Cách 2: Chạy thủ công trên VPS (nếu cần)*
+    Nếu bạn muốn chạy thủ công, hãy dùng lệnh:
     ```bash
     # Chạy lệnh này trên VPS
-    docker-compose exec identity npx prisma db push
+    docker compose exec identity npx prisma db push
     ```
     *(Lưu ý: Chỉ cần chạy ở 1 service bất kỳ như `identity` vì chúng dùng chung DB và Source Code)*
 
     *Cách 2: Nếu reset database*
     Nếu bạn muốn xóa sạch dữ liệu và làm lại từ đầu:
     ```bash
-    docker-compose down -v  # Xóa cả volumes chứa dữ liệu
-    docker-compose up -d
-    docker-compose exec identity npx prisma db push
+    docker compose down -v  # Xóa cả volumes chứa dữ liệu
+    docker compose up -d
+    docker compose exec identity npx prisma db push
     ```
 
-#### Bước 3: Deploy / Update trên VPS
+#### Bước 3: Deploy / Update (Tự động hoặc Thủ công)
 
-Mỗi khi bạn đã push image mới lên Docker Hub (Bước 1), hãy chạy các lệnh sau trên VPS để cập nhật:
+**A. Tự động (Khuyên dùng):**
+Hệ thống sử dụng GitHub Actions (file `.github/workflows/deploy.yml`) để tự động hóa toàn bộ quy trình:
+1. Build & Push image lên Docker Hub.
+2. SSH vào VPS và `git pull` code mới.
+3. Pull image mới và `docker compose up -d`.
+4. Chạy `prisma db push` để cập nhật database.
+
+Bạn chỉ cần push code lên branch `main`, hệ thống sẽ tự lo phần còn lại.
+
+**B. Thủ công:**
+Nếu bạn muốn tự update trên VPS, hãy chạy các lệnh sau:
 
 ```bash
 # 1. Tải image mới nhất về
-docker-compose pull
+docker compose pull
 
 # 2. Re-create các container với image mới
-docker-compose up -d
+docker compose up -d
 
-# 3. (Tuỳ chọn) Dọn dẹp image cũ cho đỡ chật ổ cứng
+# 3. Đồng bộ DB
+pnpx prisma db push
+
+# 4. (Tuỳ chọn) Dọn dẹp image cũ
 docker system prune -f
 ```
 
@@ -360,7 +376,7 @@ Bạn không cần lo lắng về việc mất dữ liệu khi restart container
 - **NATS Stream Data**: Lưu tại volume `natsdata`.
 - **LiveKit Data**: Lưu tại volume `livekitdata`.
 
-Các volumes này nằm trên ổ cứng của VPS (thường ở `/var/lib/docker/volumes/`) và độc lập với vòng đời của Container. Chỉ khi nào bạn chạy lệnh `docker-compose down -v` (có cờ `-v`) thì dữ liệu mới bị xóa.
+Các volumes này nằm trên ổ cứng của VPS (thường ở `/var/lib/docker/volumes/`) và độc lập với vòng đời của Container. Chỉ khi nào bạn chạy lệnh `docker compose down -v` (có cờ `-v`) thì dữ liệu mới bị xóa.
 
 ---
 
@@ -371,8 +387,8 @@ Các volumes này nằm trên ổ cứng của VPS (thường ở `/var/lib/dock
 -> Chạy: `docker system prune -a --volumes -f` để dọn dẹp sạch sẽ.
 
 **Lỗi Service không start được:**
-Chạy `docker-compose logs --tail 100 [service_name]` để xem log chi tiết.
-Ví dụ: `docker-compose logs --tail 100 gateway`.
+Chạy `docker compose logs --tail 100 [service_name]` để xem log chi tiết.
+Ví dụ: `docker compose logs --tail 100 gateway`.
 
 **Kiểm tra kết nối nội bộ:**
-Nếu các service không nhìn thấy nhau, hãy chắc chắn file `docker-compose.yml` ở root đã định nghĩa các biến `SERVICE_URL` trỏ vào tên service (vd: `http://identity:8081`) chứ không phải `localhost`.
+Nếu các service không nhìn thấy nhau, hãy chắc chắn file `docker compose.yml` ở root đã định nghĩa các biến `SERVICE_URL` trỏ vào tên service (vd: `http://identity:8081`) chứ không phải `localhost`.

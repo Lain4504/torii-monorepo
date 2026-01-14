@@ -33,7 +33,7 @@ async function bootstrap() {
   );
 
   const HTTP_PORT = process.env.LEARNING_HTTP_PORT || 8082;
-  await httpApp.listen(HTTP_PORT);
+  await httpApp.listen(HTTP_PORT, '0.0.0.0');
   console.log(`🚀 Learning Service HTTP listening on port ${HTTP_PORT}`);
 
   // 2. Create NATS microservice (optional, keep for inter-service)

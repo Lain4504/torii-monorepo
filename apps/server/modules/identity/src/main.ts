@@ -30,7 +30,7 @@ async function bootstrap() {
 
   // Start HTTP server on port 8081
   const HTTP_PORT = process.env.IDENTITY_HTTP_PORT || 8081;
-  await httpApp.listen(HTTP_PORT);
+  await httpApp.listen(HTTP_PORT, '0.0.0.0');
   console.log(`🚀 Identity Service HTTP listening on port ${HTTP_PORT}`);
 
   // 2. Create NATS microservice (for inter-service communication)

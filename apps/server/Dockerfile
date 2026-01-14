@@ -74,6 +74,7 @@ COPY --from=builder /app/apps/server/package.json ./apps/server/
 COPY --from=builder /app/apps/server/node_modules ./apps/server/node_modules
 COPY --from=builder /app/apps/server/dist ./apps/server/dist
 COPY --from=builder /app/apps/server/prisma ./apps/server/prisma
+COPY --from=builder /app/apps/server/generated ./apps/server/generated
 COPY --from=builder /app/apps/server/config ./apps/server/config
 
 # Set working directory to server app

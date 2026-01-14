@@ -40,7 +40,7 @@ async function bootstrap() {
   );
 
   const HTTP_PORT = process.env.MEET_HTTP_PORT || 8091;
-  await httpApp.listen(HTTP_PORT);
+  await httpApp.listen(HTTP_PORT, '0.0.0.0');
   console.log(`🚀 Meet Service HTTP listening on port ${HTTP_PORT}`);
 
   // 2. Create NATS microservice for realtime features

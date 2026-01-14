@@ -32,7 +32,7 @@ async function bootstrap() {
   const httpAdapter = app.get(HttpAdapterHost);
 
 
-  await app.listen(process.env.port ?? 8080);
+  await app.listen(process.env.port ?? 8080, '0.0.0.0');
 }
-bootstrap(); 
+bootstrap();
 

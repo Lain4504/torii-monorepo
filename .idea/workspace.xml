@@ -4,8 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix: docker compose mistach type">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/agents/src/main.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/main.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/main.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/main.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/main.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,7 +43,7 @@
     </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="main" />
+        <entry key="$PROJECT_DIR$" value="create--template-for-agent" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -124,7 +129,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "#74 on feature/add-default-admin-seed",
+    "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
     "javascript.preferred.runtime.type.id": "node",
     "junie.onboarding.icon.badge.shown": "true",
@@ -197,9 +202,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JavaScript Debug.localhost:5173" />
         <item itemvalue="JavaScript Debug.localhost:3000" />
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
-        <item itemvalue="JavaScript Debug.localhost:5173" />
         <item itemvalue="JavaScript Debug.localhost:3000" />
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
       </list>
@@ -297,14 +302,6 @@
       <workItem from="1768201864379" duration="7510000" />
       <workItem from="1768266718590" duration="2263000" />
       <workItem from="1768275244074" duration="4926000" />
-    </task>
-    <task id="LOCAL-00663" summary="fix order bug">
-      <option name="closed" value="true" />
-      <created>1768227713254</created>
-      <option name="number" value="00663" />
-      <option name="presentableId" value="LOCAL-00663" />
-      <option name="project" value="LOCAL" />
-      <updated>1768227713255</updated>
     </task>
     <task id="LOCAL-00664" summary="fix sepay">
       <option name="closed" value="true" />
@@ -690,7 +687,15 @@
       <option name="project" value="LOCAL" />
       <updated>1768388030433</updated>
     </task>
-    <option name="localTasksCounter" value="712" />
+    <task id="LOCAL-00712" summary="fix: docker compose mistach type">
+      <option name="closed" value="true" />
+      <created>1768405869824</created>
+      <option name="number" value="00712" />
+      <option name="presentableId" value="LOCAL-00712" />
+      <option name="project" value="LOCAL" />
+      <updated>1768405869826</updated>
+    </task>
+    <option name="localTasksCounter" value="713" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -707,7 +712,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="payos-integration" />
+                        <option value="main" />
                       </list>
                     </value>
                   </entry>
@@ -720,7 +725,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="merge code" />
     <MESSAGE value="update  PostUpdateDTOSchema -&gt; postUpdateDTOSchema," />
     <MESSAGE value="remove ci cd" />
     <MESSAGE value="update ui course detail page" />
@@ -745,7 +749,8 @@
     <MESSAGE value="update ui" />
     <MESSAGE value="feat(learning-progress): implement learning progress tracking and course retrieval" />
     <MESSAGE value="update" />
-    <option name="LAST_COMMIT_MESSAGE" value="update" />
+    <MESSAGE value="fix: docker compose mistach type" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix: docker compose mistach type" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
