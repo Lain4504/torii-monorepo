@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { PrismaModule } from '@server/shared';
+import { PrismaModule, NatsClientModule } from '@server/shared';
 import { CommentService } from './comment.service';
 import { CommentRepository } from './comment.repository';
 import { CommentProfile } from '../../infrastructure/mappings/comment.profile';
@@ -9,7 +9,7 @@ import { CommentProfile } from '../../infrastructure/mappings/comment.profile';
  * Handles comment operations
  */
 @Module({
-    imports: [PrismaModule],
+    imports: [PrismaModule, NatsClientModule],
     controllers: [],
     providers: [CommentRepository, CommentService, CommentProfile],
     exports: [CommentService],

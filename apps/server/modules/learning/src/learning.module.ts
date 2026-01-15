@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AutomapperModule } from '@automapper/nestjs';
 import { pojos } from '@automapper/pojos';
 import { PrismaModule, SharedModule } from '@server/shared';
@@ -19,7 +20,6 @@ import { LearningProgressModule } from './modules/learning-progress/learning-pro
 // Community Modules
 import { PostModule } from './modules/post/post.module';
 import { CommentModule } from './modules/comment/comment.module';
-import { NotificationModule } from './modules/notification/notification.module';
 
 // Assessment Modules
 import { QuestionModule } from './modules/question/question.module';
@@ -56,7 +56,6 @@ import { OrderController } from './controllers/order.controller';
 import { PayOSController } from './controllers/payos.controller';
 import { PostController } from './interfaces/http/post.controller';
 import { CommentController } from './interfaces/http/comment.controller';
-import { NotificationController } from './interfaces/http/notification.controller';
 import { FlashcardDeckController } from './interfaces/http/flashcard-deck.controller';
 import { FlashcardController } from './interfaces/http/flashcard.controller';
 import { FlashcardReviewController } from './interfaces/http/flashcard-review.controller';
@@ -66,6 +65,7 @@ import { FlashcardReviewController } from './interfaces/http/flashcard-review.co
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ScheduleModule.forRoot(),
     AutomapperModule.forRoot({
       strategyInitializer: pojos(),
     }),
@@ -87,7 +87,6 @@ import { FlashcardReviewController } from './interfaces/http/flashcard-review.co
     // Community Domain
     PostModule,
     CommentModule,
-    NotificationModule,
 
     // Assessment Domain
     QuestionModule,
@@ -123,7 +122,6 @@ import { FlashcardReviewController } from './interfaces/http/flashcard-review.co
     PayOSController,
     PostController,
     CommentController,
-    NotificationController,
     FlashcardDeckController,
     FlashcardController,
     FlashcardReviewController,

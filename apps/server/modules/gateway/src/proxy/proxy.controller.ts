@@ -55,7 +55,12 @@ export class ProxyController {
         // Community Domain
         '/api/posts': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
         '/api/comments': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
-        '/api/notifications': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
+
+        // ============================================
+        // Communication Service (Port 8083)
+        // Notifications, Messages, etc.
+        // ============================================
+        '/api/notifications': process.env.COMMUNICATION_SERVICE_URL || 'http://localhost:8083',
 
         // Assessment Domain
         '/api/questions': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
