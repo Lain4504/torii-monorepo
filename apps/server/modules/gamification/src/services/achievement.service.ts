@@ -2,7 +2,6 @@ import { Injectable, Logger, Inject } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import { ClientProxy } from '@nestjs/microservices';
 import {
-    AchievementDto,
     UserAchievementDto,
     AchievementUnlockedEvent,
 } from '@workspace/schemas';
