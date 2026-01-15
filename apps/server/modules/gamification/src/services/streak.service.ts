@@ -158,7 +158,6 @@ export class StreakService {
      * Daily job: Check and reset streaks for inactive users
      */
     async checkStreaksDaily(): Promise<void> {
-        const today = this.getToday();
         const yesterday = this.getYesterday();
         const twoDaysAgo = this.getDaysAgo(2);
 
