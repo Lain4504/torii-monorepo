@@ -4,14 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update env" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix bug can not display lecture sheet" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1149" />
+    <option name="cachedIndexableFilesCount" value="1207" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -122,7 +122,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "gamification",
+    "git-widget-placeholder": "#78 on gamification",
     "ignore.virus.scanning.warn.message": "true",
     "javascript.preferred.runtime.type.id": "node",
     "junie.onboarding.icon.badge.shown": "true",
@@ -295,14 +295,7 @@
       <workItem from="1768201864379" duration="7510000" />
       <workItem from="1768266718590" duration="2263000" />
       <workItem from="1768275244074" duration="4926000" />
-    </task>
-    <task id="LOCAL-00664" summary="fix sepay">
-      <option name="closed" value="true" />
-      <created>1768229050840</created>
-      <option name="number" value="00664" />
-      <option name="presentableId" value="LOCAL-00664" />
-      <option name="project" value="LOCAL" />
-      <updated>1768229050841</updated>
+      <workItem from="1768460045709" duration="915000" />
     </task>
     <task id="LOCAL-00665" summary="payos">
       <option name="closed" value="true" />
@@ -688,7 +681,15 @@
       <option name="project" value="LOCAL" />
       <updated>1768455653979</updated>
     </task>
-    <option name="localTasksCounter" value="713" />
+    <task id="LOCAL-00713" summary="fix bug can not display lecture sheet">
+      <option name="closed" value="true" />
+      <created>1768460068855</created>
+      <option name="number" value="00713" />
+      <option name="presentableId" value="LOCAL-00713" />
+      <option name="project" value="LOCAL" />
+      <updated>1768460068857</updated>
+    </task>
+    <option name="localTasksCounter" value="714" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -718,7 +719,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="update  PostUpdateDTOSchema -&gt; postUpdateDTOSchema," />
     <MESSAGE value="remove ci cd" />
     <MESSAGE value="update ui course detail page" />
     <MESSAGE value="rebuild ui admin" />
@@ -743,7 +743,8 @@
     <MESSAGE value="feat(learning-progress): implement learning progress tracking and course retrieval" />
     <MESSAGE value="update" />
     <MESSAGE value="update env" />
-    <option name="LAST_COMMIT_MESSAGE" value="update env" />
+    <MESSAGE value="fix bug can not display lecture sheet" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix bug can not display lecture sheet" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

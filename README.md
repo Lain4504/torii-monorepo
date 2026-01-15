@@ -1,7 +1,11 @@
 # Torii Nihongo Monorepo
+WebRTC-based live classes and FastMCP-powered AI feedback solution for a Japanese Learning Center.
 
-Dự án chuyên biệt đào tạo tiếng Nhật trực tuyến kết hợp WebRTC và AI Agents. Monorepo được quản lý bởi **TurboRepo**, tích hợp hệ thống Microservices hiện đại giao tiếp qua **NATS Message Broker** và **Protobuf**.
-
+## 🌐 Official Domains
+- **Backend API**: [api.torii.sbs](https://api.torii.sbs)
+- **Learning Platform**: [app.torii.sbs](https://app.torii.sbs)
+- **Live Class**: [meet.torii.sbs](https://meet.torii.sbs)
+- **System Management**: [admin.torii.sbs](https://admin.torii.sbs)
 ## 🏗 Overall Monorepo Structure
 
 ```
@@ -77,16 +81,18 @@ docker-compose down -v
 4.  **Environment Variables (Service URLs):**
     Đảm bảo `.env` có các biến sau cho microservices:
     ```bash
-    # Microservice Ports (4 main services)
+    # Microservice HTTP Ports
     GATEWAY_PORT=8080
     IDENTITY_HTTP_PORT=8081
     LEARNING_HTTP_PORT=8082
+    COMMUNICATION_HTTP_PORT=8083
     AGENTS_HTTP_PORT=8090
     MEET_HTTP_PORT=8091
     
     # Service URLs (for Gateway proxy)
     IDENTITY_SERVICE_URL=http://localhost:8081
     LEARNING_SERVICE_URL=http://localhost:8082
+    COMMUNICATION_SERVICE_URL=http://localhost:8083
     AGENTS_SERVICE_URL=http://localhost:8090
     MEET_SERVICE_URL=http://localhost:8091
     ```
@@ -136,13 +142,16 @@ graph TB
     subgraph ServiceLayer [Microservices Ecosystem]
         direction TB
         Identity[<b>Identity</b> :8081<br>Auth, Users, RBAC, Audit, 2FA, Billing]
-        Learning[<b>Learning</b> :8082<br>LMS, Community, Assessment, Flashcards, Gamification]
+        Learning[<b>Learning</b> :8082<br>LMS, Community, Assessment, Flashcards]
+        Comm[<b>Communication</b> :8083<br>Notifications, Messaging]
         Agents[<b>Agents</b> :8090<br>AI Agents: Sensei, Assessment, Analytics]
         Meet[<b>Meet</b> :8091<br>WebRTC, Live Classes, Rooms]
+        Gamification[<b>Gamification</b> (NATS)<br>Streaks, Achievements, XP]
     end
     
     ServiceLayer -.->|Realtime Events| NATS
     Meet -.->|WebSocket & Jobs| NATS
+    Gamification -.->|Event Processing| NATS
 ```
 
 ### 📡 Communication Patterns
@@ -163,10 +172,12 @@ graph TB
 | Service | Port | Protocol | Trách nhiệm chính (Bounded Context) |
 |:---|:---|:---|:---|
 | **Gateway** | `8080` | HTTP | Entry point duy nhất, HTTP proxy routing, Authentication guard (Auth Callout via NATS). |
-| **Identity** | `8081` | HTTP | **Core Auth & User Management**: Đăng ký, đăng nhập, Quản lý User, RBAC, Audit Logs, 2FA, **Billing & Payments** (Invoices, Transactions). |
-| **Learning** | `8082` | HTTP | **Unified Learning Platform**: <br>• **LMS**: Courses, Modules, Lessons, Wishlists, Reviews<br>• **Community**: Blogs, Comments, Notifications<br>• **Assessment**: Question Banks, Exams, Attempts, Sessions<br>• **Flashcards**: Decks, Cards, SRS Algorithm<br>• **Gamification**: Points, Badges, Leaderboards |
-| **Agents** | `8090` | HTTP | **AI Brain**: Multi-Agent System (Sensei Agent, Assessment Agent, Analytics Agent). Là "trung tâm trí tuệ" của nền tảng, hỗ trợ học tập thông minh. |
-| **Meet** | `8091` | HTTP + NATS | **Live Class Engine**: Quản lý phòng học ảo, tích hợp LiveKit (WebRTC), Recording, Polls, Waiting Room, Breakout Rooms. NATS cho realtime WebSocket và auth callout. |
+| **Identity** | `8081` | HTTP | **Auth & Identity**: Registration, Login, User Management, RBAC, Audit Logs, 2FA, Billing & Payments. |
+| **Learning** | `8082` | HTTP | **Learning Content**: Courses, Modules, Lessons, Assessment (Exams/Questions), Flashcards (SRS), Community (Blogs). |
+| **Communication** | `8083` | HTTP | **Communication**: System notifications, user messages, email dispatching. |
+| **Agents** | `8090` | HTTP | **AI Brain**: Multi-Agent System (Sensei, Assessment, Analytics) powered by FastMCP. |
+| **Meet** | `8091` | HTTP + NATS | **Live Class Engine**: Virtual classroom (WebRTC), Recording, Polls, Breakout Rooms. |
+| **Gamification** | `NATS` | NATS | **Engagement**: Streaks, Achievements, Points, Leaderboards (Process via NATS events). |
 
 ### 🔌 Service Communication Examples
 
@@ -258,121 +269,35 @@ pnpm --filter @workspace/schemas run build # Sau khi thay đổi nội dung sche
 
 ---
 
-## 🐳 Docker Deployment Guide
+## 🐳 Docker Deployment Guide (Commands Only)
 
-Hướng dẫn chi tiết quy trình deploy hệ thống Microservices lên VPS sử dụng Docker và Docker Compose.
-
-### 1. Prerequisites (Yêu cầu)
-- **VPS Server**: Đã cài đặt Docker và Docker Compose.
-- **Docker Hub Account**: Để chứa Docker Images (giúp tiết kiệm tài nguyên build trên VPS).
-- **Local Machine**: Máy tính cá nhân để build image.
-
-### 2. Workflow Overview (Quy trình)
-Để tối ưu hiệu suất và dung lượng ổ cứng cho VPS, chúng ta sẽ áp dụng quy trình:
-1.  **Chỉnh sửa Code** ở máy local.
-2.  **Build Image** ở máy local.
-3.  **Push Image** lên Docker Hub.
-4.  **Pull Image** về VPS và chạy.
-
----
-
-### 3. Step-by-Step Deployment
-
-#### Bước 1: Setup trên Local Machine (Lần đầu & khi cập nhật code)
-
-1.  **Đăng nhập Docker Hub:**
-    ```bash
-    docker login
-    # Nhập username và password Docker Hub của bạn
-    ```
-
-2.  **Build Docker Image:**
-    Lệnh này sẽ build một image duy nhất chứa toàn bộ code backend (monorepo).
-    Thay `your_username` bằng tên tài khoản Docker Hub của bạn.
-    ```bash
-    # Tại thư mục gốc (torii-monorepo)
-    docker build -t your_username/torii-backend:latest -f apps/server/Dockerfile .
-    ```
-
-3.  **Push Image lên Docker Hub:**
-    ```bash
-    docker push your_username/torii-backend:latest
-    ```
-
-#### Bước 2: Setup trên VPS (Lần đầu tiên)
-
-1.  **Clone code hoặc copy các file config cần thiết:**
-    Thực tế bạn chỉ cần các file sau trên VPS:
-    - `docker-compose.yml`
-    - `.env`
-    - `nats_server.conf`
-    - `livekit.yaml`
-
-2.  **Cấu hình biến môi trường (`.env`):**
-    Tạo file `.env` trên VPS và đảm bảo có biến `DOCKER_USERNAME`:
-    ```bash
-    # ... Các biến môi trường khác ...
-    DOCKER_USERNAME=your_username  # <-- QUAN TRỌNG: Để docker-compose biết tải image từ đâu
-    ```
-
-3.  **Database Migration (Quan trọng!):**
-    Khi mới deploy lần đầu, database sẽ trống rỗng. Bạn cần chạy migration để tạo các bảng.
-    
-    *Cách 1: Chạy lệnh one-off từ container (Khuyên dùng)*
-    Sau khi đã chạy `docker-compose up` (xem bước 3 bên dưới), hãy chạy lệnh này để đồng bộ schema vào DB:
-    ```bash
-    # Chạy lệnh này trên VPS
-    docker-compose exec identity npx prisma db push
-    ```
-    *(Lưu ý: Chỉ cần chạy ở 1 service bất kỳ như `identity` vì chúng dùng chung DB và Source Code)*
-
-    *Cách 2: Nếu reset database*
-    Nếu bạn muốn xóa sạch dữ liệu và làm lại từ đầu:
-    ```bash
-    docker-compose down -v  # Xóa cả volumes chứa dữ liệu
-    docker-compose up -d
-    docker-compose exec identity npx prisma db push
-    ```
-
-#### Bước 3: Deploy / Update trên VPS
-
-Mỗi khi bạn đã push image mới lên Docker Hub (Bước 1), hãy chạy các lệnh sau trên VPS để cập nhật:
-
+### 1. Build & Push (Local)
 ```bash
-# 1. Tải image mới nhất về
-docker-compose pull
-
-# 2. Re-create các container với image mới
-docker-compose up -d
-
-# 3. (Tuỳ chọn) Dọn dẹp image cũ cho đỡ chật ổ cứng
-docker system prune -f
+docker login
+# Build backend image
+docker build -t your_username/torii-backend:latest -f apps/server/Dockerfile .
+# Push to Docker Hub
+docker push your_username/torii-backend:latest
 ```
 
----
+### 2. Deploy / Update (VPS)
+```bash
+# Pull new image
+docker-compose pull
+# Update stack
+docker-compose up -d
+# Sync DB schema (on first deploy or update)
+pnpx prisma db push
+# Cleanup old images if need
+docker image prune -f
+```
 
-### 4. Data Persistence (Dữ liệu lưu ở đâu?)
-
-Bạn không cần lo lắng về việc mất dữ liệu khi restart container hay deploy image mới. Dữ liệu được lưu trữ an toàn trong các **Docker Volumes**:
-
-- **PostgreSQL Data**: Lưu tại volume `pgdata`.
-- **Redis Data**: Lưu tại volume `redisdata`.
-- **NATS Stream Data**: Lưu tại volume `natsdata`.
-- **LiveKit Data**: Lưu tại volume `livekitdata`.
-
-Các volumes này nằm trên ổ cứng của VPS (thường ở `/var/lib/docker/volumes/`) và độc lập với vòng đời của Container. Chỉ khi nào bạn chạy lệnh `docker-compose down -v` (có cờ `-v`) thì dữ liệu mới bị xóa.
-
----
-
-### 5. Troubleshooting (Gỡ lỗi)
-
-**Lỗi "No space left on device":**
-Ổ cứng VPS bị đầy do chứa quá nhiều image cũ hoặc cache build.
--> Chạy: `docker system prune -a --volumes -f` để dọn dẹp sạch sẽ.
-
-**Lỗi Service không start được:**
-Chạy `docker-compose logs --tail 100 [service_name]` để xem log chi tiết.
-Ví dụ: `docker-compose logs --tail 100 gateway`.
-
-**Kiểm tra kết nối nội bộ:**
-Nếu các service không nhìn thấy nhau, hãy chắc chắn file `docker-compose.yml` ở root đã định nghĩa các biến `SERVICE_URL` trỏ vào tên service (vd: `http://identity:8081`) chứ không phải `localhost`.
+### 3. Monitoring & Logs
+```bash
+# View all logs
+docker-compose logs -f
+# View specific service logs
+docker-compose logs -f [gateway|identity|learning|meet|agents]
+# Check container status
+docker ps
+```
