@@ -4,8 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: refactor meet service">
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/proxy/proxy.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/proxy/proxy.module.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/meet.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/meet.module.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -13,7 +16,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1149" />
+    <option name="cachedIndexableFilesCount" value="1192" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -110,44 +113,44 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
-    "JavaScript Debug.localhost:3000.executor": "Debug",
-    "JavaScript Debug.localhost:5173.executor": "Debug",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "#74 on feature/add-default-admin-seed",
-    "ignore.virus.scanning.warn.message": "true",
-    "javascript.preferred.runtime.type.id": "node",
-    "junie.onboarding.icon.badge.shown": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "E:/projectdev/bmap-capstone/torii-monorepo/apps/server",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "pnpm",
-    "settings.editor.selected.configurable": "ml.llm.LLMThirdPartyAiProvidersConfigurable",
-    "to.speed.mode.migration.done": "true",
-    "ts.external.directory.path": "E:\\projectdev\\bmap-capstone\\torii-monorepo\\node_modules\\typescript\\lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Docker.docker-compose.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
+    &quot;JavaScript Debug.localhost:3000.executor&quot;: &quot;Debug&quot;,
+    &quot;JavaScript Debug.localhost:5173.executor&quot;: &quot;Debug&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;build-gateway&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;E:/projectdev/bmap-capstone/torii-monorepo/apps/server&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;ml.llm.LLMThirdPartyAiProvidersConfigurable&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;E:\\projectdev\\bmap-capstone\\torii-monorepo\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "redis",
-      "mongo",
-      "postgresql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;redis&quot;,
+      &quot;mongo&quot;,
+      &quot;postgresql&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="QodanaCIConfigService">
     <option name="path" value="$PROJECT_DIR$/.github/workflows/qodana_code_quality.yml" />
   </component>
@@ -297,38 +300,8 @@
       <workItem from="1768201864379" duration="7510000" />
       <workItem from="1768266718590" duration="2263000" />
       <workItem from="1768275244074" duration="4926000" />
-    </task>
-    <task id="LOCAL-00663" summary="fix order bug">
-      <option name="closed" value="true" />
-      <created>1768227713254</created>
-      <option name="number" value="00663" />
-      <option name="presentableId" value="LOCAL-00663" />
-      <option name="project" value="LOCAL" />
-      <updated>1768227713255</updated>
-    </task>
-    <task id="LOCAL-00664" summary="fix sepay">
-      <option name="closed" value="true" />
-      <created>1768229050840</created>
-      <option name="number" value="00664" />
-      <option name="presentableId" value="LOCAL-00664" />
-      <option name="project" value="LOCAL" />
-      <updated>1768229050841</updated>
-    </task>
-    <task id="LOCAL-00665" summary="payos">
-      <option name="closed" value="true" />
-      <created>1768232043718</created>
-      <option name="number" value="00665" />
-      <option name="presentableId" value="LOCAL-00665" />
-      <option name="project" value="LOCAL" />
-      <updated>1768232043736</updated>
-    </task>
-    <task id="LOCAL-00666" summary="payos">
-      <option name="closed" value="true" />
-      <created>1768232266883</created>
-      <option name="number" value="00666" />
-      <option name="presentableId" value="LOCAL-00666" />
-      <option name="project" value="LOCAL" />
-      <updated>1768232266884</updated>
+      <workItem from="1768466511682" duration="987000" />
+      <workItem from="1768471927655" duration="2893000" />
     </task>
     <task id="LOCAL-00667" summary="payos">
       <option name="closed" value="true" />
@@ -690,7 +663,39 @@
       <option name="project" value="LOCAL" />
       <updated>1768388030433</updated>
     </task>
-    <option name="localTasksCounter" value="712" />
+    <task id="LOCAL-00712" summary="refactor: refactor meet service">
+      <option name="closed" value="true" />
+      <created>1768472322264</created>
+      <option name="number" value="00712" />
+      <option name="presentableId" value="LOCAL-00712" />
+      <option name="project" value="LOCAL" />
+      <updated>1768472322265</updated>
+    </task>
+    <task id="LOCAL-00713" summary="refactor: refactor meet service">
+      <option name="closed" value="true" />
+      <created>1768472697536</created>
+      <option name="number" value="00713" />
+      <option name="presentableId" value="LOCAL-00713" />
+      <option name="project" value="LOCAL" />
+      <updated>1768472697536</updated>
+    </task>
+    <task id="LOCAL-00714" summary="refactor: refactor meet service">
+      <option name="closed" value="true" />
+      <created>1768474181556</created>
+      <option name="number" value="00714" />
+      <option name="presentableId" value="LOCAL-00714" />
+      <option name="project" value="LOCAL" />
+      <updated>1768474181556</updated>
+    </task>
+    <task id="LOCAL-00715" summary="refactor: refactor meet service">
+      <option name="closed" value="true" />
+      <created>1768474233020</created>
+      <option name="number" value="00715" />
+      <option name="presentableId" value="LOCAL-00715" />
+      <option name="project" value="LOCAL" />
+      <updated>1768474233020</updated>
+    </task>
+    <option name="localTasksCounter" value="716" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -707,7 +712,14 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="payos-integration" />
+                        <option value="build-gateway" />
+                      </list>
+                    </value>
+                  </entry>
+                  <entry key="text">
+                    <value>
+                      <list>
+                        <option value="refactor" />
                       </list>
                     </value>
                   </entry>
@@ -720,7 +732,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="merge code" />
     <MESSAGE value="update  PostUpdateDTOSchema -&gt; postUpdateDTOSchema," />
     <MESSAGE value="remove ci cd" />
     <MESSAGE value="update ui course detail page" />
@@ -745,7 +756,8 @@
     <MESSAGE value="update ui" />
     <MESSAGE value="feat(learning-progress): implement learning progress tracking and course retrieval" />
     <MESSAGE value="update" />
-    <option name="LAST_COMMIT_MESSAGE" value="update" />
+    <MESSAGE value="refactor: refactor meet service" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor: refactor meet service" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -5,8 +5,8 @@ import KeyvRedis from '@keyv/redis';
 import { SharedModule, NatsAuthModule, NatsClientModule } from '@server/shared';
 import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
 
-// Proxy Module - Routes to microservices
-import { ProxyModule } from './proxy/proxy.module';
+// Meet Module - Meet service routes via NATS
+import { MeetModule } from './modules/meet/meet.module';
 // AI Module - AI Agents Service
 // import { AiModule } from './ai/ai.module';
 
@@ -38,8 +38,9 @@ import { ProxyModule } from './proxy/proxy.module';
     // AI Module - AI Agents Service
     // AiModule,
 
-    // Proxy Module - Handles all routes to microservices
-    ProxyModule,
+
+    // Meet Module - Handles Meet service routes via NATS
+    MeetModule,
   ],
   controllers: [],
   providers: [ApiKeyGuard],

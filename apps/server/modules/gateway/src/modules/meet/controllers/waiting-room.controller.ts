@@ -1,7 +1,7 @@
 /**
- * Waiting Room Controller
- * 
- * Handles HTTP endpoints for waiting room operations
+ * Waiting Room Controller (Gateway)
+ *
+ * Handles HTTP endpoints for waiting room operations via Gateway -> NATS -> Meet Service
  * Routes under /api/waitingRoom (with JWT auth)
  */
 
@@ -14,8 +14,11 @@ import {
     UseGuards,
     HttpCode,
     HttpStatus,
+    Inject,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
+import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
 import { fromBinary } from '@bufbuild/protobuf';
 import {
     ApproveWaitingUsersReq,
@@ -23,26 +26,22 @@ import {
     UpdateWaitingRoomMessageReq,
     UpdateWaitingRoomMessageReqSchema,
 } from '@workspace/protocol';
-import {
-    sendCommonProtobufResponse,
-    JwtAuthGuard,
-} from '@server/shared';
-import { WaitingRoomService } from '../../modules/waiting-room/waiting-room.service';
+import { sendCommonProtobufResponse, JwtAuthGuard } from '@server/shared';
 
 /**
  * WaitingRoomController handles waiting room operations
  * Routes under /api/waitingRoom (with JwtAuthGuard)
  */
-@Controller('waitingRoom')
+@Controller('api/waitingRoom')
 @UseGuards(JwtAuthGuard)
 export class WaitingRoomController {
     constructor(
-        private readonly waitingRoomService: WaitingRoomService,
+        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     ) { }
 
     /**
      * handleApproveUsers handles approving users from the waiting room
-     * 
+     *
      * @route POST /api/waitingRoom/approveUsers
      */
     @Post('approveUsers')
@@ -67,26 +66,36 @@ export class WaitingRoomController {
         try {
             request = fromBinary(ApproveWaitingUsersReqSchema, bodyBuffer);
         } catch (error) {
-            sendCommonProtobufResponse(res, false, error instanceof Error ? error.message : 'Invalid request');
+            sendCommonProtobufResponse(
+                res,
+                false,
+                error instanceof Error ? error.message : 'Invalid request',
+            );
             return;
         }
 
         // Set roomId from token
         request.roomId = roomId;
 
-        // Call service directly
+        // Call room service via NATS
         try {
-            await this.waitingRoomService.approveWaitingUsers(request);
+            const result = await firstValueFrom(
+                this.natsClient.send({ cmd: 'waitingRoom.approveUsers' }, request),
+            );
 
-            sendCommonProtobufResponse(res, true, 'success');
+            sendCommonProtobufResponse(res, result.status, result.msg);
         } catch (error) {
-            sendCommonProtobufResponse(res, false, error instanceof Error ? error.message : 'Error approving users');
+            sendCommonProtobufResponse(
+                res,
+                false,
+                error instanceof Error ? error.message : 'Error approving users',
+            );
         }
     }
 
     /**
      * handleUpdateWaitingRoomMessage handles updating the waiting room message
-     * 
+     *
      * @route POST /api/waitingRoom/updateMsg
      */
     @Post('updateMsg')
@@ -111,20 +120,32 @@ export class WaitingRoomController {
         try {
             request = fromBinary(UpdateWaitingRoomMessageReqSchema, bodyBuffer);
         } catch (error) {
-            sendCommonProtobufResponse(res, false, error instanceof Error ? error.message : 'Invalid request');
+            sendCommonProtobufResponse(
+                res,
+                false,
+                error instanceof Error ? error.message : 'Invalid request',
+            );
             return;
         }
 
         // Set roomId from token
         request.roomId = roomId;
 
-        // Call service directly
+        // Call room service via NATS
         try {
-            await this.waitingRoomService.updateWaitingRoomMessage(request);
+            const result = await firstValueFrom(
+                this.natsClient.send({ cmd: 'waitingRoom.updateMsg' }, request),
+            );
 
-            sendCommonProtobufResponse(res, true, 'success');
+            sendCommonProtobufResponse(res, result.status, result.msg);
         } catch (error) {
-            sendCommonProtobufResponse(res, false, error instanceof Error ? error.message : 'Error updating waiting room message');
+            sendCommonProtobufResponse(
+                res,
+                false,
+                error instanceof Error
+                    ? error.message
+                    : 'Error updating waiting room message',
+            );
         }
     }
 }

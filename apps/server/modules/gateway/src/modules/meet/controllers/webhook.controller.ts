@@ -1,8 +1,8 @@
 /**
- * Webhook Controller
+ * Webhook Controller (Gateway)
  *
- * Handles incoming webhook events from LiveKit
- * Validates token and calls WebhookService directly
+ * Handles incoming webhook events from LiveKit via Gateway -> NATS -> Meet Service
+ * Validates token and forwards to room-service via NATS
  */
 
 import {
@@ -12,11 +12,12 @@ import {
     Headers,
     HttpCode,
     HttpStatus,
+    Inject,
     Logger,
 } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 import { verifyWebhookRequest } from '@server/shared/utils/webhook_verify';
-import { WebhookService } from '../../infrastructure/webhook/webhook.service';
 
 /**
  * WebhookAuthService validates LiveKit webhook tokens
@@ -27,8 +28,10 @@ class WebhookAuthService {
     private readonly livekitApiSecret: string;
 
     constructor(private readonly configService: ConfigService) {
-        this.livekitApiKey = this.configService.get<string>('LIVEKIT_API_KEY') || '';
-        this.livekitApiSecret = this.configService.get<string>('LIVEKIT_API_SECRET') || '';
+        this.livekitApiKey =
+            this.configService.get<string>('LIVEKIT_API_KEY') || '';
+        this.livekitApiSecret =
+            this.configService.get<string>('LIVEKIT_API_SECRET') || '';
     }
 
     /**
@@ -40,10 +43,12 @@ class WebhookAuthService {
                 body,
                 this.livekitApiKey,
                 this.livekitApiSecret,
-                token
+                token,
             );
         } catch (error) {
-            this.logger.error(`Failed to validate LiveKit webhook token: ${error.message}`);
+            this.logger.error(
+                `Failed to validate LiveKit webhook token: ${error.message}`,
+            );
             return false;
         }
     }
@@ -58,7 +63,7 @@ export class WebhookController {
     private readonly authService: WebhookAuthService;
 
     constructor(
-        private readonly webhookService: WebhookService,
+        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
         private readonly configService: ConfigService,
     ) {
         // Initialize AuthService
@@ -76,7 +81,7 @@ export class WebhookController {
         @Body() body: any,
         @Headers('authorization') authHeader: string,
     ): Promise<void> {
-        // Read request body (JSON from LiveKit)
+        // Read request body (JSON from room-service webhook notifier)
         if (!body) {
             this.logger.error('No body found in request');
             throw new Error('No body');
@@ -101,6 +106,7 @@ export class WebhookController {
 
         // Unmarshal the webhook event
         // LiveKit sends webhooks as JSON, so we parse as plain JSON object
+        // The protobuf unmarshaling is for validation, but JSON works fine for forwarding
         let event: any;
         try {
             event = JSON.parse(data.toString('utf-8'));
@@ -114,38 +120,15 @@ export class WebhookController {
             throw new Error('Unprocessable Entity');
         }
 
-        // Handle the webhook event directly via service
-        try {
-            this.logger.log(`Processing webhook event: ${event.event}`);
+        // Handle the webhook event asynchronously via NATS
+        this.natsClient.emit({ cmd: 'webhook.handle' }, event).subscribe({
+            error: (err) => {
+                this.logger.error(
+                    `Failed to emit webhook event to NATS: ${err.message}`,
+                );
+            },
+        });
 
-            // Dispatch to appropriate handler based on event type
-            switch (event.event) {
-                case 'room_started':
-                    await this.webhookService.roomStarted(event);
-                    break;
-                case 'room_finished':
-                    await this.webhookService.roomFinished(event);
-                    break;
-                case 'participant_joined':
-                    await this.webhookService.participantJoined(event);
-                    break;
-                case 'participant_left':
-                    await this.webhookService.participantLeft(event);
-                    break;
-                case 'track_published':
-                    await this.webhookService.trackPublished(event);
-                    break;
-                case 'track_unpublished':
-                    await this.webhookService.trackUnpublished(event);
-                    break;
-                default:
-                    this.logger.warn(`Unknown webhook event type: ${event.event}`);
-            }
-
-            this.logger.log(`Webhook event processed successfully: ${event.event}`);
-        } catch (error) {
-            this.logger.error(`Failed to handle webhook event: ${error.message}`);
-            throw error;
-        }
+        this.logger.log(`Webhook event processed: ${event.event}`);
     }
 }

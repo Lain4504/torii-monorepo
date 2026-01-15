@@ -1,7 +1,7 @@
 /**
- * Polls Controller
+ * Polls Controller (Gateway)
  *
- * Handles HTTP requests for poll operations
+ * Handles HTTP requests for poll operations via Gateway -> NATS -> Meet Service
  * Routes under /api/polls (with JwtAuthGuard)
  */
 
@@ -16,8 +16,11 @@ import {
     UseGuards,
     HttpCode,
     HttpStatus,
+    Inject,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
+import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
 import { create, fromBinary } from '@bufbuild/protobuf';
 import {
     ActivatePollsReq,
@@ -28,20 +31,15 @@ import {
     SubmitPollResponseReqSchema,
     ClosePollReq,
     ClosePollReqSchema,
-    PollResponse,
     PollResponseSchema,
 } from '@workspace/protocol';
-import {
-    sendProtobufResponse,
-    JwtAuthGuard,
-} from '@server/shared';
-import { PollsService } from '../../modules/polls/polls.service';
+import { sendProtobufResponse, JwtAuthGuard } from '@server/shared';
 
-@Controller('polls')
+@Controller('api/polls')
 @UseGuards(JwtAuthGuard)
 export class PollsController {
     constructor(
-        private readonly pollsService: PollsService,
+        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     ) { }
 
     @Post('activate')
@@ -89,11 +87,13 @@ export class PollsController {
         }
 
         try {
-            await this.pollsService.manageActivation(request);
+            const result = await firstValueFrom(
+                this.natsClient.send({ cmd: 'polls.activate' }, request),
+            );
 
             const response = create(PollResponseSchema, {
-                status: true,
-                msg: 'success',
+                status: result.status,
+                msg: result.msg,
             });
 
             res.status(200);
@@ -120,7 +120,6 @@ export class PollsController {
         const requestedUserId = (req as any).requestedUserId as string;
 
         if (!isAdmin) {
-
             const response = create(PollResponseSchema, {
                 status: false,
                 msg: 'only admin can perform this task',
@@ -146,18 +145,19 @@ export class PollsController {
         }
 
         try {
-            const pollId = await this.pollsService.createPoll(request);
+            const result = await firstValueFrom(
+                this.natsClient.send({ cmd: 'polls.create' }, request),
+            );
 
             const response = create(PollResponseSchema, {
-                status: true,
-                msg: 'success',
-                pollId: pollId,
+                status: result.status,
+                msg: result.msg,
+                pollId: result.pollId,
             });
 
             res.status(200);
             sendProtobufResponse(res, PollResponseSchema, response);
         } catch (error) {
-
             const response = create(PollResponseSchema, {
                 status: false,
                 msg: error instanceof Error ? error.message : 'Error creating poll',
@@ -176,12 +176,14 @@ export class PollsController {
         const roomId = (req as any).roomId as string;
 
         try {
-            const polls = await this.pollsService.listPolls(roomId);
+            const result = await firstValueFrom(
+                this.natsClient.send({ cmd: 'polls.listPolls' }, { roomId }),
+            );
 
             const response = create(PollResponseSchema, {
-                status: true,
-                msg: 'success',
-                polls: polls,
+                status: result.status,
+                msg: result.msg,
+                polls: result.polls,
             });
 
             res.status(200);
@@ -216,13 +218,18 @@ export class PollsController {
         }
 
         try {
-            const totalResponses = await this.pollsService.getPollTotalResponses(roomId, pollId);
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'polls.countTotalResponses' },
+                    { roomId, pollId },
+                ),
+            );
 
             const response = create(PollResponseSchema, {
-                status: true,
-                msg: 'success',
-                pollId: pollId,
-                totalResponses: totalResponses,
+                status: result.status,
+                msg: result.msg,
+                pollId: result.pollId,
+                totalResponses: result.totalResponses,
             });
 
             res.status(200);
@@ -230,7 +237,10 @@ export class PollsController {
         } catch (error) {
             const response = create(PollResponseSchema, {
                 status: false,
-                msg: error instanceof Error ? error.message : 'Error getting total responses',
+                msg:
+                    error instanceof Error
+                        ? error.message
+                        : 'Error getting total responses',
             });
             res.status(200);
             sendProtobufResponse(res, PollResponseSchema, response);
@@ -258,13 +268,18 @@ export class PollsController {
         }
 
         try {
-            const voted = await this.pollsService.userSelectedOption(roomId, pollId, userId);
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'polls.userSelectedOption' },
+                    { roomId, pollId, userId },
+                ),
+            );
 
             const response = create(PollResponseSchema, {
-                status: true,
-                msg: 'success',
-                pollId: pollId,
-                voted: voted,
+                status: result.status,
+                msg: result.msg,
+                pollId: result.pollId,
+                voted: result.voted,
             });
 
             res.status(200);
@@ -272,7 +287,8 @@ export class PollsController {
         } catch (error) {
             const response = create(PollResponseSchema, {
                 status: false,
-                msg: error instanceof Error ? error.message : 'Error getting user selection',
+                msg:
+                    error instanceof Error ? error.message : 'Error getting user selection',
             });
             res.status(200);
             sendProtobufResponse(res, PollResponseSchema, response);
@@ -303,12 +319,14 @@ export class PollsController {
         }
 
         try {
-            await this.pollsService.userSubmitResponse(request);
+            const result = await firstValueFrom(
+                this.natsClient.send({ cmd: 'polls.submitResponse' }, request),
+            );
 
             const response = create(PollResponseSchema, {
-                status: true,
-                msg: 'success',
-                pollId: request.pollId,
+                status: result.status,
+                msg: result.msg,
+                pollId: result.pollId,
             });
 
             res.status(200);
@@ -360,12 +378,14 @@ export class PollsController {
         }
 
         try {
-            await this.pollsService.closePoll(request);
+            const result = await firstValueFrom(
+                this.natsClient.send({ cmd: 'polls.closePoll' }, request),
+            );
 
             const response = create(PollResponseSchema, {
-                status: true,
-                msg: 'success',
-                pollId: request.pollId,
+                status: result.status,
+                msg: result.msg,
+                pollId: result.pollId,
             });
 
             res.status(200);
@@ -411,13 +431,18 @@ export class PollsController {
         }
 
         try {
-            const responses = await this.pollsService.getPollResponsesDetails(roomId, pollId);
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'polls.pollResponsesDetails' },
+                    { roomId, pollId },
+                ),
+            );
 
             const response = create(PollResponseSchema, {
-                status: true,
-                msg: 'success',
-                pollId: pollId,
-                responses: responses,
+                status: result.status,
+                msg: result.msg,
+                pollId: result.pollId,
+                responses: result.responses,
             });
 
             res.status(200);
@@ -425,7 +450,8 @@ export class PollsController {
         } catch (error) {
             const response = create(PollResponseSchema, {
                 status: false,
-                msg: error instanceof Error ? error.message : 'Error getting poll details',
+                msg:
+                    error instanceof Error ? error.message : 'Error getting poll details',
             });
             res.status(200);
             sendProtobufResponse(res, PollResponseSchema, response);
@@ -442,13 +468,18 @@ export class PollsController {
         const roomId = (req as any).roomId as string;
 
         try {
-            const pollResponsesResult = await this.pollsService.getResponsesResult(roomId, pollId);
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'polls.pollResponsesResult' },
+                    { roomId, pollId },
+                ),
+            );
 
             const response = create(PollResponseSchema, {
-                status: true,
-                msg: 'success',
-                pollId: pollId,
-                pollResponsesResult: pollResponsesResult,
+                status: result.status,
+                msg: result.msg,
+                pollId: result.pollId,
+                pollResponsesResult: result.pollResponsesResult,
             });
 
             res.status(200);
@@ -472,12 +503,14 @@ export class PollsController {
         const roomId = (req as any).roomId as string;
 
         try {
-            const stats = await this.pollsService.getPollsStats(roomId);
+            const result = await firstValueFrom(
+                this.natsClient.send({ cmd: 'polls.pollsStats' }, { roomId }),
+            );
 
             const response = create(PollResponseSchema, {
-                status: true,
-                msg: 'success',
-                stats: stats,
+                status: result.status,
+                msg: result.msg,
+                stats: result.stats,
             });
 
             res.status(200);
