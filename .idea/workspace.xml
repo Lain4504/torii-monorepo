@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix bug can not display lecture sheet" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update README.md" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -295,15 +295,7 @@
       <workItem from="1768201864379" duration="7510000" />
       <workItem from="1768266718590" duration="2263000" />
       <workItem from="1768275244074" duration="4926000" />
-      <workItem from="1768460045709" duration="915000" />
-    </task>
-    <task id="LOCAL-00665" summary="payos">
-      <option name="closed" value="true" />
-      <created>1768232043718</created>
-      <option name="number" value="00665" />
-      <option name="presentableId" value="LOCAL-00665" />
-      <option name="project" value="LOCAL" />
-      <updated>1768232043736</updated>
+      <workItem from="1768460045709" duration="3982000" />
     </task>
     <task id="LOCAL-00666" summary="payos">
       <option name="closed" value="true" />
@@ -689,7 +681,15 @@
       <option name="project" value="LOCAL" />
       <updated>1768460068857</updated>
     </task>
-    <option name="localTasksCounter" value="714" />
+    <task id="LOCAL-00714" summary="update README.md">
+      <option name="closed" value="true" />
+      <created>1768461423440</created>
+      <option name="number" value="00714" />
+      <option name="presentableId" value="LOCAL-00714" />
+      <option name="project" value="LOCAL" />
+      <updated>1768461423440</updated>
+    </task>
+    <option name="localTasksCounter" value="715" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -719,7 +719,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="remove ci cd" />
     <MESSAGE value="update ui course detail page" />
     <MESSAGE value="rebuild ui admin" />
     <MESSAGE value="flashcard and exam" />
@@ -744,7 +743,8 @@
     <MESSAGE value="update" />
     <MESSAGE value="update env" />
     <MESSAGE value="fix bug can not display lecture sheet" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix bug can not display lecture sheet" />
+    <MESSAGE value="update README.md" />
+    <option name="LAST_COMMIT_MESSAGE" value="update README.md" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
