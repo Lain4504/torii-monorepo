@@ -769,7 +769,9 @@ export class AuthController {
      */
     private getCookieOptions() {
         const isProd = process.env.NODE_ENV === 'production';
-        const secure = process.env.COOKIE_SECURE === 'true' || (isProd && process.env.COOKIE_SECURE !== 'false');
+        const secure = isProd
+            ? process.env.COOKIE_SECURE !== 'false'
+            : process.env.COOKIE_SECURE === 'true';
         const sameSite = (process.env.COOKIE_SAMESITE as 'lax' | 'strict' | 'none') || 'lax';
 
         return {
