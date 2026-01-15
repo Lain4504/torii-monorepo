@@ -1,11 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/api/api-client.ts';
 import type {
-    PaginatedResponseDTO,
     QuestionPoolResponseDTO,
     QuestionPoolCreateDTO,
     QuestionPoolUpdateDTO,
     QuestionPoolQueryDTO,
+    StandardApiResponse,
+    PaginatedApiResponse,
 } from '@workspace/schemas';
 
 // ============================================================================
@@ -14,33 +15,33 @@ import type {
 
 export const questionPoolsApi = {
     // GET /api/question-pools
-    async findAll(params: QuestionPoolQueryDTO): Promise<PaginatedResponseDTO<QuestionPoolResponseDTO>> {
-        const response = await apiClient.get<PaginatedResponseDTO<QuestionPoolResponseDTO>>('/api/question-pools', { params });
+    async findAll(params: QuestionPoolQueryDTO): Promise<PaginatedApiResponse<QuestionPoolResponseDTO>> {
+        const response = await apiClient.get<PaginatedApiResponse<QuestionPoolResponseDTO>>('/api/question-pools', { params });
         return response.data;
     },
 
     // GET /api/question-pools/:id
     async findOne(id: string): Promise<QuestionPoolResponseDTO> {
-        const response = await apiClient.get<QuestionPoolResponseDTO>(`/api/question-pools/${id}`);
-        return response.data;
+        const response = await apiClient.get<StandardApiResponse<{ pool: QuestionPoolResponseDTO }>>(`/api/question-pools/${id}`);
+        return response.data.data!.pool;
     },
 
     // POST /api/question-pools
     async create(pool: QuestionPoolCreateDTO): Promise<QuestionPoolResponseDTO> {
-        const response = await apiClient.post<QuestionPoolResponseDTO>('/api/question-pools', pool);
-        return response.data;
+        const response = await apiClient.post<StandardApiResponse<{ pool: QuestionPoolResponseDTO }>>('/api/question-pools', pool);
+        return response.data.data!.pool;
     },
 
     // PATCH /api/question-pools/:id
     async update(id: string, pool: QuestionPoolUpdateDTO): Promise<QuestionPoolResponseDTO> {
-        const response = await apiClient.patch<QuestionPoolResponseDTO>(`/api/question-pools/${id}`, pool);
-        return response.data;
+        const response = await apiClient.patch<StandardApiResponse<{ pool: QuestionPoolResponseDTO }>>(`/api/question-pools/${id}`, pool);
+        return response.data.data!.pool;
     },
 
     // DELETE /api/question-pools/:id
-    async delete(id: string): Promise<{ message: string }> {
-        const response = await apiClient.delete<{ message: string }>(`/api/question-pools/${id}`);
-        return response.data;
+    async delete(id: string): Promise<{ success: boolean }> {
+        const response = await apiClient.delete<StandardApiResponse<{ success: boolean }>>(`/api/question-pools/${id}`);
+        return response.data.data!;
     },
 };
 
@@ -100,8 +101,8 @@ export function useQuestionPoolsByCourse(courseId: string) {
     return useQuery({
         queryKey: ['question-pools', 'course', courseId],
         queryFn: async () => {
-            const response = await apiClient.get<QuestionPoolResponseDTO[]>(`/api/question-pools/course/${courseId}`);
-            return response.data;
+            const response = await apiClient.get<StandardApiResponse<{ pools: QuestionPoolResponseDTO[] }>>(`/api/question-pools/course/${courseId}`);
+            return response.data.data!.pools;
         },
         enabled: !!courseId,
     });
@@ -112,8 +113,8 @@ export function useQuestionPoolsByJlptLevel(jlptLevel: string) {
     return useQuery({
         queryKey: ['question-pools', 'jlpt', jlptLevel],
         queryFn: async () => {
-            const response = await apiClient.get<QuestionPoolResponseDTO[]>(`/api/question-pools/jlpt/${jlptLevel}`);
-            return response.data;
+            const response = await apiClient.get<StandardApiResponse<{ pools: QuestionPoolResponseDTO[] }>>(`/api/question-pools/jlpt/${jlptLevel}`);
+            return response.data.data!.pools;
         },
         enabled: !!jlptLevel,
     });

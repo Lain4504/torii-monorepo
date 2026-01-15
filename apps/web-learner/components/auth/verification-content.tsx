@@ -8,7 +8,7 @@ import { useTimeout } from '@workspace/ui/hooks/use-timeout';
 import { useAppDispatch } from '@/hooks/hooks';
 import { fetchProfile } from '@/store/slices/authSlice';
 import { Spinner } from '@workspace/ui/components/spinner';
-import { apiClient } from '@/apis/api-client';
+import { useVerifyEmail } from '@/apis/services/auth-api';
 import { cn } from '@workspace/ui/lib/utils';
 
 export function VerificationContent() {
@@ -18,6 +18,7 @@ export function VerificationContent() {
     const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
     const [message, setMessage] = useState('');
     const [redirectDelay, setRedirectDelay] = useState<number | null>(null);
+    const { mutateAsync: verifyEmail } = useVerifyEmail();
 
     useTimeout(() => {
         router.push('/');
@@ -34,8 +35,19 @@ export function VerificationContent() {
 
         const verifyToken = async () => {
             try {
-                const response = await apiClient.post('/api/auth/verify-email', { token });
-                const data = response.data;
+                const data = await verifyEmail(token);
+                // Smart Unwrap handled by apiClient, so data is the payload
+                // Wait, if verifyEmail returns { success: boolean... }, 
+                // and apiClient unwrap returns response.data...
+
+                // If backend returns { success: true, message: "..." } (StandardApiResponse<void>)
+                // apiClient unwrap: if 'data' in body -> returns body.data. 
+                // Does body HAVE 'data'? Usually success response might be { success: true, message: "..." } without 'data'.
+                // My interceptor implementation: if ('data' in body) response.data = body.data.
+                // If NO 'data' in body, response.data remains the BODY.
+
+                // So for { success: true, message: "..." }, data is the BODY. { success: true, message: "..." }
+                // So data.success works.
 
                 if (data.success) {
                     setStatus('success');
@@ -54,6 +66,7 @@ export function VerificationContent() {
         };
 
         verifyToken();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchParams, dispatch, router]);
 
     if (status === 'loading') {

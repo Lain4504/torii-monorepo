@@ -4,7 +4,23 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor(identity): refactor identity service" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="`refactor(learning): remove unused HTTP controllers for cleaner module structure`">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/api-client.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/api/api-client.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/services/courses.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/api/services/courses.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/apis/api-client.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/apis/api-client.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/apis/services/auth-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/apis/services/auth-api.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/apis/services/course-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/apis/services/course-api.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/apis/services/enrollment-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/apis/services/enrollment-api.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/apis/services/exam-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/apis/services/exam-api.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/apis/services/learning-progress-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/apis/services/learning-progress-api.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/apis/services/lesson-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/apis/services/lesson-api.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/apis/services/order-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/apis/services/order-api.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/auth/forgot-password-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/auth/forgot-password-form.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/auth/resend-verification-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/auth/resend-verification-form.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/auth/reset-password-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/auth/reset-password-form.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/auth/verification-content.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/auth/verification-content.tsx" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -296,15 +312,7 @@
       <workItem from="1768266718590" duration="2263000" />
       <workItem from="1768275244074" duration="4926000" />
       <workItem from="1768466511682" duration="987000" />
-      <workItem from="1768471927655" duration="5818000" />
-    </task>
-    <task id="LOCAL-00672" summary="payos">
-      <option name="closed" value="true" />
-      <created>1768236968644</created>
-      <option name="number" value="00672" />
-      <option name="presentableId" value="LOCAL-00672" />
-      <option name="project" value="LOCAL" />
-      <updated>1768236968645</updated>
+      <workItem from="1768471927655" duration="9066000" />
     </task>
     <task id="LOCAL-00673" summary="payos">
       <option name="closed" value="true" />
@@ -690,7 +698,15 @@
       <option name="project" value="LOCAL" />
       <updated>1768478430191</updated>
     </task>
-    <option name="localTasksCounter" value="721" />
+    <task id="LOCAL-00721" summary="`refactor(learning): remove unused HTTP controllers for cleaner module structure`">
+      <option name="closed" value="true" />
+      <created>1768480328642</created>
+      <option name="number" value="00721" />
+      <option name="presentableId" value="LOCAL-00721" />
+      <option name="project" value="LOCAL" />
+      <updated>1768480328642</updated>
+    </task>
+    <option name="localTasksCounter" value="722" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -727,7 +743,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="update ui course detail page" />
     <MESSAGE value="rebuild ui admin" />
     <MESSAGE value="flashcard and exam" />
     <MESSAGE value="sđs" />
@@ -752,7 +767,8 @@
     <MESSAGE value="refactor: refactor meet service" />
     <MESSAGE value="feat(identity): implement identity module with authentication and authorization handlers" />
     <MESSAGE value="refactor(identity): refactor identity service" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor(identity): refactor identity service" />
+    <MESSAGE value="`refactor(learning): remove unused HTTP controllers for cleaner module structure`" />
+    <option name="LAST_COMMIT_MESSAGE" value="`refactor(learning): remove unused HTTP controllers for cleaner module structure`" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

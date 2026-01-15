@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/api/api-client.ts';
-import type { PaginatedResponseDTO, CourseResponseDTO, CourseCreateDTO, CourseUpdateDTO, CourseQueryDTO } from '@workspace/schemas';
+import type { PaginatedApiResponse, CourseResponseDTO, CourseCreateDTO, CourseUpdateDTO, CourseQueryDTO, StandardApiResponse } from '@workspace/schemas';
 
 // ============================================================================
 // API Functions
@@ -8,51 +8,51 @@ import type { PaginatedResponseDTO, CourseResponseDTO, CourseCreateDTO, CourseUp
 
 export const coursesApi = {
     // GET /api/admin/courses
-    async findAll(params: CourseQueryDTO): Promise<PaginatedResponseDTO<CourseResponseDTO>> {
-        const response = await apiClient.get<PaginatedResponseDTO<CourseResponseDTO>>('/api/courses', { params });
+    async findAll(params: CourseQueryDTO): Promise<PaginatedApiResponse<CourseResponseDTO>> {
+        const response = await apiClient.get<PaginatedApiResponse<CourseResponseDTO>>('/api/courses', { params });
         return response.data;
     },
 
     // GET /api/admin/courses/:id
     async findOne(id: string): Promise<CourseResponseDTO> {
-        const response = await apiClient.get<CourseResponseDTO>(`/api/courses/${id}`);
-        return response.data;
+        const response = await apiClient.get<StandardApiResponse<{ course: CourseResponseDTO }>>(`/api/courses/${id}`);
+        return response.data.data!.course;
     },
 
     // POST /api/admin/courses
     async create(course: CourseCreateDTO): Promise<CourseResponseDTO> {
-        const response = await apiClient.post<CourseResponseDTO>('/api/courses', course);
-        return response.data;
+        const response = await apiClient.post<StandardApiResponse<{ course: CourseResponseDTO }>>('/api/courses', course);
+        return response.data.data!.course;
     },
 
     // PATCH /api/admin/courses/:id
     async update(id: string, course: CourseUpdateDTO): Promise<CourseResponseDTO> {
-        const response = await apiClient.patch<CourseResponseDTO>(`/api/courses/${id}`, course);
-        return response.data;
+        const response = await apiClient.patch<StandardApiResponse<{ course: CourseResponseDTO }>>(`/api/courses/${id}`, course);
+        return response.data.data!.course;
     },
 
     // DELETE /api/admin/courses/:id
     async delete(id: string): Promise<boolean> {
-        const response = await apiClient.delete(`/api/courses/${id}`);
-        return response.data;
+        const response = await apiClient.delete<StandardApiResponse<boolean>>(`/api/courses/${id}`);
+        return response.data.success;
     },
 
     // PATCH /api/admin/courses/:id/restore
     async restore(id: string): Promise<CourseResponseDTO> {
-        const response = await apiClient.patch<CourseResponseDTO>(`/api/courses/${id}/restore`);
-        return response.data;
+        const response = await apiClient.patch<StandardApiResponse<{ course: CourseResponseDTO }>>(`/api/courses/${id}/restore`);
+        return response.data.data!.course;
     },
 
     // POST /api/courses/:id/publish
     async publish(id: string): Promise<CourseResponseDTO> {
-        const response = await apiClient.post<CourseResponseDTO>(`/api/courses/${id}/publish`);
-        return response.data;
+        const response = await apiClient.post<StandardApiResponse<{ course: CourseResponseDTO }>>(`/api/courses/${id}/publish`);
+        return response.data.data!.course;
     },
 
     // POST /api/courses/:id/unpublish
     async unpublish(id: string): Promise<CourseResponseDTO> {
-        const response = await apiClient.post<CourseResponseDTO>(`/api/courses/${id}/unpublish`);
-        return response.data;
+        const response = await apiClient.post<StandardApiResponse<{ course: CourseResponseDTO }>>(`/api/courses/${id}/unpublish`);
+        return response.data.data!.course;
     },
 };
 

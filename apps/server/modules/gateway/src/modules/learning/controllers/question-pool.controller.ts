@@ -35,13 +35,7 @@ export class QuestionPoolController {
                     query
                 )
             );
-            return successPaginatedResponse(
-                result.data,
-                result.total,
-                result.page,
-                result.limit,
-                result.totalPages
-            );
+            return successPaginatedResponse(result);
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch question pools');
         }
@@ -56,7 +50,7 @@ export class QuestionPoolController {
                     { id }
                 )
             );
-            return successResponse(result);
+            return successResponse({ pool: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch question pool');
         }
@@ -71,7 +65,7 @@ export class QuestionPoolController {
                     { courseId }
                 )
             );
-            return successResponse(result);
+            return successResponse({ pools: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch question pools by course');
         }
@@ -117,7 +111,7 @@ export class QuestionPoolController {
                     { ...dto, userId: user.sub }
                 )
             );
-            return successResponse(result);
+            return successResponse({ pool: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to create question pool');
         }
@@ -133,7 +127,7 @@ export class QuestionPoolController {
                     { id, ...dto, userId: user.sub }
                 )
             );
-            return successResponse(result);
+            return successResponse({ pool: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to update question pool');
         }

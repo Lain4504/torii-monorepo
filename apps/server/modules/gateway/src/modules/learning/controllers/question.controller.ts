@@ -35,13 +35,7 @@ export class QuestionController {
                     query
                 )
             );
-            return successPaginatedResponse(
-                result.data,
-                result.total,
-                result.page,
-                result.limit,
-                result.totalPages
-            );
+            return successPaginatedResponse(result);
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch questions');
         }
@@ -56,7 +50,7 @@ export class QuestionController {
                     { id }
                 )
             );
-            return successResponse(result);
+            return successResponse({ question: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch question');
         }
@@ -116,7 +110,7 @@ export class QuestionController {
                     { poolId }
                 )
             );
-            return successResponse(result);
+            return successResponse({ questions: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch questions by pool');
         }
@@ -132,7 +126,7 @@ export class QuestionController {
                     { ...dto, userId: user.sub }
                 )
             );
-            return successResponse(result);
+            return successResponse({ question: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to create question');
         }
@@ -164,7 +158,7 @@ export class QuestionController {
                     { id, ...dto, userId: user.sub }
                 )
             );
-            return successResponse(result);
+            return successResponse({ question: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to update question');
         }
@@ -228,7 +222,7 @@ export class QuestionController {
                     { id, userId: user.sub }
                 )
             );
-            return successResponse(result);
+            return successResponse({ question: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to approve question');
         }
@@ -244,7 +238,7 @@ export class QuestionController {
                     { id, userId: user.sub }
                 )
             );
-            return successResponse(result);
+            return successResponse({ question: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to deactivate question');
         }
@@ -260,7 +254,7 @@ export class QuestionController {
                     { id, userId: user.sub }
                 )
             );
-            return successResponse(result);
+            return successResponse({ question: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to reject question');
         }
@@ -276,7 +270,7 @@ export class QuestionController {
                     { id, userId: user.sub }
                 )
             );
-            return successResponse(result);
+            return successResponse({ question: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to send question for review');
         }

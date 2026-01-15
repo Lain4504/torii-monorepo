@@ -14,7 +14,8 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import {
     successResponse,
-    errorResponse
+    errorResponse,
+    successPaginatedResponse
 } from '@server/shared';
 import { IdentityAuthGuard } from '../../identity/guards/identity-auth.guard';
 import { Request } from 'express';
@@ -49,22 +50,7 @@ export class ReviewController {
                     { courseId, query }
                 )
             );
-            return result; // Usually paginated response is returned directly or standardized
-            // Original controller returns PaginatedReviewResponseDTO directly.
-            // Let's assume standardization if needed, or return raw result if it matches DTO.
-            // If result is already structured, just return it.
-            // But usually we wrap in successResponse? 
-            // The original controller returned the DTO directly.
-            // Let's wrap it in successResponse anyway for consistency in Gateway, 
-            // UNLESS FE expects raw pagination object.
-            // Let's assume standard response structure.
-            // Wait, previous conversions used successPaginatedResponse.
-            // ReviewService.findByCourseId returns PaginatedReviewResponseDTO.
-            // Let's check DTO structure. If it has data, page, limit etc.
-            // I'll return successResponse(result) or successPaginatedResponse if I can map it.
-            // ReviewService outcome is a proprietary object.
-            // Let's return successResponse(result).
-            return successResponse(result);
+            return successPaginatedResponse(result);
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch reviews');
         }
@@ -96,7 +82,7 @@ export class ReviewController {
                     { ...input, courseId, userId: user.sub }
                 )
             );
-            return successResponse(result);
+            return successResponse({ review: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to create review');
         }

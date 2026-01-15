@@ -36,13 +36,7 @@ export class AuditLogController {
                     },
                 ),
             );
-            return successPaginatedResponse(
-                result.data,
-                result.total,
-                result.page,
-                result.limit,
-                result.totalPages
-            );
+            return successPaginatedResponse(result);
         } catch (error: unknown) {
             return errorResponse(error instanceof Error ? error.message : 'Failed to fetch audit logs');
         }

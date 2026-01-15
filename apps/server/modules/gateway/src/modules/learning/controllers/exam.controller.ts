@@ -14,7 +14,8 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import {
     successResponse,
-    errorResponse
+    errorResponse,
+    successPaginatedResponse
 } from '@server/shared';
 import { IdentityAuthGuard } from '../../identity/guards/identity-auth.guard';
 import { Request } from 'express';
@@ -34,7 +35,7 @@ export class ExamController {
                     { query, userId: user.sub }
                 )
             );
-            return successResponse(result);
+            return successPaginatedResponse(result);
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch exams');
         }
@@ -50,7 +51,7 @@ export class ExamController {
                     { query, userId: user.sub }
                 )
             );
-            return successResponse(result);
+            return successPaginatedResponse(result);
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch exam attempts');
         }
@@ -70,7 +71,7 @@ export class ExamController {
                     { sessionId, userId: user.sub, dto: data }
                 )
             );
-            return successResponse(result);
+            return successResponse({ session: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to save answers');
         }
@@ -86,7 +87,7 @@ export class ExamController {
                     { sessionId, userId: user.sub }
                 )
             );
-            return successResponse(result);
+            return successResponse({ session: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to submit session');
         }
@@ -102,7 +103,7 @@ export class ExamController {
                     { examId, userId: user.sub }
                 )
             );
-            return successResponse(result);
+            return successResponse({ session: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to start exam');
         }
@@ -118,7 +119,7 @@ export class ExamController {
                     { sessionId, userId: user.sub }
                 )
             );
-            return successResponse(result);
+            return successResponse({ session: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch attempt details');
         }

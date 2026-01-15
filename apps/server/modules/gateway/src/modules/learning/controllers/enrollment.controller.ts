@@ -14,7 +14,8 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import {
     successResponse,
-    errorResponse
+    errorResponse,
+    successPaginatedResponse
 } from '@server/shared';
 import { IdentityAuthGuard } from '../../identity/guards/identity-auth.guard';
 import { Request } from 'express';
@@ -33,7 +34,7 @@ export class EnrollmentController {
                     query
                 )
             );
-            return successResponse(result);
+            return successPaginatedResponse(result);
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch enrollments');
         }
@@ -48,7 +49,7 @@ export class EnrollmentController {
                     { id }
                 )
             );
-            return successResponse(result);
+            return successResponse({ enrollment: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch enrollment');
         }
@@ -64,15 +65,6 @@ export class EnrollmentController {
                     { courseId, userId: user.sub }
                 )
             );
-            // The original controller returned { isEnrolled: boolean, enrollment?: ... }
-            // NATS handler returns the same.
-            // successResponse wraps it in { data: ... }
-            return result; // Returning directly to match expected structure? Or wrap? 
-            // Original: return { isEnrolled: ... }
-            // Gateway usually returns successResponse(result).
-            // Let's stick to successResponse(result) which returns { success: true, data: result }
-            // If the FE expects { isEnrolled: ... } directly at root, we might need adjustment.
-            // But usually API returns standard response. Let's wrap it.
             return successResponse(result);
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to check enrollment');
@@ -89,7 +81,7 @@ export class EnrollmentController {
                     { ...input, userId: user.sub }
                 )
             );
-            return successResponse(result);
+            return successResponse({ enrollment: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to create enrollment');
         }
@@ -107,7 +99,7 @@ export class EnrollmentController {
                     { id, completionPercentage }
                 )
             );
-            return successResponse(result);
+            return successResponse({ enrollment: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to update progress');
         }

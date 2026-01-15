@@ -41,13 +41,7 @@ export class LessonController {
                     { page, limit, search }
                 )
             );
-            return successPaginatedResponse(
-                result.data,
-                result.total,
-                result.page,
-                result.limit,
-                result.totalPages
-            );
+            return successPaginatedResponse(result);
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch lessons');
         }
@@ -66,7 +60,7 @@ export class LessonController {
                     { moduleId, userId: user.sub }
                 )
             );
-            return successResponse(result);
+            return successResponse({ lessons: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch module lessons');
         }
@@ -81,7 +75,7 @@ export class LessonController {
                     { courseId }
                 )
             );
-            return successResponse(result);
+            return successResponse({ lessons: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch preview lessons');
         }
@@ -93,7 +87,7 @@ export class LessonController {
             const result = await firstValueFrom(
                 this.natsClient.send({ cmd: 'learning.lesson.findOne' }, { id })
             );
-            return successResponse(result);
+            return successResponse({ lesson: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch lesson');
         }
@@ -110,7 +104,7 @@ export class LessonController {
                     { ...dto, userId: user.sub }
                 )
             );
-            return successResponse(result, 'Lesson created successfully');
+            return successResponse({ lesson: result }, 'Lesson created successfully');
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to create lesson');
         }
@@ -130,7 +124,7 @@ export class LessonController {
                     { moduleId, lessonOrders, userId: user.sub }
                 )
             );
-            return successResponse(result, 'Lessons reordered successfully');
+            return successResponse({ lessons: result }, 'Lessons reordered successfully');
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to reorder lessons');
         }
@@ -150,7 +144,7 @@ export class LessonController {
                     { id, ...dto, userId: user.sub }
                 )
             );
-            return successResponse(result, 'Lesson updated successfully');
+            return successResponse({ lesson: result }, 'Lesson updated successfully');
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to update lesson');
         }

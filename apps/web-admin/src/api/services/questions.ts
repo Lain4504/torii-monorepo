@@ -1,11 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/api/api-client.ts';
 import type {
-    PaginatedResponseDTO,
     QuestionResponseDTO,
     QuestionCreateDTO,
     QuestionUpdateDTO,
     QuestionQueryDTO,
+    StandardApiResponse,
+    PaginatedApiResponse,
 } from '@workspace/schemas';
 
 // ============================================================================
@@ -14,83 +15,83 @@ import type {
 
 export const questionsApi = {
     // GET /api/questions
-    async findAll(params: QuestionQueryDTO): Promise<PaginatedResponseDTO<QuestionResponseDTO>> {
-        const response = await apiClient.get<PaginatedResponseDTO<QuestionResponseDTO>>('/api/questions', { params });
+    async findAll(params: QuestionQueryDTO): Promise<PaginatedApiResponse<QuestionResponseDTO>> {
+        const response = await apiClient.get<PaginatedApiResponse<QuestionResponseDTO>>('/api/questions', { params });
         return response.data;
     },
 
     // GET /api/questions/:id
     async findOne(id: string): Promise<QuestionResponseDTO> {
-        const response = await apiClient.get<QuestionResponseDTO>(`/api/questions/${id}`);
-        return response.data;
+        const response = await apiClient.get<StandardApiResponse<{ question: QuestionResponseDTO }>>(`/api/questions/${id}`);
+        return response.data.data!.question;
     },
 
     // POST /api/questions
     async create(question: QuestionCreateDTO): Promise<QuestionResponseDTO> {
-        const response = await apiClient.post<QuestionResponseDTO>('/api/questions', question);
-        return response.data;
+        const response = await apiClient.post<StandardApiResponse<{ question: QuestionResponseDTO }>>('/api/questions', question);
+        return response.data.data!.question;
     },
 
     // POST /api/questions/bulk
     async createMany(questions: QuestionCreateDTO[]): Promise<{ count: number; created: QuestionResponseDTO[] }> {
-        const response = await apiClient.post<{ count: number; created: QuestionResponseDTO[] }>('/api/questions/bulk', questions);
-        return response.data;
+        const response = await apiClient.post<StandardApiResponse<{ count: number; created: QuestionResponseDTO[] }>>('/api/questions/bulk', questions);
+        return response.data.data!;
     },
 
     // PATCH /api/questions/:id
     async update(id: string, question: QuestionUpdateDTO): Promise<QuestionResponseDTO> {
-        const response = await apiClient.patch<QuestionResponseDTO>(`/api/questions/${id}`, question);
-        return response.data;
+        const response = await apiClient.patch<StandardApiResponse<{ question: QuestionResponseDTO }>>(`/api/questions/${id}`, question);
+        return response.data.data!.question;
     },
 
     // PATCH /api/questions/bulk/update
     async updateMany(questionIds: string[], data: QuestionUpdateDTO): Promise<{ count: number }> {
-        const response = await apiClient.patch<{ count: number }>('/api/questions/bulk/update', { questionIds, data });
-        return response.data;
+        const response = await apiClient.patch<StandardApiResponse<{ count: number }>>('/api/questions/bulk/update', { questionIds, data });
+        return response.data.data!;
     },
 
     // DELETE /api/questions/:id
     async delete(id: string): Promise<{ message: string }> {
-        const response = await apiClient.delete<{ message: string }>(`/api/questions/${id}`);
-        return response.data;
+        const response = await apiClient.delete<StandardApiResponse<{ message: string }>>(`/api/questions/${id}`);
+        return response.data.data!;
     },
 
     // DELETE /api/questions/bulk/delete
     async deleteMany(questionIds: string[]): Promise<{ count: number }> {
-        const response = await apiClient.delete<{ count: number }>('/api/questions/bulk/delete', {
+        const response = await apiClient.delete<StandardApiResponse<{ count: number }>>('/api/questions/bulk/delete', {
             data: { questionIds },
         });
-        return response.data;
+        return response.data.data!;
     },
 
     // POST /api/questions/:id/approve
     async approve(id: string): Promise<QuestionResponseDTO> {
-        const response = await apiClient.post<QuestionResponseDTO>(`/api/questions/${id}/approve`);
-        return response.data;
+        const response = await apiClient.post<StandardApiResponse<{ question: QuestionResponseDTO }>>(`/api/questions/${id}/approve`);
+        return response.data.data!.question;
     },
 
     // POST /api/questions/:id/deactivate
     async deactivate(id: string): Promise<QuestionResponseDTO> {
-        const response = await apiClient.post<QuestionResponseDTO>(`/api/questions/${id}/deactivate`);
-        return response.data;
+        const response = await apiClient.post<StandardApiResponse<{ question: QuestionResponseDTO }>>(`/api/questions/${id}/deactivate`);
+        return response.data.data!.question;
     },
 
     // POST /api/questions/:id/reject
     async reject(id: string): Promise<QuestionResponseDTO> {
-        const response = await apiClient.post<QuestionResponseDTO>(`/api/questions/${id}/reject`);
-        return response.data;
+        const response = await apiClient.post<StandardApiResponse<{ question: QuestionResponseDTO }>>(`/api/questions/${id}/reject`);
+        return response.data.data!.question;
     },
 
     // POST /api/questions/:id/review
     async sendForReview(id: string): Promise<QuestionResponseDTO> {
-        const response = await apiClient.post<QuestionResponseDTO>(`/api/questions/${id}/review`);
-        return response.data;
+        const response = await apiClient.post<StandardApiResponse<{ question: QuestionResponseDTO }>>(`/api/questions/${id}/review`);
+        return response.data.data!.question;
     },
 
     // GET /api/questions/pool/:poolId
     async getByPool(poolId: string): Promise<QuestionResponseDTO[]> {
-        const response = await apiClient.get<QuestionResponseDTO[]>(`/api/questions/pool/${poolId}`);
-        return response.data;
+        const response = await apiClient.get<StandardApiResponse<{ questions: QuestionResponseDTO[] }>>(`/api/questions/pool/${poolId}`);
+        return response.data.data!.questions;
     },
 };
 
@@ -200,8 +201,8 @@ export function useQuestionsByPool(poolId: string) {
     return useQuery({
         queryKey: ['questions', 'pool', poolId],
         queryFn: async () => {
-            const response = await apiClient.get<QuestionResponseDTO[]>(`/api/questions/pool/${poolId}`);
-            return response.data;
+            const response = await apiClient.get<StandardApiResponse<{ questions: QuestionResponseDTO[] }>>(`/api/questions/pool/${poolId}`);
+            return response.data.data!.questions;
         },
         enabled: !!poolId,
     });

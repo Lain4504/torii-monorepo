@@ -55,7 +55,7 @@ export class LessonMaterialController {
                     }
                 )
             );
-            return successResponse(result, 'Material uploaded successfully');
+            return successResponse({ material: result }, 'Material uploaded successfully');
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to upload material');
         }
@@ -70,7 +70,7 @@ export class LessonMaterialController {
                     { lessonId }
                 )
             );
-            return successResponse(result);
+            return successResponse({ materials: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch materials');
         }
@@ -90,7 +90,7 @@ export class LessonMaterialController {
                     { id, ...dto, userId: user.sub }
                 )
             );
-            return successResponse(result, 'Material updated successfully');
+            return successResponse({ material: result }, 'Material updated successfully');
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to update material');
         }

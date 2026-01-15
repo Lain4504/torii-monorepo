@@ -41,13 +41,7 @@ export class ModuleController {
                     { page, limit, search }
                 )
             );
-            return successPaginatedResponse(
-                result.data,
-                result.total,
-                result.page,
-                result.limit,
-                result.totalPages
-            );
+            return successPaginatedResponse(result);
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch modules');
         }
@@ -66,7 +60,7 @@ export class ModuleController {
                     { courseId, userId: user.sub }
                 )
             );
-            return successResponse(result);
+            return successResponse({ modules: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch course modules');
         }
@@ -78,7 +72,7 @@ export class ModuleController {
             const result = await firstValueFrom(
                 this.natsClient.send({ cmd: 'learning.module.findOne' }, { id })
             );
-            return successResponse(result);
+            return successResponse({ module: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch module');
         }
@@ -95,7 +89,7 @@ export class ModuleController {
                     { ...dto, userId: user.sub }
                 )
             );
-            return successResponse(result, 'Module created successfully');
+            return successResponse({ module: result }, 'Module created successfully');
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to create module');
         }
@@ -115,7 +109,7 @@ export class ModuleController {
                     { courseId, moduleOrders, userId: user.sub }
                 )
             );
-            return successResponse(result, 'Modules reordered successfully');
+            return successResponse({ modules: result }, 'Modules reordered successfully');
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to reorder modules');
         }
@@ -135,7 +129,7 @@ export class ModuleController {
                     { id, ...dto, userId: user.sub }
                 )
             );
-            return successResponse(result, 'Module updated successfully');
+            return successResponse({ module: result }, 'Module updated successfully');
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to update module');
         }

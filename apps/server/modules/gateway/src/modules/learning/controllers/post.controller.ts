@@ -37,13 +37,7 @@ export class PostController {
                     query
                 )
             );
-            return successPaginatedResponse(
-                result.data,
-                result.total,
-                result.page,
-                result.limit,
-                result.totalPages
-            );
+            return successPaginatedResponse(result);
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch posts');
         }
@@ -59,7 +53,7 @@ export class PostController {
                     { slug }
                 )
             );
-            return successResponse(result);
+            return successResponse({ post: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch post');
         }
@@ -75,7 +69,7 @@ export class PostController {
                     { id }
                 )
             );
-            return successResponse(result);
+            return successResponse({ post: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch post');
         }
@@ -100,19 +94,13 @@ export class PostController {
     @Post()
     async createPost(@Body() dto: any, @Req() req: Request) {
         try {
-            // Post creation might need user ID if schema requires author
-            // Original controller didn't explicitly use req.user for creation in generic way, 
-            // but usually posts have authors. PostCreateDTO likely has authorId or we inject it.
-            // Original controller: const post = await this.postService.createPost(dto);
-            // It relied on DTO having everything.
-            // Let's pass DTO as is.
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.post.create' },
                     dto
                 )
             );
-            return successResponse(result, 'Post created successfully');
+            return successResponse({ post: result }, 'Post created successfully');
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to create post');
         }
@@ -127,7 +115,7 @@ export class PostController {
                     { id, dto }
                 )
             );
-            return successResponse(result, 'Post updated successfully');
+            return successResponse({ post: result }, 'Post updated successfully');
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to update post');
         }

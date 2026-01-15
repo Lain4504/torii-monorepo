@@ -1,6 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/api/api-client.ts';
-import type { PaginatedResponseDTO, ModuleResponseDTO, ModuleCreateDTO, ModuleUpdateDTO, ModuleQueryDTO } from '@workspace/schemas';
+import type {
+    ModuleResponseDTO,
+    ModuleCreateDTO,
+    ModuleUpdateDTO,
+    ModuleQueryDTO,
+    StandardApiResponse,
+    PaginatedApiResponse,
+} from '@workspace/schemas';
 
 // ============================================================================
 // API Functions
@@ -8,33 +15,33 @@ import type { PaginatedResponseDTO, ModuleResponseDTO, ModuleCreateDTO, ModuleUp
 
 export const modulesApi = {
     // GET /api/admin/modules
-    async findAll(params: ModuleQueryDTO): Promise<PaginatedResponseDTO<ModuleResponseDTO>> {
-        const response = await apiClient.get<PaginatedResponseDTO<ModuleResponseDTO>>('/api/modules', { params });
+    async findAll(params: ModuleQueryDTO): Promise<PaginatedApiResponse<ModuleResponseDTO>> {
+        const response = await apiClient.get<PaginatedApiResponse<ModuleResponseDTO>>('/api/modules', { params });
         return response.data;
     },
 
     // GET /api/admin/modules/:id
     async findOne(id: string): Promise<ModuleResponseDTO> {
-        const response = await apiClient.get<ModuleResponseDTO>(`/api/modules/${id}`);
-        return response.data;
+        const response = await apiClient.get<StandardApiResponse<{ module: ModuleResponseDTO }>>(`/api/modules/${id}`);
+        return response.data.data!.module;
     },
 
     // POST /api/admin/modules
     async create(module: ModuleCreateDTO): Promise<ModuleResponseDTO> {
-        const response = await apiClient.post<ModuleResponseDTO>('/api/modules', module);
-        return response.data;
+        const response = await apiClient.post<StandardApiResponse<{ module: ModuleResponseDTO }>>('/api/modules', module);
+        return response.data.data!.module;
     },
 
     // PATCH /api/admin/modules/:id
     async update(id: string, module: ModuleUpdateDTO): Promise<ModuleResponseDTO> {
-        const response = await apiClient.patch<ModuleResponseDTO>(`/api/modules/${id}`, module);
-        return response.data;
+        const response = await apiClient.patch<StandardApiResponse<{ module: ModuleResponseDTO }>>(`/api/modules/${id}`, module);
+        return response.data.data!.module;
     },
 
     // DELETE /api/admin/modules/:id
     async delete(id: string): Promise<boolean> {
-        const response = await apiClient.delete(`/api/modules/${id}`);
-        return response.data;
+        const response = await apiClient.delete<StandardApiResponse<boolean>>(`/api/modules/${id}`);
+        return response.data.success;
     },
 
     // PATCH /api/admin/modules/:id/restore

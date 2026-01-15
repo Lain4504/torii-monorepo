@@ -14,7 +14,8 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import {
     successResponse,
-    errorResponse
+    errorResponse,
+    successPaginatedResponse
 } from '@server/shared';
 import { IdentityAuthGuard } from '../../identity/guards/identity-auth.guard';
 import { Request } from 'express';
@@ -33,7 +34,7 @@ export class WishlistController {
                     query
                 )
             );
-            return successResponse(result);
+            return successPaginatedResponse(result);
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch wishlists');
         }
@@ -48,7 +49,7 @@ export class WishlistController {
                     { id }
                 )
             );
-            return successResponse(result);
+            return successResponse({ wishlist: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch wishlist');
         }
@@ -64,7 +65,7 @@ export class WishlistController {
                     { ...input, userId: user.sub }
                 )
             );
-            return successResponse(result);
+            return successResponse({ wishlist: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to create wishlist');
         }
@@ -73,13 +74,13 @@ export class WishlistController {
     @Delete(':id')
     async delete(@Param('id') id: string) {
         try {
-            const result = await firstValueFrom(
+            await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.wishlist.delete' },
                     { id }
                 )
             );
-            return successResponse(result);
+            return successResponse(null, 'Wishlist item removed');
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to delete wishlist');
         }

@@ -48,13 +48,7 @@ export class UsersController {
                     { page: Number(page), limit: Number(limit), search },
                 ),
             );
-            return successPaginatedResponse(
-                result.data,
-                result.total,
-                result.page,
-                result.limit,
-                result.totalPages
-            );
+            return successPaginatedResponse(result);
         } catch (error: unknown) {
             return errorResponse(error instanceof Error ? error.message : 'Failed to fetch users');
         }
@@ -66,7 +60,7 @@ export class UsersController {
             const user = await firstValueFrom(
                 this.natsClient.send({ cmd: 'identity.users.findOne' }, { id }),
             );
-            return successResponse(user);
+            return successResponse({ user });
         } catch (error: unknown) {
             return errorResponse(error instanceof Error ? error.message : 'User not found');
         }
@@ -77,7 +71,7 @@ export class UsersController {
     async create(@Body() dto: UserCreateDTO) {
         try {
             const user = await firstValueFrom(this.natsClient.send({ cmd: 'identity.users.create' }, dto));
-            return successResponse(user, 'User created successfully');
+            return successResponse({ user }, 'User created successfully');
         } catch (error: unknown) {
             return errorResponse(error instanceof Error ? error.message : 'Failed to create user');
         }
@@ -97,7 +91,7 @@ export class UsersController {
                     { dto, requesterId: user.sub },
                 ),
             );
-            return successResponse(newUser, 'Internal user created successfully');
+            return successResponse({ user: newUser }, 'Internal user created successfully');
         } catch (error: unknown) {
             return errorResponse(error instanceof Error ? error.message : 'Failed to create internal user');
         }
@@ -118,7 +112,7 @@ export class UsersController {
                     { id, dto, requester: { sub: user.sub, roles: user.roles || [] } },
                 ),
             );
-            return successResponse(updatedUser, 'User updated successfully');
+            return successResponse({ user: updatedUser }, 'User updated successfully');
         } catch (error: unknown) {
             return errorResponse(error instanceof Error ? error.message : 'Failed to update user');
         }

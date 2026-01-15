@@ -1,10 +1,12 @@
 import { apiClient } from '../api-client';
-import type { 
-    CommentCreateDTO, 
-    CommentUpdateDTO, 
-    CommentQueryDTO, 
+import type {
+    CommentCreateDTO,
+    CommentUpdateDTO,
+    CommentQueryDTO,
     CommentResponseDTO,
-    CommentPaginatedResponse
+    CommentPaginatedResponse,
+    StandardApiResponse,
+    PaginatedApiResponse,
 } from '@workspace/schemas';
 
 /**
@@ -36,23 +38,23 @@ export const postCommentApi = {
      */
     findAll: async (params: CommentQueryDTO): Promise<CommentPaginatedResponse> => {
         try {
-            const response = await apiClient.get<{ success: boolean; data: CommentResponseDTO[]; total: number; page: number; limit: number; totalPages: number }>('/api/comments', {
+            const response = await apiClient.get<PaginatedApiResponse<CommentResponseDTO>>('/api/comments', {
                 params,
             });
-            
+
             // Backend returns: { success: true, data: [...], total, page, limit, totalPages }
             const responseData = response.data;
-            
+
             if (!responseData || !responseData.success) {
                 console.error('Invalid response from server:', responseData);
                 throw new Error('Invalid response format from server');
             }
-            
+
             if (!responseData.data || !Array.isArray(responseData.data)) {
                 console.error('Response data is not an array:', responseData);
                 throw new Error('Response data is not an array');
             }
-            
+
             return {
                 data: responseData.data.map(transformComment),
                 total: responseData.total || 0,
@@ -75,16 +77,16 @@ export const postCommentApi = {
      * Get comment with its replies
      */
     getWithReplies: async (id: string, depth: number = 2): Promise<CommentResponseDTO> => {
-        const response = await apiClient.get<{ success: boolean; data: CommentResponseDTO }>(`/api/comments/${id}/replies`, {
+        const response = await apiClient.get<StandardApiResponse<CommentResponseDTO>>(`/api/comments/${id}/replies`, {
             params: { depth },
         });
-        
+
         // Backend returns: { success: true, data: {...} }
         const responseData = response.data;
         if (!responseData.success || !responseData.data) {
             throw new Error('Invalid response format from server');
         }
-        
+
         return transformComment(responseData.data);
     },
 
@@ -92,14 +94,14 @@ export const postCommentApi = {
      * Create a new comment
      */
     create: async (dto: CommentCreateDTO): Promise<CommentResponseDTO> => {
-        const response = await apiClient.post<{ success: boolean; data: CommentResponseDTO; message?: string }>('/api/comments', dto);
-        
+        const response = await apiClient.post<StandardApiResponse<CommentResponseDTO>>('/api/comments', dto);
+
         // Backend returns: { success: true, data: {...}, message?: string }
         const responseData = response.data;
         if (!responseData.success || !responseData.data) {
             throw new Error('Invalid response format from server');
         }
-        
+
         return transformComment(responseData.data);
     },
 
@@ -107,14 +109,14 @@ export const postCommentApi = {
      * Update a comment
      */
     update: async (id: string, dto: CommentUpdateDTO): Promise<CommentResponseDTO> => {
-        const response = await apiClient.patch<{ success: boolean; data: CommentResponseDTO; message?: string }>(`/api/comments/${id}`, dto);
-        
+        const response = await apiClient.patch<StandardApiResponse<CommentResponseDTO>>(`/api/comments/${id}`, dto);
+
         // Backend returns: { success: true, data: {...}, message?: string }
         const responseData = response.data;
         if (!responseData.success || !responseData.data) {
             throw new Error('Invalid response format from server');
         }
-        
+
         return transformComment(responseData.data);
     },
 

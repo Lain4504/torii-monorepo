@@ -10,7 +10,7 @@ import { Field, FieldLabel, FieldError } from '@workspace/ui/components/field'
 import { toast } from '@workspace/ui/components/sonner'
 import { Spinner } from '@workspace/ui/components/spinner'
 import { Mail, Send, CheckCircle2, Sparkles, RefreshCcw } from 'lucide-react'
-import { apiClient } from '@/apis/api-client'
+import { useResendVerification } from '@/apis/services/auth-api'
 import { cn } from '@workspace/ui/lib/utils'
 
 const resendSchema = z.object({
@@ -20,7 +20,7 @@ const resendSchema = z.object({
 type ResendFormData = z.infer<typeof resendSchema>
 
 export function ResendVerificationForm() {
-    const [isLoading, setIsLoading] = useState(false)
+    const { mutateAsync: resendVerification, isPending: isLoading } = useResendVerification()
     const [emailSent, setEmailSent] = useState(false)
 
     const form = useForm<ResendFormData>({
@@ -31,20 +31,17 @@ export function ResendVerificationForm() {
     })
 
     const onSubmit = async (data: ResendFormData) => {
-        setIsLoading(true)
         try {
-            const response = await apiClient.post('/api/auth/resend-verification', {
-                email: data.email,
-            })
+            const res = await resendVerification(data.email)
 
-            if (response.data.success) {
+            if (res.success) {
                 setEmailSent(true)
                 toast.success('Mã xác thực đã được gửi lại', {
                     description: 'Vui lòng kiểm tra hộp thư của bạn.',
                 })
             } else {
                 toast.error('Gửi lại thất bại', {
-                    description: response.data.message || 'Vui lòng thử lại sau',
+                    description: res.message || 'Vui lòng thử lại sau',
                 })
             }
         } catch (error: any) {
@@ -52,8 +49,6 @@ export function ResendVerificationForm() {
             toast.error('Đã có lỗi xảy ra', {
                 description: error.response?.data?.message || 'Vui lòng thử lại sau',
             })
-        } finally {
-            setIsLoading(false)
         }
     }
 

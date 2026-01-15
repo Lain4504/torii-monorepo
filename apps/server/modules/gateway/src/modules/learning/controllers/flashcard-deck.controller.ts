@@ -15,7 +15,8 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import {
     successResponse,
-    errorResponse
+    errorResponse,
+    successPaginatedResponse
 } from '@server/shared';
 import { IdentityAuthGuard } from '../../identity/guards/identity-auth.guard';
 import { Request } from 'express';
@@ -35,19 +36,7 @@ export class FlashcardDeckController {
                     { ...input, userId: user.sub }
                 )
             );
-            // Original controller returns result directly.
-            // Let's assume standard response usually desired in gateway.
-            // But if FE expects raw object, we can return result.
-            // Let's use successResponse to be safe or check if original returned DTO directly.
-            // Original: return this.flashcardDeckService.createDeck(...);
-            // I'll wrap in successResponse? 
-            // If I look at PostController, I used successResponse.
-            // Let's stick to consistent API response wrapper if possible.
-            // But if existing FE expects raw object, this might break.
-            // However, other controllers in this refactor used successResponse.
-            // I'll return result directly if I am unsure, but usually gateway wraps response.
-            // Wait, previous controllers I used `successResponse(result)`.
-            return successResponse(result);
+            return successResponse({ deck: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to create flashcard deck');
         }
@@ -63,7 +52,7 @@ export class FlashcardDeckController {
                     { query, userId: user.sub }
                 )
             );
-            return successResponse(result);
+            return successPaginatedResponse(result);
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch flashcard decks');
         }
@@ -79,7 +68,7 @@ export class FlashcardDeckController {
                     { id, input, userId: user.sub }
                 )
             );
-            return successResponse(result);
+            return successResponse({ deck: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to update flashcard deck');
         }
@@ -95,7 +84,7 @@ export class FlashcardDeckController {
                     { id, userId: user.sub }
                 )
             );
-            return successResponse(result);
+            return successResponse(null, 'Deck deleted successfully');
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to delete flashcard deck');
         }

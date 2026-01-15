@@ -36,7 +36,7 @@ export class FlashcardController {
                     { ...input, userId: user.sub }
                 )
             );
-            return successResponse(result);
+            return successResponse({ flashcard: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to create flashcard');
         }
@@ -52,13 +52,7 @@ export class FlashcardController {
                     { query, userId: user.sub }
                 )
             );
-            return successPaginatedResponse(
-                result.data,
-                result.total,
-                result.page,
-                result.limit,
-                result.totalPages
-            );
+            return successPaginatedResponse(result);
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch flashcards');
         }
@@ -73,7 +67,7 @@ export class FlashcardController {
                     { id }
                 )
             );
-            return successResponse(result);
+            return successResponse({ flashcard: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch flashcard');
         }
@@ -89,7 +83,7 @@ export class FlashcardController {
                     { ...input, userId: user.sub }
                 )
             );
-            return successResponse(result);
+            return successResponse({ flashcard: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to update flashcard');
         }
@@ -98,13 +92,13 @@ export class FlashcardController {
     @Delete(':id')
     async deleteFlashcard(@Param('id') id: string) {
         try {
-            const result = await firstValueFrom(
+            await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.flashcard.delete' },
                     { id }
                 )
             );
-            return successResponse(result);
+            return successResponse(null, 'Flashcard deleted successfully');
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to delete flashcard');
         }

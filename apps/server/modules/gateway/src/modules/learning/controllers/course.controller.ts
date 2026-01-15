@@ -40,7 +40,7 @@ export class CourseController {
                     { ...dto, instructorId: user.sub }
                 )
             );
-            return successResponse(result, 'Course created successfully');
+            return successResponse({ course: result }, 'Course created successfully');
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to create course');
         }
@@ -52,13 +52,7 @@ export class CourseController {
             const result = await firstValueFrom(
                 this.natsClient.send({ cmd: 'learning.course.findAll' }, query)
             );
-            return successPaginatedResponse(
-                result.data,
-                result.total,
-                result.page,
-                result.limit,
-                result.totalPages
-            );
+            return successPaginatedResponse(result);
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch courses');
         }
@@ -74,7 +68,7 @@ export class CourseController {
                     { id, userId: user?.sub }
                 )
             );
-            return successResponse(result);
+            return successResponse({ course: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch course');
         }
@@ -90,7 +84,7 @@ export class CourseController {
                     { slug, userId: user?.sub }
                 )
             );
-            return successResponse(result);
+            return successResponse({ course: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch course');
         }
@@ -110,7 +104,7 @@ export class CourseController {
                     { id, ...dto, userId: user.sub }
                 )
             );
-            return successResponse(result, 'Course updated successfully');
+            return successResponse({ course: result }, 'Course updated successfully');
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to update course');
         }
@@ -138,13 +132,7 @@ export class CourseController {
             const result = await firstValueFrom(
                 this.natsClient.send({ cmd: 'learning.course.advancedSearch' }, query)
             );
-            return successPaginatedResponse(
-                result.data,
-                result.total,
-                result.page,
-                result.limit,
-                result.totalPages
-            );
+            return successPaginatedResponse(result);
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to search courses');
         }
@@ -156,7 +144,7 @@ export class CourseController {
             const result = await firstValueFrom(
                 this.natsClient.send({ cmd: 'learning.course.getByType' }, { type })
             );
-            return successResponse(result);
+            return successResponse({ courses: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch courses by type');
         }
@@ -174,7 +162,7 @@ export class CourseController {
             const result = await firstValueFrom(
                 this.natsClient.send({ cmd: 'learning.course.getCurriculum' }, { id })
             );
-            return successResponse(result);
+            return successResponse(result); // Curriculum response is already an object { modules: [] }
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch curriculum');
         }
@@ -190,7 +178,7 @@ export class CourseController {
                     { id, userId: user.sub }
                 )
             );
-            return successResponse(result, 'Course unpublished successfully');
+            return successResponse({ course: result }, 'Course unpublished successfully');
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to unpublish course');
         }
@@ -206,7 +194,7 @@ export class CourseController {
                     { id, userId: user.sub }
                 )
             );
-            return successResponse(result, 'Course published successfully');
+            return successResponse({ course: result }, 'Course published successfully');
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to publish course');
         }

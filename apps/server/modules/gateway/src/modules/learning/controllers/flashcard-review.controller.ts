@@ -34,7 +34,7 @@ export class FlashcardReviewController {
                     { ...body, userId: user.sub }
                 )
             );
-            return successResponse(result);
+            return successResponse({ review: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to submit review');
         }
@@ -50,7 +50,7 @@ export class FlashcardReviewController {
                     { userId: user.sub, query }
                 )
             );
-            return successResponse(result);
+            return successResponse({ flashcards: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch cards due');
         }
@@ -66,7 +66,7 @@ export class FlashcardReviewController {
                     { userId: user.sub, flashcardId }
                 )
             );
-            return successResponse(result);
+            return successResponse({ progress: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch user progress');
         }
@@ -82,7 +82,7 @@ export class FlashcardReviewController {
                     { ...body, userId: user.sub }
                 )
             );
-            return successResponse(result);
+            return successResponse({ session: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to start session');
         }
@@ -102,7 +102,7 @@ export class FlashcardReviewController {
                     { sessionId, body, userId: user.sub }
                 )
             );
-            return successResponse(result);
+            return successResponse({ session: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to complete session');
         }
@@ -118,7 +118,7 @@ export class FlashcardReviewController {
                     { sessionId, userId: user.sub }
                 )
             );
-            return successResponse(result);
+            return successResponse({ session: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch session');
         }
@@ -142,7 +142,7 @@ export class FlashcardReviewController {
                     }
                 )
             );
-            return successResponse(result);
+            return successResponse({ sessions: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch recent sessions');
         }

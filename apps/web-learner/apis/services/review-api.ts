@@ -1,4 +1,5 @@
 import { apiClient } from '../api-client';
+import type { StandardApiResponse, PaginatedApiResponse } from '@workspace/schemas';
 
 export interface ReviewResponse {
   id: string;
@@ -15,13 +16,6 @@ export interface ReviewResponse {
   };
 }
 
-export interface PaginatedReviewResponse {
-  data: ReviewResponse[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
 
 export interface RatingDistribution {
   courseId: string;
@@ -47,8 +41,8 @@ export const reviewApi = {
     courseId: string,
     page: number = 1,
     limit: number = 10,
-  ): Promise<PaginatedReviewResponse> => {
-    const response = await apiClient.get<PaginatedReviewResponse>(
+  ): Promise<PaginatedApiResponse<ReviewResponse>> => {
+    const response = await apiClient.get<PaginatedApiResponse<ReviewResponse>>(
       `/api/courses/${courseId}/reviews`,
       {
         params: { page, limit },
@@ -63,10 +57,10 @@ export const reviewApi = {
   getRatingDistribution: async (
     courseId: string,
   ): Promise<RatingDistribution> => {
-    const response = await apiClient.get<RatingDistribution>(
+    const response = await apiClient.get<StandardApiResponse<RatingDistribution>>(
       `/api/courses/${courseId}/reviews/distribution`,
     );
-    return response.data;
+    return response.data.data!;
   },
 
   /**
@@ -76,11 +70,11 @@ export const reviewApi = {
     courseId: string,
     data: CreateReviewRequest,
   ): Promise<ReviewResponse> => {
-    const response = await apiClient.post<ReviewResponse>(
+    const response = await apiClient.post<StandardApiResponse<{ review: ReviewResponse }>>(
       `/api/courses/${courseId}/reviews`,
       data,
     );
-    return response.data;
+    return response.data.data!.review;
   },
 
   /**
