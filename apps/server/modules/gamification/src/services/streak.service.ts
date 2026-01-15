@@ -93,7 +93,8 @@ export class StreakService {
             if (daysMissed === 2 && freezeCount > 0) {
                 // Use freeze for 1-day miss
                 freezeCount -= 1;
-                // Streak continues
+                // Streak continues: increment to account for today's activity
+                newStreak = streak.currentStreak + 1;
                 this.logger.log(`User ${userId} used a freeze. Remaining: ${freezeCount}`);
             } else {
                 // Reset streak
