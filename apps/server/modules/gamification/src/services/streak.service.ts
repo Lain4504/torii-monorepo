@@ -119,10 +119,10 @@ export class StreakService {
                 lastActiveDate: today,
                 freezeCount,
                 totalActiveDays: { increment: 1 },
-                weeklyActiveCount: this.isThisWeek(today)
+                weeklyActiveCount: streak.lastActiveDate && this.isThisWeek(streak.lastActiveDate)
                     ? { increment: 1 }
                     : 1,
-                monthlyActiveCount: this.isThisMonth(today)
+                monthlyActiveCount: streak.lastActiveDate && this.isThisMonth(streak.lastActiveDate)
                     ? { increment: 1 }
                     : 1,
             },
