@@ -61,6 +61,16 @@
         "webpack": false
       }
     },
+    "gamification": {
+      "type": "application",
+      "root": "modules/gamification",
+      "entryFile": "main",
+      "sourceRoot": "modules/gamification/src",
+      "compilerOptions": {
+        "tsConfigPath": "modules/gamification/tsconfig.app.json",
+        "webpack": false
+      }
+    },
     "communication": {
       "type": "application",
       "root": "modules/communication",
