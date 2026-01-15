@@ -1,17 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Bell, Search, Filter, Check, Trash2, Sparkles, Clock, Info, CheckCircle2, AlertTriangle, XCircle, MoreVertical } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { Input } from '@workspace/ui/components/input'
 import { Card } from '@workspace/ui/components/card'
 import { cn } from '@workspace/ui/lib/utils'
+import { format, formatDistanceToNow } from 'date-fns'
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu'
+import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead, useDeleteNotification } from '@/apis/services/notification-api'
+import type { NotificationResponseDTO, NotificationType } from '@workspace/schemas'
 
 interface Notification {
     id: string
@@ -24,83 +27,109 @@ interface Notification {
     category: 'course' | 'system' | 'account'
 }
 
-const mockNotifications: Notification[] = [
-    {
-        id: '1',
-        title: 'Bắt đầu khóa học mới',
-        message: 'Khóa học JLPT N3 đột phá đã sẵn sàng cho bạn. Hãy bắt đầu hành trình chinh phục tiếng Nhật ngay hôm nay!',
-        time: '5 phút trước',
-        date: '12/01/2026',
-        read: false,
-        type: 'success',
-        category: 'course'
-    },
-    {
-        id: '2',
-        title: 'Nhắc nhở học tập',
-        message: 'Bạn có 3 bài chưa hoàn thành trong ngày hôm nay. Đừng để kiến thức bị gián đoạn nhé!',
-        time: '1 giờ trước',
-        date: '12/01/2026',
-        read: false,
-        type: 'info',
-        category: 'course'
-    },
-    {
-        id: '3',
-        title: 'Bảo trì hệ thống',
-        message: 'Hệ thống sẽ bảo trì vào lúc 2:00 AM đêm nay để nâng cấp hiệu năng. Mong bạn thông cảm cho sự bất tiện này.',
-        time: '3 giờ trước',
-        date: '12/01/2026',
-        read: true,
-        type: 'warning',
-        category: 'system'
-    },
-    {
-        id: '4',
-        title: 'Thanh toán thành công',
-        message: 'Giao dịch nâng cấp tài khoản Premium đã được xác nhận. Chào mừng bạn đến với cộng đồng học viên ưu tú!',
-        time: '1 ngày trước',
-        date: '11/01/2026',
-        read: true,
-        type: 'success',
-        category: 'account'
-    },
-    {
-        id: '5',
-        title: 'Cảnh báo bảo mật',
-        message: 'Phát hiện đăng nhập lạ từ thiết bị mới tại Hà Nội. Nếu không phải bạn, hãy đổi mật khẩu ngay lập tức.',
-        time: '2 ngày trước',
-        date: '10/01/2026',
-        read: true,
-        type: 'error',
-        category: 'account'
+// UI Notification type
+type UINotificationType = 'info' | 'success' | 'warning' | 'error';
+
+// Map API notification type to UI type
+function mapNotificationType(notificationType: NotificationType): UINotificationType {
+    switch (notificationType) {
+        case 'course':
+        case 'achievement':
+            return 'success'
+        case 'system':
+            return 'warning'
+        case 'payment':
+            return 'success'
+        case 'live_class':
+        case 'reminder':
+            return 'info'
+        default:
+            return 'info'
     }
-]
+}
+
+// Map notification type to category
+function mapNotificationCategory(notificationType: NotificationType): 'course' | 'system' | 'account' {
+    switch (notificationType) {
+        case 'course':
+        case 'achievement':
+        case 'live_class':
+        case 'reminder':
+            return 'course'
+        case 'system':
+            return 'system'
+        case 'payment':
+            return 'account'
+        default:
+            return 'system'
+    }
+}
+
+// Convert API notification to UI format
+function mapNotificationToUI(notification: NotificationResponseDTO): Notification {
+    const createdAt = new Date(notification.createdAt)
+    return {
+        id: notification.id,
+        title: notification.title,
+        message: notification.message,
+        time: formatDistanceToNow(createdAt, { addSuffix: true }),
+        date: format(createdAt, 'dd/MM/yyyy'),
+        read: notification.isRead,
+        type: mapNotificationType(notification.notificationType),
+        category: mapNotificationCategory(notification.notificationType),
+    }
+}
 
 export default function NotificationsPage() {
-    const [notifications, setNotifications] = useState<Notification[]>(mockNotifications)
     const [filter, setFilter] = useState<'all' | 'unread' | 'course' | 'system'>('all')
     const [search, setSearch] = useState('')
+    const [page] = useState(1)
 
-    const filteredNotifications = notifications.filter(n => {
-        const matchesSearch = n.title.toLowerCase().includes(search.toLowerCase()) ||
-            n.message.toLowerCase().includes(search.toLowerCase())
-        if (filter === 'all') return matchesSearch
-        if (filter === 'unread') return !n.read && matchesSearch
-        if (filter === 'course') return n.category === 'course' && matchesSearch
-        if (filter === 'system') return n.category === 'system' && matchesSearch
-        return matchesSearch
+    // Fetch notifications with pagination
+    const { data: notificationsData, isLoading } = useNotifications({ 
+        limit: 50, 
+        page,
+        isRead: filter === 'unread' ? false : undefined,
     })
+    const { data: unreadCountData } = useUnreadNotificationsCount()
+    const markAsReadMutation = useMarkNotificationAsRead()
+    const markAllAsReadMutation = useMarkAllNotificationsAsRead()
+    const deleteNotificationMutation = useDeleteNotification()
+
+    // Map API notifications to UI format
+    const notifications = useMemo(() => {
+        // Debug: Log response structure
+        if (notificationsData) {
+            console.log('🔔 Notifications Page (Learner) - Response:', notificationsData);
+        }
+        
+        // Handle response structure: PaginatedApiResponse = { data: NotificationResponseDTO[], total, page, limit, totalPages }
+        if (!notificationsData?.data) return []
+        return notificationsData.data.map(mapNotificationToUI)
+    }, [notificationsData])
+
+    // Filter notifications by search
+    const filteredNotifications = useMemo(() => {
+        return notifications.filter((n: Notification) => {
+            const matchesSearch = n.title.toLowerCase().includes(search.toLowerCase()) ||
+                n.message.toLowerCase().includes(search.toLowerCase())
+            if (filter === 'all') return matchesSearch
+            if (filter === 'unread') return !n.read && matchesSearch
+            if (filter === 'course') return n.category === 'course' && matchesSearch
+            if (filter === 'system') return n.category === 'system' && matchesSearch
+            return matchesSearch
+        })
+    }, [notifications, search, filter])
 
     const markAsRead = (id: string) => {
-        setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n))
+        markAsReadMutation.mutate(id)
     }
 
     const deleteNotification = (id: string) => {
-        setNotifications(prev => prev.filter(n => n.id !== id))
+        deleteNotificationMutation.mutate(id)
     }
 
-    const unreadCount = notifications.filter(n => !n.read).length
+    const unreadCount = unreadCountData?.count || 0
 
     const getTypeStyles = (type: Notification['type']) => {
         switch (type) {
@@ -133,11 +162,12 @@ export default function NotificationsPage() {
                     <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setNotifications(prev => prev.map(n => ({ ...n, read: true })))}
-                        className="rounded-xl h-10 px-4 text-[10px] font-bold uppercase tracking-widest border-border/40 hover:bg-primary/5 hover:text-primary transition-all cursor-pointer"
+                        onClick={() => markAllAsReadMutation.mutate()}
+                        disabled={markAllAsReadMutation.isPending || unreadCount === 0}
+                        className="rounded-xl h-10 px-4 text-[10px] font-bold uppercase tracking-widest border-border/40 hover:bg-primary/5 hover:text-primary transition-all cursor-pointer disabled:opacity-50"
                     >
                         <Check className="w-3.5 h-3.5 mr-2" />
-                        Đánh dấu tất cả đã đọc
+                        {markAllAsReadMutation.isPending ? 'Đang xử lý...' : 'Đánh dấu tất cả đã đọc'}
                     </Button>
                 </div>
             </div>
@@ -193,7 +223,17 @@ export default function NotificationsPage() {
             <div className="px-4 pb-20">
                 <Card className="rounded-[3rem] bg-background/40 backdrop-blur-3xl border border-border/20 shadow-2xl shadow-primary/5 overflow-hidden">
                     <div className="divide-y divide-border/10">
-                        {filteredNotifications.length > 0 ? (
+                        {isLoading ? (
+                            <div className="py-32 text-center space-y-6">
+                                <div className="w-24 h-24 rounded-[3rem] bg-muted/20 mx-auto flex items-center justify-center border border-border/10 relative">
+                                    <div className="absolute inset-0 bg-primary/5 blur-3xl rounded-full" />
+                                    <Bell className="w-10 h-10 text-muted-foreground/20 relative z-10 animate-pulse" />
+                                </div>
+                                <div className="space-y-1">
+                                    <h3 className="text-xl font-serif font-bold italic text-foreground/40 text-center">Đang tải thông báo...</h3>
+                                </div>
+                            </div>
+                        ) : filteredNotifications.length > 0 ? (
                             filteredNotifications.map((notification) => {
                                 const styles = getTypeStyles(notification.type)
                                 const Icon = styles.icon
@@ -244,18 +284,20 @@ export default function NotificationsPage() {
                                                         {!notification.read && (
                                                             <DropdownMenuItem
                                                                 onClick={() => markAsRead(notification.id)}
-                                                                className="rounded-xl text-[10px] font-bold uppercase tracking-widest cursor-pointer px-4 py-2.5 focus:bg-primary/5 focus:text-primary"
+                                                                disabled={markAsReadMutation.isPending}
+                                                                className="rounded-xl text-[10px] font-bold uppercase tracking-widest cursor-pointer px-4 py-2.5 focus:bg-primary/5 focus:text-primary disabled:opacity-50"
                                                             >
                                                                 <Check className="w-3.5 h-3.5 mr-2 opacity-50" />
-                                                                Đã đọc
+                                                                {markAsReadMutation.isPending ? 'Đang xử lý...' : 'Đã đọc'}
                                                             </DropdownMenuItem>
                                                         )}
                                                         <DropdownMenuItem
                                                             onClick={() => deleteNotification(notification.id)}
-                                                            className="rounded-xl text-[10px] font-bold uppercase tracking-widest cursor-pointer px-4 py-2.5 text-destructive focus:bg-destructive/5 focus:text-destructive"
+                                                            disabled={deleteNotificationMutation.isPending}
+                                                            className="rounded-xl text-[10px] font-bold uppercase tracking-widest cursor-pointer px-4 py-2.5 text-destructive focus:bg-destructive/5 focus:text-destructive disabled:opacity-50"
                                                         >
                                                             <Trash2 className="w-3.5 h-3.5 mr-2 opacity-50" />
-                                                            Xóa
+                                                            {deleteNotificationMutation.isPending ? 'Đang xóa...' : 'Xóa'}
                                                         </DropdownMenuItem>
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
