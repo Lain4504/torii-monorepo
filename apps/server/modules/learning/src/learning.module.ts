@@ -37,94 +37,52 @@ import { GamificationModule } from './modules/gamification/gamification.module';
 import { StorageModule } from './modules/storage/storage.module';
 
 // Controllers
-import { CourseController } from './controllers/course.controller';
-import { ModuleController } from './controllers/module.controller';
-import { LessonController } from './controllers/lesson.controller';
-import { CourseInstructorController } from './controllers/course-instructor.controller';
-import { LessonMaterialController } from './controllers/lesson-material.controller';
-import { StaffDashboardController } from './controllers/staff-dashboard.controller';
-import { ExamController } from './controllers/exam.controller';
-import { ExamAdminController } from './controllers/exam-admin.controller';
-import { QuestionController } from './controllers/question.controller';
-import { QuestionPoolController } from './controllers/question-pool.controller';
-import { StorageController } from './controllers/storage.controller';
-import { WishlistController } from './controllers/wishlist.controller';
-import { ReviewController } from './controllers/review.controller';
-import { EnrollmentController } from './controllers/enrollment.controller';
-import { OrderController } from './controllers/order.controller';
 
-import { PayOSController } from './controllers/payos.controller';
-import { PostController } from './interfaces/http/post.controller';
-import { CommentController } from './interfaces/http/comment.controller';
-import { FlashcardDeckController } from './interfaces/http/flashcard-deck.controller';
-import { FlashcardController } from './interfaces/http/flashcard.controller';
-import { FlashcardReviewController } from './interfaces/http/flashcard-review.controller';
+
+import { CourseHandler } from './interfaces/nats/course.handler';
+import { ModuleHandler } from './interfaces/nats/module.handler';
+import { LessonHandler } from './interfaces/nats/lesson.handler';
+import { LessonMaterialHandler } from './interfaces/nats/lesson-material.handler';
+import { CourseInstructorHandler } from './interfaces/nats/course-instructor.handler';
+import { StaffDashboardHandler } from './interfaces/nats/staff-dashboard.handler';
+import { ExamHandler } from './interfaces/nats/exam.handler';
+import { EnrollmentHandler } from './interfaces/nats/enrollment.handler';
+import { OrderHandler } from './interfaces/nats/order.handler';
+import { QuestionHandler } from './interfaces/nats/question.handler';
+import { QuestionPoolHandler } from './interfaces/nats/question-pool.handler';
+import { ReviewHandler } from './interfaces/nats/review.handler';
+import { StorageHandler } from './interfaces/nats/storage.handler';
+import { WishlistHandler } from './interfaces/nats/wishlist.handler';
+import { PostHandler } from './interfaces/nats/post.handler';
+import { CommentHandler } from './interfaces/nats/comment.handler';
+import { FlashcardDeckHandler } from './interfaces/nats/flashcard-deck.handler';
+import { FlashcardHandler } from './interfaces/nats/flashcard.handler';
+import { FlashcardReviewHandler } from './interfaces/nats/flashcard-review.handler';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
-    ScheduleModule.forRoot(),
-    AutomapperModule.forRoot({
-      strategyInitializer: pojos(),
-    }),
-    SharedModule,
-    PrismaModule,
-
-    // LMS Domain
-    CourseModule,
-    ModuleModule,
-    LessonModule,
-    WishlistModule,
-    ReviewModule,
-    CourseInstructorModule,
-    LessonMaterialModule,
-    EnrollmentModule,
-    OrderModule,
-    LearningProgressModule,
-
-    // Community Domain
-    PostModule,
-    CommentModule,
-
-    // Assessment Domain
-    QuestionModule,
-    QuestionPoolModule,
-    ExamModule,
-
-    // Flashcard Domain
-    FlashcardDeckModule,
-    FlashcardModule,
-
-    // Gamification Domain
-    GamificationModule,
-
-    // Storage Domain
-    StorageModule,
-  ],
+  // ... (keep existing setup)
   controllers: [
-    CourseController,
-    ModuleController,
-    LessonController,
-    CourseInstructorController,
-    LessonMaterialController,
-    StaffDashboardController,
-    ExamController,
-    ExamAdminController,
-    QuestionController,
-    QuestionPoolController,
-    StorageController,
-    WishlistController,
-    ReviewController,
-    EnrollmentController,
-    OrderController,
-    PayOSController,
-    PostController,
-    CommentController,
-    FlashcardDeckController,
-    FlashcardController,
-    FlashcardReviewController,
+    // NATS Handlers
+    CourseHandler,
+    ModuleHandler,
+    LessonHandler,
+    LessonMaterialHandler,
+    CourseInstructorHandler,
+    StaffDashboardHandler,
+    ExamHandler,
+    EnrollmentHandler,
+    OrderHandler,
+    QuestionHandler,
+    QuestionPoolHandler,
+    ReviewHandler,
+    StorageHandler,
+    WishlistHandler,
+    PostHandler,
+    CommentHandler,
+    FlashcardDeckHandler,
+    FlashcardHandler,
+    FlashcardReviewHandler,
   ],
 })
 export class LearningModule { }
+

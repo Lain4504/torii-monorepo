@@ -4,17 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: refactor meet service">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/gateway.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/audit-log.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/auth.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/authorization.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/two-factor-auth.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/users.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/identity.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/identity.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/main.ts" afterDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor(identity): refactor identity service" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -306,39 +296,7 @@
       <workItem from="1768266718590" duration="2263000" />
       <workItem from="1768275244074" duration="4926000" />
       <workItem from="1768466511682" duration="987000" />
-      <workItem from="1768471927655" duration="4225000" />
-    </task>
-    <task id="LOCAL-00668" summary="payos">
-      <option name="closed" value="true" />
-      <created>1768234271696</created>
-      <option name="number" value="00668" />
-      <option name="presentableId" value="LOCAL-00668" />
-      <option name="project" value="LOCAL" />
-      <updated>1768234271697</updated>
-    </task>
-    <task id="LOCAL-00669" summary="payos">
-      <option name="closed" value="true" />
-      <created>1768234386937</created>
-      <option name="number" value="00669" />
-      <option name="presentableId" value="LOCAL-00669" />
-      <option name="project" value="LOCAL" />
-      <updated>1768234386939</updated>
-    </task>
-    <task id="LOCAL-00670" summary="payos">
-      <option name="closed" value="true" />
-      <created>1768235127737</created>
-      <option name="number" value="00670" />
-      <option name="presentableId" value="LOCAL-00670" />
-      <option name="project" value="LOCAL" />
-      <updated>1768235127738</updated>
-    </task>
-    <task id="LOCAL-00671" summary="payos">
-      <option name="closed" value="true" />
-      <created>1768235590770</created>
-      <option name="number" value="00671" />
-      <option name="presentableId" value="LOCAL-00671" />
-      <option name="project" value="LOCAL" />
-      <updated>1768235590770</updated>
+      <workItem from="1768471927655" duration="5818000" />
     </task>
     <task id="LOCAL-00672" summary="payos">
       <option name="closed" value="true" />
@@ -700,7 +658,39 @@
       <option name="project" value="LOCAL" />
       <updated>1768475184228</updated>
     </task>
-    <option name="localTasksCounter" value="717" />
+    <task id="LOCAL-00717" summary="feat(identity): implement identity module with authentication and authorization handlers">
+      <option name="closed" value="true" />
+      <created>1768477087425</created>
+      <option name="number" value="00717" />
+      <option name="presentableId" value="LOCAL-00717" />
+      <option name="project" value="LOCAL" />
+      <updated>1768477087426</updated>
+    </task>
+    <task id="LOCAL-00718" summary="refactor(identity): refactor identity service">
+      <option name="closed" value="true" />
+      <created>1768477480432</created>
+      <option name="number" value="00718" />
+      <option name="presentableId" value="LOCAL-00718" />
+      <option name="project" value="LOCAL" />
+      <updated>1768477480432</updated>
+    </task>
+    <task id="LOCAL-00719" summary="refactor(identity): refactor identity service">
+      <option name="closed" value="true" />
+      <created>1768478279276</created>
+      <option name="number" value="00719" />
+      <option name="presentableId" value="LOCAL-00719" />
+      <option name="project" value="LOCAL" />
+      <updated>1768478279277</updated>
+    </task>
+    <task id="LOCAL-00720" summary="refactor(identity): refactor identity service">
+      <option name="closed" value="true" />
+      <created>1768478430191</created>
+      <option name="number" value="00720" />
+      <option name="presentableId" value="LOCAL-00720" />
+      <option name="project" value="LOCAL" />
+      <updated>1768478430191</updated>
+    </task>
+    <option name="localTasksCounter" value="721" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -737,8 +727,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="update  PostUpdateDTOSchema -&gt; postUpdateDTOSchema," />
-    <MESSAGE value="remove ci cd" />
     <MESSAGE value="update ui course detail page" />
     <MESSAGE value="rebuild ui admin" />
     <MESSAGE value="flashcard and exam" />
@@ -762,7 +750,9 @@
     <MESSAGE value="feat(learning-progress): implement learning progress tracking and course retrieval" />
     <MESSAGE value="update" />
     <MESSAGE value="refactor: refactor meet service" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: refactor meet service" />
+    <MESSAGE value="feat(identity): implement identity module with authentication and authorization handlers" />
+    <MESSAGE value="refactor(identity): refactor identity service" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor(identity): refactor identity service" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
