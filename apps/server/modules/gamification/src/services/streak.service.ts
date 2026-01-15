@@ -219,10 +219,12 @@ export class StreakService {
     }
 
     /**
-     * Parse a YYYY-MM-DD string into a Date at UTC midnight.
-     */
-    private parseDateToUtc(dateStr: string): Date {
-        const [yearStr, monthStr, dayStr] = dateStr.split('-');
+        const [y1, m1, d1] = dateStr1.split('-').map(Number);
+        const [y2, m2, d2] = dateStr2.split('-').map(Number);
+        const time1 = Date.UTC(y1, m1 - 1, d1);
+        const time2 = Date.UTC(y2, m2 - 1, d2);
+        const diffTime = Math.abs(time2 - time1);
+        return Math.floor(diffTime / (1000 * 60 * 60 * 24));
         const year = Number(yearStr);
         const month = Number(monthStr);
         const day = Number(dayStr);
