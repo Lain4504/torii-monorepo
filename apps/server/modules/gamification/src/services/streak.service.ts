@@ -91,7 +91,7 @@ export class StreakService {
             const daysMissed = this.getDaysDifference(streak.lastActiveDate, today);
 
             if (daysMissed === 2 && freezeCount > 0) {
-                // Use freeze for 1-day miss
+                // Use freeze for 2-day gap (missed yesterday)
                 freezeCount -= 1;
                 // Streak continues: increment to account for today's activity
                 newStreak = streak.currentStreak + 1;
