@@ -3,7 +3,6 @@ import { PrismaService } from '@server/shared';
 import { ClientProxy } from '@nestjs/microservices';
 import {
     ActivityType,
-    StreakStatusDto,
     StreakUpdatedEvent,
 } from '@workspace/schemas';
 import { StreakService } from './streak.service';
