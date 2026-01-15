@@ -30,7 +30,7 @@ export class ActivityListener {
                 error.stack,
             );
             // Don't throw - we don't want to crash the service on individual event failures
-            // Consider implementing a dead letter queue or retry mechanism here
+            // TODO: Implement a dead letter queue or retry mechanism for failed activity events
         }
     }
 }
