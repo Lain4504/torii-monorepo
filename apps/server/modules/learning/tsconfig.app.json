@@ -3,7 +3,7 @@
   "compilerOptions": {
     "declaration": false,
     "rootDir": "../../",
-    "outDir": "../../dist/modules/lms"
+    "outDir": "../../dist/modules/learning"
   },
   "include": [
     "src/**/*",

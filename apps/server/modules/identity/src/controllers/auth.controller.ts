@@ -25,7 +25,7 @@ export class AuthController {
     @Post('register')
     @HttpCode(HttpStatus.CREATED)
     async register(
-        @Body() dto: UserRegistrationDTO    ) {
+        @Body() dto: UserRegistrationDTO) {
         try {
             const user = await this.authService.register(dto);
             return successResponse(
@@ -600,23 +600,17 @@ export class AuthController {
         const accessToken = authHeader?.startsWith('Bearer ')
             ? authHeader.split(' ')[1]
             : req.cookies?.access_token || null;
-        
+
         const refreshToken = req.cookies?.refresh_token || dto.refreshToken || null;
 
         // Revoke tokens (handles both valid and expired tokens)
         await this.authService.logout(accessToken, refreshToken);
 
+        const cookieOptions = this.getCookieOptions();
+
         // Clear cookies regardless of token validity
-        res.clearCookie('access_token', {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-        });
-        res.clearCookie('refresh_token', {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-        });
+        res.clearCookie('access_token', cookieOptions);
+        res.clearCookie('refresh_token', cookieOptions);
 
         return successResponse(null, 'Logged out successfully');
     }
@@ -635,7 +629,7 @@ export class AuthController {
             if (!req.requester || !req.requester.sub) {
                 throw new UnauthorizedException('No token provided');
             }
-            
+
             const user = await this.authService.getCurrentUser(req.requester.sub);
             return successResponse({ user });
         } catch (error: unknown) {
@@ -757,18 +751,31 @@ export class AuthController {
      * Helper to set auth cookies
      */
     private setAuthCookies(res: Response, accessToken: string, refreshToken: string) {
+        const baseOptions = this.getCookieOptions();
+
         res.cookie('access_token', accessToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            ...baseOptions,
             maxAge: 15 * 60 * 1000, // 15 minutes
         });
 
         res.cookie('refresh_token', refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            ...baseOptions,
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         });
+    }
+
+    /**
+     * Shared cookie options based on environment and config
+     */
+    private getCookieOptions() {
+        const isProd = process.env.NODE_ENV === 'production';
+        const secure = process.env.COOKIE_SECURE === 'true' || (isProd && process.env.COOKIE_SECURE !== 'false');
+        const sameSite = (process.env.COOKIE_SAMESITE as 'lax' | 'strict' | 'none') || 'lax';
+
+        return {
+            httpOnly: true,
+            secure,
+            sameSite,
+        };
     }
 }

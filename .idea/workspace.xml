@@ -4,8 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update sidebar with shadcn ui&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml">
+      <change beforePath="$PROJECT_DIR$/.env.example" beforeDir="false" afterPath="$PROJECT_DIR$/.env.example" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gamification/tsconfig.app.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gamification/tsconfig.app.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/auth.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/controllers/auth.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/tsconfig.app.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/tsconfig.app.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -124,12 +131,12 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "#74 on feature/add-default-admin-seed",
+    "git-widget-placeholder": "gamification",
     "ignore.virus.scanning.warn.message": "true",
     "javascript.preferred.runtime.type.id": "node",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "E:/projectdev/bmap-capstone/torii-monorepo/apps/server",
+    "last_opened_file_path": "E:/projectdev/bmap-capstone/torii-monorepo/apps/web-learner",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -160,11 +167,11 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\projectdev\bmap-capstone\torii-monorepo\apps\web-learner" />
+      <recent name="E:\projectdev\bmap-capstone\torii-monorepo\apps\web-admin" />
+      <recent name="E:\projectdev\bmap-capstone\torii-monorepo\apps\meet" />
       <recent name="E:\projectdev\bmap-capstone\torii-monorepo\apps\server" />
       <recent name="E:\Ky8\bmap-capstone\torii-monorepo\apps\web-learner\components\layout" />
-      <recent name="E:\Ky8\bmap-capstone\torii-monorepo" />
-      <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\billing\src\modules" />
-      <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\billing\src\infrastructure" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="E:\projectdev\bmap-capstone\torii-monorepo\apps\server\libs\shared\src\decorators" />
@@ -174,7 +181,7 @@
       <recent name="E:\Ky8\bmap-capstone\torii-monorepo\apps\web-learner\components" />
     </key>
   </component>
-  <component name="RunManager" selected="JavaScript Debug.localhost:3000">
+  <component name="RunManager" selected="Docker.docker-compose.yml: Compose Deployment">
     <configuration name="localhost:3000" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:3000">
       <method v="2" />
     </configuration>
@@ -197,8 +204,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="JavaScript Debug.localhost:3000" />
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
+        <item itemvalue="JavaScript Debug.localhost:3000" />
         <item itemvalue="JavaScript Debug.localhost:5173" />
         <item itemvalue="JavaScript Debug.localhost:3000" />
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
