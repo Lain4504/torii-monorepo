@@ -1,6 +1,6 @@
 'use client'
 
-import { Search, Sparkles, LogOut, BadgeCheck, Bell, User } from 'lucide-react'
+import { Search, Sparkles, LogOut, BadgeCheck, Bell } from 'lucide-react'
 import { Input } from '@workspace/ui/components/input'
 import { SidebarTrigger } from '@workspace/ui/components/sidebar'
 import { NotificationsDropdown } from './notifications-dropdown'
