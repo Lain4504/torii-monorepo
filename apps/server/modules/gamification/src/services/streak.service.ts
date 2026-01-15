@@ -80,8 +80,11 @@ export class StreakService {
         let freezeCount = streak.freezeCount;
 
         // Calculate streak
-        if (!streak.lastActiveDate || streak.lastActiveDate === yesterday) {
-            // Continue streak
+        if (!streak.lastActiveDate) {
+            // First-time activity (no previous lastActiveDate) - start streak at 1
+            newStreak = 1;
+        } else if (streak.lastActiveDate === yesterday) {
+            // Continue streak from yesterday
             newStreak = streak.currentStreak + 1;
         } else {
             // Missed day(s) - check freeze
