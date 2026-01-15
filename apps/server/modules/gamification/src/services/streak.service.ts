@@ -218,25 +218,46 @@ export class StreakService {
         return date.toISOString().split('T')[0];
     }
 
+    /**
+     * Parse a YYYY-MM-DD string into a Date at UTC midnight.
+     */
+    private parseDateToUtc(dateStr: string): Date {
+        const [yearStr, monthStr, dayStr] = dateStr.split('-');
+        const year = Number(yearStr);
+        const month = Number(monthStr);
+        const day = Number(dayStr);
+        return new Date(Date.UTC(year, month - 1, day));
+    }
+
     private getDaysDifference(dateStr1: string, dateStr2: string): number {
-        const date1 = new Date(dateStr1);
-        const date2 = new Date(dateStr2);
+        const date1 = this.parseDateToUtc(dateStr1);
+        const date2 = this.parseDateToUtc(dateStr2);
         const diffTime = Math.abs(date2.getTime() - date1.getTime());
         return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     }
 
     private isThisWeek(dateStr: string): boolean {
-        const date = new Date(dateStr);
+        const date = this.parseDateToUtc(dateStr);
+
+        // Today's date at UTC midnight
         const now = new Date();
-        const weekStart = new Date(now);
-        weekStart.setDate(now.getDate() - now.getDay());
+        const todayUtc = new Date(
+            Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+        );
+
+        const weekStart = new Date(todayUtc);
+        weekStart.setUTCDate(todayUtc.getUTCDate() - todayUtc.getUTCDay());
+
         return date >= weekStart;
     }
 
     private isThisMonth(dateStr: string): boolean {
-        const date = new Date(dateStr);
+        const date = this.parseDateToUtc(dateStr);
         const now = new Date();
-        return date.getMonth() === now.getMonth() &&
-            date.getFullYear() === now.getFullYear();
+        const currentMonth = now.getUTCMonth();
+        const currentYear = now.getUTCFullYear();
+
+        return date.getUTCMonth() === currentMonth &&
+            date.getUTCFullYear() === currentYear;
     }
 }
