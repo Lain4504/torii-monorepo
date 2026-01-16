@@ -9,6 +9,7 @@ import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
 import { MeetModule } from './modules/meet/meet.module';
 import { IdentityModule } from './modules/identity/identity.module';
 import { LearningModule } from './modules/learning/learning.module';
+import { CommunicationModule } from './modules/communication/communication.module';
 // AI Module - AI Agents Service
 // import { AiModule } from './ai/ai.module';
 
@@ -47,6 +48,8 @@ import { LearningModule } from './modules/learning/learning.module';
     IdentityModule,
     // Learning Module - Handles Learning service routes via NATS
     LearningModule,
+    // Communication Module
+    CommunicationModule,
   ],
   controllers: [],
   providers: [ApiKeyGuard],

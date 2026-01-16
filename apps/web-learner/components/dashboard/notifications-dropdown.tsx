@@ -62,17 +62,6 @@ export function NotificationsDropdown() {
     const markAsReadMutation = useMarkNotificationAsRead();
     const markAllAsReadMutation = useMarkAllNotificationsAsRead();
 
-    // Debug: Log response structure
-    if (notificationsData) {
-        console.log('🔔 Notifications Dropdown (Learner) - Response:', notificationsData);
-    }
-    if (error) {
-        console.error('🔔 Notifications Dropdown (Learner) - Error:', error);
-    }
-    if (unreadError) {
-        console.error('🔔 Unread Count (Learner) - Error:', unreadError);
-    }
-
     // Handle response structure: PaginatedApiResponse = { data: NotificationResponseDTO[], total, page, limit, totalPages }
     const notifications = notificationsData?.data?.map(mapNotificationToUI) || [];
     const unreadCount = unreadCountData?.count || 0;
@@ -85,7 +74,7 @@ export function NotificationsDropdown() {
         markAllAsReadMutation.mutate();
     };
 
-    const getTypeStyles = (type: Notification['type']) => {
+    const getTypeStyles = (type: UINotification['type']) => {
         switch (type) {
             case 'success':
                 return { icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-500/10' }
