@@ -80,6 +80,7 @@
     "./lib/*": "./src/lib/*.ts",
     "./components/*": "./src/components/*.tsx",
     "./components/ui/shadcn-io/*": "./src/components/ui/shadcn-io/*/index.tsx",
+    "./hooks/use-mobile": "./src/hooks/use-mobile.ts",
     "./hooks/*": "./src/hooks/*.tsx"
   }
 }

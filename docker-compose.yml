@@ -161,6 +161,73 @@ services:
       - REDIS_URL=redis://redis:6379
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - FASTMCP_URL=http://mcp-server:3333
+    depends_on:
+      - nats
+      - postgres
+      - redis
+      - mcp-server
+
+  mcp-server:
+    build:
+      context: ./apps/server/modules/agents/mcp-server
+      dockerfile: Dockerfile
+    container_name: torii-mcp
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - PORT=3333
+    ports:
+      - "3333:3333"
+
+  gamification:
+    image: ${DOCKER_USERNAME}/torii-backend:latest
+    command: npm run prod:gamification
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - NATS_URL=nats://nats:4222
+      - DATABASE_URL=postgresql://postgres:123456789@postgres:5432/wajlc
+      - REDIS_URL=redis://redis:6379
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - nats
+      - postgres
+      - redis
+
+  communication:
+    image: ${DOCKER_USERNAME}/torii-backend:latest
+    command: npm run prod:communication
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - NATS_URL=nats://nats:4222
+      - DATABASE_URL=postgresql://postgres:123456789@postgres:5432/wajlc
+      - REDIS_URL=redis://redis:6379
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - nats
+      - postgres
+      - redis
+
+  storage:
+    image: ${DOCKER_USERNAME}/torii-backend:latest
+    command: npm run prod:storage
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - NATS_URL=nats://nats:4222
+      - DATABASE_URL=postgresql://postgres:123456789@postgres:5432/wajlc
+      - REDIS_URL=redis://redis:6379
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     depends_on:
       - nats
       - postgres

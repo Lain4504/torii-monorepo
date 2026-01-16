@@ -1,15 +1,4 @@
-/**
- * Standard API Response Format
- * 
- * All API responses should follow this format for consistency
- */
-
-export interface StandardApiResponse<T = any> {
-    success: boolean;
-    data?: T;
-    message?: string;
-    errors?: any[];
-}
+import type { StandardApiResponse, PaginatedResponseDTO, PaginatedApiResponse } from '@workspace/schemas';
 
 /**
  * Create a success response
@@ -47,39 +36,18 @@ export function errorResponse(message: string, errors?: any[]): StandardApiRespo
     return response;
 }
 
-import type { PaginatedApiResponse } from '@workspace/schemas';
-
 
 /**
  * Create a success response for paginated data
  * Flattens pagination fields to top level to avoid nested data structure
- * @param data - Array of items
- * @param total - Total count
- * @param page - Current page
- * @param limit - Items per page
- * @param totalPages - Total pages
- * @param message - Optional success message
  */
 export function successPaginatedResponse<T>(
-    data: T[],
-    total: number,
-    page: number,
-    limit: number,
-    totalPages: number,
+    pagination: PaginatedResponseDTO<T>,
     message?: string
 ): PaginatedApiResponse<T> {
-    const response: PaginatedApiResponse<T> = {
+    return {
         success: true,
-        data,
-        total,
-        page,
-        limit,
-        totalPages,
+        ...pagination,
+        message,
     };
-
-    if (message) {
-        response.message = message;
-    }
-
-    return response;
 }

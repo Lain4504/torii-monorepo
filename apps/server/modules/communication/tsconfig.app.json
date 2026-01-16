@@ -3,7 +3,7 @@
   "compilerOptions": {
     "declaration": false,
     "rootDir": "../../",
-    "outDir": "../../dist/modules/communication"
+    "outDir": "../../dist"
   },
   "include": [
     "src/**/*",

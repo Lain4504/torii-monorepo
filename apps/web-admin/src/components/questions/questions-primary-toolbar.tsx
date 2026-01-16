@@ -184,7 +184,7 @@ export function QuestionsPrimaryToolbar({
                         </SelectTrigger>
                         <SelectContent className="border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-2xl p-2 max-h-[300px]">
                             <SelectItem value="all" className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer italic">ALL POOLS</SelectItem>
-                            {poolsData?.data.map((pool) => (
+                            {poolsData?.data?.map((pool) => (
                                 <SelectItem key={pool.id} value={pool.id} className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">
                                     {pool.name.toUpperCase()}
                                 </SelectItem>

@@ -3,7 +3,8 @@ import { apiClient } from '@/api/api-client.ts';
 import type {
     CourseInstructorResponseDTO,
     CourseInstructorAssignDTO,
-    CourseInstructorUpdateDTO
+    CourseInstructorUpdateDTO,
+    StandardApiResponse
 } from '@workspace/schemas';
 
 // ============================================================================
@@ -13,32 +14,33 @@ import type {
 export const courseInstructorsApi = {
     // POST /api/course-instructors
     async assignLecturer(dto: CourseInstructorAssignDTO): Promise<CourseInstructorResponseDTO> {
-        const response = await apiClient.post<CourseInstructorResponseDTO>('/api/course-instructors', dto);
-        return response.data;
+        const response = await apiClient.post<StandardApiResponse<CourseInstructorResponseDTO>>('/api/course-instructors', dto);
+        return response.data.data!;
     },
 
     // GET /api/course-instructors/by-course/:courseId
     async getInstructorsByCourse(courseId: string): Promise<CourseInstructorResponseDTO[]> {
-        const response = await apiClient.get<CourseInstructorResponseDTO[]>(`/api/course-instructors/by-course/${courseId}`);
-        return response.data;
+        const response = await apiClient.get<StandardApiResponse<CourseInstructorResponseDTO[]>>(`/api/course-instructors/by-course/${courseId}`);
+        return response.data.data || [];
     },
 
     // GET /api/course-instructors/by-lecturer/:lecturerId
     async getCoursesByLecturer(lecturerId: string): Promise<CourseInstructorResponseDTO[]> {
-        const response = await apiClient.get<CourseInstructorResponseDTO[]>(`/api/course-instructors/by-lecturer/${lecturerId}`);
-        return response.data;
+        const response = await apiClient.get<StandardApiResponse<CourseInstructorResponseDTO[]>>(`/api/course-instructors/by-lecturer/${lecturerId}`);
+        return response.data.data || [];
     },
 
     // PATCH /api/course-instructors/:id/primary
     async updatePrimaryInstructor(id: string, dto: CourseInstructorUpdateDTO): Promise<CourseInstructorResponseDTO> {
-        const response = await apiClient.patch<CourseInstructorResponseDTO>(`/api/course-instructors/${id}/primary`, dto);
-        return response.data;
+        const response = await apiClient.patch<StandardApiResponse<CourseInstructorResponseDTO>>(`/api/course-instructors/${id}/primary`, dto);
+        return response.data.data!;
     },
 
     // DELETE /api/course-instructors/:id
     async unassignLecturer(id: string): Promise<{ message: string }> {
-        const response = await apiClient.delete<{ message: string }>(`/api/course-instructors/${id}`);
-        return response.data;
+        const response = await apiClient.delete<StandardApiResponse<{ message: string }>>(`/api/course-instructors/${id}`);
+        // For delete, we might just want to return success/message, but the component expects { message }
+        return { message: response.data.message || 'Success' };
     },
 };
 

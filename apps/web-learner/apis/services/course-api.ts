@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../api-client';
-import type { CourseResponseDTO, PaginatedResponseDTO } from '@workspace/schemas';
+import type { CourseResponseDTO, StandardApiResponse, PaginatedApiResponse } from '@workspace/schemas';
 
 export interface CurriculumModule {
   id: string;
@@ -12,6 +12,7 @@ export interface CurriculumModule {
     id: string;
     title: string;
     contentType: string;
+    videoUrl?: string;
     videoDuration?: number;
     order: number;
     isPreview: boolean;
@@ -35,8 +36,8 @@ export const courseApi = {
   /**
    * Get all courses with pagination and filters
    */
-  findAll: async (params: CourseQueryParams = {}): Promise<PaginatedResponseDTO<CourseResponseDTO>> => {
-    const response = await apiClient.get<PaginatedResponseDTO<CourseResponseDTO>>('/api/courses', {
+  findAll: async (params: CourseQueryParams = {}): Promise<PaginatedApiResponse<CourseResponseDTO>> => {
+    const response = await apiClient.get<PaginatedApiResponse<CourseResponseDTO>>('/api/courses', {
       params,
     });
     return response.data;
@@ -54,8 +55,8 @@ export const courseApi = {
     priceMax?: number;
     rating?: number;
     sort?: string;
-  } = {}): Promise<PaginatedResponseDTO<CourseResponseDTO>> => {
-    const response = await apiClient.get<PaginatedResponseDTO<CourseResponseDTO>>('/api/courses/advanced-search', {
+  } = {}): Promise<PaginatedApiResponse<CourseResponseDTO>> => {
+    const response = await apiClient.get<PaginatedApiResponse<CourseResponseDTO>>('/api/courses/advanced-search', {
       params,
     });
     return response.data;
@@ -65,24 +66,24 @@ export const courseApi = {
    * Get course by slug
    */
   getCourseBySlug: async (slug: string): Promise<CourseResponseDTO | null> => {
-    const response = await apiClient.get<CourseResponseDTO>(`/api/courses/slug/${slug}`);
-    return response.data;
+    const response = await apiClient.get<StandardApiResponse<{ course: CourseResponseDTO }>>(`/api/courses/slug/${slug}`);
+    return response.data.data!.course;
   },
 
   /**
    * Get course by id
    */
   getCourseById: async (id: string): Promise<CourseResponseDTO | null> => {
-    const response = await apiClient.get<CourseResponseDTO>(`/api/courses/${id}`);
-    return response.data;
+    const response = await apiClient.get<StandardApiResponse<{ course: CourseResponseDTO }>>(`/api/courses/${id}`);
+    return response.data.data!.course;
   },
 
   /**
    * Get course curriculum (modules with lessons)
    */
   getCurriculum: async (courseId: string): Promise<CurriculumResponse> => {
-    const response = await apiClient.get<CurriculumResponse>(`/api/courses/${courseId}/curriculum`);
-    return response.data;
+    const response = await apiClient.get<StandardApiResponse<CurriculumResponse>>(`/api/courses/${courseId}/curriculum`);
+    return response.data.data!;
   },
 };
 

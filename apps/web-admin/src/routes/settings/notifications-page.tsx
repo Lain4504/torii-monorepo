@@ -106,8 +106,8 @@ export default function NotificationsPage() {
   const [page] = useState(1)
 
   // Fetch notifications with pagination
-  const { data: notificationsData, isLoading } = useNotifications({ 
-    limit: 50, 
+  const { data: notificationsData, isLoading } = useNotifications({
+    limit: 50,
     page,
     isRead: filter === 'unread' ? false : undefined,
   })
@@ -118,11 +118,6 @@ export default function NotificationsPage() {
 
   // Map API notifications to UI format
   const notifications = useMemo(() => {
-    // Debug: Log response structure
-    if (notificationsData) {
-      console.log('🔔 Notifications Page - Response:', notificationsData);
-    }
-    
     // Handle response structure: PaginatedApiResponse = { data: NotificationResponseDTO[], total, page, limit, totalPages }
     if (!notificationsData?.data) return []
     return notificationsData.data.map(mapNotificationToUI)

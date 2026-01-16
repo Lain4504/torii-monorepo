@@ -5,8 +5,13 @@ import KeyvRedis from '@keyv/redis';
 import { SharedModule, NatsAuthModule, NatsClientModule } from '@server/shared';
 import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
 
-// Proxy Module - Routes to microservices
-import { ProxyModule } from './proxy/proxy.module';
+// Meet Module - Meet service routes via NATS
+import { MeetModule } from './modules/meet/meet.module';
+import { IdentityModule } from './modules/identity/identity.module';
+import { LearningModule } from './modules/learning/learning.module';
+import { CommunicationModule } from './modules/communication/communication.module';
+import { StorageModule } from './modules/storage/storage.module';
+import { GamificationModule } from './modules/gamification/gamification.module';
 // AI Module - AI Agents Service
 // import { AiModule } from './ai/ai.module';
 
@@ -38,8 +43,19 @@ import { ProxyModule } from './proxy/proxy.module';
     // AI Module - AI Agents Service
     // AiModule,
 
-    // Proxy Module - Handles all routes to microservices
-    ProxyModule,
+
+    // Meet Module - Handles Meet service routes via NATS
+    MeetModule,
+    // Identity Module - Handles Identity service routes via NATS
+    IdentityModule,
+    // Learning Module - Handles Learning service routes via NATS
+    LearningModule,
+    // Communication Module
+    CommunicationModule,
+    // Storage Module
+    StorageModule,
+    // Gamification Module
+    GamificationModule,
   ],
   controllers: [],
   providers: [ApiKeyGuard],

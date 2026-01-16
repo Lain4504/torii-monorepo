@@ -1,11 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/api/api-client.ts';
 import type {
-    PaginatedResponseDTO,
     PostResponseDTO,
     PostCreateDTO,
     PostUpdateDTO,
     PostQueryDTO,
+    StandardApiResponse,
+    PaginatedApiResponse,
 } from '@workspace/schemas';
 
 // ============================================================================
@@ -14,27 +15,27 @@ import type {
 
 export const blogApi = {
     // GET /api/posts
-    async findAll(params: PostQueryDTO): Promise<PaginatedResponseDTO<PostResponseDTO>> {
-        const response = await apiClient.get<PaginatedResponseDTO<PostResponseDTO>>('/api/posts', { params });
+    async findAll(params: PostQueryDTO): Promise<PaginatedApiResponse<PostResponseDTO>> {
+        const response = await apiClient.get<PaginatedApiResponse<PostResponseDTO>>('/api/posts', { params });
         return response.data;
     },
 
     // GET /api/posts/:id
     async findOne(id: string): Promise<PostResponseDTO> {
-        const response = await apiClient.get<PostResponseDTO>(`/api/posts/${id}`);
-        return response.data;
+        const response = await apiClient.get<StandardApiResponse<{ post: PostResponseDTO }>>(`/api/posts/${id}`);
+        return response.data.data!.post;
     },
 
     // POST /api/posts
     async create(blog: PostCreateDTO): Promise<PostResponseDTO> {
-        const response = await apiClient.post<PostResponseDTO>('/api/posts', blog);
-        return response.data;
+        const response = await apiClient.post<StandardApiResponse<{ post: PostResponseDTO }>>('/api/posts', blog);
+        return response.data.data!.post;
     },
 
     // PATCH /api/posts/:id
     async update(id: string, blog: PostUpdateDTO): Promise<PostResponseDTO> {
-        const response = await apiClient.patch<PostResponseDTO>(`/api/posts/${id}`, blog);
-        return response.data;
+        const response = await apiClient.patch<StandardApiResponse<{ post: PostResponseDTO }>>(`/api/posts/${id}`, blog);
+        return response.data.data!.post;
     },
 
     // DELETE /api/posts/:id

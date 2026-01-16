@@ -14,16 +14,15 @@ import { TwoFactorAuthModule } from './modules/two-factor-auth/two-factor-auth.m
 import { PaymentsModule } from './modules/payments/payments.module';
 import { EmailModule } from './infrastructure/email/email.module';
 
-// HTTP Controllers (external via API Gateway)
-import { AuthController } from './controllers/auth.controller';
-import { UsersController } from './controllers/users.controller';
-import { AuthorizationController } from './controllers/authorization.controller';
-import { AuditLogController } from './controllers/audit-log.controller';
-import { TwoFactorAuthController } from './controllers/two-factor-auth.controller';
-import { EMAIL_SERVICE_TOKEN } from './interfaces/services';
+// NATS Handlers (replacing HTTP controllers)
+import { AuthHandler } from './interfaces/nats/auth.handler';
+import { UsersHandler } from './interfaces/nats/users.handler';
+import { AuthorizationHandler } from './interfaces/nats/authorization.handler';
+import { AuditLogHandler } from './interfaces/nats/audit-log.handler';
+import { TwoFactorAuthHandler } from './interfaces/nats/two-factor-auth.handler';
 
 // Filters
-import { IdentityHttpExceptionFilter } from './filters/http-exception.filter';
+import { GlobalRpcExceptionFilter } from '@server/shared';
 
 // Services
 import { DefaultAdminService } from './services/default-admin.service';
@@ -46,18 +45,18 @@ import { DefaultAdminService } from './services/default-admin.service';
     EmailModule,
   ],
   controllers: [
-    // HTTP Controllers (public via Gateway)
-    AuthController,
-    UsersController,
-    AuthorizationController,
-    AuditLogController,
-    TwoFactorAuthController
+    // NATS Handlers (not HTTP controllers)
+    AuthHandler,
+    UsersHandler,
+    AuthorizationHandler,
+    AuditLogHandler,
+    TwoFactorAuthHandler,
   ],
   providers: [
-    // Global exception filter for Identity module
+    // Global RPC exception filter for Identity module
     {
       provide: APP_FILTER,
-      useClass: IdentityHttpExceptionFilter,
+      useClass: GlobalRpcExceptionFilter,
     },
     // Default admin creation service
     DefaultAdminService,

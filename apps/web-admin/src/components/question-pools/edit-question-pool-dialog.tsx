@@ -56,7 +56,7 @@ export function EditQuestionPoolDialog({ open, onOpenChange, pool }: EditQuestio
     });
 
     const selectedCourseId = watch('courseId');
-    const selectedCourse = coursesData?.data.find(c => c.id === selectedCourseId);
+    const selectedCourse = coursesData?.data?.find(c => c.id === selectedCourseId);
 
     useEffect(() => {
         if (pool) {
@@ -139,7 +139,7 @@ export function EditQuestionPoolDialog({ open, onOpenChange, pool }: EditQuestio
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="none">None</SelectItem>
-                                            {coursesData?.data.map((course) => (
+                                            {coursesData?.data?.map((course) => (
                                                 <SelectItem key={course.id} value={course.id}>
                                                     {course.title}
                                                 </SelectItem>

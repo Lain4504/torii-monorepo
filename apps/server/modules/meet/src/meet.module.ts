@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
+import { APP_FILTER } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { RoomModule } from './modules/room/room.module';
-import { SharedModule } from '@server/shared';
+import { SharedModule, GlobalRpcExceptionFilter } from '@server/shared';
 
-// HTTP Controllers
-import { RoomController, RoomApiController } from './interfaces/http/room.controller';
-import { AuthRoomController } from './interfaces/http/auth-room.controller';
-import { PollsController } from './interfaces/http/polls.controller';
-import { WebhookController } from './interfaces/http/webhook.controller';
-import { WaitingRoomController } from './interfaces/http/waiting-room.controller';
-import { UserRoomSettingController } from './interfaces/http/user-room-setting.controller';
+// NATS Handlers (replacing HTTP controllers)
+import { PollsHandler } from './interfaces/nats/polls.handler';
+import { RoomHandler } from './interfaces/nats/room.handler';
+import { WaitingRoomHandler } from './interfaces/nats/waiting-room.handler';
+import { WebhookHandler } from './interfaces/nats/webhook.handler';
+import { UserHandler } from './interfaces/nats/user.handler';
 
 @Module({
   imports: [
@@ -21,15 +21,18 @@ import { UserRoomSettingController } from './interfaces/http/user-room-setting.c
     RoomModule,
   ],
   controllers: [
-    // HTTP Controllers
-    RoomController,
-    RoomApiController,
-    AuthRoomController,
-    PollsController,
-    WebhookController,
-    WaitingRoomController,
-    UserRoomSettingController,
+    // NATS Handlers (not HTTP controllers)
+    PollsHandler,
+    RoomHandler,
+    WaitingRoomHandler,
+    WebhookHandler,
+    UserHandler,
+  ],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: GlobalRpcExceptionFilter,
+    },
   ],
 })
 export class MeetModule { }
-

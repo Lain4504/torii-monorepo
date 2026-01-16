@@ -5,15 +5,16 @@ import type {
     OrderCreateDTO,
     OrderQueryDTO,
     OrderConfirmDTO,
-    PaginatedResponseDTO,
+    StandardApiResponse,
+    PaginatedApiResponse
 } from '@workspace/schemas';
 
 export const orderApi = {
     /**
      * Get all orders
      */
-    async getAllOrders(query?: OrderQueryDTO): Promise<PaginatedResponseDTO<OrderResponseDTO>> {
-        const response = await apiClient.get<PaginatedResponseDTO<OrderResponseDTO>>('/api/orders', {
+    async getAllOrders(query?: OrderQueryDTO): Promise<PaginatedApiResponse<OrderResponseDTO>> {
+        const response = await apiClient.get<PaginatedApiResponse<OrderResponseDTO>>('/api/orders', {
             params: query,
         });
         return response.data;
@@ -23,8 +24,8 @@ export const orderApi = {
      * Get order by ID
      */
     async getOrder(id: string): Promise<OrderResponseDTO> {
-        const response = await apiClient.get<OrderResponseDTO>(`/api/orders/${id}`);
-        return response.data;
+        const response = await apiClient.get<StandardApiResponse<{ order: OrderResponseDTO }>>(`/api/orders/${id}`);
+        return response.data.data!.order;
     },
 
     /**
@@ -39,16 +40,16 @@ export const orderApi = {
                 courseId: data.courseId, // Store courseId in metadata for later enrollment creation
             },
         };
-        const response = await apiClient.post<OrderResponseDTO>('/api/orders', payload);
-        return response.data;
+        const response = await apiClient.post<StandardApiResponse<{ order: OrderResponseDTO }>>('/api/orders', payload);
+        return response.data.data!.order;
     },
 
     /**
      * Confirm order
      */
     async confirmOrder(orderId: string, data: OrderConfirmDTO): Promise<OrderResponseDTO> {
-        const response = await apiClient.post<OrderResponseDTO>(`/api/orders/${orderId}/confirm`, data);
-        return response.data;
+        const response = await apiClient.post<StandardApiResponse<{ order: OrderResponseDTO }>>(`/api/orders/${orderId}/confirm`, data);
+        return response.data.data!.order;
     },
 };
 

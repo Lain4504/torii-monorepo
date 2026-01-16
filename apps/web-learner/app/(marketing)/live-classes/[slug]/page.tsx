@@ -135,9 +135,9 @@ export default function LiveClassDetailPage() {
                                 {/* Instructor Small Bio */}
                                 <div className="flex items-center gap-6 p-6 rounded-[2rem] bg-muted/5 border border-border/40 max-w-xl shadow-sm">
                                     <Avatar className="w-16 h-16 border-2 border-primary/10 shadow-sm">
-                                        <AvatarImage src={course.instructor.avatar} />
+                                        <AvatarImage src={course.instructor.avatar || undefined} />
                                         <AvatarFallback className="bg-primary text-white font-black text-xl">
-                                            {course.instructor.name.charAt(0)}
+                                            {course.instructor?.name?.[0] || 'I'}
                                         </AvatarFallback>
                                     </Avatar>
                                     <div className="space-y-1">

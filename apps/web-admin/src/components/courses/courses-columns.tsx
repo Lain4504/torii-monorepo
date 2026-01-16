@@ -2,7 +2,7 @@ import { createColumnHelper } from '@tanstack/react-table';
 import type { CourseResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
 
-import { ArrowUpDown, Pencil, Trash, Users, CheckCircle, XCircle, BookOpen, Clock, Zap, Target } from 'lucide-react';
+import { ArrowUpDown, Pencil, Trash, Users, CheckCircle, XCircle, BookOpen, Clock, Zap, Target, Layers } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -28,7 +28,7 @@ export type CoursesColumnsProps = {
     limit: number;
 };
 
-export const getCoursesColumns = ({ onEdit, onDelete, onManageInstructors, onPublish, onUnpublish, onTitleClick, page, limit }: CoursesColumnsProps) => [
+export const getCoursesColumns = ({ onView, onEdit, onDelete, onModules, onManageInstructors, onPublish, onUnpublish, onTitleClick, page, limit }: CoursesColumnsProps) => [
     // STT Column
     columnHelper.display({
         id: 'stt',
@@ -190,11 +190,19 @@ export const getCoursesColumns = ({ onEdit, onDelete, onManageInstructors, onPub
                             className="w-[220px] border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-lg p-2"
                         >
                             <DropdownMenuItem
-                                onClick={() => onTitleClick(course)}
+                                onClick={() => onView(course)}
                                 className="rounded-md px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
                             >
                                 <BookOpen className="h-4 w-4 opacity-30" />
                                 <span>View Details</span>
+                            </DropdownMenuItem>
+
+                            <DropdownMenuItem
+                                onClick={() => onModules(course)}
+                                className="rounded-md px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
+                            >
+                                <Layers className="h-4 w-4 opacity-30" />
+                                <span>Curriculum</span>
                             </DropdownMenuItem>
 
                             <DropdownMenuItem

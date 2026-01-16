@@ -1,0 +1,49 @@
+import { Controller } from '@nestjs/common';
+import { MessagePattern, Payload } from '@nestjs/microservices';
+import { Inject } from '@nestjs/common';
+import { ORDER_SERVICE_TOKEN, IOrderService } from '../../interfaces/services';
+import { OrderCreateDTO, OrderQueryDTO, OrderConfirmDTO, PaymentQueryDTO } from '@workspace/schemas';
+import { PayOSService } from '../../modules/payment/payos.service';
+
+@Controller()
+export class OrderHandler {
+    constructor(
+        @Inject(ORDER_SERVICE_TOKEN) private readonly orderService: IOrderService,
+        private readonly payOSService: PayOSService
+    ) { }
+
+    @MessagePattern({ cmd: 'learning.order.findAll' })
+    async findAll(@Payload() query: OrderQueryDTO) {
+        return this.orderService.findAll(query);
+    }
+
+    @MessagePattern({ cmd: 'learning.order.findAllPayments' })
+    async findAllPayments(@Payload() query: PaymentQueryDTO) {
+        return this.orderService.findAllPayments(query);
+    }
+
+    @MessagePattern({ cmd: 'learning.order.findOne' })
+    async findOne(@Payload() data: { id: string }) {
+        return this.orderService.findOne(data.id);
+    }
+
+    @MessagePattern({ cmd: 'learning.order.create' })
+    async create(@Payload() data: OrderCreateDTO & { userId: string }) {
+        const { userId, ...input } = data;
+        return this.orderService.create(userId, input);
+    }
+
+    @MessagePattern({ cmd: 'learning.order.confirm' })
+    async confirm(@Payload() data: { id: string, input: OrderConfirmDTO }) {
+        return this.orderService.confirm(data.id, data.input);
+    }
+
+    // PayOS Webhook
+    @MessagePattern({ cmd: 'learning.payos.webhook' })
+    async handleWebhook(@Payload() webhookData: any) {
+        // Verify webhook data
+        const verifiedData = this.payOSService.verifyPaymentWebhookData(webhookData);
+        // Handle the webhook in OrderService
+        return this.orderService.handleWebhook(verifiedData);
+    }
+}

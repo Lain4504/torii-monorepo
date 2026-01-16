@@ -92,7 +92,7 @@ export function CourseInstructor({ course }: CourseInstructorProps) {
                                     <Avatar className="w-full h-full rounded-xl">
                                         <AvatarImage src={instructor.user.avatarUrl ?? undefined} className="object-cover" />
                                         <AvatarFallback className="bg-primary/10 text-primary text-xl font-black">
-                                            {instructor.user.displayName.charAt(0).toUpperCase()}
+                                            {instructor?.user?.displayName?.[0]?.toUpperCase() || 'U'}
                                         </AvatarFallback>
                                     </Avatar>
                                 </div>

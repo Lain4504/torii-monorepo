@@ -5,6 +5,7 @@ import { CourseRepository } from './course.repository';
 import { CourseProfile } from '../../infrastructure/mappings/course.profile';
 import { ModuleModule } from '../module/module.module';
 import { LessonModule } from '../lesson/lesson.module';
+import { EnrollmentModule } from '../enrollment/enrollment.module';
 import { COURSE_REPOSITORY_TOKEN } from '../../interfaces/repositories';
 import { COURSE_SERVICE_TOKEN } from '../../interfaces/services';
 
@@ -17,6 +18,7 @@ import { COURSE_SERVICE_TOKEN } from '../../interfaces/services';
     NatsClientModule,
     forwardRef(() => ModuleModule),
     forwardRef(() => LessonModule),
+    forwardRef(() => EnrollmentModule),
   ],
   providers: [
     {

@@ -1,5 +1,7 @@
 import { Injectable, Logger, Inject, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
-import { PrismaService, SharedStorageService } from '@server/shared';
+import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
+import { PrismaService } from '@server/shared';
 import type { LessonMaterial } from '@prisma/generated';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -27,7 +29,7 @@ export class LessonMaterialService implements ILessonMaterialService {
         @Inject(LESSON_MATERIAL_REPOSITORY_TOKEN)
         private readonly lessonMaterialRepository: ILessonMaterialRepository,
         private readonly prisma: PrismaService,
-        private readonly storageService: SharedStorageService,
+        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     ) { }
 
     /**
@@ -96,16 +98,9 @@ export class LessonMaterialService implements ILessonMaterialService {
     async uploadMaterial(
         requester: Requester,
         dto: LessonMaterialCreateDTO,
-        file: Buffer,
-        fileName: string,
-        mimeType: string
+        fileId: string,
     ): Promise<LessonMaterialResponseDTO> {
         try {
-            // Validate MIME type
-            if (!isAllowedMimeType(mimeType)) {
-                throw new BadRequestException(getErrorMessage());
-            }
-
             // Verify lesson exists
             const lesson = await this.prisma.lesson.findUnique({
                 where: { id: dto.lessonId },
@@ -118,42 +113,21 @@ export class LessonMaterialService implements ILessonMaterialService {
             // Check access permissions
             await this.checkAccess(dto.lessonId, requester);
 
-            // Generate file key and upload to R2
-            const fileKey = this.generateFileKey(dto.lessonId, fileName);
-            const fileUrl = await this.storageService.upload({
-                key: fileKey,
-                file,
-                contentType: mimeType,
-                metadata: {
-                    lessonId: dto.lessonId,
-                    materialType: dto.type,
-                    uploadedBy: requester.sub,
-                },
-            });
+            // Verify file asset exists in Storage Microservice via NATS
+            const fileAsset = await firstValueFrom(
+                this.natsClient.send({ cmd: 'storage.findById' }, { fileId })
+            );
 
-            // Create FileAsset record
-            const fileAsset = await this.prisma.fileAsset.create({
-                data: {
-                    fileUrl,
-                    mimeType,
-                    fileSize: BigInt(file.length),
-                    isPublic: false,
-                    status: 'uploaded',
-                    metadata: {
-                        originalName: fileName,
-                        materialType: dto.type,
-                    },
-                    ownerId: requester.sub,
-                    moduleOrigin: 'COURSE',
-                },
-            });
+            if (!fileAsset || fileAsset.status !== 'uploaded') {
+                throw new BadRequestException('File not found or upload not confirmed');
+            }
 
             // Create LessonMaterial record
             const material = await this.lessonMaterialRepository.create({
                 lesson: { connect: { id: dto.lessonId } },
                 fileAsset: { connect: { id: fileAsset.id } },
                 type: dto.type,
-                title: dto.title || fileName,
+                title: dto.title || fileAsset.metadata?.originalName || 'Untitled Material',
                 orderIndex: 0, // Will be updated if reordering is implemented
                 createdBy: requester.sub,
             });
@@ -240,29 +214,13 @@ export class LessonMaterialService implements ILessonMaterialService {
         await this.checkAccess(existing.lessonId, requester);
 
         try {
-            // Get file asset to delete from R2
-            const fileAsset = await this.prisma.fileAsset.findUnique({
-                where: { id: existing.fileAssetId },
-            });
-
             // Delete lesson material record
             await this.lessonMaterialRepository.delete(materialId);
 
-            // Delete file from R2 if file asset exists
-            if (fileAsset) {
-                try {
-                    const fileKey = this.storageService.extractKeyFromUrl(fileAsset.fileUrl);
-                    await this.storageService.delete(fileKey);
-
-                    // Delete file asset record
-                    await this.prisma.fileAsset.delete({
-                        where: { id: fileAsset.id },
-                    });
-                } catch (error: any) {
-                    this.logger.error(`Failed to delete file from R2: ${error?.message}`, error);
-                    // Continue even if file deletion fails
-                }
-            }
+            // Trigger file deletion in Storage Microservice via NATS
+            await firstValueFrom(
+                this.natsClient.send({ cmd: 'storage.deleteFile' }, { fileId: existing.fileAssetId })
+            );
 
             this.logger.log(`Material ${materialId} deleted by user ${requester.sub}`);
             return { message: 'Material deleted successfully' };

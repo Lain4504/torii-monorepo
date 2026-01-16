@@ -88,14 +88,14 @@ export function useCourses(params: {
       });
 
       // Map API response to expected format
-      const mappedCourses = response.data.map(mapApiCourseToCourse);
+      const mappedCourses = response.data?.map(mapApiCourseToCourse) || [];
 
       const result: CoursesResponse = {
         data: mappedCourses,
-        total: response.total,
-        page: response.page,
-        limit: response.limit,
-        totalPages: response.totalPages,
+        total: response.total || 0,
+        page: response.page || 1,
+        limit: response.limit || 10,
+        totalPages: response.totalPages || 0,
       };
 
       return result;
