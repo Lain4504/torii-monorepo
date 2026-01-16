@@ -1,4 +1,6 @@
 import { Injectable, UnauthorizedException, ConflictException, NotFoundException, Inject, BadRequestException } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
 import Redis from 'ioredis';
 import * as argon2 from 'argon2';
 import { JwtTokenProvider, REDIS_CLIENT, BlacklistService } from '@server/shared';
@@ -41,6 +43,7 @@ export class AuthService implements IAuthService {
         @Inject(USER_IDENTITY_REPOSITORY_TOKEN) private readonly userIdentityRepository: IUserIdentityRepository,
         @Inject(REDIS_CLIENT) private readonly redis: Redis,
         @Inject(EMAIL_SERVICE_TOKEN) private readonly emailService: IEmailService,
+        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
         private readonly blacklistService: BlacklistService,
     ) { }
 
@@ -56,11 +59,11 @@ export class AuthService implements IAuthService {
                 const jwt = await import('jsonwebtoken');
                 // Decode without verification to get payload (works even if expired)
                 const decoded = jwt.decode(accessToken) as { jti?: string; exp?: number } | null;
-                
+
                 if (decoded?.jti) {
                     const now = Math.floor(Date.now() / 1000);
                     const exp = decoded.exp;
-                    
+
                     // Calculate TTL: if expired, blacklist for 1 minute; otherwise use remaining time
                     const ttl = exp && exp > now ? exp - now : 60;
                     await this.blacklistService.blacklist(decoded.jti, ttl);
@@ -650,6 +653,43 @@ export class AuthService implements IAuthService {
         return {
             ...user,
             emailVerified: false,
+            permissions,
+        } as UserResponseDTO & { permissions: string[] };
+    }
+
+    /**
+     * Update user avatar
+     */
+    async updateAvatar(
+        userId: string,
+        fileId: string,
+    ): Promise<UserResponseDTO & { permissions: string[] }> {
+        // 1. Verify file exists in storage microservice
+        const fileAsset = await firstValueFrom(
+            this.natsClient.send({ cmd: 'storage.findById' }, { fileId })
+        );
+
+        if (!fileAsset || fileAsset.status !== 'uploaded') {
+            throw new BadRequestException('File not found or upload not confirmed');
+        }
+
+        // 2. Get old user to see if we should delete old avatar
+        const oldUser = await this.usersRepository.findById(userId);
+        const oldAvatarUrl = oldUser?.avatarUrl;
+
+        // 3. Update user with new avatar URL
+        const fullUser = await this.usersRepository.update(userId, {
+            avatarUrl: fileAsset.fileUrl,
+        });
+
+        // 4. Trigger deletion of old avatar if it was locally managed (this is a bit complex, but let's assume if it has a fileId we could delete it)
+        // For now, let's just update the URL. If we wanted to be thorough, we'd need to know if the old URL belongs to our storage service.
+
+        const { password, ...user } = fullUser;
+        const { permissions } = await this.authorizationService.getUserPermissions(user.id, user.role);
+
+        return {
+            ...user,
             permissions,
         } as UserResponseDTO & { permissions: string[] };
     }

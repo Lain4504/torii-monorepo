@@ -6,7 +6,6 @@ export * from './i-lesson-material.service';
 export * from './i-review.service';
 export * from './i-wishlist.service';
 export * from './i-exam.service';
-export * from './i-storage.service';
 export * from './i-enrollment.service';
 export * from './i-order.service';
 export * from './i-comment.service';

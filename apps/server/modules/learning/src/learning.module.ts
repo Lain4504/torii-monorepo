@@ -34,7 +34,6 @@ import { FlashcardModule } from './modules/flashcard/flashcard.module';
 import { GamificationModule } from './modules/gamification/gamification.module';
 
 // Storage Module
-import { StorageModule } from './modules/storage/storage.module';
 
 // Controllers
 
@@ -51,7 +50,6 @@ import { OrderHandler } from './interfaces/nats/order.handler';
 import { QuestionHandler } from './interfaces/nats/question.handler';
 import { QuestionPoolHandler } from './interfaces/nats/question-pool.handler';
 import { ReviewHandler } from './interfaces/nats/review.handler';
-import { StorageHandler } from './interfaces/nats/storage.handler';
 import { WishlistHandler } from './interfaces/nats/wishlist.handler';
 import { PostHandler } from './interfaces/nats/post.handler';
 import { CommentHandler } from './interfaces/nats/comment.handler';
@@ -75,7 +73,6 @@ import { FlashcardReviewHandler } from './interfaces/nats/flashcard-review.handl
     QuestionHandler,
     QuestionPoolHandler,
     ReviewHandler,
-    StorageHandler,
     WishlistHandler,
     PostHandler,
     CommentHandler,

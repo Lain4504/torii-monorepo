@@ -10,6 +10,7 @@ import { MeetModule } from './modules/meet/meet.module';
 import { IdentityModule } from './modules/identity/identity.module';
 import { LearningModule } from './modules/learning/learning.module';
 import { CommunicationModule } from './modules/communication/communication.module';
+import { StorageModule } from './modules/storage/storage.module';
 // AI Module - AI Agents Service
 // import { AiModule } from './ai/ai.module';
 
@@ -50,6 +51,8 @@ import { CommunicationModule } from './modules/communication/communication.modul
     LearningModule,
     // Communication Module
     CommunicationModule,
+    // Storage Module
+    StorageModule,
   ],
   controllers: [],
   providers: [ApiKeyGuard],

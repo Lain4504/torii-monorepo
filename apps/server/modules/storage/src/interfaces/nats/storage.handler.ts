@@ -16,27 +16,27 @@ export class StorageHandler {
         private readonly storageService: IStorageService,
     ) { }
 
-    @MessagePattern({ cmd: 'learning.storage.generatePresignedUploadUrl' })
+    @MessagePattern({ cmd: 'storage.generatePresignedUploadUrl' })
     async generatePresignedUploadUrl(@Payload() data: StoragePresignedUrlRequestDTO) {
         return this.storageService.generatePresignedUploadUrl(data);
     }
 
-    @MessagePattern({ cmd: 'learning.storage.confirmUpload' })
+    @MessagePattern({ cmd: 'storage.confirmUpload' })
     async confirmUpload(@Payload() data: StorageConfirmUploadRequestDTO) {
         return this.storageService.confirmUpload(data);
     }
 
-    @MessagePattern({ cmd: 'learning.storage.deleteFile' })
+    @MessagePattern({ cmd: 'storage.deleteFile' })
     async deleteFile(@Payload() data: StorageDeleteFileRequestDTO) {
         return this.storageService.deleteFile(data);
     }
 
-    @MessagePattern({ cmd: 'learning.storage.getSignedUrl' })
+    @MessagePattern({ cmd: 'storage.getSignedUrl' })
     async getSignedUrl(@Payload() data: StorageGetSignedUrlRequestDTO) {
         return this.storageService.getSignedUrl(data);
     }
 
-    @MessagePattern({ cmd: 'learning.storage.directUpload' })
+    @MessagePattern({ cmd: 'storage.directUpload' })
     async directUpload(@Payload() data: {
         filename: string,
         contentType: string,
@@ -45,12 +45,6 @@ export class StorageHandler {
         metadata: any,
         file: { buffer: any }
     }) {
-        // file.buffer comes as { type: 'Buffer', data: [...] } from NATS if not handled, or just Buffer.
-        // NestJS Microservices usually serializes Buffer/Uint8Array.
-        // We might need to reconstruct Buffer if it's sent as serializable object.
-        // Assuming the service handles Buffer or standard input.
-        // The original controller passed `file: file.buffer`.
-
         return this.storageService.directUpload({
             filename: data.filename,
             contentType: data.contentType,
@@ -58,7 +52,7 @@ export class StorageHandler {
             ownerId: data.ownerId,
             metadata: data.metadata || {},
             fileData: '',
-            file: Buffer.from(data.file.buffer), // Reconstruct buffer from received data
+            file: Buffer.from(data.file.buffer),
         });
     }
 }

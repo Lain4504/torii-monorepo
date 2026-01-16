@@ -60,4 +60,3 @@ export class StorageRepository implements IStorageRepository {
         });
     }
 }
-

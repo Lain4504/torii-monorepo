@@ -1,0 +1,44 @@
+import 'dotenv/config';
+import { NestFactory } from '@nestjs/core';
+import { MicroserviceOptions } from '@nestjs/microservices';
+import { ValidationPipe } from '@nestjs/common';
+import { createNatsServiceConfig } from '@server/shared';
+import { StorageModule } from './storage.module';
+import cookieParser from 'cookie-parser';
+import * as bodyParser from 'body-parser';
+
+async function bootstrap() {
+    // 1. Create HTTP application
+    const httpApp = await NestFactory.create(StorageModule);
+
+    // Configure body parser
+    httpApp.use(bodyParser.json({ limit: '50mb' }));
+    httpApp.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
+
+    // Configure cookie parser
+    httpApp.use(cookieParser());
+
+    // Global validation pipe
+    httpApp.useGlobalPipes(
+        new ValidationPipe({
+            whitelist: true,
+            transform: true,
+            forbidNonWhitelisted: false,
+        }),
+    );
+
+    const HTTP_PORT = process.env.STORAGE_HTTP_PORT || 8085;
+    await httpApp.listen(HTTP_PORT);
+    console.log(`🚀 Storage Service HTTP listening on port ${HTTP_PORT}`);
+
+    // 2. Create NATS microservice
+    const natsApp = await NestFactory.createMicroservice<MicroserviceOptions>(
+        StorageModule,
+        createNatsServiceConfig(),
+    );
+
+    await natsApp.listen();
+    console.log('📡 Storage Service NATS microservice listening');
+}
+
+bootstrap();

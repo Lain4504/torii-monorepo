@@ -12,21 +12,16 @@ export class LessonMaterialHandler {
     @MessagePattern({ cmd: 'learning.lesson-material.upload' })
     async upload(@Payload() data: {
         dto: LessonMaterialCreateDTO,
-        file: { buffer: any, originalname: string, mimetype: string }, // Buffer sent as object or base64 
+        fileId: string,
         userId: string
     }) {
-        const { dto, file, userId } = data;
+        const { dto, fileId, userId } = data;
         const requester = { sub: userId, role: 'INSTRUCTOR' as any, permissions: [] };
-
-        // Convert buffer back if it's sent as Buffer-like object
-        const buffer = Buffer.from(file.buffer);
 
         return this.lessonMaterialService.uploadMaterial(
             requester,
             dto,
-            buffer,
-            file.originalname,
-            file.mimetype
+            fileId
         );
     }
 

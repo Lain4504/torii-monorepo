@@ -113,6 +113,11 @@ export class AuthHandler {
         return this.authService.updateUser(data.userId, data.dto);
     }
 
+    @MessagePattern({ cmd: 'identity.auth.updateAvatar' })
+    async updateAvatar(@Payload() data: { userId: string; fileId: string }) {
+        return this.authService.updateAvatar(data.userId, data.fileId);
+    }
+
     @MessagePattern({ cmd: 'identity.auth.deleteMe' })
     async deleteMe(@Payload() data: { userId: string }) {
         return this.authService.deleteUser(data.userId);

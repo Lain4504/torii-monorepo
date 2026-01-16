@@ -70,6 +70,16 @@
         "tsConfigPath": "modules/communication/tsconfig.app.json",
         "webpack": false
       }
+    },
+    "storage": {
+      "type": "application",
+      "root": "modules/storage",
+      "entryFile": "main",
+      "sourceRoot": "modules/storage/src",
+      "compilerOptions": {
+        "tsConfigPath": "modules/storage/tsconfig.app.json",
+        "webpack": false
+      }
     }
   }
 }

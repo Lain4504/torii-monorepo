@@ -1,14 +1,15 @@
 import { Module } from '@nestjs/common';
-import { StorageService } from './storage.service';
-import { StorageRepository } from './storage.repository';
+import { StorageService } from './modules/storage/storage.service';
+import { StorageRepository } from './modules/storage/storage.repository';
+import { StorageHandler } from './interfaces/nats/storage.handler';
 import { SharedStorageModule } from '@server/shared/storage/shared-storage.module';
 import { SharedModule } from '@server/shared';
-import { STORAGE_REPOSITORY_TOKEN } from '../../interfaces/repositories/i-storage.repository';
-import { STORAGE_SERVICE_TOKEN } from '../../interfaces/services/i-storage.service';
+import { STORAGE_REPOSITORY_TOKEN } from './interfaces/repositories/i-storage.repository';
+import { STORAGE_SERVICE_TOKEN } from './interfaces/services/i-storage.service';
 
 @Module({
     imports: [SharedStorageModule, SharedModule],
-    controllers: [],
+    controllers: [StorageHandler],
     providers: [
         {
             provide: STORAGE_REPOSITORY_TOKEN,

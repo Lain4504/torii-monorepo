@@ -632,6 +632,32 @@ export class AuthController {
         }
     }
 
+    @Patch('me/avatar')
+    @UseGuards(IdentityAuthGuard)
+    @VerifiedOnly()
+    async updateAvatar(
+        @Req() req: Request,
+        @Body('fileId') fileId: string,
+    ) {
+        if (!fileId) {
+            throw new BadRequestException('fileId is required');
+        }
+        const user = req.user as any;
+        try {
+            const userData = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'identity.auth.updateAvatar' },
+                    { userId: user.sub, fileId }
+                ),
+            );
+            return successResponse({ user: userData }, 'Avatar updated successfully');
+        } catch (error: unknown) {
+            return errorResponse(
+                error instanceof Error ? error.message : 'Failed to update avatar',
+            );
+        }
+    }
+
     @Delete('me')
     @UseGuards(IdentityAuthGuard)
     async deleteMe(@Req() req: Request) {

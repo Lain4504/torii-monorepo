@@ -24,9 +24,7 @@ export interface ILessonMaterialService {
     uploadMaterial(
         requester: Requester,
         dto: LessonMaterialCreateDTO,
-        file: Buffer,
-        fileName: string,
-        mimeType: string
+        fileId: string
     ): Promise<LessonMaterialResponseDTO>;
 
     /**

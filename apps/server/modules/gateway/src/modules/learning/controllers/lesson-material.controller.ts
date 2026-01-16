@@ -8,13 +8,10 @@ import {
     Param,
     UseGuards,
     Inject,
-    UseInterceptors,
-    UploadedFile,
     Req,
-    BadRequestException,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { FileInterceptor } from '@nestjs/platform-express';
+// Removed FileInterceptor import
 import { firstValueFrom } from 'rxjs';
 import {
     successResponse,
@@ -29,15 +26,11 @@ export class LessonMaterialController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     @Post()
-    @UseInterceptors(FileInterceptor('file'))
     async uploadMaterial(
-        @Body() dto: any,
-        @UploadedFile() file: Express.Multer.File,
+        @Body() body: { dto: any; fileId: string },
         @Req() req: Request
     ) {
-        if (!file) {
-            throw new BadRequestException('File is required');
-        }
+        const { dto, fileId } = body;
 
         try {
             const user = req.user as any;
@@ -46,11 +39,7 @@ export class LessonMaterialController {
                     { cmd: 'learning.lesson-material.upload' },
                     {
                         dto,
-                        file: {
-                            buffer: file.buffer,
-                            originalname: file.originalname,
-                            mimetype: file.mimetype
-                        },
+                        fileId,
                         userId: user.sub
                     }
                 )

@@ -47,4 +47,3 @@ export interface IStorageRepository {
 }
 
 export const STORAGE_REPOSITORY_TOKEN = Symbol('STORAGE_REPOSITORY');
-
