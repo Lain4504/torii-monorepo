@@ -42,8 +42,8 @@ export class CourseHandler {
     }
 
     @MessagePattern({ cmd: 'learning.course.getCurriculum' })
-    async getCurriculum(@Payload() data: { id: string }) {
-        return this.courseService.getCurriculum(data.id);
+    async getCurriculum(@Payload() data: { id: string, userId?: string }) {
+        return this.courseService.getCurriculum(data.id, data.userId);
     }
 
     @MessagePattern({ cmd: 'learning.course.update' })

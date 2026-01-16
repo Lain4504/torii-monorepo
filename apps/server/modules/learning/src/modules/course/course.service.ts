@@ -1,4 +1,4 @@
-import { Injectable, Logger, Inject, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { Injectable, Logger, Inject, NotFoundException, BadRequestException, ForbiddenException, forwardRef } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/core';
@@ -16,9 +16,10 @@ import type {
   Requester,
 } from '@workspace/schemas';
 
-import type { ICourseService } from '../../interfaces/services';
+import type { ICourseService, IEnrollmentService } from '../../interfaces/services';
 import type { ICourseRepository, IModuleRepository, ILessonRepository } from '../../interfaces/repositories';
 import { COURSE_REPOSITORY_TOKEN, MODULE_REPOSITORY_TOKEN, LESSON_REPOSITORY_TOKEN } from '../../interfaces/repositories';
+import { ENROLLMENT_SERVICE_TOKEN } from '../../interfaces/services';
 
 /**
  * Course Service
@@ -38,6 +39,8 @@ export class CourseService implements ICourseService {
     @Inject('NATS_SERVICE')
     private readonly natsClient: ClientProxy,
     @InjectMapper() private readonly mapper: Mapper,
+    @Inject(forwardRef(() => ENROLLMENT_SERVICE_TOKEN))
+    private readonly enrollmentService: IEnrollmentService,
   ) { }
 
   /**
@@ -174,20 +177,6 @@ export class CourseService implements ICourseService {
         if (priceMax !== undefined) where.price.lte = priceMax;
       }
 
-      // Filter by Rating (using aiMetadata or separate rating field if exists, 
-      // but schema usually puts it in JSON or separate relation. 
-      // Assuming 'rating' field exists on Course based on DTO, or we need to check schema.
-      // The toCourseResponseDTO uses a simple map. Let's assume the entity has it or we can't filter easily.
-      // Based on previous files, Course entity has 'price' but maybe not 'rating' directly?
-      // course.service.ts doesn't show the Entity definition clearly but shows DTO mapping.
-      // Let's assume we can't filter by rating efficiently in DB if it's not a column.
-      // If it's not a column, we might need to skip it or handle it differently.
-      // I will omit rating filter in DB for now to avoid errors, or assume it's part of metadata if not column.
-      // Wait, 'Course' type from '@prisma/generated' is imported.
-      // I'll skip rating filter in where clause if uncertain, but usually it's requested.
-      // Let's add text search.
-
-
       if (search) {
         const searchConditions = [
           { title: { contains: search, mode: 'insensitive' } },
@@ -211,9 +200,6 @@ export class CourseService implements ICourseService {
             orderBy = { createdAt: 'asc' };
             break;
           case 'popular':
-            // If we have a 'students' or 'enrollmentCount' column
-            // orderBy = { students: 'desc' }; 
-            // Fallback to newest for now if column unknown
             orderBy = { createdAt: 'desc' };
             break;
           default:
@@ -444,14 +430,12 @@ export class CourseService implements ICourseService {
     try {
       if (hardDelete) {
         await this.courseRepository.delete(courseId);
-      }
-      else {
+      } else {
         await this.courseRepository.softDelete(courseId);
       }
 
       return { message: 'Course deleted successfully' };
-    }
-    catch (error: any) {
+    } catch (error: any) {
       throw new BadRequestException(`Failed to delete course: ${error?.message || 'Unknown error'}`);
     }
   }
@@ -459,11 +443,8 @@ export class CourseService implements ICourseService {
   /**
    * Get featured courses
    * Note: Featured functionality removed. Use aiMetadata.featured or tags instead.
-   * This method is kept for backward compatibility but returns empty array.
-   * TODO: Remove this method or implement via aiMetadata/tags filtering
    */
   async getFeatured(): Promise<CourseResponseDTO[]> {
-    // Featured courses removed - can be implemented via aiMetadata or tags if needed
     this.logger.warn('getFeatured() called but featured field is removed. Consider using aiMetadata or tags.');
     return [];
   }
@@ -542,7 +523,7 @@ export class CourseService implements ICourseService {
   /**
    * Get course curriculum (modules with lessons)
    */
-  async getCurriculum(courseId: string): Promise<{
+  async getCurriculum(courseId: string, userId?: string): Promise<{
     modules: Array<{
       id: string;
       title: string;
@@ -554,6 +535,7 @@ export class CourseService implements ICourseService {
         title: string;
         contentType: string;
         videoDuration?: number;
+        videoUrl?: string;
         order: number;
         isPreview: boolean;
         isUnlocked: boolean;
@@ -569,6 +551,16 @@ export class CourseService implements ICourseService {
     // Get all modules for the course
     const modules = await this.moduleRepository.findByCourseId(courseId);
 
+    // Check enrollment if userId is provided
+    let isEnrolled = false;
+    if (userId) {
+      try {
+        isEnrolled = await this.enrollmentService.isEnrolled(userId, courseId);
+      } catch (error) {
+        this.logger.warn(`Failed to check enrollment for user ${userId} on course ${courseId}`, error);
+      }
+    }
+
     // Get lessons for each module
     const modulesWithLessons = await Promise.all(
       modules.map(async (module) => {
@@ -580,16 +572,21 @@ export class CourseService implements ICourseService {
           description: module.description || undefined,
           order: module.orderIndex,
           durationMinutes: module.durationMinutes || undefined,
-          lessons: lessons.map((lesson) => ({
-            id: lesson.id,
-            title: lesson.title,
-            contentType: lesson.contentType,
-            videoDuration: lesson.videoDuration || undefined,
-            videoUrl: lesson.videoUrl || undefined, // Add videoUrl here
-            order: lesson.orderIndex,
-            isPreview: lesson.isPreview,
-            isUnlocked: lesson.isUnlocked,
-          })),
+          lessons: lessons.map((lesson) => {
+            // Unauthorized users should not see videoUrl for non-preview lessons
+            const showVideoUrl = lesson.isPreview || isEnrolled;
+
+            return {
+              id: lesson.id,
+              title: lesson.title,
+              contentType: lesson.contentType,
+              videoDuration: lesson.videoDuration || undefined,
+              videoUrl: showVideoUrl ? (lesson.videoUrl || undefined) : undefined,
+              order: lesson.orderIndex,
+              isPreview: lesson.isPreview,
+              isUnlocked: lesson.isUnlocked,
+            };
+          }),
         };
       })
     );
@@ -614,9 +611,6 @@ export class CourseService implements ICourseService {
         deletedAt: null,
         status: 'published',
       } as any);
-
-      // totalQuizzes calculation logic could be added here if needed
-      // Currently focusing on the published lesson count as per user request
 
       await this.courseRepository.updateStats(courseId, { totalLessons });
       this.logger.log(`Recalculated stats for course ${courseId}: totalLessons=${totalLessons}`);

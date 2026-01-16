@@ -22,7 +22,7 @@ import { AuditLogHandler } from './interfaces/nats/audit-log.handler';
 import { TwoFactorAuthHandler } from './interfaces/nats/two-factor-auth.handler';
 
 // Filters
-import { IdentityHttpExceptionFilter } from './filters/http-exception.filter';
+import { GlobalRpcExceptionFilter } from '@server/shared';
 
 // Services
 import { DefaultAdminService } from './services/default-admin.service';
@@ -53,10 +53,10 @@ import { DefaultAdminService } from './services/default-admin.service';
     TwoFactorAuthHandler,
   ],
   providers: [
-    // Global exception filter for Identity module
+    // Global RPC exception filter for Identity module
     {
       provide: APP_FILTER,
-      useClass: IdentityHttpExceptionFilter,
+      useClass: GlobalRpcExceptionFilter,
     },
     // Default admin creation service
     DefaultAdminService,

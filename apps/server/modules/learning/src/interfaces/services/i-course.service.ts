@@ -121,7 +121,7 @@ export interface ICourseService {
      * @returns The curriculum data with modules and lessons
      * @throws NotFoundException if course not found
      */
-    getCurriculum(courseId: string): Promise<{
+    getCurriculum(courseId: string, userId?: string): Promise<{
         modules: Array<{
             id: string;
             title: string;
@@ -133,6 +133,7 @@ export interface ICourseService {
                 title: string;
                 contentType: string;
                 videoDuration?: number;
+                videoUrl?: string; // Add videoUrl here
                 order: number;
                 isPreview: boolean;
                 isUnlocked: boolean;

@@ -18,6 +18,9 @@ export class GlobalExceptionsFilter implements ExceptionFilter {
         let status = HttpStatus.INTERNAL_SERVER_ERROR;
         let message = 'Internal server error';
 
+        // Log the raw exception for internal debugging
+        // this.logger.debug('Catching exception:', JSON.stringify(exception));
+
         if (exception instanceof HttpException) {
             status = exception.getStatus();
             const res = exception.getResponse();
@@ -27,27 +30,60 @@ export class GlobalExceptionsFilter implements ExceptionFilter {
                 // @ts-ignore
                 message = Array.isArray(res.message) ? res.message.join(', ') : res.message;
             }
-        } else if (exception instanceof Error) {
-            // Handle specific microservice errors or generic errors
-            message = exception.message;
+        } else if (typeof exception === 'object' && exception !== null) {
+            // Handle microservice error objects or plain objects
+            const err = exception as any;
 
-            // Map common microservice errors to status codes if needed
-            if (message.includes('not found')) {
-                status = HttpStatus.NOT_FOUND;
-            } else if (message.includes('Forbidden') || message.includes('sensitive')) {
-                status = HttpStatus.FORBIDDEN;
-            } else if (message.includes('Unauthorized')) {
-                status = HttpStatus.UNAUTHORIZED;
-            } else if (message.includes('Bad Request') || message.includes('exist') || message.includes('invalid')) {
-                status = HttpStatus.BAD_REQUEST;
+            // 1. Try to find the message
+            // Often NestJS microservice errors have their actual data in 'response' or 'error'
+            const possibleMessage = err.message ||
+                (err.response?.message) ||
+                (err.error?.message) ||
+                (typeof err.error === 'string' ? err.error : null);
+
+            if (possibleMessage && possibleMessage !== 'Internal server error') {
+                message = possibleMessage;
+            } else if (err.error && typeof err.error === 'string') {
+                message = err.error;
             }
+
+            // 2. Try to find the status code
+            const possibleStatus = err.status ||
+                err.statusCode ||
+                err.response?.statusCode ||
+                err.error?.status;
+
+            if (typeof possibleStatus === 'number' && possibleStatus >= 100 && possibleStatus < 600) {
+                status = possibleStatus;
+            }
+
+            // 3. Fallback string mapping for status if status is still 500
+            if (status === HttpStatus.INTERNAL_SERVER_ERROR) {
+                const lowerMessage = message.toLowerCase();
+                if (lowerMessage.includes('not found')) {
+                    status = HttpStatus.NOT_FOUND;
+                } else if (lowerMessage.includes('forbidden') || lowerMessage.includes('permission')) {
+                    status = HttpStatus.FORBIDDEN;
+                } else if (lowerMessage.includes('unauthorized') || lowerMessage.includes('credentials') || lowerMessage.includes('token')) {
+                    status = HttpStatus.UNAUTHORIZED;
+                } else if (lowerMessage.includes('bad request') || lowerMessage.includes('exist') || lowerMessage.includes('invalid') || lowerMessage.includes('conflict')) {
+                    status = HttpStatus.BAD_REQUEST;
+                }
+            }
+        } else if (typeof exception === 'string') {
+            message = exception;
+        }
+
+        // Final normalization: if message is an array, join it
+        if (Array.isArray(message)) {
+            message = message.join(', ');
         }
 
         // Only log 500 errors as errors, others as warnings/debug
         if (status >= 500) {
             this.logger.error(`Exception on ${request.url}:`, exception);
         } else {
-            this.logger.warn(`Exception on ${request.url}: ${message}`);
+            this.logger.warn(`Exception on ${request.url}: ${message} (${status})`);
         }
 
         response

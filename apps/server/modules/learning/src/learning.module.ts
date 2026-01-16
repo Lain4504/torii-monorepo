@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
+import { APP_FILTER } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AutomapperModule } from '@automapper/nestjs';
 import { pojos } from '@automapper/pojos';
-import { PrismaModule, SharedModule } from '@server/shared';
+import { PrismaModule, SharedModule, GlobalRpcExceptionFilter } from '@server/shared';
 
 // LMS Modules
 import { CourseModule } from './modules/course/course.module';
@@ -33,11 +34,7 @@ import { FlashcardModule } from './modules/flashcard/flashcard.module';
 // Gamification Module
 import { GamificationModule } from './modules/gamification/gamification.module';
 
-// Storage Module
-
-// Controllers
-
-
+// Handlers
 import { CourseHandler } from './interfaces/nats/course.handler';
 import { ModuleHandler } from './interfaces/nats/module.handler';
 import { LessonHandler } from './interfaces/nats/lesson.handler';
@@ -113,10 +110,14 @@ import { LearningProgressHandler } from './interfaces/nats/learning-progress.han
     CommentHandler,
     FlashcardDeckHandler,
     FlashcardHandler,
-    FlashcardHandler,
     FlashcardReviewHandler,
     LearningProgressHandler,
   ],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: GlobalRpcExceptionFilter,
+    },
+  ],
 })
 export class LearningModule { }
-

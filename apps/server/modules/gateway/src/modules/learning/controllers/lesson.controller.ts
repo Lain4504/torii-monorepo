@@ -18,7 +18,8 @@ import { firstValueFrom } from 'rxjs';
 import {
     successResponse,
     errorResponse,
-    successPaginatedResponse
+    successPaginatedResponse,
+    Public
 } from '@server/shared';
 import { GatewayAuthGuard } from '@server/shared';
 import { Request } from 'express';
@@ -82,10 +83,15 @@ export class LessonController {
     }
 
     @Get(':id')
-    async findOne(@Param('id') id: string) {
+    @Public()
+    async findOne(@Param('id') id: string, @Req() req: Request) {
         try {
+            const user = req.user as any;
             const result = await firstValueFrom(
-                this.natsClient.send({ cmd: 'learning.lesson.findOne' }, { id })
+                this.natsClient.send(
+                    { cmd: 'learning.lesson.findOne' },
+                    { id, userId: user?.sub }
+                )
             );
             return successResponse({ lesson: result });
         } catch (error: any) {

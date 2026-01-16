@@ -12,6 +12,7 @@ export interface CurriculumModule {
     id: string;
     title: string;
     contentType: string;
+    videoUrl?: string;
     videoDuration?: number;
     order: number;
     isPreview: boolean;

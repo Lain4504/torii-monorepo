@@ -120,13 +120,15 @@ export class AuthHandler {
 
     @MessagePattern({ cmd: 'identity.auth.deleteMe' })
     async deleteMe(@Payload() data: { userId: string }) {
-        return this.authService.deleteUser(data.userId);
+        await this.authService.deleteUser(data.userId);
+        return { success: true };
     }
 
     // Email & Password Management
     @MessagePattern({ cmd: 'identity.auth.resendVerification' })
     async resendVerification(@Payload() data: { email: string }) {
-        return this.authService.resendVerification(data.email);
+        await this.authService.resendVerification(data.email);
+        return { success: true };
     }
 
     @MessagePattern({ cmd: 'identity.auth.verifyEmail' })
@@ -136,7 +138,8 @@ export class AuthHandler {
 
     @MessagePattern({ cmd: 'identity.auth.forgotPassword' })
     async forgotPassword(@Payload() dto: ForgotPasswordDTO) {
-        return this.authService.forgotPassword(dto);
+        await this.authService.forgotPassword(dto);
+        return { success: true };
     }
 
     @MessagePattern({ cmd: 'identity.auth.verifyOTP' })
@@ -146,7 +149,8 @@ export class AuthHandler {
 
     @MessagePattern({ cmd: 'identity.auth.resendOTP' })
     async resendOTP(@Payload() dto: ResendOTPDTO) {
-        return this.authService.resendOTP(dto);
+        await this.authService.resendOTP(dto);
+        return { success: true };
     }
 
     @MessagePattern({ cmd: 'identity.auth.verifyResetToken' })
@@ -156,7 +160,8 @@ export class AuthHandler {
 
     @MessagePattern({ cmd: 'identity.auth.resetPassword' })
     async resetPassword(@Payload() data: { token: string; password: string }) {
-        return this.authService.resetPassword(data.token, data.password);
+        await this.authService.resetPassword(data.token, data.password);
+        return { success: true };
     }
 
     // Invite Management
@@ -167,6 +172,7 @@ export class AuthHandler {
 
     @MessagePattern({ cmd: 'identity.auth.setPassword' })
     async setPassword(@Payload() data: { token: string; password: string }) {
-        return this.authService.setPassword(data.token, data.password);
+        await this.authService.setPassword(data.token, data.password);
+        return { success: true };
     }
 }

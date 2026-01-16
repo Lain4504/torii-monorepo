@@ -15,12 +15,13 @@ import { firstValueFrom } from 'rxjs';
 import {
     successResponse,
     errorResponse,
-    successPaginatedResponse
+    successPaginatedResponse,
+    Public
 } from '@server/shared';
 import { GatewayAuthGuard } from '@server/shared';
 import { Request } from 'express';
 
-@Controller('api/reviews')
+@Controller('api/courses')
 export class ReviewController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
@@ -42,6 +43,7 @@ export class ReviewController {
     }
 
     @Get(':courseId/reviews')
+    @Public()
     async getReviewsByCourse(@Param('courseId') courseId: string, @Query() query: any) {
         try {
             const result = await firstValueFrom(
@@ -57,6 +59,7 @@ export class ReviewController {
     }
 
     @Get(':courseId/reviews/distribution')
+    @Public()
     async getRatingDistribution(@Param('courseId') courseId: string) {
         try {
             const result = await firstValueFrom(

@@ -22,7 +22,8 @@ import {
     RolesGuard,
     Roles,
     successResponse,
-    successPaginatedResponse
+    successPaginatedResponse,
+    Public
 } from '@server/shared';
 // Remove GatewayAuthGuard import if unused
 import { Request } from 'express';
@@ -52,6 +53,7 @@ export class CourseController {
     }
 
     @Get('categories')
+    @Public()
     async getCategories() {
         const result = await firstValueFrom(
             this.natsClient.send({ cmd: 'learning.category.findAll' }, {})
@@ -60,6 +62,7 @@ export class CourseController {
     }
 
     @Get('advanced-search')
+    @Public()
     async advancedSearch(@Query() query: any) {
         const result = await firstValueFrom(
             this.natsClient.send({ cmd: 'learning.course.advancedSearch' }, query)
@@ -68,6 +71,7 @@ export class CourseController {
     }
 
     @Get('by-type/:type')
+    @Public()
     async getByType(@Param('type') type: 'vod' | 'live') {
         const result = await firstValueFrom(
             this.natsClient.send({ cmd: 'learning.course.getByType' }, { type })
@@ -76,6 +80,7 @@ export class CourseController {
     }
 
     @Get()
+    @Public()
     async getCourses(@Query() query: any) {
         const result = await firstValueFrom(
             this.natsClient.send({ cmd: 'learning.course.findAll' }, query)
@@ -84,6 +89,7 @@ export class CourseController {
     }
 
     @Get(':id')
+    @Public()
     async getCourse(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: RequestWithUser) {
         const user = req.user;
         const result = await firstValueFrom(
@@ -96,6 +102,7 @@ export class CourseController {
     }
 
     @Get('slug/:slug')
+    @Public()
     async getCourseBySlug(@Param('slug') slug: string, @Req() req: RequestWithUser) {
         const user = req.user;
         const result = await firstValueFrom(
@@ -144,9 +151,14 @@ export class CourseController {
     }
 
     @Get(':id/curriculum')
-    async getCurriculum(@Param('id') id: string) {
+    @Public()
+    async getCurriculum(@Param('id') id: string, @Req() req: Request) {
+        const user = req.user as any;
         const result = await firstValueFrom(
-            this.natsClient.send({ cmd: 'learning.course.getCurriculum' }, { id })
+            this.natsClient.send(
+                { cmd: 'learning.course.getCurriculum' },
+                { id, userId: user?.sub }
+            )
         );
         return successResponse(result);
     }

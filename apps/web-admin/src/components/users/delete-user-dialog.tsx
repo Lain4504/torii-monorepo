@@ -44,7 +44,7 @@ export function DeleteUserDialog({
 
     return (
         <AlertDialog open={open} onOpenChange={onOpenChange}>
-            <AlertDialogContent className="relative z-50 w-full max-w-md gap-0 overflow-hidden rounded-3xl border border-border/50 bg-background p-0 shadow-2xl">
+            <AlertDialogContent className="z-50 w-full max-w-md gap-0 overflow-hidden rounded-3xl border border-border/50 bg-background p-0 shadow-2xl">
                 <div className="absolute inset-0 bg-rose-500/5 blur-3xl opacity-20 pointer-events-none" />
 
                 <AlertDialogHeader className="relative px-8 pt-10 pb-6 text-center">

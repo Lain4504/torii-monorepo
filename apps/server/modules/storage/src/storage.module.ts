@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
+import { APP_FILTER } from '@nestjs/core';
 import { StorageService } from './modules/storage/storage.service';
 import { StorageRepository } from './modules/storage/storage.repository';
 import { StorageHandler } from './interfaces/nats/storage.handler';
 import { SharedStorageModule } from '@server/shared/storage/shared-storage.module';
-import { SharedModule } from '@server/shared';
+import { SharedModule, GlobalRpcExceptionFilter } from '@server/shared';
 import { STORAGE_REPOSITORY_TOKEN } from './interfaces/repositories/i-storage.repository';
 import { STORAGE_SERVICE_TOKEN } from './interfaces/services/i-storage.service';
 
@@ -18,6 +19,10 @@ import { STORAGE_SERVICE_TOKEN } from './interfaces/services/i-storage.service';
         {
             provide: STORAGE_SERVICE_TOKEN,
             useClass: StorageService,
+        },
+        {
+            provide: APP_FILTER,
+            useClass: GlobalRpcExceptionFilter,
         },
     ],
     exports: [STORAGE_SERVICE_TOKEN, STORAGE_REPOSITORY_TOKEN],

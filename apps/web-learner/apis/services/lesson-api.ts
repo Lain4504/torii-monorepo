@@ -24,8 +24,8 @@ export const lessonApi = {
      * Get lesson details by ID
      */
     getLesson: async (lessonId: string): Promise<LessonResponse> => {
-        const response = await apiClient.get<StandardApiResponse<LessonResponse>>(`/api/lessons/${lessonId}`);
-        return response.data.data!;
+        const response = await apiClient.get<StandardApiResponse<{ lesson: LessonResponse }>>(`/api/lessons/${lessonId}`);
+        return response.data.data!.lesson;
     },
 };
 

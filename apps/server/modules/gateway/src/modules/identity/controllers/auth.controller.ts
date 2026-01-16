@@ -234,8 +234,8 @@ export class AuthController {
                 this.natsClient.send({ cmd: 'identity.auth.adminLogin' }, dto),
             );
             return await this.handleLoginResult(result, req, res);
-        } catch (error: unknown) {
-            return errorResponse(error instanceof Error ? error.message : 'Login failed');
+        } catch (error: any) {
+            throw error;
         }
     }
 
@@ -251,8 +251,8 @@ export class AuthController {
                 this.natsClient.send({ cmd: 'identity.auth.login' }, dto),
             );
             return await this.handleLoginResult(result, req, res);
-        } catch (error: unknown) {
-            return errorResponse(error instanceof Error ? error.message : 'Login failed');
+        } catch (error: any) {
+            throw error;
         }
     }
 
