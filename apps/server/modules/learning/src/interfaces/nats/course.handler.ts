@@ -1,7 +1,7 @@
 import { Controller, Inject } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { COURSE_SERVICE_TOKEN, ICourseService } from '../../interfaces/services';
-import { CourseCreateDTO, CourseUpdateDTO } from '@workspace/schemas';
+import { CourseCreateDTO, CourseUpdateDTO, Requester } from '@workspace/schemas';
 
 @Controller()
 export class CourseHandler {
@@ -10,11 +10,9 @@ export class CourseHandler {
     ) { }
 
     @MessagePattern({ cmd: 'learning.course.create' })
-    async create(@Payload() data: CourseCreateDTO & { instructorId: string }) {
-        const { instructorId, ...dto } = data;
-        // Mock requester for service compatibility
-        const requester = { sub: instructorId, role: 'INSTRUCTOR' as any, permissions: [] };
-        return this.courseService.create(requester, dto);
+    async create(@Payload() data: CourseCreateDTO & { user: Requester }) {
+        const { user, ...dto } = data;
+        return this.courseService.create(user, dto);
     }
 
     @MessagePattern({ cmd: 'learning.course.findAll' })
@@ -48,30 +46,26 @@ export class CourseHandler {
     }
 
     @MessagePattern({ cmd: 'learning.course.update' })
-    async update(@Payload() data: CourseUpdateDTO & { id: string, userId: string }) {
-        const { id, userId, ...dto } = data;
-        const requester = { sub: userId, role: 'INSTRUCTOR' as any, permissions: [] };
-        return this.courseService.update(requester, id, dto);
+    async update(@Payload() data: CourseUpdateDTO & { id: string, user: Requester }) {
+        const { id, user, ...dto } = data;
+        return this.courseService.update(user, id, dto);
     }
 
     @MessagePattern({ cmd: 'learning.course.delete' })
-    async delete(@Payload() data: { id: string, userId: string, hardDelete?: boolean }) {
-        const { id, userId, hardDelete } = data;
-        const requester = { sub: userId, role: 'INSTRUCTOR' as any, permissions: [] };
-        return this.courseService.delete(requester, id, hardDelete);
+    async delete(@Payload() data: { id: string, hardDelete?: boolean, user: Requester }) {
+        const { id, hardDelete, user } = data;
+        return this.courseService.delete(user, id, hardDelete);
     }
 
     @MessagePattern({ cmd: 'learning.course.publish' })
-    async publish(@Payload() data: { id: string, userId: string }) {
-        const { id, userId } = data;
-        const requester = { sub: userId, role: 'INSTRUCTOR' as any, permissions: [] };
-        return this.courseService.publish(requester, id);
+    async publish(@Payload() data: { id: string, user: Requester }) {
+        const { id, user } = data;
+        return this.courseService.publish(user, id);
     }
 
     @MessagePattern({ cmd: 'learning.course.unpublish' })
-    async unpublish(@Payload() data: { id: string, userId: string }) {
-        const { id, userId } = data;
-        const requester = { sub: userId, role: 'INSTRUCTOR' as any, permissions: [] };
-        return this.courseService.unpublish(requester, id);
+    async unpublish(@Payload() data: { id: string, user: Requester }) {
+        const { id, user } = data;
+        return this.courseService.unpublish(user, id);
     }
 }

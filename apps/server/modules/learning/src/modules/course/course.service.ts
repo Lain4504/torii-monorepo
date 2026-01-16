@@ -69,7 +69,10 @@ export class CourseService implements ICourseService {
   async findAll(options: PaginationOptionsDTO & { status?: CourseStatus; jlptLevel?: string }): Promise<PaginatedResponseDTO<CourseResponseDTO>> {
     try {
       const { page = 1, limit = 10, search, status, jlptLevel } = options;
-      const skip = (page - 1) * limit;
+      // Ensure page and limit are numbers for Prisma
+      const pageNum = typeof page === 'string' ? parseInt(page, 10) : page;
+      const limitNum = typeof limit === 'string' ? parseInt(limit, 10) : limit;
+      const skip = (pageNum - 1) * limitNum;
 
       const where: any = {
         deletedAt: null,
@@ -103,19 +106,19 @@ export class CourseService implements ICourseService {
         this.courseRepository.count(where),
         this.courseRepository.findMany({
           skip,
-          take: limit,
+          take: limitNum,
           where,
           orderBy: { createdAt: 'desc' },
         }),
       ]);
 
-      const totalPages = Math.ceil(total / limit);
+      const totalPages = Math.ceil(total / limitNum);
 
       return {
         data: courses.map(course => this.toCourseResponseDTO(course)),
         total,
-        page,
-        limit,
+        page: pageNum,
+        limit: limitNum,
         totalPages,
       };
     } catch (error: any) {
@@ -148,7 +151,10 @@ export class CourseService implements ICourseService {
         ratingMin
       } = options;
 
-      const skip = (page - 1) * limit;
+      // Ensure page and limit are numbers for Prisma
+      const pageNum = typeof page === 'string' ? parseInt(page, 10) : page;
+      const limitNum = typeof limit === 'string' ? parseInt(limit, 10) : limit;
+      const skip = (pageNum - 1) * limitNum;
 
       // Force published status for client search
       const where: any = {
@@ -219,19 +225,19 @@ export class CourseService implements ICourseService {
         this.courseRepository.count(where),
         this.courseRepository.findMany({
           skip,
-          take: limit,
+          take: limitNum,
           where,
           orderBy,
         }),
       ]);
 
-      const totalPages = Math.ceil(total / limit);
+      const totalPages = Math.ceil(total / limitNum);
 
       return {
         data: courses.map(course => this.toCourseResponseDTO(course)),
         total,
-        page,
-        limit,
+        page: pageNum,
+        limit: limitNum,
         totalPages,
       };
     } catch (error: any) {

@@ -37,12 +37,36 @@ export class CourseController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.course.create' },
-                    { ...dto, instructorId: user.sub }
+                    { ...dto, user }
                 )
             );
             return successResponse({ course: result }, 'Course created successfully');
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to create course');
+        }
+    }
+
+    @Get('advanced-search')
+    async advancedSearch(@Query() query: any) {
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send({ cmd: 'learning.course.advancedSearch' }, query)
+            );
+            return successPaginatedResponse(result);
+        } catch (error: any) {
+            return errorResponse(error.message || 'Failed to search courses');
+        }
+    }
+
+    @Get('by-type/:type')
+    async getByType(@Param('type') type: 'vod' | 'live') {
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send({ cmd: 'learning.course.getByType' }, { type })
+            );
+            return successResponse({ courses: result });
+        } catch (error: any) {
+            return errorResponse(error.message || 'Failed to fetch courses by type');
         }
     }
 
@@ -101,7 +125,7 @@ export class CourseController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.course.update' },
-                    { id, ...dto, userId: user.sub }
+                    { id, ...dto, user }
                 )
             );
             return successResponse({ course: result }, 'Course updated successfully');
@@ -117,36 +141,12 @@ export class CourseController {
             await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.course.delete' },
-                    { id, userId: user.sub }
+                    { id, user }
                 )
             );
             return successResponse(null, 'Course deleted successfully');
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to delete course');
-        }
-    }
-
-    @Get('advanced-search')
-    async advancedSearch(@Query() query: any) {
-        try {
-            const result = await firstValueFrom(
-                this.natsClient.send({ cmd: 'learning.course.advancedSearch' }, query)
-            );
-            return successPaginatedResponse(result);
-        } catch (error: any) {
-            return errorResponse(error.message || 'Failed to search courses');
-        }
-    }
-
-    @Get('by-type/:type')
-    async getByType(@Param('type') type: 'vod' | 'live') {
-        try {
-            const result = await firstValueFrom(
-                this.natsClient.send({ cmd: 'learning.course.getByType' }, { type })
-            );
-            return successResponse({ courses: result });
-        } catch (error: any) {
-            return errorResponse(error.message || 'Failed to fetch courses by type');
         }
     }
 
@@ -175,7 +175,7 @@ export class CourseController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.course.unpublish' },
-                    { id, userId: user.sub }
+                    { id, user }
                 )
             );
             return successResponse({ course: result }, 'Course unpublished successfully');
@@ -191,7 +191,7 @@ export class CourseController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.course.publish' },
-                    { id, userId: user.sub }
+                    { id, user }
                 )
             );
             return successResponse({ course: result }, 'Course published successfully');

@@ -63,6 +63,9 @@ export class AuditLogService implements IAuditLogService {
     async query(filters: AuditLogFiltersDTO): Promise<PaginatedResponseDTO<AuditLogResponseDTO>> {
         const { page = 1, limit = 50, startDate, endDate, ...where } = filters;
 
+        const pageNum = typeof page === 'string' ? parseInt(page, 10) : Number(page) || 1;
+        const limitNum = typeof limit === 'string' ? parseInt(limit, 10) : Number(limit) || 50;
+
         const whereClause = {
             userId: where.userId,
             action: where.action,
@@ -87,8 +90,8 @@ export class AuditLogService implements IAuditLogService {
                         },
                     },
                 },
-                skip: (page - 1) * limit,
-                take: limit,
+                skip: (pageNum - 1) * limitNum,
+                take: limitNum,
             }),
             this.auditLogRepository.count(whereClause),
         ]);
@@ -120,9 +123,9 @@ export class AuditLogService implements IAuditLogService {
         return {
             data,
             total,
-            page,
-            limit,
-            totalPages: Math.ceil(total / limit),
+            page: pageNum,
+            limit: limitNum,
+            totalPages: Math.ceil(total / limitNum),
         };
     }
 

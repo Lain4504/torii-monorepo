@@ -58,7 +58,41 @@ import { FlashcardHandler } from './interfaces/nats/flashcard.handler';
 import { FlashcardReviewHandler } from './interfaces/nats/flashcard-review.handler';
 
 @Module({
-  // ... (keep existing setup)
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    ScheduleModule.forRoot(),
+    AutomapperModule.forRoot({ strategyInitializer: pojos() }),
+    PrismaModule,
+    SharedModule,
+
+    // LMS Modules
+    CourseModule,
+    ModuleModule,
+    LessonModule,
+    WishlistModule,
+    ReviewModule,
+    CourseInstructorModule,
+    LessonMaterialModule,
+    EnrollmentModule,
+    OrderModule,
+    LearningProgressModule,
+
+    // Community Modules
+    PostModule,
+    CommentModule,
+
+    // Assessment Modules
+    QuestionModule,
+    QuestionPoolModule,
+    ExamModule,
+
+    // Flashcard Modules
+    FlashcardDeckModule,
+    FlashcardModule,
+
+    // Gamification Module
+    GamificationModule,
+  ],
   controllers: [
     // NATS Handlers
     CourseHandler,

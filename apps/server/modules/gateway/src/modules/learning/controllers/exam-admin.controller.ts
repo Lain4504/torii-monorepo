@@ -49,7 +49,7 @@ export class ExamAdminController {
                     { id }
                 )
             );
-            return successResponse(result);
+            return successResponse({ exam: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch exam');
         }
@@ -65,7 +65,7 @@ export class ExamAdminController {
                     { ...dto, userId: user.sub }
                 )
             );
-            return successResponse(result);
+            return successResponse({ exam: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to create exam');
         }
@@ -81,7 +81,7 @@ export class ExamAdminController {
                     { id, ...dto, userId: user.sub }
                 )
             );
-            return successResponse(result);
+            return successResponse({ exam: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to update exam');
         }
@@ -97,7 +97,7 @@ export class ExamAdminController {
                     { id, userId: user.sub }
                 )
             );
-            return successResponse({ message: 'Exam deleted successfully' });
+            return successResponse(null, 'Exam deleted successfully');
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to delete exam');
         }
@@ -113,7 +113,7 @@ export class ExamAdminController {
                     { id, userId: user.sub }
                 )
             );
-            return successResponse(result);
+            return successResponse({ exam: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to publish exam');
         }
@@ -128,7 +128,7 @@ export class ExamAdminController {
                     { id }
                 )
             );
-            return successResponse(result);
+            return successResponse(result); // Stats can be direct object or { stats: ... }? Let's keep direct for arbitrary stats object
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch exam stats');
         }

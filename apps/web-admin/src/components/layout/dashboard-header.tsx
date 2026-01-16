@@ -25,7 +25,7 @@ export function DashboardHeader() {
   return (
     <div className="flex w-full items-center justify-between gap-4">
       {/* Breadcrumbs - Minimalist Zen Style */}
-      <div className="flex items-center text-sm px-1 overflow-hidden">
+      <div className="hidden md:flex items-center text-sm px-1 overflow-hidden">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>

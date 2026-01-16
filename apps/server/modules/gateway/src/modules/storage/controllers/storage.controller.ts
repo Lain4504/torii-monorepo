@@ -38,6 +38,7 @@ export class StorageController {
                     { ...data, ownerId: user.sub }
                 )
             );
+            // Result from NATS is plain DTO, wrap it in StandardApiResponse
             return successResponse(result);
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to generate upload URL');
@@ -53,6 +54,7 @@ export class StorageController {
                     data
                 )
             );
+            // Result from NATS is plain DTO, wrap it in StandardApiResponse
             return successResponse(result);
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to confirm upload');
@@ -68,6 +70,7 @@ export class StorageController {
                     { fileId: id }
                 )
             );
+            // Result from NATS is plain DTO, wrap it in StandardApiResponse
             return successResponse(result);
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to delete file');
@@ -83,6 +86,7 @@ export class StorageController {
                     data
                 )
             );
+            // Result from NATS is plain DTO, wrap it in StandardApiResponse
             return successResponse(result);
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to get signed URL');
@@ -118,6 +122,7 @@ export class StorageController {
                     }
                 )
             );
+            // Result from NATS is plain DTO, wrap it in StandardApiResponse
             return successResponse(result);
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to upload file');

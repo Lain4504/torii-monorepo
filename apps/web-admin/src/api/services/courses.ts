@@ -25,9 +25,9 @@ export const coursesApi = {
         return response.data.data!.course;
     },
 
-    // PATCH /api/admin/courses/:id
+    // PUT /api/courses/:id
     async update(id: string, course: CourseUpdateDTO): Promise<CourseResponseDTO> {
-        const response = await apiClient.patch<StandardApiResponse<{ course: CourseResponseDTO }>>(`/api/courses/${id}`, course);
+        const response = await apiClient.put<StandardApiResponse<{ course: CourseResponseDTO }>>(`/api/courses/${id}`, course);
         return response.data.data!.course;
     },
 

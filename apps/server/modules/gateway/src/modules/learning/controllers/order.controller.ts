@@ -63,7 +63,7 @@ export class OrderController {
                     { id }
                 )
             );
-            return successResponse(result);
+            return successResponse({ order: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch order');
         }
@@ -79,7 +79,7 @@ export class OrderController {
                     { ...input, userId: user.sub }
                 )
             );
-            return successResponse(result);
+            return successResponse({ order: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to create order');
         }
@@ -94,7 +94,7 @@ export class OrderController {
                     { id, input }
                 )
             );
-            return successResponse(result);
+            return successResponse({ order: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to confirm order');
         }
