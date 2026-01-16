@@ -70,6 +70,14 @@ export function NotificationsDropdown() {
         markAsReadMutation.mutate(id);
     };
 
+    // Handle response structure: PaginatedApiResponse = { data: NotificationResponseDTO[], total, page, limit, totalPages }
+    const notifications = notificationsData?.data?.map(mapNotificationToUI) || [];
+    const unreadCount = unreadCountData?.count || 0;
+
+    const markAsRead = (id: string) => {
+        markAsReadMutation.mutate(id);
+    };
+
     const markAllAsRead = () => {
         markAllAsReadMutation.mutate();
     };

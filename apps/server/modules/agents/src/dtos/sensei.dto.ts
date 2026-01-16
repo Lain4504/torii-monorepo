@@ -1,8 +1,11 @@
-import { IsString, IsEnum, IsOptional } from 'class-validator';
+import { IsString, IsEnum, IsOptional, IsUUID } from 'class-validator';
 
 export class GrammarCheckDto {
   @IsString()
   text: string;
+
+  @IsUUID()
+  userId: string;
 }
 
 export class TranslateDto {
@@ -14,6 +17,9 @@ export class TranslateDto {
 
   @IsEnum(['ja', 'en'])
   to: string;
+
+  @IsUUID()
+  userId: string;
 }
 
 export class CreateFlashcardDto {
@@ -26,6 +32,9 @@ export class CreateFlashcardDto {
   @IsOptional()
   @IsString()
   example?: string;
+
+  @IsUUID()
+  userId: string;
 }
 
 export class GenerateDrillDto {
@@ -38,20 +47,44 @@ export class GenerateDrillDto {
   @IsOptional()
   @IsString()
   topic?: string;
+
+  @IsUUID()
+  userId: string;
 }
 
 export class SimulateConversationDto {
   @IsString()
-  topic: string;
+  @IsOptional()
+  topic?: string;
+
+  @IsString()
+  @IsOptional()
+  scenario?: string; // Allow either topic or scenario
 
   @IsEnum(['N5', 'N4', 'N3', 'N2', 'N1'])
-  level: string;
+  @IsOptional()
+  level?: string;
+
+  @IsString()
+  @IsOptional()
+  difficulty?: string; // Allow either level or difficulty
+
+  @IsUUID()
+  userId: string;
 }
 
 export class RecommendResourcesDto {
   @IsString()
-  concept: string;
+  @IsOptional()
+  concept?: string;
+
+  @IsString()
+  @IsOptional()
+  topic?: string; // Allow either concept or topic
 
   @IsEnum(['N5', 'N4', 'N3', 'N2', 'N1'])
   level: string;
+
+  @IsUUID()
+  userId: string;
 }
