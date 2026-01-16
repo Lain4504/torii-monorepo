@@ -26,8 +26,13 @@ export class PredictReadinessDto {
   @IsString()
   userId: string;
 
-  @IsEnum(['N5', 'N4', 'N3', 'N2', 'N1'])
-  level: string;
+  @IsString()
+  @IsOptional()
+  level?: string;
+
+  @IsString()
+  @IsOptional()
+  targetTest?: string;
 }
 
 export class GenerateReportDto {

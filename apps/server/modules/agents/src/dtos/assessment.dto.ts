@@ -6,6 +6,7 @@ import {
   Min,
   Max,
   IsUUID,
+  IsOptional,
 } from 'class-validator';
 
 export class GenerateTestDto {
@@ -39,17 +40,32 @@ export class GetBenchmarkDto {
   @IsString()
   userId: string;
 
-  @IsEnum(['N5', 'N4', 'N3', 'N2', 'N1'])
-  level: string;
+  @IsString()
+  @IsOptional()
+  level?: string;
+
+  @IsString()
+  @IsOptional()
+  targetLevel?: string;
 }
 
 export class ScheduleTestDto {
   @IsString()
   userId: string;
 
-  @IsEnum(['N5', 'N4', 'N3', 'N2', 'N1'])
-  level: string;
+  @IsString()
+  @IsOptional()
+  level?: string;
 
   @IsString()
-  date: string;
+  @IsOptional()
+  targetLevel?: string; // Allow either level or targetLevel
+
+  @IsString()
+  @IsOptional()
+  date?: string;
+
+  @IsString()
+  @IsOptional()
+  studySchedule?: string; // Optional study schedule
 }

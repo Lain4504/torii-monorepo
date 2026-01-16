@@ -1,1 +1,0 @@
-Suggest a personalized study path for Japanese learning for user {{userId}}. Based on typical learner progress, recommend next steps, focus areas, resources, and a timeline. Make it adaptive and encouraging.

@@ -1,1 +1,0 @@
-Translate the following text from {{#if (eq from "ja")}}Japanese{{else}}English{{/if}} to {{#if (eq to "ja")}}Japanese{{else}}English{{/if}}: "{{text}}". Provide an accurate translation and, if applicable, note any cultural or contextual considerations.
