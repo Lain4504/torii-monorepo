@@ -5,7 +5,6 @@ import { ValidationPipe } from '@nestjs/common';
 import { createNatsServiceConfig } from '@server/shared';
 import { AgentsModule } from './agents.module';
 import cookieParser from 'cookie-parser';
-
 import * as bodyParser from 'body-parser';
 
 async function bootstrap() {
@@ -16,12 +15,8 @@ async function bootstrap() {
   httpApp.use(bodyParser.json({ limit: '10mb' }));
   httpApp.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 
-  // Configure cookie parser - REQUIRED for web auth with httpOnly cookies
+  // Configure cookie parser
   httpApp.use(cookieParser());
-
-  // Enable CORS
-  // CORS handled by Gateway
-  // httpApp.enableCors({...});
 
   // Global validation pipe
   httpApp.useGlobalPipes(
