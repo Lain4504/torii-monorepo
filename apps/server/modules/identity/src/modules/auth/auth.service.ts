@@ -24,6 +24,7 @@ import type {
     AppMetadata,
     UserMetadata,
     TokenPayload,
+    UserActivityEvent,
 } from '@workspace/schemas';
 import type { User, Prisma } from '@prisma/generated';
 import type { TwoFactorTempTokenPayload } from '@server/shared';
@@ -149,7 +150,14 @@ export class AuthService implements IAuthService {
      */
     async login(dto: UserLoginDTO): Promise<LoginResponse> {
         const user = await this.usersRepository.findByEmail(dto.email);
-        return this.processLoginFlow(user, dto);
+        const result = await this.processLoginFlow(user, dto);
+
+        // Emit activity if login complete (not requiring 2FA)
+        if (!result.requiresTwoFactor && user) {
+            this.emitLoginActivity(user.id);
+        }
+
+        return result;
     }
 
     /**
@@ -306,6 +314,9 @@ export class AuthService implements IAuthService {
             sub: user.id,
             role: user.role as UserRole,
         });
+
+        // Emit activity
+        this.emitLoginActivity(user.id);
 
         return {
             user: {
@@ -738,6 +749,9 @@ export class AuthService implements IAuthService {
                 role: user.role as UserRole,
             });
 
+            // Emit activity
+            this.emitLoginActivity(user.id);
+
             return {
                 user: {
                     id: user.id,
@@ -784,6 +798,9 @@ export class AuthService implements IAuthService {
                 role: existingUser.role as UserRole,
             });
 
+            // Emit activity
+            this.emitLoginActivity(existingUser.id);
+
             return {
                 user: {
                     id: existingUser.id,
@@ -798,7 +815,6 @@ export class AuthService implements IAuthService {
             };
         }
 
-        // Create new user
         // Create new user
         const newUser = await this.usersRepository.create({
             email: googleUser.email,
@@ -826,6 +842,9 @@ export class AuthService implements IAuthService {
             sub: newUser.id,
             role: newUser.role as UserRole,
         });
+
+        // Emit activity
+        this.emitLoginActivity(newUser.id);
 
         return {
             user: {
@@ -1022,6 +1041,26 @@ export class AuthService implements IAuthService {
             sub: userId,
             role: role as UserRole,
         });
+    }
+
+    /**
+     * Helper to emit login activity for gamification
+     */
+    private emitLoginActivity(userId: string) {
+        try {
+            const loginEvent: UserActivityEvent = {
+                userId,
+                activityType: 'LOGIN',
+                timestamp: new Date().toISOString(),
+                meta: {
+                    platform: 'unknown',
+                }
+            };
+            this.natsClient.emit('user.activity', loginEvent);
+            console.log(`[Gamification] Emitted LOGIN event for user: ${userId}`);
+        } catch (error) {
+            console.error(`[Gamification] Failed to emit LOGIN event for user ${userId}`, error);
+        }
     }
 }
 

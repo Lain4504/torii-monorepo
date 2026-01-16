@@ -281,14 +281,22 @@ docker push your_username/torii-backend:latest
 ```
 
 ### 2. Deploy / Update (VPS)
-```bash
-# Pull new image
-docker-compose pull
-# Update stack
-docker-compose up -d
-# Sync DB schema (on first deploy or update)
+# Tải các bản cập nhật mới nhất của các service từ Docker Hub
+docker compose pull
+
+# Khởi chạy hoặc cập nhật toàn bộ hệ thống ở chế độ chạy ngầm (detached)
+docker compose up -d
+
+# Tùy chọn: Khởi chạy riêng biệt theo nhóm thành phần
+# 1. Infrastructure: Database, Cache, Message Broker, WebRTC
+docker compose up -d postgres redis nats livekit
+# 2. Application Services: Gateway và các Microservices nghiệp vụ
+docker compose up -d gateway identity learning agents meet gamification
+
+# Đồng bộ hóa Database Schema (Thực hiện khi deploy lần đầu hoặc khi có thay đổi Prisma schema)
 pnpx prisma db push
-# Cleanup old images if need
+
+# Dọn dẹp các Docker images cũ/thừa để giải phóng dung lượng bộ nhớ cho VPS
 docker image prune -f
 ```
 

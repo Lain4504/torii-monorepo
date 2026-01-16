@@ -3,16 +3,14 @@ import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { PrismaModule, SharedModule, NatsClientModule } from '@server/shared';
 
-// Controllers
-import { GamificationController } from './controllers/gamification.controller';
+// NATS Handlers
+import { GamificationHandler } from './interfaces/nats/gamification.handler';
+import { ActivityHandler } from './interfaces/nats/activity.handler';
 
 // Services
 import { StreakService } from './services/streak.service';
 import { AchievementService } from './services/achievement.service';
 import { ActivityService } from './services/activity.service';
-
-// Listeners
-import { ActivityListener } from './listeners/activity.listener';
 
 // Jobs
 import { StreakCheckJob } from './jobs/streak-check.job';
@@ -28,8 +26,8 @@ import { StreakCheckJob } from './jobs/streak-check.job';
         NatsClientModule,
     ],
     controllers: [
-        GamificationController,
-        ActivityListener, // Event listeners are also controllers
+        GamificationHandler,
+        ActivityHandler,
     ],
     providers: [
         StreakService,

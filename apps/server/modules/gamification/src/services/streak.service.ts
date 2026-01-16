@@ -217,16 +217,8 @@ export class StreakService {
         return date.toISOString().split('T')[0];
     }
 
-    /**
-        const [y1, m1, d1] = dateStr1.split('-').map(Number);
-        const [y2, m2, d2] = dateStr2.split('-').map(Number);
-        const time1 = Date.UTC(y1, m1 - 1, d1);
-        const time2 = Date.UTC(y2, m2 - 1, d2);
-        const diffTime = Math.abs(time2 - time1);
-        return Math.floor(diffTime / (1000 * 60 * 60 * 24));
-        const year = Number(yearStr);
-        const month = Number(monthStr);
-        const day = Number(dayStr);
+    private parseDateToUtc(dateStr: string): Date {
+        const [year, month, day] = dateStr.split('-').map(Number);
         return new Date(Date.UTC(year, month - 1, day));
     }
 
@@ -234,7 +226,7 @@ export class StreakService {
         const date1 = this.parseDateToUtc(dateStr1);
         const date2 = this.parseDateToUtc(dateStr2);
         const diffTime = Math.abs(date2.getTime() - date1.getTime());
-        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return Math.floor(diffTime / (1000 * 60 * 60 * 24));
     }
 
     private isThisWeek(dateStr: string): boolean {

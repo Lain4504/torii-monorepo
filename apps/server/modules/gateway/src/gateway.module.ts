@@ -11,6 +11,7 @@ import { IdentityModule } from './modules/identity/identity.module';
 import { LearningModule } from './modules/learning/learning.module';
 import { CommunicationModule } from './modules/communication/communication.module';
 import { StorageModule } from './modules/storage/storage.module';
+import { GamificationModule } from './modules/gamification/gamification.module';
 // AI Module - AI Agents Service
 // import { AiModule } from './ai/ai.module';
 
@@ -53,6 +54,8 @@ import { StorageModule } from './modules/storage/storage.module';
     CommunicationModule,
     // Storage Module
     StorageModule,
+    // Gamification Module
+    GamificationModule,
   ],
   controllers: [],
   providers: [ApiKeyGuard],

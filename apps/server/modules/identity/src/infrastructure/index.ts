@@ -4,4 +4,3 @@
  */
 
 export * from './email/email.service';
-export * from './storage/storage.service';

@@ -14,6 +14,7 @@ export const ActivityTypeSchema = z.enum([
     'EXAM_COMPLETE',
     'POST_CREATE',
     'COMMENT_CREATE',
+    'LOGIN',
 ]);
 
 export const AchievementCategorySchema = z.enum([
