@@ -53,8 +53,11 @@ export class ModuleController {
      * Get all modules for a course
      */
     @Get('by-course/:courseId')
-    async findByCourseId(@Param('courseId') courseId: string): Promise<ModuleResponseDTO[]> {
-        return this.moduleService.findByCourseId(courseId);
+    async findByCourseId(
+        @Request() req: ReqWithRequester,
+        @Param('courseId') courseId: string
+    ): Promise<ModuleResponseDTO[]> {
+        return this.moduleService.findByCourseId(courseId, req.requester);
     }
 
     /**

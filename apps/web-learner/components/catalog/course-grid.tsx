@@ -3,7 +3,7 @@
 import { CourseCard } from "./course-card"
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@workspace/ui/components/pagination"
 import { useCourses } from "./useCourses"
-import { Inbox, Loader2 } from "lucide-react"
+import { Inbox, Loader2, Search } from "lucide-react"
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
 import { cn } from "@workspace/ui/lib/utils";
 
@@ -52,22 +52,24 @@ export function CourseGrid({
                 </div>
             ) : error ? (
                 <div className="flex flex-col items-center justify-center py-24 px-6 rounded-[2.5rem] bg-destructive/5 border border-destructive/10 text-center space-y-4">
-                    <div className="w-16 h-16 rounded-2xl bg-destructive/10 flex items-center justify-center">
-                        <Inbox className="w-8 h-8 text-destructive" />
+                    <div className="w-20 h-20 rounded-3xl bg-destructive/5 flex items-center justify-center border border-destructive/10">
+                        <Inbox className="w-10 h-10 text-destructive/40" />
                     </div>
                     <div className="space-y-2">
-                        <h3 className="text-sm font-black uppercase tracking-widest text-destructive">Lỗi tải dữ liệu</h3>
-                        <p className="text-xs font-bold text-muted-foreground max-w-xs">{error?.message || 'Không thể kết nối với máy chủ'}</p>
+                        <h3 className="text-2xl font-serif font-bold italic text-destructive uppercase tracking-tight">Data Sync Error</h3>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 max-w-xs">{error?.message || 'Connection to academy servers lost'}</p>
                     </div>
                 </div>
             ) : isEmpty ? (
                 <div className="flex justify-center py-24 px-6 rounded-[2.5rem] bg-muted/20 border border-border/40">
                     <Empty className="max-w-md">
                         <EmptyHeader>
-                            <EmptyMedia variant="icon" className="bg-background shadow-xl"><Inbox className="text-primary w-8 h-8" /></EmptyMedia>
-                            <EmptyTitle className="text-xl font-black tracking-tight uppercase">Không tìm thấy khóa học</EmptyTitle>
-                            <EmptyDescription className="font-bold text-muted-foreground/60">
-                                Dường như không có khóa học nào phù hợp với các tiêu chí tìm kiếm hiện tại của bạn.
+                            <EmptyMedia variant="icon" className="bg-background shadow-2xl border border-primary/10">
+                                <Search className="text-primary/40 w-8 h-8" />
+                            </EmptyMedia>
+                            <EmptyTitle className="text-3xl font-serif font-bold italic uppercase tracking-tight">No courses found</EmptyTitle>
+                            <EmptyDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 mt-4 leading-relaxed">
+                                We couldn't find any courses matching your current filters. Try adjusting your selection.
                             </EmptyDescription>
                         </EmptyHeader>
                     </Empty>

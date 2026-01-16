@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { courseApi } from '@/api/services/course-api'
+import { courseApi } from '@/apis/services/course-api'
 import { BookOpen } from 'lucide-react'
 
 export default function UnifiedLearningPage() {

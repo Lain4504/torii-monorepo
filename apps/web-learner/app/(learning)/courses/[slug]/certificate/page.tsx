@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { Button } from '@workspace/ui/components/button'
 import { Card, CardContent } from '@workspace/ui/components/card'
 import { ArrowLeft, Download, Share2 } from 'lucide-react'
-import { courseApi } from '@/api/services/course-api'
+import { courseApi } from '@/apis/services/course-api'
 
 export default function CourseCertificatePage() {
     const params = useParams()

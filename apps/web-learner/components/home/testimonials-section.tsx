@@ -41,10 +41,10 @@ export function TestimonialsSection() {
                         <Users className="w-3 h-3" />
                         <span>Success Stories</span>
                     </div>
-                    <h2 className="text-5xl md:text-6xl font-black tracking-tighter text-foreground uppercase italic">
-                        Cảm Nhận Từ <span className="text-primary not-italic">Học Viên</span>
+                    <h2 className="text-6xl md:text-7xl font-serif font-bold tracking-tight text-foreground uppercase italic leading-[0.9]">
+                        Cảm Nhận Từ <br /> <span className="text-primary not-italic">Học Viên</span>
                     </h2>
-                    <p className="text-lg text-muted-foreground font-medium max-w-2xl mx-auto opacity-70">
+                    <p className="text-[11px] font-black uppercase tracking-[0.25em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-8 py-2">
                         Hàng ngàn học viên đã thay đổi tương lai nhờ lộ trình học tập tối ưu tại Torii Nihongo.
                     </p>
                 </div>
@@ -69,7 +69,7 @@ export function TestimonialsSection() {
                             </div>
 
                             {/* Content */}
-                            <p className="text-base text-foreground font-bold italic leading-relaxed mb-10 flex-1">
+                            <p className="text-xl font-serif font-medium italic leading-relaxed mb-10 flex-1 text-foreground/80">
                                 "{testimonial.content}"
                             </p>
 

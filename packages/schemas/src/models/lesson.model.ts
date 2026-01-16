@@ -19,6 +19,7 @@ export const lessonSchema = z.object({
     orderIndex: z.number().default(0),
     isPreview: z.boolean().default(false),
     isUnlocked: z.boolean().default(false),
+    status: z.enum(['published', 'draft']).default('published'),
     createdBy: z.string().uuid().optional(),
     createdAt: z.date(),
     updatedAt: z.date(),

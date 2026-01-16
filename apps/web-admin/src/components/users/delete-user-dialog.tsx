@@ -1,15 +1,17 @@
 import {
     AlertDialog,
-    AlertDialogAction,
     AlertDialogCancel,
     AlertDialogContent,
     AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
     AlertDialogTitle,
 } from '@workspace/ui/components/alert-dialog';
+import { Button } from '@workspace/ui/components/button';
 import type { UserResponseDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
 import { useDeleteUser } from "@/api/services/users.ts";
-import { AlertTriangle, Trash2, X } from 'lucide-react';
+import { AlertTriangle, Loader2 } from 'lucide-react';
 
 interface DeleteUserDialogProps {
     user: UserResponseDTO | null;
@@ -28,13 +30,13 @@ export function DeleteUserDialog({
         if (!user) return;
         try {
             await deleteUser.mutateAsync({ id: user.id, hardDelete: true });
-            toast.success('Entity Terminated', {
-                description: `${user.displayName} has been permanently purged.`,
+            toast.success('User Deleted', {
+                description: `${user.displayName} has been removed.`,
             });
             onOpenChange(false);
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : 'Failed to delete user';
-            toast.error('Termination Failed', {
+            toast.error('Deletion Failed', {
                 description: errorMessage,
             });
         }
@@ -42,51 +44,44 @@ export function DeleteUserDialog({
 
     return (
         <AlertDialog open={open} onOpenChange={onOpenChange}>
-            <AlertDialogContent className="border-l border-destructive/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-[2rem] p-0 overflow-hidden sm:max-w-[420px]">
-                <div className="absolute inset-0 bg-destructive/5 blur-3xl opacity-20 pointer-events-none" />
+            <AlertDialogContent className="relative z-50 w-full max-w-md gap-0 overflow-hidden rounded-3xl border border-border/50 bg-background p-0 shadow-2xl">
+                <div className="absolute inset-0 bg-rose-500/5 blur-3xl opacity-20 pointer-events-none" />
 
-                <div className="p-6 pb-2 relative z-10">
-                    <div className="flex items-center gap-4 mb-4">
-                        <div className="p-3 rounded-2xl bg-destructive/10 text-destructive border border-destructive/10 shadow-inner">
-                            <AlertTriangle className="h-6 w-6" />
-                        </div>
-                        <div>
-                            <AlertDialogTitle className="text-xl font-black uppercase tracking-tight text-destructive">
-                                Critical Action
-                            </AlertDialogTitle>
-                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
-                                Permanent Deletion Protocol
-                            </p>
-                        </div>
+                <AlertDialogHeader className="relative px-8 pt-10 pb-6 text-center">
+                    <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-lg bg-rose-500/10 text-rose-500 ring-8 ring-rose-500/5">
+                        <AlertTriangle className="h-8 w-8 animate-pulse" />
                     </div>
-
-                    <AlertDialogDescription className="text-sm text-foreground/80 font-medium leading-relaxed bg-muted/20 p-4 rounded-xl border border-destructive/5">
-                        You are about to execute a permanent deletion for entity:
-                        <br />
-                        <span className="block mt-2 font-black text-foreground text-lg uppercase tracking-tight border-l-2 border-destructive pl-3">
-                            {user?.displayName}
-                        </span>
-                        <span className="block mt-2 text-xs text-muted-foreground">
-                            This action is irreversible. All associated data will be purged.
-                        </span>
+                    <AlertDialogTitle className="text-2xl font-medium tracking-tight text-foreground">
+                        Delete <span className="text-rose-500 italic">Account</span>
+                    </AlertDialogTitle>
+                    <AlertDialogDescription className="text-sm text-muted-foreground/80 font-medium leading-relaxed max-w-[280px] mx-auto">
+                        This action will permanently remove this user and all associated data.
                     </AlertDialogDescription>
-                </div>
+                </AlertDialogHeader>
 
-                <div className="p-6 pt-2 bg-muted/5 relative z-10 flex gap-3">
-                    <AlertDialogCancel className="flex-1 rounded-xl h-11 border-border/20 bg-background/50 hover:bg-muted/50 text-[11px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground">
-                        <X className="mr-2 h-3.5 w-3.5" />
-                        Abort
+                <AlertDialogFooter className="p-6 pt-2 bg-background border-t border-border/10 relative z-10 flex gap-3 shadow-none">
+                    <AlertDialogCancel asChild>
+                        <Button
+                            variant="ghost"
+                            className="flex-1 h-12 rounded-xl text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                        >
+                            Cancel
+                        </Button>
                     </AlertDialogCancel>
-                    <AlertDialogAction
+                    <Button
+                        variant="destructive"
                         onClick={handleDelete}
-                        className="flex-1 rounded-xl h-11 bg-destructive hover:bg-destructive/90 text-destructive-foreground text-[11px] font-black uppercase tracking-widest shadow-lg shadow-destructive/20"
+                        disabled={deleteUser.isPending}
+                        className="flex-1 h-12 rounded-xl bg-destructive hover:bg-destructive/90 text-xs font-semibold uppercase tracking-wider shadow-lg shadow-destructive/20 hover:shadow-destructive/30 transition-all font-semibold"
                     >
-                        <Trash2 className="mr-2 h-3.5 w-3.5" />
-                        Execute Purge
-                    </AlertDialogAction>
-                </div>
+                        {deleteUser.isPending ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                            "Delete User"
+                        )}
+                    </Button>
+                </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>
     );
 }
-

@@ -36,12 +36,12 @@ export default function QuestionBankPage() {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     {/* Page Title - Hidden on mobile if needed, but keeping for context */}
                     <div className="hidden md:block space-y-1">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[9px] font-black uppercase tracking-[0.3em]">
-                            <Database className="size-3" />
-                            <span>System Database</span>
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-medium tracking-wide">
+                            <Database className="size-3.5" />
+                            <span>Knowledge Base</span>
                         </div>
-                        <h1 className="text-3xl font-black tracking-tight text-foreground uppercase italic">
-                            Question <span className="text-primary not-italic">Bank</span>
+                        <h1 className="text-3xl font-serif font-medium tracking-tight text-foreground">
+                            Question <span className="text-primary italic">Bank</span>
                         </h1>
                     </div>
 
@@ -52,11 +52,11 @@ export default function QuestionBankPage() {
                         >
                             <div className="flex items-center gap-3">
                                 <div className="p-1.5 rounded-lg bg-muted/50 group-data-[state=active]:bg-primary/10 transition-colors">
-                                    <FileQuestion className="h-4 w-4 opacity-50 group-data-[state=active]:opacity-100 group-data-[state=active]:text-primary" />
+                                    <FileQuestion className="size-4 opacity-50 group-data-[state=active]:opacity-100 group-data-[state=active]:text-primary" />
                                 </div>
                                 <div className="flex flex-col items-start gap-0.5">
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground group-data-[state=active]:text-foreground">Questions</span>
-                                    <span className="text-[8px] font-bold text-muted-foreground/40 hidden sm:block">Individual Entities</span>
+                                    <span className="text-[11px] font-medium text-muted-foreground group-data-[state=active]:text-foreground">Questions</span>
+                                    <span className="text-[9px] font-medium text-muted-foreground/40 hidden sm:block">Manage Items</span>
                                 </div>
                             </div>
                         </TabsTrigger>
@@ -66,11 +66,11 @@ export default function QuestionBankPage() {
                         >
                             <div className="flex items-center gap-3">
                                 <div className="p-1.5 rounded-lg bg-muted/50 group-data-[state=active]:bg-primary/10 transition-colors">
-                                    <Database className="h-4 w-4 opacity-50 group-data-[state=active]:opacity-100 group-data-[state=active]:text-primary" />
+                                    <Database className="size-4 opacity-50 group-data-[state=active]:opacity-100 group-data-[state=active]:text-primary" />
                                 </div>
                                 <div className="flex flex-col items-start gap-0.5">
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground group-data-[state=active]:text-foreground">Pools</span>
-                                    <span className="text-[8px] font-bold text-muted-foreground/40 hidden sm:block">Grouped Collections</span>
+                                    <span className="text-[11px] font-medium text-muted-foreground group-data-[state=active]:text-foreground">Pools</span>
+                                    <span className="text-[9px] font-medium text-muted-foreground/40 hidden sm:block">Organize Collections</span>
                                 </div>
                             </div>
                         </TabsTrigger>
@@ -84,4 +84,3 @@ export default function QuestionBankPage() {
         </div>
     );
 }
-

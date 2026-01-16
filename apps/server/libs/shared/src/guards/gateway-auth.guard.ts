@@ -3,7 +3,7 @@ import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { JwtTokenProvider } from '../providers/jwt-token.provider';
 import { BlacklistService } from '../services/blacklist.service';
-import { IS_PUBLIC_KEY } from './public.decorator';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 
 @Injectable()
 export class GatewayAuthGuard implements CanActivate {

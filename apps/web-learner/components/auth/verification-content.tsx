@@ -8,7 +8,7 @@ import { useTimeout } from '@workspace/ui/hooks/use-timeout';
 import { useAppDispatch } from '@/hooks/hooks';
 import { fetchProfile } from '@/store/slices/authSlice';
 import { Spinner } from '@workspace/ui/components/spinner';
-import { apiClient } from '@/api/api-client';
+import { apiClient } from '@/apis/api-client';
 import { cn } from '@workspace/ui/lib/utils';
 
 export function VerificationContent() {

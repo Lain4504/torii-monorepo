@@ -60,11 +60,11 @@ export function CourseCategoriesSection() {
                             <Layers className="w-3 h-3" />
                             <span>Curriculum paths</span>
                         </div>
-                        <h2 className="text-5xl md:text-6xl font-black tracking-tighter text-foreground uppercase italic leading-[0.85]">
-                            Lộ Trình <span className="text-primary not-italic">JLPT</span> Chuẩn Quốc Tế
+                        <h2 className="text-6xl md:text-7xl font-serif font-bold tracking-tight text-foreground uppercase italic leading-[0.9]">
+                            Lộ Trình <span className="text-primary not-italic">JLPT</span> <br /> Chuẩn Quốc Tế
                         </h2>
-                        <p className="text-lg text-muted-foreground font-medium opacity-60">
-                            Hệ thống khóa học được thiết kế khoa học, bám sát cấu trúc đề thi năng lực tiếng Nhật mới nhất.
+                        <p className="text-[11px] font-black uppercase tracking-[0.25em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-8 py-1">
+                            Hệ thống khóa học bám sát cấu trúc đề thi năng lực tiếng Nhật mới nhất.
                         </p>
                     </div>
                     <Link href="/courses">
@@ -94,9 +94,9 @@ export function CourseCategoriesSection() {
                             </div>
 
                             {/* Content */}
-                            <div className="space-y-4 flex-1">
-                                <h3 className="text-xl font-black uppercase tracking-tight text-foreground">{level.title}</h3>
-                                <p className="text-sm text-muted-foreground/80 font-bold leading-relaxed">{level.description}</p>
+                            <div className="space-y-4 flex-1 text-center">
+                                <h3 className="text-3xl font-serif font-bold italic text-foreground leading-tight">{level.title}</h3>
+                                <p className="text-[11px] text-muted-foreground/60 font-medium uppercase tracking-wider">{level.description}</p>
                             </div>
 
                             {/* Stats List */}

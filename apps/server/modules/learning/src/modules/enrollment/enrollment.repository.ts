@@ -44,12 +44,14 @@ export class EnrollmentRepository implements IEnrollmentRepository {
         take: number;
         where?: Prisma.EnrollmentWhereInput;
         orderBy?: Prisma.EnrollmentOrderByWithRelationInput;
+        include?: Prisma.EnrollmentInclude;
     }): Promise<Enrollment[]> {
         return this.prisma.enrollment.findMany({
             where: options.where,
             skip: options.skip,
             take: options.take,
             orderBy: options.orderBy || { enrollmentDate: 'desc' },
+            include: options.include,
         });
     }
 

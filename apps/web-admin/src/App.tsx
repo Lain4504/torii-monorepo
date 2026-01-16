@@ -15,7 +15,8 @@ import CoursesPage from '@/routes/courses/courses-page.tsx'
 import CourseDetailPage from '@/routes/courses/course-detail-page.tsx'
 
 import RoomsPage from '@/routes/rooms/rooms-page.tsx'
-import PaymentsPage from '@/routes/finance/payments-page.tsx'
+import OrdersPage from '@/routes/finance/orders-page.tsx'
+import TransactionsPage from '@/routes/finance/payments-page.tsx'
 import AIServicePage from '@/routes/ai/ai-service-page.tsx'
 import NotificationsPage from '@/routes/settings/notifications-page.tsx'
 import SettingsPage from '@/routes/settings/settings-page.tsx'
@@ -26,8 +27,11 @@ import QuestionPoolsPage from '@/routes/question-pools/question-pools-page.tsx'
 import PoolDetailPage from '@/routes/question-pools/pool-detail-page.tsx'
 
 import LoginPage from '@/routes/auth/login-page.tsx'
+import TwoFactorVerifyPage from '@/routes/auth/two-factor-verify-page.tsx'
 import { AuditLogsPage } from "@/routes/audit/audit-logs-page.tsx";
 import { PermissionsPage } from "@/routes/permissions/permissions-page.tsx";
+import NotFoundPage from '@/routes/error/not-found-page.tsx'
+import AccessDeniedPage from '@/routes/error/access-denied-page.tsx'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -46,6 +50,7 @@ function App() {
           <BrowserRouter>
             <Routes>
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/auth/verify-2fa" element={<TwoFactorVerifyPage />} />
               <Route element={
                 <AuthGuard>
                   <DashboardLayout />
@@ -68,13 +73,16 @@ function App() {
 
                 {/* Pool detail page */}
                 <Route path="question-bank/pools/:id/questions" element={<PoolDetailPage />} />
-                <Route path="payments" element={<PaymentsPage />} />
+                <Route path="orders" element={<OrdersPage />} />
+                <Route path="transactions" element={<TransactionsPage />} />
                 <Route path="analytics" element={<AnalyticsPage />} />
                 <Route path="ai-service" element={<AIServicePage />} />
                 <Route path="notifications" element={<NotificationsPage />} />
                 <Route path="authorization/audit-logs" element={<AuditLogsPage />} />
                 <Route path="permissions" element={<PermissionsPage />} />
                 <Route path="settings" element={<SettingsPage />} />
+                <Route path="access-denied" element={<AccessDeniedPage />} />
+                <Route path="*" element={<NotFoundPage />} />
               </Route>
             </Routes>
           </BrowserRouter>

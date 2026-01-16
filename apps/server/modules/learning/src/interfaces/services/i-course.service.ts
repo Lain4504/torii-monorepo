@@ -139,4 +139,10 @@ export interface ICourseService {
             }>;
         }>;
     }>;
+
+    /**
+     * Recalculate course statistics (totalLessons, totalQuizzes, etc.)
+     * @param courseId - The course's unique identifier
+     */
+    recalculateStats(courseId: string): Promise<void>;
 }

@@ -43,18 +43,18 @@ export function HowItWorksSection() {
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 {/* Section Header */}
                 <div className="text-center max-w-3xl mx-auto mb-20 space-y-6">
-                    <h2 className="text-4xl md:text-5xl font-black tracking-tighter text-foreground uppercase">
-                        Hành trình <span className="text-primary">Học Tập</span>
+                    <h2 className="text-5xl md:text-6xl font-serif font-bold tracking-tight text-foreground uppercase italic">
+                        Hành trình <span className="text-primary not-italic">Học Tập</span>
                     </h2>
-                    <p className="text-lg text-muted-foreground font-medium opacity-70">
+                    <p className="text-[11px] font-black uppercase tracking-[0.25em] text-muted-foreground/40 italic">
                         Bốn bước đơn giản để thay đổi cách bạn chinh phục tiếng Nhật mãi mãi.
                     </p>
                 </div>
 
                 {/* Steps Grid */}
-                <div className="grid lg:grid-cols-4 gap-8 relative">
+                <div className="grid lg:grid-cols-4 gap-12 relative">
                     {/* Desktop Connector Line */}
-                    <div className="hidden lg:block absolute top-[2.75rem] left-[10%] right-[10%] h-[1px] bg-gradient-to-r from-transparent via-border to-transparent" />
+                    <div className="hidden lg:block absolute top-[2.75rem] left-[10%] right-[10%] h-[1px] bg-gradient-to-r from-transparent via-primary/10 to-transparent" />
 
                     {steps.map((step, index) => {
                         const Icon = step.icon
@@ -62,22 +62,22 @@ export function HowItWorksSection() {
                             <div key={index} className="flex flex-col items-center group">
                                 {/* Step Icon Box */}
                                 <div className={cn(
-                                    "w-20 h-20 rounded-2xl flex items-center justify-center relative mb-8 transition-all duration-500 group-hover:scale-110",
+                                    "w-24 h-24 rounded-[2rem] flex items-center justify-center relative mb-8 transition-all duration-700 group-hover:scale-110",
                                     step.bg,
                                     step.color
                                 )}>
-                                    <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-background border border-border/40 flex items-center justify-center text-[11px] font-black text-foreground shadow-sm group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all duration-300">
+                                    <div className="absolute -top-3 -right-3 w-10 h-10 rounded-full bg-background border border-border/10 flex items-center justify-center text-[11px] font-black text-foreground shadow-2xl group-hover:bg-primary group-hover:text-white transition-all duration-500">
                                         0{index + 1}
                                     </div>
-                                    <Icon className="w-9 h-9" />
+                                    <Icon className="w-10 h-10" />
                                 </div>
 
                                 {/* Step Content */}
                                 <div className="text-center space-y-4 px-4">
-                                    <h3 className="text-xs font-black uppercase tracking-widest text-foreground group-hover:text-primary transition-colors">
+                                    <h3 className="text-xl font-serif font-bold italic text-foreground group-hover:text-primary transition-all">
                                         {step.title}
                                     </h3>
-                                    <p className="text-sm text-muted-foreground/80 font-bold leading-relaxed">
+                                    <p className="text-[11px] text-muted-foreground/60 font-medium uppercase tracking-wider leading-relaxed">
                                         {step.description}
                                     </p>
                                 </div>

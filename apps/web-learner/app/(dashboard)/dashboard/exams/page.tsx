@@ -1,7 +1,7 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
-import { examApi } from '@/api/services/exam-api'
+import { examApi } from '@/apis/services/exam-api'
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { Card } from '@workspace/ui/components/card'
 import { Button } from '@workspace/ui/components/button'
@@ -108,7 +108,7 @@ export default function ExamsPage() {
                                 <div className="p-6 space-y-6 relative z-10 flex-1">
                                     <div className="flex justify-between items-start">
                                         <Badge variant="outline" className={
-                                            `rounded-md px-2 py-0.5 text-[9px] font-black uppercase tracking-widest border-white/10 ${exam.level === 'N5' ? 'bg-blue-500/10 text-blue-500' :
+                                            `rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-widest border-white/10 ${exam.level === 'N5' ? 'bg-blue-500/10 text-blue-500' :
                                                 exam.level === 'N4' ? 'bg-emerald-500/10 text-emerald-500' :
                                                     exam.level === 'N3' ? 'bg-amber-500/10 text-amber-500' :
                                                         'bg-white/5 text-muted-foreground'

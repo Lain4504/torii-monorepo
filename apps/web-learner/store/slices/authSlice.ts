@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { apiClient, extractErrorMessage } from '../../api/api-client';
+import { apiClient, extractErrorMessage } from '@/apis/api-client';
 import type { UserResponseDTO, UserLoginDTO, UserRegistrationDTO } from '@workspace/schemas';
 import type { AxiosError } from 'axios';
 
@@ -235,6 +235,7 @@ export const authSlice = createSlice({
             .addCase(checkAuth.rejected, (state) => {
                 state.isAuthenticated = false;
                 state.user = null;
+                state.status = 'idle';
                 // Don't set error for auth check failures
             });
 

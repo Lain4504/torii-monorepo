@@ -20,8 +20,8 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "@workspace/ui/components/pagination";
-import { UserPlus, Search, ShieldCheck, Users as UsersIcon, Sparkles } from 'lucide-react';
-import { Card } from "@workspace/ui/components/card";
+import { UserPlus, ShieldCheck, Users as UsersIcon, Sparkles } from 'lucide-react';
+
 
 export function UsersPage() {
     const [page, setPage] = useState(1);
@@ -52,13 +52,13 @@ export function UsersPage() {
 
     if (error) {
         return (
-            <div className="flex flex-col items-center justify-center p-20 space-y-4 bg-destructive/5 rounded-[3rem] border border-dashed border-destructive/20 text-center animate-in fade-in duration-500">
-                <div className="w-16 h-16 rounded-2xl bg-white shadow-xl flex items-center justify-center">
-                    <ShieldCheck className="size-8 text-destructive opacity-40" />
+            <div className="flex flex-col items-center justify-center p-20 space-y-4 bg-destructive/5 rounded-[2rem] border border-dashed border-destructive/20 text-center animate-in fade-in duration-500">
+                <div className="w-16 h-16 rounded-2xl bg-white/50 shadow-sm flex items-center justify-center">
+                    <ShieldCheck className="size-8 text-destructive/50" />
                 </div>
                 <div className="space-y-1">
-                    <h3 className="text-lg font-black uppercase tracking-tight italic">Access Denial</h3>
-                    <p className="text-xs font-bold text-muted-foreground/60 italic uppercase tracking-widest">{error.message}</p>
+                    <h3 className="text-lg font-medium text-foreground">Access Notice</h3>
+                    <p className="text-sm text-muted-foreground">{error.message}</p>
                 </div>
             </div>
         );
@@ -87,7 +87,7 @@ export function UsersPage() {
                             e.preventDefault();
                             setPage(1);
                         }}
-                        className="rounded-xl h-10 w-10 text-[11px] font-black hover:bg-primary/10 transition-all"
+                        className="rounded-xl h-10 w-10 text-xs font-medium hover:bg-primary/10 transition-all"
                     >
                         1
                     </PaginationLink>
@@ -106,8 +106,8 @@ export function UsersPage() {
                             setPage(i);
                         }}
                         className={cn(
-                            "rounded-xl h-10 w-10 text-[11px] font-black transition-all",
-                            page === i ? "bg-primary text-white shadow-lg shadow-primary/20" : "hover:bg-primary/10 text-muted-foreground/60 hover:text-primary"
+                            "rounded-xl h-10 w-10 text-xs font-medium transition-all",
+                            page === i ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" : "hover:bg-primary/10 text-muted-foreground hover:text-primary"
                         )}
                     >
                         {i}
@@ -125,7 +125,7 @@ export function UsersPage() {
                             e.preventDefault();
                             setPage(totalPages);
                         }}
-                        className="rounded-xl h-10 w-10 text-[11px] font-black hover:bg-primary/10 transition-all"
+                        className="rounded-xl h-10 w-10 text-xs font-medium hover:bg-primary/10 transition-all"
                     >
                         {totalPages}
                     </PaginationLink>
@@ -137,128 +137,119 @@ export function UsersPage() {
     };
 
     return (
-        <div className="space-y-10 animate-in fade-in duration-700">
+        <div className="space-y-6 animate-in fade-in duration-700">
             {/* Header Section */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-8 relative px-2">
                 <div className="space-y-4 max-w-2xl text-center sm:text-left">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[9px] font-black uppercase tracking-[0.3em]">
-                        <UsersIcon className="size-3" />
-                        Identity Management
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-medium tracking-wide">
+                        <UsersIcon className="size-3.5" />
+                        User Management
                     </div>
-                    <h1 className="text-5xl font-black tracking-tight text-foreground uppercase italic leading-[0.85]">
-                        System <br />
-                        <span className="text-primary not-italic">Users & Roles</span>
+                    <h1 className="text-3xl sm:text-5xl font-serif font-medium tracking-tight text-foreground leading-[1.1]">
+                        Community <span className="text-primary italic">& Roles</span>
                     </h1>
-                    <p className="text-[11px] font-bold text-muted-foreground/40 uppercase tracking-[0.15em] italic border-l-2 border-primary/20 pl-6 mt-6">
-                        Quản trị hạ tầng định danh, phân quyền và kiểm soát truy cập hệ thống <span className="text-foreground">Torii Global</span>.
+                    <p className="text-sm text-muted-foreground/80 leading-relaxed max-w-lg border-l-2 border-primary/20 pl-4 mt-4">
+                        Manage members, roles, and access permissions for the <span className="text-foreground font-medium">Torii Global</span> ecosystem.
                     </p>
                 </div>
                 <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto pt-6 sm:pt-0">
-                    <div className="flex items-center gap-6 p-6 rounded-[2rem] bg-background/40 border border-border/20 backdrop-blur-xl hidden sm:flex">
-                        <div className="space-y-1">
-                            <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">Entity Count</p>
-                            <h3 className="text-2xl font-black italic text-center">{total}</h3>
+                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-background/60 border border-border/20 backdrop-blur-xl hidden sm:flex shadow-sm">
+                        <div className="space-y-0.5">
+                            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium text-center">Total Accounts</p>
+                            <h3 className="text-2xl font-serif font-medium text-center text-primary">{total}</h3>
                         </div>
                     </div>
                     <Button
                         onClick={createDialog.setTrue}
-                        className="w-full sm:w-auto h-16 px-10 rounded-[1.5rem] bg-primary text-white font-black uppercase tracking-[0.2em] text-[11px] shadow-xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-1 transition-all group"
+                        className="w-full sm:w-auto h-12 px-6 rounded-xl bg-primary text-primary-foreground font-medium text-sm shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all group"
                     >
-                        Provision New User
-                        <UserPlus className="ml-3 size-4 opacity-50 group-hover:opacity-100 transition-opacity" />
+                        Add New User
+                        <UserPlus className="ml-2 size-4 opacity-70 group-hover:opacity-100 transition-opacity" />
                     </Button>
                 </div>
             </div>
 
-            {/* Main Table Container */}
-            <Card className="rounded-[3rem] bg-background/40 backdrop-blur-3xl border border-border/20 shadow-2xl shadow-primary/5 overflow-hidden group">
-                <div className="p-8 lg:p-12 space-y-10">
-                    <div className="flex flex-col lg:flex-row items-center justify-between gap-6 p-6 rounded-[2rem] bg-muted/20 border border-border/20">
-                        <div className="flex flex-1 items-center gap-6 w-full group/search">
-                            <div className="p-3.5 rounded-2xl bg-background border border-border/20 text-muted-foreground group-focus-within/search:text-primary transition-colors">
-                                <Search className="size-5" />
-                            </div>
-                            <div className="flex-1">
-                                <UsersPrimaryToolbar
-                                    search={search}
-                                    onSearchChange={setSearch}
-                                    filters={filters}
-                                    onFilterChange={setFilters}
-                                    sortBy={sortBy}
-                                    sortOrder={sortOrder}
-                                    onSortChange={(field, order) => {
-                                        setSortBy(field);
-                                        setSortOrder(order);
-                                    }}
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="rounded-[2.5rem] border border-border/20 bg-background/40 overflow-hidden relative group/table">
-                        <div className="absolute inset-0 bg-primary/[0.01] pointer-events-none" />
-                        <UsersTable
-                            data={users}
-                            onEdit={setEditingUser}
-                            onDelete={setDeletingUser}
-                            onView={setViewingUser}
-                            page={page}
-                            limit={limit}
-                            isLoading={isLoading}
+            <div className="space-y-6 px-2">
+                <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+                    <div className="flex-1 w-full">
+                        <UsersPrimaryToolbar
+                            search={search}
+                            onSearchChange={setSearch}
+                            filters={filters}
+                            onFilterChange={setFilters}
+                            sortBy={sortBy}
+                            sortOrder={sortOrder}
+                            onSortChange={(field, order) => {
+                                setSortBy(field);
+                                setSortOrder(order);
+                            }}
                         />
                     </div>
-
-                    {/* Pagination */}
-                    {(total > 0 || isLoading) && (
-                        <div className="flex flex-col lg:flex-row items-center justify-between gap-8 pt-10 border-t border-border/10">
-                            <div className="flex flex-col lg:flex-row lg:items-center gap-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 text-center lg:text-left">
-                                <div className="inline-flex items-center gap-2 group-hover:text-primary transition-colors">
-                                    <Sparkles className="size-3" />
-                                    Metric: <span className="text-foreground">{total} Identifiers Found</span>
-                                </div>
-                                <div className="hidden lg:block w-1 h-1 rounded-full bg-border" />
-                                <div className="italic">Matrix Point 0{page} of 0{totalPages}</div>
-                            </div>
-
-                            {totalPages > 1 && (
-                                <Pagination>
-                                    <PaginationContent className="flex items-center gap-2">
-                                        <PaginationItem>
-                                            <PaginationPrevious
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    setPage(p => Math.max(1, p - 1));
-                                                }}
-                                                className={cn(
-                                                    "h-12 px-6 rounded-2xl bg-muted/20 border border-border/20 text-[10px] font-black uppercase tracking-widest transition-all",
-                                                    page === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/10 hover:text-primary cursor-pointer active:scale-95"
-                                                )}
-                                            />
-                                        </PaginationItem>
-
-                                        <div className="hidden md:flex items-center gap-1 mx-2">
-                                            {renderPaginationItems()}
-                                        </div>
-
-                                        <PaginationItem>
-                                            <PaginationNext
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    setPage(p => Math.min(totalPages, p + 1));
-                                                }}
-                                                className={cn(
-                                                    "h-12 px-6 rounded-2xl bg-muted/20 border border-border/20 text-[10px] font-black uppercase tracking-widest transition-all",
-                                                    page === totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/10 hover:text-primary cursor-pointer active:scale-95"
-                                                )}
-                                            />
-                                        </PaginationItem>
-                                    </PaginationContent>
-                                </Pagination>
-                            )}
-                        </div>
-                    )}
                 </div>
-            </Card>
+
+                <div className="rounded-3xl border border-white/20 bg-background/50 backdrop-blur-3xl overflow-hidden relative group/table shadow-sm">
+                    <div className="absolute inset-0 bg-primary/[0.02] pointer-events-none" />
+                    <UsersTable
+                        data={users}
+                        onEdit={setEditingUser}
+                        onDelete={setDeletingUser}
+                        onView={setViewingUser}
+                        page={page}
+                        limit={limit}
+                        isLoading={isLoading}
+                    />
+                </div>
+
+                {/* Pagination */}
+                {(total > 0 || isLoading) && (
+                    <div className="flex flex-col lg:flex-row items-center justify-between gap-4 pt-2">
+                        <div className="flex flex-col lg:flex-row lg:items-center gap-4 text-xs text-muted-foreground font-medium text-center lg:text-left pl-2">
+                            <div className="inline-flex items-center gap-2">
+                                <Sparkles className="size-3.5 text-primary/70" />
+                                <span>Total: <span className="text-foreground">{total} Registered Users</span></span>
+                            </div>
+                            <div className="hidden lg:block w-1 h-1 rounded-full bg-border" />
+                            <div>Page {page} of {totalPages}</div>
+                        </div>
+
+                        {totalPages > 1 && (
+                            <Pagination>
+                                <PaginationContent className="flex items-center gap-2">
+                                    <PaginationItem>
+                                        <PaginationPrevious
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                setPage(p => Math.max(1, p - 1));
+                                            }}
+                                            className={cn(
+                                                "h-10 px-4 rounded-xl bg-background/50 border border-border/20 text-xs font-medium transition-all",
+                                                page === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary cursor-pointer"
+                                            )}
+                                        />
+                                    </PaginationItem>
+
+                                    <div className="hidden md:flex items-center gap-1 mx-2">
+                                        {renderPaginationItems()}
+                                    </div>
+
+                                    <PaginationItem>
+                                        <PaginationNext
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                setPage(p => Math.min(totalPages, p + 1));
+                                            }}
+                                            className={cn(
+                                                "h-10 px-4 rounded-xl bg-background/50 border border-border/20 text-xs font-medium transition-all",
+                                                page === totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary cursor-pointer"
+                                            )}
+                                        />
+                                    </PaginationItem>
+                                </PaginationContent>
+                            </Pagination>
+                        )}
+                    </div>
+                )}
+            </div>
 
             {/* Sheets & Dialogs */}
             <CreateUserSheet

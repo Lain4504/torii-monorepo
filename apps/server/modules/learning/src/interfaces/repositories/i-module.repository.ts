@@ -13,7 +13,7 @@ export interface IModuleRepository {
     /**
      * Find all modules for a course
      */
-    findByCourseId(courseId: string): Promise<CourseModule[]>;
+    findByCourseId(courseId: string, includeDrafts?: boolean): Promise<CourseModule[]>;
 
     /**
      * Find all modules with pagination and filtering

@@ -1,172 +1,344 @@
-'use client'
-
+'use client';
+import { useState } from 'react'
 import { Badge } from '@workspace/ui/components/badge'
 import {
     CheckCircle2,
     Clock,
     XCircle,
     Search,
+    Eye,
     Filter,
-    Download,
-    Receipt,
-    ExternalLink
 } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { Input } from '@workspace/ui/components/input'
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@workspace/ui/components/table'
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+} from '@workspace/ui/components/dialog'
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@workspace/ui/components/select"
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@workspace/ui/components/pagination"
 import { cn } from '@workspace/ui/lib/utils'
+import { useOrders, useOrder } from '@/apis/services/order-api'
+import { ComponentLoading } from '@workspace/ui/components/component-loading'
+import { Separator } from '@workspace/ui/components/separator'
+import { OrderStatus } from '@workspace/schemas' // Assuming this exists, or use string literals
 
 export default function PaymentHistoryPage() {
-    const payments = [
-        {
-            id: 'TXN-10293',
-            course: 'Tiếng Nhật N5 - Khóa học toàn diện',
-            date: '2026-01-05',
-            amount: 499000,
-            method: 'Chuyển khoản ngân hàng',
-            status: 'completed',
-        },
-        {
-            id: 'TXN-10182',
-            course: 'Ngữ pháp N4 nâng cao',
-            date: '2025-12-20',
-            amount: 599000,
-            method: 'Chuyển khoản ngân hàng',
-            status: 'completed',
-        },
-        {
-            id: 'TXN-09823',
-            course: 'Học Kanji qua hình ảnh',
-            date: '2025-11-15',
-            amount: 350000,
-            method: 'Chuyển khoản ngân hàng',
-            status: 'completed',
-        },
-        {
-            id: 'TXN-09712',
-            course: 'Giao tiếp tiếng Nhật cơ bản',
-            date: '2025-11-01',
-            amount: 450000,
-            method: 'Chuyển khoản ngân hàng',
-            status: 'failed',
-        },
-    ]
+    const [searchTerm, setSearchTerm] = useState('')
+    const [statusFilter, setStatusFilter] = useState('all')
+    const [currentPage, setCurrentPage] = useState(1)
+    const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null)
+    const [isDetailOpen, setIsDetailOpen] = useState(false)
 
-    const getStatusBadge = (status: string) => {
-        switch (status) {
+    const limit = 10;
+
+    const { data, isLoading } = useOrders({
+        limit: limit,
+        page: currentPage,
+        status: statusFilter === 'all' ? undefined : statusFilter as any
+    })
+
+    const { data: orderDetails, isLoading: isLoadingDetails } = useOrder(selectedOrderId || '')
+
+    const orders = data?.data || []
+    const meta = {
+        totalPages: data?.totalPages || 1,
+        currentPage: data?.page || 1,
+        totalItems: data?.total || 0,
+    }
+
+    const getStatusInfo = (status: string) => {
+        switch (status?.toLowerCase()) {
             case 'completed':
-                return (
-                    <Badge variant="outline" className="border-emerald-500/20 bg-emerald-500/10 text-emerald-600 font-bold text-[10px] uppercase tracking-wider gap-1.5 py-1">
-                        <CheckCircle2 className="w-3 h-3" /> Thành công
-                    </Badge>
-                )
+            case 'paid':
+                return {
+                    label: 'Thành công',
+                    color: 'bg-emerald-500/5 text-emerald-600 border-emerald-500/10',
+                    icon: <CheckCircle2 className="w-3 h-3" />
+                }
             case 'pending':
-                return (
-                    <Badge variant="outline" className="border-amber-500/20 bg-amber-500/10 text-amber-600 font-bold text-[10px] uppercase tracking-wider gap-1.5 py-1">
-                        <Clock className="w-3 h-3" /> Chờ xử lý
-                    </Badge>
-                )
+            case 'processing':
+                return {
+                    label: 'Chờ xử lý',
+                    color: 'bg-amber-500/5 text-amber-600 border-amber-500/10',
+                    icon: <Clock className="w-3 h-3" />
+                }
             case 'failed':
-                return (
-                    <Badge variant="outline" className="border-red-500/20 bg-red-500/10 text-red-600 font-bold text-[10px] uppercase tracking-wider gap-1.5 py-1">
-                        <XCircle className="w-3 h-3" /> Thất bại
-                    </Badge>
-                )
+            case 'cancelled':
+                return {
+                    label: 'Thất bại',
+                    color: 'bg-red-500/5 text-red-600 border-red-500/10',
+                    icon: <XCircle className="w-3 h-3" />
+                }
             default:
-                return null
+                return {
+                    label: status || 'Không xác định',
+                    color: 'bg-muted/5 text-muted-foreground border-border/10',
+                    icon: null
+                }
         }
+    }
+
+    const handleViewDetail = (id: string) => {
+        setSelectedOrderId(id)
+        setIsDetailOpen(true)
+    }
+
+    const handlePageChange = (page: number) => {
+        if (page < 1 || page > meta.totalPages) return
+        setCurrentPage(page)
+    }
+
+    // Generate page numbers to show
+    const getPageNumbers = () => {
+        const pages = []
+        const totalPages = meta.totalPages
+        const current = meta.currentPage
+
+        if (totalPages <= 5) {
+            for (let i = 1; i <= totalPages; i++) pages.push(i)
+        } else {
+            if (current <= 3) {
+                pages.push(1, 2, 3, '...', totalPages)
+            } else if (current >= totalPages - 2) {
+                pages.push(1, '...', totalPages - 2, totalPages - 1, totalPages)
+            } else {
+                pages.push(1, '...', current - 1, current, current + 1, '...', totalPages)
+            }
+        }
+        return pages
     }
 
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 max-w-7xl animate-in fade-in duration-500">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-border/40">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-border/10">
                 <div className="space-y-2">
-                    <h1 className="text-3xl font-black uppercase italic tracking-tighter text-foreground flex items-center gap-3">
-                        <Receipt className="w-8 h-8 text-primary" />
-                        Lịch sử thanh toán
-                    </h1>
-                    <p className="text-sm font-medium text-muted-foreground/80 tracking-wide">
-                        Theo dõi và quản lý các giao dịch học tập
+                    <h1 className="text-3xl font-serif font-bold text-foreground italic">Lịch sử Đơn hàng</h1>
+                    <p className="text-xs text-muted-foreground/60 font-medium tracking-wide">
+                        Theo dõi các đơn hàng và trạng thái thanh toán của bạn
                     </p>
                 </div>
 
-                <div className="flex items-center gap-3 w-full md:w-auto">
-                    <div className="relative flex-1 md:flex-initial">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
+                <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                    {/* Filter Status */}
+                    <div className="w-full sm:w-[180px]">
+                        <Select value={statusFilter} onValueChange={(val) => {
+                            setStatusFilter(val)
+                            setCurrentPage(1) // Reset to page 1 on filter change
+                        }}>
+                            <SelectTrigger className="h-9 w-full bg-muted/5 border-border/10 rounded-lg text-xs font-medium focus:ring-1 ring-primary/20">
+                                <div className="flex items-center gap-2">
+                                    <Filter className="w-3.5 h-3.5 text-muted-foreground/40" />
+                                    <SelectValue placeholder="Trạng thái" />
+                                </div>
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Tất cả trạng thái</SelectItem>
+                                <SelectItem value="completed">Thành công</SelectItem>
+                                <SelectItem value="pending">Chờ xử lý</SelectItem>
+                                <SelectItem value="failed">Thất bại</SelectItem>
+                                <SelectItem value="cancelled">Đã hủy</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    {/* Search */}
+                    <div className="relative flex-1 md:flex-initial w-full sm:w-auto">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/30" />
                         <Input
-                            placeholder="Tìm mã giao dịch..."
-                            className="pl-10 h-10 w-full md:w-64 bg-background/50 border-border/40 focus:bg-background focus:border-primary/20 rounded-xl transition-all font-medium text-xs placeholder:text-muted-foreground/50 shadow-sm"
+                            placeholder="Tìm kiếm mã đơn, nội dung..."
+                            className="pl-9 h-9 w-full md:w-56 bg-muted/5 border-border/10 rounded-lg text-xs placeholder:text-muted-foreground/40 focus:ring-1 ring-primary/20"
+                            value={searchTerm}
+                            onChange={(e) => {
+                                setSearchTerm(e.target.value)
+                                setCurrentPage(1) // Reset to page 1 on search
+                            }}
                         />
                     </div>
-                    <Button variant="outline" size="icon" className="h-10 w-10 border-border/40 rounded-xl hover:bg-muted/50 cursor-pointer text-muted-foreground">
-                        <Filter className="w-4 h-4" />
-                    </Button>
                 </div>
             </div>
 
-            {/* Transactions Table */}
-            <div className="rounded-[1.5rem] border border-border/40 bg-background/40 backdrop-blur-xl overflow-hidden shadow-sm">
-                <Table>
-                    <TableHeader className="bg-muted/30 border-b border-white/5">
-                        <TableRow className="hover:bg-transparent border-white/5">
-                            <TableHead className="w-[120px] text-[10px] font-black uppercase tracking-widest text-muted-foreground py-5">Mã Giao Dịch</TableHead>
-                            <TableHead className="text-[10px] font-black uppercase tracking-widest text-muted-foreground py-5">Khóa Học / Nội Dung</TableHead>
-                            <TableHead className="w-[140px] text-[10px] font-black uppercase tracking-widest text-muted-foreground py-5">Ngày</TableHead>
-                            <TableHead className="w-[150px] text-[10px] font-black uppercase tracking-widest text-muted-foreground py-5 text-right">Số Tiền</TableHead>
-                            <TableHead className="w-[150px] text-[10px] font-black uppercase tracking-widest text-muted-foreground py-5 text-center">Trạng Thái</TableHead>
-                            <TableHead className="w-[50px] py-5"></TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {payments.map((payment) => (
-                            <TableRow key={payment.id} className="group hover:bg-primary/[0.02] border-white/5 transition-colors">
-                                <TableCell className="font-bold text-xs text-muted-foreground/80 py-4">
-                                    <span className="font-mono text-primary/80">{payment.id}</span>
-                                </TableCell>
-                                <TableCell className="py-4">
-                                    <div className="flex flex-col">
-                                        <span className="font-bold text-sm text-foreground group-hover:text-primary transition-colors">{payment.course}</span>
-                                        <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-tight mt-0.5">{payment.method}</span>
+            {/* Table Content */}
+            {isLoading ? (
+                <ComponentLoading className="h-64" />
+            ) : (
+                <div className="space-y-6">
+                    <div className="space-y-4">
+                        <div className="hidden md:grid grid-cols-7 px-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40">
+                            <div className="col-span-1">Mã đơn</div>
+                            <div className="col-span-2">Nội dung</div>
+                            <div className="col-span-1">Ngày tạo</div>
+                            <div className="col-span-1 text-right">Tổng tiền</div>
+                            <div className="col-span-1 text-center">Trạng thái</div>
+                            <div className="col-span-1 text-right">Thao tác</div>
+                        </div>
+                        <div className="divide-y divide-border/5 border-y border-border/10">
+                            {orders.length > 0 ? orders.map((order) => {
+                                const statusInfo = getStatusInfo(order.status)
+                                return (
+                                    <div key={order.id} className="grid grid-cols-1 md:grid-cols-7 items-center p-4 hover:bg-muted/5 transition-colors group">
+                                        <div className="col-span-1 text-xs font-mono text-primary/60 mb-2 md:mb-0 flex items-center gap-2">
+                                            <span className="md:hidden text-muted-foreground/40 font-bold uppercase text-[10px]">Mã:</span>
+                                            #{order.transactionId || order.id.slice(-6).toUpperCase()}
+                                        </div>
+                                        <div className="col-span-2 mb-2 md:mb-0">
+                                            <p className="text-sm font-bold text-foreground truncate">{order.description || 'Thanh toán khóa học'}</p>
+                                            <p className="text-[10px] text-muted-foreground/40 font-medium uppercase">{order.paymentMethod || 'Cổng thanh toán'}</p>
+                                        </div>
+                                        <div className="col-span-1 text-xs text-muted-foreground font-medium md:table-cell hidden">
+                                            {new Date(order.createdAt).toLocaleDateString('vi-VN')}
+                                        </div>
+                                        <div className="col-span-1 text-right flex md:block justify-between items-center mb-2 md:mb-0">
+                                            <span className="md:hidden text-muted-foreground/40 font-bold uppercase text-[10px]">Tổng tiền:</span>
+                                            <span className="text-sm font-bold text-foreground">
+                                                {order.amount.toLocaleString('vi-VN')}₫
+                                            </span>
+                                        </div>
+                                        <div className="col-span-1 flex justify-center mt-0 md:mt-0 mb-3 md:mb-0">
+                                            <span className={cn(
+                                                "px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border flex items-center gap-1.5",
+                                                statusInfo.color
+                                            )}>
+                                                {statusInfo.icon}
+                                                {statusInfo.label}
+                                            </span>
+                                        </div>
+                                        <div className="col-span-1 text-right flex justify-end">
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="h-8 w-8 p-0 rounded-full"
+                                                onClick={() => handleViewDetail(order.id)}
+                                            >
+                                                <Eye className="w-4 h-4 text-muted-foreground" />
+                                            </Button>
+                                        </div>
                                     </div>
-                                </TableCell>
-                                <TableCell className="py-4 text-xs font-semibold text-muted-foreground">
-                                    {new Date(payment.date).toLocaleDateString('vi-VN')}
-                                </TableCell>
-                                <TableCell className="py-4 text-right">
-                                    <span className="font-black text-sm text-foreground">
-                                        {payment.amount.toLocaleString('vi-VN')}₫
-                                    </span>
-                                </TableCell>
-                                <TableCell className="py-4 text-center">
-                                    <div className="flex justify-center">
-                                        {getStatusBadge(payment.status)}
-                                    </div>
-                                </TableCell>
-                                <TableCell className="py-4 text-right pr-4">
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-all opacity-0 group-hover:opacity-100 cursor-pointer">
-                                        <ExternalLink className="w-4 h-4" />
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </div>
+                                )
+                            }) : (
+                                <div className="py-20 text-center">
+                                    <p className="text-sm text-muted-foreground font-medium">Bạn chưa có đơn hàng nào.</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
 
-            {/* Pagination / Load More */}
-            <div className="flex justify-center pt-2">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40 hover:text-primary cursor-pointer transition-colors">
-                    Hiển thị 4 trong tổng số 12 giao dịch
-                </p>
-            </div>
+                    {/* Pagination */}
+                    {orders.length > 0 && meta.totalPages > 1 && (
+                        <Pagination>
+                            <PaginationContent>
+                                <PaginationItem>
+                                    <PaginationPrevious
+                                        onClick={() => handlePageChange(currentPage - 1)}
+                                    />
+                                </PaginationItem>
+
+                                {getPageNumbers().map((page, index) => (
+                                    <PaginationItem key={index}>
+                                        {page === '...' ? (
+                                            <PaginationEllipsis />
+                                        ) : (
+                                            <PaginationLink
+                                                isActive={page === currentPage}
+                                                onClick={() => handlePageChange(page as number)}
+                                            >
+                                                {page}
+                                            </PaginationLink>
+                                        )}
+                                    </PaginationItem>
+                                ))}
+
+                                <PaginationItem>
+                                    <PaginationNext
+                                        onClick={() => handlePageChange(currentPage + 1)}
+                                    />
+                                </PaginationItem>
+                            </PaginationContent>
+                        </Pagination>
+                    )}
+                </div>
+            )}
+
+            {/* Order Detail Dialog */}
+            <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
+                <DialogContent className="max-w-md rounded-[2rem] p-8 border-border/10">
+                    <DialogHeader className="space-y-4">
+                        <DialogTitle className="text-2xl font-serif font-bold italic">Chi tiết đơn hàng</DialogTitle>
+                        <DialogDescription className="text-xs font-medium tracking-wide uppercase text-muted-foreground/60">
+                            Mã đơn: #{orderDetails?.transactionId || orderDetails?.id.slice(-6).toUpperCase() || selectedOrderId?.slice(-6).toUpperCase()}
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    {isLoadingDetails ? (
+                        <div className="py-12 flex justify-center">
+                            <ComponentLoading />
+                        </div>
+                    ) : orderDetails ? (
+                        <div className="space-y-8 mt-6">
+                            <div className="space-y-4">
+                                <div className="flex justify-between items-center bg-muted/5 p-4 rounded-2xl border border-border/5">
+                                    <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/60">Trạng thái</span>
+                                    <span className={cn(
+                                        "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border",
+                                        getStatusInfo(orderDetails.status).color
+                                    )}>
+                                        {getStatusInfo(orderDetails.status).label}
+                                    </span>
+                                </div>
+
+                                <div className="space-y-3 px-1">
+                                    <div className="flex justify-between text-sm items-baseline">
+                                        <span className="text-muted-foreground/60 font-medium">Nội dung</span>
+                                        <span className="font-bold text-right max-w-[200px] leading-tight">{orderDetails.description || 'N/A'}</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm items-baseline">
+                                        <span className="text-muted-foreground/60 font-medium">Thời gian</span>
+                                        <span className="font-mono text-xs">{new Date(orderDetails.createdAt).toLocaleString('vi-VN')}</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm items-baseline">
+                                        <span className="text-muted-foreground/60 font-medium">Phương thức</span>
+                                        <span className="font-bold uppercase tracking-tighter text-xs">{orderDetails.paymentMethod || 'Thanh toán trực tuyến'}</span>
+                                    </div>
+                                    <Separator className="bg-border/10 my-4" />
+                                    <div className="flex justify-between items-center pt-2">
+                                        <span className="text-sm font-black uppercase tracking-[0.2em] text-primary">Tổng tiền</span>
+                                        <span className="text-2xl font-serif font-black italic">{orderDetails.amount.toLocaleString('vi-VN')}₫</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <Button
+                                className="w-full h-14 rounded-2xl bg-primary text-white font-bold uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all"
+                                onClick={() => setIsDetailOpen(false)}
+                            >
+                                Đóng
+                            </Button>
+                        </div>
+                    ) : (
+                        <div className="py-12 text-center text-red-500 font-medium">
+                            Không thể tải chi tiết đơn hàng.
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }

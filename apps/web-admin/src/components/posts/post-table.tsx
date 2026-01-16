@@ -47,12 +47,12 @@ export function PostTable({ data, onView, onEdit, onDelete, page, limit, isLoadi
 
     return (
         <Table className="min-w-[1000px] border-collapse bg-transparent">
-            <TableHeader className="bg-muted/10 border-b border-border/20">
+            <TableHeader className="bg-muted/10 border-b border-border/40">
                 {table.getHeaderGroups().map((headerGroup) => (
                     <TableRow key={headerGroup.id} className="border-none hover:bg-transparent">
                         {headerGroup.headers.map((header) => {
                             return (
-                                <TableHead key={header.id} className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-6">
+                                <TableHead key={header.id} className="h-9 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-3">
                                     {header.isPlaceholder
                                         ? null
                                         : flexRender(
@@ -70,8 +70,8 @@ export function PostTable({ data, onView, onEdit, onDelete, page, limit, isLoadi
                     Array.from({ length: 5 }).map((_, index) => (
                         <TableRow key={index} className="border-b border-border/10">
                             {columns.map((_, colIndex) => (
-                                <TableCell key={colIndex} className="py-6 px-6">
-                                    <Skeleton className="h-6 w-full bg-muted/20 rounded-xl" />
+                                <TableCell key={colIndex} className="py-2.5 px-3">
+                                    <Skeleton className="h-4 w-full bg-muted/20 rounded-md" />
                                 </TableCell>
                             ))}
                         </TableRow>
@@ -81,10 +81,10 @@ export function PostTable({ data, onView, onEdit, onDelete, page, limit, isLoadi
                         <TableRow
                             key={row.id}
                             data-state={row.getIsSelected() && 'selected'}
-                            className="border-b border-border/10 hover:bg-primary/[0.02] transition-all duration-500 group"
+                            className="border-b border-border/20 hover:bg-primary/[0.02] transition-all duration-500 group"
                         >
                             {row.getVisibleCells().map((cell) => (
-                                <TableCell key={cell.id} className="py-5 px-6 text-[13px] font-bold text-foreground/80 whitespace-nowrap group-hover:text-primary transition-colors">
+                                <TableCell key={cell.id} className="py-2.5 px-3 text-[13px] font-bold text-foreground/80 whitespace-nowrap group-hover:text-primary transition-colors">
                                     {flexRender(
                                         cell.column.columnDef.cell,
                                         cell.getContext()
@@ -100,7 +100,7 @@ export function PostTable({ data, onView, onEdit, onDelete, page, limit, isLoadi
                             className="h-64 text-center"
                         >
                             <div className="flex flex-col items-center justify-center p-12 space-y-6">
-                                <div className="w-20 h-20 rounded-[1.5rem] bg-muted/20 flex items-center justify-center border border-border/40 relative">
+                                <div className="w-16 h-16 rounded-xl bg-muted/20 flex items-center justify-center border border-border/40 relative">
                                     <div className="absolute inset-0 bg-primary/5 blur-2xl rounded-full" />
                                     <SearchCode className="size-10 text-muted-foreground/20 relative z-10" />
                                 </div>

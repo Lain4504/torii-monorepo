@@ -8,6 +8,7 @@ export const moduleCreateDTOSchema = moduleSchema
         description: true,
         aiMetadata: true,
         orderIndex: true,
+        status: true,
         durationMinutes: true,
         createdBy: true,
     });
@@ -21,6 +22,7 @@ export const moduleUpdateDTOSchema = moduleSchema
         description: true,
         aiMetadata: true,
         orderIndex: true,
+        status: true,
         durationMinutes: true,
     })
     .extend({
@@ -35,6 +37,7 @@ export const moduleQueryDTOSchema = z.object({
     limit: z.coerce.number().min(1).default(10),
     courseId: z.string().uuid().optional(),
     search: z.string().optional(),
+    status: z.enum(['published', 'draft']).optional(),
 });
 
 export type ModuleQueryDTO = z.infer<typeof moduleQueryDTOSchema>;

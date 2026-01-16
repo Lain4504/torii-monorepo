@@ -66,20 +66,20 @@ export function LoginForm() {
                     name="email"
                     control={form.control}
                     render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid} className="space-y-2.5">
-                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 ml-1">Email Access</FieldLabel>
+                        <Field data-invalid={fieldState.invalid} className="space-y-1.5">
+                            <FieldLabel htmlFor={field.name} className="text-xs font-medium text-foreground">Email</FieldLabel>
                             <div className="relative group">
-                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 transition-colors group-focus-within:text-primary" />
+                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50 transition-colors group-focus-within:text-primary" />
                                 <Input
                                     {...field}
                                     id={field.name}
                                     type="email"
                                     aria-invalid={fieldState.invalid}
                                     placeholder="yourname@domain.com"
-                                    className="pl-12 h-14 rounded-2xl bg-muted/20 border-border/40 focus:bg-background focus:ring-0 text-sm font-bold transition-all placeholder:text-muted-foreground/30"
+                                    className="pl-9 h-11 rounded-xl bg-muted/5 border-border/20 focus:bg-background focus:border-primary/20 focus:ring-2 focus:ring-primary/10 text-sm font-medium transition-all placeholder:text-muted-foreground/40"
                                 />
                             </div>
-                            {fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-[10px] font-bold uppercase" />}
+                            {fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-xs font-medium text-destructive mt-1" />}
                         </Field>
                     )}
                 />
@@ -87,29 +87,29 @@ export function LoginForm() {
                     name="password"
                     control={form.control}
                     render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid} className="space-y-2.5">
-                            <div className="flex items-center justify-between px-1">
-                                <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">Mật khẩu</FieldLabel>
+                        <Field data-invalid={fieldState.invalid} className="space-y-1.5">
+                            <div className="flex items-center justify-between px-0.5">
+                                <FieldLabel htmlFor={field.name} className="text-xs font-medium text-foreground">Mật khẩu</FieldLabel>
                                 <Link
                                     href="/forgot-password"
-                                    className="text-[10px] font-black uppercase tracking-widest text-primary hover:opacity-80 transition-opacity cursor-pointer"
+                                    className="text-xs font-medium text-primary hover:text-primary/80 transition-colors cursor-pointer"
                                 >
                                     Quên mật khẩu?
                                 </Link>
                             </div>
                             <div className="relative group">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 transition-colors group-focus-within:text-primary" />
+                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50 transition-colors group-focus-within:text-primary" />
                                 <Input
                                     {...field}
                                     id={field.name}
                                     type={showPassword ? 'text' : 'password'}
                                     aria-invalid={fieldState.invalid}
                                     placeholder="••••••••••••"
-                                    className="pl-12 pr-12 h-14 rounded-2xl bg-muted/20 border-border/40 focus:bg-background focus:ring-0 text-sm font-bold transition-all placeholder:text-muted-foreground/30"
+                                    className="pl-9 pr-9 h-11 rounded-xl bg-muted/5 border-border/20 focus:bg-background focus:border-primary/20 focus:ring-2 focus:ring-primary/10 text-sm font-medium transition-all placeholder:text-muted-foreground/40"
                                 />
                                 <button
                                     type="button"
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-foreground cursor-pointer transition-colors"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-foreground cursor-pointer transition-colors"
                                     onClick={() => setShowPassword(!showPassword)}
                                 >
                                     {showPassword ? (
@@ -119,31 +119,28 @@ export function LoginForm() {
                                     )}
                                 </button>
                             </div>
-                            {fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-[10px] font-bold uppercase" />}
+                            {fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-xs font-medium text-destructive mt-1" />}
                         </Field>
                     )}
                 />
 
                 {error && (
-                    <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-destructive bg-destructive/5 p-4 rounded-2xl border border-destructive/20 animate-in fade-in zoom-in-95">
-                        <div className="w-6 h-6 rounded-lg bg-destructive/10 flex items-center justify-center">
-                            <LogIn className="h-3 w-3" />
-                        </div>
+                    <div className="flex items-center gap-3 text-sm font-medium text-destructive bg-destructive/5 p-4 rounded-xl border border-destructive/10 animate-in fade-in zoom-in-95">
+                        <LogIn className="h-4 w-4 shrink-0" />
                         {error}
                     </div>
                 )}
 
                 <Button
                     type="submit"
-                    className="w-full h-14 rounded-2xl bg-primary text-white font-black uppercase tracking-[0.2em] text-[11px] shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all active:scale-95 group"
+                    className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all"
                     disabled={isLoading}
                 >
                     {isLoading ? (
-                        <Spinner className="mr-2" />
+                        <Spinner className="mr-2 h-4 w-4" />
                     ) : (
                         <>
                             Đăng nhập
-                            <Sparkles className="ml-2.5 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </>
                     )}
                 </Button>

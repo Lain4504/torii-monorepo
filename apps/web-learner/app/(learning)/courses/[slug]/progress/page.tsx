@@ -8,7 +8,7 @@ import { Button } from '@workspace/ui/components/button'
 import { Progress } from '@workspace/ui/components/progress'
 import { Badge } from '@workspace/ui/components/badge'
 import { ArrowLeft, TrendingUp, Clock, CheckCircle2, BookOpen, Award } from 'lucide-react'
-import { courseApi } from '@/api/services/course-api'
+import { courseApi } from '@/apis/services/course-api'
 
 export default function CourseProgressPage() {
     const params = useParams()

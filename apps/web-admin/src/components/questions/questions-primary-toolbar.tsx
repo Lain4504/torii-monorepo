@@ -1,5 +1,6 @@
 import { Input } from '@workspace/ui/components/input';
-import { Layers, Layout, Target, Zap, Activity, BrainCircuit } from 'lucide-react';
+import { Layers, Layout, Target, Zap, Activity } from 'lucide-react';
+import { cn } from "@workspace/ui/lib/utils";
 import {
     Select,
     SelectContent,
@@ -47,39 +48,42 @@ export function QuestionsPrimaryToolbar({
 
     return (
         <div className="flex flex-col gap-6 w-full">
-            {/* Main Search Row */}
             <div className="relative group">
                 <Input
                     placeholder="ENTER LOGIC PROMPT OR ASSET IDENTIFIER..."
                     value={search}
                     onChange={(e) => onSearchChange(e.target.value)}
-                    className="h-14 pl-6 rounded-2xl border-border/20 bg-background/50 hover:bg-background/80 focus-visible:ring-primary/20 transition-all text-[11px] font-black uppercase tracking-[0.15em] placeholder:text-muted-foreground/20"
+                    className="h-12 pl-6 rounded-2xl border-border/20 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-[11px] font-black uppercase tracking-[0.15em] placeholder:text-muted-foreground/20"
                 />
             </div>
 
             {/* Matrix Filters Row */}
             <div className="flex flex-wrap items-center gap-3">
-                <Select
-                    value={questionTypeFilter || 'all'}
-                    onValueChange={(value) =>
-                        onQuestionTypeFilterChange(value === 'all' ? '' : value)
-                    }
-                >
-                    <SelectTrigger className="h-12 min-w-[140px] px-4 rounded-xl border-border/20 bg-background/50 hover:bg-background/80 transition-all text-[9px] font-black uppercase tracking-widest focus:ring-primary/20">
-                        <div className="flex items-center gap-2">
-                            <BrainCircuit className="size-3.5 opacity-30" />
-                            <SelectValue placeholder="UNIT TYPE" />
-                        </div>
-                    </SelectTrigger>
-                    <SelectContent className="border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-2xl p-2">
-                        <SelectItem value="all" className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer italic">ALL UNITS</SelectItem>
-                        <SelectItem value={QuestionType.MULTIPLE_CHOICE} className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">MCQ UNIT</SelectItem>
-                        <SelectItem value={QuestionType.TRUE_FALSE} className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">POLAR LOGIC</SelectItem>
-                        <SelectItem value={QuestionType.FILL_BLANK} className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">GAPS SYNC</SelectItem>
-                        <SelectItem value={QuestionType.MATCHING} className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">NODE PAIR</SelectItem>
-                        <SelectItem value={QuestionType.ESSAY} className="rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">FREE FORM</SelectItem>
-                    </SelectContent>
-                </Select>
+                {/* Question Type Tabs */}
+                <div className="flex flex-wrap items-center gap-2">
+                    {[
+                        { value: 'all', label: 'All Units' },
+                        { value: QuestionType.MULTIPLE_CHOICE, label: 'MCQ Unit' },
+                        { value: QuestionType.TRUE_FALSE, label: 'Polar Logic' },
+                        { value: QuestionType.FILL_BLANK, label: 'Gaps Sync' },
+                        { value: QuestionType.MATCHING, label: 'Node Pair' },
+                        { value: QuestionType.ESSAY, label: 'Free Form' },
+                    ].map((type) => (
+                        <button
+                            key={type.value}
+                            onClick={() => onQuestionTypeFilterChange(type.value === 'all' ? '' : type.value)}
+                            className={cn(
+                                "rounded-full h-9 px-6 text-[10px] font-black uppercase tracking-widest transition-all",
+                                "rounded-full h-10 px-6 text-[10px] font-black uppercase tracking-widest transition-all",
+                                (type.value === 'all' && !questionTypeFilter) || questionTypeFilter === type.value
+                                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                                    : "bg-muted/10 text-muted-foreground hover:bg-primary/10 hover:text-primary"
+                            )}
+                        >
+                            {type.label}
+                        </button>
+                    ))}
+                </div>
 
                 <Select
                     value={categoryFilter || 'all'}

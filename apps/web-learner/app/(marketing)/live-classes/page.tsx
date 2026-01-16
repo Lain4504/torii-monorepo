@@ -59,7 +59,7 @@ export default function LiveClassesPage() {
                 avatar: "",
                 role: "Senior Linguist"
             },
-            price: "¥45,000",
+            price: "4.500.000 VNĐ",
             features: ["Live pronunciation checks", "24/7 Discord Community", "Unlimited Replays"],
             status: "filling_fast",
             curriculum_highlight: "Mastering Keigo Basics"
@@ -78,7 +78,7 @@ export default function LiveClassesPage() {
                 avatar: "",
                 role: "Bilingual Expert"
             },
-            price: "¥35,000",
+            price: "3.500.000 VNĐ",
             features: ["Cultural Workshops", "Kanji PDF Workbooks", "1-on-1 Feedback"],
             status: "open",
             curriculum_highlight: "Daily Life Conversations"
@@ -97,7 +97,7 @@ export default function LiveClassesPage() {
                 avatar: "",
                 role: "Corporate Trainer"
             },
-            price: "¥60,000",
+            price: "6.000.000 VNĐ",
             features: ["Resume Review", "Mock Interviews", "Networking Events"],
             status: "waitlist",
             curriculum_highlight: "Negotiation Tactics"
@@ -132,21 +132,21 @@ export default function LiveClassesPage() {
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background opacity-50" />
                 <div className="container relative z-10 px-4 mx-auto max-w-7xl">
                     <div className="flex flex-col items-center text-center space-y-8 animate-in fade-in zoom-in-95 duration-1000">
-                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 backdrop-blur-sm">
-                            <span className="relative flex h-2 w-2">
+                        <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-primary/10 bg-primary/5 text-primary text-[9px] font-black uppercase tracking-[0.3em] mb-4">
+                            <div className="relative flex h-2 w-2">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-                            </span>
-                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Live Learning Cohorts</span>
+                            </div>
+                            <span>Academic Cohorts 2024/25</span>
                         </div>
 
-                        <h1 className="max-w-4xl text-5xl md:text-7xl/none font-black uppercase italic tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/50">
+                        <h1 className="max-w-4xl text-5xl md:text-8xl font-serif font-bold tracking-tight text-foreground uppercase italic leading-[0.9]">
                             Master Japanese in <br />
-                            <span className="text-primary">Real-Time</span>
+                            <span className="text-primary not-italic">Real-Time.</span>
                         </h1>
 
-                        <p className="max-w-2xl text-lg text-muted-foreground font-medium leading-relaxed">
-                            Join elite cohorts led by expert linguists. Structured curriculum, live interaction, and a community of dedicated learners driven by results.
+                        <p className="max-w-2xl text-[11px] md:text-xs font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-8 mx-auto py-2 leading-relaxed">
+                            Structured curriculum, live interaction, and a community of <br /> dedicated learners driven by results.
                         </p>
                     </div>
                 </div>
@@ -173,70 +173,77 @@ export default function LiveClassesPage() {
                                         )} />
 
                                         {/* 1. Level & Basic Info */}
-                                        <div className="flex-1 min-w-0 space-y-3">
-                                            <div className="flex items-center gap-3">
-                                                <Badge variant="outline" className={cn(
-                                                    "rounded-md px-2 py-1 text-[9px] font-black uppercase tracking-widest border-0",
-                                                    course.level === 'N5' ? "bg-blue-500/10 text-blue-500" :
-                                                        course.level === 'N4' ? "bg-emerald-500/10 text-emerald-500" :
-                                                            course.level === 'N2' ? "bg-purple-500/10 text-purple-500" : "bg-muted/10"
+                                        <div className="flex-1 min-w-0 space-y-4">
+                                            <div className="flex items-center gap-4">
+                                                <Badge className={cn(
+                                                    "rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-[0.2em] border-none shadow-sm",
+                                                    course.level === 'N5' ? "bg-blue-500 text-white" :
+                                                        course.level === 'N4' ? "bg-emerald-500 text-white" :
+                                                            course.level === 'N2' ? "bg-purple-500 text-white" : "bg-muted text-foreground"
                                                 )}>
-                                                    {course.level}
+                                                    Level {course.level}
                                                 </Badge>
-                                                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">{course.code}</span>
+                                                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/30">{course.code}</span>
                                             </div>
                                             <div>
-                                                <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors truncate pr-4">{course.title}</h3>
-                                                <p className="text-sm font-medium text-muted-foreground mt-1 line-clamp-2 lg:line-clamp-1">{course.description}</p>
+                                                <h3 className="text-2xl md:text-3xl font-serif font-bold text-foreground group-hover:text-primary transition-colors pr-4 uppercase italic leading-tight">
+                                                    {course.title}
+                                                </h3>
+                                                <p className="text-[13px] font-medium text-muted-foreground/70 mt-2 line-clamp-2 max-w-xl leading-relaxed italic">
+                                                    {course.description}
+                                                </p>
                                             </div>
 
-                                            <div className="flex items-center gap-2">
-                                                <Avatar className="w-6 h-6 border border-white/10">
+                                            <div className="flex items-center gap-3 pt-2">
+                                                <Avatar className="w-8 h-8 border-2 border-primary/10 shadow-sm">
                                                     <AvatarImage src={course.instructor.avatar} />
-                                                    <AvatarFallback className="bg-primary/20 text-primary font-black text-[10px]">
+                                                    <AvatarFallback className="bg-primary text-white font-black text-[10px]">
                                                         {course.instructor.name.charAt(0)}
                                                     </AvatarFallback>
                                                 </Avatar>
-                                                <span className="text-xs font-bold text-muted-foreground">{course.instructor.name}</span>
+                                                <div className="flex flex-col">
+                                                    <span className="text-[10px] font-black uppercase tracking-wider text-foreground/80">{course.instructor.name}</span>
+                                                    <span className="text-[8px] font-black uppercase tracking-[0.1em] text-muted-foreground/40">{course.instructor.role}</span>
+                                                </div>
                                             </div>
                                         </div>
 
                                         {/* 2. Key Specs (Grid on mobile, Flex on desktop) */}
-                                        <div className="grid grid-cols-2 lg:flex lg:items-center gap-y-4 gap-x-8 lg:shrink-0 lg:min-w-fit pt-4 lg:pt-0 border-t lg:border-t-0 border-white/5">
-                                            <div className="space-y-1">
-                                                <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
-                                                    <Calendar className="w-3.5 h-3.5 text-primary" /> Start Date
+                                        <div className="grid grid-cols-2 lg:flex lg:items-center gap-y-6 gap-x-12 lg:shrink-0 lg:min-w-fit pt-6 lg:pt-0 border-t lg:border-t-0 border-border/40">
+                                            <div className="space-y-2">
+                                                <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">
+                                                    <Calendar className="w-3 h-3 text-primary/40" /> Start Date
                                                 </div>
-                                                <p className="text-xs font-bold text-foreground">{course.startDate}</p>
+                                                <p className="text-[11px] font-black uppercase tracking-wider text-foreground">{course.startDate}</p>
                                             </div>
 
-                                            <div className="space-y-1">
-                                                <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
-                                                    <Clock className="w-3.5 h-3.5 text-primary" /> Schedule
+                                            <div className="space-y-2">
+                                                <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">
+                                                    <Clock className="w-3 h-3 text-primary/40" /> Schedule
                                                 </div>
-                                                <p className="text-xs font-bold text-foreground">{course.schedule}</p>
+                                                <p className="text-[11px] font-black uppercase tracking-wider text-foreground">{course.schedule}</p>
                                             </div>
 
-                                            <div className="space-y-1">
-                                                <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
-                                                    <GraduationCap className="w-3.5 h-3.5 text-primary" /> Duration
+                                            <div className="space-y-2">
+                                                <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">
+                                                    <GraduationCap className="w-3 h-3 text-primary/40" /> Duration
                                                 </div>
-                                                <p className="text-xs font-bold text-foreground">{course.duration}</p>
+                                                <p className="text-[11px] font-black uppercase tracking-wider text-foreground">{course.duration}</p>
                                             </div>
                                         </div>
 
                                         {/* 3. Price & Action */}
-                                        <div className="flex items-center justify-between lg:justify-end gap-6 pt-4 lg:pt-0 border-t lg:border-t-0 border-white/5 lg:w-[220px] lg:shrink-0">
-                                            <div className="text-right">
-                                                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">Tuition</p>
-                                                <p className="text-lg font-black text-foreground">{course.price}</p>
+                                        <div className="flex items-center justify-between lg:justify-end gap-10 pt-6 lg:pt-0 border-t lg:border-t-0 border-border/40 lg:w-[280px] lg:shrink-0">
+                                            <div className="text-right space-y-1">
+                                                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/30">Tuition Fee</p>
+                                                <p className="text-3xl font-serif font-bold text-foreground tracking-tighter italic">{course.price}</p>
                                             </div>
 
                                             <div className={cn(
-                                                "w-10 h-10 rounded-full flex items-center justify-center transition-all bg-white/5 text-muted-foreground group-hover:bg-primary group-hover:text-primary-foreground",
+                                                "w-12 h-12 rounded-2xl flex items-center justify-center transition-all bg-primary/5 text-primary border border-primary/10 group-hover:bg-primary group-hover:text-white group-hover:shadow-lg group-hover:shadow-primary/20",
                                                 course.status === 'closed' && "opacity-50"
                                             )}>
-                                                <ChevronRight className="w-5 h-5" />
+                                                <ChevronRight className="w-6 h-6" />
                                             </div>
                                         </div>
                                     </div>
@@ -250,59 +257,61 @@ export default function LiveClassesPage() {
             {/* Registration Dialog */}
             <Dialog open={isRegisterOpen} onOpenChange={setIsRegisterOpen}>
                 <DialogContent className="sm:max-w-lg bg-background/95 backdrop-blur-3xl border-white/10 rounded-[2.5rem] p-0 overflow-hidden gap-0">
-                    <DialogHeader className="p-8 pb-4 bg-muted/5 border-b border-white/5">
-                        <DialogTitle className="text-2xl font-black uppercase italic tracking-tighter flex items-center gap-3">
-                            <Sparkles className="w-6 h-6 text-primary animate-pulse" />
-                            Fast Track Enrollment
+                    <DialogHeader className="p-10 pb-6 bg-muted/5 border-b border-border/40">
+                        <DialogTitle className="text-4xl font-serif font-bold uppercase italic tracking-tight flex items-center gap-4">
+                            <Sparkles className="w-8 h-8 text-primary/40 animate-pulse" />
+                            Enrollment
                         </DialogTitle>
-                        <DialogDescription className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60">
-                            You are applying for {selectedCourse?.code}
+                        <DialogDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 mt-2">
+                            Applying for cohort: <span className="text-primary">{selectedCourse?.code}</span>
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="p-8 space-y-8">
+                    <div className="p-10 space-y-10">
                         {/* Course Summary Check */}
-                        <div className="flex items-center gap-4 p-4 rounded-2xl bg-primary/5 border border-primary/10">
-                            <div className="h-12 w-12 rounded-xl bg-background flex items-center justify-center border border-white/5">
-                                <Zap className="w-6 h-6 text-primary" />
+                        <div className="flex items-center gap-6 p-6 rounded-[2rem] bg-primary/5 border border-primary/10 shadow-inner">
+                            <div className="h-16 w-16 rounded-2xl bg-background flex items-center justify-center border border-border/40 shadow-sm">
+                                <Zap className="w-8 h-8 text-primary" />
                             </div>
-                            <div>
-                                <h4 className="font-bold text-foreground text-sm">{selectedCourse?.title}</h4>
-                                <p className="text-xs text-muted-foreground mt-0.5">Starts {selectedCourse?.startDate} • {selectedCourse?.schedule}</p>
+                            <div className="space-y-1">
+                                <h4 className="font-serif text-xl font-bold text-foreground italic uppercase tracking-tight">{selectedCourse?.title}</h4>
+                                <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground/40">Starts {selectedCourse?.startDate} • {selectedCourse?.schedule}</p>
                             </div>
                         </div>
 
-                        <form id="enroll-form" onSubmit={handleConfirmRegistration} className="space-y-5">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="fname" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">First Name</Label>
-                                    <Input id="fname" required className="bg-muted/10 border-white/5 h-12 rounded-xl focus:bg-background transition-colors" placeholder="John" />
+                        <form id="enroll-form" onSubmit={handleConfirmRegistration} className="space-y-6">
+                            <div className="grid grid-cols-2 gap-6">
+                                <div className="space-y-2.5">
+                                    <Label htmlFor="fname" className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 ml-1">First Name</Label>
+                                    <Input id="fname" required className="bg-muted/10 border-border/40 h-14 rounded-2xl focus:bg-background focus:ring-primary/20 transition-all text-sm font-medium" placeholder="E.g. John" />
                                 </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="lname" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Last Name</Label>
-                                    <Input id="lname" required className="bg-muted/10 border-white/5 h-12 rounded-xl focus:bg-background transition-colors" placeholder="Doe" />
+                                <div className="space-y-2.5">
+                                    <Label htmlFor="lname" className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 ml-1">Last Name</Label>
+                                    <Input id="lname" required className="bg-muted/10 border-border/40 h-14 rounded-2xl focus:bg-background focus:ring-primary/20 transition-all text-sm font-medium" placeholder="E.g. Doe" />
                                 </div>
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Email Address</Label>
-                                <Input id="email" type="email" required className="bg-muted/10 border-white/5 h-12 rounded-xl focus:bg-background transition-colors" placeholder="john@example.com" />
+                            <div className="space-y-2.5">
+                                <Label htmlFor="email" className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 ml-1">Email Address</Label>
+                                <Input id="email" type="email" required className="bg-muted/10 border-border/40 h-14 rounded-2xl focus:bg-background focus:ring-primary/20 transition-all text-sm font-medium" placeholder="john@example.com" />
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="phone" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Phone Number</Label>
-                                <Input id="phone" type="tel" className="bg-muted/10 border-white/5 h-12 rounded-xl focus:bg-background transition-colors" placeholder="+81 ..." />
+                            <div className="space-y-2.5">
+                                <Label htmlFor="phone" className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 ml-1">Phone Number</Label>
+                                <Input id="phone" type="tel" className="bg-muted/10 border-border/40 h-14 rounded-2xl focus:bg-background focus:ring-primary/20 transition-all text-sm font-medium" placeholder="+81 ..." />
                             </div>
                         </form>
 
-                        <div className="flex items-start gap-3 p-4 rounded-xl bg-muted/5 text-xs text-muted-foreground leading-relaxed">
-                            <ShieldCheck className="w-5 h-5 text-muted-foreground/60 shrink-0" />
+                        <div className="flex items-start gap-4 p-5 rounded-2xl bg-muted/5 text-[11px] text-muted-foreground/60 leading-relaxed italic border border-border/40">
+                            <ShieldCheck className="w-5 h-5 text-primary/40 shrink-0 mt-0.5" />
                             <p>By proceeding, you agree to the enrollment terms. Payment details will be collected in the next step via our secure gateway.</p>
                         </div>
                     </div>
 
-                    <DialogFooter className="p-8 pt-4 bg-muted/5 border-t border-white/5">
-                        <Button variant="ghost" onClick={() => setIsRegisterOpen(false)} className="rounded-xl font-bold uppercase tracking-wider text-xs">Cancel</Button>
-                        <Button type="submit" form="enroll-form" className="rounded-xl font-black uppercase tracking-widest text-xs h-12 px-8 bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20">
-                            Continue to Payment
+                    <DialogFooter className="p-10 pt-6 bg-muted/5 border-t border-border/40 flex items-center justify-between">
+                        <Button variant="ghost" onClick={() => setIsRegisterOpen(false)} className="rounded-2xl h-14 px-8 hover:bg-primary/5 group/btn">
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 group-hover:text-foreground transition-colors">Cancel</span>
+                        </Button>
+                        <Button type="submit" form="enroll-form" className="rounded-2xl h-14 px-10 bg-primary text-white hover:bg-primary/90 shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Continue to Payment</span>
                         </Button>
                     </DialogFooter>
                 </DialogContent>

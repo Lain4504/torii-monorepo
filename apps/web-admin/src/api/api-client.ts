@@ -40,7 +40,7 @@ const extractErrorMessage = (error: AxiosError): string => {
             return data.message;
         }
     }
-    
+
     // 2. Network errors
     if (error.code === 'ECONNABORTED') {
         return 'Request timeout. Please try again.';
@@ -48,7 +48,7 @@ const extractErrorMessage = (error: AxiosError): string => {
     if (error.code === 'ERR_NETWORK' || !error.response) {
         return 'Network error. Please check your connection and try again.';
     }
-    
+
     // 3. Infrastructure errors (Gateway/Load Balancer - may not have standard format)
     const status = error.response?.status;
     if (status === 502) return 'Bad gateway. Please try again later.';
@@ -57,7 +57,7 @@ const extractErrorMessage = (error: AxiosError): string => {
     if (status === 500 && !error.response?.data) {
         return 'Server error. Please try again later.';
     }
-    
+
     // 4. Final fallback
     return error.message || 'An unexpected error occurred.';
 };
@@ -67,7 +67,7 @@ const extractErrorMessage = (error: AxiosError): string => {
  */
 const isPublicEndpoint = (url?: string): boolean => {
     if (!url) return false;
-    
+
     const publicEndpoints = [
         '/auth/login',
         '/auth/admin/login',
@@ -82,8 +82,9 @@ const isPublicEndpoint = (url?: string): boolean => {
         '/auth/verify-reset-token',
         '/auth/verify-invite-token',
         '/auth/set-password',
+        '/auth/logout',
     ];
-    
+
     return publicEndpoints.some(endpoint => url.includes(endpoint));
 };
 
@@ -92,9 +93,9 @@ const isPublicEndpoint = (url?: string): boolean => {
  */
 const isPublicPage = (): boolean => {
     if (typeof window === 'undefined') return false;
-    
+
     const publicPages = ['/login'];
-    
+
     return publicPages.includes(window.location.pathname);
 };
 
@@ -102,8 +103,9 @@ const isPublicPage = (): boolean => {
  * Check if refresh token exists in cookies
  */
 const hasRefreshToken = (): boolean => {
-    if (typeof document === 'undefined') return false;
-    return document.cookie.includes('refresh_token=');
+    // We can't actually check HttpOnly cookies from JS.
+    // So we assume it might exist and let the backend decide.
+    return true;
 };
 
 /**
@@ -170,7 +172,7 @@ apiClient.interceptors.response.use(
     (response) => response,
     async (error: AxiosError) => {
         const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
-        
+
         // If no config, pass through
         if (!originalRequest) {
             return Promise.reject(error);
@@ -180,18 +182,13 @@ apiClient.interceptors.response.use(
         if (error.response?.status === 401 && !originalRequest._retry) {
             const url = originalRequest.url || '';
 
-            // Don't attempt refresh on public endpoints
+            // Don't attempt refresh on specific auth endpoints
             if (isPublicEndpoint(url)) {
-                // For login, return error so UI can handle it
-                if (url.includes('/auth/login') || url.includes('/auth/admin/login')) {
+                // For login/logout, return error so UI can handle it
+                if (url.includes('/auth/login') || url.includes('/auth/admin/login') || url.includes('/auth/logout')) {
                     return Promise.reject(error);
                 }
                 // For other public endpoints, just reject
-                return Promise.reject(error);
-            }
-
-            // Don't attempt refresh on public pages
-            if (isPublicPage()) {
                 return Promise.reject(error);
             }
 
@@ -200,7 +197,7 @@ apiClient.interceptors.response.use(
                 console.warn('Token refresh failed');
                 isRefreshing = false;
                 processQueue(error);
-                
+
                 // Only redirect if we're not on a public page
                 if (!isPublicPage()) {
                     redirectToLogin();
@@ -253,7 +250,7 @@ apiClient.interceptors.response.use(
                 console.error('Token refresh failed:', refreshError);
                 processQueue(refreshError);
                 isRefreshing = false;
-                
+
                 // Only redirect if we're not on a public page
                 if (!isPublicPage()) {
                     redirectToLogin();

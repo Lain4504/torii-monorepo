@@ -39,74 +39,74 @@ function AuditLogDetailsDialog({ log }: { log: AuditLog }) {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-10 w-10 p-0 rounded-2xl hover:bg-primary/10 hover:text-primary transition-all">
+                <Button variant="ghost" size="sm" className="h-10 w-10 p-0 rounded-lg hover:bg-primary/10 hover:text-primary transition-all">
                     <Eye className="size-4 opacity-40 group-hover:opacity-100" />
                 </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-[2rem] p-0 overflow-hidden">
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto border-border/20 shadow-2xl bg-background/95 backdrop-blur-3xl rounded-xl p-0 overflow-hidden">
                 <div className="absolute inset-0 bg-primary/[0.01] pointer-events-none" />
-                <DialogHeader className="p-10 pb-6 border-b border-border/10">
+                <DialogHeader className="p-8 pb-6 border-b border-border/10">
                     <div className="flex items-center gap-4 mb-4">
-                        <div className="p-3 rounded-2xl bg-primary/10 text-primary">
-                            <ShieldCheck className="size-6" />
+                        <div className="p-3 rounded-xl bg-primary/10 text-primary">
+                            <ShieldCheck className="size-5" />
                         </div>
                         <div className="space-y-1">
-                            <DialogTitle className="text-2xl font-black uppercase italic tracking-tight">
-                                Protocol Entry Details
+                            <DialogTitle className="text-xl font-medium tracking-tight">
+                                Log Entry Details
                             </DialogTitle>
-                            <DialogDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic">
-                                Timestamp Alignment: {format(new Date(log.createdAt), 'yyyy-MM-dd HH:mm:ss.SSS')}
+                            <DialogDescription className="text-xs font-medium text-muted-foreground/60">
+                                Timestamp: {format(new Date(log.createdAt), 'yyyy-MM-dd HH:mm:ss.SSS')}
                             </DialogDescription>
                         </div>
                     </div>
                 </DialogHeader>
 
-                <div className="p-10 space-y-10">
-                    {/* Identification Matrix */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div className="p-8 space-y-8">
+                    {/* Summary */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                         <div className="space-y-1">
-                            <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 italic">SUBJECT IDENTITY</p>
-                            <p className="text-[13px] font-black italic text-foreground uppercase truncate">{log.userEmail}</p>
+                            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/40">User</p>
+                            <p className="text-sm font-medium text-foreground truncate">{log.userEmail}</p>
                         </div>
                         <div className="space-y-1">
-                            <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 italic">ACCESS LEVEL</p>
+                            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/40">Role</p>
                             <div className="pt-1">
-                                <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest bg-primary/5 border-primary/20 text-primary rounded-full px-3">
+                                <Badge variant="outline" className="text-[10px] font-medium bg-primary/5 border-primary/20 text-primary rounded-full px-2.5">
                                     {log.userRole}
                                 </Badge>
                             </div>
                         </div>
                         <div className="space-y-1">
-                            <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 italic">PROTOCOL ACTION</p>
+                            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/40">Action</p>
                             <div className="pt-1">
-                                <Badge variant="secondary" className="text-[9px] font-black uppercase tracking-widest bg-muted/20 border-none rounded-lg px-3">{log.action}</Badge>
+                                <Badge variant="secondary" className="text-[10px] font-medium bg-muted/30 border-none rounded-md px-2.5">{log.action}</Badge>
                             </div>
                         </div>
                         <div className="space-y-1">
-                            <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 italic">TARGET COMPONENT</p>
-                            <p className="text-[13px] font-black italic text-foreground uppercase truncate font-mono">{log.entity}</p>
+                            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/40">Entity</p>
+                            <p className="text-sm font-medium text-foreground truncate font-mono">{log.entity}</p>
                         </div>
                     </div>
 
-                    {/* Operational Summary */}
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-3">
-                            <Activity className="size-4 text-primary opacity-40" />
-                            <h4 className="text-[11px] font-black uppercase tracking-[0.2em] italic">Operational Summary</h4>
+                    {/* Action Description */}
+                    <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                            <Activity className="size-3.5 text-primary opacity-50" />
+                            <h4 className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Action Details</h4>
                         </div>
-                        <div className="p-6 rounded-2xl bg-muted/10 border border-border/10 leading-relaxed text-[13px] font-bold text-foreground/80 italic">
+                        <div className="p-5 rounded-xl bg-muted/10 border border-border/10 leading-relaxed text-sm font-medium text-foreground/80">
                             {log.description}
                         </div>
                     </div>
 
-                    {/* Data Stream Analysis */}
+                    {/* Technical Data */}
                     {Object.keys(log.metadata || {}).length > 0 && (
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-3">
-                                <Terminal className="size-4 text-primary opacity-40" />
-                                <h4 className="text-[11px] font-black uppercase tracking-[0.2em] italic">Meta Intelligence</h4>
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-2">
+                                <Terminal className="size-3.5 text-primary opacity-50" />
+                                <h4 className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Metadata</h4>
                             </div>
-                            <pre className="text-[11px] bg-muted/20 p-8 rounded-[1.5rem] overflow-x-auto border border-border/10 font-mono text-muted-foreground/80 leading-relaxed custom-scrollbar">
+                            <pre className="text-xs bg-muted/20 p-6 rounded-xl overflow-x-auto border border-border/10 font-mono text-muted-foreground/80 leading-relaxed custom-scrollbar">
                                 {JSON.stringify(log.metadata, null, 2)}
                             </pre>
                         </div>
@@ -114,19 +114,19 @@ function AuditLogDetailsDialog({ log }: { log: AuditLog }) {
 
                     {/* Delta Analysis */}
                     {(log.oldValues || log.newValues) && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             {log.oldValues && (
-                                <div className="space-y-4">
-                                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-rose-500/60 italic ml-2">PRE-SYNC STATE</h4>
-                                    <pre className="text-[10px] bg-rose-500/[0.02] p-6 rounded-[1.5rem] overflow-x-auto max-h-80 border border-rose-500/10 font-mono text-rose-500/60 leading-relaxed custom-scrollbar">
+                                <div className="space-y-3">
+                                    <h4 className="text-[10px] font-medium uppercase tracking-wider text-rose-500/70 ml-1">Previous State</h4>
+                                    <pre className="text-xs bg-rose-500/[0.02] p-5 rounded-xl overflow-x-auto max-h-80 border border-rose-500/10 font-mono text-rose-500/70 leading-relaxed custom-scrollbar">
                                         {JSON.stringify(log.oldValues, null, 2)}
                                     </pre>
                                 </div>
                             )}
                             {log.newValues && (
-                                <div className="space-y-4">
-                                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500/60 italic ml-2">POST-SYNC STATE</h4>
-                                    <pre className="text-[10px] bg-emerald-500/[0.02] p-6 rounded-[1.5rem] overflow-x-auto max-h-80 border border-emerald-500/10 font-mono text-emerald-500/60 leading-relaxed custom-scrollbar">
+                                <div className="space-y-3">
+                                    <h4 className="text-[10px] font-medium uppercase tracking-wider text-emerald-500/70 ml-1">New State</h4>
+                                    <pre className="text-xs bg-emerald-500/[0.02] p-5 rounded-xl overflow-x-auto max-h-80 border border-emerald-500/10 font-mono text-emerald-500/70 leading-relaxed custom-scrollbar">
                                         {JSON.stringify(log.newValues, null, 2)}
                                     </pre>
                                 </div>
@@ -135,17 +135,17 @@ function AuditLogDetailsDialog({ log }: { log: AuditLog }) {
                     )}
 
                     {/* Infrastructure Metadata */}
-                    <div className="pt-10 border-t border-border/10 grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div className="pt-8 border-t border-border/10 grid grid-cols-1 md:grid-cols-2 gap-8">
                         {log.ipAddress && (
-                            <div className="space-y-2">
-                                <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 italic">NETWORK ORIGIN</p>
-                                <p className="text-[12px] font-black italic text-foreground/60 font-mono">{log.ipAddress}</p>
+                            <div className="space-y-1">
+                                <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/40">IP Address</p>
+                                <p className="text-xs font-medium text-foreground/70 font-mono">{log.ipAddress}</p>
                             </div>
                         )}
                         {log.userAgent && (
-                            <div className="space-y-2">
-                                <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 italic">IDENTIFIER STRING</p>
-                                <p className="text-[10px] font-black italic text-muted-foreground/60 leading-relaxed break-all font-mono">{log.userAgent}</p>
+                            <div className="space-y-1">
+                                <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/40">User Agent</p>
+                                <p className="text-[10px] font-medium text-muted-foreground/60 leading-relaxed break-all font-mono">{log.userAgent}</p>
                             </div>
                         )}
                     </div>
@@ -199,7 +199,7 @@ export function AuditLogsPage() {
                 <PaginationItem key={1}>
                     <PaginationLink
                         onClick={() => setPage(1)}
-                        className="rounded-xl h-10 w-10 text-[11px] font-black hover:bg-primary/10 transition-all cursor-pointer"
+                        className="rounded-lg h-10 w-10 text-xs font-medium hover:bg-primary/10 transition-all cursor-pointer"
                     >
                         1
                     </PaginationLink>
@@ -215,7 +215,7 @@ export function AuditLogsPage() {
                         isActive={page === i}
                         onClick={() => setPage(i)}
                         className={cn(
-                            "rounded-xl h-10 w-10 text-[11px] font-black transition-all cursor-pointer",
+                            "rounded-lg h-10 w-10 text-xs font-medium transition-all cursor-pointer",
                             page === i ? "bg-primary text-white shadow-lg shadow-primary/20" : "hover:bg-primary/10 text-muted-foreground/60 hover:text-primary"
                         )}
                     >
@@ -231,7 +231,7 @@ export function AuditLogsPage() {
                 <PaginationItem key={data.totalPages}>
                     <PaginationLink
                         onClick={() => setPage(data.totalPages)}
-                        className="rounded-xl h-10 w-10 text-[11px] font-black hover:bg-primary/10 transition-all cursor-pointer"
+                        className="rounded-lg h-10 w-10 text-xs font-medium hover:bg-primary/10 transition-all cursor-pointer"
                     >
                         {data.totalPages}
                     </PaginationLink>
@@ -247,157 +247,155 @@ export function AuditLogsPage() {
             {/* Header Section */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-8 relative">
                 <div className="space-y-4 max-w-2xl text-center sm:text-left">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[9px] font-black uppercase tracking-[0.3em]">
-                        <Activity className="size-3" />
-                        Infrastructure Guard
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-medium tracking-wide">
+                        <Activity className="size-3.5" />
+                        Auditing
                     </div>
-                    <h1 className="text-5xl font-black tracking-tight text-foreground uppercase italic leading-[0.85]">
-                        Protocol <br />
-                        <span className="text-primary not-italic text-3xl sm:text-5xl">Surveillance</span>
+                    <h1 className="text-3xl sm:text-5xl font-serif font-medium tracking-tight text-foreground leading-[1.1]">
+                        System <span className="text-primary italic">Audit Logs</span>
                     </h1>
-                    <p className="text-[11px] font-bold text-muted-foreground/40 uppercase tracking-[0.15em] italic border-l-2 border-primary/20 pl-6 mt-6">
-                        Tiếp nhận và giám soát toàn bộ chu trình vận hành hệ thống, <br />
-                        đảm bảo tính toàn vẹn dữ liệu cho <span className="text-foreground">Lain Identity Matrix</span>.
+                    <p className="text-sm text-muted-foreground/80 leading-relaxed max-w-lg border-l-2 border-primary/20 pl-4 mt-4">
+                        Monitor and track all system activities and data changes to ensure the integrity of the <span className="text-foreground font-medium">Torii Platform</span>.
                     </p>
                 </div>
 
-                <div className="flex items-center gap-6 p-8 rounded-[2.5rem] bg-background/40 border border-border/20 backdrop-blur-xl hidden sm:flex">
+                <div className="flex items-center gap-6 p-6 rounded-2xl bg-background/60 border border-border/20 backdrop-blur-xl hidden sm:flex shadow-sm">
                     <div className="space-y-1">
-                        <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">Observed Events</p>
-                        <h3 className="text-3xl font-black italic text-center leading-none">{data?.total || 0}</h3>
+                        <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60 text-center">Total Logs</p>
+                        <h3 className="text-3xl font-serif font-medium text-center leading-none text-primary">{data?.total || 0}</h3>
                     </div>
                 </div>
             </div>
 
-            {/* Matrix Filters */}
-            <Card className="rounded-[2.5rem] bg-background/40 backdrop-blur-3xl border border-border/20 p-8 lg:p-10">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    <div className="space-y-3">
-                        <label className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 italic flex items-center gap-2 ml-1">
-                            <Zap className="size-3" />
-                            PROTOCOL ACTION
+            {/* Filters */}
+            <Card className="rounded-2xl bg-background/50 backdrop-blur-3xl border border-white/20 p-8 lg:p-10 shadow-xl shadow-black/5">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60 flex items-center gap-2 ml-1">
+                            <Zap className="size-3.5" />
+                            Action
                         </label>
                         <div className="relative group">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground/30 group-focus-within:text-primary transition-colors" />
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
                             <Input
-                                placeholder="ACTION KEYWORD..."
+                                placeholder="Search actions..."
                                 value={action}
                                 onChange={(e) => setAction(e.target.value)}
-                                className="h-12 pl-10 rounded-xl border-border/10 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-[10px] font-black uppercase tracking-widest placeholder:text-muted-foreground/20"
+                                className="h-11 pl-10 rounded-lg border-border/10 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-xs font-medium placeholder:text-muted-foreground/40"
                             />
                         </div>
                     </div>
-                    <div className="space-y-3">
-                        <label className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 italic flex items-center gap-2 ml-1">
-                            <Layers className="size-3" />
-                            ENTITY NODE
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60 flex items-center gap-2 ml-1">
+                            <Layers className="size-3.5" />
+                            Entity
                         </label>
                         <div className="relative group">
-                            <Fingerprint className="absolute left-4 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground/30 group-focus-within:text-primary transition-colors" />
+                            <Fingerprint className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
                             <Input
-                                placeholder="IDENTIFIER..."
+                                placeholder="Search entities..."
                                 value={entity}
                                 onChange={(e) => setEntity(e.target.value)}
-                                className="h-12 pl-10 rounded-xl border-border/10 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-[10px] font-black uppercase tracking-widest placeholder:text-muted-foreground/20"
+                                className="h-11 pl-10 rounded-lg border-border/10 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-xs font-medium placeholder:text-muted-foreground/40"
                             />
                         </div>
                     </div>
-                    <div className="space-y-3">
-                        <label className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 italic flex items-center gap-2 ml-1">
-                            <Calendar className="size-3" />
-                            SYNC START
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60 flex items-center gap-2 ml-1">
+                            <Calendar className="size-3.5" />
+                            Start Date
                         </label>
                         <Input
                             type="date"
                             value={dateRange.startDate}
                             onChange={(e) => setDateRange(prev => ({ ...prev, startDate: e.target.value }))}
-                            className="h-12 rounded-xl border-border/10 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-[10px] font-black uppercase tracking-widest [color-scheme:dark]"
+                            className="h-11 rounded-lg border-border/10 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-xs font-medium [color-scheme:dark]"
                         />
                     </div>
-                    <div className="space-y-3">
-                        <label className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 italic flex items-center gap-2 ml-1">
-                            <Clock className="size-3" />
-                            SYNC END
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60 flex items-center gap-2 ml-1">
+                            <Clock className="size-3.5" />
+                            End Date
                         </label>
                         <Input
                             type="date"
                             value={dateRange.endDate}
                             onChange={(e) => setDateRange(prev => ({ ...prev, endDate: e.target.value }))}
-                            className="h-12 rounded-xl border-border/10 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-[10px] font-black uppercase tracking-widest [color-scheme:dark]"
+                            className="h-11 rounded-lg border-border/10 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-xs font-medium [color-scheme:dark]"
                         />
                     </div>
                 </div>
             </Card>
 
-            {/* Registry Table */}
-            <Card className="rounded-[3rem] bg-background/40 backdrop-blur-3xl border border-border/20 shadow-2xl shadow-primary/5 overflow-hidden">
+            {/* Audit History */}
+            <Card className="rounded-2xl bg-background/40 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-primary/5 overflow-hidden">
                 <div className="overflow-x-auto">
                     <Table className="min-w-[1000px] border-collapse bg-transparent">
-                        <TableHeader className="bg-muted/10 border-b border-border/20">
+                        <TableHeader className="bg-muted/10 border-b border-border/10">
                             <TableRow className="border-none hover:bg-transparent">
-                                <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-8 whitespace-nowrap">Temporal Marker</TableHead>
-                                <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-6">Subject Identity</TableHead>
-                                <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-6">Protocol Action</TableHead>
-                                <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-6">Manifest Summary</TableHead>
-                                <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-8 text-right">Access</TableHead>
+                                <TableHead className="h-12 text-[10px] font-medium text-muted-foreground uppercase tracking-wider px-8 whitespace-nowrap">Timestamp</TableHead>
+                                <TableHead className="h-12 text-[10px] font-medium text-muted-foreground uppercase tracking-wider px-6">User</TableHead>
+                                <TableHead className="h-12 text-[10px] font-medium text-muted-foreground uppercase tracking-wider px-6">Action</TableHead>
+                                <TableHead className="h-12 text-[10px] font-medium text-muted-foreground uppercase tracking-wider px-6">Description</TableHead>
+                                <TableHead className="h-12 text-[10px] font-medium text-muted-foreground uppercase tracking-wider px-8 text-right">Access</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {isLoading ? (
                                 Array.from({ length: 10 }).map((_, index) => (
-                                    <TableRow key={index} className="border-b border-border/10">
-                                        <TableCell className="px-8"><Skeleton className="h-4 w-32 bg-muted/20 rounded-xl" /></TableCell>
+                                    <TableRow key={index} className="border-b border-border/5">
+                                        <TableCell className="px-8"><Skeleton className="h-4 w-32 bg-muted/20 rounded-md" /></TableCell>
                                         <TableCell className="px-6">
-                                            <div className="space-y-2">
-                                                <Skeleton className="h-4 w-40 bg-muted/20 rounded-xl" />
-                                                <Skeleton className="h-3 w-20 bg-muted/20 rounded-xl" />
+                                            <div className="space-y-1">
+                                                <Skeleton className="h-4 w-40 bg-muted/20 rounded-md" />
+                                                <Skeleton className="h-3 w-20 bg-muted/20 rounded-md" />
                                             </div>
                                         </TableCell>
-                                        <TableCell className="px-6"><Skeleton className="h-6 w-24 bg-muted/20 rounded-xl" /></TableCell>
-                                        <TableCell className="px-6"><Skeleton className="h-4 w-full bg-muted/20 rounded-xl" /></TableCell>
-                                        <TableCell className="px-8 text-right"><Skeleton className="h-10 w-10 bg-muted/20 rounded-2xl ml-auto" /></TableCell>
+                                        <TableCell className="px-6"><Skeleton className="h-5 w-24 bg-muted/20 rounded-md" /></TableCell>
+                                        <TableCell className="px-6"><Skeleton className="h-4 w-full bg-muted/20 rounded-md" /></TableCell>
+                                        <TableCell className="px-8 text-right"><Skeleton className="h-8 w-8 bg-muted/20 rounded-lg ml-auto" /></TableCell>
                                     </TableRow>
                                 ))
                             ) : data?.data.length === 0 ? (
                                 <TableRow className="hover:bg-transparent">
                                     <TableCell colSpan={5} className="h-64 text-center">
-                                        <div className="flex flex-col items-center justify-center p-12 space-y-6">
-                                            <div className="w-20 h-20 rounded-[1.5rem] bg-muted/20 flex items-center justify-center border border-border/40 relative">
+                                        <div className="flex flex-col items-center justify-center p-12 space-y-4">
+                                            <div className="w-16 h-16 rounded-xl bg-muted/10 flex items-center justify-center border border-white/10 relative">
                                                 <div className="absolute inset-0 bg-primary/5 blur-2xl rounded-full" />
-                                                <ShieldAlert className="size-10 text-muted-foreground/20 relative z-10" />
+                                                <ShieldAlert className="size-8 text-muted-foreground/30 relative z-10" />
                                             </div>
-                                            <div className="space-y-2">
-                                                <h3 className="text-xl font-black uppercase italic tracking-tight text-foreground/40">Registry Gap</h3>
-                                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/20 italic">No surveillance signals captured within the current matrix.</p>
+                                            <div className="space-y-1">
+                                                <h3 className="text-lg font-medium text-foreground/60">No Logs Found</h3>
+                                                <p className="text-xs text-muted-foreground/40">No audit records found matching your current filters.</p>
                                             </div>
                                         </div>
                                     </TableCell>
                                 </TableRow>
                             ) : (
                                 data?.data.map((log) => (
-                                    <TableRow key={log.id} className="border-b border-border/10 hover:bg-primary/[0.02] transition-all duration-500 group">
-                                        <TableCell className="px-8 font-mono text-[9px] font-black text-muted-foreground/40 italic tabular-nums">
-                                            {format(new Date(log.createdAt), 'yyyy.MM.dd / HH:mm:ss')}
+                                    <TableRow key={log.id} className="border-b border-border/5 hover:bg-primary/[0.02] transition-colors group">
+                                        <TableCell className="px-8 font-mono text-[10px] font-medium text-muted-foreground/50 tabular-nums">
+                                            {format(new Date(log.createdAt), 'yyyy-MM-dd HH:mm:ss')}
                                         </TableCell>
                                         <TableCell className="px-6">
-                                            <div className="flex flex-col gap-1">
-                                                <div className="font-black italic text-[13px] text-foreground/80 group-hover:text-primary transition-colors uppercase">{log.userEmail.split('@')[0]}</div>
-                                                <div className="text-[9px] font-bold text-muted-foreground/30 uppercase tracking-widest">{log.userRole}</div>
+                                            <div className="flex flex-col gap-0.5">
+                                                <div className="font-medium text-xs text-foreground/80 group-hover:text-primary transition-colors">{log.userEmail.split('@')[0]}</div>
+                                                <div className="text-[9px] font-medium text-muted-foreground/40 uppercase tracking-widest">{log.userRole}</div>
                                             </div>
                                         </TableCell>
                                         <TableCell className="px-6">
-                                            <div className="space-y-2">
-                                                <Badge variant="secondary" className="bg-muted/20 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 border-none rounded-md">
+                                            <div className="space-y-1.5">
+                                                <Badge variant="secondary" className="bg-muted/30 text-[9px] font-medium uppercase tracking-wide px-2 py-0.5 border-none rounded-md">
                                                     {log.action}
                                                 </Badge>
-                                                <div className="text-[9px] font-black uppercase tracking-tight text-muted-foreground/30 italic flex items-center gap-1.5 ml-1">
+                                                <div className="text-[9px] font-medium uppercase tracking-tight text-muted-foreground/40 flex items-center gap-1.5 ml-1">
                                                     <Fingerprint className="size-3 opacity-30" />
                                                     {log.entity}
                                                 </div>
                                             </div>
                                         </TableCell>
                                         <TableCell className="px-6 max-w-md">
-                                            <div className="truncate text-[12px] font-bold italic text-foreground/60 leading-relaxed group-hover:text-foreground transition-colors">{log.description}</div>
+                                            <div className="truncate text-xs font-medium text-muted-foreground/70 leading-relaxed group-hover:text-foreground transition-colors">{log.description}</div>
                                         </TableCell>
                                         <TableCell className="px-8 text-right">
                                             <AuditLogDetailsDialog log={log} />
@@ -411,14 +409,14 @@ export function AuditLogsPage() {
 
                 {/* Pagination Meta */}
                 {data && (
-                    <div className="flex flex-col lg:flex-row items-center justify-between gap-8 p-10 border-t border-border/10">
-                        <div className="flex flex-col lg:flex-row lg:items-center gap-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 text-center lg:text-left">
+                    <div className="flex flex-col lg:flex-row items-center justify-between gap-6 p-6 border-t border-border/10">
+                        <div className="flex flex-col lg:flex-row lg:items-center gap-4 text-[11px] font-medium text-muted-foreground/40 text-center lg:text-left pl-2">
                             <div className="inline-flex items-center gap-2 group-hover:text-primary transition-colors">
-                                <Sparkles className="size-3" />
-                                Observed: <span className="text-foreground text-xs">{data.total} Signals</span>
+                                <Sparkles className="size-3.5" />
+                                Total: <span className="text-foreground">{data.total} Records</span>
                             </div>
                             <div className="hidden lg:block w-1 h-1 rounded-full bg-border" />
-                            <div className="italic">Data Point 0{page} of 0{data.totalPages}</div>
+                            <div>Page {page} of {data.totalPages}</div>
                         </div>
 
                         {data.totalPages > 1 && (
@@ -428,8 +426,8 @@ export function AuditLogsPage() {
                                         <PaginationPrevious
                                             onClick={() => setPage(p => Math.max(1, p - 1))}
                                             className={cn(
-                                                "h-12 px-6 rounded-2xl bg-muted/20 border border-border/20 text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer",
-                                                page === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/10 hover:text-primary active:scale-95"
+                                                "h-10 px-4 rounded-lg bg-background/50 border border-border/20 text-xs font-medium transition-all cursor-pointer",
+                                                page === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary active:scale-95"
                                             )}
                                         />
                                     </PaginationItem>
@@ -442,8 +440,8 @@ export function AuditLogsPage() {
                                         <PaginationNext
                                             onClick={() => setPage(p => Math.min(data.totalPages, p + 1))}
                                             className={cn(
-                                                "h-12 px-6 rounded-2xl bg-muted/20 border border-border/20 text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer",
-                                                page === data.totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/10 hover:text-primary active:scale-95"
+                                                "h-10 px-4 rounded-lg bg-background/50 border border-border/20 text-xs font-medium transition-all cursor-pointer",
+                                                page === data.totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary active:scale-95"
                                             )}
                                         />
                                     </PaginationItem>

@@ -81,9 +81,9 @@ export function Header() {
                                 <div className="absolute inset-0 bg-gradient-to-tr from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                 <Sparkles className="w-6 h-6 text-white relative z-10" />
                             </div>
-                            <div className="flex flex-col gap-0.5">
-                                <span className="font-black text-2xl tracking-tighter text-foreground leading-none">TORII</span>
-                                <span className="text-[9px] font-black text-primary uppercase tracking-[0.3em] opacity-80 pl-0.5">Nihongo Center</span>
+                            <div className="flex flex-col">
+                                <span className="font-serif font-bold text-2xl tracking-tighter text-foreground leading-none italic">TORII</span>
+                                <span className="text-[9px] font-black text-primary uppercase tracking-[0.3em] opacity-80 mt-1 pl-0.5">Nihongo Center</span>
                             </div>
                         </Link>
 
@@ -95,7 +95,7 @@ export function Header() {
                                     <Link
                                         key={item.nameKey}
                                         href={item.href}
-                                        className="px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground/80 hover:text-primary hover:bg-background/80 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 flex items-center gap-2 group"
+                                        className="px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/80 hover:text-primary hover:bg-background/80 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 flex items-center gap-2 group"
                                     >
                                         <Icon className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100 group-hover:text-primary transition-all" />
                                         {t(item.nameKey)}

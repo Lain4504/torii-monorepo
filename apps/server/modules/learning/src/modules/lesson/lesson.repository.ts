@@ -25,11 +25,12 @@ export class LessonRepository implements ILessonRepository {
     /**
      * Find all lessons for a module
      */
-    async findByModuleId(moduleId: string): Promise<Lesson[]> {
+    async findByModuleId(moduleId: string, includeDrafts: boolean = false): Promise<Lesson[]> {
         return this.prisma.lesson.findMany({
             where: {
                 moduleId,
                 deletedAt: null,
+                ...(includeDrafts ? {} : { status: 'published' }),
             },
             orderBy: { orderIndex: 'asc' },
         });
@@ -139,6 +140,7 @@ export class LessonRepository implements ILessonRepository {
                     courseId,
                 },
                 isPreview: true,
+                status: 'published',
                 deletedAt: null,
             },
             include: {

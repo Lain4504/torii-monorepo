@@ -11,7 +11,7 @@ import { toast } from '@workspace/ui/components/sonner'
 import { Spinner } from '@workspace/ui/components/spinner'
 import { Lock, Eye, EyeOff, CheckCircle2, AlertCircle, Sparkles, ShieldAlert, Key } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { apiClient } from '@/api/api-client'
+import { apiClient } from '@/apis/api-client'
 import Link from 'next/link'
 import { cn } from '@workspace/ui/lib/utils'
 
@@ -128,25 +128,23 @@ function ResetPasswordFormContent() {
     if (tokenValid === false) {
         return (
             <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500">
-                <div className="flex flex-col items-center text-center space-y-6 p-10 bg-destructive/5 rounded-[2.5rem] border border-destructive/10 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-destructive/5 rounded-full -mr-16 -mt-16 blur-3xl opacity-50" />
-                    <div className="w-20 h-20 rounded-[1.5rem] bg-white shadow-xl shadow-destructive/5 flex items-center justify-center relative z-10">
-                        <ShieldAlert className="w-10 h-10 text-destructive" />
+                <div className="flex flex-col items-center text-center space-y-4 p-8 bg-destructive/5 rounded-3xl border border-destructive/10">
+                    <div className="w-16 h-16 rounded-2xl bg-background shadow-md flex items-center justify-center text-destructive">
+                        <ShieldAlert className="w-8 h-8" />
                     </div>
-                    <div className="space-y-3 relative z-10">
-                        <h3 className="text-xl font-black uppercase tracking-tight text-foreground italic">
-                            Link <span className="text-destructive not-italic">Vô Hiệu</span>
+                    <div className="space-y-2">
+                        <h3 className="text-lg font-semibold text-foreground">
+                            Link không hợp lệ
                         </h3>
-                        <p className="text-[11px] font-bold text-muted-foreground/60 leading-relaxed italic">
-                            Yêu cầu đặt lại mật khẩu đã hết hạn hoặc token bảo mật không khớp với cơ sở dữ liệu.
+                        <p className="text-sm text-muted-foreground/80">
+                            Liên kết đặt lại mật khẩu đã hết hạn hoặc không hợp lệ.
                         </p>
                     </div>
                 </div>
 
-                <Link href="/forgot-password" stroke-width="2.5">
-                    <Button className="w-full h-14 rounded-2xl bg-foreground text-background font-black uppercase tracking-[0.2em] text-[11px] transition-all active:scale-95 group">
-                        Yêu cầu Link mới
-                        <Sparkles className="ml-2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <Link href="/forgot-password">
+                    <Button className="w-full h-11 rounded-xl font-medium text-sm">
+                        Yêu cầu link mới
                     </Button>
                 </Link>
             </div>
@@ -160,70 +158,62 @@ function ResetPasswordFormContent() {
                     control={form.control}
                     name="password"
                     render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid} className="space-y-2.5">
-                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 ml-1">Mật khẩu mới</FieldLabel>
+                        <Field data-invalid={fieldState.invalid} className="space-y-1.5">
+                            <FieldLabel htmlFor={field.name} className="text-xs font-medium text-foreground">Mật khẩu mới</FieldLabel>
                             <div className="relative group">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 transition-colors group-focus-within:text-primary" />
+                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50 transition-colors group-focus-within:text-primary" />
                                 <Input
                                     {...field}
                                     id={field.name}
                                     type={showPassword ? 'text' : 'password'}
                                     placeholder="••••••••••••"
-                                    className="pl-12 pr-12 h-14 rounded-2xl bg-muted/20 border-border/40 focus:bg-background focus:ring-0 text-sm font-bold transition-all placeholder:text-muted-foreground/30"
+                                    className="pl-9 pr-9 h-11 rounded-xl bg-muted/5 border-border/20 focus:bg-background focus:border-primary/20 focus:ring-2 focus:ring-primary/10 text-sm font-medium transition-all placeholder:text-muted-foreground/40"
                                     aria-invalid={fieldState.invalid}
                                 />
                                 <button
                                     type="button"
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-foreground cursor-pointer transition-colors"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-foreground cursor-pointer transition-colors"
                                     onClick={() => setShowPassword(!showPassword)}
                                 >
                                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                 </button>
                             </div>
                             {password && (
-                                <div className="mt-4 p-6 rounded-[2rem] bg-muted/20 border border-border/20 space-y-4 animate-in fade-in slide-in-from-top-2">
-                                    <div className="flex items-center justify-between px-1">
-                                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic">Entropy Level</span>
-                                        <span className={cn(
-                                            "text-[9px] font-black uppercase tracking-[0.2em] italic",
-                                            strengthScore === 4 ? "text-emerald-500" : strengthScore === 3 ? "text-amber-500" : "text-destructive"
-                                        )}>
-                                            {strengthScore === 4 ? 'Elite' : strengthScore === 3 ? 'Standard' : 'Fragmented'}
-                                        </span>
-                                    </div>
-                                    <div className="flex gap-2 h-1 px-1">
+                                <div className="mt-2 text-xs">
+                                    <div className="flex gap-1 h-1 mb-2">
                                         {[1, 2, 3, 4].map((i) => (
                                             <div
                                                 key={i}
                                                 className={cn(
-                                                    "h-full flex-1 rounded-full transition-all duration-500",
+                                                    "h-full flex-1 rounded-full transition-all duration-300",
                                                     i <= strengthScore
-                                                        ? strengthScore === 4 ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.3)]"
-                                                            : strengthScore === 3 ? "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.3)]"
-                                                                : "bg-destructive shadow-[0_0_8px_rgba(239,68,68,0.3)]"
-                                                        : "bg-muted-foreground/10"
+                                                        ? strengthScore === 4 ? "bg-emerald-500"
+                                                            : strengthScore === 3 ? "bg-amber-500"
+                                                                : "bg-destructive"
+                                                        : "bg-muted/30"
                                                 )}
                                             />
                                         ))}
                                     </div>
-                                    <div className="grid grid-cols-2 gap-y-2.5 gap-x-4 px-1 pb-1">
+                                    <div className="flex flex-wrap gap-x-4 gap-y-1">
                                         {[
-                                            { label: '8+ Characters', valid: passwordStrength.length },
-                                            { label: 'Uppercase', valid: passwordStrength.uppercase },
-                                            { label: 'Lowercase', valid: passwordStrength.lowercase },
-                                            { label: 'Numeric', valid: passwordStrength.number }
+                                            { label: '8+ ký tự', valid: passwordStrength.length },
+                                            { label: 'In hoa', valid: passwordStrength.uppercase },
+                                            { label: 'Thường', valid: passwordStrength.lowercase },
+                                            { label: 'Số', valid: passwordStrength.number }
                                         ].map((req, idx) => (
-                                            <div key={idx} className="flex items-center gap-2">
-                                                <div className={cn("w-1 h-1 rounded-full transition-all duration-300", req.valid ? "bg-primary scale-125" : "bg-muted-foreground/20")} />
-                                                <span className={cn("text-[9px] font-black uppercase tracking-wider transition-colors", req.valid ? "text-primary/80" : "text-muted-foreground/30")}>
-                                                    {req.label}
-                                                </span>
+                                            <div key={idx} className={cn("flex items-center gap-1.5", req.valid ? "text-emerald-600" : "text-muted-foreground/50")}>
+                                                <div className={cn(
+                                                    "w-1 h-1 rounded-full",
+                                                    req.valid ? "bg-emerald-500" : "bg-muted-foreground/30"
+                                                )} />
+                                                <span className="text-[10px] font-medium">{req.label}</span>
                                             </div>
                                         ))}
                                     </div>
                                 </div>
                             )}
-                            {fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-[10px] font-bold uppercase" />}
+                            {fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-xs font-medium text-destructive mt-1" />}
                         </Field>
                     )}
                 />
@@ -232,42 +222,41 @@ function ResetPasswordFormContent() {
                     control={form.control}
                     name="confirmPassword"
                     render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid} className="space-y-2.5">
-                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 ml-1">Xác nhận bảo mật</FieldLabel>
+                        <Field data-invalid={fieldState.invalid} className="space-y-1.5">
+                            <FieldLabel htmlFor={field.name} className="text-xs font-medium text-foreground">Xác nhận mật khẩu</FieldLabel>
                             <div className="relative group">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 transition-colors group-focus-within:text-primary" />
+                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50 transition-colors group-focus-within:text-primary" />
                                 <Input
                                     {...field}
                                     id={field.name}
                                     type={showConfirmPassword ? 'text' : 'password'}
                                     placeholder="••••••••••••"
-                                    className="pl-12 pr-12 h-14 rounded-2xl bg-muted/20 border-border/40 focus:bg-background focus:ring-0 text-sm font-bold transition-all placeholder:text-muted-foreground/30"
+                                    className="pl-9 pr-9 h-11 rounded-xl bg-muted/5 border-border/20 focus:bg-background focus:border-primary/20 focus:ring-2 focus:ring-primary/10 text-sm font-medium transition-all placeholder:text-muted-foreground/40"
                                     aria-invalid={fieldState.invalid}
                                 />
                                 <button
                                     type="button"
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-foreground cursor-pointer transition-colors"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-foreground cursor-pointer transition-colors"
                                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                 >
                                     {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                 </button>
                             </div>
-                            {fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-[10px] font-bold uppercase" />}
+                            {fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-xs font-medium text-destructive mt-1" />}
                         </Field>
                     )}
                 />
 
                 <Button
                     type="submit"
-                    className="w-full h-14 rounded-2xl bg-primary text-white font-black uppercase tracking-[0.2em] text-[11px] shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all active:scale-95 group"
+                    className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all"
                     disabled={isLoading || strengthScore < 4}
                 >
                     {isLoading ? (
-                        <Spinner className="mr-2" />
+                        <Spinner className="mr-2 h-4 w-4" />
                     ) : (
                         <>
                             Thiết lập mật khẩu
-                            <CheckCircle2 className="ml-2.5 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </>
                     )}
                 </Button>

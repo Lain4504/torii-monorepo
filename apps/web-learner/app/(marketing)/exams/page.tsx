@@ -10,7 +10,7 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@w
 import { ExamStats } from "@/components/exams/exam-stats"
 import { ExamCard } from "@/components/exams/exam-card"
 import { ExamHistory } from "@/components/exams/exam-history"
-import { getExams } from "@/api/services/exam-api"
+import { getExams } from "@/apis/services/exam-api"
 import type { ExamWithStatusResponseDTO, ExamQueryDTO, QuestionJlptLevel } from '@workspace/schemas'
 import { ExamType, ExamStatus } from '@workspace/schemas'
 import { cn } from '@workspace/ui/lib/utils'

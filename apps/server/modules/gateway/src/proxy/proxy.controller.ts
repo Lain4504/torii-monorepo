@@ -41,7 +41,9 @@ export class ProxyController {
         '/api/wishlists': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
         '/api/reviews': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
         '/api/enrollments': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
-        '/api/payments': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
+        '/api/orders': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
+        '/api/learning-progress': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
+        '/payos/webhook': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
 
         // Storage Domain
         '/api/storage': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
@@ -53,7 +55,12 @@ export class ProxyController {
         // Community Domain
         '/api/posts': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
         '/api/comments': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
-        '/api/notifications': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
+
+        // ============================================
+        // Communication Service (Port 8083)
+        // Notifications, Messages, etc.
+        // ============================================
+        '/api/notifications': process.env.COMMUNICATION_SERVICE_URL || 'http://localhost:8083',
 
         // Assessment Domain
         '/api/questions': process.env.LEARNING_SERVICE_URL || 'http://localhost:8082',
@@ -73,7 +80,7 @@ export class ProxyController {
         // Meet Service (Port 8091)
         // WebRTC, Live Classes, Rooms, Polls, Waiting Room
         // ============================================
-        // LiveKit Webhook
+        // LiveKit Webhook (moved to learning service for PayOS, need better strategy for multiple webhooks later)
         '/webhook': process.env.MEET_SERVICE_URL || 'http://localhost:8091',
 
         // Room Authentication

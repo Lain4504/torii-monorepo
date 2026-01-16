@@ -11,7 +11,7 @@ import type { QuestionResponseDTO } from '@workspace/schemas';
 import { QuestionStatus, QuestionDifficultyLevel } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
-import { FileText, Tag, CheckCircle2, BrainCircuit, Activity, Layers, Hash, Calendar, X, AlignLeft } from 'lucide-react';
+import { FileText, Tag, CheckCircle2, BrainCircuit, Layers, Hash, Calendar, X, AlignLeft } from 'lucide-react';
 import { cn } from '@workspace/ui/lib/utils';
 
 interface ViewQuestionDialogProps {
@@ -29,14 +29,13 @@ export function ViewQuestionDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-3xl border-none shadow-2xl bg-background/80 backdrop-blur-3xl rounded-[2rem] p-0 overflow-hidden max-h-[90vh] flex flex-col">
+            <DialogContent className="max-w-3xl border-none shadow-2xl bg-background rounded-3xl p-0 overflow-hidden max-h-[90vh] flex flex-col">
                 <DialogHeader className="p-8 pb-6 bg-muted/5 border-b border-border/10 relative overflow-hidden flex-shrink-0">
                     <div className="absolute inset-0 bg-primary/5 blur-3xl opacity-50 pointer-events-none" />
                     <div className="relative z-10 flex items-start justify-between">
                         <div className="space-y-1">
-                            <DialogTitle className="text-2xl font-black uppercase tracking-tight italic flex items-center gap-2">
-                                <Activity className="h-6 w-6 text-primary" />
-                                Item <span className="text-primary not-italic">Diagnostics</span>
+                            <DialogTitle className="text-2xl font-semibold tracking-tight">
+                                Question <span className="text-primary italic">Details</span>
                             </DialogTitle>
                             <DialogDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2">
                                 ID: <span className="font-mono text-primary">{question.id.substring(0, 8)}...</span>
@@ -59,7 +58,7 @@ export function ViewQuestionDialog({
                         {/* Status Bar */}
                         <div className="flex items-center gap-4 bg-muted/5 p-4 rounded-2xl border border-border/10">
                             <div className="flex-1 flex flex-col gap-1 border-r border-border/10 pr-4">
-                                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Status</span>
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">Status</span>
                                 <Badge
                                     className={cn(
                                         "w-fit rounded-md text-[10px] uppercase tracking-wider font-black shadow-none border",
@@ -72,14 +71,14 @@ export function ViewQuestionDialog({
                                 </Badge>
                             </div>
                             <div className="flex-1 flex flex-col gap-1 border-r border-border/10 px-4">
-                                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Usage Metrics</span>
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">Usage Metrics</span>
                                 <div className="flex items-center gap-2">
                                     <Hash className="h-3 w-3 text-primary" />
-                                    <span className="text-sm font-bold">{question.usageCount} <span className="text-xs font-normal text-muted-foreground">Instances</span></span>
+                                    <span className="text-sm font-bold">{question.usageCount} <span className="text-xs font-normal text-muted-foreground">Times Used</span></span>
                                 </div>
                             </div>
                             <div className="flex-1 flex flex-col gap-1 px-4">
-                                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Created</span>
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">Created</span>
                                 <div className="flex items-center gap-2">
                                     <Calendar className="h-3 w-3 text-primary" />
                                     <span className="text-sm font-bold">{new Date(question.createdAt).toLocaleDateString()}</span>
@@ -91,7 +90,7 @@ export function ViewQuestionDialog({
                         <div className="space-y-3">
                             <Label className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1 flex items-center gap-2">
                                 <FileText className="h-3 w-3" />
-                                Assessment Query
+                                Question Content
                             </Label>
                             <div className="text-lg font-medium text-foreground p-6 rounded-3xl bg-background/50 border border-border/20 shadow-sm leading-relaxed">
                                 {question.questionText}
@@ -103,7 +102,7 @@ export function ViewQuestionDialog({
                             <div className="space-y-2">
                                 <Label className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1 flex items-center gap-2">
                                     <Tag className="h-3 w-3" />
-                                    Type / Category
+                                    Type & Category
                                 </Label>
                                 <div className="flex flex-col gap-2 p-4 rounded-2xl bg-muted/5 border border-border/10">
                                     <div className="flex items-center justify-between">
@@ -139,7 +138,7 @@ export function ViewQuestionDialog({
                                                 question.difficulty === QuestionDifficultyLevel.MEDIUM ? "bg-amber-500/10 text-amber-500 border-amber-500/20" :
                                                     "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
                                         )}>
-                                            {question.difficulty || 'N/A'}
+                                            {question.difficulty || 'Normal'}
                                         </Badge>
                                     </div>
                                 </div>
@@ -153,7 +152,7 @@ export function ViewQuestionDialog({
                                     <div className="h-px flex-1 bg-border/20" />
                                     <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center flex items-center gap-2">
                                         <AlignLeft className="h-3 w-3" />
-                                        Variable Options
+                                        Options
                                     </h4>
                                     <div className="h-px flex-1 bg-border/20" />
                                 </div>
@@ -190,7 +189,7 @@ export function ViewQuestionDialog({
                             <div className="space-y-3">
                                 <Label className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1 flex items-center gap-2">
                                     <CheckCircle2 className="h-3 w-3" />
-                                    Validation Key
+                                    Correct Answer
                                 </Label>
                                 <div className="text-lg font-medium text-emerald-500 p-6 rounded-3xl bg-emerald-500/5 border border-emerald-500/20 shadow-sm">
                                     {question.correctAnswer || 'N/A'}
@@ -203,7 +202,7 @@ export function ViewQuestionDialog({
                             <div className="space-y-3">
                                 <Label className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1 flex items-center gap-2">
                                     <BrainCircuit className="h-3 w-3" />
-                                    Logic / Rationale
+                                    Explanation
                                 </Label>
                                 <div className="text-sm font-medium text-muted-foreground leading-relaxed whitespace-pre-wrap p-6 rounded-3xl bg-muted/5 border border-border/10">
                                     {question.explanation}

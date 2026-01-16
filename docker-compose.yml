@@ -65,6 +65,106 @@ services:
     depends_on:
       - redis
 
+  # ========================================
+  # Application Services
+  # ========================================
+  # NOTE: Using pre-built image from Docker Hub to save VPS disk space
+  # Image name is configured via DOCKER_USERNAME in .env
+
+  gateway:
+    image: ${DOCKER_USERNAME}/torii-backend:latest
+    command: npm run prod:gateway
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - NATS_URL=nats://nats:4222
+      - DATABASE_URL=postgresql://postgres:123456789@postgres:5432/wajlc
+      - REDIS_URL=redis://redis:6379
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - IDENTITY_SERVICE_URL=http://identity:8081
+      - LEARNING_SERVICE_URL=http://learning:8082
+      - AGENTS_SERVICE_URL=http://agents:8090
+      - MEET_SERVICE_URL=http://meet:8091
+    ports:
+      - "${GATEWAY_PORT:-8080}:8080"
+    depends_on:
+      - nats
+      - postgres
+      - redis
+      - identity
+      - learning
+      - meet
+      - agents
+
+  identity:
+    image: ${DOCKER_USERNAME}/torii-backend:latest
+    command: npm run prod:identity
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - NATS_URL=nats://nats:4222
+      - DATABASE_URL=postgresql://postgres:123456789@postgres:5432/wajlc
+      - REDIS_URL=redis://redis:6379
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - nats
+      - postgres
+      - redis
+
+  learning:
+    image: ${DOCKER_USERNAME}/torii-backend:latest
+    command: npm run prod:learning
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - NATS_URL=nats://nats:4222
+      - DATABASE_URL=postgresql://postgres:123456789@postgres:5432/wajlc
+      - REDIS_URL=redis://redis:6379
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - nats
+      - postgres
+      - redis
+
+  meet:
+    image: ${DOCKER_USERNAME}/torii-backend:latest
+    command: npm run prod:meet
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - NATS_URL=nats://nats:4222
+      - DATABASE_URL=postgresql://postgres:123456789@postgres:5432/wajlc
+      - REDIS_URL=redis://redis:6379
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - nats
+      - postgres
+      - redis
+
+  agents:
+    image: ${DOCKER_USERNAME}/torii-backend:latest
+    command: npm run prod:agents
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - NATS_URL=nats://nats:4222
+      - DATABASE_URL=postgresql://postgres:123456789@postgres:5432/wajlc
+      - REDIS_URL=redis://redis:6379
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - nats
+      - postgres
+      - redis
 
 volumes:
   pgdata:
