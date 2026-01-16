@@ -58,30 +58,30 @@ export class ExamHandler {
     }
 
     @MessagePattern({ cmd: 'learning.exam-admin.create' })
-    async createAdmin(@Payload() data: ExamCreateDTO & { userId: string }) {
-        const { userId, ...dto } = data;
-        const requester = { sub: userId, role: 'INSTRUCTOR' as any, permissions: [] };
+    async createAdmin(@Payload() data: ExamCreateDTO & { userId: string, userRole: string }) {
+        const { userId, userRole, ...dto } = data;
+        const requester = { sub: userId, role: userRole as any, permissions: [] };
         return this.examService.create(requester, dto);
     }
 
     @MessagePattern({ cmd: 'learning.exam-admin.update' })
-    async updateAdmin(@Payload() data: ExamUpdateDTO & { id: string, userId: string }) {
-        const { id, userId, ...dto } = data;
-        const requester = { sub: userId, role: 'INSTRUCTOR' as any, permissions: [] };
+    async updateAdmin(@Payload() data: ExamUpdateDTO & { id: string, userId: string, userRole: string }) {
+        const { id, userId, userRole, ...dto } = data;
+        const requester = { sub: userId, role: userRole as any, permissions: [] };
         return this.examService.update(requester, id, dto);
     }
 
     @MessagePattern({ cmd: 'learning.exam-admin.delete' })
-    async deleteAdmin(@Payload() data: { id: string, userId: string }) {
-        const { id, userId } = data;
-        const requester = { sub: userId, role: 'INSTRUCTOR' as any, permissions: [] };
+    async deleteAdmin(@Payload() data: { id: string, userId: string, userRole: string }) {
+        const { id, userId, userRole } = data;
+        const requester = { sub: userId, role: userRole as any, permissions: [] };
         return this.examService.delete(requester, id);
     }
 
     @MessagePattern({ cmd: 'learning.exam-admin.publish' })
-    async publishAdmin(@Payload() data: { id: string, userId: string }) {
-        const { id, userId } = data;
-        const requester = { sub: userId, role: 'INSTRUCTOR' as any, permissions: [] };
+    async publishAdmin(@Payload() data: { id: string, userId: string, userRole: string }) {
+        const { id, userId, userRole } = data;
+        const requester = { sub: userId, role: userRole as any, permissions: [] };
         return this.examService.publish(requester, id);
     }
 

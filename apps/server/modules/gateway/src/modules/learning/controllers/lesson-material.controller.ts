@@ -40,7 +40,8 @@ export class LessonMaterialController {
                     {
                         dto,
                         fileId,
-                        userId: user.sub
+                        userId: user.sub,
+                        userRole: user.role
                     }
                 )
             );
@@ -76,7 +77,7 @@ export class LessonMaterialController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.lesson-material.update' },
-                    { id, ...dto, userId: user.sub }
+                    { id, ...dto, userId: user.sub, userRole: user.role }
                 )
             );
             return successResponse({ material: result }, 'Material updated successfully');
@@ -95,7 +96,7 @@ export class LessonMaterialController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.lesson-material.delete' },
-                    { id, userId: user.sub }
+                    { id, userId: user.sub, userRole: user.role }
                 )
             );
             return successResponse(result, 'Material deleted successfully');

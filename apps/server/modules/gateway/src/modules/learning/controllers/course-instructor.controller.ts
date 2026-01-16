@@ -34,7 +34,7 @@ export class CourseInstructorController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.course-instructor.assign' },
-                    { ...dto, userId: user.sub }
+                    { ...dto, userId: user.sub, userRole: user.role }
                 )
             );
             return successResponse(result, 'Lecturer assigned successfully');
@@ -84,7 +84,7 @@ export class CourseInstructorController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.course-instructor.updatePrimary' },
-                    { id, ...dto, userId: user.sub }
+                    { id, ...dto, userId: user.sub, userRole: user.role }
                 )
             );
             return successResponse(result, 'Primary instructor updated successfully');
@@ -100,7 +100,7 @@ export class CourseInstructorController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.course-instructor.unassign' },
-                    { id, userId: user.sub }
+                    { id, userId: user.sub, userRole: user.role }
                 )
             );
             return successResponse(result, 'Lecturer unassigned successfully');

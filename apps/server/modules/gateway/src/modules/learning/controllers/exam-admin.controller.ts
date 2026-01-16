@@ -20,7 +20,7 @@ import {
 import { IdentityAuthGuard } from '../../identity/guards/identity-auth.guard';
 import { Request } from 'express';
 
-@Controller('admin/exams')
+@Controller('api/admin/exams')
 @UseGuards(IdentityAuthGuard)
 export class ExamAdminController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
@@ -62,7 +62,7 @@ export class ExamAdminController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.exam-admin.create' },
-                    { ...dto, userId: user.sub }
+                    { ...dto, userId: user.sub, userRole: user.role }
                 )
             );
             return successResponse({ exam: result });
@@ -78,7 +78,7 @@ export class ExamAdminController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.exam-admin.update' },
-                    { id, ...dto, userId: user.sub }
+                    { id, ...dto, userId: user.sub, userRole: user.role }
                 )
             );
             return successResponse({ exam: result });
@@ -94,7 +94,7 @@ export class ExamAdminController {
             await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.exam-admin.delete' },
-                    { id, userId: user.sub }
+                    { id, userId: user.sub, userRole: user.role }
                 )
             );
             return successResponse(null, 'Exam deleted successfully');
@@ -110,7 +110,7 @@ export class ExamAdminController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.exam-admin.publish' },
-                    { id, userId: user.sub }
+                    { id, userId: user.sub, userRole: user.role }
                 )
             );
             return successResponse({ exam: result });
