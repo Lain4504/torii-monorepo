@@ -166,6 +166,23 @@ services:
       - postgres
       - redis
 
+  gamification:
+    image: ${DOCKER_USERNAME}/torii-backend:latest
+    command: npm run prod:gamification
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - NATS_URL=nats://nats:4222
+      - DATABASE_URL=postgresql://postgres:123456789@postgres:5432/wajlc
+      - REDIS_URL=redis://redis:6379
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - nats
+      - postgres
+      - redis
+
 volumes:
   pgdata:
   redisdata:

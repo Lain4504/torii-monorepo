@@ -229,9 +229,6 @@ importers:
       ioredis:
         specifier: ^5.8.2
         version: 5.8.2
-      js-yaml:
-        specifier: ^4.1.1
-        version: 4.1.1
       jsonwebtoken:
         specifier: ^9.0.3
         version: 9.0.3
@@ -353,6 +350,9 @@ importers:
       jest:
         specifier: ^30.0.0
         version: 30.2.0(@types/node@22.19.2)(ts-node@10.9.2(@types/node@22.19.2)(typescript@5.9.3))
+      js-yaml:
+        specifier: ^4.1.1
+        version: 4.1.1
       prettier:
         specifier: ^3.4.2
         version: 3.7.4

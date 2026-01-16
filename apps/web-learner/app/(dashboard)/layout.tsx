@@ -2,10 +2,10 @@
 
 import { useAppSelector } from '@/hooks/hooks'
 import { useRouter } from 'next/navigation'
-import { useState, useEffect } from 'react'
-import { cn } from '@workspace/ui/lib/utils'
-import { DashboardSidebar } from '@/components/dashboard/dashboard-sidebar'
+import { useEffect } from 'react'
+import { AppSidebar } from '@/components/dashboard/app-sidebar'
 import { DashboardHeader } from '@/components/dashboard/dashboard-header'
+import { SidebarInset, SidebarProvider } from '@workspace/ui/components/sidebar'
 
 export default function DashboardLayout({
     children,
@@ -14,7 +14,6 @@ export default function DashboardLayout({
 }) {
     const { isAuthenticated, status } = useAppSelector((state) => state.auth)
     const router = useRouter()
-    const [isCollapsed, setIsCollapsed] = useState(false)
 
     useEffect(() => {
         if (status === 'succeeded' && !isAuthenticated) {
@@ -38,27 +37,26 @@ export default function DashboardLayout({
     }
 
     return (
-        <div className="min-h-screen bg-background selection:bg-primary/10 selection:text-primary">
-            {/* Zen Ambient Background Elements */}
-            <div className="fixed inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/[0.03] rounded-full blur-[140px] animate-pulse duration-[8s]" />
-                <div className="absolute bottom-[-15%] right-[-10%] w-[40%] h-[40%] bg-primary/[0.02] rounded-full blur-[120px] animate-pulse duration-[10s]" />
-                <div className="absolute top-[20%] right-[10%] w-[20%] h-[20%] bg-primary/[0.04] rounded-full blur-[100px]" />
-            </div>
+        <SidebarProvider>
+            <div className="flex min-h-screen w-full bg-background selection:bg-primary/10 selection:text-primary overflow-hidden">
+                {/* Zen Ambient Background Elements */}
+                <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+                    <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/[0.03] rounded-full blur-[140px] animate-pulse duration-[8s]" />
+                    <div className="absolute bottom-[-15%] right-[-10%] w-[40%] h-[40%] bg-primary/[0.02] rounded-full blur-[120px] animate-pulse duration-[10s]" />
+                    <div className="absolute top-[20%] right-[10%] w-[20%] h-[20%] bg-primary/[0.04] rounded-full blur-[100px]" />
+                </div>
 
-            <DashboardHeader isCollapsed={isCollapsed} toggleSidebar={() => setIsCollapsed(!isCollapsed)} />
+                <AppSidebar />
 
-            <div className="flex relative z-10 container mx-auto">
-                <DashboardSidebar isCollapsed={isCollapsed} />
-                <main className={cn(
-                    "flex-1 min-h-[calc(100vh-4rem)] relative transition-all duration-300",
-                    isCollapsed ? "lg:ml-20" : "lg:ml-72"
-                )}>
-                    <div className="w-full h-full pb-20">
-                        {children}
-                    </div>
-                </main>
+                <SidebarInset className="relative z-10 flex flex-col bg-transparent">
+                    <DashboardHeader />
+                    <main className="flex-1 overflow-y-auto scrollbar-none">
+                        <div className="container mx-auto p-4 sm:p-6 lg:p-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
+                            {children}
+                        </div>
+                    </main>
+                </SidebarInset>
             </div>
-        </div>
+        </SidebarProvider>
     )
 }
