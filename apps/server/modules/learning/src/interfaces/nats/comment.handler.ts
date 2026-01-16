@@ -24,12 +24,11 @@ export class CommentHandler {
 
     @MessagePattern({ cmd: 'learning.comment.create' })
     async create(@Payload() data: CommentCreateDTO & { userId: string }) {
-        const { userId, ...dto } = data;
-        // Fix for Schema mismatch logic from original controller
-        if ((dto as any).userId && !dto.authorId) {
-            dto.authorId = (dto as any).userId;
-        }
-        if (!dto.authorId && userId) dto.authorId = userId;
+        const dto: CommentCreateDTO = {
+            ...data,
+            userId: data.userId || (data as any).authorId, // Ensure userId is present
+            authorId: data.authorId || data.userId,
+        };
 
         return this.commentService.createComment(dto);
     }

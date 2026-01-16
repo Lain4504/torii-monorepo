@@ -54,7 +54,7 @@ export function CreateQuestionPoolDialog({ open, onOpenChange }: CreateQuestionP
     });
 
     const selectedCourseId = watch('courseId');
-    const selectedCourse = coursesData?.data.find(c => c.id === selectedCourseId);
+    const selectedCourse = coursesData?.data?.find(c => c.id === selectedCourseId);
 
     const onSubmit = async (data: CreateQuestionPoolFormData) => {
         try {
@@ -122,7 +122,7 @@ export function CreateQuestionPoolDialog({ open, onOpenChange }: CreateQuestionP
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="none">None</SelectItem>
-                                            {coursesData?.data.map((course) => (
+                                            {coursesData?.data?.map((course) => (
                                                 <SelectItem key={course.id} value={course.id}>
                                                     {course.title}
                                                 </SelectItem>

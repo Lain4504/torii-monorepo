@@ -263,7 +263,7 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
                                     </SelectTrigger>
                                     <SelectContent className="border-border/10 shadow-2xl bg-background rounded-2xl overflow-hidden p-1">
                                         <SelectItem value="none" className="rounded-xl font-bold uppercase text-xs py-3 cursor-pointer focus:bg-primary/10">Unassigned</SelectItem>
-                                        {poolsData?.data.map((pool) => (
+                                        {poolsData?.data?.map((pool) => (
                                             <SelectItem key={pool.id} value={pool.id} className="rounded-xl font-bold uppercase text-xs py-3 cursor-pointer focus:bg-primary/10">
                                                 {pool.name}
                                             </SelectItem>

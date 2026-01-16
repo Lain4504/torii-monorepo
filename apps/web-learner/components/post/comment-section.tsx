@@ -28,7 +28,7 @@ export function CommentSection({ postId }: CommentSectionProps) {
         try {
             setLoading(true)
             const response = await postCommentApi.findAll({ page: 1, limit: 100, postId }) // Load many for nesting
-            setComments(response.data)
+            setComments(response.data || [])
         } catch (error: any) {
             console.error('Failed to fetch comments:', error)
             toast.error('Không thể tải bình luận', {

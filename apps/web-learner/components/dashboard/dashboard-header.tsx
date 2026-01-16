@@ -82,9 +82,9 @@ export function DashboardHeader() {
                             <Button variant="ghost" className="rounded-2xl h-12 pl-1 pr-1.5 hover:bg-muted/50 transition-all cursor-pointer border border-border/10 shadow-sm">
                                 <div className="flex items-center gap-2.5">
                                     <Avatar className="w-9 h-9 rounded-[0.8rem] border border-border/40 shadow-sm">
-                                        <AvatarImage src={user?.avatarUrl} />
+                                        <AvatarImage src={user?.avatarUrl || undefined} />
                                         <AvatarFallback className="bg-primary/5 text-primary text-xs font-black uppercase">
-                                            {user?.displayName?.charAt(0) || 'U'}
+                                            {user?.displayName?.[0] || 'U'}
                                         </AvatarFallback>
                                     </Avatar>
                                     <div className="hidden lg:block text-left mr-1">
@@ -102,7 +102,7 @@ export function DashboardHeader() {
                             <DropdownMenuLabel className="px-3 py-3">
                                 <div className="flex items-center gap-3">
                                     <Avatar className="h-10 w-10 rounded-xl border border-border/20">
-                                        <AvatarImage src={user?.avatarUrl} />
+                                        <AvatarImage src={user?.avatarUrl || undefined} />
                                         <AvatarFallback className="rounded-xl bg-primary text-white text-xs font-black">
                                             {user?.displayName?.[0]?.toUpperCase() || "U"}
                                         </AvatarFallback>

@@ -41,8 +41,8 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                     postApi.findAll({ page: 1, limit: 5, sortBy: 'viewCount', sortOrder: 'desc' })
                 ])
                 setPost(postData)
-                setRecentPosts(latestData.data.filter(p => p.id !== postData?.id))
-                setMostViewedPosts(topData.data)
+                setRecentPosts(latestData?.data?.filter(p => p.id !== postData?.id) || [])
+                setMostViewedPosts(topData?.data || [])
 
                 // Increment view count (only once per session)
                 const viewCountKey = `post_viewed_${id}`

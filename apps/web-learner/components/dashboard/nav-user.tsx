@@ -70,7 +70,7 @@ export function NavUser({
                         >
                             <div className="relative">
                                 <Avatar className="h-10 w-10 border-2 border-background shadow-md rounded-xl">
-                                    <AvatarImage src={user.avatarUrl} alt={user.displayName} />
+                                    <AvatarImage src={user.avatarUrl || undefined} alt={user.displayName} />
                                     <AvatarFallback className="rounded-xl bg-primary text-white text-xs font-black">
                                         {user.displayName?.[0]?.toUpperCase() || "U"}
                                     </AvatarFallback>
@@ -96,7 +96,7 @@ export function NavUser({
                         <DropdownMenuLabel className="p-0 font-normal">
                             <div className="flex items-center gap-3 px-3 py-3 text-left">
                                 <Avatar className="h-10 w-10 rounded-xl border border-border/20">
-                                    <AvatarImage src={user.avatarUrl} alt={user.displayName} />
+                                    <AvatarImage src={user.avatarUrl || undefined} alt={user.displayName} />
                                     <AvatarFallback className="rounded-xl bg-primary text-white text-xs font-black">
                                         {user.displayName?.[0]?.toUpperCase() || "U"}
                                     </AvatarFallback>
