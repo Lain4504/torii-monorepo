@@ -2,11 +2,10 @@ import {
     Injectable,
     CanActivate,
     ExecutionContext,
-    HttpStatus,
     Inject,
+    UnauthorizedException,
 } from '@nestjs/common';
-import type { Request, Response } from 'express';
-import { errorResponse } from '@server/shared';
+import type { Request } from 'express';
 import { JwtTokenProvider } from '@server/shared';
 import { UserRole } from '@workspace/schemas';
 
@@ -19,7 +18,6 @@ export class IdentityAuthGuard implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const ctx = context.switchToHttp();
         const request = ctx.getRequest<Request>();
-        const response = ctx.getResponse<Response>();
         let authToken = request.headers.authorization;
 
         // Check if Authorization header exists
@@ -28,15 +26,22 @@ export class IdentityAuthGuard implements CanActivate {
             if (request.cookies && request.cookies.access_token) {
                 authToken = request.cookies.access_token;
             } else {
-                response.status(HttpStatus.UNAUTHORIZED).json(
-                    errorResponse('Authorization header is missing')
-                );
-                return false;
+                throw new UnauthorizedException('Authorization header is missing');
             }
         }
 
+        // We know authToken is defined here, but convince TS
+        if (!authToken) {
+            throw new UnauthorizedException('Authorization header is missing');
+        }
+
+        // Clean up token if it has "Bearer " prefix
+        if (authToken.startsWith('Bearer ')) {
+            authToken = authToken.substring(7);
+        }
+
         try {
-            const payload = await this.jwtTokenProvider.verifyToken(authToken!);
+            const payload = await this.jwtTokenProvider.verifyToken(authToken);
             if (payload) {
                 // Attach standard user object
                 (request as any).user = payload;
@@ -47,16 +52,10 @@ export class IdentityAuthGuard implements CanActivate {
 
                 return true;
             } else {
-                response.status(HttpStatus.UNAUTHORIZED).json(
-                    errorResponse('Invalid or expired token')
-                );
-                return false;
+                throw new UnauthorizedException('Invalid or expired token');
             }
         } catch (error) {
-            response.status(HttpStatus.UNAUTHORIZED).json(
-                errorResponse(error instanceof Error ? error.message : 'Invalid token')
-            );
-            return false;
+            throw new UnauthorizedException(error instanceof Error ? error.message : 'Invalid token');
         }
     }
 }

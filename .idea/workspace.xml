@@ -6,9 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix format key url r2 storage">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/modules/learning/controllers/exam-admin.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/modules/learning/controllers/exam-admin.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/users/users.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/users/users.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/storage/src/modules/storage/storage.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/storage/src/modules/storage/storage.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/main.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/modules/learning/controllers/course.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/modules/learning/controllers/course.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/nats/course.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/nats/course.handler.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,6 +39,7 @@
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="UPDATE_TYPE" value="REBASE" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;history&quot;: [
@@ -298,23 +300,9 @@
       <workItem from="1768466511682" duration="987000" />
       <workItem from="1768471927655" duration="9066000" />
       <workItem from="1768559182032" duration="3041000" />
-      <workItem from="1768575475930" duration="1908000" />
-    </task>
-    <task id="LOCAL-00677" summary="payos">
-      <option name="closed" value="true" />
-      <created>1768238195353</created>
-      <option name="number" value="00677" />
-      <option name="presentableId" value="LOCAL-00677" />
-      <option name="project" value="LOCAL" />
-      <updated>1768238195353</updated>
-    </task>
-    <task id="LOCAL-00678" summary="payos">
-      <option name="closed" value="true" />
-      <created>1768238376140</created>
-      <option name="number" value="00678" />
-      <option name="presentableId" value="LOCAL-00678" />
-      <option name="project" value="LOCAL" />
-      <updated>1768238376141</updated>
+      <workItem from="1768575475930" duration="2293000" />
+      <workItem from="1768577911025" duration="356000" />
+      <workItem from="1768578281072" duration="171000" />
     </task>
     <task id="LOCAL-00679" summary="payos">
       <option name="closed" value="true" />
@@ -692,7 +680,23 @@
       <option name="project" value="LOCAL" />
       <updated>1768577130697</updated>
     </task>
-    <option name="localTasksCounter" value="726" />
+    <task id="LOCAL-00726" summary="fix format key url r2 storage">
+      <option name="closed" value="true" />
+      <created>1768577779808</created>
+      <option name="number" value="00726" />
+      <option name="presentableId" value="LOCAL-00726" />
+      <option name="project" value="LOCAL" />
+      <updated>1768577779808</updated>
+    </task>
+    <task id="LOCAL-00727" summary="fix format key url r2 storage">
+      <option name="closed" value="true" />
+      <created>1768577790113</created>
+      <option name="number" value="00727" />
+      <option name="presentableId" value="LOCAL-00727" />
+      <option name="project" value="LOCAL" />
+      <updated>1768577790113</updated>
+    </task>
+    <option name="localTasksCounter" value="728" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -709,18 +713,16 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="build-gateway" />
-                      </list>
-                    </value>
-                  </entry>
-                  <entry key="text">
-                    <value>
-                      <list>
-                        <option value="refactor" />
+                        <option value="gamification" />
                       </list>
                     </value>
                   </entry>
                 </map>
+              </option>
+              <option name="TEXT_FILTER_SETTINGS">
+                <TextFilterSettings>
+                  <option name="MATCH_CASE" value="true" />
+                </TextFilterSettings>
               </option>
             </State>
           </value>

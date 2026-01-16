@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import { GlobalExceptionsFilter } from '@server/shared';
 import { NestFactory, HttpAdapterHost } from '@nestjs/core';
 import { GatewayModule } from './gateway.module';
 import * as bodyParser from 'body-parser';
@@ -30,9 +31,9 @@ async function bootstrap() {
 
   await app.startAllMicroservices();
   const httpAdapter = app.get(HttpAdapterHost);
-
+  app.useGlobalFilters(new GlobalExceptionsFilter());
 
   await app.listen(process.env.port ?? 8080);
 }
-bootstrap(); 
+bootstrap();
 

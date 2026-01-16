@@ -557,7 +557,7 @@ export class AuthController {
     @Post('logout')
     @HttpCode(HttpStatus.OK)
     async logout(
-        @Body() dto: LogoutDTO,
+        @Body() dto: LogoutDTO = {} as LogoutDTO,
         @Req() req: Request,
         @Res({ passthrough: true }) res: Response,
     ) {
@@ -566,7 +566,7 @@ export class AuthController {
             ? authHeader.split(' ')[1]
             : req.cookies?.access_token || null;
 
-        const refreshToken = req.cookies?.refresh_token || dto.refreshToken || null;
+        const refreshToken = req.cookies?.refresh_token || dto?.refreshToken || null;
 
         await firstValueFrom(
             this.natsClient.send(

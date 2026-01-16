@@ -10,9 +10,10 @@ export class CourseHandler {
     ) { }
 
     @MessagePattern({ cmd: 'learning.course.create' })
-    async create(@Payload() data: CourseCreateDTO & { user: Requester }) {
-        const { user, ...dto } = data;
-        return this.courseService.create(user, dto);
+    async create(@Payload() data: CourseCreateDTO & { instructorId: string, userRole: string }) {
+        const { instructorId, userRole, ...dto } = data;
+        const requester: Requester = { sub: instructorId, role: userRole as any };
+        return this.courseService.create(requester, dto);
     }
 
     @MessagePattern({ cmd: 'learning.course.findAll' })
@@ -46,26 +47,30 @@ export class CourseHandler {
     }
 
     @MessagePattern({ cmd: 'learning.course.update' })
-    async update(@Payload() data: CourseUpdateDTO & { id: string, user: Requester }) {
-        const { id, user, ...dto } = data;
-        return this.courseService.update(user, id, dto);
+    async update(@Payload() data: CourseUpdateDTO & { id: string, userId: string, userRole: string }) {
+        const { id, userId, userRole, ...dto } = data;
+        const requester: Requester = { sub: userId, role: userRole as any };
+        return this.courseService.update(requester, id, dto);
     }
 
     @MessagePattern({ cmd: 'learning.course.delete' })
-    async delete(@Payload() data: { id: string, hardDelete?: boolean, user: Requester }) {
-        const { id, hardDelete, user } = data;
-        return this.courseService.delete(user, id, hardDelete);
+    async delete(@Payload() data: { id: string, hardDelete?: boolean, userId: string, userRole: string }) {
+        const { id, hardDelete, userId, userRole } = data;
+        const requester: Requester = { sub: userId, role: userRole as any };
+        return this.courseService.delete(requester, id, hardDelete);
     }
 
     @MessagePattern({ cmd: 'learning.course.publish' })
-    async publish(@Payload() data: { id: string, user: Requester }) {
-        const { id, user } = data;
-        return this.courseService.publish(user, id);
+    async publish(@Payload() data: { id: string, userId: string, userRole: string }) {
+        const { id, userId, userRole } = data;
+        const requester: Requester = { sub: userId, role: userRole as any };
+        return this.courseService.publish(requester, id);
     }
 
     @MessagePattern({ cmd: 'learning.course.unpublish' })
-    async unpublish(@Payload() data: { id: string, user: Requester }) {
-        const { id, user } = data;
-        return this.courseService.unpublish(user, id);
+    async unpublish(@Payload() data: { id: string, userId: string, userRole: string }) {
+        const { id, userId, userRole } = data;
+        const requester: Requester = { sub: userId, role: userRole as any };
+        return this.courseService.unpublish(requester, id);
     }
 }

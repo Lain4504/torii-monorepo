@@ -16,6 +16,8 @@ export * from './guards/gateway-auth.guard';
 export * from './guards/verified.guard';
 export * from './guards/verified-only.decorator';
 export * from './decorators/public.decorator';
+export * from './decorators/roles.decorator';
+export * from './guards/roles.guard';
 
 export * from './utils/slug.utils';
 export * from './utils/webhook_verify';
@@ -118,5 +120,8 @@ export * from './services/blacklist.service';
 
 // API Response Utilities
 export * from './utils/api-response.util';
+
+// Filters
+export * from './filters/global-exception.filter';
 
 
