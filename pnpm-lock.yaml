@@ -226,6 +226,9 @@ importers:
       google-protobuf:
         specifier: ^3.21.4
         version: 3.21.4
+      handlebars:
+        specifier: ^4.7.8
+        version: 4.7.8
       ioredis:
         specifier: ^5.8.2
         version: 5.8.2

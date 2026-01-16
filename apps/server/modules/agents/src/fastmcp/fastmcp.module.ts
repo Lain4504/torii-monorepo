@@ -1,11 +1,10 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { FastMcpService } from './fastmcp.service';
-import { SenseiAgentModule } from '../sensei-agent/sensei-agent.module';
-import { AssessmentAgentModule } from '../assessment-agent/assessment-agent.module';
-import { AnalyticsAgentModule } from '../analytics-agent/analytics-agent.module';
+import { PrismaModule } from '@server/shared';
 
 @Module({
-  imports: [SenseiAgentModule, AssessmentAgentModule, AnalyticsAgentModule],
+  imports: [ConfigModule, PrismaModule],
   providers: [FastMcpService],
   exports: [FastMcpService],
 })
