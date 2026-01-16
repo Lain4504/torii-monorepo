@@ -1,17 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Bell, Search, Check, Trash2, Clock, Info, CheckCircle2, AlertTriangle, XCircle, MoreVertical, BellOff } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { Input } from '@workspace/ui/components/input'
 import { Card } from '@workspace/ui/components/card'
 import { cn } from '@workspace/ui/lib/utils'
+import { format, formatDistanceToNow } from 'date-fns'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu'
+import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead, useDeleteNotification } from '@/api/services/notifications'
+import type { NotificationResponseDTO, NotificationType } from '@workspace/schemas'
 
 interface Notification {
   id: string
@@ -25,88 +28,128 @@ interface Notification {
   category: 'system' | 'security' | 'finance' | 'identity'
 }
 
-const mockNotifications: Notification[] = [
-  {
-    id: '1',
-    title: 'Registry Sync Success',
-    message: 'Master branch successfully merged into course-registry. All nodes updated across the cluster.',
-    time: '5 mins ago',
-    date: '12/01/2026',
-    read: false,
-    type: 'success',
-    node: 'System',
-    category: 'system'
-  },
-  {
-    id: '2',
-    title: 'New Identity Registered',
-    message: '3 users have been successfully verified and added to the learner database.',
-    time: '1 hour ago',
-    date: '12/01/2026',
-    read: false,
-    type: 'info',
-    node: 'User Gate',
-    category: 'identity'
-  },
-  {
-    id: '3',
-    title: 'Scheduled Maintenance',
-    message: 'System optimization scheduled for 02:00 UTC. Expected duration: 15 mins.',
-    time: '3 hours ago',
-    date: '12/01/2026',
-    read: true,
-    type: 'warning',
-    node: 'Infrastructure',
-    category: 'system'
-  },
-  {
-    id: '4',
-    title: 'Transaction Authorized',
-    message: 'Premium subscription confirmed for User #X72.',
-    time: '1 day ago',
-    date: '11/01/2026',
-    read: true,
-    type: 'success',
-    node: 'Finance',
-    category: 'finance'
-  },
-  {
-    id: '5',
-    title: 'Security Alert',
-    message: 'Multiple invalid login attempts detected. Firewall engaged.',
-    time: '2 days ago',
-    date: '10/01/2026',
-    read: true,
-    type: 'error',
-    node: 'Security',
-    category: 'security'
+// Map API notification type to UI type
+function mapNotificationType(notificationType: NotificationType): 'info' | 'success' | 'warning' | 'error' {
+  switch (notificationType) {
+    case 'course':
+    case 'achievement':
+      return 'success'
+    case 'system':
+      return 'warning'
+    case 'payment':
+      return 'success'
+    case 'live_class':
+    case 'reminder':
+      return 'info'
+    default:
+      return 'info'
   }
-]
+}
+
+// Map notification type to category
+function mapNotificationCategory(notificationType: NotificationType): 'system' | 'security' | 'finance' | 'identity' {
+  switch (notificationType) {
+    case 'system':
+      return 'system'
+    case 'payment':
+      return 'finance'
+    case 'course':
+    case 'achievement':
+    case 'reminder':
+      return 'system'
+    case 'live_class':
+      return 'system'
+    default:
+      return 'system'
+  }
+}
+
+// Map notification type to node name
+function mapNotificationNode(notificationType: NotificationType): string {
+  switch (notificationType) {
+    case 'system':
+      return 'System'
+    case 'course':
+      return 'Learning'
+    case 'payment':
+      return 'Finance'
+    case 'live_class':
+      return 'Meet'
+    case 'achievement':
+      return 'Gamification'
+    case 'reminder':
+      return 'Scheduler'
+    default:
+      return 'System'
+  }
+}
+
+// Convert API notification to UI format
+function mapNotificationToUI(notification: NotificationResponseDTO): Notification {
+  const createdAt = new Date(notification.createdAt)
+  return {
+    id: notification.id,
+    title: notification.title,
+    message: notification.message,
+    time: formatDistanceToNow(createdAt, { addSuffix: true }),
+    date: format(createdAt, 'dd/MM/yyyy'),
+    read: notification.isRead,
+    type: mapNotificationType(notification.notificationType),
+    node: mapNotificationNode(notification.notificationType),
+    category: mapNotificationCategory(notification.notificationType),
+  }
+}
 
 export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState<Notification[]>(mockNotifications)
   const [filter, setFilter] = useState<'all' | 'unread' | 'system' | 'security'>('all')
   const [search, setSearch] = useState('')
+  const [page] = useState(1)
 
-  const filteredNotifications = notifications.filter(n => {
-    const matchesSearch = n.title.toLowerCase().includes(search.toLowerCase()) ||
-      n.message.toLowerCase().includes(search.toLowerCase())
-    if (filter === 'all') return matchesSearch
-    if (filter === 'unread') return !n.read && matchesSearch
-    if (filter === 'system') return n.category === 'system' && matchesSearch
-    if (filter === 'security') return n.category === 'security' && matchesSearch
-    return matchesSearch
+  // Fetch notifications with pagination
+  const { data: notificationsData, isLoading } = useNotifications({ 
+    limit: 50, 
+    page,
+    isRead: filter === 'unread' ? false : undefined,
   })
+  const { data: unreadCountData } = useUnreadNotificationsCount()
+  const markAsReadMutation = useMarkNotificationAsRead()
+  const markAllAsReadMutation = useMarkAllNotificationsAsRead()
+  const deleteNotificationMutation = useDeleteNotification()
+
+  // Map API notifications to UI format
+  const notifications = useMemo(() => {
+    // Debug: Log response structure
+    if (notificationsData) {
+      console.log('🔔 Notifications Page - Response:', notificationsData);
+    }
+    
+    // Handle response structure: PaginatedApiResponse = { data: NotificationResponseDTO[], total, page, limit, totalPages }
+    if (!notificationsData?.data) return []
+    return notificationsData.data.map(mapNotificationToUI)
+  }, [notificationsData])
+
+  // Filter notifications by search
+  const filteredNotifications = useMemo(() => {
+    return notifications.filter((n: Notification) => {
+      const matchesSearch = n.title.toLowerCase().includes(search.toLowerCase()) ||
+        n.message.toLowerCase().includes(search.toLowerCase())
+      if (filter === 'all') return matchesSearch
+      if (filter === 'unread') return !n.read && matchesSearch
+      if (filter === 'system') return n.category === 'system' && matchesSearch
+      if (filter === 'security') return n.category === 'security' && matchesSearch
+      return matchesSearch
+    })
+  }, [notifications, search, filter])
 
   const markAsRead = (id: string) => {
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n))
+    markAsReadMutation.mutate(id)
   }
 
   const deleteNotification = (id: string) => {
-    setNotifications(prev => prev.filter(n => n.id !== id))
+    deleteNotificationMutation.mutate(id)
   }
 
-  const unreadCount = notifications.filter(n => !n.read).length
+  const unreadCount = unreadCountData?.count || 0
 
   const getTypeStyles = (type: Notification['type']) => {
     switch (type) {
@@ -138,11 +181,12 @@ export default function NotificationsPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setNotifications(prev => prev.map(n => ({ ...n, read: true })))}
-            className="rounded-xl h-10 px-4 text-xs font-medium border-border/40 hover:bg-primary/5 hover:text-primary transition-all cursor-pointer"
+            onClick={() => markAllAsReadMutation.mutate()}
+            disabled={markAllAsReadMutation.isPending || unreadCount === 0}
+            className="rounded-xl h-10 px-4 text-xs font-medium border-border/40 hover:bg-primary/5 hover:text-primary transition-all cursor-pointer disabled:opacity-50"
           >
             <Check className="w-3.5 h-3.5 mr-2" />
-            Mark all as read
+            {markAllAsReadMutation.isPending ? 'Marking...' : 'Mark all as read'}
           </Button>
         </div>
       </div>
@@ -198,8 +242,18 @@ export default function NotificationsPage() {
       <div className="px-4 pb-20">
         <Card className="rounded-[3rem] bg-background/40 backdrop-blur-3xl border border-white/20 shadow-xl shadow-black/5 overflow-hidden">
           <div className="divide-y divide-border/10">
-            {filteredNotifications.length > 0 ? (
-              filteredNotifications.map((notification) => {
+            {isLoading ? (
+              <div className="py-32 text-center space-y-6">
+                <div className="w-24 h-24 rounded-[3rem] bg-muted/20 mx-auto flex items-center justify-center border border-white/10 relative">
+                  <div className="absolute inset-0 bg-primary/5 blur-3xl rounded-full" />
+                  <Bell className="w-10 h-10 text-muted-foreground/20 relative z-10 animate-pulse" />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-xl font-serif font-medium text-foreground/40 text-center">Loading notifications...</h3>
+                </div>
+              </div>
+            ) : filteredNotifications.length > 0 ? (
+              filteredNotifications.map((notification: Notification) => {
                 const styles = getTypeStyles(notification.type)
                 const Icon = styles.icon
                 return (
@@ -252,18 +306,20 @@ export default function NotificationsPage() {
                             {!notification.read && (
                               <DropdownMenuItem
                                 onClick={() => markAsRead(notification.id)}
-                                className="rounded-xl text-xs font-medium cursor-pointer px-4 py-2.5 focus:bg-primary/5 focus:text-primary"
+                                disabled={markAsReadMutation.isPending}
+                                className="rounded-xl text-xs font-medium cursor-pointer px-4 py-2.5 focus:bg-primary/5 focus:text-primary disabled:opacity-50"
                               >
                                 <Check className="w-3.5 h-3.5 mr-2 opacity-50" />
-                                Mark as Read
+                                {markAsReadMutation.isPending ? 'Marking...' : 'Mark as Read'}
                               </DropdownMenuItem>
                             )}
                             <DropdownMenuItem
                               onClick={() => deleteNotification(notification.id)}
-                              className="rounded-xl text-xs font-medium cursor-pointer px-4 py-2.5 text-destructive focus:bg-destructive/5 focus:text-destructive"
+                              disabled={deleteNotificationMutation.isPending}
+                              className="rounded-xl text-xs font-medium cursor-pointer px-4 py-2.5 text-destructive focus:bg-destructive/5 focus:text-destructive disabled:opacity-50"
                             >
                               <Trash2 className="w-3.5 h-3.5 mr-2 opacity-50" />
-                              Delete
+                              {deleteNotificationMutation.isPending ? 'Deleting...' : 'Delete'}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
