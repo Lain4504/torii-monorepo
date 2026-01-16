@@ -8,60 +8,73 @@ import {
     DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu'
 import { cn } from '@workspace/ui/lib/utils'
-import { useState } from 'react'
+import { formatDistanceToNow } from 'date-fns'
 import Link from 'next/link'
+import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead } from '@/apis/services/notification-api'
+import type { NotificationResponseDTO, NotificationType } from '@workspace/schemas'
 
-interface Notification {
-    id: string
-    title: string
-    message: string
-    time: string
-    read: boolean
-    type: 'info' | 'success' | 'warning' | 'error'
+// UI Notification type
+type UINotificationType = 'info' | 'success' | 'warning' | 'error';
+
+// Map API notification type to UI type
+function mapNotificationType(notificationType: NotificationType): UINotificationType {
+    switch (notificationType) {
+        case 'course':
+        case 'achievement':
+            return 'success';
+        case 'system':
+        case 'live_class':
+        case 'reminder':
+            return 'info';
+        case 'payment':
+            return 'success';
+        default:
+            return 'info';
+    }
 }
 
-const mockNotifications: Notification[] = [
-    {
-        id: '1',
-        title: 'Bắt đầu khóa học mới',
-        message: 'Khóa học JLPT N3 đột phá đã sẵn sàng cho bạn.',
-        time: '5 phút trước',
-        read: false,
-        type: 'success',
-    },
-    {
-        id: '2',
-        title: 'Nhắc nhở học tập',
-        message: 'Bạn có 3 bài chưa hoàn thành trong ngày hôm nay.',
-        time: '1 giờ trước',
-        read: false,
-        type: 'info',
-    },
-    {
-        id: '3',
-        title: 'Bảo trì hệ thống',
-        message: 'Hệ thống sẽ bảo trì vào lúc 2:00 AM đêm nay.',
-        time: '3 giờ trước',
-        read: true,
-        type: 'warning',
-    },
-]
+// UI Notification interface
+interface UINotification {
+    id: string;
+    title: string;
+    message: string;
+    time: string;
+    read: boolean;
+    type: UINotificationType;
+}
+
+// Convert API notification to UI format
+function mapNotificationToUI(notification: NotificationResponseDTO): UINotification {
+    return {
+        id: notification.id,
+        title: notification.title,
+        message: notification.message,
+        time: formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true }),
+        read: notification.isRead,
+        type: mapNotificationType(notification.notificationType),
+    };
+}
 
 export function NotificationsDropdown() {
-    const [notifications, setNotifications] = useState<Notification[]>(mockNotifications)
-    const unreadCount = notifications.filter(n => !n.read).length
+    // Fetch latest notifications (limit to 10 for dropdown)
+    const { data: notificationsData, isLoading, error } = useNotifications({ limit: 10, page: 1 });
+    const { data: unreadCountData, error: unreadError } = useUnreadNotificationsCount();
+    const markAsReadMutation = useMarkNotificationAsRead();
+    const markAllAsReadMutation = useMarkAllNotificationsAsRead();
+
+    // Handle response structure: PaginatedApiResponse = { data: NotificationResponseDTO[], total, page, limit, totalPages }
+    const notifications = notificationsData?.data?.map(mapNotificationToUI) || [];
+    const unreadCount = unreadCountData?.count || 0;
 
     const markAsRead = (id: string) => {
-        setNotifications(prev =>
-            prev.map(n => n.id === id ? { ...n, read: true } : n)
-        )
-    }
+        markAsReadMutation.mutate(id);
+    };
 
     const markAllAsRead = () => {
-        setNotifications(prev => prev.map(n => ({ ...n, read: true })))
-    }
+        markAllAsReadMutation.mutate();
+    };
 
-    const getTypeStyles = (type: Notification['type']) => {
+    const getTypeStyles = (type: UINotification['type']) => {
         switch (type) {
             case 'success':
                 return { icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-500/10' }
@@ -110,10 +123,11 @@ export function NotificationsDropdown() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={markAllAsRead}
-                                className="h-8 px-3 rounded-lg hover:bg-primary/10 hover:text-primary text-[9px] font-bold uppercase tracking-widest transition-all cursor-pointer"
+                                disabled={markAllAsReadMutation.isPending}
+                                className="h-8 px-3 rounded-lg hover:bg-primary/10 hover:text-primary text-[9px] font-bold uppercase tracking-widest transition-all cursor-pointer disabled:opacity-50"
                             >
                                 <Check className="w-3 h-3 mr-1.5" />
-                                Đọc tất cả
+                                {markAllAsReadMutation.isPending ? 'Đang xử lý...' : 'Đọc tất cả'}
                             </Button>
                         )}
                     </div>
@@ -121,7 +135,17 @@ export function NotificationsDropdown() {
 
                 {/* List */}
                 <div className="max-h-[60vh] sm:max-h-[480px] overflow-y-auto custom-scrollbar">
-                    {notifications.length > 0 ? (
+                    {isLoading ? (
+                        <div className="py-28 text-center space-y-6">
+                            <div className="w-20 h-20 rounded-[2.5rem] bg-muted/20 mx-auto flex items-center justify-center border border-border/10 relative">
+                                <div className="absolute inset-0 bg-primary/5 blur-2xl rounded-full" />
+                                <Bell className="w-8 h-8 text-muted-foreground/20 relative z-10 animate-pulse" />
+                            </div>
+                            <div className="space-y-1">
+                                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/20 italic">Đang tải thông báo...</p>
+                            </div>
+                        </div>
+                    ) : notifications.length > 0 ? (
                         <div className="divide-y divide-border/40">
                             {notifications.map((notification) => {
                                 const styles = getTypeStyles(notification.type)
@@ -132,9 +156,10 @@ export function NotificationsDropdown() {
                                         className={cn(
                                             "group px-8 py-6 transition-all duration-300 cursor-pointer relative",
                                             !notification.read && "bg-primary/[0.03]",
-                                            "hover:bg-primary/[0.05]"
+                                            "hover:bg-primary/[0.05]",
+                                            markAsReadMutation.isPending ? "opacity-50 cursor-wait" : ""
                                         )}
-                                        onClick={() => markAsRead(notification.id)}
+                                        onClick={() => !notification.read && markAsRead(notification.id)}
                                     >
                                         <div className="flex gap-5">
                                             <div className={cn(

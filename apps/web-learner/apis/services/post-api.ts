@@ -1,8 +1,7 @@
 import { apiClient } from '../api-client';
-import type { 
-    PostQueryDTO, 
-    PostResponseDTO, 
-    PaginatedResponseDTO,
+import type {
+    PostQueryDTO,
+    PostResponseDTO,
     StandardApiResponse,
     PaginatedApiResponse
 } from '@workspace/schemas';
@@ -14,39 +13,32 @@ export const postApi = {
     /**
      * Get all posts with pagination and filters
      */
-    findAll: async (params: PostQueryDTO = { page: 1, limit: 12 }): Promise<PaginatedResponseDTO<PostResponseDTO>> => {
+    findAll: async (params: PostQueryDTO = { page: 1, limit: 12 }): Promise<PaginatedApiResponse<PostResponseDTO>> => {
         const response = await apiClient.get<PaginatedApiResponse<PostResponseDTO>>('/api/posts', {
             params,
         });
-        
+
         // Backend returns: { success: true, data: [...], total, page, limit, totalPages }
         const responseData = response.data;
         if (!responseData.success || !responseData.data) {
             throw new Error('Invalid response format from server');
         }
-        
-        return {
-            data: responseData.data,
-            total: responseData.total,
-            page: responseData.page,
-            limit: responseData.limit,
-            totalPages: responseData.totalPages,
-        };
+
+        return response.data;
     },
 
     /**
      * Get post by ID
      */
     findById: async (id: string): Promise<PostResponseDTO> => {
-        const response = await apiClient.get<StandardApiResponse<PostResponseDTO>>(`/api/posts/${id}`);
-        
-        // Backend returns: { success: true, data: {...} }
+        const response = await apiClient.get<StandardApiResponse<{ post: PostResponseDTO }>>(`/api/posts/${id}`);
+
         const responseData = response.data;
         if (!responseData.success || !responseData.data) {
             throw new Error('Invalid response format from server');
         }
-        
-        return responseData.data;
+
+        return responseData.data.post;
     },
 
     /**
@@ -54,15 +46,14 @@ export const postApi = {
      */
     findBySlug: async (slug: string): Promise<PostResponseDTO | null> => {
         try {
-            const response = await apiClient.get<StandardApiResponse<PostResponseDTO>>(`/api/posts/slug/${slug}`);
-            
-            // Backend returns: { success: true, data: {...} }
+            const response = await apiClient.get<StandardApiResponse<{ post: PostResponseDTO }>>(`/api/posts/slug/${slug}`);
+
             const responseData = response.data;
             if (!responseData.success || !responseData.data) {
                 return null;
             }
-            
-            return responseData.data;
+
+            return responseData.data.post;
         } catch (error) {
             console.error('Failed to fetch post by slug:', error);
             return null;

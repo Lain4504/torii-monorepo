@@ -4,14 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update README.md" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactoring: communication services">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1207" />
+    <option name="cachedIndexableFilesCount" value="1192" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -19,13 +21,6 @@
       <list>
         <option value="TypeScript File" />
       </list>
-    </option>
-  </component>
-  <component name="FormatOnSaveOptions">
-    <option name="myRunOnSave" value="false" />
-    <option name="myAllFileTypesSelected" value="true" />
-    <option name="mySelectedFileTypes">
-      <set />
     </option>
   </component>
   <component name="Git.Settings">
@@ -122,20 +117,21 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "#78 on gamification",
+    "git-widget-placeholder": "build-gateway",
     "ignore.virus.scanning.warn.message": "true",
     "javascript.preferred.runtime.type.id": "node",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "E:/projectdev/bmap-capstone/torii-monorepo/apps/web-learner",
+    "last_opened_file_path": "E:/projectdev/bmap-capstone/torii-monorepo/apps/server",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_interpreter_path": "/usr/bin/node",
     "nodejs_package_manager_path": "pnpm",
-    "settings.editor.selected.configurable": "ml.llm.LLMThirdPartyAiProvidersConfigurable",
+    "settings.editor.selected.configurable": "reference.settingsdialog.IDE.editor.colors.General",
     "to.speed.mode.migration.done": "true",
-    "ts.external.directory.path": "E:\\projectdev\\bmap-capstone\\torii-monorepo\\node_modules\\typescript\\lib",
+    "ts.external.directory.path": "/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib",
     "vue.rearranger.settings.migration": "true"
   },
   "keyToStringList": {
@@ -158,11 +154,11 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="E:\projectdev\bmap-capstone\torii-monorepo\apps\web-learner" />
-      <recent name="E:\projectdev\bmap-capstone\torii-monorepo\apps\web-admin" />
-      <recent name="E:\projectdev\bmap-capstone\torii-monorepo\apps\meet" />
       <recent name="E:\projectdev\bmap-capstone\torii-monorepo\apps\server" />
       <recent name="E:\Ky8\bmap-capstone\torii-monorepo\apps\web-learner\components\layout" />
+      <recent name="E:\Ky8\bmap-capstone\torii-monorepo" />
+      <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\billing\src\modules" />
+      <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\billing\src\infrastructure" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="E:\projectdev\bmap-capstone\torii-monorepo\apps\server\libs\shared\src\decorators" />
@@ -172,7 +168,7 @@
       <recent name="E:\Ky8\bmap-capstone\torii-monorepo\apps\web-learner\components" />
     </key>
   </component>
-  <component name="RunManager" selected="Docker.docker-compose.yml: Compose Deployment">
+  <component name="RunManager" selected="JavaScript Debug.localhost:3000">
     <configuration name="localhost:3000" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:3000">
       <method v="2" />
     </configuration>
@@ -195,8 +191,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
         <item itemvalue="JavaScript Debug.localhost:3000" />
+        <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
         <item itemvalue="JavaScript Debug.localhost:5173" />
         <item itemvalue="JavaScript Debug.localhost:3000" />
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
@@ -206,11 +202,12 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-30f59d01ecdd-26cb7f24e5b0-intellij.indexing.shared.core-IU-253.29346.138" />
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.29346.138" />
+        <option value="bundled-jdk-9823dce3aa75-28b599e66164-intellij.indexing.shared.core-IU-242.26775.15" />
+        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-IU-242.26775.15" />
       </set>
     </attachedChunks>
   </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SwiftWorkspaceSettings">
     <option name="detectedToolchain" value="true" />
   </component>
@@ -295,87 +292,9 @@
       <workItem from="1768201864379" duration="7510000" />
       <workItem from="1768266718590" duration="2263000" />
       <workItem from="1768275244074" duration="4926000" />
-      <workItem from="1768460045709" duration="3982000" />
-    </task>
-    <task id="LOCAL-00666" summary="payos">
-      <option name="closed" value="true" />
-      <created>1768232266883</created>
-      <option name="number" value="00666" />
-      <option name="presentableId" value="LOCAL-00666" />
-      <option name="project" value="LOCAL" />
-      <updated>1768232266884</updated>
-    </task>
-    <task id="LOCAL-00667" summary="payos">
-      <option name="closed" value="true" />
-      <created>1768232952142</created>
-      <option name="number" value="00667" />
-      <option name="presentableId" value="LOCAL-00667" />
-      <option name="project" value="LOCAL" />
-      <updated>1768232952142</updated>
-    </task>
-    <task id="LOCAL-00668" summary="payos">
-      <option name="closed" value="true" />
-      <created>1768234271696</created>
-      <option name="number" value="00668" />
-      <option name="presentableId" value="LOCAL-00668" />
-      <option name="project" value="LOCAL" />
-      <updated>1768234271697</updated>
-    </task>
-    <task id="LOCAL-00669" summary="payos">
-      <option name="closed" value="true" />
-      <created>1768234386937</created>
-      <option name="number" value="00669" />
-      <option name="presentableId" value="LOCAL-00669" />
-      <option name="project" value="LOCAL" />
-      <updated>1768234386939</updated>
-    </task>
-    <task id="LOCAL-00670" summary="payos">
-      <option name="closed" value="true" />
-      <created>1768235127737</created>
-      <option name="number" value="00670" />
-      <option name="presentableId" value="LOCAL-00670" />
-      <option name="project" value="LOCAL" />
-      <updated>1768235127738</updated>
-    </task>
-    <task id="LOCAL-00671" summary="payos">
-      <option name="closed" value="true" />
-      <created>1768235590770</created>
-      <option name="number" value="00671" />
-      <option name="presentableId" value="LOCAL-00671" />
-      <option name="project" value="LOCAL" />
-      <updated>1768235590770</updated>
-    </task>
-    <task id="LOCAL-00672" summary="payos">
-      <option name="closed" value="true" />
-      <created>1768236968644</created>
-      <option name="number" value="00672" />
-      <option name="presentableId" value="LOCAL-00672" />
-      <option name="project" value="LOCAL" />
-      <updated>1768236968645</updated>
-    </task>
-    <task id="LOCAL-00673" summary="payos">
-      <option name="closed" value="true" />
-      <created>1768236972909</created>
-      <option name="number" value="00673" />
-      <option name="presentableId" value="LOCAL-00673" />
-      <option name="project" value="LOCAL" />
-      <updated>1768236972911</updated>
-    </task>
-    <task id="LOCAL-00674" summary="payos">
-      <option name="closed" value="true" />
-      <created>1768237402275</created>
-      <option name="number" value="00674" />
-      <option name="presentableId" value="LOCAL-00674" />
-      <option name="project" value="LOCAL" />
-      <updated>1768237402276</updated>
-    </task>
-    <task id="LOCAL-00675" summary="payos">
-      <option name="closed" value="true" />
-      <created>1768237616077</created>
-      <option name="number" value="00675" />
-      <option name="presentableId" value="LOCAL-00675" />
-      <option name="project" value="LOCAL" />
-      <updated>1768237616078</updated>
+      <workItem from="1768466511682" duration="987000" />
+      <workItem from="1768471927655" duration="9066000" />
+      <workItem from="1768559182032" duration="3041000" />
     </task>
     <task id="LOCAL-00676" summary="payos">
       <option name="closed" value="true" />
@@ -665,31 +584,111 @@
       <option name="project" value="LOCAL" />
       <updated>1768388030433</updated>
     </task>
-    <task id="LOCAL-00712" summary="update env">
+    <task id="LOCAL-00712" summary="refactor: refactor meet service">
       <option name="closed" value="true" />
-      <created>1768455653979</created>
+      <created>1768472322264</created>
       <option name="number" value="00712" />
       <option name="presentableId" value="LOCAL-00712" />
       <option name="project" value="LOCAL" />
-      <updated>1768455653979</updated>
+      <updated>1768472322265</updated>
     </task>
-    <task id="LOCAL-00713" summary="fix bug can not display lecture sheet">
+    <task id="LOCAL-00713" summary="refactor: refactor meet service">
       <option name="closed" value="true" />
-      <created>1768460068855</created>
+      <created>1768472697536</created>
       <option name="number" value="00713" />
       <option name="presentableId" value="LOCAL-00713" />
       <option name="project" value="LOCAL" />
-      <updated>1768460068857</updated>
+      <updated>1768472697536</updated>
     </task>
-    <task id="LOCAL-00714" summary="update README.md">
+    <task id="LOCAL-00714" summary="refactor: refactor meet service">
       <option name="closed" value="true" />
-      <created>1768461423440</created>
+      <created>1768474181556</created>
       <option name="number" value="00714" />
       <option name="presentableId" value="LOCAL-00714" />
       <option name="project" value="LOCAL" />
-      <updated>1768461423440</updated>
+      <updated>1768474181556</updated>
     </task>
-    <option name="localTasksCounter" value="715" />
+    <task id="LOCAL-00715" summary="refactor: refactor meet service">
+      <option name="closed" value="true" />
+      <created>1768474233020</created>
+      <option name="number" value="00715" />
+      <option name="presentableId" value="LOCAL-00715" />
+      <option name="project" value="LOCAL" />
+      <updated>1768474233020</updated>
+    </task>
+    <task id="LOCAL-00716" summary="refactor: refactor meet service">
+      <option name="closed" value="true" />
+      <created>1768475184226</created>
+      <option name="number" value="00716" />
+      <option name="presentableId" value="LOCAL-00716" />
+      <option name="project" value="LOCAL" />
+      <updated>1768475184228</updated>
+    </task>
+    <task id="LOCAL-00717" summary="feat(identity): implement identity module with authentication and authorization handlers">
+      <option name="closed" value="true" />
+      <created>1768477087425</created>
+      <option name="number" value="00717" />
+      <option name="presentableId" value="LOCAL-00717" />
+      <option name="project" value="LOCAL" />
+      <updated>1768477087426</updated>
+    </task>
+    <task id="LOCAL-00718" summary="refactor(identity): refactor identity service">
+      <option name="closed" value="true" />
+      <created>1768477480432</created>
+      <option name="number" value="00718" />
+      <option name="presentableId" value="LOCAL-00718" />
+      <option name="project" value="LOCAL" />
+      <updated>1768477480432</updated>
+    </task>
+    <task id="LOCAL-00719" summary="refactor(identity): refactor identity service">
+      <option name="closed" value="true" />
+      <created>1768478279276</created>
+      <option name="number" value="00719" />
+      <option name="presentableId" value="LOCAL-00719" />
+      <option name="project" value="LOCAL" />
+      <updated>1768478279277</updated>
+    </task>
+    <task id="LOCAL-00720" summary="refactor(identity): refactor identity service">
+      <option name="closed" value="true" />
+      <created>1768478430191</created>
+      <option name="number" value="00720" />
+      <option name="presentableId" value="LOCAL-00720" />
+      <option name="project" value="LOCAL" />
+      <updated>1768478430191</updated>
+    </task>
+    <task id="LOCAL-00721" summary="`refactor(learning): remove unused HTTP controllers for cleaner module structure`">
+      <option name="closed" value="true" />
+      <created>1768480328642</created>
+      <option name="number" value="00721" />
+      <option name="presentableId" value="LOCAL-00721" />
+      <option name="project" value="LOCAL" />
+      <updated>1768480328642</updated>
+    </task>
+    <task id="LOCAL-00722" summary="update ux ui pro kit">
+      <option name="closed" value="true" />
+      <created>1768560939701</created>
+      <option name="number" value="00722" />
+      <option name="presentableId" value="LOCAL-00722" />
+      <option name="project" value="LOCAL" />
+      <updated>1768560939702</updated>
+    </task>
+    <task id="LOCAL-00723" summary="refactoring: communication services">
+      <option name="closed" value="true" />
+      <created>1768562439772</created>
+      <option name="number" value="00723" />
+      <option name="presentableId" value="LOCAL-00723" />
+      <option name="project" value="LOCAL" />
+      <updated>1768562439772</updated>
+    </task>
+    <task id="LOCAL-00724" summary="refactoring: communication services">
+      <option name="closed" value="true" />
+      <created>1768562443412</created>
+      <option name="number" value="00724" />
+      <option name="presentableId" value="LOCAL-00724" />
+      <option name="project" value="LOCAL" />
+      <updated>1768562443412</updated>
+    </task>
+    <option name="localTasksCounter" value="725" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -706,7 +705,14 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="payos-integration" />
+                        <option value="build-gateway" />
+                      </list>
+                    </value>
+                  </entry>
+                  <entry key="text">
+                    <value>
+                      <list>
+                        <option value="refactor" />
                       </list>
                     </value>
                   </entry>
@@ -719,9 +725,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="update ui course detail page" />
-    <MESSAGE value="rebuild ui admin" />
-    <MESSAGE value="flashcard and exam" />
     <MESSAGE value="sđs" />
     <MESSAGE value="fix eslint" />
     <MESSAGE value="feat(order): refactor payment service to order service with updated models and endpoints" />
@@ -741,10 +744,13 @@
     <MESSAGE value="update ui" />
     <MESSAGE value="feat(learning-progress): implement learning progress tracking and course retrieval" />
     <MESSAGE value="update" />
-    <MESSAGE value="update env" />
-    <MESSAGE value="fix bug can not display lecture sheet" />
-    <MESSAGE value="update README.md" />
-    <option name="LAST_COMMIT_MESSAGE" value="update README.md" />
+    <MESSAGE value="refactor: refactor meet service" />
+    <MESSAGE value="feat(identity): implement identity module with authentication and authorization handlers" />
+    <MESSAGE value="refactor(identity): refactor identity service" />
+    <MESSAGE value="`refactor(learning): remove unused HTTP controllers for cleaner module structure`" />
+    <MESSAGE value="update ux ui pro kit" />
+    <MESSAGE value="refactoring: communication services" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactoring: communication services" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

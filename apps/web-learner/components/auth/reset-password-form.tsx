@@ -11,7 +11,7 @@ import { toast } from '@workspace/ui/components/sonner'
 import { Spinner } from '@workspace/ui/components/spinner'
 import { Lock, Eye, EyeOff, CheckCircle2, AlertCircle, Sparkles, ShieldAlert, Key } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { apiClient } from '@/apis/api-client'
+import { useResetPassword, useVerifyResetToken } from '@/apis/services/auth-api'
 import Link from 'next/link'
 import { cn } from '@workspace/ui/lib/utils'
 
@@ -60,8 +60,11 @@ function ResetPasswordFormContent() {
 
     const strengthScore = Object.values(passwordStrength).filter(Boolean).length
 
+    const { mutateAsync: verifyToken } = useVerifyResetToken()
+    const { mutateAsync: resetPassword, isPending: isResetting } = useResetPassword()
+
     useEffect(() => {
-        const verifyToken = async () => {
+        const verify = async () => {
             if (!token) {
                 setTokenValid(false)
                 setVerifyingToken(false)
@@ -69,8 +72,8 @@ function ResetPasswordFormContent() {
             }
 
             try {
-                const response = await apiClient.post('/api/auth/verify-reset-token', { token })
-                setTokenValid(response.data.success)
+                const data = await verifyToken(token)
+                setTokenValid(data.success)
             } catch (error) {
                 setTokenValid(false)
             } finally {
@@ -78,7 +81,7 @@ function ResetPasswordFormContent() {
             }
         }
 
-        verifyToken()
+        verify()
     }, [token])
 
     const onSubmit = async (data: ResetPasswordFormData) => {
@@ -89,19 +92,19 @@ function ResetPasswordFormContent() {
 
         setIsLoading(true)
         try {
-            const response = await apiClient.post('/api/auth/reset-password', {
+            const res = await resetPassword({
                 token,
                 password: data.password,
             })
 
-            if (response.data.success) {
+            if (res.success) {
                 toast.success('Đặt lại mật khẩu thành công', {
                     description: 'Bạn có thể đăng nhập với mật khẩu mới ngay bây giờ',
                 })
                 router.push('/login')
             } else {
                 toast.error('Đặt lại mật khẩu thất bại', {
-                    description: response.data.message || 'Vui lòng thử lại sau',
+                    description: res.message || 'Vui lòng thử lại sau',
                 })
             }
         } catch (error: any) {

@@ -7,60 +7,83 @@ import {
     DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu';
 import { cn } from '@workspace/ui/lib/utils';
-import { useState } from 'react';
+import { formatDistanceToNow } from 'date-fns';
+import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead } from '@/api/services/notifications';
+import type { NotificationResponseDTO, NotificationType } from '@workspace/schemas';
 
-// Mock notification data - replace with real data from API
-interface Notification {
+// UI Notification type
+type UINotificationType = 'info' | 'success' | 'warning' | 'error';
+
+// Map API notification type to UI type
+function mapNotificationType(notificationType: NotificationType): UINotificationType {
+    switch (notificationType) {
+        case 'course':
+        case 'achievement':
+            return 'success';
+        case 'system':
+        case 'live_class':
+        case 'reminder':
+            return 'info';
+        case 'payment':
+            return 'success';
+        default:
+            return 'info';
+    }
+}
+
+// UI Notification interface
+interface UINotification {
     id: string;
     title: string;
     message: string;
     time: string;
     read: boolean;
-    type: 'info' | 'success' | 'warning' | 'error';
+    type: UINotificationType;
 }
 
-const mockNotifications: Notification[] = [
-    {
-        id: '1',
-        title: 'New Course Published',
-        message: 'JLPT N3 Complete Course is now available',
-        time: '5 minutes ago',
-        read: false,
-        type: 'success',
-    },
-    {
-        id: '2',
-        title: 'User Registration',
-        message: '3 new users registered today',
-        time: '1 hour ago',
-        read: false,
-        type: 'info',
-    },
-    {
-        id: '3',
-        title: 'System Update',
-        message: 'Scheduled maintenance at 2:00 AM',
-        time: '3 hours ago',
-        read: true,
-        type: 'warning',
-    },
-];
+// Convert API notification to UI format
+function mapNotificationToUI(notification: NotificationResponseDTO): UINotification {
+    return {
+        id: notification.id,
+        title: notification.title,
+        message: notification.message,
+        time: formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true }),
+        read: notification.isRead,
+        type: mapNotificationType(notification.notificationType),
+    };
+}
 
 export function NotificationsDropdown() {
-    const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
-    const unreadCount = notifications.filter(n => !n.read).length;
+    // Fetch latest notifications (limit to 10 for dropdown)
+    const { data: notificationsData, isLoading, error } = useNotifications({ limit: 10, page: 1 });
+    const { data: unreadCountData, error: unreadError } = useUnreadNotificationsCount();
+    const markAsReadMutation = useMarkNotificationAsRead();
+    const markAllAsReadMutation = useMarkAllNotificationsAsRead();
+
+    // Debug: Log response structure
+    if (notificationsData) {
+        console.log('🔔 Notifications Dropdown - Response:', notificationsData);
+    }
+    if (error) {
+        console.error('🔔 Notifications Dropdown - Error:', error);
+    }
+    if (unreadError) {
+        console.error('🔔 Unread Count - Error:', unreadError);
+    }
+
+    // Handle response structure: PaginatedApiResponse = { data: NotificationResponseDTO[], total, page, limit, totalPages }
+    const notifications = notificationsData?.data?.map(mapNotificationToUI) || [];
+    const unreadCount = unreadCountData?.count || 0;
 
     const markAsRead = (id: string) => {
-        setNotifications(prev =>
-            prev.map(n => n.id === id ? { ...n, read: true } : n)
-        );
+        markAsReadMutation.mutate(id);
     };
 
     const markAllAsRead = () => {
-        setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+        markAllAsReadMutation.mutate();
     };
 
-    const getTypeColor = (type: Notification['type']) => {
+    const getTypeColor = (type: UINotificationType) => {
         switch (type) {
             case 'success':
                 return 'text-green-500 bg-green-500/10';
@@ -106,10 +129,11 @@ export function NotificationsDropdown() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={markAllAsRead}
-                                className="h-8 px-3 rounded-lg hover:bg-primary/5 hover:text-primary text-[10px] font-medium uppercase tracking-wide transition-all"
+                                disabled={markAllAsReadMutation.isPending}
+                                className="h-8 px-3 rounded-lg hover:bg-primary/5 hover:text-primary text-[10px] font-medium uppercase tracking-wide transition-all disabled:opacity-50"
                             >
                                 <Check className="h-3.5 w-3.5 mr-1.5" />
-                                Clear All
+                                {markAllAsReadMutation.isPending ? 'Clearing...' : 'Clear All'}
                             </Button>
                         )}
                     </div>
@@ -117,16 +141,26 @@ export function NotificationsDropdown() {
 
                 {/* Notifications List */}
                 <div className="max-h-[60vh] sm:max-h-[450px] overflow-y-auto custom-scrollbar">
-                    {notifications.length > 0 ? (
+                    {isLoading ? (
+                        <div className="py-16 text-center space-y-4">
+                            <div className="w-16 h-16 rounded-2xl bg-muted/30 mx-auto flex items-center justify-center border border-border/10">
+                                <Bell className="size-6 text-muted-foreground/30 animate-pulse" />
+                            </div>
+                            <div className="space-y-1">
+                                <p className="text-xs text-muted-foreground/50">Loading notifications...</p>
+                            </div>
+                        </div>
+                    ) : notifications.length > 0 ? (
                         <div className="divide-y divide-border/5">
                             {notifications.map((notification) => (
                                 <div
                                     key={notification.id}
                                     className={cn(
                                         "group px-6 py-4 transition-all duration-200 cursor-pointer relative hover:bg-muted/30",
-                                        !notification.read ? "bg-primary/[0.03]" : ""
+                                        !notification.read ? "bg-primary/[0.03]" : "",
+                                        markAsReadMutation.isPending ? "opacity-50 cursor-wait" : ""
                                     )}
-                                    onClick={() => markAsRead(notification.id)}
+                                    onClick={() => !notification.read && markAsRead(notification.id)}
                                 >
                                     <div className="flex gap-4">
                                         {/* Type Indicator */}

@@ -17,13 +17,15 @@ export interface LessonResponse {
     updatedAt: string;
 }
 
+import type { StandardApiResponse } from '@workspace/schemas';
+
 export const lessonApi = {
     /**
      * Get lesson details by ID
      */
     getLesson: async (lessonId: string): Promise<LessonResponse> => {
-        const response = await apiClient.get<LessonResponse>(`/api/lessons/${lessonId}`);
-        return response.data;
+        const response = await apiClient.get<StandardApiResponse<LessonResponse>>(`/api/lessons/${lessonId}`);
+        return response.data.data!;
     },
 };
 

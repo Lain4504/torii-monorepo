@@ -1,20 +1,7 @@
 import { z } from 'zod';
 
 /**
- * Generic Pagination Options
- * Used across all modules for paginated queries
- */
-export const paginationOptionsDTOSchema = z.object({
-    page: z.number().int().min(1).default(1),
-    limit: z.number().int().min(1).max(100).default(10),
-    search: z.string().optional(),
-});
-
-export type PaginationOptionsDTO = z.infer<typeof paginationOptionsDTOSchema>;
-
-/**
- * Standard API Response Format
- * All API responses should follow this format for consistency
+ * Base API Response
  */
 export interface StandardApiResponse<T = any> {
     success: boolean;
@@ -24,8 +11,35 @@ export interface StandardApiResponse<T = any> {
 }
 
 /**
- * Helper to create a paginated response schema
+ * Service Layer Paginated Response
  */
+export interface PaginatedResponseDTO<T = any> {
+    data: T[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+}
+
+/**
+ * API Level Paginated Response (Flattened)
+ */
+export interface PaginatedApiResponse<T = any> extends StandardApiResponse<T[]>, Omit<PaginatedResponseDTO<T>, 'data'> {
+    // success, data (as T[]), and message come from StandardApiResponse
+    // total, page, limit, totalPages come from PaginatedResponseDTO
+}
+
+/**
+ * Zod Schemas
+ */
+export const paginationOptionsDTOSchema = z.object({
+    page: z.number().int().min(1).default(1),
+    limit: z.number().int().min(1).max(100).default(10),
+    search: z.string().optional(),
+});
+
+export type PaginationOptionsDTO = z.infer<typeof paginationOptionsDTOSchema>;
+
 export const paginatedResponseSchema = <T extends z.ZodTypeAny>(itemSchema: T) =>
     z.object({
         data: z.array(itemSchema),
@@ -34,28 +48,3 @@ export const paginatedResponseSchema = <T extends z.ZodTypeAny>(itemSchema: T) =
         limit: z.number(),
         totalPages: z.number(),
     });
-
-/**
- * Paginated API Response Format
- * Standard response for paginated endpoints with flattened structure
- * Combines StandardApiResponse with pagination metadata at top level
- */
-export interface PaginatedApiResponse<T> extends StandardApiResponse<T[]> {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-}
-
-/**
- * Paginated Response DTO (for service layer)
- * Service returns data without success field, controller wraps it
- * Data is required (not optional) for service layer
- */
-export interface PaginatedResponseDTO<T> {
-    data: T[];
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-}
