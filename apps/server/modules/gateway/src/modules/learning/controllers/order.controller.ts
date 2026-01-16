@@ -16,11 +16,11 @@ import {
     errorResponse,
     successPaginatedResponse
 } from '@server/shared';
-import { IdentityAuthGuard } from '../../identity/guards/identity-auth.guard';
+import { GatewayAuthGuard } from '@server/shared';
 import { Request } from 'express';
 
-@Controller('orders')
-@UseGuards(IdentityAuthGuard)
+@Controller('api/orders')
+@UseGuards(GatewayAuthGuard)
 export class OrderController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
@@ -76,7 +76,7 @@ export class OrderController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.order.create' },
-                    { ...input, userId: user.sub }
+                    { ...input, userId: user.sub, userRole: user.role }
                 )
             );
             return successResponse({ order: result });

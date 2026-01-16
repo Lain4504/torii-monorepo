@@ -1,11 +1,10 @@
 import { Controller, Get, Query, UseGuards, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { successResponse, errorResponse, successPaginatedResponse } from '@server/shared';
-import { IdentityAuthGuard } from '../guards/identity-auth.guard';
+import { successResponse, errorResponse, successPaginatedResponse, GatewayAuthGuard } from '@server/shared';
 
 @Controller('api/admin/audit-logs')
-@UseGuards(IdentityAuthGuard)
+@UseGuards(GatewayAuthGuard)
 export class AuditLogController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 

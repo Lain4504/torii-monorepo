@@ -10,11 +10,10 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { successResponse, errorResponse } from '@server/shared';
-import { IdentityAuthGuard } from '../guards/identity-auth.guard';
+import { successResponse, errorResponse, GatewayAuthGuard } from '@server/shared';
 
 @Controller('api/authorization')
-@UseGuards(IdentityAuthGuard)
+@UseGuards(GatewayAuthGuard)
 export class AuthorizationController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 

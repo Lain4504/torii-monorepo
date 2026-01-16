@@ -25,7 +25,7 @@ import {
     successResponse,
     errorResponse,
 } from '@server/shared';
-import { IdentityAuthGuard } from '../guards/identity-auth.guard';
+import { GatewayAuthGuard } from '@server/shared';
 import {
     logoutDTOSchema,
     UserRegistrationDTO,
@@ -440,7 +440,7 @@ export class AuthController {
     }
 
     @Post('link/google')
-    @UseGuards(IdentityAuthGuard)
+    @UseGuards(GatewayAuthGuard)
     @HttpCode(HttpStatus.OK)
     async linkGoogle(
         @Req() req: Request,
@@ -469,7 +469,7 @@ export class AuthController {
     }
 
     @Delete('link/:provider')
-    @UseGuards(IdentityAuthGuard)
+    @UseGuards(GatewayAuthGuard)
     @HttpCode(HttpStatus.OK)
     async unlinkProvider(
         @Req() req: Request,
@@ -498,7 +498,7 @@ export class AuthController {
     }
 
     @Get('linked-providers')
-    @UseGuards(IdentityAuthGuard)
+    @UseGuards(GatewayAuthGuard)
     async getLinkedProviders(@Req() req: Request) {
         const user = req.user as any;
         try {
@@ -590,7 +590,7 @@ export class AuthController {
     }
 
     @Get('me')
-    @UseGuards(IdentityAuthGuard)
+    @UseGuards(GatewayAuthGuard)
     async getMe(@Req() req: Request) {
         const user = req.user as any;
         if (!user || !user.sub) {
@@ -610,7 +610,7 @@ export class AuthController {
     }
 
     @Patch('me')
-    @UseGuards(IdentityAuthGuard)
+    @UseGuards(GatewayAuthGuard)
     @VerifiedOnly()
     async updateMe(
         @Req() req: Request,
@@ -633,7 +633,7 @@ export class AuthController {
     }
 
     @Patch('me/avatar')
-    @UseGuards(IdentityAuthGuard)
+    @UseGuards(GatewayAuthGuard)
     @VerifiedOnly()
     async updateAvatar(
         @Req() req: Request,
@@ -659,7 +659,7 @@ export class AuthController {
     }
 
     @Delete('me')
-    @UseGuards(IdentityAuthGuard)
+    @UseGuards(GatewayAuthGuard)
     async deleteMe(@Req() req: Request) {
         const user = req.user as any;
         try {

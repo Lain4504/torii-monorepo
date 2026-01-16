@@ -16,12 +16,11 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { successResponse, errorResponse, SharedStorageService } from '@server/shared';
-import { IdentityAuthGuard } from '../../identity/guards/identity-auth.guard';
+import { successResponse, errorResponse, SharedStorageService, GatewayAuthGuard } from '@server/shared';
 import { Request } from 'express';
 
 @Controller('api/storage')
-@UseGuards(IdentityAuthGuard)
+@UseGuards(GatewayAuthGuard)
 export class StorageController {
     constructor(
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,

@@ -13,10 +13,10 @@ import {
     successResponse,
     errorResponse,
 } from '@server/shared';
-import { IdentityAuthGuard } from '../../identity/guards/identity-auth.guard';
+import { GatewayAuthGuard } from '@server/shared';
 
 @Controller('api/gamification')
-@UseGuards(IdentityAuthGuard)
+@UseGuards(GatewayAuthGuard)
 export class GamificationController {
     private readonly logger = new Logger(GamificationController.name);
 

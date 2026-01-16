@@ -16,8 +16,7 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { ZodValidationPipe, successResponse, errorResponse, successPaginatedResponse } from '@server/shared';
-import { IdentityAuthGuard } from '../guards/identity-auth.guard';
+import { ZodValidationPipe, successResponse, errorResponse, successPaginatedResponse, GatewayAuthGuard } from '@server/shared';
 import {
     userCreateDTOSchema,
     userAdminUpdateDTOSchema,
@@ -31,7 +30,7 @@ import type {
 import { Request } from 'express';
 
 @Controller('api/admin/users')
-@UseGuards(IdentityAuthGuard)
+@UseGuards(GatewayAuthGuard)
 export class UsersController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 

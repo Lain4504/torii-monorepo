@@ -18,11 +18,11 @@ import {
     errorResponse,
     successPaginatedResponse
 } from '@server/shared';
-import { IdentityAuthGuard } from '../../identity/guards/identity-auth.guard';
+import { GatewayAuthGuard } from '@server/shared';
 import { Request } from 'express';
 
-@Controller('flashcards')
-@UseGuards(IdentityAuthGuard)
+@Controller('api/flashcards')
+@UseGuards(GatewayAuthGuard)
 export class FlashcardController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 

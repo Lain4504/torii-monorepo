@@ -17,11 +17,11 @@ import {
     errorResponse,
     successPaginatedResponse
 } from '@server/shared';
-import { IdentityAuthGuard } from '../../identity/guards/identity-auth.guard';
+import { GatewayAuthGuard } from '@server/shared';
 import { Request } from 'express';
 
-@Controller('enrollments')
-@UseGuards(IdentityAuthGuard)
+@Controller('api/enrollments')
+@UseGuards(GatewayAuthGuard)
 export class EnrollmentController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
@@ -62,7 +62,7 @@ export class EnrollmentController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.enrollment.check' },
-                    { courseId, userId: user.sub }
+                    { courseId, userId: user.sub, userRole: user.role }
                 )
             );
             return successResponse(result);
@@ -78,7 +78,7 @@ export class EnrollmentController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.enrollment.create' },
-                    { ...input, userId: user.sub }
+                    { ...input, userId: user.sub, userRole: user.role }
                 )
             );
             return successResponse({ enrollment: result });

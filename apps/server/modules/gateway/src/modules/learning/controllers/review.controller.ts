@@ -17,15 +17,15 @@ import {
     errorResponse,
     successPaginatedResponse
 } from '@server/shared';
-import { IdentityAuthGuard } from '../../identity/guards/identity-auth.guard';
+import { GatewayAuthGuard } from '@server/shared';
 import { Request } from 'express';
 
-@Controller('courses')
+@Controller('api/reviews')
 export class ReviewController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     @Delete('reviews/:id')
-    @UseGuards(IdentityAuthGuard)
+    @UseGuards(GatewayAuthGuard)
     async deleteReview(@Param('id') id: string, @Req() req: Request) {
         try {
             const user = req.user as any;
@@ -72,7 +72,7 @@ export class ReviewController {
     }
 
     @Post(':courseId/reviews')
-    @UseGuards(IdentityAuthGuard)
+    @UseGuards(GatewayAuthGuard)
     async createReview(@Param('courseId') courseId: string, @Body() input: any, @Req() req: Request) {
         try {
             const user = req.user as any;

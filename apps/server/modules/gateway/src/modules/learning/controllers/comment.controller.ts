@@ -19,11 +19,11 @@ import {
     successPaginatedResponse,
     Public
 } from '@server/shared';
-import { IdentityAuthGuard } from '../../identity/guards/identity-auth.guard';
+import { GatewayAuthGuard } from '@server/shared';
 import { Request } from 'express';
 
-@Controller('comments')
-@UseGuards(IdentityAuthGuard)
+@Controller('api/comments')
+@UseGuards(GatewayAuthGuard)
 export class CommentController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 

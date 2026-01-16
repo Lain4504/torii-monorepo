@@ -17,11 +17,11 @@ import {
     errorResponse,
     successPaginatedResponse
 } from '@server/shared';
-import { IdentityAuthGuard } from '../../identity/guards/identity-auth.guard';
+import { GatewayAuthGuard } from '@server/shared';
 import { Request } from 'express';
 
-@Controller('wishlists')
-@UseGuards(IdentityAuthGuard)
+@Controller('api/wishlists')
+@UseGuards(GatewayAuthGuard)
 export class WishlistController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 

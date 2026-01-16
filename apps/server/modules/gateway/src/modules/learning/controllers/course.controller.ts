@@ -24,7 +24,7 @@ import {
     successResponse,
     successPaginatedResponse
 } from '@server/shared';
-// Remove IdentityAuthGuard import if unused
+// Remove GatewayAuthGuard import if unused
 import { Request } from 'express';
 import { UserRole, Requester } from '@workspace/schemas';
 

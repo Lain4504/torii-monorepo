@@ -20,11 +20,11 @@ import {
     errorResponse,
     successPaginatedResponse
 } from '@server/shared';
-import { IdentityAuthGuard } from '../../identity/guards/identity-auth.guard';
+import { GatewayAuthGuard } from '@server/shared';
 import { Request } from 'express';
 
 @Controller('api/modules')
-@UseGuards(IdentityAuthGuard)
+@UseGuards(GatewayAuthGuard)
 export class ModuleController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 

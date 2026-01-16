@@ -18,11 +18,11 @@ import {
     errorResponse,
     successPaginatedResponse
 } from '@server/shared';
-import { IdentityAuthGuard } from '../../identity/guards/identity-auth.guard';
+import { GatewayAuthGuard } from '@server/shared';
 import { Request } from 'express';
 
 @Controller('api/question-pools')
-@UseGuards(IdentityAuthGuard)
+@UseGuards(GatewayAuthGuard)
 export class QuestionPoolController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 

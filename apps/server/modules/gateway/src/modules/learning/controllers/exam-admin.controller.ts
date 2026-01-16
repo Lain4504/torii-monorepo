@@ -17,11 +17,11 @@ import {
     successResponse,
     errorResponse
 } from '@server/shared';
-import { IdentityAuthGuard } from '../../identity/guards/identity-auth.guard';
+import { GatewayAuthGuard } from '@server/shared';
 import { Request } from 'express';
 
 @Controller('api/admin/exams')
-@UseGuards(IdentityAuthGuard)
+@UseGuards(GatewayAuthGuard)
 export class ExamAdminController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 

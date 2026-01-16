@@ -3,10 +3,10 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { successResponse, errorResponse } from '@server/shared';
 import { Request } from 'express';
-import { IdentityAuthGuard } from '../../identity/guards/identity-auth.guard';
+import { GatewayAuthGuard } from '@server/shared';
 
 @Controller('api/learning-progress')
-@UseGuards(IdentityAuthGuard)
+@UseGuards(GatewayAuthGuard)
 export class LearningProgressController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 

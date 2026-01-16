@@ -11,13 +11,12 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { successResponse, errorResponse } from '@server/shared';
-import { IdentityAuthGuard } from '../guards/identity-auth.guard';
+import { successResponse, errorResponse, GatewayAuthGuard } from '@server/shared';
 import { Request } from 'express';
 import type { EnableTotpDTO, Disable2FADTO } from '@workspace/schemas';
 
 @Controller('api/auth/2fa')
-@UseGuards(IdentityAuthGuard)
+@UseGuards(GatewayAuthGuard)
 export class TwoFactorAuthController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 

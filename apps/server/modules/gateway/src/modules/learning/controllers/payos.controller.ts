@@ -10,7 +10,7 @@ import { firstValueFrom } from 'rxjs';
 import { Public } from '@server/shared'; // Assuming a Public decorator exists or needs to be imported
 import { successResponse, errorResponse } from '@server/shared';
 
-@Controller('payos')
+@Controller('api/payos')
 export class PayOSController {
     private readonly logger = new Logger(PayOSController.name);
 
