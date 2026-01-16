@@ -56,6 +56,7 @@ import { CommentHandler } from './interfaces/nats/comment.handler';
 import { FlashcardDeckHandler } from './interfaces/nats/flashcard-deck.handler';
 import { FlashcardHandler } from './interfaces/nats/flashcard.handler';
 import { FlashcardReviewHandler } from './interfaces/nats/flashcard-review.handler';
+import { LearningProgressHandler } from './interfaces/nats/learning-progress.handler';
 
 @Module({
   imports: [
@@ -112,7 +113,9 @@ import { FlashcardReviewHandler } from './interfaces/nats/flashcard-review.handl
     CommentHandler,
     FlashcardDeckHandler,
     FlashcardHandler,
+    FlashcardHandler,
     FlashcardReviewHandler,
+    LearningProgressHandler,
   ],
 })
 export class LearningModule { }

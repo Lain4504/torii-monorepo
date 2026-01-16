@@ -21,7 +21,7 @@ import {
 import { IdentityAuthGuard } from '../../identity/guards/identity-auth.guard';
 import { Request } from 'express';
 
-@Controller('question-pools')
+@Controller('api/question-pools')
 @UseGuards(IdentityAuthGuard)
 export class QuestionPoolController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
