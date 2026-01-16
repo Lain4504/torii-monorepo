@@ -87,8 +87,7 @@ export function useUnreadNotificationsCount() {
     return useQuery({
         queryKey: ['notifications', 'unread-count'],
         queryFn: () => notificationApi.getUnreadCount(),
-        staleTime: 10000, // Refresh every 10 seconds
-        refetchInterval: 10000, // Auto-refetch every 10 seconds for real-time updates
+        staleTime: 30000, // Keep data fresh for 30 seconds
         retry: (failureCount, error: any) => {
             // Don't retry on 401 (authentication errors)
             if (error?.response?.status === 401) {

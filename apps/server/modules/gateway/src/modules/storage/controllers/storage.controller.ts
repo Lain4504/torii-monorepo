@@ -16,11 +16,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import {
-    successResponse,
-    errorResponse,
-    SharedStorageService
-} from '@server/shared';
+import { successResponse, errorResponse, SharedStorageService } from '@server/shared';
 import { IdentityAuthGuard } from '../../identity/guards/identity-auth.guard';
 import { Request } from 'express';
 
@@ -89,7 +85,7 @@ export class StorageController {
             );
             return successResponse(result);
         } catch (error: any) {
-            return errorResponse(error.message || 'Failed to generate signed URL');
+            return errorResponse(error.message || 'Failed to get signed URL');
         }
     }
 
@@ -105,10 +101,6 @@ export class StorageController {
         }
         try {
             const user = req.user as any;
-            // For direct upload, we upload to S3 from Gateway if it's small, 
-            // OR we still proxy the buffer if we want the Storage Service to manage metadata.
-            // Let's proxy to Storage Service to keep metadata logic centralized.
-
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'storage.directUpload' },
