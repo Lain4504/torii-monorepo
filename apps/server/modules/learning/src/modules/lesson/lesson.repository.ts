@@ -48,8 +48,8 @@ export class LessonRepository implements ILessonRepository {
     }): Promise<Lesson[]> {
         return this.prisma.lesson.findMany({
             where: options.where,
-            skip: options.skip,
-            take: options.take,
+            skip: Number(options.skip) || 0,
+            take: Number(options.take) || 10,
             orderBy: options.orderBy || { orderIndex: 'asc' },
             include: options.include,
         });

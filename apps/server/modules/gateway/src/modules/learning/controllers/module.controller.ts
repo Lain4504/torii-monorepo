@@ -86,7 +86,7 @@ export class ModuleController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.module.create' },
-                    { ...dto, userId: user.sub }
+                    { ...dto, userId: user.sub, userRole: user.role }
                 )
             );
             return successResponse({ module: result }, 'Module created successfully');
@@ -106,7 +106,7 @@ export class ModuleController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.module.reorder' },
-                    { courseId, moduleOrders, userId: user.sub }
+                    { courseId, moduleOrders, userId: user.sub, userRole: user.role }
                 )
             );
             return successResponse({ modules: result }, 'Modules reordered successfully');
@@ -126,7 +126,7 @@ export class ModuleController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.module.update' },
-                    { id, ...dto, userId: user.sub }
+                    { id, ...dto, userId: user.sub, userRole: user.role }
                 )
             );
             return successResponse({ module: result }, 'Module updated successfully');
@@ -147,7 +147,7 @@ export class ModuleController {
             await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.module.delete' },
-                    { id, userId: user.sub, hardDelete: isHardDelete }
+                    { id, userId: user.sub, userRole: user.role, hardDelete: isHardDelete }
                 )
             );
             return successResponse(null, 'Module deleted successfully');
