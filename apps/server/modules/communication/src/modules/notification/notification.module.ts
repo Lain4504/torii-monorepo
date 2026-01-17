@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { PrismaModule, NatsClientModule } from '@server/shared';
 import { NotificationService } from './notification.service';
 import { NotificationRepository } from './notification.repository';
-import { NotificationController } from './notification.controller';
+import { NotificationHandler } from './notification.handler';
 import { NOTIFICATION_SERVICE_TOKEN } from '../../interfaces/services';
 import { NOTIFICATION_REPOSITORY_TOKEN } from '../../interfaces/repositories';
 
@@ -13,7 +13,7 @@ import { NOTIFICATION_REPOSITORY_TOKEN } from '../../interfaces/repositories';
  */
 @Module({
   imports: [PrismaModule, NatsClientModule, ConfigModule],
-  controllers: [NotificationController],
+  controllers: [NotificationHandler],
   providers: [
     {
       provide: NOTIFICATION_REPOSITORY_TOKEN,

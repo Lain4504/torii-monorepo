@@ -10,8 +10,8 @@ import type { OrderPaymentSuccessEvent, OrderStatusChangedEvent } from '../../in
  * Handles NATS events for notifications
  */
 @Controller()
-export class NotificationController {
-    private readonly logger = new Logger(NotificationController.name);
+export class NotificationHandler {
+    private readonly logger = new Logger(NotificationHandler.name);
 
     constructor(
         private readonly notificationService: NotificationService,
