@@ -11,6 +11,7 @@ import { EmailModule } from './modules/email/email.module';
 // Controllers
 // import { NotificationController } from './controllers/notification.controller';
 import { NotificationHandler } from './interfaces/nats/notification.handler';
+import { EmailHandler } from './interfaces/nats/email.handler';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { NotificationHandler } from './interfaces/nats/notification.handler';
     // NotificationController,
     // NATS Message Handlers
     NotificationHandler,
+    EmailHandler,
   ],
 })
 export class CommunicationModule { }

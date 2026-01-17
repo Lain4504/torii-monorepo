@@ -1,15 +1,15 @@
 import { Controller, Logger } from '@nestjs/common';
 import { EventPattern, Payload } from '@nestjs/microservices';
-import { EmailService } from './email.service';
+import { EmailService } from '../../modules/email/email.service';
 import type { SendEmailEvent } from '../../infrastructure/events/email.event';
 
 /**
- * Email Controller
- * Handles NATS events for email sending
+ * Email NATS Message Handler
+ * Handles event-driven email sending via NATS
  */
 @Controller()
-export class EmailController {
-    private readonly logger = new Logger(EmailController.name);
+export class EmailHandler {
+    private readonly logger = new Logger(EmailHandler.name);
 
     constructor(private readonly emailService: EmailService) { }
 
