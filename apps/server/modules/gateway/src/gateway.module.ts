@@ -7,6 +7,8 @@ import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
 
 // Proxy Module - Routes to microservices
 import { ProxyModule } from './proxy/proxy.module';
+// Agents Module - AI Agents Service via NATS
+import { AgentsModule } from './modules/agents/agents.module';
 // AI Module - AI Agents Service
 // import { AiModule } from './ai/ai.module';
 
@@ -37,6 +39,9 @@ import { ProxyModule } from './proxy/proxy.module';
 
     // AI Module - AI Agents Service
     // AiModule,
+
+    // Agents Module - AI Agents Service via NATS
+    AgentsModule,
 
     // Proxy Module - Handles all routes to microservices
     ProxyModule,
