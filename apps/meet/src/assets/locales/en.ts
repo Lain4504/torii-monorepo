@@ -8,7 +8,7 @@ export default
   "no": "No",
   "join": "Join",
   "share": "Share",
-  "plugnmeet-server-client-version": "Server: v{{server}}; Client: v{{client}}",
+  "wajlc-server-client-version": "Server: v{{server}}; Client: v{{client}}",
   "open": "Open",
   "please-wait": "Please wait...",
   "are-you-sure-to-close": "Are you sure you want to close?",

@@ -105,7 +105,7 @@ const vendorChunkMap: Record<string, string[]> = {
     '@headlessui',
     'i18next',
   ],
-  wajlc: ['plugnmeet-protocol', '@bufbuild', 'axios', '@nats-io', 'redux'],
+  wajlc: ['@bufbuild', 'axios', '@nats-io', 'redux'],
 };
 
 function manualChunks(id: string) {

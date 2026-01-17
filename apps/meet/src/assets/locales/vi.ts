@@ -8,7 +8,7 @@ export default
   "no": "Không",
   "join": "Nối",
   "share": "Chia sẻ",
-  "plugnmeet-server-client-version": "Máy chủ: v{{server}}; Khách hàng: v{{client}}",
+  "wajlc-server-client-version": "Máy chủ: v{{server}}; Khách hàng: v{{client}}",
   "open": "Mở",
   "please-wait": "Hãy chờ...",
   "are-you-sure-to-close": "Bạn có chắc chắn muốn đóng cửa không?",
