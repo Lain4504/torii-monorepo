@@ -12,8 +12,9 @@ import { LearningModule } from './modules/learning/learning.module';
 import { CommunicationModule } from './modules/communication/communication.module';
 import { StorageModule } from './modules/storage/storage.module';
 import { GamificationModule } from './modules/gamification/gamification.module';
-// AI Module - AI Agents Service
-// import { AiModule } from './ai/ai.module';
+// Agents Module - AI Agents Service via NATS
+import { AgentsModule } from './modules/agents/agents.module';
+
 
 /**
  * API Gateway Module
@@ -43,7 +44,8 @@ import { GamificationModule } from './modules/gamification/gamification.module';
     // AI Module - AI Agents Service
     // AiModule,
 
-
+    // Agents Module - AI Agents Service via NATS
+    AgentsModule,
     // Meet Module - Handles Meet service routes via NATS
     MeetModule,
     // Identity Module - Handles Identity service routes via NATS

@@ -1,16 +1,16 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { FastMcpService } from '../fastmcp/fastmcp.service';
+import { FastMcpService } from '../../fastmcp/fastmcp.service';
 
 /**
- * NATS Controller for Assessment Agent
+ * NATS Handler for Assessment Agent
  * Handles inter-service communication via NATS messaging
  */
 @Controller()
-export class AssessmentNatsController {
-  constructor(private readonly fastMcpService: FastMcpService) {}
+export class AssessmentHandler {
+  constructor(private readonly fastMcpService: FastMcpService) { }
 
-  @MessagePattern('agents.assessment.generate-test')
+  @MessagePattern({ cmd: 'agents.assessment.generateTest' })
   async generateTest(
     @Payload()
     data: {
@@ -28,7 +28,7 @@ export class AssessmentNatsController {
     );
   }
 
-  @MessagePattern('agents.assessment.evaluate-test')
+  @MessagePattern({ cmd: 'agents.assessment.evaluateTest' })
   async evaluateTest(
     @Payload()
     data: {
@@ -44,7 +44,7 @@ export class AssessmentNatsController {
     );
   }
 
-  @MessagePattern('agents.assessment.progress-benchmark')
+  @MessagePattern({ cmd: 'agents.assessment.progressBenchmark' })
   async getProgressBenchmark(
     @Payload()
     data: {
@@ -57,7 +57,7 @@ export class AssessmentNatsController {
     return this.fastMcpService.getProgressBenchmark(data.userId, level);
   }
 
-  @MessagePattern('agents.assessment.schedule-test')
+  @MessagePattern({ cmd: 'agents.assessment.scheduleTest' })
   async scheduleTest(
     @Payload()
     data: {

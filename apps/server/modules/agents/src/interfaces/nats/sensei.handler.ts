@@ -1,21 +1,21 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { FastMcpService } from '../fastmcp/fastmcp.service';
+import { FastMcpService } from '../../fastmcp/fastmcp.service';
 
 /**
- * NATS Controller for Sensei Agent
+ * NATS Handler for Sensei Agent
  * Handles inter-service communication via NATS messaging
  */
 @Controller()
-export class SenseiNatsController {
-  constructor(private readonly fastMcpService: FastMcpService) {}
+export class SenseiHandler {
+  constructor(private readonly fastMcpService: FastMcpService) { }
 
-  @MessagePattern('agents.sensei.grammar-check')
+  @MessagePattern({ cmd: 'agents.sensei.grammarCheck' })
   async checkGrammar(@Payload() data: { text: string; userId: string }) {
     return this.fastMcpService.checkGrammar(data.userId, data.text);
   }
 
-  @MessagePattern('agents.sensei.translate')
+  @MessagePattern({ cmd: 'agents.sensei.translate' })
   async translate(
     @Payload()
     data: { text: string; from: string; to: string; userId: string },
@@ -23,7 +23,7 @@ export class SenseiNatsController {
     return this.fastMcpService.translate(data.userId, data.text, data.from, data.to);
   }
 
-  @MessagePattern('agents.sensei.create-flashcard')
+  @MessagePattern({ cmd: 'agents.sensei.createFlashcard' })
   async createFlashcard(
     @Payload()
     data: { topic: string; difficulty?: 'beginner' | 'intermediate' | 'advanced'; userId: string },
@@ -35,7 +35,7 @@ export class SenseiNatsController {
     );
   }
 
-  @MessagePattern('agents.sensei.generate-drill')
+  @MessagePattern({ cmd: 'agents.sensei.generateDrill' })
   async generateDrill(
     @Payload()
     data: {
@@ -55,7 +55,7 @@ export class SenseiNatsController {
     );
   }
 
-  @MessagePattern('agents.sensei.simulate-conversation')
+  @MessagePattern({ cmd: 'agents.sensei.simulateConversation' })
   async simulateConversation(
     @Payload()
     data: {
@@ -73,7 +73,7 @@ export class SenseiNatsController {
     );
   }
 
-  @MessagePattern('agents.sensei.recommend-resources')
+  @MessagePattern({ cmd: 'agents.sensei.recommendResources' })
   async recommendResources(
     @Payload()
     data: {

@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Torii AI Agents API Testing - 2 Phases",
-    "description": "Postman collection for testing all 15 AI agent features (6 Sensei + 4 Assessment + 5 Analytics) in 2 phases:\n\nPHASE 1: Direct FastMCP Server Testing (Port 3333)\nPHASE 2: Full Stack Testing via NestJS (Port 8090)\n\nSwitch between phases by changing the 'phase' variable.",
+    "description": "Postman collection for testing all 15 AI agent features (6 Sensei + 4 Assessment + 5 Analytics) in 2 phases:\n\nPHASE 1: Direct FastMCP Server Testing (Port 3333)\nPHASE 2: Full Stack Testing via Gateway → NATS → Agents (Port 8080)\n\nSwitch between phases by changing the 'phase' variable.\n\nArchitecture:\n- Phase 1: Client → FastMCP (3333) → Gemini\n- Phase 2: Client → Gateway (8080) → NATS → Agents Service → FastMCP (3333) → Gemini",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -9,7 +9,7 @@
       "key": "phase",
       "value": "phase2",
       "type": "string",
-      "description": "Switch between 'phase1' (FastMCP direct: 3333) or 'phase2' (NestJS: 8090)"
+      "description": "Switch between 'phase1' (FastMCP direct: 3333) or 'phase2' (Gateway: 8080)"
     },
     {
       "key": "phase1_url",
@@ -19,9 +19,9 @@
     },
     {
       "key": "phase2_url",
-      "value": "http://localhost:8090/agents",
+      "value": "http://localhost:8080/api/agents",
       "type": "string",
-      "description": "NestJS Agents Service (Full Stack)"
+      "description": "Gateway → NATS → Agents (Full Stack)"
     },
     {
       "key": "base_url",
@@ -51,10 +51,14 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/health",
-              "host": ["{{base_url}}"],
-              "path": ["health"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health"
+              ]
             },
-            "description": "**HOW TO TEST 2 PHASES:**\n\n**PHASE 1 - Direct FastMCP Server (Port 3333):**\n1. Set variable 'phase' = 'phase1'\n2. Set 'base_url' = '{{phase1_url}}'\n3. Start FastMCP: `cd apps/server/modules/agents/mcp-server && pnpm dev`\n4. Test all endpoints in 'PHASE 1' folder\n\n**PHASE 2 - Full Stack NestJS (Port 8090):**\n1. Set variable 'phase' = 'phase2'\n2. Set 'base_url' = '{{phase2_url}}'\n3. Start FastMCP: `cd apps/server/modules/agents/mcp-server && pnpm dev`\n4. Start NestJS: `cd apps/server && npm run dev:agents`\n5. Test all endpoints in 'PHASE 2' folder\n\n**Architecture:**\n- Phase 1: Client → FastMCP (3333) → Gemini\n- Phase 2: Client → NestJS (8090) → FastMCP (3333) → Gemini\n\n**Expected Results: 15/15 passing in both phases**"
+            "description": "**HOW TO TEST 2 PHASES:**\\n\\n**PHASE 1 - Direct FastMCP Server (Port 3333):**\\n1. Set variable 'phase' = 'phase1'\\n2. Set 'base_url' = '{{phase1_url}}'\\n3. Start FastMCP: `cd apps/server/modules/agents/mcp-server && pnpm dev`\\n4. Test all endpoints in 'PHASE 1' folder\\n\\n**PHASE 2 - Full Stack Gateway → NATS → Agents (Port 8080):**\\n1. Set variable 'phase' = 'phase2'\\n2. Set 'base_url' = '{{phase2_url}}'\\n3. Start NATS: `docker-compose up -d nats`\\n4. Start FastMCP: `cd apps/server/modules/agents/mcp-server && pnpm dev`\\n5. Start Agents: `cd apps/server && npm run dev:agents`\\n6. Start Gateway: `cd apps/server && npm run dev:gateway`\\n7. Test all endpoints in 'PHASE 2' folder\\n\\n**Architecture:**\\n- Phase 1: Client → FastMCP (3333) → Gemini\\n- Phase 2: Client → Gateway (8080) → NATS → Agents Handlers → FastMCP (3333) → Gemini\\n\\n**Expected Results: 15/15 passing in both phases**"
           }
         }
       ]
@@ -82,9 +86,15 @@
                 "url": {
                   "raw": "http://localhost:3333/api/sensei/check-grammar",
                   "protocol": "http",
-                  "host": ["localhost"],
+                  "host": [
+                    "localhost"
+                  ],
                   "port": "3333",
-                  "path": ["api", "sensei", "check-grammar"]
+                  "path": [
+                    "api",
+                    "sensei",
+                    "check-grammar"
+                  ]
                 }
               }
             },
@@ -105,9 +115,15 @@
                 "url": {
                   "raw": "http://localhost:3333/api/sensei/translate",
                   "protocol": "http",
-                  "host": ["localhost"],
+                  "host": [
+                    "localhost"
+                  ],
                   "port": "3333",
-                  "path": ["api", "sensei", "translate"]
+                  "path": [
+                    "api",
+                    "sensei",
+                    "translate"
+                  ]
                 }
               }
             },
@@ -128,9 +144,15 @@
                 "url": {
                   "raw": "http://localhost:3333/api/sensei/create-flashcard",
                   "protocol": "http",
-                  "host": ["localhost"],
+                  "host": [
+                    "localhost"
+                  ],
                   "port": "3333",
-                  "path": ["api", "sensei", "create-flashcard"]
+                  "path": [
+                    "api",
+                    "sensei",
+                    "create-flashcard"
+                  ]
                 }
               }
             },
@@ -151,9 +173,15 @@
                 "url": {
                   "raw": "http://localhost:3333/api/sensei/generate-drill",
                   "protocol": "http",
-                  "host": ["localhost"],
+                  "host": [
+                    "localhost"
+                  ],
                   "port": "3333",
-                  "path": ["api", "sensei", "generate-drill"]
+                  "path": [
+                    "api",
+                    "sensei",
+                    "generate-drill"
+                  ]
                 }
               }
             },
@@ -174,9 +202,15 @@
                 "url": {
                   "raw": "http://localhost:3333/api/sensei/simulate-conversation",
                   "protocol": "http",
-                  "host": ["localhost"],
+                  "host": [
+                    "localhost"
+                  ],
                   "port": "3333",
-                  "path": ["api", "sensei", "simulate-conversation"]
+                  "path": [
+                    "api",
+                    "sensei",
+                    "simulate-conversation"
+                  ]
                 }
               }
             },
@@ -197,9 +231,15 @@
                 "url": {
                   "raw": "http://localhost:3333/api/sensei/recommend-resources",
                   "protocol": "http",
-                  "host": ["localhost"],
+                  "host": [
+                    "localhost"
+                  ],
                   "port": "3333",
-                  "path": ["api", "sensei", "recommend-resources"]
+                  "path": [
+                    "api",
+                    "sensei",
+                    "recommend-resources"
+                  ]
                 }
               }
             }
@@ -225,9 +265,15 @@
                 "url": {
                   "raw": "http://localhost:3333/api/assessment/generate-test",
                   "protocol": "http",
-                  "host": ["localhost"],
+                  "host": [
+                    "localhost"
+                  ],
                   "port": "3333",
-                  "path": ["api", "assessment", "generate-test"]
+                  "path": [
+                    "api",
+                    "assessment",
+                    "generate-test"
+                  ]
                 }
               }
             },
@@ -248,9 +294,15 @@
                 "url": {
                   "raw": "http://localhost:3333/api/assessment/evaluate-test",
                   "protocol": "http",
-                  "host": ["localhost"],
+                  "host": [
+                    "localhost"
+                  ],
                   "port": "3333",
-                  "path": ["api", "assessment", "evaluate-test"]
+                  "path": [
+                    "api",
+                    "assessment",
+                    "evaluate-test"
+                  ]
                 }
               }
             },
@@ -271,9 +323,15 @@
                 "url": {
                   "raw": "http://localhost:3333/api/assessment/progress-benchmark",
                   "protocol": "http",
-                  "host": ["localhost"],
+                  "host": [
+                    "localhost"
+                  ],
                   "port": "3333",
-                  "path": ["api", "assessment", "progress-benchmark"]
+                  "path": [
+                    "api",
+                    "assessment",
+                    "progress-benchmark"
+                  ]
                 }
               }
             },
@@ -294,9 +352,15 @@
                 "url": {
                   "raw": "http://localhost:3333/api/assessment/schedule-test",
                   "protocol": "http",
-                  "host": ["localhost"],
+                  "host": [
+                    "localhost"
+                  ],
                   "port": "3333",
-                  "path": ["api", "assessment", "schedule-test"]
+                  "path": [
+                    "api",
+                    "assessment",
+                    "schedule-test"
+                  ]
                 }
               }
             }
@@ -322,9 +386,15 @@
                 "url": {
                   "raw": "http://localhost:3333/api/analytics/track-progress",
                   "protocol": "http",
-                  "host": ["localhost"],
+                  "host": [
+                    "localhost"
+                  ],
                   "port": "3333",
-                  "path": ["api", "analytics", "track-progress"]
+                  "path": [
+                    "api",
+                    "analytics",
+                    "track-progress"
+                  ]
                 }
               }
             },
@@ -345,9 +415,15 @@
                 "url": {
                   "raw": "http://localhost:3333/api/analytics/suggest-study-path",
                   "protocol": "http",
-                  "host": ["localhost"],
+                  "host": [
+                    "localhost"
+                  ],
                   "port": "3333",
-                  "path": ["api", "analytics", "suggest-study-path"]
+                  "path": [
+                    "api",
+                    "analytics",
+                    "suggest-study-path"
+                  ]
                 }
               }
             },
@@ -368,9 +444,15 @@
                 "url": {
                   "raw": "http://localhost:3333/api/analytics/identify-weaknesses",
                   "protocol": "http",
-                  "host": ["localhost"],
+                  "host": [
+                    "localhost"
+                  ],
                   "port": "3333",
-                  "path": ["api", "analytics", "identify-weaknesses"]
+                  "path": [
+                    "api",
+                    "analytics",
+                    "identify-weaknesses"
+                  ]
                 }
               }
             },
@@ -391,9 +473,15 @@
                 "url": {
                   "raw": "http://localhost:3333/api/analytics/predict-readiness",
                   "protocol": "http",
-                  "host": ["localhost"],
+                  "host": [
+                    "localhost"
+                  ],
                   "port": "3333",
-                  "path": ["api", "analytics", "predict-readiness"]
+                  "path": [
+                    "api",
+                    "analytics",
+                    "predict-readiness"
+                  ]
                 }
               }
             },
@@ -414,9 +502,15 @@
                 "url": {
                   "raw": "http://localhost:3333/api/analytics/generate-report",
                   "protocol": "http",
-                  "host": ["localhost"],
+                  "host": [
+                    "localhost"
+                  ],
                   "port": "3333",
-                  "path": ["api", "analytics", "generate-report"]
+                  "path": [
+                    "api",
+                    "analytics",
+                    "generate-report"
+                  ]
                 }
               }
             }
@@ -425,7 +519,7 @@
       ]
     },
     {
-      "name": "PHASE 2 - NestJS Full Stack (Port 8090)",
+      "name": "PHASE 2 - Gateway → NATS → Agents (Port 8080)",
       "item": [
         {
           "name": "Sensei Agent (6 features)",
@@ -445,11 +539,16 @@
                   "raw": "{\n  \"text\": \"私は学生です。\",\n  \"userId\": \"{{test_user_id}}\"\n}"
                 },
                 "url": {
-                  "raw": "http://localhost:8090/agents/grammar-check",
+                  "raw": "http://localhost:8080/api/agents/grammar-check",
                   "protocol": "http",
-                  "host": ["localhost"],
-                  "port": "8090",
-                  "path": ["agents", "grammar-check"]
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "agents",
+                    "grammar-check"
+                  ]
                 }
               }
             },
@@ -468,11 +567,16 @@
                   "raw": "{\n  \"text\": \"こんにちは\",\n  \"from\": \"ja\",\n  \"to\": \"en\",\n  \"userId\": \"{{test_user_id}}\"\n}"
                 },
                 "url": {
-                  "raw": "http://localhost:8090/agents/translate",
+                  "raw": "http://localhost:8080/api/agents/translate",
                   "protocol": "http",
-                  "host": ["localhost"],
-                  "port": "8090",
-                  "path": ["agents", "translate"]
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "agents",
+                    "translate"
+                  ]
                 }
               }
             },
@@ -491,11 +595,16 @@
                   "raw": "{\n  \"topic\": \"頑張る\",\n  \"difficulty\": \"intermediate\",\n  \"userId\": \"{{test_user_id}}\"\n}"
                 },
                 "url": {
-                  "raw": "http://localhost:8090/agents/flashcard",
+                  "raw": "http://localhost:8080/api/agents/flashcard",
                   "protocol": "http",
-                  "host": ["localhost"],
-                  "port": "8090",
-                  "path": ["agents", "flashcard"]
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "agents",
+                    "flashcard"
+                  ]
                 }
               }
             },
@@ -514,11 +623,17 @@
                   "raw": "{\n  \"drillType\": \"grammar\",\n  \"topic\": \"particles\",\n  \"level\": \"N5\",\n  \"userId\": \"{{test_user_id}}\"\n}"
                 },
                 "url": {
-                  "raw": "http://localhost:8090/agents/drill/generate",
+                  "raw": "http://localhost:8080/api/agents/drill/generate",
                   "protocol": "http",
-                  "host": ["localhost"],
-                  "port": "8090",
-                  "path": ["agents", "drill", "generate"]
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "agents",
+                    "drill",
+                    "generate"
+                  ]
                 }
               }
             },
@@ -537,11 +652,17 @@
                   "raw": "{\n  \"scenario\": \"レストラン\",\n  \"difficulty\": \"beginner\",\n  \"userId\": \"{{test_user_id}}\"\n}"
                 },
                 "url": {
-                  "raw": "http://localhost:8090/agents/conversation/simulate",
+                  "raw": "http://localhost:8080/api/agents/conversation/simulate",
                   "protocol": "http",
-                  "host": ["localhost"],
-                  "port": "8090",
-                  "path": ["agents", "conversation", "simulate"]
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "agents",
+                    "conversation",
+                    "simulate"
+                  ]
                 }
               }
             },
@@ -560,11 +681,17 @@
                   "raw": "{\n  \"concept\": \"grammar\",\n  \"userId\": \"{{test_user_id}}\"\n}"
                 },
                 "url": {
-                  "raw": "http://localhost:8090/agents/resources/recommend",
+                  "raw": "http://localhost:8080/api/agents/resources/recommend",
                   "protocol": "http",
-                  "host": ["localhost"],
-                  "port": "8090",
-                  "path": ["agents", "resources", "recommend"]
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "agents",
+                    "resources",
+                    "recommend"
+                  ]
                 }
               }
             }
@@ -588,11 +715,17 @@
                   "raw": "{\n  \"level\": \"N5\",\n  \"type\": \"vocabulary\",\n  \"questionCount\": 5,\n  \"userId\": \"{{test_user_id}}\"\n}"
                 },
                 "url": {
-                  "raw": "http://localhost:8090/agents/test/generate",
+                  "raw": "http://localhost:8080/api/agents/test/generate",
                   "protocol": "http",
-                  "host": ["localhost"],
-                  "port": "8090",
-                  "path": ["agents", "test", "generate"]
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "agents",
+                    "test",
+                    "generate"
+                  ]
                 }
               }
             },
@@ -611,11 +744,17 @@
                   "raw": "{\n  \"testId\": \"{{test_id}}\",\n  \"answers\": {\n    \"q1\": \"a\",\n    \"q2\": \"b\",\n    \"q3\": \"c\"\n  },\n  \"userId\": \"{{test_user_id}}\"\n}"
                 },
                 "url": {
-                  "raw": "http://localhost:8090/agents/test/evaluate",
+                  "raw": "http://localhost:8080/api/agents/test/evaluate",
                   "protocol": "http",
-                  "host": ["localhost"],
-                  "port": "8090",
-                  "path": ["agents", "test", "evaluate"]
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "agents",
+                    "test",
+                    "evaluate"
+                  ]
                 }
               }
             },
@@ -634,11 +773,17 @@
                   "raw": "{\n  \"userId\": \"{{test_user_id}}\",\n  \"targetLevel\": \"N4\"\n}"
                 },
                 "url": {
-                  "raw": "http://localhost:8090/agents/assessment/benchmark",
+                  "raw": "http://localhost:8080/api/agents/assessment/benchmark",
                   "protocol": "http",
-                  "host": ["localhost"],
-                  "port": "8090",
-                  "path": ["agents", "assessment", "benchmark"]
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "agents",
+                    "assessment",
+                    "benchmark"
+                  ]
                 }
               }
             },
@@ -657,11 +802,17 @@
                   "raw": "{\n  \"userId\": \"{{test_user_id}}\",\n  \"targetLevel\": \"N5\",\n  \"studySchedule\": \"2 hours per day\"\n}"
                 },
                 "url": {
-                  "raw": "http://localhost:8090/agents/test/schedule",
+                  "raw": "http://localhost:8080/api/agents/test/schedule",
                   "protocol": "http",
-                  "host": ["localhost"],
-                  "port": "8090",
-                  "path": ["agents", "test", "schedule"]
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "agents",
+                    "test",
+                    "schedule"
+                  ]
                 }
               }
             }
@@ -685,11 +836,17 @@
                   "raw": "{\n  \"userId\": \"{{test_user_id}}\",\n  \"activity\": \"vocabulary_quiz\",\n  \"score\": 85\n}"
                 },
                 "url": {
-                  "raw": "http://localhost:8090/agents/progress/track",
+                  "raw": "http://localhost:8080/api/agents/progress/track",
                   "protocol": "http",
-                  "host": ["localhost"],
-                  "port": "8090",
-                  "path": ["agents", "progress", "track"]
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "agents",
+                    "progress",
+                    "track"
+                  ]
                 }
               }
             },
@@ -708,11 +865,17 @@
                   "raw": "{\n  \"userId\": \"{{test_user_id}}\"\n}"
                 },
                 "url": {
-                  "raw": "http://localhost:8090/agents/path/suggest",
+                  "raw": "http://localhost:8080/api/agents/path/suggest",
                   "protocol": "http",
-                  "host": ["localhost"],
-                  "port": "8090",
-                  "path": ["agents", "path", "suggest"]
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "agents",
+                    "path",
+                    "suggest"
+                  ]
                 }
               }
             },
@@ -731,11 +894,17 @@
                   "raw": "{\n  \"userId\": \"{{test_user_id}}\"\n}"
                 },
                 "url": {
-                  "raw": "http://localhost:8090/agents/analytics/weaknesses",
+                  "raw": "http://localhost:8080/api/agents/analytics/weaknesses",
                   "protocol": "http",
-                  "host": ["localhost"],
-                  "port": "8090",
-                  "path": ["agents", "analytics", "weaknesses"]
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "agents",
+                    "analytics",
+                    "weaknesses"
+                  ]
                 }
               }
             },
@@ -754,11 +923,17 @@
                   "raw": "{\n  \"userId\": \"{{test_user_id}}\",\n  \"targetTest\": \"JLPT N5\"\n}"
                 },
                 "url": {
-                  "raw": "http://localhost:8090/agents/analytics/readiness",
+                  "raw": "http://localhost:8080/api/agents/analytics/readiness",
                   "protocol": "http",
-                  "host": ["localhost"],
-                  "port": "8090",
-                  "path": ["agents", "analytics", "readiness"]
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "agents",
+                    "analytics",
+                    "readiness"
+                  ]
                 }
               }
             },
@@ -777,11 +952,17 @@
                   "raw": "{\n  \"userId\": \"{{test_user_id}}\",\n  \"reportType\": \"weekly\"\n}"
                 },
                 "url": {
-                  "raw": "http://localhost:8090/agents/analytics/report",
+                  "raw": "http://localhost:8080/api/agents/analytics/report",
                   "protocol": "http",
-                  "host": ["localhost"],
-                  "port": "8090",
-                  "path": ["agents", "analytics", "report"]
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "agents",
+                    "analytics",
+                    "report"
+                  ]
                 }
               }
             }

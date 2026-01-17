@@ -1,16 +1,16 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { FastMcpService } from '../fastmcp/fastmcp.service';
+import { FastMcpService } from '../../fastmcp/fastmcp.service';
 
 /**
- * NATS Controller for Analytics Agent
+ * NATS Handler for Analytics Agent
  * Handles inter-service communication via NATS messaging
  */
 @Controller()
-export class AnalyticsNatsController {
-  constructor(private readonly fastMcpService: FastMcpService) {}
+export class AnalyticsHandler {
+  constructor(private readonly fastMcpService: FastMcpService) { }
 
-  @MessagePattern('agents.analytics.track-progress')
+  @MessagePattern({ cmd: 'agents.analytics.trackProgress' })
   async trackProgress(
     @Payload()
     data: {
@@ -24,7 +24,7 @@ export class AnalyticsNatsController {
     );
   }
 
-  @MessagePattern('agents.analytics.suggest-study-path')
+  @MessagePattern({ cmd: 'agents.analytics.suggestStudyPath' })
   async suggestStudyPath(
     @Payload()
     data: {
@@ -40,7 +40,7 @@ export class AnalyticsNatsController {
     );
   }
 
-  @MessagePattern('agents.analytics.identify-weaknesses')
+  @MessagePattern({ cmd: 'agents.analytics.identifyWeaknesses' })
   async identifyWeaknesses(
     @Payload()
     data: { userId: string },
@@ -48,7 +48,7 @@ export class AnalyticsNatsController {
     return this.fastMcpService.identifyWeaknesses(data.userId);
   }
 
-  @MessagePattern('agents.analytics.predict-readiness')
+  @MessagePattern({ cmd: 'agents.analytics.predictReadiness' })
   async predictReadiness(
     @Payload()
     data: {
@@ -61,7 +61,7 @@ export class AnalyticsNatsController {
     return this.fastMcpService.predictReadiness(data.userId, level);
   }
 
-  @MessagePattern('agents.analytics.generate-report')
+  @MessagePattern({ cmd: 'agents.analytics.generateReport' })
   async generateReport(
     @Payload()
     data: {
