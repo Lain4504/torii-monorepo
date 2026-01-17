@@ -135,4 +135,35 @@ export class PostController {
             return errorResponse(error.message || 'Failed to delete post');
         }
     }
+
+    @Patch(':id/publish')
+    async publishPost(@Param('id') id: string) {
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'learning.post.publish' },
+                    { id }
+                )
+            );
+            return successResponse({ post: result }, 'Post published successfully');
+        } catch (error: any) {
+            return errorResponse(error.message || 'Failed to publish post');
+        }
+    }
+
+    @Post(':id/like')
+    async likePost(@Param('id') id: string, @Req() req: Request) {
+        try {
+            const userId = (req as any).user?.userId || (req as any).user?.id || 'anonymous';
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'learning.post.toggleLike' },
+                    { id, userId }
+                )
+            );
+            return successResponse(result, 'Post liked successfully');
+        } catch (error: any) {
+            return errorResponse(error.message || 'Failed to like post');
+        }
+    }
 }
