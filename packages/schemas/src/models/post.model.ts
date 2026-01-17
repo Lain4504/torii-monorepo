@@ -17,7 +17,6 @@ export const postSchema = z.object({
     status: z.nativeEnum(PostStatus).default(PostStatus.DRAFT),
     publishedAt: z.coerce.date().optional(),
     viewCount: z.number().default(0),
-    likeCount: z.number().default(0),
     commentCount: z.number().default(0),
     seoTitle: z.string().optional(),
     seoDescription: z.string().optional(),

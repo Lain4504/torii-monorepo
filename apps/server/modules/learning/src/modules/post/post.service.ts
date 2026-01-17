@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Logger, Inject } from '@nestjs/common';
 import { InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/core';
-import { PrismaService, generateSlug } from '@server/shared';
+import { PrismaService, generateSlug, REDIS_CLIENT } from '@server/shared';
+import Redis from 'ioredis';
 import { PostStatus, PaginatedResponseDTO } from '@workspace/schemas';
 import type {
   PostCreateDTO,
@@ -25,7 +26,15 @@ export class PostService implements IPostService {
     private readonly postRepository: PostRepository,
     private readonly prisma: PrismaService,
     @InjectMapper() private readonly mapper: Mapper,
+    @Inject(REDIS_CLIENT) private readonly redis: Redis,
   ) { }
+
+  /**
+   * Map Post entity to PostResponseDTO using AutoMapper
+   */
+  private toPostResponseDTO(post: Post): PostResponseDTO {
+    return this.mapper.map<Post, PostResponseDTO>(post, 'Post', 'PostResponseDTO');
+  }
 
   /**
    * Ensure unique slug by appending date and timestamp if needed
@@ -90,7 +99,7 @@ export class PostService implements IPostService {
       tags: finalDto.tags || [],
     });
 
-    return this.formatPostResponseWithAuthor(post);
+    return this.toPostResponseDTO(post);
   }
 
   /**
@@ -143,7 +152,7 @@ export class PostService implements IPostService {
     ]);
 
     return {
-      data: await Promise.all(posts.map((post) => this.formatPostResponseWithAuthor(post))),
+      data: posts.map((post) => this.toPostResponseDTO(post)),
       total,
       page: pageNum,
       limit: limitNum,
@@ -161,17 +170,26 @@ export class PostService implements IPostService {
       throw new NotFoundException(`Post with id "${id}" not found`);
     }
 
-    return this.formatPostResponseWithAuthor(post);
+    return this.toPostResponseDTO(post);
   }
 
   /**
    * Increment view count for a post
    */
-  async incrementViewCount(id: string): Promise<void> {
+  async incrementViewCount(id: string, ip?: string): Promise<void> {
     const post = await this.postRepository.findById(id);
 
     if (!post) {
       throw new NotFoundException(`Post with id "${id}" not found`);
+    }
+
+    // IP Throttling: 1 view per IP per post every 5 seconds
+    if (ip && ip !== 'unknown') {
+      const key = `post_view_throttle:${ip}:${id}`;
+      const exists = await this.redis.get(key);
+      if (exists) return; // Throttle
+
+      await this.redis.set(key, '1', 'EX', 3600);
     }
 
     await this.postRepository.incrementViewCount(id);
@@ -187,7 +205,7 @@ export class PostService implements IPostService {
       throw new NotFoundException(`Post with slug "${slug}" not found`);
     }
 
-    return this.formatPostResponseWithAuthor(post);
+    return this.toPostResponseDTO(post);
   }
 
   /**
@@ -237,8 +255,32 @@ export class PostService implements IPostService {
 
     const post = await this.postRepository.update(id, updateData);
 
-    return this.formatPostResponseWithAuthor(post);
+    return this.toPostResponseDTO(post);
   }
+
+  /**
+   * Publish post (change status to published)
+   */
+  async publishPost(id: string): Promise<PostResponseDTO> {
+    const post = await this.postRepository.findById(id);
+
+    if (!post) {
+      throw new NotFoundException(`Post with id "${id}" not found`);
+    }
+
+    if (post.status === PostStatus.PUBLISHED) {
+      throw new BadRequestException('Post is already published');
+    }
+
+    const updated = await this.postRepository.update(id, {
+      status: PostStatus.PUBLISHED,
+      publishedAt: new Date(),
+    });
+
+    return this.toPostResponseDTO(updated);
+  }
+
+
 
   /**
    * Delete post
@@ -253,47 +295,6 @@ export class PostService implements IPostService {
     await this.postRepository.delete(id);
 
     return { success: true };
-  }
-
-  /**
-   * Map Post entity to PostResponseDTO using AutoMapper
-   */
-  private toPostResponseDTO(post: Post): PostResponseDTO {
-    return this.mapper.map<Post, PostResponseDTO>(post, 'Post', 'PostResponseDTO');
-  }
-
-  /**
-   * Format post response with author info
-   */
-  private async formatPostResponseWithAuthor(post: Post): Promise<PostResponseDTO> {
-    const dto = this.toPostResponseDTO(post);
-
-    // Load author info separately
-    if (post.authorId) {
-      try {
-        const user = await this.prisma.user.findUnique({
-          where: { id: post.authorId },
-          select: {
-            id: true,
-            displayName: true,
-            email: true,
-            avatarUrl: true,
-          },
-        });
-
-        if (user) {
-          dto.author = {
-            id: user.id,
-            displayName: user.displayName || user.email || 'Unknown',
-            avatarUrl: user.avatarUrl || undefined,
-          };
-        }
-      } catch (error: any) {
-        // Silent fail
-      }
-    }
-
-    return dto;
   }
 }
 

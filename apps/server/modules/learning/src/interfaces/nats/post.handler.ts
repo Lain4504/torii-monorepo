@@ -23,8 +23,8 @@ export class PostHandler {
     }
 
     @MessagePattern({ cmd: 'learning.post.incrementView' })
-    async incrementView(@Payload() data: { id: string }) {
-        return this.postService.incrementViewCount(data.id);
+    async incrementView(@Payload() data: { id: string, ip?: string }) {
+        return this.postService.incrementViewCount(data.id, data.ip);
     }
 
     @MessagePattern({ cmd: 'learning.post.create' })
@@ -41,4 +41,11 @@ export class PostHandler {
     async delete(@Payload() data: { id: string }) {
         return this.postService.deletePost(data.id);
     }
+
+    @MessagePattern({ cmd: 'learning.post.publish' })
+    async publish(@Payload() data: { id: string }) {
+        return this.postService.publishPost(data.id);
+    }
+
+
 }

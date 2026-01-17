@@ -3,6 +3,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/core';
 import { PrismaService } from '@server/shared';
+
 import type {
   CommentCreateDTO,
   CommentUpdateDTO,
@@ -13,9 +14,10 @@ import type {
 import type { Comment, Prisma } from '@prisma/generated';
 import type { ICommentService } from '../../interfaces/services';
 import { CommentRepository } from './comment.repository';
+import { PostRepository } from '../post/post.repository';
 
 /**
- * comment Service
+ * Comment Service
  * Handles business logic for comments
  */
 @Injectable()
@@ -24,11 +26,19 @@ export class CommentService implements ICommentService {
 
   constructor(
     private readonly commentRepository: CommentRepository,
+    private readonly postRepository: PostRepository,
     private readonly prisma: PrismaService,
     @InjectMapper() private readonly mapper: Mapper,
     @Inject('NATS_SERVICE')
     private readonly natsClient: ClientProxy,
   ) { }
+
+  /**
+   * Map Comment entity to CommentResponseDTO using AutoMapper
+   */
+  private toCommentResponseDTO(comment: Comment | (Comment & { _count?: { replies?: number } })): CommentResponseDTO {
+    return this.mapper.map<any, CommentResponseDTO>(comment, 'Comment', 'CommentResponseDTO');
+  }
 
   /**
    * Create new comment
@@ -67,7 +77,7 @@ export class CommentService implements ICommentService {
       }
     }
 
-    // Create comment
+    // Create comment (DB will validate postId and authorId via foreign key constraints)
     const comment = await this.commentRepository.create({
       post: {
         connect: { id: dto.postId },
@@ -82,52 +92,22 @@ export class CommentService implements ICommentService {
       status: 'approved',
     });
 
-    // Increment comment count on the post
-    await this.prisma.post.update({
-      where: { id: dto.postId },
-      data: {
-        commentCount: {
-          increment: 1,
-        },
-      },
+    // Increment comment count on the post using PostRepository
+    // Increment comment count on the post using PostRepository
+    await this.postRepository.update(dto.postId, {
+      commentCount: { increment: 1 },
     });
 
     // If this is a reply (parentId exists), emit event to notify the person being replied to
     if (dto.parentId && parentComment) {
       try {
-        // Get post author to exclude from notification
-        const post = await this.prisma.post.findUnique({
-          where: { id: dto.postId },
-          select: { authorId: true },
-        });
-
-        // Get parent comment author (person being replied to)
         const parentCommentAuthorId = parentComment.userId;
         const replyAuthorId = dto.authorId;
 
-        // Business Rules: Send notification if:
-        // - Recipient ≠ reply author (not replying to self)
-        // - Recipient ≠ post author (not staff/blog owner)
-        // Skip if: replying to self or replying to staff
-
+        // Business Rules: Send notification if not replying to self
         const isReplyingSelf = parentCommentAuthorId === replyAuthorId;
-        const isReplyingStaff = post && parentCommentAuthorId === post.authorId;
 
-        if (!isReplyingSelf && !isReplyingStaff) {
-          // Get post and user info to format notification message
-          const postForNotification = await this.prisma.post.findUnique({
-            where: { id: dto.postId },
-            select: { title: true },
-          });
-
-          const replyAuthor = await this.prisma.user.findUnique({
-            where: { id: replyAuthorId },
-            select: { displayName: true, email: true },
-          });
-
-          const authorName = replyAuthor?.displayName || replyAuthor?.email || 'Someone';
-          const postTitle = postForNotification?.title || 'post';
-
+        if (!isReplyingSelf) {
           this.logger.log(`Emitting send_notification event for comment reply ${comment.id} - Replied to user: ${parentCommentAuthorId}`);
           this.natsClient.emit(
             { cmd: 'send_notification' },
@@ -136,7 +116,7 @@ export class CommentService implements ICommentService {
               type: 'COMMENT_REPLY',
               payload: {
                 title: 'New reply to your comment',
-                body: `${authorName} replied to your comment on "${postTitle}"`,
+                body: `Someone replied to your comment`,
                 metadata: {
                   commentId: comment.id,
                   postId: dto.postId,
@@ -147,12 +127,7 @@ export class CommentService implements ICommentService {
             },
           );
         } else {
-          if (isReplyingSelf) {
-            this.logger.log(`Skipping notification: User ${replyAuthorId} is replying to their own comment`);
-          }
-          if (isReplyingStaff) {
-            this.logger.log(`Skipping notification: User ${parentCommentAuthorId} is the blog owner (staff)`);
-          }
+          this.logger.log(`Skipping notification: User ${replyAuthorId} is replying to their own comment`);
         }
       } catch (error: any) {
         this.logger.error(`Failed to emit comment.reply event: ${error?.message}`, error);
@@ -160,7 +135,7 @@ export class CommentService implements ICommentService {
       }
     }
 
-    return this.formatCommentResponse(comment);
+    return this.toCommentResponseDTO(comment);
   }
 
   /**
@@ -209,8 +184,8 @@ export class CommentService implements ICommentService {
               this.logger.warn('Invalid comment data:', comment);
               return null;
             }
-            
-            const formatted = await this.formatCommentResponse(comment);
+
+            const formatted = await this.toCommentResponseDTO(comment);
             return {
               ...formatted,
               replyCount: comment._count?.replies || 0,
@@ -237,7 +212,6 @@ export class CommentService implements ICommentService {
                 content: comment?.content || '',
                 parentCommentId: comment?.parentCommentId || undefined,
                 parentId: comment?.parentCommentId || undefined,
-                likeCount: comment?.likes || 0,
                 status: comment?.status || 'approved',
                 isDeleted: comment?.status === 'deleted',
                 isEdited: false,
@@ -277,7 +251,7 @@ export class CommentService implements ICommentService {
       throw new NotFoundException(`Comment with id "${id}" not found`);
     }
 
-    const formatted = await this.formatCommentResponse(comment);
+    const formatted = await this.toCommentResponseDTO(comment);
     return {
       ...formatted,
       replyCount: comment._count.replies,
@@ -307,7 +281,7 @@ export class CommentService implements ICommentService {
       content: dto.content,
     });
 
-    return this.formatCommentResponse(updatedComment);
+    return this.toCommentResponseDTO(updatedComment);
   }
 
   /**
@@ -328,18 +302,16 @@ export class CommentService implements ICommentService {
     // Soft delete
     await this.commentRepository.softDelete(id);
 
-    // Decrement comment count on the post
-    await this.prisma.post.update({
-      where: { id: comment.postId },
-      data: {
-        commentCount: {
-          decrement: 1,
-        },
-      },
+    // Decrement comment count on the post using PostRepository
+    // Decrement comment count on the post using PostRepository
+    await this.postRepository.update(comment.postId, {
+      commentCount: { decrement: 1 },
     });
 
     return { success: true, message: 'Comment deleted successfully' };
   }
+
+
 
   /**
    * Get comment with nested replies
@@ -355,7 +327,7 @@ export class CommentService implements ICommentService {
       return null;
     }
 
-    const formatted = await this.formatCommentResponse(comment);
+    const formatted = await this.toCommentResponseDTO(comment);
 
     // Recursively load replies
     const repliesWithNested = await Promise.all(
@@ -363,7 +335,7 @@ export class CommentService implements ICommentService {
         if (depth > 1) {
           return this.getCommentWithReplies(reply.id, depth - 1);
         }
-        return this.formatCommentResponse(reply as Comment & { _count?: { replies?: number } });
+        return this.toCommentResponseDTO(reply as Comment & { _count?: { replies?: number } });
       }),
     );
 
@@ -372,79 +344,6 @@ export class CommentService implements ICommentService {
       replyCount: comment._count?.replies || 0,
       replies: repliesWithNested.filter((r) => r !== null) as CommentResponseDTO[],
     };
-  }
-
-  /**
-   * Map Comment entity to CommentResponseDTO using AutoMapper
-   */
-  private toCommentResponseDTO(comment: Comment | (Comment & { _count?: { replies?: number } })): CommentResponseDTO {
-    try {
-      return this.mapper.map<any, CommentResponseDTO>(comment, 'Comment', 'CommentResponseDTO');
-    } catch (error: any) {
-      this.logger.error(`AutoMapper error for comment ${comment?.id}: ${error.message}`, error.stack);
-      // Fallback: manual mapping if AutoMapper fails
-      return {
-        id: comment.id,
-        postId: comment.postId,
-        userId: comment.userId,
-        authorId: comment.userId,
-        content: comment.content,
-        parentCommentId: comment.parentCommentId || undefined,
-        parentId: comment.parentCommentId || undefined,
-        likeCount: comment.likes || 0,
-        status: comment.status,
-        isDeleted: comment.status === 'deleted',
-        isEdited: comment.updatedAt && comment.createdAt 
-          ? comment.updatedAt.getTime() > comment.createdAt.getTime() + 1000 
-          : false,
-        createdAt: comment.createdAt,
-        updatedAt: comment.updatedAt,
-      } as CommentResponseDTO;
-    }
-  }
-
-  /**
-   * Format comment response with author info
-   */
-  private async formatCommentResponse(comment: Comment & { _count?: { replies?: number } }): Promise<CommentResponseDTO> {
-    try {
-      const dto = this.toCommentResponseDTO(comment);
-
-      // Load author info separately
-      if (comment.userId) {
-        try {
-          const user = await this.prisma.user.findUnique({
-            where: { id: comment.userId },
-            select: {
-              id: true,
-              displayName: true,
-              email: true,
-              avatarUrl: true,
-            },
-          });
-
-          if (user) {
-            dto.author = {
-              id: user.id,
-              displayName: user.displayName || user.email || 'Unknown',
-              avatarUrl: user.avatarUrl || undefined,
-            };
-          }
-        } catch (error: any) {
-          this.logger.warn(`Failed to fetch author info for comment ${comment.id}: ${error.message}`);
-        }
-      }
-
-      // Add replyCount if available
-      if (comment._count?.replies !== undefined) {
-        dto.replyCount = comment._count.replies;
-      }
-
-      return dto;
-    } catch (error: any) {
-      this.logger.error(`Error in formatCommentResponse for comment ${comment?.id}: ${error.message}`, error.stack);
-      throw error;
-    }
   }
 }
 

@@ -35,15 +35,15 @@ export class PostAnalyticsService {
       // Get current time in Asia/Ho_Chi_Minh timezone
       const now = new Date();
       const asiaHCMOffsetHours = 7;
-      
+
       // Get current date in Asia/Ho_Chi_Minh
       const nowAsiaHCM = new Date(now.getTime() + (now.getTimezoneOffset() * 60 * 1000) + (asiaHCMOffsetHours * 60 * 60 * 1000));
-      
+
       // Calculate yesterday (previous day) in Asia/Ho_Chi_Minh
       const yesterdayStart = new Date(nowAsiaHCM);
       yesterdayStart.setUTCDate(yesterdayStart.getUTCDate() - 1);
       yesterdayStart.setUTCHours(0, 0, 0, 0);
-      
+
       const yesterdayEnd = new Date(yesterdayStart);
       yesterdayEnd.setUTCHours(23, 59, 59, 999);
 
@@ -83,7 +83,7 @@ export class PostAnalyticsService {
       // Filter posts: only process posts that were published before or on the target date
       // (Don't send notification for posts published in the future)
       const targetDate = new Date(dateString + 'T23:59:59Z');
-      
+
       const validPosts = allPublishedPosts.filter(post => {
         if (!post.publishedAt) return false;
         // Convert publishedAt to Asia/Ho_Chi_Minh for comparison
@@ -137,26 +137,14 @@ export class PostAnalyticsService {
             },
           });
 
-          // Count likes on the post (if you track post likes separately)
-          // For now, we'll focus on comments only
-          // TODO: Add post likes tracking if needed
-          const likesInRange = 0; // Placeholder - add if you track post likes by date
-
           // Only send notification if there are interactions
-          if (commentsInRange > 0 || likesInRange > 0) {
+          if (commentsInRange > 0) {
             this.logger.log(
               `✅ Post ${post.id} ("${post.title}") had ${commentsInRange} comments in ${dateString} - Sending notification`,
             );
 
             // Format message based on interactions
-            let message = '';
-            if (commentsInRange > 0 && likesInRange > 0) {
-              message = `Bài viết "${post.title}" của bạn đã nhận được ${commentsInRange} bình luận và ${likesInRange} lượt thích trong ngày ${dateString}`;
-            } else if (commentsInRange > 0) {
-              message = `Bài viết "${post.title}" của bạn đã nhận được ${commentsInRange} bình luận trong ngày ${dateString}`;
-            } else if (likesInRange > 0) {
-              message = `Bài viết "${post.title}" của bạn đã nhận được ${likesInRange} lượt thích trong ngày ${dateString}`;
-            }
+            const message = `Bài viết "${post.title}" của bạn đã nhận được ${commentsInRange} bình luận trong ngày ${dateString}`;
 
             this.natsClient.emit(
               { cmd: 'send_notification' },
@@ -170,9 +158,8 @@ export class PostAnalyticsService {
                     postId: post.id,
                     postTitle: post.title,
                     commentCount: commentsInRange,
-                    likeCount: likesInRange,
                     date: dateString,
-                    totalInteractions: commentsInRange + likesInRange,
+                    totalInteractions: commentsInRange,
                   },
                 },
               },

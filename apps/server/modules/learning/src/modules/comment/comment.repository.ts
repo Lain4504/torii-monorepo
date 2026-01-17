@@ -120,33 +120,7 @@ export class CommentRepository implements ICommentRepository {
         });
     }
 
-    /**
-     * Increment like count
-     */
-    async incrementLikeCount(id: string): Promise<Comment> {
-        return this.prisma.comment.update({
-            where: { id },
-            data: {
-                likes: {
-                    increment: 1,
-                },
-            },
-        });
-    }
 
-    /**
-     * Decrement like count
-     */
-    async decrementLikeCount(id: string): Promise<Comment> {
-        return this.prisma.comment.update({
-            where: { id },
-            data: {
-                likes: {
-                    decrement: 1,
-                },
-            },
-        });
-    }
 }
 
 

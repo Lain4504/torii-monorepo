@@ -55,14 +55,6 @@ export interface IPostRepository {
      */
     incrementViewCount(id: string): Promise<Post>;
 
-    /**
-     * Increment like count
-     */
-    incrementLikeCount(id: string): Promise<Post>;
 
-    /**
-     * Decrement like count
-     */
-    decrementLikeCount(id: string): Promise<Post>;
 }
 

@@ -7,7 +7,6 @@ export const commentSchema = z.object({
     parentCommentId: z.string().uuid().optional(),
     content: z.string().min(1),
     status: z.string().default('approved'),
-    likes: z.number().default(0),
     createdAt: z.date(),
     updatedAt: z.date(),
 });

@@ -767,7 +767,6 @@ model Post {
   status         String    @default("draft") @db.VarChar(20) // draft, published, archived
   publishedAt    DateTime? @map("published_at")
   viewCount      Int       @default(0) @map("view_count")
-  likeCount      Int       @default(0) @map("like_count")
   commentCount   Int       @default(0) @map("comment_count")
   tags           String[]  @default([]) @db.VarChar(50)
   seoTitle       String?   @map("seo_title") @db.VarChar(255)
@@ -791,7 +790,6 @@ model Comment {
   parentCommentId String?  @map("parent_comment_id") @db.Uuid // For nested replies
   content         String   @db.Text
   status          String   @default("approved") @db.VarChar(20) // pending, approved, spam, deleted
-  likes           Int      @default(0)
   createdAt       DateTime @default(now()) @map("created_at") @db.Timestamp()
   updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp()
 

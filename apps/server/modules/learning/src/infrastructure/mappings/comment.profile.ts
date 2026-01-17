@@ -50,10 +50,6 @@ export class CommentProfile extends AutomapperProfile {
           mapFrom((src: Comment) => src.parentCommentId || undefined),
         ),
         forMember(
-          (dest: CommentResponseDTO) => dest.likeCount,
-          mapFrom((src: Comment) => src.likes),
-        ),
-        forMember(
           (dest: CommentResponseDTO) => dest.status,
           mapFrom((src: Comment) => src.status),
         ),

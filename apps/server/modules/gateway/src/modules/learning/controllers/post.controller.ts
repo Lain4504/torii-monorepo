@@ -77,12 +77,13 @@ export class PostController {
 
     @Public()
     @Patch(':id/view')
-    async incrementViewCount(@Param('id') id: string) {
+    async incrementViewCount(@Param('id') id: string, @Req() req: Request) {
         try {
+            const ip = req.ip || req.socket.remoteAddress || 'unknown';
             await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.post.incrementView' },
-                    { id }
+                    { id, ip }
                 )
             );
             return successResponse(null, 'View count incremented');
@@ -135,4 +136,21 @@ export class PostController {
             return errorResponse(error.message || 'Failed to delete post');
         }
     }
+
+    @Patch(':id/publish')
+    async publishPost(@Param('id') id: string) {
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'learning.post.publish' },
+                    { id }
+                )
+            );
+            return successResponse({ post: result }, 'Post published successfully');
+        } catch (error: any) {
+            return errorResponse(error.message || 'Failed to publish post');
+        }
+    }
+
+
 }

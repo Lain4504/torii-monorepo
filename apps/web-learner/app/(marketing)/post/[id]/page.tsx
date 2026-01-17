@@ -44,12 +44,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                 setRecentPosts(latestData?.data?.filter(p => p.id !== postData?.id) || [])
                 setMostViewedPosts(topData?.data || [])
 
-                // Increment view count (only once per session)
-                const viewCountKey = `post_viewed_${id}`
-                if (!sessionStorage.getItem(viewCountKey)) {
-                    postApi.incrementViewCount(id)
-                    sessionStorage.setItem(viewCountKey, 'true')
-                }
+
             } catch (error) {
                 console.error('Failed to fetch post:', error)
             } finally {
@@ -58,6 +53,13 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
         }
         fetchData()
     }, [id])
+
+    // Increment view count on mount (throttled by server)
+    useEffect(() => {
+        if (post?.id) {
+            postApi.incrementViewCount(post.id)
+        }
+    }, [post?.id])
 
     if (loading) {
         return <PageLoading text="Cố lên, kiến thức đang đến..." />

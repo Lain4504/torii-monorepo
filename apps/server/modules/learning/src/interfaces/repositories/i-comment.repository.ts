@@ -51,14 +51,6 @@ export interface ICommentRepository {
      */
     findWithReplies(id: string): Promise<(Comment & { replies: Comment[]; _count: { replies: number } }) | null>;
 
-    /**
-     * Increment like count
-     */
-    incrementLikeCount(id: string): Promise<Comment>;
 
-    /**
-     * Decrement like count
-     */
-    decrementLikeCount(id: string): Promise<Comment>;
 }
 
