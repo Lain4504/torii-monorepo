@@ -1,9 +1,10 @@
 import { Controller, Logger, Inject } from '@nestjs/common';
 import { EventPattern, Payload, ClientProxy } from '@nestjs/microservices';
-import { NotificationService } from './notification.service';
 import { NotificationType } from '@workspace/schemas';
 import type { SendNotificationEvent } from '../../infrastructure/events/notification.event';
 import type { OrderPaymentSuccessEvent, OrderStatusChangedEvent } from '../../infrastructure/events/order.event';
+import { NOTIFICATION_SERVICE_TOKEN } from '../../interfaces/services';
+import type { INotificationService } from '../../interfaces/services';
 
 /**
  * Notification Controller
@@ -14,7 +15,7 @@ export class NotificationHandler {
     private readonly logger = new Logger(NotificationHandler.name);
 
     constructor(
-        private readonly notificationService: NotificationService,
+        @Inject(NOTIFICATION_SERVICE_TOKEN) private readonly notificationService: INotificationService,
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     ) { }
 
