@@ -6,6 +6,7 @@ import { PrismaModule, SharedModule } from '@server/shared';
 
 // Communication Feature Modules
 import { NotificationModule } from './modules/notification/notification.module';
+import { EmailModule } from './modules/email/email.module';
 
 // Controllers
 // import { NotificationController } from './controllers/notification.controller';
@@ -24,6 +25,7 @@ import { NotificationHandler } from './interfaces/nats/notification.handler';
 
     // Communication Domain Modules
     NotificationModule,
+    EmailModule,
   ],
   controllers: [
     // HTTP Controllers

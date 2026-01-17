@@ -133,4 +133,18 @@ export class OrderRepository implements IOrderRepository {
             where,
         });
     }
+
+    /**
+     * Get user by ID (for notification purposes)
+     */
+    async getUserById(userId: string): Promise<{ id: string; email: string; displayName: string | null } | null> {
+        return this.prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+                id: true,
+                email: true,
+                displayName: true,
+            },
+        });
+    }
 }
