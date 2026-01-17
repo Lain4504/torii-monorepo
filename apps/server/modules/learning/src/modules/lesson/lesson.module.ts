@@ -6,6 +6,7 @@ import { LESSON_REPOSITORY_TOKEN } from '../../interfaces/repositories';
 import { LESSON_SERVICE_TOKEN } from '../../interfaces/services';
 import { CourseModule } from '../course/course.module';
 import { ModuleModule } from '../module/module.module';
+import { EnrollmentModule } from '../enrollment/enrollment.module';
 
 /**
  * Lesson Feature Module
@@ -16,6 +17,7 @@ import { ModuleModule } from '../module/module.module';
     NatsClientModule,
     forwardRef(() => CourseModule),
     forwardRef(() => ModuleModule),
+    forwardRef(() => EnrollmentModule),
   ],
   providers: [
     {

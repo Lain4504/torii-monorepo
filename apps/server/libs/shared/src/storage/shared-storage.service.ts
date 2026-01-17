@@ -183,7 +183,9 @@ export class SharedStorageService {
      * Get public URL for file
      */
     getPublicUrl(key: string): string {
-        return `${this.publicUrl}/${key}`;
+        const baseUrl = this.publicUrl.endsWith('/') ? this.publicUrl.slice(0, -1) : this.publicUrl;
+        const normalizedKey = key.startsWith('/') ? key.substring(1) : key;
+        return `${baseUrl}/${normalizedKey}`;
     }
 
     /**
@@ -192,7 +194,13 @@ export class SharedStorageService {
     extractKeyFromUrl(fileUrl: string): string {
         try {
             const url = new URL(fileUrl);
-            const key = url.pathname.substring(1);
+            let key = url.pathname;
+
+            // Remove all leading slashes to handle cases like //uploads/... or /uploads/...
+            while (key.startsWith('/')) {
+                key = key.substring(1);
+            }
+
             if (!key) {
                 throw new Error(`Invalid file URL format: ${fileUrl}`);
             }

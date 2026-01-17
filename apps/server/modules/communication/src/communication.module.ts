@@ -8,8 +8,8 @@ import { PrismaModule, SharedModule } from '@server/shared';
 import { NotificationModule } from './modules/notification/notification.module';
 
 // Controllers
-import { NotificationController } from './controllers/notification.controller';
-import { NotificationMessagingController } from './messaging/notification.messaging';
+// import { NotificationController } from './controllers/notification.controller';
+import { NotificationHandler } from './interfaces/nats/notification.handler';
 
 @Module({
   imports: [
@@ -27,9 +27,9 @@ import { NotificationMessagingController } from './messaging/notification.messag
   ],
   controllers: [
     // HTTP Controllers
-    NotificationController,
+    // NotificationController,
     // NATS Message Handlers
-    NotificationMessagingController,
+    NotificationHandler,
   ],
 })
 export class CommunicationModule { }

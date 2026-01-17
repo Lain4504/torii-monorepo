@@ -64,7 +64,7 @@ export default function TransactionsPage() {
                 transactionId: search && !search.includes('-') && search.length < 20 ? search : undefined, // search by ID or transactionId
                 orderId: search && search.includes('-') && search.length > 20 ? search : undefined, // assuming uuid contains dashes
             });
-            setTransactions(response.data);
+            setTransactions(response.data || []);
             setTotal(response.total);
             setTotalPages(response.totalPages);
         } catch (error) {

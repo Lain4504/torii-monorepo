@@ -66,7 +66,7 @@ export default function ProfilePage() {
                     <Avatar className="w-28 h-28 ring-4 ring-primary/5 shadow-xl">
                         <AvatarImage src={''} alt={user?.displayName || 'Avatar'} />
                         <AvatarFallback className="text-3xl bg-primary/5 text-primary font-serif italic font-bold">
-                            {user?.displayName?.charAt(0).toUpperCase() || 'U'}
+                            {user?.displayName?.[0]?.toUpperCase() || 'U'}
                         </AvatarFallback>
                     </Avatar>
                     <Button

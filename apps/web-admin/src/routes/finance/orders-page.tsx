@@ -60,7 +60,7 @@ export default function OrdersPage() {
         page,
         limit: 10,
       });
-      setPayments(response.data);
+      setPayments(response.data || []);
       setTotalPages(response.totalPages);
       setTotal(response.total);
     } catch (error) {

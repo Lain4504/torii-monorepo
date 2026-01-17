@@ -1,219 +1,141 @@
 'use client'
 
-import { useAppSelector } from '@/hooks/hooks'
-import { Bell, Search, Menu, ChevronDown, User, Settings, LogOut, Sparkles, Sun, Moon } from 'lucide-react'
-import { Button } from '@workspace/ui/components/button'
+import { Search, Sparkles, LogOut, BadgeCheck, Bell } from 'lucide-react'
 import { Input } from '@workspace/ui/components/input'
+import { SidebarTrigger } from '@workspace/ui/components/sidebar'
+import { NotificationsDropdown } from './notifications-dropdown'
+import { ModeToggle } from './mode-toggle'
+import { LanguageSwitcher } from '@workspace/ui/components/language-switcher'
+import { useAppSelector, useAppDispatch } from '@/hooks/hooks'
+import { useRouter } from 'next/navigation'
+import { logout } from '@/store/slices/authSlice'
+import { toast } from '@workspace/ui/components/sonner'
 import {
     DropdownMenu,
     DropdownMenuContent,
+    DropdownMenuGroup,
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from '@workspace/ui/components/dropdown-menu'
-import { Sheet, SheetContent, SheetTrigger } from '@workspace/ui/components/sheet'
-import { useState } from 'react'
-import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+} from "@workspace/ui/components/dropdown-menu"
 import {
-    LayoutDashboard,
-    BookOpen,
-    Award,
-    CreditCard,
-    GraduationCap,
-    FileText,
-    Clock,
-} from 'lucide-react'
-import { cn } from '@workspace/ui/lib/utils'
-import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
-import { NotificationsDropdown } from './notifications-dropdown'
-import { useTheme } from 'next-themes'
-import { authApi } from '@/apis/services/auth-api'
+    Avatar,
+    AvatarFallback,
+    AvatarImage,
+} from "@workspace/ui/components/avatar"
+import { Button } from '@workspace/ui/components/button'
 
-const navigation = [
-    { name: 'Trang chủ', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Khóa học của tôi', href: '/dashboard/my-courses', icon: BookOpen },
-    { name: 'Chứng chỉ', href: '/dashboard/certificates', icon: Award },
-    { name: 'Lịch sử học tập', href: '/dashboard/history', icon: Clock },
-    { name: 'Hồ sơ', href: '/dashboard/profile', icon: User },
-    { name: 'Cài đặt', href: '/dashboard/settings', icon: Settings },
-]
-
-interface DashboardHeaderProps {
-    isCollapsed?: boolean
-    toggleSidebar?: () => void
-}
-
-export function DashboardHeader({ isCollapsed, toggleSidebar }: DashboardHeaderProps) {
+export function DashboardHeader() {
     const { user } = useAppSelector((state) => state.auth)
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-    const pathname = usePathname()
-    const { theme, setTheme } = useTheme()
+    const dispatch = useAppDispatch()
     const router = useRouter()
 
     const handleLogout = async () => {
         try {
-            await authApi.logout()
-            // Clear any local state if necessary
+            await dispatch(logout()).unwrap()
+            toast.success("Đăng xuất thành công")
             router.push('/login')
-            router.refresh()
         } catch (error) {
-            console.error("Logout failed", error)
-            router.push('/login') // Force redirect anyway
+            toast.error("Lỗi khi đăng xuất")
+            router.push('/login')
         }
     }
 
     return (
-        <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex h-16 items-center justify-between gap-4">
-                    {/* Left: Mobile Menu & Brand */}
-                    <div className="flex items-center gap-4">
-                        <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-                            <SheetTrigger asChild>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="lg:hidden rounded-xl hover:bg-muted/50 transition-colors cursor-pointer shrink-0"
-                                    aria-label="Toggle menu"
-                                >
-                                    <Menu className="w-5 h-5" />
-                                </Button>
-                            </SheetTrigger>
-                            <SheetContent side="left" className="w-72 p-0 border-r border-border/40 bg-background/95 backdrop-blur-xl">
-                                <div className="p-6">
-                                    <div className="flex items-center gap-2 mb-8">
-                                        <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center">
-                                            <Sparkles className="w-5 h-5 text-white" />
-                                        </div>
-                                        <span className="font-serif font-bold text-lg tracking-tight italic">Torii <span className="text-primary not-italic">Learner</span></span>
-                                    </div>
-                                    <nav className="space-y-1">
-                                        {navigation.map((item) => {
-                                            const Icon = item.icon
-                                            const isActive = pathname === item.href
-                                            return (
-                                                <Link
-                                                    key={item.name}
-                                                    href={item.href}
-                                                    onClick={() => setMobileMenuOpen(false)}
-                                                    className={cn(
-                                                        'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer uppercase tracking-widest text-[10px]',
-                                                        isActive
-                                                            ? 'bg-primary/10 text-primary'
-                                                            : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
-                                                    )}
-                                                >
-                                                    <Icon className="w-4 h-4" />
-                                                    <span>{item.name}</span>
-                                                </Link>
-                                            )
-                                        })}
-                                    </nav>
-                                </div>
-                            </SheetContent>
-                        </Sheet>
+        <header className="sticky top-0 z-40 w-full border-b border-border/10 bg-background/40 backdrop-blur-3xl transition-all duration-500">
+            <div className="px-4 h-20 flex items-center justify-between gap-4">
+                {/* Left: Trigger & Brand (Mobile) */}
+                <div className="flex items-center gap-4">
+                    <SidebarTrigger className="rounded-xl hover:bg-primary/5 transition-all outline-none" />
 
-                        {/* Desktop Sidebar Toggle */}
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={toggleSidebar}
-                            className="hidden lg:flex rounded-xl text-muted-foreground hover:text-foreground hover:bg-primary/5 transition-all"
-                        >
-                            <Menu className={cn("w-5 h-5 transition-transform", isCollapsed ? "rotate-90" : "")} />
-                        </Button>
-
-                        <Link href="/dashboard" className="hidden sm:flex items-center gap-2 group">
-                            <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary transition-colors">
-                                <Sparkles className="w-4 h-4 text-primary group-hover:text-white transition-colors" />
-                            </div>
-                            <span className="font-serif font-bold text-lg tracking-tight hidden md:block italic">Torii</span>
-                        </Link>
-                    </div>
-
-                    {/* Center: Search */}
-                    <div className="flex-1 max-w-md">
-                        <div className="relative group">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/50 group-focus-within:text-primary transition-colors" />
-                            <Input
-                                placeholder="Tìm kiếm bài học, kanji..."
-                                className="pl-10 h-10 w-full bg-muted/40 border-transparent focus:border-primary/20 focus:bg-background rounded-2xl transition-all text-sm font-medium placeholder:text-muted-foreground/40 shadow-none ring-0 focus-visible:ring-0"
-                            />
+                    <div className="flex items-center gap-2 lg:hidden group">
+                        <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary transition-colors">
+                            <Sparkles className="w-4 h-4 text-primary group-hover:text-white transition-colors" />
                         </div>
+                        <span className="font-serif font-black italic text-lg tracking-tight">Torii</span>
+                    </div>
+                </div>
+
+                {/* Center: Search - Zen Refined */}
+                <div className="flex-1 max-w-xl hidden sm:block">
+                    <div className="relative group">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/30 group-focus-within:text-primary transition-colors" />
+                        <Input
+                            placeholder="Tìm kiếm bài học, kanji, từ vựng..."
+                            className="pl-11 h-12 w-full bg-muted/20 border-border/5 focus:border-primary/20 focus:bg-background/80 rounded-2xl transition-all text-sm font-medium placeholder:text-muted-foreground/30 shadow-none ring-0 focus-visible:ring-0"
+                        />
+                    </div>
+                </div>
+
+                {/* Right: Actions */}
+                <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                    {/* Interactive Tools Group - Synchronized with Admin style */}
+                    <div className="flex items-center gap-1 p-1 rounded-xl bg-muted/10 border border-border/5">
+                        <NotificationsDropdown />
+                        <LanguageSwitcher />
+                        <ModeToggle />
                     </div>
 
-                    {/* Right: Actions */}
-                    <div className="flex items-center gap-2">
-                        {/* Theme Toggle */}
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                            className="rounded-xl h-10 w-10 hover:bg-muted/50 transition-colors"
-                        >
-                            <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-amber-500" />
-                            <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-blue-400" />
-                            <span className="sr-only">Toggle theme</span>
-                        </Button>
-
-                        <NotificationsDropdown />
-
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="rounded-2xl h-10 pl-1 pr-2 hover:bg-muted/50 transition-all cursor-pointer border border-transparent hover:border-border/40">
-                                    <div className="flex items-center gap-2.5">
-                                        <Avatar className="w-8 h-8 rounded-xl border border-border/40">
-                                            <AvatarImage src="" />
-                                            <AvatarFallback className="bg-primary/5 text-primary text-xs font-bold uppercase">
-                                                {user?.displayName?.charAt(0) || 'U'}
-                                            </AvatarFallback>
-                                        </Avatar>
-                                        <div className="hidden lg:block text-left">
-                                            <p className="text-[11px] font-bold text-foreground leading-none truncate max-w-[100px] uppercase tracking-wider">
-                                                {user?.displayName || 'User'}
-                                            </p>
-                                        </div>
-                                        <ChevronDown className="w-3.5 h-3.5 text-muted-foreground/50" />
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="rounded-2xl h-12 pl-1 pr-1.5 hover:bg-muted/50 transition-all cursor-pointer border border-border/10 shadow-sm">
+                                <div className="flex items-center gap-2.5">
+                                    <Avatar className="w-9 h-9 rounded-[0.8rem] border border-border/40 shadow-sm">
+                                        <AvatarImage src={user?.avatarUrl || undefined} />
+                                        <AvatarFallback className="bg-primary/5 text-primary text-xs font-black uppercase">
+                                            {user?.displayName?.[0] || 'U'}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <div className="hidden lg:block text-left mr-1">
+                                        <p className="text-[10px] font-bold text-foreground leading-none truncate max-w-[100px] uppercase tracking-wider">
+                                            {user?.displayName || 'User'}
+                                        </p>
+                                        <p className="text-[9px] text-muted-foreground font-medium mt-1 uppercase tracking-tighter opacity-60">
+                                            {user?.role || 'Học viên'}
+                                        </p>
                                     </div>
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-64 rounded-2xl p-2 border-border/40 shadow-xl shadow-primary/5 animate-in slide-in-from-top-2 duration-200">
-                                <DropdownMenuLabel className="px-4 py-3">
+                                </div>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-64 rounded-2xl p-2 border-border/20 bg-background/80 backdrop-blur-3xl shadow-xl shadow-primary/5 animate-in slide-in-from-top-2 duration-200">
+                            <DropdownMenuLabel className="px-3 py-3">
+                                <div className="flex items-center gap-3">
+                                    <Avatar className="h-10 w-10 rounded-xl border border-border/20">
+                                        <AvatarImage src={user?.avatarUrl || undefined} />
+                                        <AvatarFallback className="rounded-xl bg-primary text-white text-xs font-black">
+                                            {user?.displayName?.[0]?.toUpperCase() || "U"}
+                                        </AvatarFallback>
+                                    </Avatar>
                                     <div className="flex flex-col gap-0.5">
                                         <p className="text-sm font-bold text-foreground truncate">{user?.displayName}</p>
                                         <p className="text-[10px] text-muted-foreground font-medium truncate uppercase tracking-tighter">{user?.email}</p>
                                     </div>
-                                </DropdownMenuLabel>
-                                <DropdownMenuSeparator className="bg-border/40 mx-2" />
-                                <div className="p-1">
-                                    <Link href="/dashboard/profile">
-                                        <DropdownMenuItem className="rounded-xl px-3 py-2.5 text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors cursor-pointer focus:bg-primary/5 focus:text-primary">
-                                            <User className="w-4 h-4 mr-3 opacity-70" />
-                                            Hồ sơ cá nhân
-                                        </DropdownMenuItem>
-                                    </Link>
-                                    <Link href="/dashboard/settings">
-                                        <DropdownMenuItem className="rounded-xl px-3 py-2.5 text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors cursor-pointer focus:bg-primary/5 focus:text-primary">
-                                            <Settings className="w-4 h-4 mr-3 opacity-70" />
-                                            Cài đặt tài khoản
-                                        </DropdownMenuItem>
-                                    </Link>
                                 </div>
-                                <DropdownMenuSeparator className="bg-border/40 mx-2" />
-                                <div className="p-1">
-                                    <DropdownMenuItem
-                                        onClick={handleLogout}
-                                        className="rounded-xl px-3 py-2.5 text-xs font-bold uppercase tracking-widest text-destructive hover:bg-destructive/5 transition-colors cursor-pointer focus:bg-destructive/5 focus:text-destructive"
-                                    >
-                                        <LogOut className="w-4 h-4 mr-3 opacity-70" />
-                                        Đăng xuất
-                                    </DropdownMenuItem>
-                                </div>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
+                            </DropdownMenuLabel>
+                            <DropdownMenuSeparator className="bg-border/20 mx-2" />
+                            <DropdownMenuGroup className="p-1 space-y-1">
+                                <DropdownMenuItem className="rounded-xl px-3 py-2.5 cursor-pointer focus:bg-primary/5 focus:text-primary transition-colors" onClick={() => router.push('/dashboard/profile')}>
+                                    <BadgeCheck className="size-4 mr-3 opacity-70" />
+                                    Hồ sơ cá nhân
+                                </DropdownMenuItem>
+                                <DropdownMenuItem className="rounded-xl px-3 py-2.5 cursor-pointer focus:bg-primary/5 focus:text-primary transition-colors" onClick={() => router.push('/dashboard/notifications')}>
+                                    <Bell className="size-4 mr-3 opacity-70" />
+                                    Thông báo
+                                </DropdownMenuItem>
+                            </DropdownMenuGroup>
+                            <DropdownMenuSeparator className="bg-border/20 mx-2" />
+                            <div className="p-1">
+                                <DropdownMenuItem
+                                    onClick={handleLogout}
+                                    className="rounded-xl px-3 py-2.5 text-destructive focus:bg-destructive/5 focus:text-destructive transition-colors cursor-pointer"
+                                >
+                                    <LogOut className="size-4 mr-3 opacity-70" />
+                                    Đăng xuất
+                                </DropdownMenuItem>
+                            </div>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
             </div>
         </header>

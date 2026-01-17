@@ -7,17 +7,15 @@ import type { StoragePresignedUrlRequestDTO, StoragePresignedUrlResponseDTO, Sto
 
 export const storageApi = {
     // POST /api/storage/upload-url
-    // POST /api/storage/upload-url
     async generateUploadUrl(data: StoragePresignedUrlRequestDTO): Promise<StoragePresignedUrlResponseDTO> {
-        const response = await apiClient.post<StoragePresignedUrlResponseDTO>('/api/storage/upload-url', data);
-        return response.data;
+        const response = await apiClient.post<{ success: boolean; data: StoragePresignedUrlResponseDTO }>('/api/storage/upload-url', data);
+        return response.data.data;
     },
 
-    // POST /api/storage/confirm
-    // POST /api/storage/confirm
+    // POST /api/storage/confirm-upload
     async confirmUpload(data: StorageConfirmUploadRequestDTO): Promise<StorageConfirmUploadResponseDTO> {
-        const response = await apiClient.post<StorageConfirmUploadResponseDTO>('/api/storage/confirm-upload', data);
-        return response.data;
+        const response = await apiClient.post<{ success: boolean; data: StorageConfirmUploadResponseDTO }>('/api/storage/confirm-upload', data);
+        return response.data.data;
     },
     // Helper: Upload file (Get URL -> Upload -> Confirm)
     async uploadFile(file: File, module: string = 'courses', metadata?: Record<string, any>, ownerId?: string): Promise<StorageConfirmUploadResponseDTO> {

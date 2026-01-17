@@ -9,20 +9,24 @@ import {
     CreditCard,
     Ticket,
     Settings,
-    Shield,
     BarChart3,
     Bell,
     Sparkles,
 } from "lucide-react";
 
 export interface NavItem {
-    titleKey: string; // Translation key
+    titleKey: string;
     url: string;
     icon: React.ComponentType<{ className?: string }>;
     badge?: string;
     permission?: string;
     anyPermission?: string[];
-    descriptionKey?: string; // Translation key
+    descriptionKey?: string;
+    items?: {
+        titleKey: string;
+        url: string;
+        permission?: string;
+    }[];
 }
 
 export const mainNavItems: NavItem[] = [
@@ -38,6 +42,10 @@ export const mainNavItems: NavItem[] = [
         icon: Users,
         permission: "user.manage",
         descriptionKey: "navDescriptions.users",
+        items: [
+            { titleKey: "navigation.userList", url: "/users", permission: "user.view" },
+            { titleKey: "navigation.roles", url: "/permissions", permission: "system.config" },
+        ]
     },
     {
         titleKey: "navigation.courses",
@@ -45,6 +53,11 @@ export const mainNavItems: NavItem[] = [
         icon: BookOpen,
         anyPermission: ["course.manage", "course.approve", "course.view_restricted"],
         descriptionKey: "navDescriptions.courses",
+        items: [
+            { titleKey: "navigation.courseList", url: "/courses", permission: "course.view" },
+            { titleKey: "navigation.categories", url: "/courses/categories", permission: "course.manage" },
+            { titleKey: "navigation.reviews", url: "/courses/reviews", permission: "course.manage" },
+        ]
     },
     {
         titleKey: "navigation.liveClasses",
@@ -83,6 +96,10 @@ export const managementNavItems: NavItem[] = [
         icon: CreditCard,
         permission: "payment.manage",
         descriptionKey: "navDescriptions.financials",
+        items: [
+            { titleKey: "navigation.orders", url: "/orders", permission: "payment.manage" },
+            { titleKey: "navigation.payouts", url: "/payouts", permission: "payment.manage" },
+        ]
     },
     {
         titleKey: "navigation.promotions",
@@ -115,18 +132,15 @@ export const systemNavItems: NavItem[] = [
         descriptionKey: "navDescriptions.notifications",
     },
     {
-        titleKey: "navigation.permissions",
-        url: "/permissions",
-        icon: Shield,
-        permission: "system.config",
-        descriptionKey: "navDescriptions.permissions",
-    },
-    {
         titleKey: "navigation.settings",
         url: "/settings",
         icon: Settings,
         permission: "system.config",
         descriptionKey: "navDescriptions.settings",
+        items: [
+            { titleKey: "navigation.general", url: "/settings", permission: "system.config" },
+            { titleKey: "navigation.appearance", url: "/settings/appearance", permission: "system.config" },
+        ]
     },
 ];
 

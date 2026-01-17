@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { PrismaModule } from '@server/shared';
 import { EnrollmentService } from './enrollment.service';
 import { EnrollmentRepository } from './enrollment.repository';
@@ -9,7 +9,7 @@ import { CourseModule } from '../course/course.module';
  * Enrollment Module
  */
 @Module({
-    imports: [PrismaModule, CourseModule],
+    imports: [PrismaModule, forwardRef(() => CourseModule)],
     providers: [
         EnrollmentService,
         {

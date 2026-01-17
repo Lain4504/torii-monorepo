@@ -22,8 +22,8 @@ import { NatsMsgClientToServerSchema, NatsMsgClientToServerEvents } from '@works
 import { RoomUserService } from '../../modules/room/room-user.service';
 
 // Constants
-const DEFAULT_NUM_WORKERS = 50;
-const DEFAULT_JOB_QUEUE_SIZE = 1000;
+const DEFAULT_NUM_WORKERS = 20; //50
+const DEFAULT_JOB_QUEUE_SIZE = 500; //1000
 const NATS_AUTH_SERVICE_ENDPOINT_SUBJECT = '$SYS.REQ.USER.AUTH';
 const NATS_CONNECTION_EVENT_SUBJECT_FORMAT = '$SYS.ACCOUNT.%s.>';
 const PREFIX = 'wajlc-';

@@ -50,11 +50,11 @@ export default function PostListingPage() {
                     })
                 ])
 
-                setPosts(postsData.data)
-                setTotalPages(postsData.totalPages)
+                setPosts(postsData?.data || [])
+                setTotalPages(postsData?.totalPages || 1)
 
-                setMostViewedPosts(topData.data)
-                setRecentPosts(recentData.data)
+                setMostViewedPosts(topData?.data || [])
+                setRecentPosts(recentData?.data || [])
 
             } catch (error) {
                 console.error('Failed to fetch posts:', error)

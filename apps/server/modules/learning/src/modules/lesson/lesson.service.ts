@@ -11,10 +11,10 @@ import type {
   Requester,
 } from '@workspace/schemas';
 
-import type { ILessonService, ICourseService } from '../../interfaces/services';
+import type { ILessonService, ICourseService, IEnrollmentService } from '../../interfaces/services';
 import type { ILessonRepository, IModuleRepository } from '../../interfaces/repositories';
 import { LESSON_REPOSITORY_TOKEN, MODULE_REPOSITORY_TOKEN } from '../../interfaces/repositories';
-import { COURSE_SERVICE_TOKEN } from '../../interfaces/services';
+import { COURSE_SERVICE_TOKEN, ENROLLMENT_SERVICE_TOKEN } from '../../interfaces/services';
 
 /**
  * Lesson Service
@@ -31,6 +31,8 @@ export class LessonService implements ILessonService {
     private readonly moduleRepository: IModuleRepository,
     @Inject(forwardRef(() => COURSE_SERVICE_TOKEN))
     private readonly courseService: ICourseService,
+    @Inject(forwardRef(() => ENROLLMENT_SERVICE_TOKEN))
+    private readonly enrollmentService: IEnrollmentService,
   ) { }
 
   /**
@@ -122,14 +124,38 @@ export class LessonService implements ILessonService {
   /**
    * Find one lesson by ID
    */
-  async findOne(lessonId: string): Promise<LessonResponseDTO> {
+  async findOne(lessonId: string, userId?: string): Promise<LessonResponseDTO> {
     const lesson = await this.lessonRepository.findById(lessonId);
 
     if (!lesson || lesson.deletedAt) {
       throw new NotFoundException(`Lesson with id ${lessonId} not found`);
     }
 
-    return this.toLessonResponseDTO(lesson);
+    const dto = this.toLessonResponseDTO(lesson);
+
+    // Protection logic for video content
+    if (dto.contentType === 'video' && dto.videoUrl && !dto.isPreview) {
+      let isAuthorized = false;
+
+      if (userId) {
+        try {
+          // Check if user is enrolled
+          const module = await this.moduleRepository.findById(lesson.moduleId);
+          if (module) {
+            isAuthorized = await this.enrollmentService.isEnrolled(userId, module.courseId);
+          }
+        } catch (error) {
+          this.logger.warn(`Failed to check enrollment for user ${userId} on lesson ${lessonId}`, error);
+        }
+      }
+
+      // If not authorized, hide the video URL
+      if (!isAuthorized) {
+        dto.videoUrl = undefined;
+      }
+    }
+
+    return dto;
   }
 
   /**

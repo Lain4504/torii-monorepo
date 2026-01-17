@@ -49,6 +49,9 @@ RUN npx nest build identity
 RUN npx nest build learning
 RUN npx nest build meet
 RUN npx nest build agents
+RUN npx nest build gamification
+RUN npx nest build communication
+RUN npx nest build storage
 
 # --- Runner Stage ---
 FROM node:20-slim AS runner

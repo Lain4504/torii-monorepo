@@ -48,7 +48,10 @@ export class UsersService implements IUsersService {
      */
     async findAll(options: PaginationOptionsDTO): Promise<PaginatedResponseDTO<UserResponseDTO>> {
         const { page = 1, limit = 10, search = '' } = options;
-        const skip = (page - 1) * limit;
+
+        const pageNum = typeof page === 'string' ? parseInt(page, 10) : Number(page) || 1;
+        const limitNum = typeof limit === 'string' ? parseInt(limit, 10) : Number(limit) || 10;
+        const skip = (pageNum - 1) * limitNum;
 
         const where: Prisma.UserWhereInput = search
             ? {
@@ -63,7 +66,7 @@ export class UsersService implements IUsersService {
             this.usersRepository.findMany({
                 where,
                 skip,
-                take: limit,
+                take: limitNum,
             }),
             this.usersRepository.count(where),
         ]);
@@ -76,9 +79,9 @@ export class UsersService implements IUsersService {
         return {
             data,
             total,
-            page,
-            limit,
-            totalPages: Math.ceil(total / limit),
+            page: pageNum,
+            limit: limitNum,
+            totalPages: Math.ceil(total / limitNum),
         };
     }
 

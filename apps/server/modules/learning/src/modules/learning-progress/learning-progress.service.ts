@@ -1,4 +1,5 @@
 import { Injectable, Logger, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import {
     ILearningProgressRepository, LEARNING_PROGRESS_REPOSITORY_TOKEN,
     IEnrollmentRepository, ENROLLMENT_REPOSITORY_TOKEN,
@@ -7,7 +8,7 @@ import {
     IModuleRepository, MODULE_REPOSITORY_TOKEN
 } from '../../interfaces/repositories';
 import { ILearningProgressService } from '../../interfaces/services';
-import { EnrollmentStatus } from '@workspace/schemas';
+import { EnrollmentStatus, UserActivityEvent } from '@workspace/schemas';
 
 
 @Injectable()
@@ -25,6 +26,7 @@ export class LearningProgressService implements ILearningProgressService {
         private readonly lessonRepo: ILessonRepository,
         @Inject(MODULE_REPOSITORY_TOKEN)
         private readonly moduleRepo: IModuleRepository,
+        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     ) { }
 
     async getMyCourses(userId: string) {
@@ -181,6 +183,43 @@ export class LearningProgressService implements ILearningProgressService {
             completionStatus: percentage >= 100 ? EnrollmentStatus.COMPLETED : EnrollmentStatus.IN_PROGRESS,
             completedAt: percentage >= 100 ? (enrollment.completedAt || new Date()) : null
         });
+
+        // Emit activity events to gamification service
+        try {
+            // Emit VIDEO_WATCH event if video watched for >= 3 minutes
+            if (seconds >= 180) {
+                const videoWatchEvent: UserActivityEvent = {
+                    userId,
+                    activityType: 'VIDEO_WATCH',
+                    meta: {
+                        lessonId,
+                        courseId,
+                        watchedDuration: Math.floor(seconds),
+                    },
+                    timestamp: new Date().toISOString(),
+                };
+                this.natsClient.emit('user.activity', videoWatchEvent);
+            }
+
+            // Emit LESSON_COMPLETE event if lesson completed
+            if (isCompleted) {
+                const lessonCompleteEvent: UserActivityEvent = {
+                    userId,
+                    activityType: 'LESSON_COMPLETE',
+                    meta: {
+                        lessonId,
+                        courseId,
+                        completionPercentage: percentage,
+                    },
+                    timestamp: new Date().toISOString(),
+                };
+                this.natsClient.emit('user.activity', lessonCompleteEvent);
+                this.logger.log(`Emitted LESSON_COMPLETE event for user ${userId}, lesson ${lessonId}`);
+            }
+        } catch (error) {
+            this.logger.error('Failed to emit activity event', error);
+            // Don't throw - event emission should not block main flow
+        }
 
         return { success: true };
     }

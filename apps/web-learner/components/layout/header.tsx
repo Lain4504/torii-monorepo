@@ -169,7 +169,7 @@ export function Header() {
                                         <div className="flex items-center gap-3">
                                             <Avatar className="w-8 h-8 rounded-xl border border-white/10 ring-2 ring-transparent group-hover:ring-primary/20 transition-all">
                                                 <AvatarFallback className="bg-primary/10 text-primary text-xs font-black uppercase">
-                                                    {user?.displayName?.charAt(0) || 'U'}
+                                                    {user?.displayName?.[0] || 'U'}
                                                 </AvatarFallback>
                                                 {/* {user?.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || 'User'} className="object-cover" />} */}
                                             </Avatar>

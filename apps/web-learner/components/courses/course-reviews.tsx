@@ -46,11 +46,11 @@ export function CourseReviews({ course }: CourseReviewsProps) {
             setLoading(true)
             const response = await reviewApi.getReviewsByCourse(course.id, page, 10)
             if (page === 1) {
-                setReviews(response.data)
+                setReviews(response?.data || [])
             } else {
-                setReviews((prev) => [...prev, ...response.data])
+                setReviews((prev) => [...prev, ...(response?.data || [])])
             }
-            setHasMore(response.page < response.totalPages)
+            setHasMore((response?.page || 1) < (response?.totalPages || 0))
         } catch (error: any) {
             console.error('Failed to load reviews:', error)
             toast.error('Không thể tải đánh giá')
@@ -123,7 +123,7 @@ export function CourseReviews({ course }: CourseReviewsProps) {
         <div className="p-6 rounded-3xl bg-background border border-border/40 hover:border-border transition-colors group">
             <div className="flex gap-4">
                 <Avatar className="h-10 w-10 rounded-xl border border-border/40 shadow-sm shrink-0">
-                    <AvatarImage src={review.user.avatarUrl} className="object-cover" />
+                    <AvatarImage src={review.user.avatarUrl || undefined} className="object-cover" />
                     <AvatarFallback className="bg-primary/5 text-primary text-xs font-black uppercase">
                         {review.user.displayName ? review.user.displayName.charAt(0).toUpperCase() : 'U'}
                     </AvatarFallback>

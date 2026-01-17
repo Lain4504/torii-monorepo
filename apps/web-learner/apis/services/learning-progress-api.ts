@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../api-client';
+import type { StandardApiResponse } from '@workspace/schemas';
 
 export interface MyCourseResponse {
     id: string;
@@ -36,32 +37,32 @@ export interface HistoryItem {
 
 export const learningProgressApi = {
     async getMyCourses(): Promise<MyCourseResponse[]> {
-        const response = await apiClient.get<MyCourseResponse[]>('/api/learning-progress/my-courses');
-        return response.data;
+        const response = await apiClient.get<StandardApiResponse<{ courses: MyCourseResponse[] }>>('/api/learning-progress/my-courses');
+        return response.data.data!.courses;
     },
 
     async trackProgress(lessonId: string, seconds: number, totalSeconds: number): Promise<{ success: boolean }> {
-        const response = await apiClient.post<{ success: boolean }>('/api/learning-progress/track', {
+        const response = await apiClient.post<StandardApiResponse<{ success: boolean }>>('/api/learning-progress/track', {
             lessonId,
             seconds,
             totalSeconds,
         });
-        return response.data;
+        return response.data.data!;
     },
 
     async getStats(): Promise<LearningStats> {
-        const response = await apiClient.get<LearningStats>('/api/learning-progress/stats');
-        return response.data;
+        const response = await apiClient.get<StandardApiResponse<{ stats: LearningStats }>>('/api/learning-progress/stats');
+        return response.data.data!.stats;
     },
 
     async getCompletedLessons(courseId: string): Promise<string[]> {
-        const response = await apiClient.get<string[]>(`/api/learning-progress/completed-lessons/${courseId}`);
-        return response.data;
+        const response = await apiClient.get<StandardApiResponse<{ lessonIds: string[] }>>(`/api/learning-progress/completed-lessons/${courseId}`);
+        return response.data.data!.lessonIds;
     },
 
     async getHistory(): Promise<HistoryItem[]> {
-        const response = await apiClient.get<HistoryItem[]>('/api/learning-progress/history');
-        return response.data;
+        const response = await apiClient.get<StandardApiResponse<{ history: HistoryItem[] }>>('/api/learning-progress/history');
+        return response.data.data!.history;
     }
 }
 

@@ -10,7 +10,7 @@ import { Field, FieldLabel, FieldError } from '@workspace/ui/components/field'
 import { toast } from '@workspace/ui/components/sonner'
 import { Spinner } from '@workspace/ui/components/spinner'
 import { Mail, Send, CheckCircle2, Sparkles, MessageSquare } from 'lucide-react'
-import { apiClient } from '@/apis/api-client'
+import { useForgotPassword } from '@/apis/services/auth-api'
 import { cn } from '@workspace/ui/lib/utils'
 
 const forgotPasswordSchema = z.object({
@@ -20,7 +20,7 @@ const forgotPasswordSchema = z.object({
 type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>
 
 export function ForgotPasswordForm() {
-    const [isLoading, setIsLoading] = useState(false)
+    const { mutateAsync: forgotPassword, isPending: isLoading } = useForgotPassword()
     const [emailSent, setEmailSent] = useState(false)
 
     const form = useForm<ForgotPasswordFormData>({
@@ -31,20 +31,17 @@ export function ForgotPasswordForm() {
     })
 
     const onSubmit = async (data: ForgotPasswordFormData) => {
-        setIsLoading(true)
         try {
-            const response = await apiClient.post('/api/auth/forgot-password', {
-                email: data.email,
-            })
+            const res = await forgotPassword(data.email)
 
-            if (response.data.success) {
+            if (res.success) {
                 setEmailSent(true)
                 toast.success('Email đã được gửi', {
                     description: 'Vui lòng kiểm tra hộp thư của bạn để đặt lại mật khẩu',
                 })
             } else {
                 toast.error('Gửi email thất bại', {
-                    description: response.data.message || 'Vui lòng thử lại sau',
+                    description: res.message || 'Vui lòng thử lại sau',
                 })
             }
         } catch (error: any) {
@@ -52,8 +49,6 @@ export function ForgotPasswordForm() {
             toast.error('Đã có lỗi xảy ra', {
                 description: error.response?.data?.message || 'Vui lòng thử lại sau',
             })
-        } finally {
-            setIsLoading(false)
         }
     }
 

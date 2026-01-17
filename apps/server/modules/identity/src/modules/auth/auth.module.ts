@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { RedisModule } from '@server/shared';
+import { RedisModule, NatsClientModule } from '@server/shared';
 import { AuthService } from './auth.service';
 import { SessionService } from './session.service';
 import { GoogleAuthService } from './google-auth.service';
@@ -24,6 +24,7 @@ import {
 @Module({
     imports: [
         RedisModule,
+        NatsClientModule,
         AuthorizationModule,
         TwoFactorAuthModule,
         UsersModule,

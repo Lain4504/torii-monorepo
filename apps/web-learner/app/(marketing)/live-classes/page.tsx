@@ -196,9 +196,9 @@ export default function LiveClassesPage() {
 
                                             <div className="flex items-center gap-3 pt-2">
                                                 <Avatar className="w-8 h-8 border-2 border-primary/10 shadow-sm">
-                                                    <AvatarImage src={course.instructor.avatar} />
+                                                    <AvatarImage src={course.instructor.avatar || undefined} />
                                                     <AvatarFallback className="bg-primary text-white font-black text-[10px]">
-                                                        {course.instructor.name.charAt(0)}
+                                                        {course.instructor?.name?.[0] || 'I'}
                                                     </AvatarFallback>
                                                 </Avatar>
                                                 <div className="flex flex-col">

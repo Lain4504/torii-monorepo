@@ -24,36 +24,36 @@ export const usersApi = {
 
     // GET /api/admin/users/:id
     async findOne(id: string): Promise<UserResponseDTO> {
-        const response = await apiClient.get<StandardApiResponse<UserResponseDTO>>(`/api/admin/users/${id}`);
+        const response = await apiClient.get<StandardApiResponse<{ user: UserResponseDTO }>>(`/api/admin/users/${id}`);
         if (response.data.success && response.data.data) {
-            return response.data.data;
+            return response.data.data.user;
         }
         throw new Error(response.data.message || 'Failed to fetch user');
     },
 
     // POST /api/admin/users
     async create(user: UserCreateDTO): Promise<UserResponseDTO> {
-        const response = await apiClient.post<StandardApiResponse<UserResponseDTO>>('/api/admin/users', user);
+        const response = await apiClient.post<StandardApiResponse<{ user: UserResponseDTO }>>('/api/admin/users', user);
         if (response.data.success && response.data.data) {
-            return response.data.data;
+            return response.data.data.user;
         }
         throw new Error(response.data.message || 'Failed to create user');
     },
 
     // POST /api/admin/users/internal
     async createInternal(user: AdminCreateInternalUserDTO): Promise<UserResponseDTO> {
-        const response = await apiClient.post<StandardApiResponse<UserResponseDTO>>('/api/admin/users/internal', user);
+        const response = await apiClient.post<StandardApiResponse<{ user: UserResponseDTO }>>('/api/admin/users/internal', user);
         if (response.data.success && response.data.data) {
-            return response.data.data;
+            return response.data.data.user;
         }
         throw new Error(response.data.message || 'Failed to create user');
     },
 
     // PATCH /api/admin/users/:id
     async update(id: string, user: UserAdminUpdateDTO): Promise<UserResponseDTO> {
-        const response = await apiClient.patch<StandardApiResponse<UserResponseDTO>>(`/api/admin/users/${id}`, user);
+        const response = await apiClient.patch<StandardApiResponse<{ user: UserResponseDTO }>>(`/api/admin/users/${id}`, user);
         if (response.data.success && response.data.data) {
-            return response.data.data;
+            return response.data.data.user;
         }
         throw new Error(response.data.message || 'Failed to update user');
     },

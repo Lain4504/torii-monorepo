@@ -1,6 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/api/api-client.ts';
-import type { PaginatedResponseDTO, LessonResponseDTO, LessonCreateDTO, LessonUpdateDTO, LessonQueryDTO } from '@workspace/schemas';
+import type {
+    LessonResponseDTO,
+    LessonCreateDTO,
+    LessonUpdateDTO,
+    LessonQueryDTO,
+    StandardApiResponse,
+    PaginatedApiResponse,
+} from '@workspace/schemas';
 
 // ============================================================================
 // API Functions
@@ -8,33 +15,33 @@ import type { PaginatedResponseDTO, LessonResponseDTO, LessonCreateDTO, LessonUp
 
 export const lessonsApi = {
     // GET /api/admin/lessons
-    async findAll(params: LessonQueryDTO): Promise<PaginatedResponseDTO<LessonResponseDTO>> {
-        const response = await apiClient.get<PaginatedResponseDTO<LessonResponseDTO>>('/api/lessons', { params });
+    async findAll(params: LessonQueryDTO): Promise<PaginatedApiResponse<LessonResponseDTO>> {
+        const response = await apiClient.get<PaginatedApiResponse<LessonResponseDTO>>('/api/lessons', { params });
         return response.data;
     },
 
     // GET /api/admin/lessons/:id
     async findOne(id: string): Promise<LessonResponseDTO> {
-        const response = await apiClient.get<LessonResponseDTO>(`/api/lessons/${id}`);
-        return response.data;
+        const response = await apiClient.get<StandardApiResponse<{ lesson: LessonResponseDTO }>>(`/api/lessons/${id}`);
+        return response.data.data!.lesson;
     },
 
     // POST /api/admin/lessons
     async create(lesson: LessonCreateDTO): Promise<LessonResponseDTO> {
-        const response = await apiClient.post<LessonResponseDTO>('/api/lessons', lesson);
-        return response.data;
+        const response = await apiClient.post<StandardApiResponse<{ lesson: LessonResponseDTO }>>('/api/lessons', lesson);
+        return response.data.data!.lesson;
     },
 
     // PATCH /api/admin/lessons/:id
     async update(id: string, lesson: LessonUpdateDTO): Promise<LessonResponseDTO> {
-        const response = await apiClient.patch<LessonResponseDTO>(`/api/lessons/${id}`, lesson);
-        return response.data;
+        const response = await apiClient.patch<StandardApiResponse<{ lesson: LessonResponseDTO }>>(`/api/lessons/${id}`, lesson);
+        return response.data.data!.lesson;
     },
 
     // DELETE /api/admin/lessons/:id
     async delete(id: string): Promise<boolean> {
-        const response = await apiClient.delete(`/api/lessons/${id}`);
-        return response.data;
+        const response = await apiClient.delete<StandardApiResponse<boolean>>(`/api/lessons/${id}`);
+        return response.data.success;
     },
 
     // PATCH /api/admin/lessons/:id/restore

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { PrismaModule } from '@server/shared';
+import { PrismaModule, NatsClientModule } from '@server/shared';
 import { LearningProgressController } from './learning-progress.controller';
 import { LearningProgressService } from './learning-progress.service';
 import { LearningProgressRepository } from './learning-progress.repository';
@@ -18,7 +18,7 @@ import {
 } from '../../interfaces/repositories';
 
 @Module({
-    imports: [PrismaModule],
+    imports: [PrismaModule, NatsClientModule],
     controllers: [LearningProgressController],
     providers: [
         {

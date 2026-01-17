@@ -77,6 +77,17 @@ export interface IAuthService {
     ): Promise<UserResponseDTO & { permissions: string[] }>;
 
     /**
+     * Update user avatar (profile picture)
+     * @param userId - The user's unique identifier
+     * @param fileId - The file identifier from storage service
+     * @returns Updated user data with permissions
+     */
+    updateAvatar(
+        userId: string,
+        fileId: string,
+    ): Promise<UserResponseDTO & { permissions: string[] }>;
+
+    /**
      * Delete user account (soft delete)
      * @param userId - The user's unique identifier
      */
