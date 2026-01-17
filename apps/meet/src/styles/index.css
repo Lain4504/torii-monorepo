@@ -1,0 +1,64 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap');
+@import "@workspace/ui/globals.css";
+
+@import './plugnmeet-font.css' layer(base);
+@import './variables.css' layer(theme);
+
+@import './common.css' layer(utilities);
+@import './keyframes-animation.css' layer(utilities);
+@import './dark-mode.css' layer(utilities);
+@import './recorder.css' layer(utilities);
+
+@import './media_screens/min_1024.css' layer(utilities);
+@import './media_screens/max_w_980_max_h_450.css' layer(utilities);
+@import './media_screens/max_h_720.css' layer(utilities);
+@import './media_screens/max_1640.css' layer(utilities);
+@import './media_screens/max_1279.css' layer(utilities);
+@import './media_screens/max_1023.css' layer(utilities);
+@import './media_screens/max_767.css' layer(utilities);
+@import './media_screens/min_641.css' layer(utilities);
+@import './media_screens/max_640.css' layer(utilities);
+@import './media_screens/max_370.css' layer(utilities);
+@import './media_screens/min_1800.css' layer(utilities);
+@import './media_screens/max_1025.css' layer(utilities);
+@import './media_screens/min_641_max_1025.css' layer(utilities);
+@import './media_screens/h-max-800.css' layer(utilities);
+
+.custom-range-container {
+  width: 100%;
+  user-select: none;
+}
+
+.custom-range-track {
+  position: relative;
+  width: 100%;
+  border-radius: 10px;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.custom-range-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 10px 0 0 10px;
+  pointer-events: none;
+}
+
+.custom-range-thumb {
+  position: absolute;
+  top: 50%;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.1s ease;
+  z-index: 2;
+}
+
+.custom-range-value {
+  margin-top: 10px;
+  text-align: center;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  color: #333;
+}

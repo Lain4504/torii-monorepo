@@ -396,8 +396,8 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
 
                 case NatsMsgClientToServerEvents.PUSH_ANALYTICS_DATA:
                     // Analytics data from client - currently not implemented
-                    // TODO: Implement analytics service
-                    this.logger.debug(`Analytics data received from ${userId}, not yet implemented`);
+                    // But we log it to confirm we are receiving it from the migrated client
+                    this.logger.log(`Analytics data received from ${userId} in room ${roomId}. Implementation pending.`);
                     break;
 
                 default:
