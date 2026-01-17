@@ -170,10 +170,11 @@ services:
 
   mcp-server:
     build:
-      context: ./apps/server/modules/agents/mcp-server
-      dockerfile: Dockerfile
+      context: ./apps/server/modules/agents
+      dockerfile: mcp-server/Dockerfile
     container_name: torii-mcp
     restart: always
+    command: npm run start:prod
     env_file:
       - .env
     environment:
