@@ -108,33 +108,7 @@ export class PostRepository implements IPostRepository {
         });
     }
 
-    /**
-     * Increment like count
-     */
-    async incrementLikeCount(id: string): Promise<Post> {
-        return this.prisma.post.update({
-            where: { id },
-            data: {
-                likeCount: {
-                    increment: 1,
-                },
-            },
-        });
-    }
 
-    /**
-     * Decrement like count
-     */
-    async decrementLikeCount(id: string): Promise<Post> {
-        return this.prisma.post.update({
-            where: { id },
-            data: {
-                likeCount: {
-                    decrement: 1,
-                },
-            },
-        });
-    }
 }
 
 

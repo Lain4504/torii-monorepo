@@ -2,6 +2,8 @@ import { Injectable, NotFoundException, BadRequestException, Logger, Inject } fr
 import { ClientProxy } from '@nestjs/microservices';
 import { InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/core';
+import { PrismaService } from '@server/shared';
+
 import type {
   CommentCreateDTO,
   CommentUpdateDTO,
@@ -25,6 +27,7 @@ export class CommentService implements ICommentService {
   constructor(
     private readonly commentRepository: CommentRepository,
     private readonly postRepository: PostRepository,
+    private readonly prisma: PrismaService,
     @InjectMapper() private readonly mapper: Mapper,
     @Inject('NATS_SERVICE')
     private readonly natsClient: ClientProxy,
@@ -41,6 +44,24 @@ export class CommentService implements ICommentService {
    * Create new comment
    */
   async createComment(dto: CommentCreateDTO): Promise<CommentResponseDTO> {
+    // Verify post exists
+    const post = await this.prisma.post.findUnique({
+      where: { id: dto.postId },
+    });
+
+    if (!post) {
+      throw new NotFoundException(`Post with id "${dto.postId}" not found`);
+    }
+
+    // Check if author exists in User table
+    const user = await this.prisma.user.findUnique({
+      where: { id: dto.authorId },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with id "${dto.authorId}" not found`);
+    }
+
     // If parentId is provided, verify parent comment exists
     let parentComment: Comment | null = null;
     if (dto.parentId) {
@@ -72,12 +93,10 @@ export class CommentService implements ICommentService {
     });
 
     // Increment comment count on the post using PostRepository
-    const post = await this.postRepository.findById(dto.postId);
-    if (post) {
-      await this.postRepository.update(dto.postId, {
-        commentCount: post.commentCount + 1,
-      });
-    }
+    // Increment comment count on the post using PostRepository
+    await this.postRepository.update(dto.postId, {
+      commentCount: { increment: 1 },
+    });
 
     // If this is a reply (parentId exists), emit event to notify the person being replied to
     if (dto.parentId && parentComment) {
@@ -193,7 +212,6 @@ export class CommentService implements ICommentService {
                 content: comment?.content || '',
                 parentCommentId: comment?.parentCommentId || undefined,
                 parentId: comment?.parentCommentId || undefined,
-                likeCount: comment?.likes || 0,
                 status: comment?.status || 'approved',
                 isDeleted: comment?.status === 'deleted',
                 isEdited: false,
@@ -285,39 +303,15 @@ export class CommentService implements ICommentService {
     await this.commentRepository.softDelete(id);
 
     // Decrement comment count on the post using PostRepository
-    const post = await this.postRepository.findById(comment.postId);
-    if (post) {
-      await this.postRepository.update(comment.postId, {
-        commentCount: post.commentCount - 1,
-      });
-    }
+    // Decrement comment count on the post using PostRepository
+    await this.postRepository.update(comment.postId, {
+      commentCount: { decrement: 1 },
+    });
 
     return { success: true, message: 'Comment deleted successfully' };
   }
 
-  /**
-   * Toggle like for a comment
-   */
-  async toggleLike(id: string, userId: string): Promise<{ liked: boolean; likeCount: number }> {
-    const comment = await this.commentRepository.findById(id);
 
-    if (!comment) {
-      throw new NotFoundException(`Comment with id "${id}" not found`);
-    }
-
-    // Simplified implementation - just increment like count
-    // In production, track who liked what in a separate table
-    const newLikeCount = comment.likes + 1;
-
-    await this.commentRepository.update(id, {
-      likes: newLikeCount,
-    });
-
-    return {
-      liked: true,
-      likeCount: newLikeCount,
-    };
-  }
 
   /**
    * Get comment with nested replies

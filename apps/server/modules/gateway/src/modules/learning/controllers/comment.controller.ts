@@ -123,20 +123,5 @@ export class CommentController {
         }
     }
 
-    @Post(':id/like')
-    async likeComment(@Param('id') id: string, @Req() req: Request) {
-        try {
-            const user = req.user as any;
-            const userId = user?.sub || user?.uid || 'anonymous';
-            const result = await firstValueFrom(
-                this.natsClient.send(
-                    { cmd: 'learning.comment.toggleLike' },
-                    { id, userId }
-                )
-            );
-            return successResponse(result, 'Comment liked successfully');
-        } catch (error: any) {
-            return errorResponse(error.message || 'Failed to like comment');
-        }
-    }
+
 }

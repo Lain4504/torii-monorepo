@@ -151,19 +151,5 @@ export class PostController {
         }
     }
 
-    @Post(':id/like')
-    async likePost(@Param('id') id: string, @Req() req: Request) {
-        try {
-            const userId = (req as any).user?.userId || (req as any).user?.id || 'anonymous';
-            const result = await firstValueFrom(
-                this.natsClient.send(
-                    { cmd: 'learning.post.toggleLike' },
-                    { id, userId }
-                )
-            );
-            return successResponse(result, 'Post liked successfully');
-        } catch (error: any) {
-            return errorResponse(error.message || 'Failed to like post');
-        }
-    }
+
 }

@@ -43,8 +43,5 @@ export class CommentHandler {
         return this.commentService.deleteComment(data.id, data.userId);
     }
 
-    @MessagePattern({ cmd: 'learning.comment.toggleLike' })
-    async toggleLike(@Payload() data: { id: string, userId: string }) {
-        return this.commentService.toggleLike(data.id, data.userId);
-    }
+
 }

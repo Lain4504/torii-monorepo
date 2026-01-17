@@ -62,10 +62,6 @@ export class PostProfile extends AutomapperProfile {
           mapFrom((src: Post) => src.viewCount),
         ),
         forMember(
-          (dest: PostResponseDTO) => dest.likeCount,
-          mapFrom((src: Post) => src.likeCount),
-        ),
-        forMember(
           (dest: PostResponseDTO) => dest.commentCount,
           mapFrom((src: Post) => src.commentCount),
         ),
