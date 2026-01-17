@@ -77,12 +77,13 @@ export class PostController {
 
     @Public()
     @Patch(':id/view')
-    async incrementViewCount(@Param('id') id: string) {
+    async incrementViewCount(@Param('id') id: string, @Req() req: Request) {
         try {
+            const ip = req.ip || req.socket.remoteAddress || 'unknown';
             await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.post.incrementView' },
-                    { id }
+                    { id, ip }
                 )
             );
             return successResponse(null, 'View count incremented');

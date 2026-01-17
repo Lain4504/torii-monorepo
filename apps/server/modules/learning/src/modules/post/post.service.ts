@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Logger, Inject } from '@nestjs/common';
 import { InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/core';
-import { PrismaService, generateSlug } from '@server/shared';
+import { PrismaService, generateSlug, REDIS_CLIENT } from '@server/shared';
+import Redis from 'ioredis';
 import { PostStatus, PaginatedResponseDTO } from '@workspace/schemas';
 import type {
   PostCreateDTO,
@@ -25,6 +26,7 @@ export class PostService implements IPostService {
     private readonly postRepository: PostRepository,
     private readonly prisma: PrismaService,
     @InjectMapper() private readonly mapper: Mapper,
+    @Inject(REDIS_CLIENT) private readonly redis: Redis,
   ) { }
 
   /**
@@ -174,11 +176,20 @@ export class PostService implements IPostService {
   /**
    * Increment view count for a post
    */
-  async incrementViewCount(id: string): Promise<void> {
+  async incrementViewCount(id: string, ip?: string): Promise<void> {
     const post = await this.postRepository.findById(id);
 
     if (!post) {
       throw new NotFoundException(`Post with id "${id}" not found`);
+    }
+
+    // IP Throttling: 1 view per IP per post every 5 seconds
+    if (ip && ip !== 'unknown') {
+      const key = `post_view_throttle:${ip}:${id}`;
+      const exists = await this.redis.get(key);
+      if (exists) return; // Throttle
+
+      await this.redis.set(key, '1', 'EX', 3600);
     }
 
     await this.postRepository.incrementViewCount(id);
