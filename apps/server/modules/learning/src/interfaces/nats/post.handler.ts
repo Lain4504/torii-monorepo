@@ -41,4 +41,14 @@ export class PostHandler {
     async delete(@Payload() data: { id: string }) {
         return this.postService.deletePost(data.id);
     }
+
+    @MessagePattern({ cmd: 'learning.post.publish' })
+    async publish(@Payload() data: { id: string }) {
+        return this.postService.publishPost(data.id);
+    }
+
+    @MessagePattern({ cmd: 'learning.post.toggleLike' })
+    async toggleLike(@Payload() data: { id: string, userId: string }) {
+        return this.postService.toggleLike(data.id, data.userId);
+    }
 }
