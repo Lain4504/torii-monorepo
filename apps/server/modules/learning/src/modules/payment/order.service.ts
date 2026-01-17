@@ -1,5 +1,7 @@
 
+
 import { Injectable, Logger, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import {
     type OrderCreateDTO,
     type OrderQueryDTO,
@@ -35,6 +37,8 @@ export class OrderService implements IOrderService {
         @Inject(ENROLLMENT_SERVICE_TOKEN)
         private readonly enrollmentService: IEnrollmentService,
         private readonly payOSService: PayOSService,
+        @Inject('NATS_SERVICE')
+        private readonly natsClient: ClientProxy,
     ) { }
 
     private toOrderDto(o: any): OrderResponseDTO {
@@ -351,6 +355,29 @@ export class OrderService implements IOrderService {
                     });
 
                     this.logger.log(`Enrollment created automatically for user ${order.userId} and course ${metadata.courseId}`);
+
+                    // Emit order_payment_success event for notifications
+                    try {
+                        const course = await this.courseRepository.findById(metadata.courseId);
+                        const user = await this.orderRepository.getUserById(order.userId);
+
+                        if (course && user) {
+                            this.natsClient.emit({ cmd: 'order_payment_success' }, {
+                                userId: order.userId,
+                                userEmail: user.email,
+                                userName: user.displayName || user.email || 'User',
+                                orderId: order.id,
+                                courseId: course.id,
+                                courseName: course.title,
+                                amount: Number(order.amount),
+                                currency: order.currency,
+                            });
+                            this.logger.log(`order_payment_success event emitted for order ${orderId}`);
+                        }
+                    } catch (eventError: any) {
+                        this.logger.error(`Failed to emit payment success event: ${eventError.message}`);
+                        // Don't throw - event emission failure should not break order confirmation
+                    }
                 } catch (enrollError: any) {
                     if (enrollError?.message?.includes('Already enrolled')) {
                         this.logger.log(`User ${order.userId} is already enrolled in course ${metadata.courseId}`);
