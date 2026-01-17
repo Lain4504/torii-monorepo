@@ -16,7 +16,7 @@ const ScreenShareIcon = ({ userId }: IScreenShareIconProps) => {
   return (
     screenShareTrack > 0 && (
       <IconWrapper>
-        <i className="wajlc-screen-share text-Gray-950 dark:text-white text-[10px] 3xl:text-sm" />
+        <i className="wajlc-screen-share text-foreground dark:text-white text-[10px] 3xl:text-sm" />
       </IconWrapper>
     )
   );

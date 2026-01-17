@@ -96,7 +96,7 @@ const ManageOfficeFilesModal = ({
       unmount={false}
       onClose={() => false}
     >
-      <div className="excalidrawUploadFiles fixed inset-0 w-screen overflow-y-auto z-10 bg-Gray-950/70 dark:bg-Gray-950/80">
+      <div className="excalidrawUploadFiles fixed inset-0 w-screen overflow-y-auto z-10 bg-foreground/70 dark:bg-foreground/80">
         <div className="flex min-h-full items-center justify-center py-4">
           <DialogPanel
             transition

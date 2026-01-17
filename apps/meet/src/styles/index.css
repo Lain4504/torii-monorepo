@@ -2,7 +2,6 @@
 @import "@workspace/ui/globals.css";
 
 @import './plugnmeet-font.css' layer(base);
-@import './variables.css' layer(theme);
 
 @import './common.css' layer(utilities);
 @import './keyframes-animation.css' layer(utilities);

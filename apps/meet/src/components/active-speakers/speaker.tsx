@@ -6,8 +6,8 @@ interface ISpeakerProps {
 }
 const SpeakerComponent = ({ speaker }: ISpeakerProps) => {
   return (
-    <div className="m-1 px-3 py-1 primaryColor text-[12px] rounded-2xl inline-flex items-center bg-white border border-solid border-white dark:border-Gray-800 dark:bg-Gray-800 dark:text-white">
-      <i className="wajlc-mic-unmute text-[10px] secondaryColor ltr:mr-2 rtl:ml-2" />
+    <div className="m-1 px-3 py-0.5 text-[11px] font-semibold rounded-full inline-flex items-center bg-primary text-primary-foreground shadow-sm">
+      <i className="wajlc-mic-unmute text-[10px] ltr:mr-1.5 rtl:ml-1.5 opacity-90" />
       {speaker.name}
     </div>
   );

@@ -30,7 +30,7 @@ const Footer = () => {
   return (
     <footer
       id="main-footer"
-      className={`px-2 md:px-4 flex items-center justify-between bg-card h-[54px] 3xl:h.[76px] border-t border-border relative z-[100] ${isRecorder ? 'hidden' : ''
+      className={`px-2 md:px-4 flex items-center justify-between bg-card h-[54px] 3xl:h-[76px] border-t border-border relative z-[100] ${isRecorder ? 'hidden' : ''
         }`}
     >
       <div className="footer-inner flex items-center justify-between w-full rtl:flex-row-reverse">

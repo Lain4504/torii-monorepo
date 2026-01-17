@@ -226,7 +226,7 @@ const TranscriptionSettings = ({ setErrorMsg }: TranscriptionSettingsProps) => {
 
   if (enabledSelfInsertEncryptionKey) {
     return (
-      <div className="p-4 bg-Gray-2">
+      <div className="p-4 bg-muted">
         <div className="main-wrap -my-4 text-red-600">
           {t('insights.feature-disable-while-e2ee-self-key-enabled')}
         </div>
@@ -237,6 +237,7 @@ const TranscriptionSettings = ({ setErrorMsg }: TranscriptionSettingsProps) => {
   return (
     <>
       <div className="p-4 bg-background">{renderContent()}</div>
+
       <div className="px-6 py-6 border-t border-border flex justify-end items-center gap-4 rounded-b-xl bg-card">
         {!transcriptionFeatures?.isEnabled && (
           <button

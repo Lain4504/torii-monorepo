@@ -54,21 +54,22 @@ export default defineConfig({
       },
     },
   },
-  react(),
-  tailwindcss(),
-  viteStaticCopy(getStaticFilesToCopy()),
-cleanPlugin({
-  targetFiles: ['dist/assets/js', 'dist/assets/css', 'dist/assets/chunks'],
-}),
+  plugins: [
+    react(),
+    tailwindcss(),
+    viteStaticCopy(getStaticFilesToCopy()),
+    cleanPlugin({
+      targetFiles: ['dist/assets/js', 'dist/assets/css', 'dist/assets/chunks'],
+    }),
   ],
-define: {
-  IS_PRODUCTION: isProduction,
+  define: {
+    IS_PRODUCTION: isProduction,
     WAJLC_VERSION: JSON.stringify(process.env.npm_package_version),
-      BUILD_TIME: Math.floor(Date.now() / 1000),
-        'process.env': {
-    IS_PREACT: false,
+    BUILD_TIME: Math.floor(Date.now() / 1000),
+    'process.env': {
+      IS_PREACT: false,
     },
-},
+  },
 });
 
 function assetFileNames(names: string[]) {

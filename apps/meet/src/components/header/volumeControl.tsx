@@ -80,11 +80,10 @@ const VolumeControl = () => {
       {({ open }) => (
         <div className="">
           <MenuButton
-            className={`relative shrink-0 p-0 w-7 md:w-8 h-7 md:h-8 flex items-center justify-center rounded-[10px] ${
-              open ? 'bg-Gray-50  dark:bg-Gray-800' : ''
-            }`}
+            className={`relative shrink-0 p-0 w-7 md:w-8 h-7 md:h-8 flex items-center justify-center rounded-[10px] ${open ? 'bg-muted' : ''
+              }`}
           >
-            <div className="text-gray-700 dark:text-white cursor-pointer">
+            <div className="text-foreground cursor-pointer">
               {localRoomVolume > 0 ? <VolumeHeader /> : <VolumeMutedSVG />}
             </div>
           </MenuButton>
@@ -100,12 +99,12 @@ const VolumeControl = () => {
           >
             <MenuItems
               unmount={false}
-              className="volume-popup-wrapper origin-top-right z-10 absolute ltr:right-0 top-6 rtl:left-0 mt-2 w-64 py-5 px-2 rounded-md shadow-lg bg-white dark:bg-dark-primary border-Gray-100 dark:border-Gray-700 border"
+              className="volume-popup-wrapper origin-top-right z-10 absolute ltr:right-0 top-6 rtl:left-0 mt-2 w-64 py-5 px-3 rounded-xl shadow-lg bg-popover border-border border"
             >
-              <p className="text-sm text-Gray-950 dark:text-white">
+              <p className="text-sm text-foreground">
                 {t('header.room-audio-volume')}
               </p>
-              <section className="flex items-center pl-3">
+              <section className="flex items-center pl-1">
                 <RangeSlider
                   min={0}
                   max={100}
@@ -114,21 +113,21 @@ const VolumeControl = () => {
                   thumbSize={20}
                   trackHeight={8}
                 />
-                <p className="w-10 text-center text-sm text-Gray-950 dark:text-white ml-3">
+                <p className="w-10 text-center text-sm text-foreground ml-3">
                   {Math.round(localRoomVolume * 100)}
                 </p>
-                <button className="w-5 h-5">
+                <div className="w-5 h-5 flex items-center justify-center">
                   {localRoomVolume > 0 ? (
-                    <i className="wajlc-speaker text-Gray-950 dark:text-white" />
+                    <i className="wajlc-speaker text-foreground" />
                   ) : (
-                    <i className="wajlc-speaker-muted  text-Gray-950 dark:text-white" />
+                    <i className="wajlc-speaker-muted text-foreground" />
                   )}
-                </button>
+                </div>
               </section>
-              <p className="text-sm mt-2 text-Gray-950 dark:text-white">
+              <p className="text-sm mt-2 text-foreground">
                 {t('header.room-screen-share-audio-volume')}
               </p>
-              <section className="flex items-center pl-3">
+              <section className="flex items-center pl-1">
                 <RangeSlider
                   min={0}
                   max={100}
@@ -137,16 +136,16 @@ const VolumeControl = () => {
                   thumbSize={20}
                   trackHeight={8}
                 />
-                <p className="w-10 text-center text-sm text-Gray-950 dark:text-white ml-3">
+                <p className="w-10 text-center text-sm text-foreground ml-3">
                   {Math.round(localScreenShareVolume * 100)}
                 </p>
-                <button className="w-5 h-5">
+                <div className="w-5 h-5 flex items-center justify-center">
                   {localScreenShareVolume > 0 ? (
-                    <i className="wajlc-speaker text-Gray-950 dark:text-white" />
+                    <i className="wajlc-speaker text-foreground" />
                   ) : (
-                    <i className="wajlc-speaker-muted text-Gray-950 dark:text-white" />
+                    <i className="wajlc-speaker-muted text-foreground" />
                   )}
-                </button>
+                </div>
               </section>
             </MenuItems>
           </Transition>

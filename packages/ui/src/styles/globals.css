@@ -164,6 +164,8 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --radius-tlbl-d: 0 0 var(--radius-xl) var(--radius-xl);
+  --radius-trbr-d: var(--radius-xl) var(--radius-xl) 0 0;
 
   --shadow-2xs: var(--shadow-2xs);
   --shadow-xs: var(--shadow-xs);
@@ -173,6 +175,8 @@
   --shadow-lg: var(--shadow-lg);
   --shadow-xl: var(--shadow-xl);
   --shadow-2xl: var(--shadow-2xl);
+
+  --breakpoint-3xl: 110rem;
 }
 
 @layer base {

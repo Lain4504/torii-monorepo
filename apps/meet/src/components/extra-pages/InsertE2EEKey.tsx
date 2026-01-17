@@ -34,37 +34,37 @@ const InsertE2EEKey = ({ setOpenConn }: IInsertE2EEKeyProps) => {
   return (
     <div
       id="errorPage"
-      className="error-page h-screen w-full flex items-center justify-center relative bg-Gray-100 dark:bg-dark-primary"
+      className="error-page h-screen w-full flex items-center justify-center relative bg-background"
     >
       <div
-        className="overlay absolute w-full h-full top-0 left-0 bg-center dark:opacity-10"
+        className="overlay absolute w-full h-full top-0 left-0 bg-center opacity-10"
         style={{
           backgroundImage: `url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100%25" height="100%25"%3E%3Cpattern id="bg" patternUnits="userSpaceOnUse" width="20" height="20"%3E%3Cg opacity="0.7"%3E%3Crect x="10" y="10" width="4" height="4" rx="2" fill="%23C2DAF2" /%3E%3C/g%3E%3C/pattern%3E%3Crect width="100%25" height="100%25" fill="url(%23bg)" /%3E%3C/svg%3E')`,
         }}
       ></div>
-      <div className="content relative z-20 w-full max-w-xl flex items-center min-h-64 3xl:min-h-80 text-center rounded-2xl border border-Gray-300 dark:border-Gray-800 overflow-hidden bg-Gray-50 dark:bg-dark-primary px-10 py-10">
+      <div className="content relative z-20 w-full max-w-xl flex items-center min-h-64 3xl:min-h-80 text-center rounded-2xl border border-border overflow-hidden bg-card px-10 py-10 shadow-xl">
         <div className="inner w-full">
-          <form className="px-8 pt-6 pb-8 mb-4" onSubmit={handleSubmit}>
+          <form className="px-8 pt-6 pb-8 mb-4 font-sans" onSubmit={handleSubmit}>
             <div className="mb-6">
               <label
-                className="block text-gray-700 dark:text-white text-base font-bold mb-2"
+                className="block text-foreground text-lg font-bold mb-4"
                 htmlFor="secretKey"
               >
                 {t('app.insert-secret-key')}
               </label>
               <input
-                className="shadow appearance-none border rounded-sm w-full py-2 px-3 text-gray-700 dark:text-white mb-3 leading-tight focus:outline-hidden focus:shadow-outline placeholder:text-white placeholder:dark:text-white"
+                className="bg-muted border border-border rounded-lg w-full py-3 px-4 text-foreground mb-3 leading-tight focus:outline-hidden focus:ring-2 focus:ring-primary/50 transition-all duration-300"
                 id="secretKey"
                 type="password"
-                placeholder="******************"
+                placeholder="••••••••••••••••"
                 name="secretKey"
               />
-              <p className="text-red-400 text-xs italic">
+              <p className="text-destructive text-sm italic">
                 {t('app.insert-secret-help')}
               </p>
             </div>
-            <div className="flex justify-center w-md">
-              <button className="text-center py-1 px-3 mt-1 transition ease-in bg-primary-color hover:bg-secondary-color text-white font-semibold rounded-lg cursor-pointer">
+            <div className="flex justify-center">
+              <button className="text-center py-2 px-8 transition duration-300 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-xl cursor-pointer shadow-md">
                 {t('app.save')}
               </button>
             </div>

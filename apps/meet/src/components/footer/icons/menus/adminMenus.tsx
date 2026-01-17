@@ -103,7 +103,7 @@ const AdminMenus = () => {
             text={t('footer.menus.speech-to-text-settings')}
           />
         )}
-      <div className="divider h-1 w-[110%] bg-Gray-50 dark:bg-Gray-700 -ml-3 my-0.5"></div>
+      <div className="divider h-1 w-[110%] bg-muted -ml-3 my-0.5"></div>
       {roomFeatures?.pollsFeatures?.isAllow && (
         <FooterMenuItem
           onClick={togglePolls}
@@ -152,7 +152,7 @@ const AdminMenus = () => {
           }
         />
       )}
-      <div className="divider h-1 w-[110%] bg-Gray-50 dark:bg-Gray-700 -ml-3 my-0.5"></div>
+      <div className="divider h-1 w-[110%] bg-muted -ml-3 my-0.5"></div>
       <FooterMenuItem
         onClick={muteAllUsers}
         icon={<i className="wajlc-mic-mute" />}

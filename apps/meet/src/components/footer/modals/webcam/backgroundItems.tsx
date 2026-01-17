@@ -75,34 +75,34 @@ const BackgroundItems = ({ onSelect }: IBackgroundItemsProps) => {
   return (
     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-1 md:h-[175px] overflow-auto scrollBar">
       <div
-        className={`wrap overflow-hidden rounded-2xl h-20 ${selectedBg.type === 'none' ? 'border-4 border-[rgba(124,206,247,0.25)]' : 'border-4 border-transparent'}`}
+        className={`wrap overflow-hidden rounded-xl h-20 ${selectedBg.type === 'none' ? 'border-4 border-primary/20' : 'border-4 border-transparent'}`}
         onClick={() => handleOnClick('none', '')}
       >
         <div
-          className={`cursor-pointer w-full h-full flex items-center justify-center bg-Gray-50 dark:bg-transparent overflow-hidden ${selectedBg.type === 'none' ? 'border border-Blue dark:border-none shadow-virtual-item dark:shadow-none rounded-xl' : 'rounded-2xl dark:border dark:border-Gray-700'}`}
+          className={`cursor-pointer w-full h-full flex items-center justify-center bg-muted overflow-hidden ${selectedBg.type === 'none' ? 'border border-primary shadow-sm rounded-lg' : 'rounded-lg border border-border'}`}
         >
-          <i className="wajlc-ban-solid dark:text-white" />
+          <i className="wajlc-ban-solid text-foreground" />
         </div>
       </div>
       <div
-        className={`wrap overflow-hidden rounded-2xl h-20 ${selectedBg.type === 'blur-sm' ? 'border-4 border-[rgba(124,206,247,0.25)]' : 'border-4 border-transparent'}`}
+        className={`wrap overflow-hidden rounded-xl h-20 ${selectedBg.type === 'blur-sm' ? 'border-4 border-primary/20' : 'border-4 border-transparent'}`}
         onClick={() => handleOnClick('blur-sm', '')}
       >
         <div
-          className={`cursor-pointer w-full h-full flex items-center justify-center bg-Gray-50 dark:bg-transparent overflow-hidden ${selectedBg.type === 'blur-sm' ? 'border border-Blue dark:border-none shadow-virtual-item dark:shadow-none rounded-xl' : 'rounded-2xl dark:border dark:border-Gray-700'}`}
+          className={`cursor-pointer w-full h-full flex items-center justify-center bg-muted overflow-hidden ${selectedBg.type === 'blur-sm' ? 'border border-primary shadow-sm rounded-lg' : 'rounded-lg border border-border'}`}
         >
-          <i className="wajlc-blur dark:text-white" />
+          <i className="wajlc-blur text-foreground" />
         </div>
       </div>
       {bgImgs.map((imageUrl, i) => {
         return (
           <div
-            className={`wrap overflow-hidden rounded-2xl h-20 transition-all duration-200 ${selectedBg.url === imageUrl ? 'border-4 border-[rgba(124,206,247,0.25)]' : 'border-4 border-transparent'}`}
+            className={`wrap overflow-hidden rounded-xl h-20 transition-all duration-200 ${selectedBg.url === imageUrl ? 'border-4 border-primary/20' : 'border-4 border-transparent'}`}
             onClick={() => handleOnClick('image', imageUrl)}
             key={imageUrl}
           >
             <div
-              className={`cursor-pointer w-full h-full flex items-center justify-center bg-Gray-50 overflow-hidden ${selectedBg.url === imageUrl ? 'border border-Blue shadow-virtual-item rounded-xl' : 'rounded-2xl'}`}
+              className={`cursor-pointer w-full h-full flex items-center justify-center bg-muted overflow-hidden ${selectedBg.url === imageUrl ? 'border border-primary shadow-sm rounded-lg' : 'rounded-lg border border-border'}`}
             >
               <img
                 src={imageUrl}
@@ -114,17 +114,18 @@ const BackgroundItems = ({ onSelect }: IBackgroundItemsProps) => {
         );
       })}
       <div className="upload-btn-wrap relative border-4 border-transparent">
-        <button className="cursor-pointer h-18 w-full border border-dashed border-Blue rounded-2xl flex items-center justify-center bg-Gray-50 dark:bg-transparent overflow-hidden">
+        <button className="cursor-pointer h-[72px] w-full border border-dashed border-primary rounded-xl flex items-center justify-center bg-muted overflow-hidden">
           <svg
             width="16"
             height="16"
             viewBox="0 0 16 16"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
+            className="text-primary"
           >
             <path
               d="M8 1V15M1 8H15"
-              stroke="#0088CC"
+              stroke="currentColor"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"

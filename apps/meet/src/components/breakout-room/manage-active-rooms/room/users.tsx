@@ -47,14 +47,13 @@ const BreakoutRoomUsers = ({
       {userChunks.map((chunk, i) => (
         <ul
           key={`chunk-${i}`}
-          className="flex flex-col gap-y-2 px-2 border-r border-solid border-Gray-200 dark:border-Gray-800 last:border-r-0"
+          className="flex flex-col gap-y-2 px-2 border-r border-solid border-border last:border-r-0"
         >
           {chunk.map((user) => (
             <li key={user.id} className="flex items-center gap-2 text-sm">
               <div
-                className={`thumb h-6 w-6 rounded-full text-xs font-medium text-white flex items-center justify-center overflow-hidden shrink-0 ${
-                  user.joined ? 'bg-green-500' : 'bg-red-500'
-                }`}
+                className={`thumb h-6 w-6 rounded-full text-xs font-medium text-white flex items-center justify-center overflow-hidden shrink-0 ${user.joined ? 'bg-green-500' : 'bg-red-500'
+                  }`}
                 title={
                   user.joined
                     ? t('breakout-room.user-joined')
@@ -63,13 +62,13 @@ const BreakoutRoomUsers = ({
               >
                 {generateAvatarInitial(user.name)}
               </div>
-              <span className="text-Gray-950 dark:text-white break-all">
+              <span className="text-foreground break-all">
                 {user.name}
               </span>
               {!user.joined && (
                 <button
                   onClick={() => pushUser(user.name, user.id)}
-                  className="primary-button ml-auto h-6 px-3 cursor-pointer text-xs font-semibold bg-Blue hover:bg-white border border-[#0088CC] rounded-[15px] text-white hover:text-Gray-950 transition-all duration-300 shadow-button-shadow"
+                  className="ml-auto h-6 px-3 cursor-pointer text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-full transition-all duration-300 shadow-sm"
                 >
                   {t('breakout-room.push')}
                 </button>

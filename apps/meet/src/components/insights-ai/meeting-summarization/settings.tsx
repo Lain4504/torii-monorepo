@@ -114,7 +114,7 @@ const MeetingSummarization = ({
 
   if (enabledSelfInsertEncryptionKey) {
     return (
-      <div className="p-4 bg-Gray-2">
+      <div className="p-4 bg-muted">
         <div className="main-wrap -my-4 text-red-600">
           {t('insights.feature-disable-while-e2ee-self-key-enabled')}
         </div>
@@ -124,7 +124,7 @@ const MeetingSummarization = ({
 
   return (
     <>
-      <div className="p-4 bg-Gray-2">
+      <div className="p-4 bg-muted">
         <div className="main-wrap -my-4">
           <div className="grid">
             <div className="bg-muted/30 border-y border-border -mx-4 px-4 py-4">

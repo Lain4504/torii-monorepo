@@ -18,7 +18,7 @@ const MicStatus = ({ userId }: IMicStatusProps) => {
 
   return (
     audioTracks > 0 && (
-      <div className="mic-status cursor-pointer w-7 h-7 text-white rounded-full bg-background/40 backdrop-blur-sm shadow-sm flex items-center justify-center absolute right-3 top-3 border border-border/20">
+      <div className="mic-status cursor-pointer w-7 h-7 text-foreground/80 dark:text-white rounded-full bg-background/60 backdrop-blur-sm shadow-sm flex items-center justify-center absolute right-3 top-3 border border-border/20">
         {isMuted ? (
           <MicrophoneOff classes={'h-4 w-auto'} />
         ) : (

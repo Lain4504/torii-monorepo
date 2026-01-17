@@ -108,13 +108,13 @@ const InsightsAiTextChat = () => {
           bounds="#main-area"
         >
           <div
-            className="notepad-wrapper h-[500px] w-[400px] min-w-[300px] min-h-[300px] relative pointer-events-auto rounded-xl bg-Gray-25 dark:bg-dark-primary border border-Gray-200 dark:border-Gray-800 resize overflow-auto"
+            className="notepad-wrapper h-[500px] w-[400px] min-w-[300px] min-h-[300px] relative pointer-events-auto rounded-xl bg-card border border-border resize overflow-auto"
             ref={nodeRef}
           >
             <div className="inner-wrapper relative z-20 w-full h-full flex flex-col">
               <div
                 id="draggable-aichat"
-                className="absolute top-0 w-full flex items-center justify-between text-base font-medium leading-7 text-Gray-950 dark:text-white px-4 py-2 border-b border-Gray-100 dark:border-Gray-700 bg-white dark:bg-dark-secondary rounded-t-xl cursor-move"
+                className="absolute top-0 w-full flex items-center justify-between text-base font-medium leading-7 text-foreground px-4 py-2 border-b border-border bg-muted rounded-t-xl cursor-move"
               >
                 <span>{t('insights.ai-text-chat.panel-title')}</span>
                 <div className="flex items-center space-x-2">
@@ -130,7 +130,7 @@ const InsightsAiTextChat = () => {
                     className="cursor-pointer relative z-30"
                     onClick={close}
                   >
-                    <PopupCloseSVGIcon classes="text-Gray-600" />
+                    <PopupCloseSVGIcon classes="text-muted-foreground" />
                   </button>
                 </div>
               </div>
@@ -175,7 +175,7 @@ const InsightsAiTextChat = () => {
                   </div>
                 </div>
 
-                <div className="message-form z-30 border-t border-Gray-200 dark:border-Gray-800 bg-white dark:bg-dark-primary w-full px-3 3xl:px-5 py-2 3xl:py-4 flex items-center shrink-0">
+                <div className="message-form z-30 border-t border-border bg-card w-full px-3 3xl:px-5 py-2 3xl:py-4 flex items-center shrink-0">
                   <TextBoxArea />
                 </div>
               </div>

@@ -21,30 +21,30 @@ const KeyboardShortcuts = () => {
       show={isShowKeyboardShortcuts}
       onClose={closeModal}
       title={
-        <h3 className="flex items-center justify-between text-base 3xl:text-lg font-semibold leading-7 text-Gray-950 dark:text-white mb-2">
+        <h3 className="flex items-center justify-between text-base 3xl:text-lg font-semibold leading-7 text-foreground mb-2">
           <span>{t('header.keyboard-shortcuts.title')}</span>
         </h3>
       }
       maxWidth="max-w-2xl"
       customClass="KeyboardShortcuts"
     >
-      <table className="border-collapse border border-slate-500 w-full text-Gray-950 dark:text-dark-text">
+      <table className="border-collapse border border-border w-full text-foreground">
         <thead>
           <tr>
-            <th className="pl-2 border-b border-r border-slate-700 text-xs sm:text-sm md:text-base">
+            <th className="pl-2 border-b border-r border-border text-xs sm:text-sm md:text-base">
               <strong>{t('header.keyboard-shortcuts.key-comb')}</strong>
             </th>
-            <th className="pl-2 border-b border-slate-700 text-xs sm:text-sm md:text-base">
+            <th className="pl-2 border-b border-border text-xs sm:text-sm md:text-base">
               <strong>{t('header.keyboard-shortcuts.actions')}</strong>
             </th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td className="pl-2 border-b border-r border-slate-700 text-xs sm:text-sm md:text-base">
+            <td className="pl-2 border-b border-r border-border text-xs sm:text-sm md:text-base">
               ctrl + alt/option + m
             </td>
-            <td className="pl-2 border-b border-slate-700 text-xs sm:text-sm md:text-base ">
+            <td className="pl-2 border-b border-border text-xs sm:text-sm md:text-base ">
               {t('header.keyboard-shortcuts.mute-unmute')}
             </td>
           </tr>

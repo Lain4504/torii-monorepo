@@ -106,38 +106,40 @@ const NewBreakoutRoom = ({
   };
 
   return (
-    <div className="notification notif-breakoutRoom flex gap-4 py-2 px-4 border-b border-Gray-200 dark:border-Gray-800">
-      <div className="icon w-9 h-9 rounded-full bg-Gray-100 text-Blue2-800 relative inline-flex items-center justify-center">
+    <div className="notification notif-breakoutRoom flex gap-4 py-2 px-4 border-b border-border">
+      <div className="icon w-9 h-9 rounded-full bg-muted text-primary relative inline-flex items-center justify-center">
         <BreakoutRoomIconSVG classes="w-[15px]" />
       </div>
-      <div className="text flex-1 text-Gray-800 dark:text-white text-sm">
+      <div className="text flex-1 text-foreground text-sm">
         <p>{t('breakout-room.invitation-msg')}</p>
         {joinLink !== '' && (
-          <div className="invite-link">
-            <label className="text-black dark:text-white text-sm">
+          <div className="invite-link mt-2">
+            <label className="text-foreground text-sm block mb-1">
               {t('breakout-room.join-text-label')}
             </label>
-            <input
-              type="text"
-              readOnly={true}
-              value={joinLink}
-              className="inline-block outline-hidden border border-solid rounded-sm p-1 h-7 text-sm mx-1 bg-transparent dark:text-dark-text dark:border-dark-text"
-            />
-            <button
-              onClick={copyUrl}
-              className="text-center py-1 px-3 text-xs transition ease-in bg-primary-color hover:bg-secondary-color text-white font-semibold rounded-lg"
-            >
-              {copyText}
-            </button>
+            <div className="flex gap-2 items-center">
+              <input
+                type="text"
+                readOnly={true}
+                value={joinLink}
+                className="flex-1 outline-hidden border border-border rounded-lg p-1 h-8 text-xs bg-muted text-foreground"
+              />
+              <button
+                onClick={copyUrl}
+                className="text-center py-1 px-3 text-xs transition duration-300 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg shadow-sm"
+              >
+                {copyText}
+              </button>
+            </div>
           </div>
         )}
-        <div className="bottom flex justify-between text-Gray-800 text-xs items-center">
+        <div className="bottom flex justify-between text-muted-foreground text-xs items-center mt-2">
           <span className="">{formatDate(createdAt)}</span>{' '}
           <div className="btn-group">
             <ActionButton
               onClick={join}
               isLoading={isLoading}
-              custom="h-6 w-auto px-2 !text-xs !rounded-[8px] bg-Blue2-500 hover:bg-Blue2-600 border-Blue2-600"
+              custom="h-7 w-auto px-3 !text-xs !rounded-lg"
             >
               {t('breakout-room.join')}
             </ActionButton>

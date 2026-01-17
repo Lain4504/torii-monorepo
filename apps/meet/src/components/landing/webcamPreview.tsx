@@ -51,7 +51,7 @@ const WebcamPreview = ({ selectedVideoDevice }: WebcamPreviewProps) => {
   }, [selectedVideoDevice]);
 
   return (
-    <div className="camera bg-Gray-950 rounded-lg overflow-hidden w-full h-56 sm:h-72 3xl:h-80">
+    <div className="camera bg-foreground rounded-lg overflow-hidden w-full h-56 sm:h-72 3xl:h-80">
       {selectedVideoDevice !== '' && (
         <>
           <div

@@ -17,7 +17,7 @@ const PresenterIcon = ({ userId }: IPresenterIconProps) => {
   return (
     isPresenter && (
       <IconWrapper>
-        <i className="wajlc-presenter text-Gray-950 dark:text-white text-sm 3xl:text-base" />
+        <i className="wajlc-presenter text-foreground dark:text-white text-sm 3xl:text-base" />
       </IconWrapper>
     )
   );

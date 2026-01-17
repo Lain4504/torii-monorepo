@@ -49,14 +49,14 @@ const SharedNotepad = () => {
               <div className="inner w-full h-full pt-[45px] relative">
                 <div
                   id="draggable-h1"
-                  className="absolute top-0 w-full flex items-center justify-between text-base font-medium leading-7 text-Gray-950 dark:text-white px-4 py-2 border border-Gray-100 dark:border-Gray-800! bg-white dark:bg-dark-primary rounded-t-xl"
+                  className="absolute top-0 w-full flex items-center justify-between text-base font-medium leading-7 text-foreground dark:text-white px-4 py-2 border border-sidebar-border dark:border-foreground! bg-white dark:bg-dark-primary rounded-t-xl"
                 >
                   <span>{t('footer.modal.shared-notepad')}</span>
                   <button
                     className="cursor-pointer relative z-30"
                     onClick={minimizePad}
                   >
-                    <PopupCloseSVGIcon classes="text-Gray-600 dark:text-white" />
+                    <PopupCloseSVGIcon classes="text-muted-foreground dark:text-white" />
                   </button>
                 </div>
                 {!loaded && (

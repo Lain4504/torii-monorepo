@@ -112,30 +112,20 @@ const useClientCustomization = () => {
     let css = '';
 
     if (designCustomParams.primary_color) {
-      css +=
-        'body:not(.dark) .primaryColor{ color: ' +
-        designCustomParams.primary_color +
-        '}';
-      css +=
-        'body:not(.dark) .text-primary-color { color: ' +
-        designCustomParams.primary_color +
-        '}';
-      css +=
-        'body:not(.dark) .placeholder\\:text-primaryColor\\/70::placeholder { color: ' +
-        designCustomParams.primary_color +
-        '}';
-      css +=
-        'body:not(.dark) .bg-primary-color { background: ' +
-        designCustomParams.primary_color +
-        ' !important;}';
-      css +=
-        'body:not(.dark) .hover\\:bg-primaryColor:hover { background: ' +
-        designCustomParams.primary_color +
-        ' !important;}';
-      css +=
-        'body:not(.dark) .border-primary-color { border-color: ' +
-        designCustomParams.primary_color +
-        ' !important;}';
+      css += `
+        :root {
+          --primary: ${designCustomParams.primary_color};
+          --primary-foreground: #ffffff; /* Assuming white text on primary for now, could be calculated */
+          --ring: ${designCustomParams.primary_color};
+        }
+      `;
+      // Legacy support for transition period if needed, or remove if confident
+      css += `
+        body:not(.dark) .primaryColor { color: ${designCustomParams.primary_color}; }
+        body:not(.dark) .text-primary { color: ${designCustomParams.primary_color}; }
+        body:not(.dark) .bg-primary { background-color: ${designCustomParams.primary_color} !important; }
+        body:not(.dark) .border-primary { border-color: ${designCustomParams.primary_color} !important; }
+      `;
       css +=
         'body:not(.dark) .excalidraw {\n' +
         '    --color-primary: ' +
@@ -151,38 +141,18 @@ const useClientCustomization = () => {
     }
 
     if (designCustomParams.secondary_color) {
-      css +=
-        'body:not(.dark) .secondaryColor { color: ' +
-        designCustomParams.secondary_color +
-        ' !important;}';
-      css +=
-        'body:not(.dark) .text-secondary-color { color: ' +
-        designCustomParams.secondary_color +
-        ' !important;}';
-      css +=
-        'body:not(.dark) .bg-secondary-color { background: ' +
-        designCustomParams.secondary_color +
-        ' !important;}';
-      css +=
-        'body:not(.dark) .hover\\:text-secondaryColor:hover { color: ' +
-        designCustomParams.secondary_color +
-        ' !important;}';
-      css +=
-        'body:not(.dark) .group:hover .group-hover\\:text-secondaryColor { color: ' +
-        designCustomParams.secondary_color +
-        ' !important;}';
-      css +=
-        'body:not(.dark) .bg-secondaryColor, .hover:bg-secondaryColor:hover { background: ' +
-        designCustomParams.secondary_color +
-        ' !important;}';
-      css +=
-        'body:not(.dark) .hover:bg-secondaryColor:hover { background: ' +
-        designCustomParams.secondary_color +
-        ' !important;}';
-      css +=
-        'body:not(.dark) .border-secondary-color { border-color: ' +
-        designCustomParams.secondary_color +
-        ' !important;}';
+      css += `
+        :root {
+          --secondary: ${designCustomParams.secondary_color};
+          --secondary-foreground: #ffffff;
+        }
+      `;
+      css += `
+        body:not(.dark) .secondaryColor { color: ${designCustomParams.secondary_color} !important; }
+        body:not(.dark) .text-secondary { color: ${designCustomParams.secondary_color} !important; }
+        body:not(.dark) .bg-secondary { background-color: ${designCustomParams.secondary_color} !important; }
+        body:not(.dark) .border-secondary { border-color: ${designCustomParams.secondary_color} !important; }
+      `;
       css +=
         'body:not(.dark) .excalidraw {\n' +
         '    --color-primary-light: ' +

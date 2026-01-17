@@ -111,15 +111,15 @@ const UserNotifications = () => {
     if (hasUnreadNotifications > 0) {
       return (
         <div className="relative">
-          <NotifyIconSVG classes="w-3.5 md:w-4 h-auto text-Gray-950 dark:text-white" />
-          <span className="unseen-notification-count bg-secondary-color w-4 3xl:w-5 h-4 3xl:h-5 rounded-full text-[10px] 3xl:text-xs text-white absolute -top-2 -right-1 flex justify-center items-center">
+          <NotifyIconSVG classes="w-3.5 md:w-4 h-auto text-foreground dark:text-white" />
+          <span className="unseen-notification-count bg-secondary w-4 3xl:w-5 h-4 3xl:h-5 rounded-full text-[10px] 3xl:text-xs text-white absolute -top-2 -right-1 flex justify-center items-center">
             {hasUnreadNotifications}
           </span>
         </div>
       );
     } else {
       return (
-        <NotifyIconSVG classes="w-3.5 md:w-4 h-auto text-Gray-950 dark:text-white" />
+        <NotifyIconSVG classes="w-3.5 md:w-4 h-auto text-foreground dark:text-white" />
       );
     }
   };
@@ -129,7 +129,7 @@ const UserNotifications = () => {
       {({ open, close }) => (
         <>
           <PopoverButton
-            className={`w-7 md:w-8 h-7 md:h-8 flex items-center justify-center rounded-[10px] cursor-pointer ${open ? 'bg-Gray-50 dark:bg-Gray-800' : ''}`}
+            className={`w-7 md:w-8 h-7 md:h-8 flex items-center justify-center rounded-[10px] cursor-pointer ${open ? 'bg-muted' : ''}`}
           >
             {displayIcon(open)}
           </PopoverButton>
@@ -137,7 +137,7 @@ const UserNotifications = () => {
             <div
               className={clsx([
                 // Base styles
-                'side-panel-bg-color notifications-panel fixed transition ease-in-out w-[300px] 3xl:w-[340px] right-0 h-[calc(100%-110px)] 3xl:h-[calc(100%-144px)] top-[54px] 3xl:top-[68px] bg-Gray-25 dark:bg-dark-primary border-l border-Gray-200 dark:border-Gray-800',
+                'side-panel-bg-color notifications-panel fixed transition ease-in-out w-[300px] 3xl:w-[340px] right-0 h-[calc(100%-110px)] 3xl:h-[calc(100%-144px)] top-[54px] 3xl:top-[68px] bg-background border-l border-border',
                 // Shared closed styles
                 'data-closed:opacity-0',
                 // Entering styles
@@ -147,8 +147,8 @@ const UserNotifications = () => {
               ])}
             >
               <PopoverPanel className="flex flex-col">
-                <div className="top flex items-center justify-between h-10 px-3 border-b border-Gray-200 dark:border-Gray-800">
-                  <p className="text-sm text-Gray-950 dark:text-white font-medium leading-tight">
+                <div className="top flex items-center justify-between h-10 px-3 border-b border-border">
+                  <p className="text-sm text-foreground font-medium leading-tight">
                     Notifications
                   </p>
                   <div
@@ -157,7 +157,7 @@ const UserNotifications = () => {
                       close();
                     }}
                   >
-                    <PopupCloseSVGIcon classes="text-Gray-600" />
+                    <PopupCloseSVGIcon classes="text-muted-foreground" />
                   </div>
                 </div>
                 <div className="scrollBar overflow-auto h-[calc(100vh-148px)] 3xl:h-[calc(100vh-184px)] py-4">
@@ -189,32 +189,32 @@ const UserNotifications = () => {
                           );
                       }
                     })}
-                    {/* <div className="notification flex gap-4 py-2 px-4 border-b border-Gray-200">
+                    {/* <div className="notification flex gap-4 py-2 px-4 border-b border-border">
                       <div className="name w-9 h-9 rounded-xl bg-Blue2-700 text-sm font-medium uppercase text-white relative inline-flex items-center justify-center">
                         NB
-                        <span className="w-5 h-5 bg-Gray-100 border border-white inline-flex items-center justify-center p-[2px] rounded-full absolute -bottom-1 -right-1 text-Blue2-700">
+                        <span className="w-5 h-5 bg-sidebar-border border border-white inline-flex items-center justify-center p-[2px] rounded-full absolute -bottom-1 -right-1 text-Blue2-700">
                           <ShareScreenIconSVG classes="w-[10px] h-auto" />
                         </span>
                       </div>
-                      <div className="text flex-1 text-Gray-800 text-sm">
+                      <div className="text flex-1 text-foreground text-sm">
                         <p>
                           Screen sharing started by{' '}
                           <strong>Noah Benjamin</strong>.
                         </p>
-                        <span className="text-Gray-800 text-xs">12:04 AM</span>
+                        <span className="text-foreground text-xs">12:04 AM</span>
                       </div>
                     </div>
-                    <div className="notification flex gap-4 py-2 px-4 border-b border-Gray-200">
-                      <div className="icon w-9 h-9 rounded-full bg-Gray-100 text-Blue2-800 relative inline-flex items-center justify-center">
+                    <div className="notification flex gap-4 py-2 px-4 border-b border-border">
+                      <div className="icon w-9 h-9 rounded-full bg-sidebar-border text-Blue2-800 relative inline-flex items-center justify-center">
                         <SpeechIconSVG classes="w-[15px]" />
                       </div>
-                      <div className="text flex-1 text-Gray-800 text-sm">
+                      <div className="text flex-1 text-foreground text-sm">
                         <p>Transcription & Translation enabled.</p>
-                        <span className="text-Gray-800 text-xs">12:04 AM</span>
+                        <span className="text-foreground text-xs">12:04 AM</span>
                       </div>
                     </div>
-                    <div className="notification flex gap-4 py-2 px-4 border-b border-Gray-200">
-                      <div className="icon w-9 h-9 rounded-full bg-Gray-100 text-Blue2-800 relative inline-flex items-center justify-center">
+                    <div className="notification flex gap-4 py-2 px-4 border-b border-border">
+                      <div className="icon w-9 h-9 rounded-full bg-sidebar-border text-Blue2-800 relative inline-flex items-center justify-center">
                         <svg
                           width="16"
                           height="20"
@@ -231,37 +231,37 @@ const UserNotifications = () => {
                           />
                         </svg>
                       </div>
-                      <div className="text flex-1 text-Gray-800 text-sm">
+                      <div className="text flex-1 text-foreground text-sm">
                         <p>
                           File uploaded successfully:{' '}
                           <strong>“Assignment02.pdf”</strong>
                         </p>
-                        <span className="text-Gray-800 text-xs">12:04 AM</span>
+                        <span className="text-foreground text-xs">12:04 AM</span>
                       </div>
                     </div>
-                    <div className="notification flex gap-4 py-2 px-4 border-b border-Gray-200">
+                    <div className="notification flex gap-4 py-2 px-4 border-b border-border">
                       <div className="name w-9 h-9 rounded-xl bg-Blue2-700 text-sm font-medium uppercase text-white relative inline-flex items-center justify-center">
                         NB
-                        <span className="w-5 h-5 bg-Gray-100 border border-white inline-flex items-center justify-center p-[2px] rounded-full absolute -bottom-1 -right-1 text-Blue2-700">
+                        <span className="w-5 h-5 bg-sidebar-border border border-white inline-flex items-center justify-center p-[2px] rounded-full absolute -bottom-1 -right-1 text-Blue2-700">
                           <UploadIconSVG />
                         </span>
                       </div>
-                      <div className="text flex-1 text-Gray-800 text-sm">
+                      <div className="text flex-1 text-foreground text-sm">
                         <p>
                           <strong>Samuel Brooks</strong> uploaded a file:{' '}
                           <strong>“Assignment.pdf”</strong>
                         </p>
-                        <span className="text-Gray-800 text-xs">12:04 AM</span>
+                        <span className="text-foreground text-xs">12:04 AM</span>
                       </div>
                     </div>
-                    <div className="notification flex gap-4 py-2 px-4 border-b border-Gray-200">
+                    <div className="notification flex gap-4 py-2 px-4 border-b border-border">
                       <div className="name w-9 h-9 rounded-xl bg-Blue2-700 text-sm font-medium uppercase text-white relative inline-flex items-center justify-center">
                         NB
-                        <span className="w-5 h-5 bg-Gray-100 border border-white inline-flex items-center justify-center p-[2px] rounded-full absolute -bottom-1 -right-1 text-Blue2-700">
+                        <span className="w-5 h-5 bg-sidebar-border border border-white inline-flex items-center justify-center p-[2px] rounded-full absolute -bottom-1 -right-1 text-Blue2-700">
                           <LinksIconSVG />
                         </span>
                       </div>
-                      <div className="text flex-1 text-Gray-800 text-sm">
+                      <div className="text flex-1 text-foreground text-sm">
                         <p>
                           <strong>Noah Benjamin</strong> shared a link:{' '}
                           <a
@@ -271,50 +271,50 @@ const UserNotifications = () => {
                             https://walearnconnect.cloud/file/3216
                           </a>
                         </p>
-                        <span className="text-Gray-800 text-xs">12:04 AM</span>
+                        <span className="text-foreground text-xs">12:04 AM</span>
                       </div>
                     </div>
-                    <div className="notification flex gap-4 py-2 px-4 border-b border-Gray-200">
+                    <div className="notification flex gap-4 py-2 px-4 border-b border-border">
                       <div className="icon w-9 h-9 rounded-full bg-Red-100 relative inline-flex items-center justify-center">
                         <PollsIconSVG classes="w-[15px] text-Red-600" />
                       </div>
-                      <div className="text flex-1 text-Gray-800 text-sm">
+                      <div className="text flex-1 text-foreground text-sm">
                         <p>Poll deleted.</p>
-                        <span className="text-Gray-800 text-xs">12:04 AM</span>
+                        <span className="text-foreground text-xs">12:04 AM</span>
                       </div>
                     </div>
 
-                    <div className="notification flex gap-4 py-2 px-4 border-b border-Gray-200">
+                    <div className="notification flex gap-4 py-2 px-4 border-b border-border">
                       <div className="name w-9 h-9 rounded-xl bg-Blue2-700 text-sm font-medium uppercase text-white relative inline-flex items-center justify-center">
                         NB
                         <span className="w-5 h-5 bg-Red-100 border border-white inline-flex items-center justify-center p-[2px] rounded-full absolute -bottom-1 -right-1 text-Blue2-700">
                           <MicrophoneOff classes="w-[10px] h-auto" />
                         </span>
                       </div>
-                      <div className="text flex-1 text-Gray-800 text-sm">
+                      <div className="text flex-1 text-foreground text-sm">
                         <p>Moderator muted your microphone.</p>
-                        <span className="text-Gray-800 text-xs">12:04 AM</span>
+                        <span className="text-foreground text-xs">12:04 AM</span>
                       </div>
                     </div>
-                    <div className="notification flex gap-4 py-2 px-4 border-b border-Gray-200">
-                      <div className="icon w-9 h-9 rounded-full bg-Gray-100 text-Blue2-800 relative inline-flex items-center justify-center">
+                    <div className="notification flex gap-4 py-2 px-4 border-b border-border">
+                      <div className="icon w-9 h-9 rounded-full bg-sidebar-border text-Blue2-800 relative inline-flex items-center justify-center">
                         <HandsIconSVG classes="w-[15px]" />
                       </div>
-                      <div className="text flex-1 text-Gray-800 text-sm">
+                      <div className="text flex-1 text-foreground text-sm">
                         <p>You raised your hand.</p>
-                        <span className="text-Gray-800 text-xs">12:04 AM</span>
+                        <span className="text-foreground text-xs">12:04 AM</span>
                       </div>
                     </div>
-                    <div className="notification flex gap-4 py-2 px-4 border-b border-Gray-200">
+                    <div className="notification flex gap-4 py-2 px-4 border-b border-border">
                       <div className="name w-9 h-9 rounded-xl bg-Blue2-700 text-sm font-medium uppercase text-white relative inline-flex items-center justify-center">
                         NB
                         <span className="w-5 h-5 bg-Green-100 border border-white inline-flex items-center justify-center p-[2px] rounded-full absolute -bottom-1 -right-1 text-Blue2-700">
                           <CheckMarkIconSVG />
                         </span>
                       </div>
-                      <div className="text flex-1 text-Gray-800 text-sm">
+                      <div className="text flex-1 text-foreground text-sm">
                         <p>Moderator approved your request to join.</p>
-                        <span className="text-Gray-800 text-xs">12:04 AM</span>
+                        <span className="text-foreground text-xs">12:04 AM</span>
                       </div>
                     </div> */}
                   </div>

@@ -84,7 +84,7 @@ const UploadedFileList = ({
         if (isSelectedInModal) {
           classNames += ' border-2 border-Blue2-500 bg-Blue2-50';
         } else {
-          classNames += ' border border-Gray-100 bg-white hover:bg-Gray-50';
+          classNames += ' border border-border bg-card hover:bg-muted';
         }
 
         return (
@@ -93,10 +93,10 @@ const UploadedFileList = ({
             className={classNames}
             onClick={() => onFileSelect(file)}
           >
-            <div className="icon w-9 h-9 rounded-full bg-Gray-100 text-Blue2-800 relative inline-flex items-center justify-center">
+            <div className="icon w-9 h-9 rounded-full bg-sidebar-border text-Blue2-800 relative inline-flex items-center justify-center">
               <FileIconSVG />
             </div>
-            <div className="text flex-1 text-Gray-800 text-sm">
+            <div className="text flex-1 text-foreground text-sm">
               <p className="break-all">{file.fileName}</p>
             </div>
           </div>

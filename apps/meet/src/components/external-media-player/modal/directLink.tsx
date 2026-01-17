@@ -87,7 +87,7 @@ const DirectLink = ({ selectedUrl, setSelectedUrl }: DirectLinkProps) => {
           />
         </div>
         <button
-          className="h-10 w-10 3xl:h-11 3xl:w-11 bg-Gray-50 hover:bg-Gray-100 rounded-full flex justify-center items-center transition-all duration-300 shrink-0 cursor-pointer"
+          className="h-10 w-10 3xl:h-11 3xl:w-11 bg-muted hover:bg-sidebar-border rounded-full flex justify-center items-center transition-all duration-300 shrink-0 cursor-pointer"
           type="button"
           onClick={addPlaybackUrl}
         >
@@ -103,9 +103,9 @@ const DirectLink = ({ selectedUrl, setSelectedUrl }: DirectLinkProps) => {
             let classNames =
               'flex items-center gap-4 py-2 px-3 w-full rounded-xl cursor-pointer transition-all duration-200';
             if (selectedUrl === url) {
-              classNames += ' border-2 border-Blue2-500 bg-Blue2-50';
+              classNames += ' border-2 border-primary bg-primary/10';
             } else {
-              classNames += ' border border-Gray-100 bg-white hover:bg-Gray-50';
+              classNames += ' border border-border bg-card hover:bg-muted';
             }
 
             return (
@@ -114,10 +114,10 @@ const DirectLink = ({ selectedUrl, setSelectedUrl }: DirectLinkProps) => {
                 className={classNames}
                 onClick={() => setSelectedUrl(url)}
               >
-                <div className="icon w-9 h-9 rounded-full bg-Gray-100 text-Blue2-800 relative inline-flex items-center justify-center shrink-0">
+                <div className="icon w-9 h-9 rounded-full bg-sidebar-border text-Blue2-800 relative inline-flex items-center justify-center shrink-0">
                   <FileIconSVG />
                 </div>
-                <div className="text flex-1 text-Gray-800 text-sm overflow-hidden">
+                <div className="text flex-1 text-foreground text-sm overflow-hidden">
                   <p className="break-all truncate">{url}</p>
                 </div>
                 <button

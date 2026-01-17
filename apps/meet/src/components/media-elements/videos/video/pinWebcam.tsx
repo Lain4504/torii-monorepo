@@ -24,7 +24,7 @@ const PinWebcam = ({ userId }: IPinWebcamProps) => {
 
   return (
     <div
-      className="pin-webcam cursor-pointer w-7 h-7 rounded-full bg-Gray-950/50 shadow-shadowXS flex items-center justify-center"
+      className="pin-webcam cursor-pointer w-7 h-7 rounded-full bg-foreground/50 shadow-shadowXS flex items-center justify-center"
       onClick={togglePin}
     >
       {isPinCamActive ? (

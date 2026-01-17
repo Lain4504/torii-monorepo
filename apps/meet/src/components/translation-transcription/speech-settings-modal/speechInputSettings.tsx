@@ -45,55 +45,51 @@ const SpeechInputSettings = ({
 
   return (
     <>
-      <Field className="-mt-4 px-4 py-4 bg-Gray-25 dark:bg-dark-primary border-y border-dotted border-Gray-100 dark:border-Gray-800">
-        <div className="flex items-center cursor-pointer justify-between shadow-Icon-box h-11 border border-Gray-100 dark:border-Gray-800 rounded-2xl px-4 bg-white dark:bg-dark-primary">
-          <Label className="pr-4 w-full text-sm text-Gray-800 dark:text-white font-medium cursor-pointer">
+      <Field className="-mt-4 px-4 py-4 bg-background border-y border-dotted border-border">
+        <div className="flex items-center cursor-pointer justify-between shadow-Icon-box h-11 border border-border rounded-2xl px-4 bg-card">
+          <Label className="pr-4 w-full text-sm text-foreground font-medium cursor-pointer">
             {t('speech-services.enable-speech-to-text')}
           </Label>
           <Switch
             checked={enableSpeech}
             onChange={setEnableSpeech}
             disabled={isServiceActive}
-            className={`${
-              enableSpeech ? 'bg-Blue2-500' : 'bg-Gray-200'
-            } relative outline-none inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-hidden cursor-pointer`}
+            className={`${enableSpeech ? 'bg-Blue2-500' : 'bg-border'
+              } relative outline-none inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-hidden cursor-pointer`}
           >
             <span
-              className={`${
-                enableSpeech
+              className={`${enableSpeech
                   ? 'ltr:translate-x-5 rtl:-translate-x-5'
                   : 'ltr:translate-x-1 rtl:-translate-x-0.5'
-              } inline-block w-4 h-4 transform bg-white rounded-full transition-transform`}
+                } inline-block w-4 h-4 transform bg-white rounded-full transition-transform`}
             />
           </Switch>
         </div>
       </Field>
       {enableSpeech && (
         <>
-          <Field className="grid gap-4 bg-white dark:bg-dark-primary py-4 px-4">
-            <div className="flex items-center cursor-pointer justify-between shadow-Icon-box h-11 border border-Gray-100 dark:border-Gray-800 rounded-2xl px-4 bg-white dark:bg-dark-primary">
-              <Label className="pr-4 w-full text-sm text-Gray-800 dark:text-white font-medium cursor-pointer">
+          <Field className="grid gap-4 bg-card py-4 px-4">
+            <div className="flex items-center cursor-pointer justify-between shadow-Icon-box h-11 border border-border rounded-2xl px-4 bg-card">
+              <Label className="pr-4 w-full text-sm text-foreground font-medium cursor-pointer">
                 {t('speech-services.allow-transcription-storage')}
               </Label>
               <Switch
                 checked={allowTranscriptionStorage}
                 onChange={setAllowTranscriptionStorage}
                 disabled={isServiceActive}
-                className={`${
-                  allowTranscriptionStorage ? 'bg-Blue2-500' : 'bg-Gray-200'
-                } relative outline-none inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-hidden cursor-pointer`}
+                className={`${allowTranscriptionStorage ? 'bg-Blue2-500' : 'bg-border'
+                  } relative outline-none inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-hidden cursor-pointer`}
               >
                 <span
-                  className={`${
-                    allowTranscriptionStorage
+                  className={`${allowTranscriptionStorage
                       ? 'ltr:translate-x-5 rtl:-translate-x-5'
                       : 'ltr:translate-x-1 rtl:-translate-x-0.5'
-                  } inline-block w-4 h-4 transform bg-white rounded-full transition-transform`}
+                    } inline-block w-4 h-4 transform bg-white rounded-full transition-transform`}
                 />
               </Switch>
             </div>
           </Field>
-          <div className="grid gap-4 bg-white dark:bg-dark-primary py-4 px-6">
+          <div className="grid gap-4 bg-card py-4 px-6">
             <Dropdown
               id="speech-lang"
               value={selectedSpeechLang}

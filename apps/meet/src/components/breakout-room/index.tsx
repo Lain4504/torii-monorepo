@@ -63,11 +63,10 @@ const BreakoutRoom = () => {
       <div className="mt-0">
         {message && (
           <div
-            className={`py-2 px-4 rounded-lg mb-4 text-sm ${
-              message.type === 'error'
-                ? 'text-red-600 bg-red-50 dark:bg-red-100 dark:text-red-700'
-                : 'text-blue-600 bg-blue-50 dark:bg-dark-secondary2 dark:text-white'
-            }`}
+            className={`py-2 px-4 rounded-lg mb-4 text-sm ${message.type === 'error'
+                ? 'text-destructive bg-destructive/10'
+                : 'text-primary bg-primary/10'
+              }`}
           >
             {message.text}
           </div>

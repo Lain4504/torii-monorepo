@@ -100,10 +100,8 @@
 
         &:hover {
           background-color: var(--button-hover-bg, var(--island-bg-color));
-          border-color: var(
-            --button-hover-border,
-            var(--button-border, var(--default-border-color))
-          );
+          border-color: var(--button-hover-border,
+              var(--button-border, var(--default-border-color)));
           color: #b8b8b8;
         }
       }
@@ -197,15 +195,15 @@
       .library-menu-browse-button {
         padding: 0.5rem 1rem;
         color: #fff !important;
-        @apply text-primary-color;
+        @apply text-primary;
 
         &:hover {
-          @apply text-primary-color;
+          @apply text-primary;
         }
       }
 
       .library-menu-items-container__header {
-        @apply text-primary-color dark:text-secondary-color text-base font-medium;
+        @apply text-primary dark:text-secondary text-base font-medium;
       }
 
       .App-toolbar-content {
@@ -247,10 +245,6 @@
   }
 }
 
-.excalidraw
-  .ToolIcon.fillable
-  .ToolIcon_type_radio:checked
-  + .ToolIcon__icon:hover
-  svg {
+.excalidraw .ToolIcon.fillable .ToolIcon_type_radio:checked+.ToolIcon__icon:hover svg {
   color: #5b57d1 !important;
 }

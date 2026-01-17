@@ -29,7 +29,7 @@ const Checkbox = ({
     <div className="text-base w-full pl-2 sm:pl-4">
       <label
         htmlFor={id}
-        className="text-sm 3xl:text-base font-medium text-Gray-950 dark:text-dark-text cursor-pointer"
+        className="text-sm 3xl:text-base font-medium text-foreground cursor-pointer"
       >
         {label}
         <p className="text-xs md:text-sm opacity-70 dark:opacity-80">

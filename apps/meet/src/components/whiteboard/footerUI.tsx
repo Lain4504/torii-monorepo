@@ -120,29 +120,29 @@ const FooterUI = ({
 
   const renderForAdmin = () => {
     return (
-      <div className="flex wb-page-navigation ml-2">
-        <button className="pre" onClick={handlePre} disabled={currentPage <= 1}>
-          <i className="wajlc-arrow-left-short text-black dark:text-white text-xl opacity-50 rtl:rotate-180" />
+      <div className="flex wb-page-navigation ml-2 bg-muted rounded-lg overflow-hidden border border-border">
+        <button className="pre p-1 hover:bg-black/5 dark:hover:bg-white/5 transition-colors" onClick={handlePre} disabled={currentPage <= 1}>
+          <i className="wajlc-arrow-left-short text-foreground text-xl rtl:rotate-180" />
         </button>
         <select
           id="pages"
           name="pages"
-          className="pagesOpts appearance-none cursor-pointer block h-8 py-1 px-3 border border-gray-300 dark:border-gray-100 border-t-0 border-b-0 bg-transparent shadow-xs focus:outline-hidden sm:text-sm"
+          className="pagesOpts appearance-none cursor-pointer block h-8 py-1 px-3 border-x border-border bg-transparent focus:outline-hidden text-sm text-foreground font-medium"
           onChange={(e) => setCurrentPage(Number(e.currentTarget.value))}
           value={currentPage}
         >
           {Array.from({ length: totalPages }, (_, i) => (
-            <option key={i} value={i + 1}>
+            <option key={i} value={i + 1} className="bg-card text-foreground">
               {t('whiteboard.page', { count: i + 1 })}
             </option>
           ))}
         </select>
         <button
-          className="next"
+          className="next p-1 hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
           onClick={handleNext}
           disabled={currentPage >= totalPages}
         >
-          <i className="wajlc-arrow-right-short text-black dark:text-white text-xl opacity-50 rtl:rotate-180" />
+          <i className="wajlc-arrow-right-short text-foreground text-xl rtl:rotate-180" />
         </button>
       </div>
     );
@@ -151,11 +151,10 @@ const FooterUI = ({
   const renderForParticipant = () => {
     return (
       <div
-        className={`renderForParticipant flex gap-2 text-sm items-center justify-start md:justify-center relative ${
-          isAdmin && !isRecorder
+        className={`renderForParticipant flex gap-2 text-sm items-center justify-start md:justify-center relative ${isAdmin && !isRecorder
             ? 'ltr:pl-3 rtl:pr-3 md:pl-12  md:rtl:pr-4'
             : 'ltr:pl-3 rtl:pr-3'
-        } `}
+          } `}
       >
         {isAdmin && !isRecorder && (
           <button className="presenter" onClick={takeOverPresenter}>
@@ -172,9 +171,8 @@ const FooterUI = ({
           }
         >
           <i
-            className={`wajlc-device-connected text-[14px] ltr:mr-1 rtl:ml-1 ${
-              isFollowing ? 'animate-pulse' : ''
-            }`}
+            className={`wajlc-device-connected text-[14px] ltr:mr-1 rtl:ml-1 ${isFollowing ? 'animate-pulse' : ''
+              }`}
           />
           {isFollowing ? t('whiteboard.unfollow') : t('whiteboard.follow')}
         </button>

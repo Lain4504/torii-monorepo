@@ -100,9 +100,9 @@ const PreviewWebcam = ({ deviceId }: IPreviewWebcamProps) => {
         ) : null}
 
         {show &&
-        sourcePlayback &&
-        currentUser &&
-        virtualBackground.type !== 'none' ? (
+          sourcePlayback &&
+          currentUser &&
+          virtualBackground.type !== 'none' ? (
           <VirtualBackground
             sourcePlayback={sourcePlayback}
             backgroundConfig={virtualBackground}
@@ -112,7 +112,7 @@ const PreviewWebcam = ({ deviceId }: IPreviewWebcamProps) => {
       </div>
       {displayVB() ? (
         <>
-          <div className="title text-xs md:text-sm leading-none text-Gray-700 dark:text-dark-text px-1 md:px-3 uppercase pt-5 3x:pt-8 pb-5">
+          <div className="title text-xs md:text-sm leading-none text-muted-foreground px-1 md:px-3 uppercase pt-5 3x:pt-8 pb-5">
             {t('footer.modal.chose-virtual-bg')}
           </div>
           <BackgroundItems onSelect={onSelectBg} />{' '}

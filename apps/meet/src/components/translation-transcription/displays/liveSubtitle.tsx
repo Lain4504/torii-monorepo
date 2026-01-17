@@ -114,7 +114,7 @@ const LiveSubtitle = () => {
         className="sub-title w-11/12 absolute bottom-4  left-1/2 -translate-x-1/2 pointer-events-none px-10 flex items-center"
         style={{ fontSize: subtitleFontSize }}
       >
-        <div className="inline-block p-2 bg-Gray-950/70 text-white m-auto break-words text-center whitespace-pre-wrap border border-white/15 rounded-lg overflow-hidden shadow-virtual-item">
+        <div className="inline-block p-2 bg-foreground/70 text-white m-auto break-words text-center whitespace-pre-wrap border border-white/15 rounded-lg overflow-hidden shadow-virtual-item">
           {/* Line 1 */}
           <div
             className={`line-1 transition-opacity duration-300 ease-in-out ${
