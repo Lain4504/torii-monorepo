@@ -1,15 +1,13 @@
 import { Module } from '@nestjs/common';
 import { SharedEmailModule } from '@server/shared';
 import { EmailService } from './email.service';
-import { EmailController } from './email.controller';
 
 /**
  * Email Module
- * Handles email operations via NATS events
+ * Handles email operations
  */
 @Module({
     imports: [SharedEmailModule],
-    controllers: [EmailController],
     providers: [EmailService],
     exports: [EmailService],
 })

@@ -2,6 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { SharedEmailService } from '@server/shared';
 import type { SendEmailEvent, EmailType, OrderSuccessEmailData } from '../../infrastructure/events/email.event';
 import { generateOrderSuccessEmailHtml } from './templates/order-success.template';
+import { generateVerificationEmailHtml } from './templates/verification.template';
+import { generatePasswordResetEmailHtml } from './templates/password-reset.template';
+import { generateOtpEmailHtml } from './templates/otp.template';
+import { generateWelcomeEmailHtml } from './templates/welcome.template';
 
 /**
  * Email Service
@@ -71,16 +75,7 @@ export class EmailService {
      * Send verification email
      */
     private async sendVerificationEmail(to: string | string[], data: any): Promise<void> {
-        const { verificationUrl, displayName } = data;
-
-        const html = `
-      <h2>Xác thực tài khoản</h2>
-      <p>Xin chào ${displayName || 'bạn'},</p>
-      <p>Vui lòng click vào link dưới đây để xác thực tài khoản:</p>
-      <a href="${verificationUrl}" style="padding: 10px 20px; background: #2563eb; color: white; text-decoration: none; border-radius: 5px; display: inline-block;">
-        Xác thực tài khoản
-      </a>
-    `;
+        const html = generateVerificationEmailHtml(data);
 
         await this.sharedEmailService.sendMail({
             to,
@@ -95,16 +90,7 @@ export class EmailService {
      * Send password reset email
      */
     private async sendPasswordResetEmail(to: string | string[], data: any): Promise<void> {
-        const { resetUrl, displayName } = data;
-
-        const html = `
-      <h2>Đặt lại mật khẩu</h2>
-      <p>Xin chào ${displayName || 'bạn'},</p>
-      <p>Bạn đã yêu cầu đặt lại mật khẩu. Click vào link dưới đây:</p>
-      <a href="${resetUrl}" style="padding: 10px 20px; background: #2563eb; color: white; text-decoration: none; border-radius: 5px; display: inline-block;">
-        Đặt lại mật khẩu
-      </a>
-    `;
+        const html = generatePasswordResetEmailHtml(data);
 
         await this.sharedEmailService.sendMail({
             to,
@@ -119,15 +105,7 @@ export class EmailService {
      * Send OTP email
      */
     private async sendOtpEmail(to: string | string[], data: any): Promise<void> {
-        const { otp, displayName } = data;
-
-        const html = `
-      <h2>Mã OTP của bạn</h2>
-      <p>Xin chào ${displayName || 'bạn'},</p>
-      <p>Mã OTP của bạn là:</p>
-      <h1 style="color: #2563eb; font-size: 32px; letter-spacing: 5px;">${otp}</h1>
-      <p>Mã này có hiệu lực trong 5 phút.</p>
-    `;
+        const html = generateOtpEmailHtml(data);
 
         await this.sharedEmailService.sendMail({
             to,
@@ -142,13 +120,7 @@ export class EmailService {
      * Send welcome email
      */
     private async sendWelcomeEmail(to: string | string[], data: any): Promise<void> {
-        const { displayName } = data;
-
-        const html = `
-      <h2>Chào mừng đến với Torii Nihongo!</h2>
-      <p>Xin chào ${displayName || 'bạn'},</p>
-      <p>Cảm ơn bạn đã đăng ký tài khoản. Chúc bạn học tập hiệu quả!</p>
-    `;
+        const html = generateWelcomeEmailHtml(data);
 
         await this.sharedEmailService.sendMail({
             to,
