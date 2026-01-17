@@ -36,8 +36,9 @@ export interface IEmailService {
 
     /**
      * Send invite email for internal users (LECTURE/STAFF)
+     * Includes auto-generated password that user should change after first login
      */
-    sendInviteEmail(email: string, displayName: string, inviteUrl: string): Promise<void>;
+    sendInviteEmail(email: string, displayName: string, inviteUrl: string, password: string): Promise<void>;
 }
 
 /**

@@ -31,7 +31,8 @@ import type { IUsersRepository } from '../../interfaces/repositories';
 import type { IUsersService, IAuthorizationService, IEmailService, UserWithPermissions } from '../../interfaces/services';
 import { USERS_REPOSITORY_TOKEN } from '../../interfaces/repositories';
 import { AUTHORIZATION_SERVICE_TOKEN, EMAIL_SERVICE_TOKEN } from '../../interfaces/services';
-import { REDIS_CLIENT } from '@server/shared';
+import { REDIS_CLIENT, generateSecureRandomString } from '@server/shared';
+import * as argon2 from 'argon2';
 
 @Injectable()
 export class UsersService implements IUsersService {
@@ -127,7 +128,7 @@ export class UsersService implements IUsersService {
 
     /**
      * Create internal user (LECTURE/STAFF) with invite email
-     * User is created in INVITED status (verifiedAt = null, password = null)
+     * Auto-generates random password, hashes it, and sends via email
      */
     async createInternalUser(dto: AdminCreateInternalUserDTO, adminId: string): Promise<UserResponseDTO> {
         // Check email exists
@@ -136,30 +137,38 @@ export class UsersService implements IUsersService {
             throw new ConflictException(ErrEmailExisted.message);
         }
 
-        // Create user in INVITED status (no password, not verified)
+        // Generate random password (12 characters, mixed case + numbers)
+        const randomPassword = generateSecureRandomString(12);
+
+        // Hash password using Argon2
+        const hashedPassword = await argon2.hash(randomPassword);
+
+        // Create user with hashed password and auto-verify email
         const newId = uuidv4();
         const user = await this.usersRepository.create({
             id: newId,
             email: dto.email,
             displayName: dto.displayName,
             role: dto.role,
-            password: null, // No password set - user will set it via invite link
-            verifiedAt: null, // INVITED status
+            password: hashedPassword, // Store hashed password
+            verifiedAt: new Date(), // Auto-verify email when account is created
         });
 
-        // Generate invite token (valid for 7 days)
+        // Generate invite token (valid for 7 days) - for email verification if needed
         const cryptoModule = await import('crypto');
         const inviteToken = cryptoModule.randomBytes(32).toString('hex');
 
-        // Store invite token in Redis (7 days expiry)
+        // Store invite token in Redis (7 days expiry) - kept for potential future use
         await this.redis.set(`invite-token:${inviteToken}`, user.id, 'EX', 604800); // 7 days
 
-        // Send invite email
-        const inviteUrl = `${process.env.FRONTEND_URL}/set-password?token=${inviteToken}`;
+        // Send invite email with password - link to login page
+        // Internal users (staff/lecturer) use web-admin, so use WEB_ADMIN_URL or default to port 5173
+        const loginUrl = `${(process.env.WEB_ADMIN_URL || 'http://localhost:5173').replace(/\/+$/, '')}/login`;
         await this.emailService.sendInviteEmail(
             user.email,
             user.displayName,
-            inviteUrl
+            loginUrl,
+            randomPassword // Send plain password in email (only time it's exposed)
         );
 
         // Map Prisma User to UserResponseDTO using AutoMapper

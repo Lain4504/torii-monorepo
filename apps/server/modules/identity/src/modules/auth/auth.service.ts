@@ -994,6 +994,7 @@ export class AuthService implements IAuthService {
 
     /**
      * Set password for invited internal user
+     * Allows changing default password to a new password via invite token
      * Completes the onboarding flow for LECTURER/STAFF
      */
     async setPassword(token: string, password: string): Promise<void> {
@@ -1009,19 +1010,23 @@ export class AuthService implements IAuthService {
             throw new NotFoundException('User not found');
         }
 
-        // Check if user already has password set
-        if (user.password) {
-            throw new BadRequestException('Password already set for this account');
-        }
+        // Note: Users now have a default password from creation
+        // This method allows changing the default password to a new one
 
-        // Hash password
+        // Hash new password
         const hashedPassword = await argon2.hash(password);
 
-        // Update user: set password and verify email
-        await this.usersRepository.update(user.id, {
+        // Update user: set new password and verify email (if not already verified)
+        const updateData: any = {
             password: hashedPassword,
-            verifiedAt: new Date(), // Auto-verify email for invited users
-        });
+        };
+
+        // Auto-verify email for invited users (if not already verified)
+        if (!user.verifiedAt) {
+            updateData.verifiedAt = new Date();
+        }
+
+        await this.usersRepository.update(user.id, updateData);
 
         // Delete invite token (one-time use)
         await this.redis.del(`invite-token:${token}`);
