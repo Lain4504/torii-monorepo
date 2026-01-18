@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 
 import { useGetPollListsQuery } from '../../store/services/pollsApi';
 import PollItem from './pollItem';
-import { LoadingIcon } from '../../assets/Icons/Loading';
+import { Loader2 } from 'lucide-react';
 
 const PollsList = () => {
   const { currentData: data, isFetching } = useGetPollListsQuery();
@@ -28,9 +28,8 @@ const PollsList = () => {
         ))}
         {isFetching && (
           <div className="absolute text-center top-1/2 -translate-y-1/2 z-999 left-0 right-0 m-auto">
-            <LoadingIcon
+            <Loader2
               className={'inline w-10 h-10 me-3 text-muted animate-spin'}
-              fillColor={'var(--primary)'}
             />
           </div>
         )}

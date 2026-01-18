@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 
 import { useGetBreakoutRoomsQuery } from '../../../store/services/breakoutRoomApi';
-import { LoadingIcon } from '../../../assets/Icons/Loading';
+import { Loader2 } from 'lucide-react';
 import { BreakoutRoomMessage } from '..';
 import RoomItem from './room';
 
@@ -27,9 +27,8 @@ const RoomLists = ({ setMessage }: IRoomListsProps) => {
     <div className="breakout-room-list-wrapper min-h-[90px] relative">
       {isLoading && (
         <div className="absolute text-center top-1/2 -translate-y-1/2 z-999 left-0 right-0 m-auto pointer-events-none">
-          <LoadingIcon
+          <Loader2
             className={'inline w-10 h-10 me-3 text-muted animate-spin'}
-            fillColor={'var(--primary)'}
           />
         </div>
       )}

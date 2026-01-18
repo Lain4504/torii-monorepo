@@ -14,7 +14,7 @@ import { CreatePollOptions } from './index';
 import OptionsView from './optionsView';
 import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
 import { useAppDispatch } from '../../../store';
-import { LoadingIcon } from '../../../assets/Icons/Loading';
+import { Loader2 } from 'lucide-react';
 
 interface FormViewProps {
   setIsOpen: Dispatch<SetStateAction<boolean>>;
@@ -104,9 +104,8 @@ const FormView = ({ setIsOpen }: FormViewProps) => {
       <OptionsView options={options} setOptions={setOptions} />
       {isLoading && (
         <div className="absolute text-center top-1/2 -translate-y-1/2 z-999 left-0 right-0 m-auto">
-          <LoadingIcon
-            className={'inline w-10 h-10 me-3 text-muted animate-spin'}
-            fillColor={'var(--primary)'}
+          <Loader2
+            className={'inline w-10 h-10 me-3 text-primary animate-spin'}
           />
         </div>
       )}

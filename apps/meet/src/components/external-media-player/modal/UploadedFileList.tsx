@@ -9,8 +9,7 @@ import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
 import { useAppSelector } from '../../../store';
 import sendAPIRequest from '../../../helpers/api/walearnconnectAPI';
-import { LoadingIcon } from '../../../assets/Icons/Loading';
-import { FileIconSVG } from '../../../assets/Icons/FileIconSVG';
+import { Loader2, File } from 'lucide-react';
 
 interface IUploadedFileListProps {
   newlyUploadedFile?: RoomUploadedFileMetadata;
@@ -63,9 +62,8 @@ const UploadedFileList = ({
   if (isFetching) {
     return (
       <div className="flex justify-center mt-12">
-        <LoadingIcon
-          className="h-10 w-10 animate-spin text-gray-200"
-          fillColor="#004D90"
+        <Loader2
+          className="h-10 w-10 animate-spin text-primary"
         />
       </div>
     );
@@ -94,7 +92,7 @@ const UploadedFileList = ({
             onClick={() => onFileSelect(file)}
           >
             <div className="icon w-9 h-9 rounded-full bg-sidebar-border text-Blue2-800 relative inline-flex items-center justify-center">
-              <FileIconSVG />
+              <File className="w-4 h-4" />
             </div>
             <div className="text flex-1 text-foreground text-sm">
               <p className="break-all">{file.fileName}</p>

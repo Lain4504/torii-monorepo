@@ -16,8 +16,7 @@ import {
   MyMessage,
 } from '../../../chat/messages/message/messageTypes';
 import TextBoxArea from './textBoxArea';
-import { PopupCloseSVGIcon } from '../../../../assets/Icons/PopupCloseSVGIcon';
-import { ScrollToBottomIconSVG } from '../../../../assets/Icons/ScrollToBottom';
+import { ArrowDown, X } from 'lucide-react';
 
 const InsightsAiTextChat = () => {
   const { t } = useTranslation();
@@ -123,14 +122,14 @@ const InsightsAiTextChat = () => {
                       className="cursor-pointer relative z-30 transition-opacity"
                       onClick={forceScrollToBottom}
                     >
-                      <ScrollToBottomIconSVG />
+                      <ArrowDown className="w-5 h-5" />
                     </button>
                   )}
                   <button
                     className="cursor-pointer relative z-30"
                     onClick={close}
                   >
-                    <PopupCloseSVGIcon classes="text-muted-foreground" />
+                    <X className="w-5 h-5 text-muted-foreground" />
                   </button>
                 </div>
               </div>

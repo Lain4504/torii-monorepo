@@ -9,8 +9,7 @@ import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import { participantsSelector } from '../../../store/slices/participantSlice';
 import sendAPIRequest from '../../../helpers/api/walearnconnectAPI';
-import { CloseIconSVG } from '../../../assets/Icons/CloseIconSVG';
-import { CheckMarkIcon } from '../../../assets/Icons/CheckMarkIcon';
+import { X, Check } from 'lucide-react';
 import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
 
 interface IWaitingApprovalProps {
@@ -72,14 +71,14 @@ const WaitingApproval = ({
           className="h-6 px-3 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider bg-primary hover:bg-primary/90 text-primary-foreground rounded-md shadow-sm transition-all"
           onClick={approve}
         >
-          <CheckMarkIcon />
+          <Check className="w-4 h-4" />
           {t('left-panel.approve')}
         </button>
         <button
           className="h-6 w-6 flex items-center justify-center rounded-md text-destructive-foreground bg-destructive hover:bg-destructive/90 shadow-sm transition-all"
           onClick={reject}
         >
-          <CloseIconSVG />
+          <X className="w-4 h-4" />
         </button>
       </div>
     )

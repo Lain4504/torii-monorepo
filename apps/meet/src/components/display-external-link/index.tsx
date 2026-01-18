@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useAppSelector } from '../../store';
-import { LoadingIcon } from '../../assets/Icons/Loading';
+import { Loader2 } from 'lucide-react';
 
 const DisplayExternalLink = () => {
   const { t } = useTranslation();
@@ -35,9 +35,8 @@ const DisplayExternalLink = () => {
     <div className="external-display-link-wrapper m-auto h-[calc(100%-50px)] w-full max-w-[1100px] flex-1 sm:px-5 mt-9 p-2 relative">
       {!loaded && (
         <div className="loading-status absolute inset-0 z-10 flex h-full w-full items-center justify-center bg-white/50 dark:bg-black/50">
-          <LoadingIcon
-            className="inline h-10 w-10 animate-spin text-gray-200"
-            fillColor="#004D90"
+          <Loader2
+            className="inline h-10 w-10 animate-spin text-primary"
           />
         </div>
       )}

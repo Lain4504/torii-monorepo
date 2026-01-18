@@ -16,15 +16,7 @@ import {
   updateShowManageWaitingRoomModal,
   updateShowRtmpModal,
 } from '../../../../store/slices/bottomIconsActivitySlice';
-import { RTMPIconSVG } from '../../../../assets/Icons/RTMPIconSVG';
-import { PlayerIconSVG } from '../../../../assets/Icons/PlayerIconSVG';
-import { ExternalPlayerIconSVG } from '../../../../assets/Icons/ExternalPlayerIconSVG';
-import { SharedNotepadIconSVG } from '../../../../assets/Icons/SharedNotepadIconSVG';
-import { SpeechIconSVG } from '../../../../assets/Icons/SpeechIconSVG';
-import { PollsIconSVG } from '../../../../assets/Icons/PollsIconSVG';
-import { BreakoutRoomIconSVG } from '../../../../assets/Icons/BreakoutRoomIconSVG';
-import { RoomLockIconSVG } from '../../../../assets/Icons/RoomLockIconSVG';
-import { AiIconSVG } from '../../../../assets/Icons/AiIconSVG';
+import { BarChart2, LayoutGrid, Bot, Radio, Play, MonitorPlay, NotebookPen, Captions, Lock } from 'lucide-react';
 
 const AdminMenus = () => {
   const dispatch = useAppDispatch();
@@ -79,7 +71,7 @@ const AdminMenus = () => {
         roomFeatures?.insightsFeatures?.aiFeatures?.isAllow && (
           <FooterMenuItem
             onClick={openInsightsAISettingsModal}
-            icon={<AiIconSVG classes="w-6" />}
+            icon={<Bot className="w-6" />}
             text={t('footer.menus.ai-settings')}
           />
         )}
@@ -87,7 +79,7 @@ const AdminMenus = () => {
         <FooterMenuItem
           onClick={openRtmpModal}
           isActive={isActiveRtmpBroadcasting}
-          icon={<RTMPIconSVG />}
+          icon={<Radio />}
           text={
             isActiveRtmpBroadcasting
               ? t('footer.icons.stop-rtmp-broadcasting')
@@ -99,7 +91,7 @@ const AdminMenus = () => {
         roomFeatures?.insightsFeatures?.transcriptionFeatures?.isAllow && (
           <FooterMenuItem
             onClick={openSpeechServiceSettingsModal}
-            icon={<SpeechIconSVG classes="w-6" />}
+            icon={<Captions className="w-6" />}
             text={t('footer.menus.speech-to-text-settings')}
           />
         )}
@@ -108,7 +100,7 @@ const AdminMenus = () => {
         <FooterMenuItem
           onClick={togglePolls}
           isActive={isActivePoll}
-          icon={<PollsIconSVG classes="" />}
+          icon={<BarChart2 className="w-6" />}
           text={
             isActivePoll
               ? t('footer.menus.disable-polls')
@@ -120,7 +112,7 @@ const AdminMenus = () => {
         <FooterMenuItem
           onClick={toggleExternalMediaPlayer}
           isActive={isActiveExternalMediaPlayer}
-          icon={<PlayerIconSVG />}
+          icon={<Play />}
           text={
             isActiveExternalMediaPlayer
               ? t('footer.menus.stop-external-media-player')
@@ -132,7 +124,7 @@ const AdminMenus = () => {
         <FooterMenuItem
           onClick={toggleDisplayExternalLinkModal}
           isActive={isActiveDisplayExternalLink}
-          icon={<ExternalPlayerIconSVG />}
+          icon={<MonitorPlay />}
           text={
             isActiveDisplayExternalLink
               ? t('footer.menus.stop-display-external-link')
@@ -144,7 +136,7 @@ const AdminMenus = () => {
         <FooterMenuItem
           onClick={toggleSharedNotepad}
           isActive={sharedNotepadStatus}
-          icon={<SharedNotepadIconSVG />}
+          icon={<NotebookPen />}
           text={
             sharedNotepadStatus
               ? t('footer.menus.disable-shared-notepad')
@@ -160,7 +152,7 @@ const AdminMenus = () => {
       />
       <FooterMenuItem
         onClick={openLockSettingsModal}
-        icon={<RoomLockIconSVG />}
+        icon={<Lock />}
         text={t('footer.menus.room-lock-settings')}
       />
       {roomFeatures?.waitingRoomFeatures?.isActive && (
@@ -173,7 +165,7 @@ const AdminMenus = () => {
       {roomFeatures?.breakoutRoomFeatures?.isAllow && (
         <FooterMenuItem
           onClick={openManageBreakoutRoomModal}
-          icon={<BreakoutRoomIconSVG classes="w-6 h-auto" />}
+          icon={<LayoutGrid className="w-6 h-auto" />}
           text={t('footer.menus.manage-breakout-room')}
         />
       )}

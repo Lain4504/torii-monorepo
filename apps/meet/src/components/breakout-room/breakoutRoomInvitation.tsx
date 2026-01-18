@@ -23,7 +23,7 @@ import {
 } from '../../store/slices/bottomIconsActivitySlice';
 import { updateSelectedVideoDevice } from '../../store/slices/roomSettingsSlice';
 import { getMediaServerConnRoom } from '../../helpers/livekit/utils';
-import { PopupCloseSVGIcon } from '../../assets/Icons/PopupCloseSVGIcon';
+import { X } from 'lucide-react';
 
 const BreakoutRoomInvitation = () => {
   const { t } = useTranslation();
@@ -148,7 +148,7 @@ const BreakoutRoomInvitation = () => {
               >
                 <span>{t('breakout-room.invitation-title')}</span>
                 <Button className="cursor-pointer text-muted-foreground hover:text-foreground transition-colors" onClick={closeModal}>
-                  <PopupCloseSVGIcon classes="" />
+                  <X className="w-5 h-5" />
                 </Button>
               </DialogTitle>
               <div className="mt-2">

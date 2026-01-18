@@ -9,8 +9,7 @@ import {
   updateIsActiveWebcam,
   updateVirtualBackground,
 } from '../../../../../store/slices/bottomIconsActivitySlice';
-import { CheckMarkIcon } from '../../../../../assets/Icons/CheckMarkIcon';
-import { CameraOff } from '../../../../../assets/Icons/CameraOff';
+import { Check, VideoOff } from 'lucide-react';
 
 interface IWebcamMenuItemsProps {
   currentRoom: Room;
@@ -74,13 +73,13 @@ const WebcamMenuItems = ({
           {() => (
             <p
               className={`${selectedVideoDevice === device.id
-                  ? 'bg-muted'
-                  : ''
+                ? 'bg-muted'
+                : ''
                 } h-8 w-full flex items-center justify-between text-sm gap-2 leading-none font-medium text-foreground px-2 rounded-lg transition-all duration-300 hover:bg-muted`}
               onClick={() => handleDeviceChange(device.id)}
             >
               {device.label}
-              {selectedVideoDevice === device.id ? <CheckMarkIcon /> : ''}
+              {selectedVideoDevice === device.id ? <Check className="w-4 h-4 text-primary" /> : ''}
             </p>
           )}
         </MenuItem>
@@ -93,7 +92,7 @@ const WebcamMenuItems = ({
               className="h-8 w-full flex items-center text-sm gap-2 leading-none font-medium text-red-700 px-2 rounded-lg transition-all duration-300 hover:bg-Red-600 hover:text-white"
               onClick={toggleWebcam}
             >
-              <CameraOff classes={'h-4 w-auto'} />
+              <VideoOff className={'h-4 w-auto'} />
               {t('footer.icons.turn-off-webcam')}
             </p>
           )}

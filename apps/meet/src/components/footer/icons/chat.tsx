@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 
 import { store, useAppDispatch, useAppSelector } from '../../../store';
-import { ChatIconSVG } from '../../../assets/Icons/ChatIconSVG';
+import { MessageSquare } from 'lucide-react';
 import { setActiveSidePanel } from '../../../store/slices/bottomIconsActivitySlice';
 
 const ChatIcon = () => {
@@ -52,7 +52,7 @@ const ChatIcon = () => {
             ? t('footer.icons.hide-chat-panel')
             : t('footer.icons.show-chat-panel')}
         </span>
-        <ChatIconSVG />
+        <MessageSquare className="w-auto h-4 md:h-5 3xl:h-6" />
         {!isActiveChatPanel && totalUnreadChatMsgs > 0 && (
           <div className="unseen-message-count bg-primary w-4 3xl:w-5 h-4 3xl:h-5 rounded-full text-[10px] 3xl:text-xs text-primary-foreground absolute -top-2 -right-1 flex justify-center items-center">
             {totalUnreadChatMsgs}

@@ -9,12 +9,11 @@ import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 import { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types';
 
 import { useAppSelector } from '../../../store';
-import { FileIconSVG } from '../../../assets/Icons/FileIconSVG';
+import { File, CheckCircle } from 'lucide-react';
 import {
   IWhiteboardOfficeFile,
   WhiteboardFileConversionRes,
 } from '../../../store/slices/interfaces/whiteboard';
-import { SelectedIcon } from '../../../assets/Icons/SelectedIcon';
 import sendAPIRequest from '../../../helpers/api/walearnconnectAPI';
 import { createAndRegisterOfficeFile } from '../helpers/handleFiles';
 
@@ -112,7 +111,7 @@ const UploadedFilesList = ({
             onClick={() => onSelectOfficeFile(file)}
           >
             <div className="icon w-9 h-9 rounded-full bg-muted text-foreground relative inline-flex items-center justify-center">
-              <FileIconSVG />
+              <File className="w-4 h-4" />
             </div>
             <div className="text flex-1 text-foreground text-sm">
               <div className="top flex gap-3 justify-between">
@@ -120,7 +119,7 @@ const UploadedFilesList = ({
                   <p className="break-all">{file.fileName}</p>
                 </div>
                 <div className="right">
-                  {isCurrentlyInUse && <SelectedIcon />}
+                  {isCurrentlyInUse && <CheckCircle className="w-5 h-5 text-primary" />}
                 </div>
               </div>
               <div className="progress-bar flex gap-2 items-center text-xs pt-0.5 text-muted-foreground">

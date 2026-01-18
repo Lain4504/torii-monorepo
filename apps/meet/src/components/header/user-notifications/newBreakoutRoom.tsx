@@ -9,7 +9,7 @@ import { useJoinRoomMutation } from '../../../store/services/breakoutRoomApi';
 import { updateReceivedInvitationFor } from '../../../store/slices/breakoutRoomSlice';
 import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
 import ActionButton from '../../../helpers/ui/actionButton';
-import { BreakoutRoomIconSVG } from '../../../assets/Icons/BreakoutRoomIconSVG';
+import { LayoutGrid } from 'lucide-react';
 
 interface NewBreakoutRoomProps {
   receivedInvitationFor: string | undefined;
@@ -108,7 +108,7 @@ const NewBreakoutRoom = ({
   return (
     <div className="notification notif-breakoutRoom flex gap-4 py-2 px-4 border-b border-border">
       <div className="icon w-9 h-9 rounded-full bg-muted text-primary relative inline-flex items-center justify-center">
-        <BreakoutRoomIconSVG classes="w-[15px]" />
+        <LayoutGrid className="w-[15px]" />
       </div>
       <div className="text flex-1 text-foreground text-sm">
         <p>{t('breakout-room.invitation-msg')}</p>

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { store, useAppDispatch, useAppSelector } from '../../../store';
 import { updateIsActiveSharedNotePad } from '../../../store/slices/bottomIconsActivitySlice';
-import { SharedNotepadIconSVG } from '../../../assets/Icons/SharedNotepadIconSVG';
+import { StickyNote } from 'lucide-react';
 const SharedNotePadIcon = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
@@ -44,7 +44,7 @@ const SharedNotePadIcon = () => {
               ? t('footer.icons.hide-shared-notepad')
               : t('footer.icons.show-shared-notepad')}
           </span>
-          <SharedNotepadIconSVG />
+          <StickyNote className="w-auto h-4 3xl:h-5" />
         </div>
       </div>
     )

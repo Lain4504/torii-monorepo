@@ -6,8 +6,7 @@ import ParticipantComponent from './participant';
 import RemoveParticipantAlertModal, {
   IRemoveParticipantAlertModalData,
 } from './removeParticipantAlertModal';
-import { SearchIconSVG } from '../../assets/Icons/SearchIconSVG';
-import { CloseIconSVG } from '../../assets/Icons/CloseIconSVG';
+import { Search, X } from 'lucide-react';
 
 import { store, useAppDispatch, useAppSelector } from '../../store';
 import { selectVisibleParticipants } from '../../store/slices/participantSlice';
@@ -97,7 +96,7 @@ const ParticipantsComponent = () => {
         className="inline-block absolute z-50 right-3 3xl:right-5 top-[10px] text-muted-foreground cursor-pointer"
         onClick={closePanel}
       >
-        <CloseIconSVG />
+        <X className="w-5 h-5" />
       </div>
       <div className="inner-wrapper relative z-20 w-full">
         <div className="top flex items-center h-10 px-3 3xl:px-5">
@@ -110,7 +109,7 @@ const ParticipantsComponent = () => {
         <div className="search-participants-wrap h-[55px] flex items-center px-3 3xl:px-5 border-y border-border">
           <div className="w-full relative">
             <div className="search-icon text-muted-foreground absolute top-1/2 -translate-y-1/2 left-3 3xl:left-4 pointer-events-none">
-              <SearchIconSVG />
+              <Search className="w-4 h-4" />
             </div>
             <input
               type="text"

@@ -5,8 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { updateIsActiveSharedNotePad } from '../../store/slices/bottomIconsActivitySlice';
 import { useNotepadUrl } from './useNotepadUrl';
-import { LoadingIcon } from '../../assets/Icons/Loading';
-import { PopupCloseSVGIcon } from '../../assets/Icons/PopupCloseSVGIcon';
+import { Loader2, X } from 'lucide-react';
 
 const SharedNotepad = () => {
   const { t } = useTranslation();
@@ -56,14 +55,13 @@ const SharedNotepad = () => {
                     className="cursor-pointer relative z-30"
                     onClick={minimizePad}
                   >
-                    <PopupCloseSVGIcon classes="text-muted-foreground dark:text-white" />
+                    <X className="w-5 h-5 text-muted-foreground dark:text-white" />
                   </button>
                 </div>
                 {!loaded && (
                   <div className="loading-status absolute inset-0 z-10 flex h-full w-full items-center justify-center bg-white/50 dark:bg-black/50">
-                    <LoadingIcon
-                      className="inline h-10 w-10 animate-spin text-gray-200"
-                      fillColor="#004D90"
+                    <Loader2
+                      className="inline h-10 w-10 animate-spin text-primary"
                     />
                   </div>
                 )}

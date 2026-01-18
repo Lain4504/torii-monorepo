@@ -44,10 +44,7 @@ import {
 } from '../../../helpers/utils';
 import { getMediaServerConnRoom } from '../../../helpers/livekit/utils';
 import { getNatsConn } from '../../../helpers/nats';
-import { Microphone } from '../../../assets/Icons/Microphone';
-import { MicrophoneOff } from '../../../assets/Icons/MicrophoneOff';
-import { PlusIcon } from '../../../assets/Icons/PlusIcon';
-import { CloseIconSVG } from '../../../assets/Icons/CloseIconSVG';
+import { Mic, MicOff, Plus, X } from 'lucide-react';
 
 const MicrophoneIcon = () => {
   const dispatch = useAppDispatch();
@@ -410,7 +407,7 @@ const MicrophoneIcon = () => {
         {showMutedTooltip && (
           <div className="micro-muted-tooltip tooltip-left absolute -left-3 rtl:microphone-rtl-left bottom-[48px] 3xl:bottom-[55px]">
             <div className="inner w-max bg-secondary rounded-lg shadow-lg px-4 pr-6 py-4 flex items-center gap-2 relative">
-              <MicrophoneOff classes={'h-4 3xl:h-5 w-auto text-destructive'} />
+              <MicOff className={'h-4 3xl:h-5 w-auto text-destructive'} />
               <p className="text-sm text-foreground">
                 {t('footer.icons.you-are-muted')}
               </p>
@@ -421,7 +418,7 @@ const MicrophoneIcon = () => {
                   setShowMutedTooltip(false);
                 }}
               >
-                <CloseIconSVG />
+                <X className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -433,21 +430,21 @@ const MicrophoneIcon = () => {
             </span>
             {!isActiveMicrophone ? (
               <>
-                <Microphone classes={'h-4 3xl:h-5 w-auto'} />
+                <Mic className={'h-4 3xl:h-5 w-auto'} />
                 <span className="add absolute -top-1.5 md:-top-2 -right-1.5 md:-right-2 z-10">
                   {isLocked ? (
                     <i className="wajlc-lock primaryColor" />
                   ) : (
-                    <PlusIcon />
+                    <Plus className="w-4 h-4" />
                   )}
                 </span>
               </>
             ) : null}
             {!isMicMuted && isActiveMicrophone && (
-              <Microphone classes={'h-4 3xl:h-5 w-auto'} />
+              <Mic className={'h-4 3xl:h-5 w-auto'} />
             )}
             {isMicMuted && isActiveMicrophone && (
-              <MicrophoneOff classes={'h-4 3xl:h-5 w-auto'} />
+              <MicOff className={'h-4 3xl:h-5 w-auto'} />
             )}
           </div>
           {isActiveMicrophone && (

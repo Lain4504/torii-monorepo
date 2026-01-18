@@ -3,7 +3,7 @@ import React from 'react';
 import { useAppSelector } from '../../../../store';
 import { participantsSelector } from '../../../../store/slices/participantSlice';
 import IconWrapper from './iconWrapper';
-import { Camera } from '../../../../assets/Icons/Camera';
+import { Video } from 'lucide-react';
 
 interface WebcamIconProps {
   userId: string;
@@ -17,7 +17,7 @@ const WebcamIcon = ({ userId }: WebcamIconProps) => {
   return (
     videoTracks > 0 && (
       <IconWrapper>
-        <Camera classes={'h-3 3xl:h-4 w-auto dark:text-white'} />
+        <Video className={'h-3 3xl:h-4 w-auto dark:text-white'} />
       </IconWrapper>
     )
   );

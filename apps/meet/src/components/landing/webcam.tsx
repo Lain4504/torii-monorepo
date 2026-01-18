@@ -2,10 +2,7 @@ import React, { SetStateAction } from 'react';
 import { Menu, MenuButton, MenuItem, Transition } from '@headlessui/react';
 import { useTranslation } from 'react-i18next';
 
-import { Camera } from '../../assets/Icons/Camera';
-import { PlusIcon } from '../../assets/Icons/PlusIcon';
-import { ArrowUp } from '../../assets/Icons/ArrowUp';
-import { CheckMarkIcon } from '../../assets/Icons/CheckMarkIcon';
+import { Video, Check, Plus, ChevronUp } from 'lucide-react';
 import { updateShowVideoShareModal } from '../../store/slices/bottomIconsActivitySlice';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { IMediaDevice } from '../../store/slices/interfaces/roomSettings';
@@ -53,13 +50,13 @@ const WebcamIcon = ({
       >
         {videoDevices.length === 0 ? (
           <>
-            <Camera classes={'h-5 w-auto'} />
+            <Video className={'h-5 w-auto'} />
             <span className="add absolute -top-2 -right-2 z-10">
-              <PlusIcon />
+              <Plus className="w-4 h-4 text-white bg-primary rounded-full p-0.5" />
             </span>
           </>
         ) : (
-          <Camera classes={'h-5 w-auto'} />
+          <Video className={'h-5 w-auto'} />
         )}
       </div>
       {videoDevices.length > 0 && (
@@ -70,7 +67,7 @@ const WebcamIcon = ({
                 <MenuButton
                   className={`w-[30px] h-11 flex items-center justify-center border border-border rounded-r-xl ${open ? 'bg-muted' : 'bg-secondary'}`}
                 >
-                  <ArrowUp />
+                  <ChevronUp className="w-4 h-4" />
                 </MenuButton>
                 <Transition
                   as={'div'}
@@ -96,7 +93,7 @@ const WebcamIcon = ({
                             >
                               {device.label}
                               {selectedVideoDevice === device.id ? (
-                                <CheckMarkIcon />
+                                <Check className="w-4 h-4 text-primary" />
                               ) : (
                                 ''
                               )}

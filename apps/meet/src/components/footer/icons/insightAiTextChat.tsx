@@ -4,7 +4,7 @@ import clsx from 'clsx';
 
 import { store, useAppDispatch, useAppSelector } from '../../../store';
 import { updateIsActiveInsightsAiTextChat } from '../../../store/slices/bottomIconsActivitySlice';
-import { AiIconSVG } from '../../../assets/Icons/AiIconSVG';
+import { Bot } from 'lucide-react';
 
 const InsightsAiTextChatIcon = () => {
   const dispatch = useAppDispatch();
@@ -60,7 +60,7 @@ const InsightsAiTextChatIcon = () => {
             ? t('footer.icons.hide-ai-chat-panel')
             : t('footer.icons.show-ai-chat-panel')}
         </span>
-        <AiIconSVG classes="h-auto w-4 3xl:w-5" />
+        <Bot className="h-auto w-4 3xl:w-5" />
       </div>
     </div>
   );

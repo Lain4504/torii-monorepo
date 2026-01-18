@@ -9,7 +9,7 @@ import { store } from '../../../store';
 import sendAPIRequest from '../../../helpers/api/walearnconnectAPI';
 import { getNatsConn } from '../../../helpers/nats';
 import ConfirmationModal from '../../../helpers/ui/confirmationModal';
-import { EndMeetingIconSVG } from '../../../assets/Icons/EndMeetingIconSVG';
+import { PhoneOff } from 'lucide-react';
 
 const EndMeetingButton = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -85,7 +85,7 @@ const EndMeetingButton = () => {
           {isAdmin ? t('header.menus.end') : t('header.menus.logout')}
         </span>
         <span className="block lg:hidden">
-          <EndMeetingIconSVG />
+          <PhoneOff className="w-4 h-4" />
         </span>
       </Button>
 

@@ -4,7 +4,7 @@ import clsx from 'clsx';
 
 import { store, useAppDispatch, useAppSelector } from '../../../store';
 import { setActiveSidePanel } from '../../../store/slices/bottomIconsActivitySlice';
-import { PollsIconSVG } from '../../../assets/Icons/PollsIconSVG';
+import { BarChart2 } from 'lucide-react';
 
 const PollsIcon = () => {
   const dispatch = useAppDispatch();
@@ -63,7 +63,7 @@ const PollsIcon = () => {
             ? t('footer.icons.hide-polls-panel')
             : t('footer.icons.show-polls-panel')}
         </span>
-        <PollsIconSVG classes="" />
+        <BarChart2 className="w-auto h-4 3xl:h-5" />
       </div>
     </div>
   );

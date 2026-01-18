@@ -9,7 +9,7 @@ import {
   InsightsAITextChatRole,
 } from '@workspace/protocol';
 
-import SendIconSVG from '../../../../assets/Icons/SendIconSVG';
+import { SendHorizontal } from 'lucide-react';
 import { useAutosizeTextArea } from '../../../chat/text-box/useAutosizeTextArea';
 import { useAppDispatch, useAppSelector } from '../../../../store';
 import {
@@ -100,11 +100,11 @@ const TextBoxArea = () => {
         disabled={isSendButtonDisabled}
         onClick={sendMsg}
         className={`w-7 3xl:w-9 h-7 3xl:h-9 flex items-center justify-center rounded-full transition-all duration-300 shadow-sm ${isSendButtonDisabled
-            ? 'bg-primary/30 text-primary-foreground/30 cursor-not-allowed'
-            : 'bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer'
+          ? 'bg-primary/30 text-primary-foreground/30 cursor-not-allowed'
+          : 'bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer'
           }`}
       >
-        <SendIconSVG />
+        <SendHorizontal className="w-4 h-4 md:w-5 md:h-5" />
       </button>
     </div>
   );

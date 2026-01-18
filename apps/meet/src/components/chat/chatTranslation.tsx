@@ -6,7 +6,7 @@ import {
   ListboxOptions,
 } from '@headlessui/react';
 
-import { CheckMarkIcon } from '../../assets/Icons/CheckMarkIcon';
+import { Check } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../store';
 import {
   supportedTranscriptionLangs,
@@ -82,7 +82,7 @@ const ChatTranslation = () => {
                   <span>{lang.title}</span>{' '}
                   {selected && (
                     <span>
-                      <CheckMarkIcon />
+                      <Check className="w-4 h-4" />
                     </span>
                   )}
                 </div>

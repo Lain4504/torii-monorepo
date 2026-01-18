@@ -11,7 +11,7 @@ import {
   supportedTranscriptionLangs,
   supportedTranslationLangs,
 } from './helpers/supportedLangs';
-import { LoadingIcon } from '../../assets/Icons/Loading';
+import { Loader2 } from 'lucide-react';
 
 const TranslationTranscriptionSettingModal = () => {
   const dispatch = useAppDispatch();
@@ -80,9 +80,8 @@ const TranslationTranscriptionSettingModal = () => {
         )}
         {isLoading ? (
           <div className="flex justify-center mt-12">
-            <LoadingIcon
-              className="h-10 w-10 animate-spin text-gray-200"
-              fillColor="#004D90"
+            <Loader2
+              className="h-10 w-10 animate-spin text-primary"
             />
           </div>
         ) : (

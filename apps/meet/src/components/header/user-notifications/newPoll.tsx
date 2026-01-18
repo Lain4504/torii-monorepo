@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { setActiveSidePanel } from '../../../store/slices/bottomIconsActivitySlice';
 import { useAppDispatch } from '../../../store';
-import { PollsIconSVG } from '../../../assets/Icons/PollsIconSVG';
+import { BarChart2 } from 'lucide-react';
 import ActionButton from '../../../helpers/ui/actionButton';
 
 interface INewPollProps {
@@ -34,7 +34,7 @@ const NewPoll = ({ createdAt, onClosePopover }: INewPollProps) => {
   return (
     <div className="notification notif-new-poll w-full flex gap-4 py-2 px-4 border-b border-border dark:border-foreground">
       <div className="icon w-9 h-9 rounded-full bg-sidebar-border text-Blue2-800 relative inline-flex items-center justify-center">
-        <PollsIconSVG classes="w-[15px]" />
+        <BarChart2 className="w-[15px] text-white" />
       </div>
       <div className="text flex-1 text-foreground dark:text-white text-sm">
         <p>{t('polls.new-poll')}</p>

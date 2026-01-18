@@ -3,7 +3,7 @@ import { Popover } from '@headlessui/react';
 import { useTranslation } from 'react-i18next';
 
 import { store } from '../../../../store';
-import { ChatHistoryIconSVG } from '../../../../assets/Icons/ChatHistoryIconSVG';
+import { History } from 'lucide-react';
 
 import SubtitleHistoryPanel from './subtitleHistoryPanel';
 
@@ -39,7 +39,7 @@ const SubtitleTextsHistory = ({ isOpenPopover }: SubtitleTextsHistoryProps) => {
               {t('speech-services.subtitle-history-modal-title')}
             </span>
           )}
-          <ChatHistoryIconSVG />
+          <History className="w-6 h-6 text-white" />
         </div>
       </button>
       {showPopover && (

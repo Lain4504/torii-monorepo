@@ -4,9 +4,7 @@ import { isArray } from 'es-toolkit/compat';
 import ReactPlayer from 'react-player';
 
 import FormattedInputField from '../../../helpers/ui/formattedInputField';
-import { PlusCircleIconSVG } from '../../../assets/Icons/PlusCircleIconSVG';
-import { FileIconSVG } from '../../../assets/Icons/FileIconSVG';
-import { TrashIconSVG } from '../../../assets/Icons/TrashIconSVG';
+import { PlusCircle, File, Trash2 } from 'lucide-react';
 import { DB_STORE_NAMES, idbGet, idbStore } from '../../../helpers/libs/idb';
 
 interface DirectLinkProps {
@@ -91,7 +89,7 @@ const DirectLink = ({ selectedUrl, setSelectedUrl }: DirectLinkProps) => {
           type="button"
           onClick={addPlaybackUrl}
         >
-          <PlusCircleIconSVG />
+          <PlusCircle className="w-5 h-5" />
         </button>
       </div>
       {errorMsg && (
@@ -115,7 +113,7 @@ const DirectLink = ({ selectedUrl, setSelectedUrl }: DirectLinkProps) => {
                 onClick={() => setSelectedUrl(url)}
               >
                 <div className="icon w-9 h-9 rounded-full bg-sidebar-border text-Blue2-800 relative inline-flex items-center justify-center shrink-0">
-                  <FileIconSVG />
+                  <File className="w-4 h-4" />
                 </div>
                 <div className="text flex-1 text-foreground text-sm overflow-hidden">
                   <p className="break-all truncate">{url}</p>
@@ -127,7 +125,7 @@ const DirectLink = ({ selectedUrl, setSelectedUrl }: DirectLinkProps) => {
                     deletePlaybackUrl(url).then();
                   }}
                 >
-                  <TrashIconSVG />
+                  <Trash2 className="w-4 h-4" />
                 </button>
               </div>
             );

@@ -9,7 +9,7 @@ import {
 } from '@headlessui/react';
 import clsx from 'clsx';
 
-import { PopupCloseSVGIcon } from '../../assets/Icons/PopupCloseSVGIcon';
+import { X } from 'lucide-react';
 
 interface IModalProps {
   show: boolean;
@@ -86,7 +86,7 @@ const Modal = ({
                   className="cursor-pointer text-muted-foreground hover:text-foreground transition-colors"
                   onClick={() => setIsOpen(false)}
                 >
-                  <PopupCloseSVGIcon classes="" />
+                  <X className="w-5 h-5" />
                 </Button>
               </DialogTitle>
               <div

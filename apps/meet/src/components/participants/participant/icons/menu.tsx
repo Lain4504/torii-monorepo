@@ -11,7 +11,7 @@ import PrivateChatMenuItem from './menu-items/privateChat';
 import IconWrapper from './iconWrapper';
 
 import { useAppSelector } from '../../../../store';
-import { ParticipantsMenuIconSVG } from '../../../../assets/Icons/ParticipantsMenuIconSVG';
+import { MoreHorizontal } from 'lucide-react';
 
 interface IMenuIconProps {
   userId: string;
@@ -88,7 +88,7 @@ const MenuIcon = ({
         {({ open }) => (
           <>
             <MenuButton className="relative shrink-0 cursor-pointer dark:text-white">
-              <ParticipantsMenuIconSVG />
+              <MoreHorizontal className="w-5 h-5" />
             </MenuButton>
             <Transition
               show={open}

@@ -9,7 +9,7 @@ import clsx from 'clsx';
 
 import { store, useAppSelector } from '../../../store';
 import { getNatsConn } from '../../../helpers/nats';
-import { HandsIconSVG } from '../../../assets/Icons/HandsIconSVG';
+import { Hand } from 'lucide-react';
 
 const RaiseHandIcon = () => {
   const { t } = useTranslation();
@@ -72,7 +72,7 @@ const RaiseHandIcon = () => {
             ? t('footer.icons.lower-hand')
             : t('footer.icons.raise-hand')}
         </span>
-        <HandsIconSVG classes={'h-4 md:h-5 w-auto'} />
+        <Hand className={'h-4 md:h-5 w-auto'} />
       </div>
     </div>
   );

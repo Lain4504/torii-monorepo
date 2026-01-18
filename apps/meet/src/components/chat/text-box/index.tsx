@@ -18,7 +18,7 @@ import { useAutosizeTextArea } from './useAutosizeTextArea';
 import { publishFileAttachmentToChat } from '../utils';
 import { uploadResumableFile } from '../../../helpers/fileUpload';
 import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
-import SendIconSVG from '../../../assets/Icons/SendIconSVG';
+import { Send } from 'lucide-react';
 
 const urlRegex =
   /(\b(https?):\/\/[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%?=~_|])/gi;
@@ -220,7 +220,7 @@ const TextBoxArea = () => {
         onClick={sendMsg}
         className={`w-7 3xl:w-9 h-7 3xl:h-9 flex items-center justify-center rounded-full transition-all duration-300 hover:bg-primary/90 ${isEmpty(message) ? 'bg-primary/30' : 'bg-primary'} ${!isMsgSendingLocked && !isEmpty(message) ? 'cursor-pointer' : 'cursor-not-allowed'}`}
       >
-        <SendIconSVG />
+        <Send className="w-4 h-4 text-primary-foreground" />
       </button>
     </div>
   );

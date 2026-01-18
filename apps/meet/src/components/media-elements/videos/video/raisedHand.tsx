@@ -2,7 +2,7 @@ import React from 'react';
 
 import { useAppSelector } from '../../../../store';
 import { participantsSelector } from '../../../../store/slices/participantSlice';
-import { HandsIconSVG } from '../../../../assets/Icons/HandsIconSVG';
+import { Hand } from 'lucide-react';
 
 interface RaisedHandProps {
   userId: string;
@@ -17,7 +17,7 @@ const RaisedHand = ({ userId }: RaisedHandProps) => {
   return (
     raisedHand && (
       <div className="raised-hand absolute bottom-0 right-4 cursor-pointer w-7 h-7 rounded-full bg-Blue2-500 flex items-center justify-center">
-        <HandsIconSVG classes="h-4 w-auto" />
+        <Hand className="h-4 w-auto text-white" />
       </div>
     )
   );

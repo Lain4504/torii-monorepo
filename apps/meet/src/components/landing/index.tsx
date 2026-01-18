@@ -15,13 +15,10 @@ import {
   updateSelectedAudioDevice,
   updateSelectedVideoDevice,
 } from '../../store/slices/roomSettingsSlice';
-import { Volume } from '../../assets/Icons/Volume';
+import { Volume2, MicOff, VideoOff, Loader2 } from 'lucide-react';
 import { roomConnectionStatus } from '../app/helper';
 import { getNatsConn } from '../../helpers/nats';
 import { useMediaDevices } from './hooks/useMediaDevices';
-import { MicrophoneOff } from '../../assets/Icons/MicrophoneOff';
-import { CameraOff } from '../../assets/Icons/CameraOff';
-import { LoadingIcon } from '../../assets/Icons/Loading';
 
 import MicrophoneIcon from './microphone';
 import WebcamIcon from './webcam';
@@ -184,7 +181,7 @@ const Landing = ({
               <div className="micro-cam-wrap flex justify-center py-5 gap-5 empty:hidden">
                 {lockMicrophone ? (
                   <div className="microphone-wrap relative cursor-not-allowed shadow-sm border border-destructive/30 bg-destructive/5 rounded-xl h-11 w-11 flex items-center justify-center transition-all duration-300 text-destructive">
-                    <MicrophoneOff classes="h-6 w-6" />
+                    <MicOff className="h-6 w-6" />
                     <i className="wajlc-lock absolute -top-1 -right-1 z-10 text-destructive"></i>
                   </div>
                 ) : (
@@ -198,7 +195,7 @@ const Landing = ({
                 )}
                 {lockWebcam || !isWebcamAllowed ? (
                   <div className="cam-wrap relative cursor-not-allowed shadow-sm border border-destructive/30 bg-destructive/5 rounded-xl h-11 w-11 flex items-center justify-center transition-all duration-300 text-destructive">
-                    <CameraOff classes="h-6 w-6" />
+                    <VideoOff className="h-6 w-6" />
                     <i className="wajlc-lock absolute -top-1 -right-1 z-10 text-destructive" />
                   </div>
                 ) : (
@@ -218,11 +215,10 @@ const Landing = ({
                   {waitForApproval ? (
                     <div className="texts text-center md:text-left">
                       <h3 className="font-bold text-lg md:text-xl 3xl:text-2xl text-foreground leading-snug pb-2 flex items-center justify-center md:justify-start gap-2">
-                        <LoadingIcon
+                        <Loader2
                           className={
                             'inline h-5 w-5 text-muted-foreground animate-spin'
                           }
-                          fillColor={'var(--primary)'}
                         />
                         {t('landing.waiting-for-approval-title')}
                       </h3>
@@ -234,11 +230,10 @@ const Landing = ({
                   ) : (
                     <div className="texts text-center md:text-left">
                       <h3 className="font-bold text-lg md:text-xl 3xl:text-2xl text-foreground leading-snug pb-2 flex items-center justify-center md:justify-start gap-2">
-                        <LoadingIcon
+                        <Loader2
                           className={
                             'inline w-7 h-7 text-muted-foreground animate-spin'
                           }
-                          fillColor={'var(--primary)'}
                         />
                         {showLoadingMsg}
                       </h3>
@@ -266,7 +261,7 @@ const Landing = ({
                         onClick={() => openConn()}
                       >
                         {t('landing.join-as-listener-btn')}
-                        <Volume />
+                        <Volume2 className="h-4 w-4" />
                       </button>
                     ) : // Case 2: At least one device is available.
                       selectedAudioDevice !== '' || selectedVideoDevice !== '' ? (
@@ -300,7 +295,7 @@ const Landing = ({
                             onClick={() => openConn()}
                           >
                             {t('landing.join-as-listener-btn')}
-                            <Volume />
+                            <Volume2 className="h-4 w-4" />
                           </button>
                         </>
                       )}

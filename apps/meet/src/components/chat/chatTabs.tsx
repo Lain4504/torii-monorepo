@@ -17,9 +17,8 @@ import {
   updateSelectedChatOption,
   updateUnreadMsgFrom,
 } from '../../store/slices/roomSettingsSlice';
-import { CloseIconSVG } from '../../assets/Icons/CloseIconSVG';
+import { X, Check } from 'lucide-react';
 import { setActiveSidePanel } from '../../store/slices/bottomIconsActivitySlice';
-import { CheckMarkIcon } from '../../assets/Icons/CheckMarkIcon';
 import i18n from '../../helpers/i18n';
 import ChatTranslation from './chatTranslation';
 
@@ -123,7 +122,7 @@ const ChatTabs = () => {
           <ChatTranslation />
         </div>
         <div className="text-muted-foreground cursor-pointer" onClick={closePanel}>
-          <CloseIconSVG />
+          <X className="w-5 h-5" />
         </div>
       </div>
       <Listbox value={selectedChatOption} onChange={onChange}>
@@ -189,7 +188,7 @@ const ChatTabs = () => {
                       </span>
                       {selected && (
                         <span className="right absolute right-3">
-                          <CheckMarkIcon />
+                          <Check className="w-4 h-4" />
                         </span>
                       )}
                     </>

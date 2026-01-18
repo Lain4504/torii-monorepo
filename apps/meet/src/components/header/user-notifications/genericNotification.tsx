@@ -2,7 +2,7 @@ import React from 'react';
 import clsx from 'clsx';
 
 import { UserNotification } from '../../../store/slices/interfaces/roomSettings';
-import { NotifyIconSVG } from '../../../assets/Icons/NotifyIconSVG';
+import { Bell } from 'lucide-react';
 
 interface IGenericNotificationProps {
   notification: UserNotification;
@@ -33,7 +33,7 @@ const GenericNotification = ({ notification }: IGenericNotificationProps) => {
       key={notification.created}
     >
       <div className={iconClasses}>
-        <NotifyIconSVG classes="w-[15px] h-auto" />
+        <Bell className="w-[15px] h-auto" />
       </div>
       <div className="text flex-1 text-foreground text-sm">
         <p>{notification.message}</p>

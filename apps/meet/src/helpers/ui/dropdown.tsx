@@ -9,8 +9,7 @@ import {
   Transition,
 } from '@headlessui/react';
 
-import { DropdownIconSVG } from '../../assets/Icons/DropdownIconSVG';
-import { CheckMarkIcon } from '../../assets/Icons/CheckMarkIcon';
+import { ChevronDown, Check } from 'lucide-react';
 
 export interface ISelectOption {
   value: string | number;
@@ -90,7 +89,7 @@ const Dropdown = ({
                   )}
                 </div>
                 <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center">
-                  <DropdownIconSVG />
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 </span>
               </ListboxButton>
               <Transition
@@ -121,7 +120,7 @@ const Dropdown = ({
                           </span>
                           {selected && (
                             <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-primary">
-                              <CheckMarkIcon />
+                              <Check className="w-4 h-4" />
                             </span>
                           )}
                         </>
@@ -166,7 +165,7 @@ const Dropdown = ({
               )}
             </div>
             <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center">
-              <DropdownIconSVG />
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
             </span>
           </ListboxButton>
           <Transition
@@ -194,9 +193,7 @@ const Dropdown = ({
                     <>
                       <span className={`block truncate`}>{option.text}</span>
                       {selected && (
-                        <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-primary">
-                          <CheckMarkIcon />
-                        </span>
+                        <Check className="w-4 h-4" />
                       )}
                     </>
                   )}

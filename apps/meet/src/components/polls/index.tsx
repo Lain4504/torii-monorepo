@@ -5,7 +5,7 @@ import Create from './create/index';
 import PollsList from './pollsList';
 
 import { store, useAppDispatch } from '../../store';
-import { CloseIconSVG } from '../../assets/Icons/CloseIconSVG';
+import { X } from 'lucide-react';
 import { setActiveSidePanel } from '../../store/slices/bottomIconsActivitySlice';
 
 const PollsComponent = () => {
@@ -19,7 +19,7 @@ const PollsComponent = () => {
         className="inline-block absolute z-50 right-3 3xl:right-5 top-[10px] 3xl:top-[18px] text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
         onClick={() => dispatch(setActiveSidePanel(null))}
       >
-        <CloseIconSVG />
+        <X className="w-5 h-5" />
       </div>
       <div className="inner-wrapper relative z-20 w-full">
         <div className="top flex items-center h-10 3xl:h-14 px-3 3xl:px-5 border-b border-border">

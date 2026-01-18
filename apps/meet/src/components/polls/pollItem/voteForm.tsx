@@ -20,7 +20,7 @@ import {
 import { getNatsConn } from '../../../helpers/nats';
 import { PollDataWithOption } from '../utils';
 import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
-import { LoadingIcon } from '../../../assets/Icons/Loading';
+import { Loader2 } from 'lucide-react';
 
 interface PollFormProps {
   pollDataWithOption: PollDataWithOption;
@@ -171,11 +171,8 @@ const PollForm = ({ pollDataWithOption, isRunning }: PollFormProps) => {
       {pollOption}
       {isLoading && (
         <div className="absolute text-center top-1/2 -translate-y-1/2 z-999 left-0 right-0 m-auto">
-          <LoadingIcon
-            className={
-              'inline w-10 h-10 me-3 text-muted animate-spin'
-            }
-            fillColor={'var(--primary)'}
+          <Loader2
+            className={'inline w-10 h-10 me-3 text-primary animate-spin'}
           />
         </div>
       )}

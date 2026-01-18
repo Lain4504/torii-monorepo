@@ -7,8 +7,7 @@ import React, {
 } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { TrashIconSVG } from '../../../assets/Icons/TrashIconSVG';
-import { PlusCircleIconSVG } from '../../../assets/Icons/PlusCircleIconSVG';
+import { Trash2, PlusCircle } from 'lucide-react';
 import { CreatePollOptions } from './index';
 
 interface OptionsProps {
@@ -79,7 +78,7 @@ const OptionsView = ({ options, setOptions }: OptionsProps) => {
                     className="h-10 md:h-11 w-10 md:w-11 border border-destructive/20 bg-destructive/10 text-destructive rounded-lg flex items-center justify-center cursor-pointer hover:bg-destructive hover:text-destructive-foreground transition-all duration-300 shadow-sm"
                     onClick={() => removeOption(elm.id)}
                   >
-                    <TrashIconSVG />
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 )}
               </div>
@@ -93,7 +92,7 @@ const OptionsView = ({ options, setOptions }: OptionsProps) => {
         onClick={addOption}
       >
         {t('polls.add-new-option')}
-        <PlusCircleIconSVG />
+        <PlusCircle className="w-4 h-4" />
       </button>
     </div>
   );

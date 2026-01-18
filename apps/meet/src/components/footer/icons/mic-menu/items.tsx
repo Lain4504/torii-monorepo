@@ -9,9 +9,7 @@ import {
   updateIsActiveMicrophone,
   updateIsMicMuted,
 } from '../../../../store/slices/bottomIconsActivitySlice';
-import { CheckMarkIcon } from '../../../../assets/Icons/CheckMarkIcon';
-import { Microphone } from '../../../../assets/Icons/Microphone';
-import { MicrophoneOff } from '../../../../assets/Icons/MicrophoneOff';
+import { Check, Mic, MicOff } from 'lucide-react';
 
 interface IMicMenuItemsProps {
   currentRoom: Room;
@@ -87,13 +85,13 @@ const MicMenuItems = ({ currentRoom }: IMicMenuItemsProps) => {
           {() => (
             <p
               className={`${selectedAudioDevice === device.id
-                  ? 'bg-muted'
-                  : ''
+                ? 'bg-muted'
+                : ''
                 } h-8 w-full flex items-center justify-between text-sm gap-2 leading-none font-medium text-foreground px-2 rounded-lg transition-all duration-300 hover:bg-muted`}
               onClick={() => handleDeviceChange(device.id)}
             >
               {device.label}
-              {selectedAudioDevice === device.id ? <CheckMarkIcon /> : ''}
+              {selectedAudioDevice === device.id ? <Check className="w-4 h-4 text-primary" /> : ''}
             </p>
           )}
         </MenuItem>
@@ -108,12 +106,12 @@ const MicMenuItems = ({ currentRoom }: IMicMenuItemsProps) => {
             >
               {isMicMuted ? (
                 <>
-                  <Microphone classes={'h-4 w-auto'} />
+                  <Mic className={'h-4 w-auto'} />
                   {t('footer.menus.unmute-microphone')}
                 </>
               ) : (
                 <>
-                  <MicrophoneOff classes={'h-4 w-auto'} />
+                  <MicOff className={'h-4 w-auto'} />
                   {t('footer.menus.mute-microphone')}
                 </>
               )}

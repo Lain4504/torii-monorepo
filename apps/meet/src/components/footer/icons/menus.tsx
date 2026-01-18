@@ -6,7 +6,7 @@ import LockSettingsModal from '../modals/lockSettingsModal';
 import RtmpModal from '../modals/rtmpModal';
 import ManageWaitingRoom from '../../waiting-room';
 import BreakoutRoom from '../../breakout-room';
-import { FooterMenuIconSVG } from '../../../assets/Icons/FooterMenuIconSVG';
+import { MoreHorizontal } from 'lucide-react';
 import ExternalMediaPlayerModal from '../../external-media-player/modal';
 import DisplayExternalLinkModal from '../../display-external-link/modal';
 import AdminMenus from './menus/adminMenus';
@@ -58,7 +58,7 @@ const MenusIcon = ({ isAdmin }: MenusIconProps) => {
                   <div
                     className={`footer-icon-bg relative footer-icon flex items-center justify-center cursor-pointer w-full h-full rounded-lg border border-border shadow-sm transition-all duration-300 hover:bg-muted text-foreground ${open ? 'bg-muted' : 'bg-card'}`}
                   >
-                    <FooterMenuIconSVG />
+                    <MoreHorizontal className="w-auto h-4 md:h-5 3xl:h-6" />
                   </div>
                 </div>
               </MenuButton>

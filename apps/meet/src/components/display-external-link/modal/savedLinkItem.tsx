@@ -1,6 +1,5 @@
 import React from 'react';
-import { FileIconSVG } from '../../../assets/Icons/FileIconSVG';
-import { TrashIconSVG } from '../../../assets/Icons/TrashIconSVG';
+import { File, Trash2 } from 'lucide-react';
 
 interface ISavedLinkItemProps {
   url: string;
@@ -32,7 +31,7 @@ const SavedLinkItem = ({
         onClick={() => onSelect(url)}
       >
         <div className="icon w-9 h-9 rounded-full bg-muted text-primary relative inline-flex items-center justify-center shrink-0">
-          <FileIconSVG />
+          <File className="w-4 h-4" />
         </div>
         <div className="text flex-1 text-foreground text-sm overflow-hidden">
           <p className="break-all truncate">{url}</p>
@@ -45,7 +44,7 @@ const SavedLinkItem = ({
           onDelete(url);
         }}
       >
-        <TrashIconSVG />
+        <Trash2 className="w-4 h-4" />
       </button>
     </div>
   );

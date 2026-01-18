@@ -11,7 +11,7 @@ import clsx from 'clsx';
 
 import './style.css';
 import { useAppSelector } from '../../../store';
-import { LoadingIcon } from '../../../assets/Icons/Loading';
+import { Loader2 } from 'lucide-react';
 
 interface IVideoElmProps {
   track: RemoteTrackPublication | LocalTrackPublication;
@@ -71,9 +71,8 @@ const VideoElm = ({ track }: IVideoElmProps) => {
     <div className="screen-share-video group relative">
       {!isLoaded && (
         <div className="loading-status absolute flex h-full w-full items-center justify-center bg-black/50">
-          <LoadingIcon
+          <Loader2
             className="inline h-10 w-10 animate-spin text-gray-200"
-            fillColor="#004D90"
           />
         </div>
       )}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { LoadingIcon } from '../../assets/Icons/Loading';
+import { Loader2 } from 'lucide-react';
 import clsx from 'clsx';
 
 interface IActionButtonProps {
@@ -30,9 +30,8 @@ const ActionButton = ({
       )}
     >
       {isLoading ? (
-        <LoadingIcon
+        <Loader2
           className="inline h-5 w-5 animate-spin text-white"
-          fillColor="currentColor"
         />
       ) : (
         children

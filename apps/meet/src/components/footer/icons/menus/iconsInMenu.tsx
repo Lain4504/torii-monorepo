@@ -9,10 +9,7 @@ import {
   updateIsActiveSharedNotePad,
   updateIsActiveWhiteboard,
 } from '../../../../store/slices/bottomIconsActivitySlice';
-import { WhiteBoardIconSVG } from '../../../../assets/Icons/WhiteBoardIconSVG';
-import { SharedNotepadIconSVG } from '../../../../assets/Icons/SharedNotepadIconSVG';
-import { PollsIconSVG } from '../../../../assets/Icons/PollsIconSVG';
-import { SpeechIconSVG } from '../../../../assets/Icons/SpeechIconSVG';
+import { BarChart2, PenTool, NotebookPen, Captions } from 'lucide-react';
 
 const IconsInMenu = () => {
   const { t } = useTranslation();
@@ -76,7 +73,7 @@ const IconsInMenu = () => {
         <FooterMenuItem
           onClick={toggleWhiteboard}
           isActive={isActiveWhiteboard}
-          icon={<WhiteBoardIconSVG />}
+          icon={<PenTool />}
           text={
             isActiveWhiteboard
               ? t('footer.icons.hide-whiteboard')
@@ -88,7 +85,7 @@ const IconsInMenu = () => {
         <FooterMenuItem
           onClick={toggleSharedNotePad}
           isActive={isActiveSharedNotePad}
-          icon={<SharedNotepadIconSVG />}
+          icon={<NotebookPen />}
           text={
             isActiveSharedNotePad
               ? t('footer.icons.hide-shared-notepad')
@@ -100,7 +97,7 @@ const IconsInMenu = () => {
         <FooterMenuItem
           onClick={togglePollsPanel}
           isActive={isActivePollsPanel}
-          icon={<PollsIconSVG classes="" />}
+          icon={<BarChart2 className="w-6" />}
           text={
             isActivePollsPanel
               ? t('footer.icons.hide-polls-panel')
@@ -112,7 +109,7 @@ const IconsInMenu = () => {
         <FooterMenuItem
           onClick={toggleSpeechSettingOptionsModal}
           isActive={isActiveDisplaySpeechSettingOptionsModal}
-          icon={<SpeechIconSVG classes="w-auto" />}
+          icon={<Captions className="w-auto" />}
           text={
             isActiveDisplaySpeechSettingOptionsModal
               ? t('footer.icons.hide-translation-settings')

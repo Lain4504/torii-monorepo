@@ -12,7 +12,7 @@ import PublishResultBtn from './publishResultBtn';
 import NotRespondents from './notRespondents';
 import Respondents from './respondents';
 import { PollDataWithOption } from '../../utils';
-import { CloseIconSVG } from '../../../../assets/Icons/CloseIconSVG';
+import { X } from 'lucide-react';
 
 interface ViewDetailsProps {
   pollDataWithOption: PollDataWithOption;
@@ -78,7 +78,7 @@ const DetailsModal = ({
                   type="button"
                   onClick={closeModal}
                 >
-                  <CloseIconSVG />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
               <div className="q-headline px-6 py-4 border-y border-border bg-muted/30 text-sm font-semibold text-foreground">

@@ -4,7 +4,7 @@ import { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types';
 import { debounce } from 'es-toolkit';
 import { useTranslation } from 'react-i18next';
 
-import { PopupCloseSVGIcon } from '../../../assets/Icons/PopupCloseSVGIcon';
+import { X } from 'lucide-react';
 import { updateCurrentWhiteboardOfficeFileId } from '../../../store/slices/whiteboard';
 import { store, useAppDispatch } from '../../../store';
 import FileUploadProgress from './fileUploadProgress';
@@ -108,7 +108,7 @@ const ManageOfficeFilesModal = ({
             >
               <span>{t('whiteboard.upload-files-title')}</span>
               <Button className="cursor-pointer" onClick={() => onClose()}>
-                <PopupCloseSVGIcon />
+                <X className="w-5 h-5" />
               </Button>
             </DialogTitle>
             <div className="wrap p-4 bg-card">

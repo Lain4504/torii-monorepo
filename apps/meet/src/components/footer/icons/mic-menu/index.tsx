@@ -3,7 +3,7 @@ import { Menu, MenuButton, Transition } from '@headlessui/react';
 import { Room } from 'livekit-client';
 
 import MicMenuItems from './items';
-import { ArrowUp } from '../../../../assets/Icons/ArrowUp';
+import { ChevronUp } from 'lucide-react';
 
 interface IMicMenuProps {
   currentRoom: Room;
@@ -28,7 +28,7 @@ const MicMenu = ({
                 ${open ? 'bg-accent' : ''}
               `}
             >
-              <ArrowUp />
+              <ChevronUp className="w-4 h-4" />
             </MenuButton>
 
             <Transition

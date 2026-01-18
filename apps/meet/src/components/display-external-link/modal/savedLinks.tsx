@@ -4,7 +4,7 @@ import { isArray } from 'es-toolkit/compat';
 
 import FormattedInputField from '../../../helpers/ui/formattedInputField';
 import { DB_STORE_NAMES, idbGet, idbStore } from '../../../helpers/libs/idb';
-import { PlusCircleIconSVG } from '../../../assets/Icons/PlusCircleIconSVG';
+import { PlusCircle } from 'lucide-react';
 import SavedLinkItem from './savedLinkItem';
 
 const EXTERNAL_DISPLAY_LINK_URLS = 'externalDisplayLinkUrls';
@@ -103,7 +103,7 @@ const SavedLinks = ({ link, setLink }: ISavedLinksProps) => {
           type="button"
           onClick={addLink}
         >
-          <PlusCircleIconSVG />
+          <PlusCircle className="w-5 h-5" />
         </button>
       </div>
       {errorMsg && (

@@ -4,7 +4,7 @@ import clsx from 'clsx';
 
 import { store, useAppDispatch, useAppSelector } from '../../../store';
 import { participantsSelector } from '../../../store/slices/participantSlice';
-import { ParticipantsIconSVG } from '../../../assets/Icons/ParticipantsIconSVG';
+import { Users } from 'lucide-react';
 import { setActiveSidePanel } from '../../../store/slices/bottomIconsActivitySlice';
 
 const ParticipantIcon = () => {
@@ -52,7 +52,7 @@ const ParticipantIcon = () => {
             ? t('footer.icons.hide-users-list')
             : t('footer.icons.show-users-list')}
         </span>
-        <ParticipantsIconSVG />
+        <Users className="w-auto h-4 md:h-5 3xl:h-6" />
         {!isActiveParticipantsPanel && (
           <div className="unseen-message-count bg-primary w-4 3xl:w-5 h-4 3xl:h-5 rounded-full text-[10px] 3xl:text-xs text-primary-foreground absolute -top-2 -right-1 flex justify-center items-center">
             {participantsTotal}

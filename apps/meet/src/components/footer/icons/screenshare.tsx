@@ -12,7 +12,7 @@ import { updateIsActiveScreenshare } from '../../../store/slices/bottomIconsActi
 import { updateScreenSharing } from '../../../store/slices/sessionSlice';
 import { getScreenShareResolution } from '../../../helpers/utils';
 import { getMediaServerConnRoom } from '../../../helpers/livekit/utils';
-import { ShareScreenIconSVG } from '../../../assets/Icons/ShareScreenIconSVG';
+import { MonitorUp } from 'lucide-react';
 import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
 
 const ScrenshareIcon = () => {
@@ -175,7 +175,7 @@ const ScrenshareIcon = () => {
     <div className={wrapperClasses} onClick={() => toggleScreenShare()}>
       <div className={innerDivClasses}>
         <span className="tooltip">{text()}</span>
-        <ShareScreenIconSVG classes="w-auto h-4 3xl:h-5" />
+        <MonitorUp className="w-auto h-4 3xl:h-5" />
         {isLocked && (
           <span className="add absolute -top-2 -right-2 z-10">
             <i className="wajlc-lock primaryColor" />

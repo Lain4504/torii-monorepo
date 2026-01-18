@@ -15,9 +15,7 @@ import { updateSelectedVideoDevice } from '../../../store/slices/roomSettingsSli
 import VirtualBackground from '../../virtual-background/virtualBackground';
 import { createEmptyVideoStreamTrack } from '../../../helpers/utils';
 import { getMediaServerConnRoom } from '../../../helpers/livekit/utils';
-import { Camera } from '../../../assets/Icons/Camera';
-import { CameraOff } from '../../../assets/Icons/CameraOff';
-import { PlusIcon } from '../../../assets/Icons/PlusIcon';
+import { Video, VideoOff, Plus } from 'lucide-react';
 import useWebcamPublisher from './webcam/useWebcamPublisher';
 import useVirtualBackground from './webcam/useVirtualBackground';
 
@@ -247,22 +245,22 @@ const WebcamIcon = () => {
         <div className={camWrapClasses}>
           <div className={iconDivClasses} onClick={() => toggleWebcam()}>
             <span className="tooltip">{getTooltipText()}</span>
-            {isActiveWebcam ? <Camera classes={'h-4 3xl:h-5 w-auto'} /> : null}
+            {isActiveWebcam ? <Video className={'h-4 3xl:h-5 w-auto'} /> : null}
             {!isActiveWebcam && (
               <>
                 {selectedVideoDevice === '' ? (
                   <>
-                    <Camera classes={'h-4 3xl:h-5 w-auto'} />
+                    <Video className={'h-4 3xl:h-5 w-auto'} />
                     <span className="add absolute -top-2 -right-2 z-10">
                       {isWebcamLocked ? (
                         <i className="wajlc-lock primaryColor" />
                       ) : (
-                        <PlusIcon />
+                        <Plus className="w-3 h-3 md:w-4 md:h-4" />
                       )}
                     </span>
                   </>
                 ) : (
-                  <CameraOff classes={'h-4 3xl:h-5 w-auto'} />
+                  <VideoOff className={'h-4 3xl:h-5 w-auto'} />
                 )}
               </>
             )}

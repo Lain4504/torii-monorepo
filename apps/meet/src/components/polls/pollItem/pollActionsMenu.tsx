@@ -8,7 +8,7 @@ import {
 } from '@headlessui/react';
 import { useTranslation } from 'react-i18next';
 
-import { FooterMenuIconSVG } from '../../../assets/Icons/FooterMenuIconSVG';
+import { MoreHorizontal } from 'lucide-react';
 import { PollDataWithOption, publishPollResultByChat } from '../utils';
 import { useEndPoll } from '../hooks/useEndPoll';
 
@@ -40,7 +40,7 @@ const PollActionsMenu = ({
         <>
           <MenuButton className="relative shrink-0 p-2 mr-2 cursor-pointer">
             <div className="">
-              <FooterMenuIconSVG />
+              <MoreHorizontal className="w-5 h-5" />
             </div>
           </MenuButton>
           <Transition

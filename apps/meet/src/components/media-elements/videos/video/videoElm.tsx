@@ -10,7 +10,7 @@ import React, {
 import { LocalTrackPublication, RemoteTrackPublication } from 'livekit-client';
 
 import { useAppSelector } from '../../../../store';
-import { LoadingIcon } from '../../../../assets/Icons/Loading';
+import { Loader2 } from 'lucide-react';
 import './style.css';
 
 interface IVideoElmProps {
@@ -74,9 +74,8 @@ const VideoElm = forwardRef<HTMLVideoElement, IVideoElmProps>(
       <>
         {!loaded && (
           <div className="loading-status absolute flex h-full w-full items-center justify-center bg-black/50">
-            <LoadingIcon
-              className="inline h-8 w-8 animate-spin text-gray-200"
-              fillColor="#004D90"
+            <Loader2
+              className="inline h-8 w-8 animate-spin text-primary"
             />
           </div>
         )}

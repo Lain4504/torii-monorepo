@@ -7,8 +7,7 @@ import {
   participantsSelector,
   updateParticipant,
 } from '../../../../store/slices/participantSlice';
-import { Microphone } from '../../../../assets/Icons/Microphone';
-import { MicrophoneOff } from '../../../../assets/Icons/MicrophoneOff';
+import { Mic, MicOff } from 'lucide-react';
 import IconWrapper from './iconWrapper';
 import RangeSlider from '../../../../helpers/ui/rangeSlider';
 
@@ -68,9 +67,9 @@ const MicIcon = ({ userId, isRemoteParticipant }: MicIconProps) => {
             <>
               <MenuButton>
                 {volume ? (
-                  <Microphone classes="h-3 3xl:h-4 w-auto cursor-pointer" />
+                  <Mic className="h-3 3xl:h-4 w-auto cursor-pointer" />
                 ) : (
-                  <MicrophoneOff classes="h-3 3xl:h-4 w-auto cursor-pointer" />
+                  <MicOff className="h-3 3xl:h-4 w-auto cursor-pointer" />
                 )}
               </MenuButton>
 
@@ -97,9 +96,9 @@ const MicIcon = ({ userId, isRemoteParticipant }: MicIconProps) => {
                     </p>
                     <button className="w-5 h-5">
                       {volume ? (
-                        <Microphone classes="h-3 3xl:h-4 w-auto" />
+                        <Mic className="h-3 3xl:h-4 w-auto" />
                       ) : (
-                        <MicrophoneOff classes="h-3 3xl:h-4 w-auto" />
+                        <MicOff className="h-3 3xl:h-4 w-auto" />
                       )}
                     </button>
                   </section>
@@ -115,14 +114,14 @@ const MicIcon = ({ userId, isRemoteParticipant }: MicIconProps) => {
   const render = useMemo(() => {
     if (audioTracks > 0) {
       if (isMuted) {
-        return <MicrophoneOff classes={'h-3 3xl:h-4 w-auto'} />;
+        return <MicOff className={'h-3 3xl:h-4 w-auto'} />;
       }
       // if this user is a remote Participant, then we can control volume.
       if (isRemoteParticipant) {
         return renderVolumeControl();
       }
       // for local user don't need
-      return <Microphone classes={'h-3 3xl:h-4 w-auto'} />;
+      return <Mic className={'h-3 3xl:h-4 w-auto'} />;
     }
 
     return null;

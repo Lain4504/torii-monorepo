@@ -9,8 +9,7 @@ import {
 } from '../../store/slices/roomSettingsSlice';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { updateParticipant } from '../../store/slices/participantSlice';
-import { VolumeHeader } from '../../assets/Icons/VolumeHeader';
-import { VolumeMutedSVG } from '../../assets/Icons/VolumeMutedSVG';
+import { Volume2, VolumeX } from 'lucide-react';
 import RangeSlider from '../../helpers/ui/rangeSlider';
 
 const VolumeControl = () => {
@@ -84,7 +83,7 @@ const VolumeControl = () => {
               }`}
           >
             <div className="text-foreground cursor-pointer">
-              {localRoomVolume > 0 ? <VolumeHeader /> : <VolumeMutedSVG />}
+              {localRoomVolume > 0 ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
             </div>
           </MenuButton>
           <Transition

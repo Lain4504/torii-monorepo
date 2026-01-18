@@ -2,10 +2,7 @@ import React, { SetStateAction } from 'react';
 import { Menu, MenuButton, MenuItem, Transition } from '@headlessui/react';
 import { useTranslation } from 'react-i18next';
 
-import { PlusIcon } from '../../assets/Icons/PlusIcon';
-import { ArrowUp } from '../../assets/Icons/ArrowUp';
-import { CheckMarkIcon } from '../../assets/Icons/CheckMarkIcon';
-import { Microphone } from '../../assets/Icons/Microphone';
+import { Check, Plus, ChevronUp, Mic } from 'lucide-react';
 import { IMediaDevice } from '../../store/slices/interfaces/roomSettings';
 import { inputMediaDeviceKind } from '../../helpers/utils';
 
@@ -36,13 +33,13 @@ const MicrophoneIcon = ({
       >
         {audioDevices.length === 0 ? (
           <>
-            <Microphone classes={'h-5 w-auto'} />
+            <Mic className={'h-5 w-auto'} />
             <span className="add absolute -top-2 -right-2 z-10">
-              <PlusIcon />
+              <Plus className="w-4 h-4 text-white bg-primary rounded-full p-0.5" />
             </span>
           </>
         ) : (
-          <Microphone classes={'h-5 w-auto'} />
+          <Mic className={'h-5 w-auto'} />
         )}
       </div>
       {audioDevices.length > 0 && (
@@ -53,7 +50,7 @@ const MicrophoneIcon = ({
                 <MenuButton
                   className={`w-[30px] h-11 flex items-center justify-center border border-border rounded-r-xl ${open ? 'bg-muted' : 'bg-secondary'}`}
                 >
-                  <ArrowUp />
+                  <ChevronUp className="w-4 h-4" />
                 </MenuButton>
                 <Transition
                   as={'div'}
@@ -81,7 +78,7 @@ const MicrophoneIcon = ({
                             <p className="min-h-9 w-full flex items-center justify-between text-sm gap-2 leading-none font-medium text-foreground px-2 rounded-lg transition-all duration-300 hover:bg-muted">
                               {device.label}
                               {selectedAudioDevice === device.id ? (
-                                <CheckMarkIcon />
+                                <Check className="w-4 h-4 text-primary" />
                               ) : (
                                 ''
                               )}

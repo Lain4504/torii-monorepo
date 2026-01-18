@@ -10,7 +10,7 @@ import { debounce } from 'es-toolkit';
 import { store, useAppDispatch, useAppSelector } from '../../../store';
 import { updateIsActiveWhiteboard } from '../../../store/slices/bottomIconsActivitySlice';
 import sendAPIRequest from '../../../helpers/api/walearnconnectAPI';
-import { WhiteBoardIconSVG } from '../../../assets/Icons/WhiteBoardIconSVG';
+import { Presentation } from 'lucide-react';
 import { participantsSelector } from '../../../store/slices/participantSlice';
 
 const WhiteboardIcon = () => {
@@ -140,7 +140,7 @@ const WhiteboardIcon = () => {
               ? t('footer.icons.hide-whiteboard')
               : t('footer.icons.show-whiteboard')}
           </span>
-          <WhiteBoardIconSVG />
+          <Presentation className="w-auto h-4 3xl:h-5" />
         </div>
       </div>
     )

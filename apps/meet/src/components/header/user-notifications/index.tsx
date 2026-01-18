@@ -20,8 +20,7 @@ import GenericNotification from './genericNotification';
 
 import { store, useAppSelector } from '../../../store';
 import { UserNotification } from '../../../store/slices/interfaces/roomSettings';
-import { PopupCloseSVGIcon } from '../../../assets/Icons/PopupCloseSVGIcon';
-import { NotifyIconSVG } from '../../../assets/Icons/NotifyIconSVG';
+import { X, Bell } from 'lucide-react';
 
 const UserNotifications = () => {
   const toastId = useRef<number | string>('toastId');
@@ -111,7 +110,7 @@ const UserNotifications = () => {
     if (hasUnreadNotifications > 0) {
       return (
         <div className="relative">
-          <NotifyIconSVG classes="w-3.5 md:w-4 h-auto text-foreground dark:text-white" />
+          <Bell className="w-3.5 md:w-4 h-auto text-foreground dark:text-white" />
           <span className="unseen-notification-count bg-secondary w-4 3xl:w-5 h-4 3xl:h-5 rounded-full text-[10px] 3xl:text-xs text-white absolute -top-2 -right-1 flex justify-center items-center">
             {hasUnreadNotifications}
           </span>
@@ -119,7 +118,7 @@ const UserNotifications = () => {
       );
     } else {
       return (
-        <NotifyIconSVG classes="w-3.5 md:w-4 h-auto text-foreground dark:text-white" />
+        <Bell className="w-3.5 md:w-4 h-auto text-foreground dark:text-white" />
       );
     }
   };
@@ -157,7 +156,7 @@ const UserNotifications = () => {
                       close();
                     }}
                   >
-                    <PopupCloseSVGIcon classes="text-muted-foreground" />
+                    <X className="w-5 h-5 text-muted-foreground" />
                   </div>
                 </div>
                 <div className="scrollBar overflow-auto h-[calc(100vh-148px)] 3xl:h-[calc(100vh-184px)] py-4">

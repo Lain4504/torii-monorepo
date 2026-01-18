@@ -20,7 +20,7 @@ import {
   getElmsForTablet,
 } from './helpers/utils';
 import { useDeviceInfo } from './helpers/useDeviceInfo';
-import { AngleDown } from '../../../assets/Icons/AngleDown';
+import { ChevronDown } from 'lucide-react';
 
 interface IVideoLayoutProps {
   allParticipants: ReactElement<VideoParticipantProps>[];
@@ -190,7 +190,7 @@ const VideoLayout = ({
             {formatNextPreButton(potentialNextItems)}
           </div>
           <div className="right pb-4 -rotate-90">
-            <AngleDown />
+            <ChevronDown />
           </div>
         </button>,
       );
@@ -209,7 +209,7 @@ const VideoLayout = ({
           onClick={() => prePage(currentPage)}
         >
           <div className="right rotate-90">
-            <AngleDown />
+            <ChevronDown />
           </div>
           <div className="left flex-1 flex justify-center">
             {formatNextPreButton(prevItems)}

@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 
-import { SpeechIconSVG } from '../../../assets/Icons/SpeechIconSVG';
+import { MessageSquareQuote } from 'lucide-react';
 import { store, useAppDispatch, useAppSelector } from '../../../store';
 import { updateDisplaySpeechSettingOptionsModal } from '../../../store/slices/bottomIconsActivitySlice';
 
@@ -64,7 +64,7 @@ const Translation = () => {
             ? t('footer.icons.hide-translation-settings')
             : t('footer.icons.show-translation-settings')}
         </span>
-        <SpeechIconSVG classes="h-6 w-auto" />
+        <MessageSquareQuote className="h-6 w-auto" />
       </div>
     </div>
   );

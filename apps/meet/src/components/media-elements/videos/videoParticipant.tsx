@@ -5,7 +5,7 @@ import VideoComponent from './video';
 import { useAppSelector } from '../../../store';
 import { selectIsSpeakingByUserId } from '../../../store/slices/activeSpeakersSlice';
 import { VideoParticipantType } from './';
-import { RepeatIconSVG } from '../../../assets/Icons/RepeatIconSVG';
+import { Repeat } from 'lucide-react';
 
 export interface VideoParticipantProps {
   participantType: VideoParticipantType;
@@ -47,9 +47,8 @@ const VideoParticipant = ({
 
   return (
     <div
-      className={`video-camera-item relative group ${isSpeaking ? 'speaking' : ''} ${
-        participantType.isAdmin ? 'admin' : 'participants'
-      } ${participantType.isLocal && floatView ? 'its-me' : ''}`}
+      className={`video-camera-item relative group ${isSpeaking ? 'speaking' : ''} ${participantType.isAdmin ? 'admin' : 'participants'
+        } ${participantType.isLocal && floatView ? 'its-me' : ''}`}
     >
       {participantType.isLocal && displaySwitchCamIcon && (
         <>
@@ -57,7 +56,7 @@ const VideoParticipant = ({
             className="switch-camera absolute top-3 left-4 z-50 text-white cursor-pointer h-7 w-7 rounded-full hidden items-center justify-center bg-black bg-opacity-50"
             onClick={() => setFloatView(!floatView)}
           >
-            <RepeatIconSVG />
+            <Repeat className="w-4 h-4" />
           </div>
         </>
       )}

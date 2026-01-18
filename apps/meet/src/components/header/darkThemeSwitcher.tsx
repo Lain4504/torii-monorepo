@@ -2,8 +2,7 @@ import React from 'react';
 
 import { useAppDispatch, useAppSelector } from '../../store';
 import { updateTheme } from '../../store/slices/roomSettingsSlice';
-import { SunIcon } from '../../assets/Icons/SunIcon';
-import { MoonIcon } from '../../assets/Icons/MoonIcon';
+import { Sun, Moon } from 'lucide-react';
 import { getConfigValue } from '../../helpers/utils';
 
 const DarkThemeSwitcher = () => {
@@ -26,12 +25,12 @@ const DarkThemeSwitcher = () => {
         <div
           className={`item w-7 md:w-8 3xl:w-9 h-7 md:h-8 3xl:h-9 rounded-xl transition-all duration-300 flex items-center justify-center text-primary dark:text-muted-foreground/30 ${theme === 'light' ? 'bg-background shadow-sm' : ''}`}
         >
-          <SunIcon />
+          <Sun className="w-4 h-4 3xl:w-5 3xl:h-5" />
         </div>
         <div
           className={`item w-7 md:w-8 3xl:w-9 h-7 md:h-8 3xl:h-9 rounded-xl transition-all duration-300 flex items-center justify-center text-primary dark:text-foreground ${theme === 'dark' ? 'bg-background shadow-sm' : ''}`}
         >
-          <MoonIcon />
+          <Moon className="w-4 h-4 3xl:w-5 3xl:h-5" />
         </div>
       </div>
       <div className="mobile inline md:hidden cursor-pointer">

@@ -3,7 +3,7 @@ import { Menu, MenuButton, Transition } from '@headlessui/react';
 import { Room } from 'livekit-client';
 
 import WebcamMenuItems from './items';
-import { ArrowUp } from '../../../../../assets/Icons/ArrowUp';
+import { ChevronUp } from 'lucide-react';
 
 interface IWebcamMenuProps {
   currentRoom: Room;
@@ -24,7 +24,7 @@ const WebcamMenu = ({
             <MenuButton
               className={`footer-icon-bg w-[20px] md:w-[25px] 3xl:w-[30px] h-[34px] md:h-9 3xl:h-11 flex items-center justify-center border-r-0 border overflow-hidden ${isActiveWebcam ? 'bg-muted dark:bg-transparent rounded-r-xl 3xl:rounded-r-2xl' : 'border-input'} ${open ? 'border-sidebar-border dark:border-secondary-foreground dark:bg-foreground!' : 'border-input dark:border-secondary-foreground dark:border-l-foreground'}`}
             >
-              <ArrowUp />
+              <ChevronUp className="w-4 h-4" />
             </MenuButton>
 
             {/* Use the Transition component. */}

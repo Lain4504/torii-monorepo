@@ -2,7 +2,7 @@ import React, { ReactElement, useCallback } from 'react';
 
 import { useAppDispatch } from '../../../../store';
 import { updateIsEnabledExtendedVerticalCamView } from '../../../../store/slices/bottomIconsActivitySlice';
-import { ArrowRight } from '../../../../assets/Icons/ArrowRight';
+import { ArrowRight } from 'lucide-react';
 
 interface IVerticalLayoutProps {
   participantsToRender: Array<ReactElement>;
@@ -32,8 +32,8 @@ const VerticalLayout = ({
   }, [dispatch, isEnabledExtendedVerticalCamView]);
 
   const wrapperClasses = `vertical-webcams-wrapper group absolute right-0 bottom-0 xl:bottom-auto xl:top-0 bg-background/50 backdrop-blur-md border-t xl:border-t-0 xl:border-l border-border h-[126px] lg:h-[200px] xl:h-full p-3 transition-all duration-300 z-20 ${isEnabledExtendedVerticalCamView
-      ? 'w-full xl:w-[416px] flex flex-col justify-center extended-view-wrap'
-      : 'w-full xl:w-[212px] not-extended'
+    ? 'w-full xl:w-[416px] flex flex-col justify-center extended-view-wrap'
+    : 'w-full xl:w-[212px] not-extended'
     }`;
 
   const innerClasses = `inner row-count-${participantsToRender.length
@@ -65,7 +65,7 @@ const VerticalLayout = ({
             className={`${isEnabledExtendedVerticalCamView ? '' : 'rotate-180'
               }`}
           >
-            <ArrowRight />
+            <ArrowRight className="w-4 h-4" />
           </span>
         </button>
       )}

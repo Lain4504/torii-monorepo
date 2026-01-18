@@ -10,7 +10,7 @@ import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
 import { store, useAppSelector } from '../../../store';
 import sendAPIRequest from '../../../helpers/api/walearnconnectAPI';
-import { LoadingIcon } from '../../../assets/Icons/Loading';
+import { Loader2 } from 'lucide-react';
 import Dropdown, { ISelectOption } from '../../../helpers/ui/dropdown';
 import FormattedInputField from '../../../helpers/ui/formattedInputField';
 
@@ -100,9 +100,8 @@ const Ingress = () => {
             className="primary-button h-8 px-5 flex items-center justify-center text-sm font-semibold bg-Blue hover:bg-white border border-[#0088CC] rounded-[15px] text-white hover:text-foreground transition-all duration-300 shadow-button-shadow cursor-pointer disabled:opacity-50"
           >
             {isLoading ? (
-              <LoadingIcon
+              <Loader2
                 className="inline h-5 w-5 animate-spin text-white"
-                fillColor="currentColor"
               />
             ) : (
               t('ingress-features.gen-link')

@@ -11,7 +11,7 @@ import DurationView from './durationView';
 import DarkThemeSwitcher from './darkThemeSwitcher';
 import HeaderLogo from './headerLogo';
 import { getNatsConn } from '../../helpers/nats';
-import { HeaderMenuIcon } from '../../assets/Icons/HeaderMenuIcon';
+import { Menu as MenuIcon } from 'lucide-react';
 import UserNotifications from './user-notifications';
 import ConfirmationModal from '../../helpers/ui/confirmationModal';
 
@@ -72,7 +72,7 @@ const Header = () => {
                     className={`relative shrink-0 w-7 md:w-8 h-7 md:h-8 flex items-center justify-center rounded-lg cursor-pointer ${open ? 'bg-muted' : ''}`}
                   >
                     <div className="text-foreground cursor-pointer">
-                      <HeaderMenuIcon />
+                      <MenuIcon className="w-5 h-5" />
                     </div>
                   </MenuButton>
 

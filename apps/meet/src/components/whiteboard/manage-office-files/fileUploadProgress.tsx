@@ -16,8 +16,7 @@ import {
   RoomUploadedFileType,
 } from '@workspace/protocol';
 
-import { FileIconSVG } from '../../../assets/Icons/FileIconSVG';
-import { TrashSVG } from '../../../assets/Icons/TrashSVG';
+import { File, Trash2 } from 'lucide-react';
 import { sleep } from '../../../helpers/utils';
 import { store } from '../../../store';
 import { getNatsConn } from '../../../helpers/nats';
@@ -162,7 +161,7 @@ const FileUploadProgress = ({
         className={`flex gap-4 py-2 px-3 bg-muted/30 w-full rounded-xl ${message && message.isError ? 'border border-destructive/50' : ''}`}
       >
         <div className="icon w-9 h-9 rounded-full bg-muted text-foreground relative inline-flex items-center justify-center">
-          <FileIconSVG />
+          <File className="w-4 h-4" />
         </div>
         <div className="text flex-1 text-foreground text-sm">
           <div className="top flex gap-3 justify-between">
@@ -173,7 +172,7 @@ const FileUploadProgress = ({
               </div>
             </div>
             <div className="right cursor-pointer" onClick={handleDelete}>
-              <TrashSVG />
+              <Trash2 className="w-4 h-4" />
             </div>
           </div>
           <div className="progress-bar flex gap-2 items-center">

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAppSelector } from '../../../../store';
 import { participantsSelector } from '../../../../store/slices/participantSlice';
-import { HandsIconSVG } from '../../../../assets/Icons/HandsIconSVG';
+import { Hand } from 'lucide-react';
 import IconWrapper from './iconWrapper';
 
 interface IRaiseHandIconProps {
@@ -16,7 +16,7 @@ const RaiseHandIcon = ({ userId }: IRaiseHandIconProps) => {
   return (
     raisedHand && (
       <IconWrapper>
-        <HandsIconSVG classes={'h-3 3xl:h-4 w-auto dark:text-white'} />
+        <Hand className={'h-3 3xl:h-4 w-auto dark:text-white'} />
       </IconWrapper>
     )
   );

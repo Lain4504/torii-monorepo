@@ -3,8 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { RoomUploadedFileType } from '@workspace/protocol';
 
 import { uploadResumableFile } from '../../../helpers/fileUpload';
-import { FileIconSVG } from '../../../assets/Icons/FileIconSVG';
-import { TrashSVG } from '../../../assets/Icons/TrashSVG';
+import { File, Trash2 } from 'lucide-react';
 
 interface IUploadFileProps {
   isPlayBtnLoading: boolean;
@@ -80,12 +79,11 @@ const UploadFile = ({
         </>
       ) : (
         <div
-          className={`flex gap-4 py-2 px-3 bg-muted w-full rounded-xl ${
-            error ? 'border border-Red-400' : ''
-          }`}
+          className={`flex gap-4 py-2 px-3 bg-muted w-full rounded-xl ${error ? 'border border-Red-400' : ''
+            }`}
         >
           <div className="icon w-9 h-9 rounded-full bg-sidebar-border text-Blue2-800 relative inline-flex items-center justify-center">
-            <FileIconSVG />
+            <File className="w-4 h-4" />
           </div>
           <div className="text flex-1 text-foreground text-sm">
             <div className="top flex gap-3 justify-between">
@@ -99,7 +97,7 @@ const UploadFile = ({
                 className="right cursor-pointer"
                 onClick={() => !isUploading && setFile(undefined)}
               >
-                <TrashSVG />
+                <Trash2 className="w-4 h-4" />
               </div>
             </div>
             <div className="progress-bar flex gap-2 items-center">

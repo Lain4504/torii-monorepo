@@ -9,10 +9,7 @@ import { PopoverPanel } from '@headlessui/react';
 import { useTranslation } from 'react-i18next';
 
 import { store, useAppSelector } from '../../../../store';
-import { DownloadIconSVG } from '../../../../assets/Icons/DownloadIconSVG';
-import { CloseIconSVG } from '../../../../assets/Icons/CloseIconSVG';
-import InterimTextDisplay from './interimTextDisplay';
-import { ScrollToBottomIconSVG } from '../../../../assets/Icons/ScrollToBottom';
+import { X, Download, ArrowDown } from 'lucide-react';
 
 interface SubtitleHistoryPanelProps {
   showPopover: boolean;
@@ -143,20 +140,20 @@ const SubtitleHistoryPanel = ({
               className="w-5 h-5 flex items-center justify-center cursor-pointer"
               onClick={() => forceScrollToBottom()}
             >
-              <ScrollToBottomIconSVG />
+              <ArrowDown className="text-white" />
             </button>
           )}
           <button
             className="w-5 h-5 flex items-center justify-center cursor-pointer"
             onClick={() => downloadTexts()}
           >
-            <DownloadIconSVG />
+            <Download className="text-white w-4 h-4 md:w-5 md:h-5" />
           </button>
           <button
             className="w-5 h-5 flex items-center justify-center cursor-pointer"
             onClick={() => setShowPopover(!showPopover)}
           >
-            <CloseIconSVG />
+            <X className="w-5 h-5 text-white" />
           </button>
         </div>
       </h2>

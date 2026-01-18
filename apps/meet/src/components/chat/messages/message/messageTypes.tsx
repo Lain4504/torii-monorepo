@@ -6,7 +6,7 @@ import { formatDate } from '../../utils';
 import { useAppSelector } from '../../../../store';
 import { participantsSelector } from '../../../../store/slices/participantSlice';
 import Avatar from './avatar';
-import { AiIconSVG } from '../../../../assets/Icons/AiIconSVG';
+import { Bot } from 'lucide-react';
 
 export const SystemMessage = memo(({ message }: { message: string }) => {
   return (
@@ -90,7 +90,7 @@ export const AIMessage = memo(
       <>
         <div className="thumb h-7 3xl:h-9 w-7 3xl:w-9 rounded-lg 3xl:rounded-xl bg-primary text-primary-foreground flex items-center justify-center overflow-hidden shrink-0">
           <span className="h-4 w-4 3xl:h-5 3xl:w-5">
-            <AiIconSVG classes="w-full h-full" />
+            <Bot className="w-full h-full" />
           </span>
         </div>
         <div className="content w-[calc(100%-36px)] 3xl:w-[calc(100%-48px)] flex-1">

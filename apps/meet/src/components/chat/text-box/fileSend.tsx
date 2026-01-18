@@ -6,7 +6,7 @@ import { useAppDispatch } from '../../../store';
 import useResumableFilesUpload from '../../../helpers/hooks/useResumableFilesUpload';
 import { publishFileAttachmentToChat } from '../utils';
 import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
-import { LoadingIcon } from '../../../assets/Icons/Loading';
+import { Loader2 } from 'lucide-react';
 
 interface IFileSendProps {
   lockSendFile: boolean;
@@ -78,9 +78,8 @@ const FileSend = ({ lockSendFile, chatFeatures }: IFileSendProps) => {
         className=""
       >
         {isUploading ? (
-          <LoadingIcon
+          <Loader2
             className={'inline w-4 h-4 text-muted animate-spin'}
-            fillColor={'var(--primary)'}
           />
         ) : (
           <svg
