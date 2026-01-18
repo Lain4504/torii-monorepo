@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 
 import { store, useAppSelector } from '../../../../store';
 import { X, Download, ArrowDown } from 'lucide-react';
+import InterimTextDisplay from './interimTextDisplay';
 
 interface SubtitleHistoryPanelProps {
   showPopover: boolean;

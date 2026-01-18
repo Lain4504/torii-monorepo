@@ -13,17 +13,12 @@ import {
 
 import { handleProtobufResponse, renewTokenOnError } from './utils';
 import { RootState } from '../index';
-import { getConfigValue } from '../../helpers/utils';
+import { SERVER_URL } from '../../config';
 
 export const pollsApi = createApi({
   reducerPath: 'pollsApi',
   baseQuery: fetchBaseQuery({
-    baseUrl:
-      getConfigValue<string>(
-        'serverUrl',
-        'http://localhost:8080',
-        'WAJLC_SERVER_URL',
-      ) + '/api/polls',
+    baseUrl: SERVER_URL + '/api/polls',
     prepareHeaders: (headers, { getState, endpoint }) => {
       const token = (getState() as RootState).session.token;
       if (token) {

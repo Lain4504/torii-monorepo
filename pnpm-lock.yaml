@@ -174,7 +174,7 @@ importers:
         version: 12.0.0(size-limit@12.0.0(jiti@2.6.1))
       '@tailwindcss/vite':
         specifier: 4.1.18
-        version: 4.1.18(vite@7.3.1(@types/node@24.10.2)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2))
+        version: 4.1.18(rolldown-vite@7.3.1(@types/node@24.10.2)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.44.1)(yaml@2.8.2))
       '@types/emscripten':
         specifier: 1.41.5
         version: 1.41.5
@@ -189,7 +189,7 @@ importers:
         version: 2.16.0
       '@vitejs/plugin-react':
         specifier: 5.1.2
-        version: 5.1.2(vite@7.3.1(@types/node@24.10.2)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2))
+        version: 5.1.2(rolldown-vite@7.3.1(@types/node@24.10.2)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.44.1)(yaml@2.8.2))
       eslint:
         specifier: ^9.39.2
         version: 9.39.2(jiti@2.6.1)
@@ -212,17 +212,17 @@ importers:
         specifier: 5.9.3
         version: 5.9.3
       vite:
-        specifier: ^7.3.0
-        version: 7.3.1(@types/node@24.10.2)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2)
+        specifier: npm:rolldown-vite@^7.3.1
+        version: rolldown-vite@7.3.1(@types/node@24.10.2)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.44.1)(yaml@2.8.2)
       vite-plugin-clean:
         specifier: 2.0.1
         version: 2.0.1(@types/node@24.10.2)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.44.1)(yaml@2.8.2)
       vite-plugin-oxlint:
         specifier: 1.5.0
-        version: 1.5.0(vite@7.3.1(@types/node@24.10.2)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2))
+        version: 1.5.0(rolldown-vite@7.3.1(@types/node@24.10.2)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.44.1)(yaml@2.8.2))
       vite-plugin-static-copy:
         specifier: 3.1.4
-        version: 3.1.4(vite@7.3.1(@types/node@24.10.2)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2))
+        version: 3.1.4(rolldown-vite@7.3.1(@types/node@24.10.2)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.44.1)(yaml@2.8.2))
 
   apps/server:
     dependencies:
@@ -11059,46 +11059,6 @@ packages:
       yaml:
         optional: true
 
-  vite@7.3.1:
-    resolution: {integrity: sha512-w+N7Hifpc3gRjZ63vYBXA56dvvRlNWRczTdmCBBa+CotUzAPf5b7YMdMR/8CQoeYE5LX3W4wj6RYTgonm1b9DA==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    hasBin: true
-    peerDependencies:
-      '@types/node': ^20.19.0 || >=22.12.0
-      jiti: '>=1.21.0'
-      less: ^4.0.0
-      lightningcss: ^1.21.0
-      sass: ^1.70.0
-      sass-embedded: ^1.70.0
-      stylus: '>=0.54.8'
-      sugarss: ^5.0.0
-      terser: ^5.16.0
-      tsx: ^4.8.1
-      yaml: ^2.4.2
-    peerDependenciesMeta:
-      '@types/node':
-        optional: true
-      jiti:
-        optional: true
-      less:
-        optional: true
-      lightningcss:
-        optional: true
-      sass:
-        optional: true
-      sass-embedded:
-        optional: true
-      stylus:
-        optional: true
-      sugarss:
-        optional: true
-      terser:
-        optional: true
-      tsx:
-        optional: true
-      yaml:
-        optional: true
-
   void-elements@3.1.0:
     resolution: {integrity: sha512-Dhxzh5HZuiHQhbvTW9AMetFfBHDMYpo23Uo9btPXgdYP+3T5S+p+jgNy7spra+veYhBP2dCSgxR/i2Y02h5/6w==}
     engines: {node: '>=0.10.0'}
@@ -16021,12 +15981,12 @@ snapshots:
       postcss: 8.5.6
       tailwindcss: 4.1.17
 
-  '@tailwindcss/vite@4.1.18(vite@7.3.1(@types/node@24.10.2)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2))':
+  '@tailwindcss/vite@4.1.18(rolldown-vite@7.3.1(@types/node@24.10.2)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.44.1)(yaml@2.8.2))':
     dependencies:
       '@tailwindcss/node': 4.1.18
       '@tailwindcss/oxide': 4.1.18
       tailwindcss: 4.1.18
-      vite: 7.3.1(@types/node@24.10.2)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2)
+      vite: rolldown-vite@7.3.1(@types/node@24.10.2)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.44.1)(yaml@2.8.2)
 
   '@tanstack/query-core@5.90.12': {}
 
@@ -16967,7 +16927,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitejs/plugin-react@5.1.2(vite@7.3.1(@types/node@24.10.2)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2))':
+  '@vitejs/plugin-react@5.1.2(rolldown-vite@7.3.1(@types/node@24.10.2)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.44.1)(yaml@2.8.2))':
     dependencies:
       '@babel/core': 7.28.5
       '@babel/plugin-transform-react-jsx-self': 7.27.1(@babel/core@7.28.5)
@@ -16975,7 +16935,7 @@ snapshots:
       '@rolldown/pluginutils': 1.0.0-beta.53
       '@types/babel__core': 7.20.5
       react-refresh: 0.18.0
-      vite: 7.3.1(@types/node@24.10.2)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2)
+      vite: rolldown-vite@7.3.1(@types/node@24.10.2)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.44.1)(yaml@2.8.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -18489,6 +18449,7 @@ snapshots:
       '@esbuild/win32-arm64': 0.27.2
       '@esbuild/win32-ia32': 0.27.2
       '@esbuild/win32-x64': 0.27.2
+    optional: true
 
   escalade@3.2.0: {}
 
@@ -18952,7 +18913,7 @@ snapshots:
       strict-event-emitter-types: 2.0.0
       undici: 7.16.0
       uri-templates: 0.2.0
-      xsschema: 0.4.0-beta.5(effect@3.18.4)(zod-to-json-schema@3.25.1(zod@4.3.5))(zod@4.3.5)
+      xsschema: 0.4.0-beta.5(effect@3.18.4)(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@4.3.5)
       yargs: 18.0.0
       zod: 4.3.5
       zod-to-json-schema: 3.25.1(zod@4.3.5)
@@ -22130,6 +22091,23 @@ snapshots:
       terser: 5.44.1
       yaml: 2.8.2
 
+  rolldown-vite@7.3.1(@types/node@24.10.2)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.44.1)(yaml@2.8.2):
+    dependencies:
+      '@oxc-project/runtime': 0.101.0
+      fdir: 6.5.0(picomatch@4.0.3)
+      lightningcss: 1.30.2
+      picomatch: 4.0.3
+      postcss: 8.5.6
+      rolldown: 1.0.0-beta.53
+      tinyglobby: 0.2.15
+    optionalDependencies:
+      '@types/node': 24.10.2
+      esbuild: 0.27.2
+      fsevents: 2.3.3
+      jiti: 2.6.1
+      terser: 5.44.1
+      yaml: 2.8.2
+
   rolldown@1.0.0-beta.53:
     dependencies:
       '@oxc-project/types': 0.101.0
@@ -23281,43 +23259,27 @@ snapshots:
       - tsx
       - yaml
 
-  vite-plugin-oxlint@1.5.0(vite@7.3.1(@types/node@24.10.2)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2)):
+  vite-plugin-oxlint@1.5.0(rolldown-vite@7.3.1(@types/node@24.10.2)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.44.1)(yaml@2.8.2)):
     dependencies:
       '@types/cross-spawn': 6.0.6
       cross-spawn: 7.0.6
       oxlint: 1.33.0
       package-manager-detector: 1.6.0
-      vite: 7.3.1(@types/node@24.10.2)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2)
+      vite: rolldown-vite@7.3.1(@types/node@24.10.2)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.44.1)(yaml@2.8.2)
     transitivePeerDependencies:
       - oxlint-tsgolint
 
-  vite-plugin-static-copy@3.1.4(vite@7.3.1(@types/node@24.10.2)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2)):
+  vite-plugin-static-copy@3.1.4(rolldown-vite@7.3.1(@types/node@24.10.2)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.44.1)(yaml@2.8.2)):
     dependencies:
       chokidar: 3.6.0
       p-map: 7.0.4
       picocolors: 1.1.1
       tinyglobby: 0.2.15
-      vite: 7.3.1(@types/node@24.10.2)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2)
+      vite: rolldown-vite@7.3.1(@types/node@24.10.2)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.44.1)(yaml@2.8.2)
 
   vite@6.4.1(@types/node@24.10.2)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2):
     dependencies:
       esbuild: 0.25.12
-      fdir: 6.5.0(picomatch@4.0.3)
-      picomatch: 4.0.3
-      postcss: 8.5.6
-      rollup: 4.53.3
-      tinyglobby: 0.2.15
-    optionalDependencies:
-      '@types/node': 24.10.2
-      fsevents: 2.3.3
-      jiti: 2.6.1
-      lightningcss: 1.30.2
-      terser: 5.44.1
-      yaml: 2.8.2
-
-  vite@7.3.1(@types/node@24.10.2)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2):
-    dependencies:
-      esbuild: 0.27.2
       fdir: 6.5.0(picomatch@4.0.3)
       picomatch: 4.0.3
       postcss: 8.5.6
@@ -23493,7 +23455,7 @@ snapshots:
 
   ws@8.19.0: {}
 
-  xsschema@0.4.0-beta.5(effect@3.18.4)(zod-to-json-schema@3.25.1(zod@4.3.5))(zod@4.3.5):
+  xsschema@0.4.0-beta.5(effect@3.18.4)(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@4.3.5):
     optionalDependencies:
       effect: 3.18.4
       zod: 4.3.5

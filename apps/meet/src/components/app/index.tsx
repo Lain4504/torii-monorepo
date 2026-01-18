@@ -8,6 +8,7 @@ import Header from '../header';
 import MainArea from '../main-area';
 import Landing from '../landing';
 import InsertE2EEKey from '../extra-pages/InsertE2EEKey';
+import Login from '../extra-pages/Login';
 import DummyAudio from './dummyAudio';
 
 import { store, useAppDispatch } from '../../store';
@@ -117,6 +118,9 @@ const App = () => {
       case loading:
         return <Loading text={t('app.' + roomConnectionStatus)} />;
       case error && !loading:
+        if (error.title === t('app.token-missing-title')) {
+          return <Login />;
+        }
         return <ErrorPage title={error.title} text={error.text} />;
       case roomConnectionStatus === 'insert-e2ee-key':
         return <InsertE2EEKey setOpenConn={setOpenConn} />;

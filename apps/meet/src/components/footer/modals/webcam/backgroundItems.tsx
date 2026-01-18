@@ -7,7 +7,7 @@ import {
 } from '../../../virtual-background/helpers/backgroundHelper';
 import useResumableFilesUpload from '../../../../helpers/hooks/useResumableFilesUpload';
 import { useAppSelector } from '../../../../store';
-import { getConfigValue } from '../../../../helpers/utils';
+import { SERVER_URL } from '../../../../config';
 
 interface IBackgroundItemsProps {
   onSelect: (bg: BackgroundConfig) => void;
@@ -33,11 +33,7 @@ const BackgroundItems = ({ onSelect }: IBackgroundItemsProps) => {
   useEffect(() => {
     if (result && result.filePath) {
       const path =
-        getConfigValue<string>(
-          'serverUrl',
-          'http://localhost:8080',
-          'WAJLC_SERVER_URL',
-        ) +
+        SERVER_URL +
         '/download/uploadedFile/' +
         result.filePath;
 

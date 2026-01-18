@@ -31,7 +31,7 @@ export default function ForgotPasswordPage() {
     const onSubmit = async (data: ForgotPasswordFormData) => {
         setIsLoading(true)
         try {
-            const res = await forgotPassword(data.email)
+            await forgotPassword(data.email)
             // Assuming API returns standard success/failure structure
             setEmailSent(true)
             toast.success('Email đã được gửi', {
@@ -49,28 +49,28 @@ export default function ForgotPasswordPage() {
 
     return (
         <div className="relative min-h-screen flex items-center justify-center p-4 bg-background selection:bg-primary/10 selection:text-primary overflow-hidden">
-             {/* Zen Background Elements */}
-             <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            {/* Zen Background Elements */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
                 <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-primary/[0.03] blur-[120px] rounded-full" />
                 <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/[0.02] blur-[100px] rounded-full" />
             </div>
 
             <div className="container relative z-10 max-w-md mx-auto space-y-8 animate-in fade-in zoom-in-95 duration-700">
-                 {/* Logo & Branding */}
-                 <div className="flex justify-center mb-8">
-                     <div className="flex flex-col items-center gap-3">
-                         <div className="w-12 h-12 bg-primary flex items-center justify-center rounded-xl shadow-lg shadow-primary/20">
+                {/* Logo & Branding */}
+                <div className="flex justify-center mb-8">
+                    <div className="flex flex-col items-center gap-3">
+                        <div className="w-12 h-12 bg-primary flex items-center justify-center rounded-xl shadow-lg shadow-primary/20">
                             <span className="text-white font-bold text-xl">A</span>
-                         </div>
-                         <span className="text-xl font-bold tracking-tight leading-none text-foreground">Nextor <span className="text-primary">Admin</span></span>
-                     </div>
-                 </div>
+                        </div>
+                        <span className="text-xl font-bold tracking-tight leading-none text-foreground">Nextor <span className="text-primary">Admin</span></span>
+                    </div>
+                </div>
 
                 {/* Main Card */}
                 <div className="relative p-8 bg-card rounded-3xl border border-border/50 shadow-sm overflow-hidden text-center">
                     {emailSent ? (
                         <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
-                             <div className="flex flex-col items-center text-center space-y-4 p-6 bg-primary/[0.03] rounded-2xl border border-primary/10">
+                            <div className="flex flex-col items-center text-center space-y-4 p-6 bg-primary/[0.03] rounded-2xl border border-primary/10">
                                 <div className="w-12 h-12 rounded-xl bg-background shadow-sm flex items-center justify-center">
                                     <CheckCircle2 className="w-6 h-6 text-primary" />
                                 </div>
@@ -90,7 +90,7 @@ export default function ForgotPasswordPage() {
                                 </button>
                             </div>
 
-                             <div className="flex items-start gap-3 p-4 rounded-xl bg-muted/30 border border-border/40">
+                            <div className="flex items-start gap-3 p-4 rounded-xl bg-muted/30 border border-border/40">
                                 <div className="w-1 h-8 bg-primary/40 rounded-full shrink-0" />
                                 <p className="text-[11px] text-muted-foreground/70 leading-relaxed text-left">
                                     Link đặt lại mật khẩu sẽ hết hạn sau 60 phút.
@@ -99,7 +99,7 @@ export default function ForgotPasswordPage() {
                         </div>
                     ) : (
                         <>
-                             <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                            <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                                 <KeyRound className="h-7 w-7" />
                             </div>
 
@@ -152,7 +152,7 @@ export default function ForgotPasswordPage() {
                     )}
 
                     <div className="mt-8 pt-6 border-t border-border/40">
-                         <Link
+                        <Link
                             to="/login"
                             className="flex items-center justify-center gap-2 text-xs font-medium text-muted-foreground/60 hover:text-foreground transition-all group"
                         >

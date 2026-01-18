@@ -8,7 +8,8 @@ import {
 
 import { broadcastSceneOnChange } from './handleRequests';
 import { store } from '../../../store';
-import { getConfigValue, sleep } from '../../../helpers/utils';
+import { sleep } from '../../../helpers/utils';
+import { WHITEBOARD_PRELOADED_LIBRARY_ITEMS } from '../../../config';
 import { ensureImageDataIsLoaded, ImageCustomData } from './handleFiles';
 import { DB_STORE_NAMES, idbGet, idbStore } from '../../../helpers/libs/idb';
 
@@ -27,11 +28,7 @@ export const addPreloadedLibraryItems = (
   excalidrawAPI: ExcalidrawImperativeAPI,
 ) => {
   let libraryItems = defaultPreloadedLibraryItems;
-  const getFromCnf = getConfigValue<string[] | undefined>(
-    'whiteboardPreloadedLibraryItems',
-    undefined,
-    'WHITEBOARD_PRELOADED_LIBRARY_ITEMS',
-  );
+  const getFromCnf = WHITEBOARD_PRELOADED_LIBRARY_ITEMS;
   if (getFromCnf && Array.isArray(getFromCnf)) {
     libraryItems = getFromCnf;
   }

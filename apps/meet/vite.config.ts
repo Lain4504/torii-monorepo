@@ -147,20 +147,13 @@ function getStaticFilesToCopy(): ViteStaticCopyOptions {
           'assets/backgrounds',
           'assets/imgs',
           'assets/locales',
-          'assets/lti',
           'assets/models',
-          'assets/config_sample.js',
-          !isProduction ? 'assets/config.js' : '',
         ].filter(Boolean),
         dest: 'assets/',
       },
       {
         src: 'assets/tflite/*',
         dest: 'assets/js/',
-      },
-      {
-        src: 'login.html',
-        dest: './',
       },
     ],
   };

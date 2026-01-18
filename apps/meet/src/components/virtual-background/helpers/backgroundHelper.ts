@@ -1,4 +1,4 @@
-import { getConfigValue } from '../../../helpers/utils';
+import { STATIC_ASSETS_PATH, VIRTUAL_BACKGROUND_IMAGES } from '../../../config';
 
 export type BackgroundConfig = {
   type: 'none' | 'blur-sm' | 'image';
@@ -9,11 +9,7 @@ const defaultBackgroundConfig: BackgroundConfig = {
   type: 'none',
 };
 
-const assetPath = getConfigValue(
-  'staticAssetsPath',
-  './assets',
-  'STATIC_ASSETS_PATH',
-);
+const assetPath = STATIC_ASSETS_PATH;
 
 let backgroundImageUrls = [
   'kenny-eliason-Wp7t4cWN-68-unsplash',
@@ -27,11 +23,7 @@ let backgroundImageUrls = [
   'steve-richey-6xqAK6oAeHA-unsplash',
 ].map((imageName) => `${assetPath}/backgrounds/${imageName}.jpg`);
 
-const bgImgUrlsFromCnf = getConfigValue<string[] | undefined>(
-  'virtualBackgroundImages',
-  undefined,
-  'WAJLC_VIRTUAL_BG_IMGS',
-);
+const bgImgUrlsFromCnf = VIRTUAL_BACKGROUND_IMAGES;
 
 if (
   bgImgUrlsFromCnf &&

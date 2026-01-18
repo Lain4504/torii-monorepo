@@ -6,17 +6,13 @@ import {
 } from '@workspace/protocol';
 import { create, toBinary } from '@bufbuild/protobuf';
 
-import { getAccessToken, getConfigValue } from '../utils';
+import { getAccessToken } from '../utils';
+import { SERVER_URL } from '../../config';
 import { store } from '../../store';
 import { getNatsConn } from '../nats';
 
 const API = axios.create({
-  baseURL:
-    getConfigValue<string>(
-      'serverUrl',
-      'http://localhost:8080',
-      'WAJLC_SERVER_URL',
-    ) + '/api',
+  baseURL: SERVER_URL + '/api',
 });
 
 const getToken = () => {

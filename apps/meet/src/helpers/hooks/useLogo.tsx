@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 
 import { useAppSelector } from '../../store';
-import { getConfigValue, isValidHttpUrl } from '../utils';
+import { isValidHttpUrl } from '../utils';
+import { STATIC_ASSETS_PATH, CUSTOM_LOGO } from '../../config';
 
 interface CustomLogo {
   main_logo_light?: string;
@@ -11,11 +12,7 @@ interface CustomLogo {
 const useLogo = () => {
   const theme = useAppSelector((state) => state.roomSettings.theme);
 
-  const assetPath = getConfigValue(
-    'staticAssetsPath',
-    './assets',
-    'STATIC_ASSETS_PATH',
-  );
+  const assetPath = STATIC_ASSETS_PATH;
 
   const [logo, setLogo] = useState<string>(
     `${assetPath}/imgs/main-logo-light.png`,
@@ -25,11 +22,7 @@ const useLogo = () => {
   );
 
   useEffect(() => {
-    const customLogo = getConfigValue<string | CustomLogo>(
-      'customLogo',
-      '',
-      'CUSTOM_LOGO',
-    );
+    const customLogo: any = CUSTOM_LOGO;
 
     if (!customLogo) {
       return;
@@ -45,20 +38,22 @@ const useLogo = () => {
       return;
     }
 
+    const customLogoObj = customLogo as CustomLogo;
+
     // Set light logo
     if (
-      customLogo.main_logo_light &&
-      isValidHttpUrl(customLogo.main_logo_light)
+      customLogoObj.main_logo_light &&
+      isValidHttpUrl(customLogoObj.main_logo_light)
     ) {
-      setLogo(customLogo.main_logo_light);
+      setLogo(customLogoObj.main_logo_light);
     }
 
     // Set dark logo
     if (
-      customLogo.main_logo_dark &&
-      isValidHttpUrl(customLogo.main_logo_dark)
+      customLogoObj.main_logo_dark &&
+      isValidHttpUrl(customLogoObj.main_logo_dark)
     ) {
-      setDarkLogo(customLogo.main_logo_dark);
+      setDarkLogo(customLogoObj.main_logo_dark);
     }
   }, []);
 

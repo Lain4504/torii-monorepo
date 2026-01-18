@@ -9,7 +9,7 @@ import { useAppSelector } from '../../../../store';
 import { IWhiteboardFile } from '../../../../store/slices/interfaces/whiteboard';
 import { fetchFileWithElm, preloadOfficeFilePages } from '../handleFiles';
 import { broadcastCurrentOfficeFilePages } from '../handleRequests';
-import { getConfigValue } from '../../../../helpers/utils';
+import { SERVER_URL } from '../../../../config';
 
 interface IUseOfficePageSyncer {
   excalidrawAPI: ExcalidrawImperativeAPI | null;
@@ -59,11 +59,7 @@ const useOfficePageSyncer = ({
         return;
       }
       const url =
-        getConfigValue<string>(
-          'serverUrl',
-          'http://localhost:8080',
-          'WAJLC_SERVER_URL',
-        ) +
+        SERVER_URL +
         '/download/uploadedFile/' +
         file.filePath;
       const result = await fetchFileWithElm(

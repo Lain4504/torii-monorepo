@@ -27,7 +27,7 @@ import {
 } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { profileApi } from '@/apis/services/profile-api'
+import { profileApi, type UpdateProfileDTO } from '@/apis/services/profile-api'
 import { useAvatarUrl } from '@/hooks/useAvatarUrl'
 import { learningProgressApi } from '@/apis/services/learning-progress-api'
 import { gamificationApi, useAchievements } from '@/apis/services/gamification-api'
@@ -56,9 +56,9 @@ export default function ProfilePage() {
     const { user } = useAppSelector((state) => state.auth)
     // DEBUG: Log avatar URL to verify correct domain
     console.log('ProfilePage User:', user?.avatarUrl);
-    
+
     const fileInputRef = useRef<HTMLInputElement>(null)
-    
+
     const [isEditing, setIsEditing] = useState(false)
     const [displayName, setDisplayName] = useState(user?.displayName || '')
     const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
@@ -88,7 +88,7 @@ export default function ProfilePage() {
 
     // Update profile mutation
     const updateProfileMutation = useMutation({
-        mutationFn: (data: { displayName: string }) => profileApi.updateProfile(data),
+        mutationFn: (data: UpdateProfileDTO) => profileApi.updateProfile(data),
         onSuccess: async (updatedUser) => {
             // Update Redux store by fetching fresh profile
             await dispatch(fetchProfile())
@@ -108,12 +108,12 @@ export default function ProfilePage() {
             // Hiển thị avatar mới ngay từ response, không đợi fetchProfile
             if (updatedUser?.avatarUrl) setOptimisticAvatarUrl(updatedUser.avatarUrl)
             setAvatarKey(prev => prev + 1)
-            
+
             // Đồng bộ Redux với profile mới
             await dispatch(fetchProfile())
             queryClient.invalidateQueries({ queryKey: ['profile'] })
             queryClient.invalidateQueries({ queryKey: ['auth'] })
-            
+
             setIsUploadingAvatar(false)
             toast.success('Cập nhật avatar thành công!')
         },
@@ -168,8 +168,8 @@ export default function ProfilePage() {
     // Prepare achievements from API
     const achievements = achievementsData?.map((achievement) => {
         const iconName = achievement.achievement.icon ?? 'Award'
-        const Icon = (iconName && iconName in achievementIconMap) 
-            ? achievementIconMap[iconName] 
+        const Icon = (iconName && iconName in achievementIconMap)
+            ? achievementIconMap[iconName]
             : Award
         return {
             id: achievement.id,
@@ -190,7 +190,7 @@ export default function ProfilePage() {
             dateOfBirth: formData.dateOfBirth || '',
         }
 
-        updateProfileMutation.mutate({ 
+        updateProfileMutation.mutate({
             displayName: formData.displayName,
             userMetadata
         })
@@ -223,7 +223,7 @@ export default function ProfilePage() {
             <div className="flex flex-col md:flex-row items-center gap-8 pb-12 pt-4 border-b border-border/10">
                 <div className="relative">
                     <Avatar className="w-28 h-28 ring-4 ring-primary/5 shadow-xl">
-                        <AvatarImage 
+                        <AvatarImage
                             key={`avatar-${effectiveAvatarId || ''}-${avatarKey}`}
                             src={avatarSrc || ''}
                             alt={user?.displayName || 'Avatar'}

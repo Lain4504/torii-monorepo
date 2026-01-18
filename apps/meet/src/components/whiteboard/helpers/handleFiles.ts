@@ -8,10 +8,10 @@ import {
   ExcalidrawImageElement,
 } from '@excalidraw/excalidraw/element/types';
 import {
-  getConfigValue,
   randomInteger,
   randomString,
 } from '../../../helpers/utils';
+import { SERVER_URL } from '../../../config';
 import { RoomUploadedFileType } from '@workspace/protocol';
 import { store } from '../../../store';
 import { uploadBase64EncodedFile } from '../../../helpers/fileUpload';
@@ -300,14 +300,7 @@ export const uploadCanvasBinaryFile = async (
       console.error('Failed to upload canvas binary file.');
       return;
     }
-    const fileUrl =
-      getConfigValue<string>(
-        'serverUrl',
-        'http://localhost:8080',
-        'WAJLC_SERVER_URL',
-      ) +
-      '/download/uploadedFile/' +
-      res.filePath;
+    const fileUrl = SERVER_URL + '/download/uploadedFile/' + res.filePath;
 
     const customData: ImageCustomData = {
       fileUrl,
@@ -440,13 +433,7 @@ export const preloadOfficeFilePages = (
       return;
     }
 
-    const url =
-      getConfigValue<string>(
-        'serverUrl',
-        'http://localhost:8080',
-        'WAJLC_SERVER_URL',
-      ) +
-      '/download/uploadedFile/' +
+    const url = SERVER_URL + '/api/whiteboard/listOfficeFiles' +
       fileToPreload.filePath;
 
     // Use the shared helper to fetch and cache the image. It will automatically handle existing entries.

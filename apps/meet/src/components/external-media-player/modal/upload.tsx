@@ -8,7 +8,7 @@ import { create } from '@bufbuild/protobuf';
 
 import UploadFile from './UploadFile';
 import UploadedFileList from './UploadedFileList';
-import { getConfigValue } from '../../../helpers/utils';
+import { SERVER_URL } from '../../../config';
 
 interface UploadProps {
   isPlayBtnLoading: boolean;
@@ -34,6 +34,7 @@ const Upload = ({ setSelectedUrl, isPlayBtnLoading }: UploadProps) => {
         fileType: RoomUploadedFileType.EXTERNAL_MEDIA_PLAYER_FILE,
       },
     );
+    const targetUrl = SERVER_URL + '/api/fileUpload';
     setNewlyUploadedFile(newFile);
     // select the newly uploaded file.
     setSelectedFile(newFile);
@@ -51,11 +52,7 @@ const Upload = ({ setSelectedUrl, isPlayBtnLoading }: UploadProps) => {
     setSelectedFile(file);
 
     const playbackUrl =
-      getConfigValue<string>(
-        'serverUrl',
-        'http://localhost:8080',
-        'WAJLC_SERVER_URL',
-      ) +
+      SERVER_URL +
       '/download/uploadedFile/' +
       file.filePath;
     setSelectedUrl(playbackUrl);

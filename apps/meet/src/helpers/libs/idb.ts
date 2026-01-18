@@ -1,5 +1,5 @@
 import { deleteDB, IDBPDatabase, openDB } from 'idb';
-import { getConfigValue } from '../utils';
+import { DB_MAX_AGE_MS } from '../../config';
 
 // Define all exportable store names in a single object to act as the source of truth.
 export const DB_STORE_NAMES = {
@@ -16,8 +16,6 @@ export const DB_STORE_NAMES = {
 export type IDBStoreName = (typeof DB_STORE_NAMES)[keyof typeof DB_STORE_NAMES];
 
 const DB_STORE_METADATA = 'metadata';
-// Databases older than this will be cleaned up on startup (6 hours).
-const DB_MAX_AGE_MS = getConfigValue('dbMaxAgeMs', 6 * 60 * 60 * 1000);
 
 class IDBManager {
   /**

@@ -15,7 +15,8 @@ import { store } from '../store';
 import sendAPIRequest from './api/walearnconnectAPI';
 import { addUserNotification } from '../store/slices/roomSettingsSlice';
 import { ISession } from '../store/slices/interfaces/session';
-import { getConfigValue, sleep } from './utils';
+import { sleep } from './utils';
+import { SERVER_URL } from '../config';
 import ResumableFile = Resumable.ResumableFile;
 
 export const uploadBase64EncodedFile = async (
@@ -86,12 +87,7 @@ class ResumableUploader {
     this.session = store.getState().session;
 
     this.resumable = new Resumable({
-      target:
-        getConfigValue<string>(
-          'serverUrl',
-          'http://localhost:8080',
-          'WAJLC_SERVER_URL',
-        ) + '/api/fileUpload',
+      target: SERVER_URL + '/api/fileUpload',
       uploadMethod: 'POST',
       query: {
         roomSid: this.session.currentRoom.sid,

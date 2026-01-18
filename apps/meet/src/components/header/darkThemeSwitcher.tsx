@@ -3,13 +3,13 @@ import React from 'react';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { updateTheme } from '../../store/slices/roomSettingsSlice';
 import { Sun, Moon } from 'lucide-react';
-import { getConfigValue } from '../../helpers/utils';
+import { DISABLE_DARK_MODE } from '../../config';
 
 const DarkThemeSwitcher = () => {
-  const theme = useAppSelector((state) => state.roomSettings.theme);
   const dispatch = useAppDispatch();
+  const theme = useAppSelector((state) => state.roomSettings.theme);
 
-  const disableDarkMode = getConfigValue<boolean>('disableDarkMode', false, '');
+  const disableDarkMode = DISABLE_DARK_MODE;
   if (disableDarkMode) {
     updateTheme('light');
     return null;

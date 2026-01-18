@@ -26,7 +26,6 @@ import {
   DataMsgBodyType,
 } from '@workspace/protocol';
 import { toast } from 'react-toastify';
-// @ts-expect-error not an error
 import LkWorker from 'livekit-client/e2ee-worker?worker';
 
 import { store } from '../../store';
@@ -49,12 +48,16 @@ import { getNatsConn } from '../nats';
 import { roomConnectionStatus } from '../../components/app/helper';
 import { addUserNotification } from '../../store/slices/roomSettingsSlice';
 import { activeSpeakersSelector } from '../../store/slices/activeSpeakersSlice';
-import { getConfigValue } from '../utils';
+import {
+  ENABLE_DYNACAST,
+  ENABLE_SIMULCAST,
+  STOP_MIC_TRACK_ON_MUTE,
+  VIDEO_CODEC,
+} from '../../config';
 
 export default class ConnectLivekit
   extends EventEmitter
-  implements IConnectLivekit
-{
+  implements IConnectLivekit {
   private _audioSubscribersMap = new Map<string, RemoteParticipant>();
   private _videoSubscribersMap = new Map<
     string,
@@ -140,11 +143,7 @@ export default class ConnectLivekit
   };
 
   private configureRoom() {
-    let videoCodec = getConfigValue<VideoCodec>(
-      'videoCodec',
-      'vp8',
-      'VIDEO_CODEC',
-    );
+    let videoCodec = VIDEO_CODEC;
     if (
       (videoCodec === 'vp9' && !supportsVP9()) ||
       (videoCodec === 'av1' && !supportsAV1())
@@ -154,31 +153,19 @@ export default class ConnectLivekit
 
     const roomOptions: RoomOptions = {
       adaptiveStream: true,
-      dynacast: getConfigValue<boolean>(
-        'enableDynacast',
-        false,
-        'ENABLE_DYNACAST',
-      ),
+      dynacast: ENABLE_DYNACAST,
       stopLocalTrackOnUnpublish: true,
       videoCaptureDefaults: {
         resolution: VideoPresets.h720.resolution,
       },
       publishDefaults: {
-        simulcast: getConfigValue<boolean>(
-          'enableSimulcast',
-          false,
-          'ENABLE_SIMULCAST',
-        ),
+        simulcast: ENABLE_SIMULCAST,
         videoSimulcastLayers: [
           VideoPresets.h90,
           VideoPresets.h180,
           VideoPresets.h360,
         ],
-        stopMicTrackOnMute: getConfigValue<boolean>(
-          'stopMicTrackOnMute',
-          false,
-          'STOP_MIC_TRACK_ON_MUTE',
-        ),
+        stopMicTrackOnMute: STOP_MIC_TRACK_ON_MUTE,
         videoCodec: videoCodec,
       },
     };

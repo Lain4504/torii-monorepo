@@ -17,17 +17,12 @@ import {
 
 import { RootState } from '..';
 import { handleProtobufResponse, renewTokenOnError } from './utils';
-import { getConfigValue } from '../../helpers/utils';
+import { SERVER_URL } from '../../config';
 
 export const breakoutRoomApi = createApi({
   reducerPath: 'breakoutRoomApi',
   baseQuery: fetchBaseQuery({
-    baseUrl:
-      getConfigValue<string>(
-        'serverUrl',
-        'http://localhost:8080',
-        'WAJLC_SERVER_URL',
-      ) + '/api/breakoutRoom',
+    baseUrl: SERVER_URL + '/api/breakoutRoom',
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as RootState).session.token;
       headers.append('Authorization', token);

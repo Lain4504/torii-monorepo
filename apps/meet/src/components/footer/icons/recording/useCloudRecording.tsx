@@ -12,7 +12,7 @@ import { IUseCloudRecordingReturn, RecordingType } from './IRecording';
 import sendAPIRequest from '../../../../helpers/api/walearnconnectAPI';
 import { store, useAppDispatch } from '../../../../store';
 import { addUserNotification } from '../../../../store/slices/roomSettingsSlice';
-import { getConfigValue } from '../../../../helpers/utils';
+import { DESIGN_CUSTOMIZATION } from '../../../../config';
 
 const useCloudRecording = (): IUseCloudRecordingReturn => {
   const TYPE_OF_RECORDING = RecordingType.RECORDING_TYPE_CLOUD;
@@ -65,13 +65,10 @@ const useCloudRecording = (): IUseCloudRecordingReturn => {
         );
         return;
       }
-      const customDesign = getConfigValue<string | undefined>(
-        'designCustomization',
-        undefined,
-        'DESIGN_CUSTOMIZATION',
-      );
+      const customDesign = DESIGN_CUSTOMIZATION;
       if (customDesign) {
-        body.customDesign = customDesign.replace(/\s/g, '');
+        const designStr = typeof customDesign === 'object' ? JSON.stringify(customDesign) : customDesign;
+        body.customDesign = (designStr as string).replace(/\s/g, '');
       }
       const r = await sendAPIRequest(
         'recording',

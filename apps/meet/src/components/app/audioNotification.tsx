@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 
 import { useAppDispatch, useAppSelector } from '../../store';
 import { updatePlayAudioNotification } from '../../store/slices/roomSettingsSlice';
-import { getConfigValue } from '../../helpers/utils';
+import { STATIC_ASSETS_PATH } from '../../config';
 
 const AudioNotification = () => {
   const dispatch = useAppDispatch();
@@ -13,11 +13,7 @@ const AudioNotification = () => {
   const allowPlayAudioNotification = useAppSelector(
     (state) => state.roomSettings.allowPlayAudioNotification,
   );
-  const assetPath = getConfigValue(
-    'staticAssetsPath',
-    './assets',
-    'STATIC_ASSETS_PATH',
-  );
+  const assetPath = STATIC_ASSETS_PATH;
 
   useEffect(() => {
     const el = ref.current;

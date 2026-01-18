@@ -95,14 +95,14 @@ export default function TwoFactorVerifyPage() {
                 sessionStorage.removeItem('2fa_tempToken');
 
                 toast.success(`Chào mừng quay trở lại, ${user.displayName || 'Người dùng'}!`);
-                
+
                 // Get redirect URL from 'from' param or default to dashboard
                 const redirectTo = searchParams.get('from') || '/dashboard';
-                
+
                 router.push(redirectTo);
                 router.refresh();
             } else {
-                toast.error(response.data.message || 'Xác thực thất bại');
+                toast.error('Xác thực thất bại');
             }
         } catch (error: any) {
             const errorMessage = error.response?.data?.message || 'Mã xác thực không hợp lệ';
