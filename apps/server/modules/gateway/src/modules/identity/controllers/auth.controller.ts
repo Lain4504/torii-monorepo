@@ -614,7 +614,7 @@ export class AuthController {
     @VerifiedOnly()
     async updateMe(
         @Req() req: Request,
-        @Body() dto: { displayName?: string },
+        @Body() dto: { displayName?: string; userMetadata?: Record<string, any> },
     ) {
         const user = req.user as any;
         try {

@@ -27,6 +27,7 @@ import QuestionPoolsPage from '@/routes/question-pools/question-pools-page.tsx'
 import PoolDetailPage from '@/routes/question-pools/pool-detail-page.tsx'
 
 import LoginPage from '@/routes/auth/login-page.tsx'
+import ForgotPasswordPage from '@/routes/auth/forgot-password-page.tsx'
 import TwoFactorVerifyPage from '@/routes/auth/two-factor-verify-page.tsx'
 import { AuditLogsPage } from "@/routes/audit/audit-logs-page.tsx";
 import { PermissionsPage } from "@/routes/permissions/permissions-page.tsx";
@@ -50,6 +51,7 @@ function App() {
           <BrowserRouter>
             <Routes>
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
               <Route path="/auth/verify-2fa" element={<TwoFactorVerifyPage />} />
               <Route element={
                 <AuthGuard>

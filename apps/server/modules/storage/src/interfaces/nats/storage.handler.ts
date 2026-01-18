@@ -2,6 +2,7 @@ import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { Inject } from '@nestjs/common';
 import { STORAGE_SERVICE_TOKEN, IStorageService } from '../../interfaces/services/i-storage.service';
+import { STORAGE_REPOSITORY_TOKEN, IStorageRepository } from '../../interfaces/repositories/i-storage.repository';
 import {
     StoragePresignedUrlRequestDTO,
     StorageConfirmUploadRequestDTO,
@@ -14,6 +15,8 @@ export class StorageHandler {
     constructor(
         @Inject(STORAGE_SERVICE_TOKEN)
         private readonly storageService: IStorageService,
+        @Inject(STORAGE_REPOSITORY_TOKEN)
+        private readonly storageRepository: IStorageRepository,
     ) { }
 
     @MessagePattern({ cmd: 'storage.generatePresignedUploadUrl' })
@@ -36,23 +39,8 @@ export class StorageHandler {
         return this.storageService.getSignedUrl(data);
     }
 
-    @MessagePattern({ cmd: 'storage.directUpload' })
-    async directUpload(@Payload() data: {
-        filename: string,
-        contentType: string,
-        module: string,
-        ownerId: string,
-        metadata: any,
-        file: { buffer: any }
-    }) {
-        return this.storageService.directUpload({
-            filename: data.filename,
-            contentType: data.contentType,
-            module: data.module || 'general',
-            ownerId: data.ownerId,
-            metadata: data.metadata || {},
-            fileData: '',
-            file: Buffer.from(data.file.buffer),
-        });
+    @MessagePattern({ cmd: 'storage.findById' })
+    async findById(@Payload() data: { fileId: string }) {
+        return this.storageRepository.findById(data.fileId);
     }
 }

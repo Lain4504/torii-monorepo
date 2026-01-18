@@ -6,6 +6,7 @@ import { Label } from '@workspace/ui/components/label'
 import { Switch } from '@workspace/ui/components/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select'
 import { Bell, Shield, Globe, Lock, Trash2, ChevronRight, User } from 'lucide-react'
+import { SecurityTab } from '@/components/settings/security-tab'
 
 export default function SettingsPage() {
     return (
@@ -72,31 +73,8 @@ export default function SettingsPage() {
                     </div>
                 </div>
 
-                {/* Security */}
-                <div className="space-y-6">
-                    <div className="flex items-center gap-2 px-1">
-                        <Lock className="w-4 h-4 text-amber-500" />
-                        <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground/80">Bảo mật</h3>
-                    </div>
-                    <Card className="border-border/50 shadow-none bg-card/30 overflow-hidden">
-                        <CardContent className="p-0 divide-y divide-border/50">
-                            {[
-                                { label: 'Mật khẩu', desc: 'Cập nhật mật khẩu để bảo vệ tài khoản của bạn', action: 'Đổi mật khẩu' },
-                                { label: 'Xác thực hai yếu tố', desc: 'Thêm lớp bảo mật bổ sung cho tài khoản của bạn', action: 'Bật 2FA' },
-                            ].map((item, i) => (
-                                <div key={i} className="flex items-center justify-between p-5 group hover:bg-muted/10 transition-colors">
-                                    <div className="space-y-0.5">
-                                        <p className="text-sm font-bold group-hover:text-primary transition-colors">{item.label}</p>
-                                        <p className="text-xs text-muted-foreground font-medium">{item.desc}</p>
-                                    </div>
-                                    <Button variant="outline" size="sm" className="rounded-full h-8 text-[10px] font-bold uppercase tracking-widest px-4 border-border/50 cursor-pointer hover:bg-muted">
-                                        {item.action}
-                                    </Button>
-                                </div>
-                            ))}
-                        </CardContent>
-                    </Card>
-                </div>
+                {/* Security - Import SecurityTab component */}
+                <SecurityTab />
 
                 {/* Danger Zone */}
                 <div className="space-y-6 pt-4">

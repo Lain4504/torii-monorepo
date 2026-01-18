@@ -91,6 +91,8 @@ export interface IUsersRepository {
         email: string;
         displayName: string;
         role: string;
+        avatarUrl: string | null;
+        userMetadata: Record<string, unknown> | null;
         verifiedAt: Date | null;
         createdAt: Date;
         updatedAt: Date;

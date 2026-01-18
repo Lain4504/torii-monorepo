@@ -165,7 +165,13 @@ export default function LoginPage() {
                       <label htmlFor={field.name} className="flex items-center gap-2 text-xs font-medium text-muted-foreground/70">
                         Password
                       </label>
-                      <button type="button" className="text-[10px] font-medium text-primary hover:text-primary/80 transition-colors">Forgot password?</button>
+                      <button 
+                        type="button" 
+                        onClick={() => navigate('/forgot-password')}
+                        className="text-[10px] font-medium text-primary hover:text-primary/80 transition-colors"
+                      >
+                        Forgot password?
+                      </button>
                     </div>
                     <div className="relative group">
                       <Lock className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />

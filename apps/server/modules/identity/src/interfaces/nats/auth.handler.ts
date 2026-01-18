@@ -109,7 +109,7 @@ export class AuthHandler {
     }
 
     @MessagePattern({ cmd: 'identity.auth.updateMe' })
-    async updateMe(@Payload() data: { userId: string; dto: { displayName?: string } }) {
+    async updateMe(@Payload() data: { userId: string; dto: { displayName?: string; userMetadata?: Record<string, any> } }) {
         return this.authService.updateUser(data.userId, data.dto);
     }
 

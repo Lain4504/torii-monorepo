@@ -6,17 +6,13 @@ import {
     Body,
     Query,
     UseGuards,
-    UseInterceptors,
-    UploadedFile,
     Inject,
-    BadRequestException,
     Req,
     Param,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { successResponse, errorResponse, SharedStorageService, GatewayAuthGuard } from '@server/shared';
+import { successResponse, errorResponse, GatewayAuthGuard } from '@server/shared';
 import { Request } from 'express';
 
 @Controller('api/storage')
@@ -24,7 +20,6 @@ import { Request } from 'express';
 export class StorageController {
     constructor(
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-        private readonly sharedStorage: SharedStorageService
     ) { }
 
     @Post('upload-url')
@@ -92,39 +87,18 @@ export class StorageController {
         }
     }
 
-    @Post('direct-upload')
-    @UseInterceptors(FileInterceptor('file'))
-    async directUpload(
-        @UploadedFile() file: Express.Multer.File,
-        @Body() body: any,
-        @Req() req: Request
-    ) {
-        if (!file) {
-            throw new BadRequestException('File is required');
-        }
+    @Get(':id')
+    async findById(@Param('id') id: string) {
         try {
-            const user = req.user as any;
             const result = await firstValueFrom(
                 this.natsClient.send(
-                    { cmd: 'storage.directUpload' },
-                    {
-                        filename: body.filename || file.originalname,
-                        contentType: body.contentType || file.mimetype,
-                        module: body.module || 'general',
-                        ownerId: user.sub,
-                        metadata: body.metadata ? (typeof body.metadata === 'string' ? JSON.parse(body.metadata) : body.metadata) : {},
-                        file: {
-                            buffer: file.buffer,
-                            originalname: file.originalname,
-                            mimetype: file.mimetype
-                        }
-                    }
+                    { cmd: 'storage.findById' },
+                    { fileId: id }
                 )
             );
-            // Result from NATS is plain DTO, wrap it in StandardApiResponse
             return successResponse(result);
         } catch (error: any) {
-            return errorResponse(error.message || 'Failed to upload file');
+            return errorResponse(error.message || 'Failed to get file');
         }
     }
 }

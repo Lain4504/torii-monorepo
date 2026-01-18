@@ -16,21 +16,17 @@ export const lessonMaterialsApi = {
         dto: LessonMaterialCreateDTO,
         file: File
     ): Promise<LessonMaterialResponseDTO> {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('lessonId', dto.lessonId);
-        formData.append('type', dto.type);
-        if (dto.title) formData.append('title', dto.title);
-        if (dto.mimeType) formData.append('mimeType', dto.mimeType);
-        if (dto.fileName) formData.append('fileName', dto.fileName);
+        // 1. Upload file using Storage Service (Signed URL flow)
+        // 'lesson-materials' is the module name for organization
+        const { storageApi } = await import('./storage-api');
+        const { fileId } = await storageApi.uploadFile(file, 'lesson-materials');
 
+        // 2. Create the lesson material record with the fileId
         const response = await apiClient.post<LessonMaterialResponseDTO>(
             '/api/lesson-materials',
-            formData,
             {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
+                dto,
+                fileId
             }
         );
         return response.data;

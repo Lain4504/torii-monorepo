@@ -3,8 +3,6 @@ import type {
     StoragePresignedUrlResponseDTO,
     StorageConfirmUploadRequestDTO,
     StorageConfirmUploadResponseDTO,
-    StorageDirectUploadRequestDTO,
-    StorageDirectUploadResponseDTO,
     StorageDeleteFileRequestDTO,
     StorageDeleteFileResponseDTO,
     StorageGetSignedUrlRequestDTO,
@@ -14,6 +12,9 @@ import type {
 /**
  * Storage Service Interface
  * Defines the contract for storage business logic operations
+ * 
+ * Note: All file uploads must use presigned URLs (client-side upload).
+ * Direct upload to server is not supported for performance optimization.
  */
 export interface IStorageService {
     /**
@@ -25,11 +26,6 @@ export interface IStorageService {
      * Confirm that a file has been uploaded
      */
     confirmUpload(data: StorageConfirmUploadRequestDTO): Promise<StorageConfirmUploadResponseDTO>;
-
-    /**
-     * Direct upload (small files passed as buffer)
-     */
-    directUpload(data: StorageDirectUploadRequestDTO & { file?: Buffer }): Promise<StorageDirectUploadResponseDTO>;
 
     /**
      * Delete a file
