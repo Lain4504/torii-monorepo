@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { SharedEmailService } from '@server/shared';
 import { IEmailService } from '../../interfaces/services/i-email.service';
+import { generateInviteEmailHtml } from './templates/invite.template';
 
 /**
  * Email Service Implementation
@@ -120,7 +121,7 @@ export class EmailService implements IEmailService {
      * Includes auto-generated password that user should change after first login
      */
     async sendInviteEmail(email: string, displayName: string, inviteUrl: string, password: string): Promise<void> {
-        const htmlContent = this.generateInviteEmailHtml(displayName, inviteUrl, password);
+        const htmlContent = generateInviteEmailHtml(displayName, inviteUrl, password);
         await this.sharedEmailService.sendMail({
             to: email,
             subject: 'Lời mời tham gia Torii Nihongo',
@@ -215,41 +216,6 @@ export class EmailService implements IEmailService {
         </div>
         <p style="color: gray; font-size: 0.9em;">Mã này sẽ hết hạn trong 10 phút.</p>
         <p style="color: gray; font-size: 0.8em;">Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này.</p>
-    </div>
-</body>
-</html>
-        `;
-    }
-
-    private generateInviteEmailHtml(displayName: string, inviteUrl: string, password: string): string {
-        return `
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <title>Lời mời tham gia Torii Nihongo</title>
-</head>
-<body style="font-family: sans-serif; background-color: #f5f5f5; padding: 20px;">
-    <div style="max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px;">
-        <h2 style="color: #2563eb; margin-bottom: 20px;">Xin chào ${displayName}!</h2>
-        <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">Bạn đã được mời tham gia hệ thống Torii Nihongo với tư cách là thành viên nội bộ.</p>
-        
-        <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px; margin: 20px 0; border-radius: 4px;">
-            <p style="color: #92400e; font-weight: bold; margin: 0 0 8px 0; font-size: 14px;">THÔNG TIN ĐĂNG NHẬP MẶC ĐỊNH:</p>
-            <p style="color: #78350f; margin: 0 0 8px 0; font-size: 13px;">Mật khẩu đăng nhập của bạn là:</p>
-            <div style="background: #ffffff; border: 2px solid #f59e0b; padding: 12px; border-radius: 6px; text-align: center; margin: 12px 0;">
-                <code style="font-size: 18px; font-weight: bold; color: #92400e; letter-spacing: 2px; font-family: 'Courier New', monospace;">${password}</code>
-            </div>
-            <p style="color: #78350f; margin: 12px 0 0 0; font-size: 13px; font-weight: bold;">Vui lòng đổi mật khẩu mặc định này sau khi đăng nhập vào hệ thống.</p>
-        </div>
-
-        <p style="color: #374151; line-height: 1.6; margin: 20px 0;">Bạn có thể sử dụng email và mật khẩu ở trên để đăng nhập vào hệ thống:</p>
-        <a href="${inviteUrl}" style="display: inline-block; background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; margin: 20px 0; font-weight: bold;">Truy cập hệ thống</a>
-        
-        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
-            <p style="color: #6b7280; font-size: 0.85em; margin: 8px 0;">Tài khoản của bạn đã được kích hoạt và sẵn sàng sử dụng.</p>
-            <p style="color: #9ca3af; font-size: 0.8em; margin-top: 16px;">Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này.</p>
-        </div>
     </div>
 </body>
 </html>

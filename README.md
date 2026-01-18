@@ -38,23 +38,23 @@ Backend được xây dựng dựa trên sự kết hợp giữa **NestJS** và 
 
 ```mermaid
 graph TB
-    Client((Clients)) -->|HTTP| Gateway[API Gateway :8080]
+    Client((Clients)) -->|HTTP| Gateway["API Gateway :8080"]
     Gateway -->|HTTP/NATS Proxy| Services
     
-    subgraph Services [Hệ sinh thái Microservices]
+    subgraph Services ["Hệ sinh thái Microservices"]
         direction TB
-        Identity[<b>Identity</b> :8081<br>Auth, RBAC, 2FA, Billing]
-        Learning[<b>Learning</b> :8082<br>LMS, Exams, Flashcards]
-        Comm[<b>Communication</b> :8083<br>Notifications, Messaging]
-        Gamification[<b>Gamification</b> (NATS)<br>Streaks, Achievements]
-        Storage[<b>Storage</b> :8085<br>S3 Integration, Meta]
-        Agents[<b>Agents</b> :8090<br>AI Tutor, Analytics]
-        Meet[<b>Meet</b> :8091<br>WebRTC Live Class]
+        Identity["<b>Identity</b> :8081<br>Auth, RBAC, 2FA, Billing"]
+        Learning["<b>Learning</b> :8082<br>LMS, Exams, Flashcards"]
+        Comm["<b>Communication</b> :8083<br>Notifications, Messaging"]
+        Gamification["<b>Gamification</b> (NATS)<br>Streaks, Achievements"]
+        Storage["<b>Storage</b> :8085<br>S3 Integration, Meta"]
+        Agents["<b>Agents</b> :8090<br>AI Tutor, Analytics"]
+        Meet["<b>Meet</b> :8091<br>WebRTC Live Class"]
     end
     
-    Services -.->|Pub/Sub & Events| NATS[(NATS Broker)]
-    Meet -.->|WebRTC Signaling| LiveKit((LiveKit Server))
-    Services --- DB[(PostgreSQL + Redis)]
+    Services -.->|Pub/Sub & Events| NATS[("NATS Broker")]
+    Meet -.->|WebRTC Signaling| LiveKit(("LiveKit Server"))
+    Services --- DB[("PostgreSQL + Redis")]
 ```
 
 ### 📡 Mô hình Giao tiếp

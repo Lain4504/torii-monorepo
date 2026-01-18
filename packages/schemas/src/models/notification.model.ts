@@ -7,6 +7,9 @@ export enum NotificationType {
     PAYMENT = 'payment',
     ACHIEVEMENT = 'achievement',
     REMINDER = 'reminder',
+    COMMENT_REPLY = 'comment_reply',
+    ORDER_SUCCESS = 'order_success',
+    ORDER_STATUS_UPDATE = 'order_status_update',
 }
 
 export const notificationSchema = z.object({

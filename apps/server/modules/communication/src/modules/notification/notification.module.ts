@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { PrismaModule } from '@server/shared';
+import { PrismaModule, NatsClientModule } from '@server/shared';
 import { NotificationService } from './notification.service';
 import { NotificationRepository } from './notification.repository';
+import { NotificationHandler } from './notification.handler';
 import { NOTIFICATION_SERVICE_TOKEN } from '../../interfaces/services';
 import { NOTIFICATION_REPOSITORY_TOKEN } from '../../interfaces/repositories';
 
@@ -11,8 +12,8 @@ import { NOTIFICATION_REPOSITORY_TOKEN } from '../../interfaces/repositories';
  * Handles notification operations
  */
 @Module({
-  imports: [PrismaModule, ConfigModule],
-  controllers: [],
+  imports: [PrismaModule, NatsClientModule, ConfigModule],
+  controllers: [NotificationHandler],
   providers: [
     {
       provide: NOTIFICATION_REPOSITORY_TOKEN,

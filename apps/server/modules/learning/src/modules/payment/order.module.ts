@@ -1,6 +1,7 @@
 
+
 import { Module } from '@nestjs/common';
-import { PrismaModule } from '@server/shared';
+import { PrismaModule, NatsClientModule } from '@server/shared';
 import { OrderService } from './order.service';
 import { OrderRepository } from './order.repository';
 import { PayOSService } from './payos.service';
@@ -12,7 +13,7 @@ import { EnrollmentModule } from '../enrollment/enrollment.module';
  * Order Module (Handling Orders and Payments)
  */
 @Module({
-    imports: [PrismaModule, CourseModule, EnrollmentModule],
+    imports: [PrismaModule, NatsClientModule, CourseModule, EnrollmentModule],
     providers: [
         OrderService,
         PayOSService,
