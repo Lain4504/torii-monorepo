@@ -5,8 +5,6 @@ import {
     StoragePresignedUrlResponseDTO,
     StorageConfirmUploadRequestDTO,
     StorageConfirmUploadResponseDTO,
-    StorageDirectUploadRequestDTO,
-    StorageDirectUploadResponseDTO,
     StorageDeleteFileRequestDTO,
     StorageDeleteFileResponseDTO,
     StorageGetSignedUrlRequestDTO,
@@ -100,49 +98,6 @@ export class StorageService implements IStorageService {
         };
     }
 
-    /**
-     * Direct upload (small files passed as buffer)
-     */
-    async directUpload(data: StorageDirectUploadRequestDTO & { file?: Buffer }): Promise<StorageDirectUploadResponseDTO> {
-        const fileId = uuidv4();
-        const extension = data.filename.split('.').pop() || '';
-        const key = `uploads/${data.module}/${fileId}${extension ? '.' + extension : ''}`;
-
-        let buffer: Buffer;
-        if (data.file) {
-            buffer = data.file;
-        } else if (data.fileData) {
-            buffer = Buffer.from(data.fileData, 'base64');
-        } else {
-            throw new BadRequestException('No file data provided');
-        }
-
-        const publicUrl = await this.sharedStorage.upload({
-            key,
-            file: buffer,
-            contentType: data.contentType,
-            metadata: data.metadata,
-        });
-
-        await this.storageRepository.create({
-            id: fileId,
-            fileUrl: publicUrl,
-            mimeType: data.contentType,
-            fileSize: buffer.length,
-            status: 'uploaded',
-            ownerId: data.ownerId,
-            metadata: data.metadata || {},
-            moduleOrigin: data.module.toUpperCase(),
-            isPublic: true,
-        });
-
-        return {
-            success: true,
-            fileId,
-            fileUrl: publicUrl,
-            fileSize: buffer.length,
-        };
-    }
 
     /**
      * Delete a file

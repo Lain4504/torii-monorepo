@@ -128,22 +128,42 @@ export class UsersRepository implements IUsersRepository {
         email: string;
         displayName: string;
         role: string;
+        avatarUrl: string | null;
+        userMetadata: Record<string, unknown> | null;
         verifiedAt: Date | null;
         createdAt: Date;
         updatedAt: Date;
     } | null> {
-        return this.prisma.user.findUnique({
+        const user = await this.prisma.user.findUnique({
             where: { id: userId },
             select: {
                 id: true,
                 email: true,
                 displayName: true,
                 role: true,
+                avatarUrl: true,
+                userMetadata: true,
                 verifiedAt: true,
                 createdAt: true,
                 updatedAt: true,
             },
         });
+
+        if (!user) {
+            return null;
+        }
+
+        // Ensure userMetadata is properly typed (Prisma Json type can be Prisma.JsonValue)
+        const userMetadata = user.userMetadata
+            ? (typeof user.userMetadata === 'object' && user.userMetadata !== null && !Array.isArray(user.userMetadata)
+                ? user.userMetadata as Record<string, unknown>
+                : null)
+            : null;
+
+        return {
+            ...user,
+            userMetadata,
+        };
     }
 
     /**

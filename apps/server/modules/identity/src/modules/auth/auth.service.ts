@@ -347,7 +347,13 @@ export class AuthService implements IAuthService {
 
         return {
             ...user,
-            verifiedAt: user.verifiedAt,
+            avatarUrl: user.avatarUrl || undefined,
+            userMetadata: user.userMetadata || undefined,
+            verifiedAt: user.verifiedAt || undefined,
+            bannedUntil: undefined,
+            lastSignInAt: undefined,
+            deletedAt: undefined,
+            appMetadata: undefined,
             permissions,
         } as UserResponseDTO & { permissions: string[] };
     }
@@ -649,11 +655,26 @@ export class AuthService implements IAuthService {
      */
     async updateUser(
         userId: string,
-        dto: { displayName?: string },
+        dto: { displayName?: string; userMetadata?: Record<string, any> },
     ): Promise<UserResponseDTO & { permissions: string[] }> {
-        const fullUser = await this.usersRepository.update(userId, {
-            displayName: dto.displayName,
-        });
+        // Get current user to merge userMetadata
+        const currentUser = await this.usersRepository.findById(userId);
+        const currentMetadata = (currentUser?.userMetadata as Record<string, any>) || {};
+        
+        // Merge userMetadata if provided
+        const mergedMetadata = dto.userMetadata 
+            ? { ...currentMetadata, ...dto.userMetadata }
+            : currentMetadata;
+
+        const updateData: any = {};
+        if (dto.displayName !== undefined) {
+            updateData.displayName = dto.displayName;
+        }
+        if (dto.userMetadata !== undefined) {
+            updateData.userMetadata = mergedMetadata;
+        }
+
+        const fullUser = await this.usersRepository.update(userId, updateData);
 
         // Exclude password
         const { password, ...user } = fullUser;
@@ -661,8 +682,26 @@ export class AuthService implements IAuthService {
         // Get permissions
         const { permissions } = await this.authorizationService.getUserPermissions(user.id, user.role);
 
+        // Ensure proper mapping of userMetadata and avatarUrl
+        const userMetadata = user.userMetadata
+            ? (typeof user.userMetadata === 'object' && user.userMetadata !== null && !Array.isArray(user.userMetadata)
+                ? user.userMetadata as Record<string, unknown>
+                : undefined)
+            : undefined;
+
         return {
             ...user,
+            avatarUrl: user.avatarUrl || undefined,
+            userMetadata,
+            verifiedAt: user.verifiedAt || undefined,
+            bannedUntil: user.bannedUntil || undefined,
+            lastSignInAt: user.lastSignInAt || undefined,
+            deletedAt: user.deletedAt || undefined,
+            appMetadata: user.appMetadata
+                ? (typeof user.appMetadata === 'object' && user.appMetadata !== null && !Array.isArray(user.appMetadata)
+                    ? user.appMetadata as Record<string, unknown>
+                    : undefined)
+                : undefined,
             emailVerified: false,
             permissions,
         } as UserResponseDTO & { permissions: string[] };
@@ -688,19 +727,65 @@ export class AuthService implements IAuthService {
         const oldUser = await this.usersRepository.findById(userId);
         const oldAvatarUrl = oldUser?.avatarUrl;
 
-        // 3. Update user with new avatar URL
+        // 2b. Delete old avatar via Storage (NATS) if it exists
+        // Supports both raw fileId and public R2 URLs
+        if (oldAvatarUrl) {
+            try {
+                let fileIdToDelete = oldAvatarUrl;
+                
+                // If it's a full URL, try to extract the fileId (last segment)
+                if (oldAvatarUrl.startsWith('http')) {
+                    const urlParts = oldAvatarUrl.split('/');
+                    let potentialFileId = urlParts[urlParts.length - 1]; // "uuid.png"
+                    
+                    // Strip extension if present to get raw UUID
+                    if (potentialFileId.includes('.')) {
+                        potentialFileId = potentialFileId.split('.')[0];
+                    }
+
+                    // Basic validation: ensure it's not empty and resembles an ID
+                    if (potentialFileId && potentialFileId.length > 0) {
+                        fileIdToDelete = potentialFileId;
+                    }
+                }
+
+                await firstValueFrom(
+                    this.natsClient.send({ cmd: 'storage.deleteFile' }, { fileId: fileIdToDelete })
+                );
+            } catch (error) {
+                // Ignore if delete fails (e.g. file not found or already deleted)
+                console.warn(`[AuthService] Failed to delete old avatar: ${error}`);
+            }
+        }
+
+        // 3. Update user: save public R2 URL (fileAsset.fileUrl)
         const fullUser = await this.usersRepository.update(userId, {
             avatarUrl: fileAsset.fileUrl,
         });
 
-        // 4. Trigger deletion of old avatar if it was locally managed (this is a bit complex, but let's assume if it has a fileId we could delete it)
-        // For now, let's just update the URL. If we wanted to be thorough, we'd need to know if the old URL belongs to our storage service.
-
         const { password, ...user } = fullUser;
         const { permissions } = await this.authorizationService.getUserPermissions(user.id, user.role);
 
+        // Ensure proper mapping of userMetadata and avatarUrl
+        const userMetadata = user.userMetadata
+            ? (typeof user.userMetadata === 'object' && user.userMetadata !== null && !Array.isArray(user.userMetadata)
+                ? user.userMetadata as Record<string, unknown>
+                : undefined)
+            : undefined;
+
         return {
             ...user,
+            avatarUrl: user.avatarUrl || undefined,
+            userMetadata,
+            verifiedAt: user.verifiedAt || undefined,
+            bannedUntil: user.bannedUntil || undefined,
+            lastSignInAt: user.lastSignInAt || undefined,
+            deletedAt: user.deletedAt || undefined,
+            appMetadata: user.appMetadata
+                ? (typeof user.appMetadata === 'object' && user.appMetadata !== null && !Array.isArray(user.appMetadata)
+                    ? user.appMetadata as Record<string, unknown>
+                    : undefined)
+                : undefined,
             permissions,
         } as UserResponseDTO & { permissions: string[] };
     }

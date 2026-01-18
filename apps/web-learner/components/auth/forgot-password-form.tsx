@@ -54,31 +54,31 @@ export function ForgotPasswordForm() {
 
     if (emailSent) {
         return (
-            <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500">
-                <div className="flex flex-col items-center text-center space-y-4 p-8 bg-primary/5 rounded-3xl border border-primary/10">
-                    <div className="w-16 h-16 rounded-2xl bg-background shadow-sm flex items-center justify-center">
-                        <CheckCircle2 className="w-8 h-8 text-primary" />
+            <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
+                <div className="flex flex-col items-center text-center space-y-4 p-6 bg-primary/[0.03] rounded-2xl border border-primary/10">
+                    <div className="w-12 h-12 rounded-xl bg-background shadow-sm flex items-center justify-center">
+                        <CheckCircle2 className="w-6 h-6 text-primary" />
                     </div>
-                    <div className="space-y-2">
-                        <h3 className="text-lg font-semibold text-foreground">
+                    <div className="space-y-1">
+                        <h3 className="text-base font-semibold text-foreground">
                             Email Đã Gửi
                         </h3>
-                        <p className="text-sm text-muted-foreground/80">
-                            Chúng tôi đã gửi link đặt lại mật khẩu đến <strong>{form.getValues('email')}</strong>
+                        <p className="text-xs text-muted-foreground/80 max-w-[250px] mx-auto leading-relaxed">
+                            Chúng tôi đã gửi link đặt lại mật khẩu đến <strong className="text-foreground">{form.getValues('email')}</strong>
                         </p>
                     </div>
                     <button
                         onClick={() => setEmailSent(false)}
-                        className="text-xs font-medium text-primary hover:underline hover:underline-offset-4 mt-2 transition-all"
+                        className="text-xs font-medium text-primary/80 hover:text-primary hover:underline hover:underline-offset-4 transition-all"
                     >
                         Gửi lại hoặc thử email khác
                     </button>
                 </div>
 
-                <div className="p-4 rounded-xl bg-muted/20 border border-border/20 flex gap-3">
-                    <div className="w-1 h-full bg-primary/20 rounded-full shrink-0" />
-                    <p className="text-xs text-muted-foreground/70 leading-relaxed">
-                        Link đặt lại mật khẩu sẽ hết hạn sau 60 phút.
+                <div className="flex items-start gap-3 p-4 rounded-xl bg-muted/30 border border-border/40">
+                    <div className="w-1 h-8 bg-primary/40 rounded-full shrink-0" />
+                    <p className="text-[11px] text-muted-foreground/70 leading-relaxed text-left">
+                        Link đặt lại mật khẩu sẽ hết hạn sau 60 phút. Vui lòng kiểm tra cả hộp thư Spam nếu không thấy email.
                     </p>
                 </div>
             </div>
@@ -86,44 +86,40 @@ export function ForgotPasswordForm() {
     }
 
     return (
-        <div className="grid gap-8">
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6" noValidate>
+        <div className="grid gap-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5" noValidate>
                 <Controller
                     control={form.control}
                     name="email"
                     render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid} className="space-y-1.5">
-                            <FieldLabel htmlFor={field.name} className="text-xs font-medium text-foreground">Email</FieldLabel>
+                        <Field data-invalid={fieldState.invalid} className="space-y-1.5 text-left">
+                            <FieldLabel htmlFor={field.name} className="text-xs font-medium text-foreground/80 pl-1">Email</FieldLabel>
                             <div className="relative group">
-                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50 transition-colors group-focus-within:text-primary" />
+                                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 transition-colors group-focus-within:text-primary group-hover:text-foreground/60" />
                                 <Input
                                     {...field}
                                     id={field.name}
                                     placeholder="your-registered-email@domain.com"
-                                    className="pl-9 h-11 rounded-xl bg-muted/5 border-border/20 focus:bg-background focus:border-primary/20 focus:ring-2 focus:ring-primary/10 text-sm font-medium transition-all placeholder:text-muted-foreground/40"
+                                    className="pl-10 h-11 rounded-xl bg-muted/30 border-border/40 focus:bg-background focus:border-primary/20 focus:ring-4 focus:ring-primary/[0.03] text-sm font-medium transition-all placeholder:text-muted-foreground/30 hover:bg-muted/50 hover:border-border/60"
                                     aria-invalid={fieldState.invalid}
                                 />
                             </div>
-                            {fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-xs font-medium text-destructive mt-1" />}
+                            {fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-xs font-medium text-destructive mt-1 pl-1" />}
                         </Field>
                     )}
                 />
 
-                <p className="text-xs text-muted-foreground/60 leading-relaxed px-1">
-                    Vui lòng nhập email đăng ký. Chúng tôi sẽ gửi hướng dẫn đặt lại mật khẩu cho bạn.
-                </p>
-
                 <Button
                     type="submit"
-                    className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all"
+                    className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/10 hover:shadow-primary/20 hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm transition-all duration-300"
                     disabled={isLoading}
                 >
                     {isLoading ? (
                         <Spinner className="mr-2 h-4 w-4" />
                     ) : (
-                        <>
-                            Gửi link
-                        </>
+                        <span className="flex items-center gap-2">
+                            Gửi link khôi phục <Send className="w-3.5 h-3.5 ml-0.5" />
+                        </span>
                     )}
                 </Button>
             </form>

@@ -33,11 +33,11 @@ export const login = createAsyncThunk(
             }
 
             // If response indicates 2FA required
-            if (response.data.requiresTwoFactor) {
+            if (response.data.data?.requiresTwoFactor) {
                 return rejectWithValue({
                     requiresTwoFactor: true,
-                    twoFactorMethod: response.data.twoFactorMethod,
-                    tempToken: response.data.tempToken,
+                    twoFactorMethod: response.data.data.twoFactorMethod,
+                    tempToken: response.data.data.tempToken,
                     message: response.data.message || 'Two-factor authentication required',
                 });
             }

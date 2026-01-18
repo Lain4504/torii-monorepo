@@ -47,6 +47,28 @@ export const authApi = {
             success: response.data.success,
             message: response.data.message,
         };
+    },
+
+    /**
+     * Google OAuth login/register
+     */
+    async googleAuth(idToken: string): Promise<{ user: any; accessToken?: string }> {
+        const response = await apiClient.post<StandardApiResponse<{ user: any; access_token?: string }>>('/api/auth/google', { idToken });
+        if (response.data.success && response.data.data) {
+            return {
+                user: response.data.data.user,
+                accessToken: response.data.data.access_token,
+            };
+        }
+        throw new Error(response.data.message || 'Google authentication failed');
+    },
+
+    async verify2FA(data: { tempToken: string; code: string; backupCode?: boolean }): Promise<{ user: any }> {
+        const response = await apiClient.post<StandardApiResponse<{ user: any }>>('/api/auth/login/verify-2fa', data);
+        if (response.data.success && response.data.data?.user) {
+            return { user: response.data.data.user };
+        }
+        throw new Error(response.data.message || 'Validation failed');
     }
 };
 
@@ -109,5 +131,14 @@ export function useForgotPassword() {
 export function useVerifyEmail() {
     return useMutation({
         mutationFn: (token: string) => authApi.verifyEmail(token),
+    });
+}
+
+/**
+ * Hook: Google OAuth
+ */
+export function useGoogleAuth() {
+    return useMutation({
+        mutationFn: (idToken: string) => authApi.googleAuth(idToken),
     });
 }
