@@ -9,7 +9,7 @@ import { Field, FieldLabel, FieldError } from '@workspace/ui/components/field'
 import { toast } from '@workspace/ui/components/sonner'
 import { Spinner } from '@workspace/ui/components/spinner'
 import { Mail, Send, CheckCircle2, KeyRound, ChevronLeft } from 'lucide-react'
-import { forgotPassword } from '@/api/auth'
+import { forgotPassword } from '@/api/services/auth'
 
 const forgotPasswordSchema = z.object({
     email: z.string().email('Email không hợp lệ'),
