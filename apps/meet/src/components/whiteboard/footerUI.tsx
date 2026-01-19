@@ -9,6 +9,7 @@ import {
 import { debounce } from 'es-toolkit';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 import { useTranslation } from 'react-i18next';
+import { ChevronLeft, ChevronRight, Presentation, Eye } from 'lucide-react';
 
 import { store, useAppDispatch, useAppSelector } from '../../store';
 import { setWhiteboardCurrentPage } from '../../store/slices/whiteboard';
@@ -122,7 +123,7 @@ const FooterUI = ({
     return (
       <div className="flex wb-page-navigation ml-2 bg-muted rounded-lg overflow-hidden border border-border">
         <button className="pre p-1 hover:bg-black/5 dark:hover:bg-white/5 transition-colors" onClick={handlePre} disabled={currentPage <= 1}>
-          <i className="wajlc-arrow-left-short text-foreground text-xl rtl:rotate-180" />
+          <ChevronLeft className="w-5 h-5 text-foreground rtl:rotate-180" />
         </button>
         <select
           id="pages"
@@ -142,7 +143,7 @@ const FooterUI = ({
           onClick={handleNext}
           disabled={currentPage >= totalPages}
         >
-          <i className="wajlc-arrow-right-short text-foreground text-xl rtl:rotate-180" />
+          <ChevronRight className="w-5 h-5 text-foreground rtl:rotate-180" />
         </button>
       </div>
     );
@@ -152,17 +153,17 @@ const FooterUI = ({
     return (
       <div
         className={`renderForParticipant flex gap-2 text-sm items-center justify-start md:justify-center relative ${isAdmin && !isRecorder
-            ? 'ltr:pl-3 rtl:pr-3 md:pl-12  md:rtl:pr-4'
-            : 'ltr:pl-3 rtl:pr-3'
+          ? 'ltr:pl-3 rtl:pr-3 md:pl-12  md:rtl:pr-4'
+          : 'ltr:pl-3 rtl:pr-3'
           } `}
       >
         {isAdmin && !isRecorder && (
           <button className="presenter" onClick={takeOverPresenter}>
-            <i className="wajlc-presenter text-[14px]" />
+            <Presentation className="w-3.5 h-3.5" />
           </button>
         )}
         <button
-          className={`px-2 ${isFollowing ? 'following' : ''}`}
+          className={`px-2 flex items-center ${isFollowing ? 'following' : ''}`}
           onClick={handleFollowPresenter}
           title={
             isFollowing
@@ -170,8 +171,8 @@ const FooterUI = ({
               : t('whiteboard.follow-presenter-tooltip')
           }
         >
-          <i
-            className={`wajlc-device-connected text-[14px] ltr:mr-1 rtl:ml-1 ${isFollowing ? 'animate-pulse' : ''
+          <Eye
+            className={`w-3.5 h-3.5 ltr:mr-1 rtl:ml-1 ${isFollowing ? 'animate-pulse text-primary' : ''
               }`}
           />
           {isFollowing ? t('whiteboard.unfollow') : t('whiteboard.follow')}

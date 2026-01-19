@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { Signal } from 'lucide-react';
 import { ConnectionQuality } from 'livekit-client';
 
 import { useAppSelector } from '../../../../store';
@@ -30,7 +31,7 @@ const ConnectionStatus = ({ userId }: IConnectionStatusProps) => {
 
   return (
     <div className="connection-status cursor-pointer w-7 h-7 rounded-full bg-background/40 backdrop-blur-sm shadow-sm flex items-center justify-center border border-border/20">
-      <i style={{ color: color }} className="wajlc-network text-[7px]" />
+      <Signal style={{ color: color }} className="w-3 h-3" />
     </div>
   );
 };

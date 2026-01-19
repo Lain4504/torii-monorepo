@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { Pin } from 'lucide-react';
 
 import { useAppDispatch, useAppSelector } from '../../../../store';
 import { updatePinCamUserId } from '../../../../store/slices/roomSettingsSlice';
@@ -28,9 +29,9 @@ const PinWebcam = ({ userId }: IPinWebcamProps) => {
       onClick={togglePin}
     >
       {isPinCamActive ? (
-        <i className="wajlc-pin text-white text-[12px]" />
+        <Pin className="text-white w-3.5 h-3.5" />
       ) : (
-        <i className="wajlc-pin -rotate-90 text-white text-[12px]" />
+        <Pin className="text-white w-3.5 h-3.5 -rotate-45" />
       )}
     </div>
   );

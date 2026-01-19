@@ -1,4 +1,5 @@
 import React from 'react';
+import { EyeOff } from 'lucide-react';
 import { useAppSelector } from '../../../../store';
 import IconWrapper from './iconWrapper';
 import { participantsSelector } from '../../../../store/slices/participantSlice';
@@ -15,7 +16,7 @@ const VisibilityIcon = ({ userId }: VisibilityIconProps) => {
   return (
     visibility === 'hidden' && (
       <IconWrapper>
-        <i className="wajlc-eye-slash text-foreground dark:text-white text-sm 3xl:text-base" />
+        <EyeOff className="w-3 h-3 3xl:w-4 3xl:h-4 text-foreground dark:text-white" />
       </IconWrapper>
     )
   );

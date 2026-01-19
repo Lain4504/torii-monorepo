@@ -11,7 +11,7 @@ import clsx from 'clsx';
 
 import './style.css';
 import { useAppSelector } from '../../../store';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Maximize } from 'lucide-react';
 
 interface IVideoElmProps {
   track: RemoteTrackPublication | LocalTrackPublication;
@@ -78,10 +78,10 @@ const VideoElm = ({ track }: IVideoElmProps) => {
       )}
       {isLoaded && (
         <button
-          className="absolute z-99 bottom-2 right-2 p-1 bg-black/50 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute z-99 bottom-2 right-2 p-1 bg-black/50 rounded-md opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
           onClick={fullScreen}
         >
-          <i className="icon wajlc-fullscreen text-[18px] text-white" />
+          <Maximize className="w-5 h-5 text-white" />
         </button>
       )}
       <video

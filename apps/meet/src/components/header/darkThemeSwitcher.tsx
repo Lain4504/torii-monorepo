@@ -36,11 +36,11 @@ const DarkThemeSwitcher = () => {
       <div className="mobile inline md:hidden cursor-pointer">
         {theme === 'dark' ? (
           <div className="moon w-8 h-8 rounded-full flex items-center justify-center">
-            <i className="wajlc-moon w-4 h-4 text-primary dark:text-white" />
+            <Moon className="w-4 h-4 text-primary dark:text-white" />
           </div>
         ) : (
           <div className="sun w-8 h-8 rounded-full flex items-center justify-center">
-            <i className="wajlc-sun w-4 h-4 text-primary dark:text-white" />
+            <Sun className="w-4 h-4 text-primary dark:text-white" />
           </div>
         )}
       </div>

@@ -6,10 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="implement meet UI and logic">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/main.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/main.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/vite.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/vite.config.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/i18n/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/packages/i18n/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -123,7 +119,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "#89 on refactor-billing",
+    "git-widget-placeholder": "refactor-billing",
     "ignore.virus.scanning.warn.message": "true",
     "javascript.preferred.runtime.type.id": "node",
     "junie.onboarding.icon.badge.shown": "true",

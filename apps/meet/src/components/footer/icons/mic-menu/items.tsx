@@ -9,7 +9,7 @@ import {
   updateIsActiveMicrophone,
   updateIsMicMuted,
 } from '../../../../store/slices/bottomIconsActivitySlice';
-import { Check, Mic, MicOff } from 'lucide-react';
+import { Check, Mic, MicOff, LogOut } from 'lucide-react';
 
 interface IMicMenuItemsProps {
   currentRoom: Room;
@@ -126,7 +126,7 @@ const MicMenuItems = ({ currentRoom }: IMicMenuItemsProps) => {
               className="group h-8 w-full flex items-center text-sm gap-2 leading-none font-medium px-2 rounded-lg transition-all duration-300 hover:bg-Red-600 hover:text-white text-red-700"
               onClick={leaveMic}
             >
-              <i className="wajlc-logout text-base transition ease-in" />
+              <LogOut className="w-4 h-4 transition ease-in" />
               {t('footer.menus.leave-microphone')}
             </p>
           )}

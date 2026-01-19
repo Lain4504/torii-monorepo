@@ -27,6 +27,7 @@ import {
 import { toast } from 'react-toastify';
 import { ExcalidrawElement } from '@excalidraw/excalidraw/element/types';
 import { RemoteExcalidrawElement } from '@excalidraw/excalidraw/data/reconcile';
+import { Paperclip } from 'lucide-react';
 
 import '@excalidraw/excalidraw/index.css';
 import './style.css';
@@ -427,7 +428,7 @@ const Whiteboard = ({ onReadyExcalidrawAPI }: WhiteboardProps) => {
         // If they are the same, we don't broadcast, preventing an infinite loop where a
         // client re-broadcasts the same data it just received from another user.
         hashElementsVersion(elements) !==
-          lastBroadcastOrReceivedSceneVersion.current
+        lastBroadcastOrReceivedSceneVersion.current
       ) {
         // add new hash of the current scene
         lastBroadcastOrReceivedSceneVersion.current =
@@ -525,9 +526,9 @@ const Whiteboard = ({ onReadyExcalidrawAPI }: WhiteboardProps) => {
           <div className="menu relative z-10">
             <button
               onClick={() => setIsOpenManageFilesUI(true)}
-              className="wb-manage-upload-file ml-1"
+              className="wb-manage-upload-file ml-1 flex items-center justify-center gap-1.5"
             >
-              <i className="wajlc-attachment text-[13px]" />
+              <Paperclip className="w-3.5 h-3.5" />
               {t('whiteboard.manage-files')}
             </button>
           </div>

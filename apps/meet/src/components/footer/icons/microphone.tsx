@@ -44,7 +44,7 @@ import {
 } from '../../../helpers/utils';
 import { getMediaServerConnRoom } from '../../../helpers/livekit/utils';
 import { getNatsConn } from '../../../helpers/nats';
-import { Mic, MicOff, Plus, X } from 'lucide-react';
+import { Mic, MicOff, Plus, X, Lock as LockIcon } from 'lucide-react';
 
 const MicrophoneIcon = () => {
   const dispatch = useAppDispatch();
@@ -433,7 +433,7 @@ const MicrophoneIcon = () => {
                 <Mic className={'h-4 3xl:h-5 w-auto'} />
                 <span className="add absolute -top-1.5 md:-top-2 -right-1.5 md:-right-2 z-10">
                   {isLocked ? (
-                    <i className="wajlc-lock primaryColor" />
+                    <LockIcon className="w-3.5 h-3.5 md:w-3.5 md:h-3.5 text-primary" />
                   ) : (
                     <Plus className="w-4 h-4" />
                   )}

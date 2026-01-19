@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { Maximize, PictureInPicture } from 'lucide-react';
 import { LocalTrackPublication, RemoteTrackPublication } from 'livekit-client';
 
 import VideoElm from './videoElm';
@@ -60,14 +61,14 @@ const VideoComponent = ({
               className="cam-fullscreen cursor-pointer w-7 h-7 rounded-full bg-background/40 backdrop-blur-sm shadow-sm flex items-center justify-center border border-border/20 text-white hover:bg-background/60 transition-all"
               onClick={fullScreen}
             >
-              <i className="icon wajlc-fullscreen text[14px]" />
+              <Maximize className="w-3.5 h-3.5" />
             </button>
             {document.pictureInPictureEnabled && (
               <button
                 className="cam-pip cursor-pointer w-7 h-7 rounded-full bg-background/40 backdrop-blur-sm shadow-sm flex items-center justify-center border border-border/20 text-white hover:bg-background/60 transition-all"
                 onClick={pictureInPicture}
               >
-                <i className="icon wajlc-pip text-[14px]" />
+                <PictureInPicture className="w-3.5 h-3.5" />
               </button>
             )}
             <ConnectionStatus userId={userId} />

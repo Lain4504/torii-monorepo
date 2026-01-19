@@ -1,4 +1,5 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { Ban, Droplets } from 'lucide-react';
 import { RoomUploadedFileType } from '@workspace/protocol';
 
 import {
@@ -77,7 +78,7 @@ const BackgroundItems = ({ onSelect }: IBackgroundItemsProps) => {
         <div
           className={`cursor-pointer w-full h-full flex items-center justify-center bg-muted overflow-hidden ${selectedBg.type === 'none' ? 'border border-primary shadow-sm rounded-lg' : 'rounded-lg border border-border'}`}
         >
-          <i className="wajlc-ban-solid text-foreground" />
+          <Ban className="w-5 h-5 text-foreground" />
         </div>
       </div>
       <div
@@ -87,7 +88,7 @@ const BackgroundItems = ({ onSelect }: IBackgroundItemsProps) => {
         <div
           className={`cursor-pointer w-full h-full flex items-center justify-center bg-muted overflow-hidden ${selectedBg.type === 'blur-sm' ? 'border border-primary shadow-sm rounded-lg' : 'rounded-lg border border-border'}`}
         >
-          <i className="wajlc-blur text-foreground" />
+          <Droplets className="w-5 h-5 text-foreground" />
         </div>
       </div>
       {bgImgs.map((imageUrl, i) => {

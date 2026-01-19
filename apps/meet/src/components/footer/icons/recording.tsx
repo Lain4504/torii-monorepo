@@ -13,6 +13,7 @@ import {
 import useLocalRecording from './recording/useLocalRecording';
 import useCloudRecording from './recording/useCloudRecording';
 import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
+import { CircleDot } from 'lucide-react';
 
 const RecordingIcon = () => {
   const dispatch = useAppDispatch();
@@ -247,7 +248,12 @@ const RecordingIcon = () => {
               ? t('footer.icons.stop-recording')
               : t('footer.icons.start-recording')}
           </span>
-          <i className="wajlc-rec text-[11px] lg:text-[12px] font-['Nunito Sans'] font-bold" />
+          <CircleDot
+            className={clsx('w-5 h-5 transition-colors duration-300', {
+              'text-destructive animate-pulse': isRecording,
+              'text-foreground': !isRecording,
+            })}
+          />
         </div>
       </button>
     </>

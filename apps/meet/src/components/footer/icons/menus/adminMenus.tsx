@@ -16,7 +16,7 @@ import {
   updateShowManageWaitingRoomModal,
   updateShowRtmpModal,
 } from '../../../../store/slices/bottomIconsActivitySlice';
-import { BarChart2, LayoutGrid, Bot, Radio, Play, MonitorPlay, NotebookPen, Captions, Lock } from 'lucide-react';
+import { BarChart2, LayoutGrid, Bot, Radio, Play, MonitorPlay, NotebookPen, Captions, Lock as LockIcon, MicOff, UserPlus } from 'lucide-react';
 
 const AdminMenus = () => {
   const dispatch = useAppDispatch();
@@ -147,18 +147,18 @@ const AdminMenus = () => {
       <div className="divider h-1 w-[110%] bg-muted -ml-3 my-0.5"></div>
       <FooterMenuItem
         onClick={muteAllUsers}
-        icon={<i className="wajlc-mic-mute" />}
+        icon={<MicOff className="w-5 h-5" />}
         text={t('footer.menus.mute-all-users')}
       />
       <FooterMenuItem
         onClick={openLockSettingsModal}
-        icon={<Lock />}
+        icon={<LockIcon className="w-5 h-5" />}
         text={t('footer.menus.room-lock-settings')}
       />
       {roomFeatures?.waitingRoomFeatures?.isActive && (
         <FooterMenuItem
           onClick={openManageWaitingRoomModal}
-          icon={<i className="wajlc-waiting-room" />}
+          icon={<UserPlus className="w-5 h-5" />}
           text={t('footer.menus.manage-waiting-room')}
         />
       )}
