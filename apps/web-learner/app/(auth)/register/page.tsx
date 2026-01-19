@@ -30,7 +30,7 @@ export default function RegisterPage() {
                         </div>
                         <div className="flex flex-col">
                             <span className="text-lg font-bold tracking-tight leading-none text-foreground">Torii <span className="text-primary">Nihongo</span></span>
-                            <span className="text-[10px] font-medium tracking-widest text-muted-foreground/60 mt-0.5">Japanese Learning Platform</span>
+                            <span className="text-[10px] font-medium tracking-widest text-muted-foreground/60 mt-0.5">Nền tảng học tiếng Nhật</span>
                         </div>
                     </Link>
 
@@ -39,9 +39,9 @@ export default function RegisterPage() {
                         <div className="space-y-6 mb-16 animate-in fade-in slide-in-from-left-8 duration-700">
                             <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/10 text-amber-500 rounded-full text-xs font-medium tracking-wide">
                                 <Globe className="w-3.5 h-3.5" />
-                                <span>Global Classroom</span>
+                                <span>Lớp học toàn cầu</span>
                             </div>
-                            <h2 className="text-4xl lg:text-5xl font-serif font-bold tracking-tight text-foreground leading-[0.9] uppercase italic">
+                            <h2 className="text-4xl lg:text-4xl font-serif font-bold tracking-tight text-foreground leading-[0.9] uppercase italic">
                                 Gia nhập <br />
                                 <span className="text-primary not-italic">Cộng đồng Tri thức.</span>
                             </h2>
@@ -53,9 +53,9 @@ export default function RegisterPage() {
                         {/* Benefit Cards Grid */}
                         <div className="grid gap-4 animate-in fade-in slide-in-from-left-12 duration-1000">
                             {[
-                                { icon: Rocket, title: 'Trial Premium', desc: 'Trải nghiệm 7 ngày miễn phí' },
-                                { icon: Users, title: 'Kaiwa Arena', desc: 'Luyện giao tiếp mỗi ngày' },
-                                { icon: Trophy, title: 'Certification', desc: 'Chứng nhận uy tín từ Torii' }
+                                { icon: Rocket, title: 'Dùng thử Premium', desc: 'Trải nghiệm 7 ngày miễn phí' },
+                                { icon: Users, title: 'Đấu trường Kaiwa', desc: 'Luyện giao tiếp mỗi ngày' },
+                                { icon: Trophy, title: 'Chứng chỉ Torii', desc: 'Chứng nhận uy tín từ Torii' }
                             ].map((f, i) => (
                                 <div key={i} className="group flex items-center gap-4 p-4 rounded-2xl bg-background/60 border border-border/40 hover:border-primary/20 hover:bg-background transition-all">
                                     <div className="w-10 h-10 rounded-xl bg-primary/5 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
@@ -74,17 +74,17 @@ export default function RegisterPage() {
                     <div className="relative z-20 mt-auto flex gap-12 items-center border-t border-border/20 pt-8 animate-in fade-in slide-in-from-bottom-4 duration-1200">
                         <div className="flex flex-col">
                             <span className="text-3xl font-serif font-bold text-foreground tracking-tight italic">5K+</span>
-                            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 mt-1">Students</span>
+                            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 mt-1">Học viên</span>
                         </div>
                         <div className="w-px h-8 bg-border/40" />
                         <div className="flex flex-col">
                             <span className="text-3xl font-serif font-bold text-foreground tracking-tight italic">200+</span>
-                            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 mt-1">Courses</span>
+                            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 mt-1">Khóa học</span>
                         </div>
                         <div className="w-px h-8 bg-border/40" />
                         <div className="flex flex-col">
                             <span className="text-3xl font-serif font-bold text-primary tracking-tight italic">4.9</span>
-                            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 mt-1">Rating</span>
+                            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 mt-1">Đánh giá</span>
                         </div>
                     </div>
                 </div>

@@ -41,7 +41,7 @@ const features = [
     },
     {
         icon: TrendingUp,
-        title: 'Smart Analytics',
+        title: 'Phân tích thông minh',
         description: 'Báo cáo chi tiết điểm mạnh, điểm yếu và dự đoán tỉ lệ đỗ JLPT chính xác qua từng giai đoạn.',
         color: 'text-rose-500',
         bg: 'bg-rose-500/5',
@@ -56,9 +56,9 @@ export function FeaturesSection() {
                 <div className="text-center max-w-4xl mx-auto mb-24 space-y-6">
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[9px] font-black uppercase tracking-[0.3em]">
                         <Sparkles className="w-3 h-3" />
-                        <span>Torii Eco-system</span>
+                        <span>Hệ sinh thái Torii</span>
                     </div>
-                    <h2 className="text-6xl md:text-7xl font-serif font-bold tracking-tight text-foreground uppercase italic leading-[0.9]">
+                    <h2 className="text-5xl md:text-7xl font-serif font-bold tracking-tight text-foreground uppercase italic leading-[0.9]">
                         Trải Nghiệm <span className="text-primary not-italic">Học Tập</span> <br /> Đỉnh Cao
                     </h2>
                     <p className="text-[11px] font-black uppercase tracking-[0.25em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-8 max-w-2xl mx-auto text-left py-2">

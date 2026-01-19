@@ -10,8 +10,6 @@ import { StaffDashboardController } from './controllers/staff-dashboard.controll
 import { ExamController } from './controllers/exam.controller';
 import { ExamAdminController } from './controllers/exam-admin.controller';
 import { EnrollmentController } from './controllers/enrollment.controller';
-import { OrderController } from './controllers/order.controller';
-import { PayOSController } from './controllers/payos.controller';
 import { QuestionController } from './controllers/question.controller';
 import { QuestionPoolController } from './controllers/question-pool.controller';
 import { ReviewController } from './controllers/review.controller';
@@ -31,6 +29,7 @@ import { LearningProgressController } from './controllers/learning-progress.cont
 @Module({
     imports: [NatsClientModule],
     controllers: [
+        ReviewController,
         CourseController,
         ModuleController,
         LessonController,
@@ -40,11 +39,8 @@ import { LearningProgressController } from './controllers/learning-progress.cont
         ExamController,
         ExamAdminController,
         EnrollmentController,
-        OrderController,
-        PayOSController,
         QuestionController,
         QuestionPoolController,
-        ReviewController,
 
         WishlistController,
         PostController,

@@ -11,5 +11,7 @@ export default defineConfig({
     alias: {
       '@': '/src',
     },
+    // Deduplicate React to avoid multiple instances
+    dedupe: ['react', 'react-dom', 'react-i18next', 'i18next'],
   },
 })

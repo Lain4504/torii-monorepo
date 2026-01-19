@@ -31,21 +31,21 @@ export function PublishCourseDialog({ open, onOpenChange, course }: PublishCours
 
         // Block if critical requirements are not met
         if (!allCriticalValid) {
-            toast.error('Deployment Aborted', {
-                description: 'Critical pre-launch protocols failed. Please resolve errors.',
+            toast.error('Hủy Triển Khai', {
+                description: 'Yêu cầu quan trọng chưa được đáp ứng. Vui lòng khắc phục lỗi.',
             });
             return;
         }
 
         try {
             await publishMutation.mutateAsync(course.id);
-            toast.success('Course Published', {
-                description: 'Course has been successfully made live.',
+            toast.success('Đã Xuất Bản Khóa Học', {
+                description: 'Khóa học đã được xuất bản thành công.',
             });
             onOpenChange(false);
         } catch (error: any) {
-            toast.error('Publication Failed', {
-                description: error.response?.data?.message || 'System error during publication sequence.',
+            toast.error('Xuất Bản Thất Bại', {
+                description: error.response?.data?.message || 'Lỗi hệ thống trong quá trình xuất bản.',
             });
         }
     };
@@ -53,22 +53,22 @@ export function PublishCourseDialog({ open, onOpenChange, course }: PublishCours
     // Critical validation checks - MUST pass to publish
     const criticalChecks = [
         {
-            label: 'Repository Identification (Title)',
+            label: 'Tên Khóa Học',
             valid: !!course?.title,
             icon: BookOpen,
         },
         {
-            label: 'Core Instructions (Description)',
+            label: 'Mô Tả Khóa Học',
             valid: !!course?.description,
             icon: BookOpen,
         },
         {
-            label: 'Personnel Allocation',
+            label: 'Giảng Viên',
             valid: (instructors?.length || 0) > 0,
             icon: Users,
         },
         {
-            label: 'Value Valuation (Price)',
+            label: 'Học Phí',
             valid: course?.price !== null && course?.price !== undefined && course?.price >= 0,
             icon: BookOpen,
         },
@@ -77,22 +77,22 @@ export function PublishCourseDialog({ open, onOpenChange, course }: PublishCours
     // Recommended validation checks - Should pass for best experience
     const recommendedChecks = [
         {
-            label: 'Visual Asset: Thumbnail',
+            label: 'Ảnh Bìa',
             valid: !!course?.thumbnailUrl,
             icon: BookOpen,
         },
         {
-            label: 'Visual Asset: Preview Sequence',
+            label: 'Video Giới Thiệu',
             valid: !!course?.previewVideoUrl,
             icon: BookOpen,
         },
         {
-            label: 'Lead Instructor Assigned',
+            label: 'Giảng Viên Chính',
             valid: instructors?.some(i => i.isPrimary) || false,
             icon: Users,
         },
         {
-            label: 'Proficiency Level (JLPT)',
+            label: 'Trình Độ JLPT',
             valid: !!course?.jlptLevel,
             icon: Layers,
         },
@@ -105,13 +105,13 @@ export function PublishCourseDialog({ open, onOpenChange, course }: PublishCours
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[540px] border border-border/50 shadow-2xl bg-background rounded-3xl p-0 overflow-hidden">
-                <DialogHeader className="px-8 py-6 border-b border-border/10">
-                    <DialogTitle className="text-xl font-semibold tracking-tight">
-                        Publish Course
+            <DialogContent className="sm:max-w-[540px] border border-border/50 shadow-2xl bg-background rounded-3xl p-0">
+                <DialogHeader className="px-8 py-6 border-b border-border/10 bg-muted/5">
+                    <DialogTitle className="text-xl font-serif font-bold italic uppercase tracking-tight text-foreground">
+                        Xuất Bản Khóa Học
                     </DialogTitle>
                     <DialogDescription className="text-xs font-medium text-muted-foreground/60 mt-1">
-                        Review requirements for <span className="text-foreground">{course?.title}</span>
+                        Kiểm tra yêu cầu cho <span className="text-foreground font-semibold">{course?.title}</span>
                     </DialogDescription>
                 </DialogHeader>
 
@@ -119,17 +119,17 @@ export function PublishCourseDialog({ open, onOpenChange, course }: PublishCours
                     {/* Critical Requirements */}
                     <div className="space-y-4">
                         <div className="flex items-center justify-between pb-2">
-                            <h4 className="text-[10px] font-semibold uppercase tracking-widest text-destructive/80 flex items-center gap-2">
-                                <AlertCircle className="h-3 w-3" />
-                                Required Assets
+                            <h4 className="text-[10px] font-serif font-bold italic uppercase tracking-widest text-destructive/80 flex items-center gap-2">
+                                <AlertCircle className="h-3.5 w-3.5" />
+                                Yêu Cầu Bắt Buộc
                             </h4>
                             {allCriticalValid ? (
-                                <Badge variant="secondary" className="rounded-full text-[9px] font-medium bg-emerald-500/10 text-emerald-600 border-emerald-500/20 shadow-none">
-                                    Validated
+                                <Badge variant="secondary" className="rounded-full text-[9px] font-bold bg-emerald-500/10 text-emerald-600 border-emerald-500/20 shadow-none px-2.5 py-0.5">
+                                    Đạt Yêu Cầu
                                 </Badge>
                             ) : (
-                                <Badge variant="destructive" className="rounded-full text-[9px] font-medium bg-destructive/10 text-destructive border-destructive/20 shadow-none">
-                                    {criticalFailedCount} Missing
+                                <Badge variant="destructive" className="rounded-full text-[9px] font-bold bg-destructive/10 text-destructive border-destructive/20 shadow-none px-2.5 py-0.5">
+                                    {criticalFailedCount} Còn Thiếu
                                 </Badge>
                             )}
                         </div>
@@ -151,7 +151,7 @@ export function PublishCourseDialog({ open, onOpenChange, course }: PublishCours
                                         </div>
 
                                         <div className="flex-1 space-y-0.5">
-                                            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/80 block">{check.label}</span>
+                                            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80 block">{check.label}</span>
                                         </div>
 
                                         {check.valid ? (
@@ -168,17 +168,17 @@ export function PublishCourseDialog({ open, onOpenChange, course }: PublishCours
                     {/* Recommended Checks */}
                     <div className="space-y-4 pt-2">
                         <div className="flex items-center justify-between pb-2 border-b border-border/10">
-                            <h4 className="text-[10px] font-semibold uppercase tracking-widest text-amber-600/80 flex items-center gap-2">
-                                <AlertTriangle className="h-3 w-3" />
-                                Recommended Optimizations
+                            <h4 className="text-[10px] font-serif font-bold italic uppercase tracking-widest text-amber-600/80 flex items-center gap-2">
+                                <AlertTriangle className="h-3.5 w-3.5" />
+                                Đề Xuất Tối Ưu
                             </h4>
                             {allRecommendedValid ? (
-                                <Badge variant="default" className="rounded-md text-[9px] uppercase tracking-widest font-black shadow-none bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20">
-                                    Fully Optimized
+                                <Badge variant="default" className="rounded-md text-[9px] uppercase tracking-widest font-black shadow-none bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 px-2.5 py-0.5">
+                                    Đã Tối Ưu
                                 </Badge>
                             ) : (
-                                <Badge variant="secondary" className="rounded-full text-[9px] font-medium bg-amber-500/10 text-amber-600 border-amber-500/20 shadow-none">
-                                    {recommendedFailedCount} Pending
+                                <Badge variant="secondary" className="rounded-full text-[9px] font-bold bg-amber-500/10 text-amber-600 border-amber-500/20 shadow-none px-2.5 py-0.5">
+                                    {recommendedFailedCount} Chưa Hoàn Tất
                                 </Badge>
                             )}
                         </div>
@@ -200,7 +200,7 @@ export function PublishCourseDialog({ open, onOpenChange, course }: PublishCours
                                         </div>
 
                                         <div className="flex-1 space-y-0.5">
-                                            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/80 block">{check.label}</span>
+                                            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80 block">{check.label}</span>
                                         </div>
 
                                         {check.valid ? (
@@ -222,10 +222,10 @@ export function PublishCourseDialog({ open, onOpenChange, course }: PublishCours
                             </div>
                             <div className="space-y-1">
                                 <p className="text-xs font-black uppercase tracking-wide text-destructive">
-                                    Deployment Locked
+                                    Không Thể Xuất Bản
                                 </p>
                                 <p className="text-[10px] font-bold text-destructive/70 uppercase tracking-widest">
-                                    Critical errors must be resolved prior to launch.
+                                    Các lỗi quan trọng cần được khắc phục trước khi xuất bản.
                                 </p>
                             </div>
                         </div>
@@ -237,11 +237,11 @@ export function PublishCourseDialog({ open, onOpenChange, course }: PublishCours
                                 <ShieldCheck className="h-5 w-5 text-orange-500" />
                             </div>
                             <div className="space-y-1">
-                                <p className="text-xs font-semibold text-amber-600">
-                                    Optimization Recommended
+                                <p className="text-xs font-bold text-amber-600">
+                                    Khuyến Nghị Tối Ưu
                                 </p>
                                 <p className="text-[10px] font-medium text-amber-600/60 uppercase tracking-wider">
-                                    Ready for launch, but performance can be improved.
+                                    Sẵn sàng xuất bản, nhưng có thể cải thiện thêm.
                                 </p>
                             </div>
                         </div>
@@ -252,29 +252,29 @@ export function PublishCourseDialog({ open, onOpenChange, course }: PublishCours
                     <Button
                         variant="ghost"
                         onClick={() => onOpenChange(false)}
-                        className="rounded-xl h-10 px-6 hover:bg-muted/20 text-xs font-medium"
+                        className="rounded-xl h-11 px-6 hover:bg-muted/20 text-xs font-bold uppercase tracking-wider"
                     >
-                        Back
+                        Quay Lại
                     </Button>
                     <Button
                         onClick={handlePublish}
                         disabled={!allCriticalValid || publishMutation.isPending}
                         className={cn(
-                            "rounded-xl h-10 px-6 text-xs font-medium transition-all shadow-lg",
+                            "rounded-xl h-11 px-6 text-xs font-bold uppercase tracking-wider transition-all shadow-lg",
                             !allCriticalValid
                                 ? "bg-muted text-muted-foreground opacity-50"
-                                : "bg-primary text-primary-foreground hover:bg-primary/90 shadow-primary/20 hover:shadow-primary/30"
+                                : "bg-primary text-primary-foreground hover:bg-primary/90 shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5"
                         )}
                     >
                         {publishMutation.isPending ? (
                             <>
                                 <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
-                                Publishing...
+                                Đang xuất bản...
                             </>
                         ) : (
                             <>
                                 <Rocket className="mr-2 h-3.5 w-3.5" />
-                                Publish Course
+                                Xuất Bản Ngay
                             </>
                         )}
                     </Button>

@@ -15,7 +15,7 @@ import { updateSelectedVideoDevice } from '../../../store/slices/roomSettingsSli
 import VirtualBackground from '../../virtual-background/virtualBackground';
 import { createEmptyVideoStreamTrack } from '../../../helpers/utils';
 import { getMediaServerConnRoom } from '../../../helpers/livekit/utils';
-import { Video, VideoOff, Plus } from 'lucide-react';
+import { Video, VideoOff, Plus, Lock as LockIcon } from 'lucide-react';
 import useWebcamPublisher from './webcam/useWebcamPublisher';
 import useVirtualBackground from './webcam/useVirtualBackground';
 
@@ -253,7 +253,7 @@ const WebcamIcon = () => {
                     <Video className={'h-4 3xl:h-5 w-auto'} />
                     <span className="add absolute -top-2 -right-2 z-10">
                       {isWebcamLocked ? (
-                        <i className="wajlc-lock primaryColor" />
+                        <LockIcon className="w-3 h-3 md:w-3.5 md:h-3.5 text-primary" />
                       ) : (
                         <Plus className="w-3 h-3 md:w-4 md:h-4" />
                       )}

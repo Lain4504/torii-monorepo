@@ -139,7 +139,7 @@ export default function TwoFactorVerifyPage() {
                             </svg>
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-xl font-serif font-medium tracking-tight text-foreground">Torii <span className="text-primary italic">Admin</span></span>
+                            <span className="text-xl font-bold tracking-tight text-foreground">Torii <span className="text-primary">Admin</span></span>
                         </div>
                     </div>
                 </div>
@@ -147,9 +147,9 @@ export default function TwoFactorVerifyPage() {
                 {/* Hero Section */}
                 <div className="relative z-10 max-w-lg space-y-8">
                     <div className="space-y-4">
-                        <h1 className="text-5xl font-serif font-medium tracking-tight text-foreground leading-[1.1]">
+                        <h1 className="text-4xl font-bold tracking-tight text-foreground leading-[1.1]">
                             Secure <br />
-                            <span className="text-primary italic">Authentication</span>
+                            <span className="text-primary">Authentication</span>
                         </h1>
                         <p className="text-sm font-medium text-muted-foreground/60 leading-relaxed max-w-md">
                             Your account is protected with two-factor authentication. Enter the code from your authenticator app to continue.
@@ -181,7 +181,7 @@ export default function TwoFactorVerifyPage() {
                     </button>
 
                     <div className="space-y-2 text-center lg:text-left">
-                        <h2 className="text-3xl font-serif font-medium tracking-tight text-foreground">Two-Factor Authentication</h2>
+                        <h2 className="text-3xl font-bold tracking-tight text-foreground">Two-Factor Authentication</h2>
                         <p className="text-sm text-muted-foreground/60">
                             {useBackupCode
                                 ? 'Enter one of your backup codes'

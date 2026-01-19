@@ -47,12 +47,12 @@ export function PostTable({ data, onView, onEdit, onDelete, page, limit, isLoadi
 
     return (
         <Table className="min-w-[1000px] border-collapse bg-transparent">
-            <TableHeader className="bg-muted/10 border-b border-border/40">
+            <TableHeader className="bg-muted/30 border-b border-border">
                 {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id} className="border-none hover:bg-transparent">
+                    <TableRow key={headerGroup.id} className="hover:bg-transparent border-none">
                         {headerGroup.headers.map((header) => {
                             return (
-                                <TableHead key={header.id} className="h-9 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-3">
+                                <TableHead key={header.id} className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/50 last:border-r-0">
                                     {header.isPlaceholder
                                         ? null
                                         : flexRender(
@@ -68,10 +68,10 @@ export function PostTable({ data, onView, onEdit, onDelete, page, limit, isLoadi
             <TableBody>
                 {isLoading ? (
                     Array.from({ length: 5 }).map((_, index) => (
-                        <TableRow key={index} className="border-b border-border/10">
+                        <TableRow key={index} className="border-b border-border/50 hover:bg-transparent">
                             {columns.map((_, colIndex) => (
-                                <TableCell key={colIndex} className="py-2.5 px-3">
-                                    <Skeleton className="h-4 w-full bg-muted/20 rounded-md" />
+                                <TableCell key={colIndex} className="py-3 px-4">
+                                    <Skeleton className="h-4 w-full bg-muted/20" />
                                 </TableCell>
                             ))}
                         </TableRow>
@@ -81,10 +81,10 @@ export function PostTable({ data, onView, onEdit, onDelete, page, limit, isLoadi
                         <TableRow
                             key={row.id}
                             data-state={row.getIsSelected() && 'selected'}
-                            className="border-b border-border/20 hover:bg-primary/[0.02] transition-all duration-500 group"
+                            className="border-b border-border/50 hover:bg-muted/30 transition-colors group"
                         >
                             {row.getVisibleCells().map((cell) => (
-                                <TableCell key={cell.id} className="py-2.5 px-3 text-[13px] font-bold text-foreground/80 whitespace-nowrap group-hover:text-primary transition-colors">
+                                <TableCell key={cell.id} className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0">
                                     {flexRender(
                                         cell.column.columnDef.cell,
                                         cell.getContext()
@@ -94,19 +94,20 @@ export function PostTable({ data, onView, onEdit, onDelete, page, limit, isLoadi
                         </TableRow>
                     ))
                 ) : (
-                    <TableRow className="hover:bg-transparent">
+                    <TableRow className="hover:bg-transparent border-none">
                         <TableCell
                             colSpan={columns.length}
-                            className="h-64 text-center"
+                            className="h-[300px] text-center p-0"
                         >
-                            <div className="flex flex-col items-center justify-center p-12 space-y-6">
-                                <div className="w-16 h-16 rounded-xl bg-muted/20 flex items-center justify-center border border-border/40 relative">
-                                    <div className="absolute inset-0 bg-primary/5 blur-2xl rounded-full" />
-                                    <SearchCode className="size-10 text-muted-foreground/20 relative z-10" />
+                            <div className="flex flex-col items-center justify-center p-8">
+                                <div className="w-16 h-16 rounded-full bg-muted/20 flex items-center justify-center text-muted-foreground/30 mb-4">
+                                    <SearchCode className="size-8" />
                                 </div>
-                                <div className="space-y-2">
-                                    <h3 className="text-xl font-black uppercase italic tracking-tight text-foreground/40">Article Void</h3>
-                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/20 italic">No post definitions detected in the content hub.</p>
+                                <div className="space-y-1">
+                                    <p className="text-lg font-semibold text-foreground/50">Không tìm thấy bài viết</p>
+                                    <p className="text-sm text-muted-foreground/40">
+                                        Thử thay đổi điều kiện lọc hoặc từ khóa tìm kiếm.
+                                    </p>
                                 </div>
                             </div>
                         </TableCell>

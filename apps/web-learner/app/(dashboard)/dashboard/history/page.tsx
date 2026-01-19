@@ -1,7 +1,7 @@
 'use client'
 
 import { Card, CardContent } from '@workspace/ui/components/card'
-import { Clock, PlayCircle, ChevronRight, Calendar, BookOpen } from 'lucide-react'
+import { Clock, PlayCircle, ChevronRight, Calendar, BookOpen, History } from 'lucide-react'
 import Link from 'next/link'
 
 import { useLearningHistory } from '../../../../apis/services/learning-progress-api'
@@ -45,9 +45,17 @@ export default function HistoryPage() {
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 max-w-4xl animate-in fade-in duration-500">
             {/* Header */}
-            <div className="space-y-1">
-                <h1 className="text-2xl font-bold text-foreground tracking-tight">Lịch sử học tập</h1>
-                <p className="text-sm text-muted-foreground opacity-70">Nhìn lại chặng đường bạn đã đi qua</p>
+            <div className="space-y-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-serif font-bold italic uppercase tracking-wide">
+                    <History className="size-3.5" />
+                    Archive
+                </div>
+                <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+                    Lịch sử <span className="text-primary not-italic">Học tập</span>
+                </h1>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
+                    Nhìn lại chặng đường phát triển Torii Learner
+                </p>
             </div>
 
             {/* Timeline List */}
@@ -56,7 +64,7 @@ export default function HistoryPage() {
                     <div key={item.id} className="relative pl-12 group">
                         <div className="absolute left-3 top-2 w-4 h-4 rounded-full bg-background border-2 border-primary group-hover:scale-125 transition-transform z-10" />
 
-                        <Card className="border-border/50 shadow-none bg-card/30 hover:bg-card/50 transition-colors cursor-pointer overflow-hidden border-l-4 border-l-primary/30">
+                        <Card className="border-border/60 shadow-sm bg-card/40 backdrop-blur-md hover:bg-card/50 transition-colors cursor-pointer overflow-hidden border-l-4 border-l-primary/40">
                             <CardContent className="p-5">
                                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                     <div className="space-y-1.5 flex-1">

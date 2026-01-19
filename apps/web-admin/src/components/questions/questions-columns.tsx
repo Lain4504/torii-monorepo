@@ -36,15 +36,34 @@ const getStatusColor = (status: QuestionStatus) => {
     return colors[status] || colors.active;
 };
 
+const getStatusLabel = (status: QuestionStatus) => {
+    const labels: Record<QuestionStatus, string> = {
+        active: 'Đang hoạt động',
+        inactive: 'Ngừng hoạt động',
+        review: 'Chờ duyệt',
+        archived: 'Đã lưu trữ',
+    };
+    return labels[status] || status;
+};
+
 const getTypeLabel = (type: QuestionType) => {
     const labels: Record<QuestionType, string> = {
-        multiple_choice: 'Multiple Choice',
-        true_false: 'True/False',
-        fill_blank: 'Fill in Blank',
-        matching: 'Matching',
-        essay: 'Essay',
+        multiple_choice: 'Trắc nghiệm',
+        true_false: 'Đúng/Sai',
+        fill_blank: 'Điền khuyết',
+        matching: 'Nối thẻ',
+        essay: 'Tự luận',
     };
     return labels[type] || type.toUpperCase();
+};
+
+const getDifficultyLabel = (difficulty: QuestionDifficultyLevel) => {
+    const labels: Record<QuestionDifficultyLevel, string> = {
+        easy: 'Dễ',
+        medium: 'Trung bình',
+        hard: 'Khó',
+    };
+    return labels[difficulty] || difficulty;
 };
 
 export const getQuestionsColumns = ({
@@ -76,7 +95,7 @@ export const getQuestionsColumns = ({
                         onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
                         className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group"
                     >
-                        Question Content
+                        Nội dung Câu hỏi
                         <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
                     </Button>
                 );
@@ -94,7 +113,7 @@ export const getQuestionsColumns = ({
             ),
         }),
         columnHelper.accessor('questionType', {
-            header: () => <div className="px-1 text-center">Type</div>,
+            header: () => <div className="px-1 text-center">Loại hình</div>,
             cell: (info) => (
                 <div className="flex justify-center">
                     <div className="inline-flex items-center px-2 py-0.5 rounded-md bg-muted/10 border border-border/10 text-[8px] font-black uppercase tracking-widest text-muted-foreground">
@@ -104,7 +123,7 @@ export const getQuestionsColumns = ({
             ),
         }),
         columnHelper.accessor('jlptLevel', {
-            header: () => <div className="px-1 text-center">Level</div>,
+            header: () => <div className="px-1 text-center">Cấp độ</div>,
             cell: (info) => {
                 const level = info.getValue() as QuestionJlptLevel | null;
                 return (
@@ -117,7 +136,7 @@ export const getQuestionsColumns = ({
             },
         }),
         columnHelper.accessor('difficulty', {
-            header: () => <div className="px-1 text-center">Difficulty</div>,
+            header: () => <div className="px-1 text-center">Độ khó</div>,
             cell: (info) => {
                 const difficulty = info.getValue() as QuestionDifficultyLevel | null;
                 const colors: Record<QuestionDifficultyLevel, string> = {
@@ -128,14 +147,14 @@ export const getQuestionsColumns = ({
                 return (
                     <div className="flex justify-center">
                         <div className={cn("inline-flex items-center px-3 py-1 rounded-md text-[8px] font-black uppercase tracking-widest border", difficulty ? colors[difficulty] : 'bg-muted/10 border-border/10 text-muted-foreground')}>
-                            {difficulty || 'N/A'}
+                            {difficulty ? getDifficultyLabel(difficulty) : 'N/A'}
                         </div>
                     </div>
                 );
             },
         }),
         columnHelper.accessor('status', {
-            header: () => <div className="px-1 text-center">Status</div>,
+            header: () => <div className="px-1 text-center">Trạng thái</div>,
             cell: (info) => {
                 const status = info.getValue() as QuestionStatus;
                 const colorClass = getStatusColor(status);
@@ -143,7 +162,7 @@ export const getQuestionsColumns = ({
                     <div className="flex justify-center">
                         <div className={cn("inline-flex items-center px-3 py-1 rounded-md text-[8px] font-black uppercase tracking-[0.2em] border shadow-sm", colorClass)}>
                             <div className={cn("size-1 rounded-full mr-2", status === 'active' ? 'bg-emerald-500 animate-pulse' : 'bg-current')} />
-                            {status}
+                            {getStatusLabel(status)}
                         </div>
                     </div>
                 );
@@ -157,7 +176,7 @@ export const getQuestionsColumns = ({
                         onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
                         className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group w-full justify-center"
                     >
-                        Used In
+                        Sử dụng tại
                         <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
                     </Button>
                 );
@@ -165,13 +184,13 @@ export const getQuestionsColumns = ({
             cell: (info) => (
                 <div className="flex flex-col items-center">
                     <div className="font-black italic text-[14px] leading-none">{info.getValue() || 0}</div>
-                    <div className="text-[7px] font-black uppercase tracking-widest text-muted-foreground/40 mt-1">Times Used</div>
+                    <div className="text-[7px] font-black uppercase tracking-widest text-muted-foreground/40 mt-1">Số lần dùng</div>
                 </div>
             ),
         }),
         columnHelper.display({
             id: 'actions',
-            header: () => <div className="text-center">Manage</div>,
+            header: () => <div className="text-center">Quản lý</div>,
             cell: ({ row }) => {
                 const question = row.original;
                 const status = question.status as QuestionStatus;
@@ -196,14 +215,14 @@ export const getQuestionsColumns = ({
                                     className="rounded-md px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
                                 >
                                     <Eye className="h-4 w-4 opacity-30" />
-                                    <span>View Details</span>
+                                    <span>Xem Chi tiết</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                     onClick={() => onEdit(question)}
                                     className="rounded-md px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
                                 >
                                     <Pencil className="h-4 w-4 opacity-30" />
-                                    <span>Edit Question</span>
+                                    <span>Chỉnh sửa Câu hỏi</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator className="bg-border/20 mx-2" />
                                 {status === 'review' && (
@@ -213,14 +232,14 @@ export const getQuestionsColumns = ({
                                             className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest text-emerald-500 focus:text-emerald-600 focus:bg-emerald-500/10 cursor-pointer flex gap-3"
                                         >
                                             <CheckCircle className="h-4 w-4 opacity-60" />
-                                            <span>Approve</span>
+                                            <span>Phê duyệt</span>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
                                             onClick={() => onReject(question)}
                                             className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest text-rose-500 focus:text-rose-600 focus:bg-rose-500/10 cursor-pointer flex gap-3"
                                         >
                                             <Archive className="h-4 w-4 opacity-60" />
-                                            <span>Reject Question</span>
+                                            <span>Từ chối Câu hỏi</span>
                                         </DropdownMenuItem>
                                     </>
                                 )}
@@ -230,7 +249,7 @@ export const getQuestionsColumns = ({
                                         className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest text-amber-500 focus:text-amber-600 focus:bg-amber-500/10 cursor-pointer flex gap-3"
                                     >
                                         <XCircle className="h-4 w-4 opacity-60" />
-                                        <span>Deactivate</span>
+                                        <span>Ngừng hoạt động</span>
                                     </DropdownMenuItem>
                                 )}
                                 {(status === 'active' || status === 'inactive') && (
@@ -239,7 +258,7 @@ export const getQuestionsColumns = ({
                                         className="rounded-md px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
                                     >
                                         <Clock className="h-4 w-4 opacity-30" />
-                                        <span>Submit for Review</span>
+                                        <span>Gửi để Duyệt</span>
                                     </DropdownMenuItem>
                                 )}
                                 <DropdownMenuSeparator className="bg-border/20 mx-2" />
@@ -248,7 +267,7 @@ export const getQuestionsColumns = ({
                                     className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer flex gap-3"
                                 >
                                     <Trash className="h-4 w-4 opacity-30" />
-                                    <span>Delete Question</span>
+                                    <span>Xóa Câu hỏi</span>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>

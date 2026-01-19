@@ -10,9 +10,17 @@ export default function StatisticsPage() {
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 max-w-6xl animate-in fade-in duration-500">
             {/* Header */}
-            <div className="space-y-1">
-                <h1 className="text-2xl font-bold text-foreground tracking-tight">Thống kê học tập</h1>
-                <p className="text-sm text-muted-foreground opacity-70">Phân tích chi tiết quá trình phát triển của bạn</p>
+            <div className="space-y-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-serif font-bold italic uppercase tracking-wide">
+                    <TrendingUp className="size-3.5" />
+                    Phân tích
+                </div>
+                <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+                    Thống kê <span className="text-primary not-italic">Học tập</span>
+                </h1>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
+                    Phân tích chi tiết quá trình phát triển Torii Learner
+                </p>
             </div>
 
             {/* Top Overview Stats */}
@@ -25,9 +33,9 @@ export default function StatisticsPage() {
                 ].map((stat, i) => {
                     const Icon = stat.icon
                     return (
-                        <div key={i} className="p-5 rounded-3xl border border-border/50 bg-muted/5 space-y-3">
+                        <div key={i} className="p-5 rounded-3xl border border-border/60 bg-background/40 backdrop-blur-xl space-y-3 shadow-sm">
                             <div className="flex items-center justify-between">
-                                <div className={`p-2.5 rounded-2xl bg-background border border-border/50 shadow-sm ${stat.color}`}>
+                                <div className={`p-2.5 rounded-2xl bg-background border border-border/60 shadow-sm ${stat.color}`}>
                                     <Icon className="w-5 h-5" />
                                 </div>
                             </div>
@@ -44,8 +52,8 @@ export default function StatisticsPage() {
             <div className="grid lg:grid-cols-3 gap-8">
                 {/* Visual Chart Placeholder Area */}
                 <div className="lg:col-span-2 space-y-8">
-                    <Card className="border-border/50 shadow-none bg-card/30 overflow-hidden">
-                        <CardHeader className="flex flex-row items-center justify-between px-6 py-6 border-b border-border/50">
+                    <Card className="border-border/60 shadow-sm bg-card/40 backdrop-blur-xl overflow-hidden">
+                        <CardHeader className="flex flex-row items-center justify-between px-6 py-6 border-b border-border/60">
                             <CardTitle className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Phân bổ thời gian (7 ngày qua)</CardTitle>
                             <div className="flex items-center gap-1 text-[10px] font-bold text-primary tracking-widest uppercase">
                                 <span>Thứ 2 - Chủ nhật</span>
@@ -74,7 +82,7 @@ export default function StatisticsPage() {
 
                     {/* Skill Radar / Strengths Section */}
                     <div className="grid sm:grid-cols-2 gap-6">
-                        <Card className="border-border/50 shadow-none bg-card/30">
+                        <Card className="border-border/60 shadow-sm bg-card/40 backdrop-blur-xl">
                             <CardHeader className="pb-3 flex flex-row items-center justify-between">
                                 <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Kỹ năng ngôn ngữ</CardTitle>
                                 <Award className="w-4 h-4 text-primary" />
@@ -97,7 +105,7 @@ export default function StatisticsPage() {
                             </CardContent>
                         </Card>
 
-                        <Card className="border-border/50 shadow-none bg-card/30 flex flex-col justify-center items-center text-center p-8 space-y-4">
+                        <Card className="border-border/60 shadow-sm bg-card/40 backdrop-blur-xl flex flex-col justify-center items-center text-center p-8 space-y-4">
                             <div className="w-20 h-20 rounded-full border-4 border-primary/20 flex items-center justify-center relative">
                                 <span className="text-xl font-extrabold text-foreground">A+</span>
                                 {/* Animated ring could go here */}

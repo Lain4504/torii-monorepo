@@ -29,8 +29,8 @@ export function ViewQuestionDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-3xl border-none shadow-2xl bg-background rounded-3xl p-0 overflow-hidden max-h-[90vh] flex flex-col">
-                <DialogHeader className="p-8 pb-6 bg-muted/5 border-b border-border/10 relative overflow-hidden flex-shrink-0">
+            <DialogContent className="max-w-3xl border-none shadow-2xl bg-background rounded-3xl p-0 max-h-[90vh] flex flex-col">
+                <DialogHeader className="p-8 pb-6 bg-muted/5 border-b border-border/10 relative flex-shrink-0">
                     <div className="absolute inset-0 bg-primary/5 blur-3xl opacity-50 pointer-events-none" />
                     <div className="relative z-10 flex items-start justify-between">
                         <div className="space-y-1">

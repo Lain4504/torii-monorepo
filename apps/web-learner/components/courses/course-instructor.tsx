@@ -18,7 +18,7 @@ export function CourseInstructor({ course }: CourseInstructorProps) {
             <div className="space-y-10 animate-in fade-in duration-700">
                 <div className="flex items-center gap-4">
                     <Users className="w-5 h-5 text-primary/40" />
-                    <h2 className="text-2xl md:text-3xl font-serif font-bold italic text-foreground uppercase tracking-tight">Academic Mentors</h2>
+                    <h2 className="text-2xl md:text-3xl font-serif font-bold italic text-foreground uppercase tracking-tight">Đội ngũ Cố vấn</h2>
                 </div>
 
                 <div className="rounded-3xl p-6 bg-muted/20 border border-border/40 relative overflow-hidden group">
@@ -38,17 +38,17 @@ export function CourseInstructor({ course }: CourseInstructorProps) {
                                 <div className="flex gap-0.5 text-amber-500">
                                     {[...Array(5)].map((_, i) => <Star key={i} className="w-2.5 h-2.5 fill-current" />)}
                                 </div>
-                                <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40">4.9 Rating</span>
+                                <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40">4.9 Đánh giá</span>
                             </div>
                         </div>
 
                         <div className="flex-1 space-y-4">
                             <div className="space-y-1.5">
                                 <div className="inline-flex items-center gap-2 px-2.5 py-0.5 bg-primary/5 text-primary rounded-full text-[8px] font-black uppercase tracking-[0.3em]">
-                                    <span>Specialist Team</span>
+                                    <span>Đội ngũ Chuyên gia</span>
                                 </div>
-                                <h3 className="text-xl md:text-2xl font-serif font-bold italic tracking-tight text-foreground uppercase">Torii Academic Faculty</h3>
-                                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic">Elite linguistic instructors & JLPT specialists</p>
+                                <h3 className="text-xl md:text-2xl font-serif font-bold italic tracking-tight text-foreground uppercase">Học viện Torii Nihongo</h3>
+                                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic">Giảng viên ngôn ngữ & Chuyên gia đào tạo JLPT</p>
                             </div>
 
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -101,19 +101,19 @@ export function CourseInstructor({ course }: CourseInstructorProps) {
                                         <Star className="w-3 h-3 fill-current" />
                                         <span className="text-[10px] font-black text-foreground ml-1">5.0</span>
                                     </div>
-                                    <span className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40">Rating</span>
+                                    <span className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40">Đánh giá</span>
                                 </div>
                             </div>
 
                             <div className="flex-1 space-y-4 w-full">
                                 <div className="space-y-1.5">
                                     <div className="inline-flex items-center gap-2 px-2.5 py-0.5 bg-primary/5 text-primary rounded-full text-[8px] font-black uppercase tracking-[0.2em]">
-                                        <span>Certified Instructor</span>
+                                        <span>Giảng viên chuyên môn</span>
                                     </div>
                                     <h3 className="text-xl md:text-2xl font-serif font-bold italic tracking-tight text-foreground uppercase group-hover:text-primary transition-colors leading-tight">
                                         {instructor.user.displayName}
                                     </h3>
-                                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic">Senior Academic Lead at Torii Nihongo</p>
+                                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic">Trưởng nhóm Học thuật tại Torii Nihongo</p>
                                 </div>
 
                                 <div className="flex flex-wrap gap-y-3 gap-x-6">

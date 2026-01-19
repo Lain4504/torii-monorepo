@@ -29,11 +29,13 @@ import { setActiveSidePanel } from '../../store/slices/bottomIconsActivitySlice'
 const App = () => {
   const dispatch = useAppDispatch();
   const { t, i18n } = useTranslation();
-  // make sure we're using correct body dir
-  document.dir = i18n.dir();
-  // we'll require making ready virtual background
-  // elements as early as possible.
-  loadBodyPix(true).then();
+  useEffect(() => {
+    // make sure we're using correct body dir
+    document.dir = i18n.dir();
+    // we'll require making ready virtual background
+    // elements as early as possible.
+    loadBodyPix(true).then();
+  }, [i18n]);
 
   const [loading, setLoading] = useState<boolean>(true);
   // it could be recorder or RTMP bot

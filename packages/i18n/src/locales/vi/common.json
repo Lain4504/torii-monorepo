@@ -95,8 +95,8 @@
     "sidebar": {
         "appName": "Torii Admin",
         "workspace": "Không gian làm việc",
-        "overview": "Tổng quan",
-        "management": "Quản lý",
+        "overview": "Học thuật",
+        "management": "Vận hành",
         "system": "Hệ thống",
         "defaultUser": "Người quản trị",
         "defaultRole": "Quản trị viên",

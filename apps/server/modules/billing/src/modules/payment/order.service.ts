@@ -1,5 +1,3 @@
-
-
 import { Injectable, Logger, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import {
@@ -15,16 +13,14 @@ import {
     PaymentMethod,
 } from '@workspace/schemas';
 import type { IOrderService } from '../../interfaces/services';
-import { ORDER_SERVICE_TOKEN, ENROLLMENT_SERVICE_TOKEN } from '../../interfaces/services';
-import type { IEnrollmentService } from '../../interfaces/services';
 import { OrderRepository } from './order.repository';
 import { PayOSService } from './payos.service';
-import { ICourseRepository, COURSE_REPOSITORY_TOKEN } from '../../interfaces/repositories';
 import type { Prisma } from '@prisma/generated';
+import { firstValueFrom } from 'rxjs';
 
 /**
  * Order Service
- * Handles order business logic operations (formerly Payment Service)
+ * Handles order business logic operations
  */
 @Injectable()
 export class OrderService implements IOrderService {
@@ -32,10 +28,6 @@ export class OrderService implements IOrderService {
 
     constructor(
         private readonly orderRepository: OrderRepository,
-        @Inject(COURSE_REPOSITORY_TOKEN)
-        private readonly courseRepository: ICourseRepository,
-        @Inject(ENROLLMENT_SERVICE_TOKEN)
-        private readonly enrollmentService: IEnrollmentService,
         private readonly payOSService: PayOSService,
         @Inject('NATS_SERVICE')
         private readonly natsClient: ClientProxy,
@@ -84,7 +76,7 @@ export class OrderService implements IOrderService {
      */
     async findAll(query: OrderQueryDTO): Promise<PaginatedResponseDTO<OrderResponseDTO>> {
         try {
-            const { page = 1, limit = 10, userId, courseId, status } = query;
+            const { page = 1, limit = 10, userId, status } = query;
             const pageNum = typeof page === 'string' ? parseInt(page, 10) : Number(page) || 1;
             const limitNum = typeof limit === 'string' ? parseInt(limit, 10) : Number(limit) || 10;
             const validPage = pageNum > 0 ? pageNum : 1;
@@ -201,7 +193,11 @@ export class OrderService implements IOrderService {
         let discountAmount: number | undefined;
 
         if (input.orderType === OrderType.COURSE_PURCHASE && courseId) {
-            course = await this.courseRepository.findById(courseId);
+            // Fetch course via NATS
+            course = await firstValueFrom(
+                this.natsClient.send({ cmd: 'learning.course.findOne' }, { id: courseId })
+            );
+
             if (!course) {
                 this.logger.error(`Course not found: ${courseId}`);
                 throw new NotFoundException('Course not found');
@@ -248,17 +244,9 @@ export class OrderService implements IOrderService {
             // If PayOS payment method, create payment link
             if (input.paymentMethod === PaymentMethod.PAYOS) {
                 try {
-                    // Generate a unique order code for PayOS
-                    // PayOS requires integer orderCode (max 53-bit).
-                    // We use Date.now() (13 digits) slice(-10) to keep it safe and shorter (max 10 digits fit in int32 easily)
                     const orderCode = Number(Date.now().toString().slice(-10));
-
-                    // PayOS description max length is 25 characters.
                     const description = `Torii ${orderCode}`;
-
                     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-
-                    // Prefer URLs from metadata, fallback to default
                     const returnUrl = input.metadata?.returnUrl || (input as any).returnUrl || `${frontendUrl}/checkout/return?order_id=${created.id}`;
                     const cancelUrl = input.metadata?.cancelUrl || (input as any).cancelUrl || `${frontendUrl}/checkout/return?order_id=${created.id}`;
 
@@ -268,18 +256,17 @@ export class OrderService implements IOrderService {
                         description: description,
                         cancelUrl: cancelUrl,
                         returnUrl: returnUrl,
-                        // items removed to prevent validation errors with PayOS
                     });
 
                     // Update order with transaction info
                     await this.orderRepository.update(created.id, {
                         transactionId: orderCode.toString(),
-                        gatewayTransactionId: orderCode.toString(), // Storing the numeric ID as string
+                        gatewayTransactionId: orderCode.toString(),
                         metadata: {
                             ...(created.metadata as any),
                             checkoutUrl: paymentLinkData.checkoutUrl,
                             paymentLinkId: paymentLinkData.paymentLinkId,
-                            payOsOrderCode: orderCode, // Keep numeric reference too if needed
+                            payOsOrderCode: orderCode,
                         }
                     });
 
@@ -318,13 +305,10 @@ export class OrderService implements IOrderService {
         }
 
         if (order.status === OrderStatus.COMPLETED) {
-            // Check if already completed to avoid error, just return it
             return this.toOrderDto(order);
         }
 
         if (order.status === OrderStatus.FAILED || order.status === OrderStatus.CANCELLED) {
-            // If we are getting a success webhook for a failed order, we might want to "revive" it or just log.
-            // For now, strict check.
             throw new BadRequestException('Order cannot be confirmed in current status');
         }
 
@@ -342,12 +326,21 @@ export class OrderService implements IOrderService {
             const metadata = order.metadata as Record<string, any>;
             if (order.orderType === OrderType.COURSE_PURCHASE && metadata?.courseId) {
                 try {
-                    const enrollment = await this.enrollmentService.create(order.userId, {
-                        courseId: metadata.courseId,
-                    });
+                    // Create enrollment via NATS
+                    const enrollment = await firstValueFrom(
+                        this.natsClient.send({ cmd: 'learning.enrollment.create' }, {
+                            userId: order.userId,
+                            courseId: metadata.courseId,
+                        })
+                    );
 
-                    // Link order to enrollment
-                    await this.enrollmentService.updateOrderId(enrollment.id, orderId);
+                    // Update enrollment with orderId via NATS
+                    await firstValueFrom(
+                        this.natsClient.send({ cmd: 'learning.enrollment.updateOrderId' }, {
+                            id: enrollment.id,
+                            orderId: orderId,
+                        })
+                    );
 
                     // Update order with enrollmentId
                     await this.orderRepository.update(orderId, {
@@ -356,9 +349,11 @@ export class OrderService implements IOrderService {
 
                     this.logger.log(`Enrollment created automatically for user ${order.userId} and course ${metadata.courseId}`);
 
-                    // Emit order_payment_success event for notifications
+                    // Emit order_payment_success event
                     try {
-                        const course = await this.courseRepository.findById(metadata.courseId);
+                        const course = await firstValueFrom(
+                            this.natsClient.send({ cmd: 'learning.course.findOne' }, { id: metadata.courseId })
+                        );
                         const user = await this.orderRepository.getUserById(order.userId);
 
                         if (course && user) {
@@ -376,14 +371,9 @@ export class OrderService implements IOrderService {
                         }
                     } catch (eventError: any) {
                         this.logger.error(`Failed to emit payment success event: ${eventError.message}`);
-                        // Don't throw - event emission failure should not break order confirmation
                     }
                 } catch (enrollError: any) {
-                    if (enrollError?.message?.includes('Already enrolled')) {
-                        this.logger.log(`User ${order.userId} is already enrolled in course ${metadata.courseId}`);
-                    } else {
-                        this.logger.warn(`Failed to create enrollment after payment: ${enrollError.message}`);
-                    }
+                    this.logger.warn(`Failed to create enrollment after payment: ${enrollError.message}`);
                 }
             }
 
@@ -408,21 +398,16 @@ export class OrderService implements IOrderService {
      * Handle PayOS Webhook
      */
     async handleWebhook(webhookData: any): Promise<any> {
-        // Data is already verified by controller
         const { orderCode, amount, code, desc } = webhookData;
 
-        // 1. Check transaction status
         if (code !== '00') {
             this.logger.warn(`PayOS transaction failed/cancelled: ${desc} (Code: ${code}, OrderCode: ${orderCode})`);
-            // Optionally fail the order here
             return { success: true, message: 'Transaction failed' };
         }
 
-        // 2. Identify order
         const payOsOrderCode = orderCode.toString();
         const order = await this.orderRepository.findByTransactionId(payOsOrderCode);
 
-        // 3. Save actual Payment record (Transaction log)
         try {
             await this.orderRepository.createPayment({
                 order: order ? { connect: { id: order.id } } : undefined,
@@ -445,13 +430,11 @@ export class OrderService implements IOrderService {
             return { success: true, message: 'Order not found' };
         }
 
-        // 4. Validate Amount
         if (Number(amount) < Number(order.amount)) {
             this.logger.warn(`Payment amount mismatch for ${order.id}. Expected ${order.amount}, got ${amount}`);
             return { success: true, message: 'Amount mismatch' };
         }
 
-        // 5. Confirm order
         try {
             await this.confirm(order.id, {
                 orderId: order.id,

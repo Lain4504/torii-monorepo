@@ -61,11 +61,12 @@ export default function DashboardPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 max-w-6xl animate-in fade-in duration-500">
             {/* Minimal Welcome Header */}
             <div className="pb-2">
-                <h1 className="text-5xl font-serif font-bold text-foreground tracking-tight italic">
-                    Chào mừng trở lại, <span className="text-primary not-italic">{user?.displayName || 'Học viên'}</span>
+                <h1 className="text-3xl md:text-5xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+                    Chào mừng trở lại, <br />
+                    <span className="text-primary not-italic">{user?.displayName?.split(' ')[0] || 'Học viên'}</span>.
                 </h1>
-                <p className="text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 mt-4 italic border-l-2 border-primary/20 pl-6">
-                    Hệ thống đã sẵn sàng. Bạn đã học được <span className="text-foreground">{statsData?.totalLearningHours || 0} giờ</span>.
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 mt-6 italic border-l-2 border-primary/20 pl-6 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                    Chào mừng bạn đến với Học viện Torii
                 </p>
             </div>
 
@@ -76,11 +77,11 @@ export default function DashboardPage() {
                     return (
                         <div
                             key={index}
-                            className="p-8 rounded-[2.5rem] border border-border/10 bg-background/40 backdrop-blur-3xl group hover:border-primary/30 transition-all duration-700 cursor-default shadow-sm hover:shadow-2xl hover:shadow-primary/5 animate-in fade-in slide-in-from-bottom-4 fill-mode-both"
+                            className="p-8 rounded-[2.5rem] border border-border/40 bg-background/40 backdrop-blur-3xl group hover:border-primary/40 transition-all duration-700 cursor-default shadow-sm hover:shadow-2xl hover:shadow-primary/5 animate-in fade-in slide-in-from-bottom-4 fill-mode-both"
                             style={{ animationDelay: `${index * 100}ms` }}
                         >
                             <div className="flex items-center justify-between mb-6">
-                                <div className={`p-3.5 rounded-2xl bg-muted/20 text-muted-foreground group-hover:bg-primary group-hover:text-white transition-all duration-500`}>
+                                <div className={`p-3.5 rounded-2xl bg-muted/30 text-muted-foreground group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-sm`}>
                                     <Icon className="w-5 h-5" />
                                 </div>
                             </div>
@@ -96,7 +97,7 @@ export default function DashboardPage() {
             {/* Practice Tools Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <Link href="/dashboard/flashcards">
-                    <div className="relative overflow-hidden group rounded-[3rem] bg-background/40 backdrop-blur-3xl border border-primary/10 p-10 min-h-[220px] flex flex-col justify-between hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-700 animate-in fade-in slide-in-from-bottom-8 delay-500 fill-mode-both">
+                    <div className="relative overflow-hidden group rounded-[3rem] bg-background/40 backdrop-blur-3xl border border-primary/20 p-10 min-h-[220px] flex flex-col justify-between hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-700 animate-in fade-in slide-in-from-bottom-8 delay-500 fill-mode-both shadow-md">
                         <div className="absolute top-0 right-0 p-12 opacity-10 group-hover:scale-110 transition-transform duration-1000">
                             <div className="w-32 h-32 bg-primary rounded-full blur-[80px]" />
                         </div>
@@ -108,7 +109,7 @@ export default function DashboardPage() {
                             <h3 className="text-4xl font-serif font-bold italic tracking-tight text-foreground mb-2">Thẻ nhớ <br /><span className="text-primary not-italic">Flashcards</span></h3>
                             <p className="text-[11px] font-medium text-muted-foreground/60 max-w-[80%] italic leading-relaxed">Hệ thống lặp lại ngắt quãng (SRS) giúp tối ưu hóa khả năng ghi nhớ dài hạn.</p>
                         </div>
-                        <div className="relative z-10 flex items-center justify-between mt-8 pt-6 border-t border-border/10">
+                        <div className="relative z-10 flex items-center justify-between mt-8 pt-6 border-t border-border/20">
                             <div className="flex items-center gap-2">
                                 <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
                                 <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500/80">Đồng bộ</span>
@@ -121,7 +122,7 @@ export default function DashboardPage() {
                 </Link>
 
                 <Link href="/dashboard/exams">
-                    <div className="relative overflow-hidden group rounded-[3rem] bg-background/40 backdrop-blur-3xl border border-blue-500/10 p-10 min-h-[220px] flex flex-col justify-between hover:border-blue-500/40 hover:shadow-2xl hover:shadow-blue-500/5 transition-all duration-700 animate-in fade-in slide-in-from-bottom-8 delay-600 fill-mode-both">
+                    <div className="relative overflow-hidden group rounded-[3rem] bg-background/40 backdrop-blur-3xl border border-blue-500/20 p-10 min-h-[220px] flex flex-col justify-between hover:border-blue-500/50 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-700 animate-in fade-in slide-in-from-bottom-8 delay-600 fill-mode-both shadow-md">
                         <div className="absolute top-0 right-0 p-12 opacity-10 group-hover:scale-110 transition-transform duration-1000">
                             <div className="w-32 h-32 bg-blue-500 rounded-full blur-[80px]" />
                         </div>
@@ -133,7 +134,7 @@ export default function DashboardPage() {
                             <h3 className="text-4xl font-serif font-bold italic tracking-tight text-foreground mb-2">Thi thử <br /><span className="text-blue-500 not-italic">JLPT</span></h3>
                             <p className="text-[11px] font-medium text-muted-foreground/60 max-w-[80%] italic leading-relaxed">Các bài thi chuẩn hóa giúp đánh giá trình độ ngôn ngữ chính xác.</p>
                         </div>
-                        <div className="relative z-10 flex items-center justify-between mt-8 pt-6 border-t border-border/10">
+                        <div className="relative z-10 flex items-center justify-between mt-8 pt-6 border-t border-border/20">
                             <div className="flex items-center gap-2">
                                 <span className="inline-flex h-2 w-2 rounded-full bg-blue-500 animate-pulse"></span>
                                 <span className="text-[10px] font-black uppercase tracking-widest text-blue-500/80">Sẵn sàng</span>
@@ -169,12 +170,12 @@ export default function DashboardPage() {
                             {recentCourses.map((course, idx) => (
                                 <Link key={course.id} href={`/courses/${course.slug}/learn`}>
                                     <Card
-                                        className="rounded-[2.5rem] border border-border/10 bg-background/40 backdrop-blur-3xl hover:border-primary/20 transition-all duration-700 group cursor-pointer overflow-hidden shadow-sm hover:shadow-xl hover:shadow-primary/5 animate-in fade-in slide-in-from-left-4 fill-mode-both"
+                                        className="rounded-[2.5rem] border border-border/40 bg-background/40 backdrop-blur-3xl hover:border-primary/40 hover:bg-background/60 transition-all duration-700 group cursor-pointer overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-primary/5 animate-in fade-in slide-in-from-left-4 fill-mode-both"
                                         style={{ animationDelay: `${700 + (idx * 150)}ms` }}
                                     >
                                         <CardContent className="p-8">
                                             <div className="flex flex-col sm:flex-row sm:items-center gap-8">
-                                                <div className="w-full sm:w-44 h-28 rounded-2xl bg-muted/20 border border-border/5 flex-shrink-0 relative overflow-hidden group-hover:bg-primary/5 transition-all duration-700">
+                                                <div className="w-full sm:w-44 h-28 rounded-2xl bg-muted/30 border border-border/20 flex-shrink-0 relative overflow-hidden group-hover:bg-primary/5 transition-all duration-700 shadow-inner">
                                                     {course.thumbnailUrl ? (
                                                         <img src={course.thumbnailUrl} alt={course.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                                                     ) : (
@@ -204,7 +205,7 @@ export default function DashboardPage() {
                                                     </div>
                                                 </div>
                                                 <div className="flex shrink-0">
-                                                    <Button size="icon" variant="ghost" className="rounded-2xl w-14 h-14 border border-border/10 hover:bg-primary hover:text-white hover:border-primary transition-all duration-500 group-hover:rotate-6">
+                                                    <Button size="icon" variant="ghost" className="rounded-2xl w-14 h-14 border border-border/30 hover:bg-primary hover:text-white hover:border-primary transition-all duration-500 group-hover:rotate-6 shadow-sm">
                                                         <ChevronRight className="w-6 h-6" />
                                                     </Button>
                                                 </div>
@@ -214,7 +215,7 @@ export default function DashboardPage() {
                                 </Link>
                             ))}
                             {recentCourses.length === 0 && (
-                                <div className="p-8 rounded-[2.5rem] border border-border/10 bg-background/40 backdrop-blur-3xl text-center">
+                                <div className="p-8 rounded-[2.5rem] border border-border/40 bg-background/40 backdrop-blur-3xl text-center shadow-sm">
                                     <p className="text-muted-foreground italic">Bạn chưa tham gia khóa học nào.</p>
                                     <Link href="/courses">
                                         <Button variant="outline" className="mt-4 rounded-xl">Khám phá khóa học</Button>
@@ -228,7 +229,7 @@ export default function DashboardPage() {
                 {/* Sidebar Column */}
                 <div className="space-y-12">
                     {/* Upcoming Classes */}
-                    <div className="space-y-8 p-8 rounded-[3rem] border border-border/10 bg-background/20 backdrop-blur-xl">
+                    <div className="space-y-8 p-8 rounded-[3rem] border border-border/30 bg-background/20 backdrop-blur-xl shadow-md">
                         <div className="flex items-center gap-3 px-2">
                             <div className="p-2 rounded-xl bg-orange-500/5">
                                 <Calendar className="w-4 h-4 text-orange-500" />
@@ -237,7 +238,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="space-y-4">
                             {upcomingClasses.map((classItem) => (
-                                <div key={classItem.id} className="p-6 rounded-[2rem] border border-border/5 bg-background/40 backdrop-blur-md flex items-start gap-5 group cursor-pointer hover:border-orange-500/30 transition-all duration-500 shadow-sm">
+                                <div key={classItem.id} className="p-6 rounded-[2rem] border border-border/20 bg-background/40 backdrop-blur-md flex items-start gap-5 group cursor-pointer hover:border-orange-500/30 transition-all duration-500 shadow-sm">
                                     <div className="w-12 h-12 rounded-2xl bg-orange-500/5 flex items-center justify-center shrink-0 group-hover:bg-orange-500 group-hover:text-white transition-all duration-500 group-hover:rotate-12">
                                         <Clock className="w-5 h-5 text-orange-500 group-hover:text-white" />
                                     </div>
@@ -248,11 +249,11 @@ export default function DashboardPage() {
                                 </div>
                             ))}
                         </div>
-                        <Button variant="ghost" className="w-full h-12 rounded-2xl border border-border/10 text-[9px] font-black uppercase tracking-[0.2em] opacity-40 hover:opacity-100 transition-opacity">Xem lịch chi tiết</Button>
+                        <Button variant="ghost" className="w-full h-12 rounded-2xl border border-border/30 text-[9px] font-black uppercase tracking-[0.2em] opacity-40 hover:opacity-100 transition-opacity shadow-sm">Xem lịch chi tiết</Button>
                     </div>
 
                     {/* Weekly Goals */}
-                    <div className="space-y-8 p-8 rounded-[3rem] border border-emerald-500/10 bg-emerald-500/[0.02] backdrop-blur-xl">
+                    <div className="space-y-8 p-8 rounded-[3rem] border border-emerald-500/20 bg-emerald-500/[0.04] backdrop-blur-xl shadow-md">
                         <div className="flex items-center gap-3 px-2">
                             <div className="p-2 rounded-xl bg-emerald-500/5">
                                 <Target className="w-4 h-4 text-emerald-500" />
@@ -264,7 +265,7 @@ export default function DashboardPage() {
                                 <p className="text-lg font-serif font-bold italic text-foreground leading-tight">Lộ trình học tập</p>
                                 <p className="text-[10px] font-medium text-muted-foreground/60 mt-2 italic leading-relaxed">"Hành trình vạn dặm bắt đầu từ một bước chân."</p>
                             </div>
-                            <div className="space-y-4 pt-4 border-t border-emerald-500/10">
+                            <div className="space-y-4 pt-4 border-t border-emerald-500/20">
                                 <div className="space-y-3">
                                     <div className="flex justify-between text-[9px] font-black uppercase tracking-[0.3em] text-emerald-500/60">
                                         <span>Bài học hoàn thành</span>

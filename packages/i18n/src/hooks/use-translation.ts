@@ -9,6 +9,6 @@ import type { TranslationNamespace } from '../types';
  * const { t } = useTranslation('common');
  * const greeting = t('app.name'); // "Torii Nihongo"
  */
-export function useTranslation(ns?: TranslationNamespace) {
+export function useTranslation(ns?: TranslationNamespace | TranslationNamespace[]) {
     return useI18nextTranslation(ns);
 }

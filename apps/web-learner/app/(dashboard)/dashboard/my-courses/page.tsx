@@ -77,9 +77,9 @@ export default function MyCoursesPage() {
             <div className="space-y-6 mb-12">
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[9px] font-black uppercase tracking-[0.3em] animate-in fade-in slide-in-from-bottom-2 duration-500">
                     <Sparkles className="w-3 h-3" />
-                    <span>Learning Dashboard</span>
+                    <span>Hành trình học tập</span>
                 </div>
-                <h1 className="text-5xl md:text-6xl font-serif font-bold tracking-tight text-foreground uppercase italic leading-[0.9] animate-in fade-in slide-in-from-bottom-3 duration-700">
+                <h1 className="text-4xl md:text-5xl font-serif font-bold tracking-tight text-foreground uppercase italic leading-[0.9] animate-in fade-in slide-in-from-bottom-3 duration-700">
                     Khóa học <span className="text-primary not-italic">Của Tôi</span>
                 </h1>
                 <p className="text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-6 py-1 animate-in fade-in slide-in-from-bottom-4 duration-1000">
@@ -92,7 +92,7 @@ export default function MyCoursesPage() {
                 {stats.map((stat, index) => {
                     const Icon = stat.icon
                     return (
-                        <div key={index} className="p-6 rounded-[2rem] border border-border/10 bg-background/40 backdrop-blur-3xl group hover:border-primary/20 transition-all duration-700 shadow-sm hover:shadow-2xl hover:shadow-primary/5">
+                        <div key={index} className="p-6 rounded-[2rem] border border-border/30 bg-card/40 backdrop-blur-3xl group hover:border-primary/40 transition-all duration-700 shadow-sm hover:shadow-2xl hover:shadow-primary/10">
                             <div className="flex items-center justify-between mb-4">
                                 <div className={`p-3 rounded-2xl bg-muted/20 text-muted-foreground group-hover:bg-primary group-hover:text-white transition-all duration-500`}>
                                     <Icon className="w-4 h-4" />
@@ -113,10 +113,10 @@ export default function MyCoursesPage() {
                         placeholder="Tìm khóa học..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-9 h-10 bg-muted/20 border-border/50 focus:bg-background transition-all"
+                        className="pl-9 h-10 bg-muted/20 border-border/60 focus:bg-background transition-all shadow-sm rounded-xl"
                     />
                 </div>
-                <div className="flex gap-1.5 p-1 rounded-full bg-muted/20 border border-border/50">
+                <div className="flex gap-1.5 p-1 rounded-full bg-muted/20 border border-border/60 shadow-sm">
                     <Button
                         variant={filter === 'all' ? 'secondary' : 'ghost'}
                         size="sm"
@@ -147,7 +147,7 @@ export default function MyCoursesPage() {
             {/* Courses Grid */}
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredCourses.map((course) => (
-                    <Card key={course.id} className="border-border/50 shadow-none bg-card/30 hover:bg-card/50 transition-all group overflow-hidden cursor-pointer flex flex-col h-full">
+                    <Card key={course.id} className="border-border/60 shadow-sm bg-card/40 backdrop-blur-xl hover:bg-card/60 transition-all group overflow-hidden cursor-pointer flex flex-col h-full">
                         <div className="relative aspect-video bg-muted/40 overflow-hidden">
                             {/* Placeholder/Thumb - real image if available */}
                             {course.thumbnailUrl ? (
@@ -176,7 +176,7 @@ export default function MyCoursesPage() {
                                 <h3 className="text-xl font-serif font-bold text-foreground leading-tight line-clamp-2 group-hover:text-primary transition-colors italic">
                                     {course.title}
                                 </h3>
-                                <p className="text-xs text-muted-foreground font-medium">{course.instructor || 'Torii Instructor'}</p>
+                                <p className="text-xs text-muted-foreground font-medium">{course.instructor || 'Giảng viên Torii'}</p>
                             </div>
 
                             <div className="space-y-3">

@@ -4,10 +4,10 @@ import { SystemStasis } from '@/components/layout/system-stasis';
 export default function RoomsPage() {
   return (
     <SystemStasis
-      title="Room Management"
-      description="Manage room allocation and scheduling for courses and events."
+      title="Quản lý Phòng học"
+      description="Quản lý việc phân bổ và sắp xếp lịch học cho các khóa học và sự kiện."
       icon={Box}
-      statusText="Coming Soon"
+      statusText="Sắp ra mắt"
     />
   );
 }

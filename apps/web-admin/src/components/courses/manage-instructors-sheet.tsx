@@ -54,14 +54,14 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                 lecturerId: selectedLecturerId,
                 isPrimary: isPrimary.value,
             });
-            toast.success('Instructor Assigned', {
-                description: 'Instructor successfully added to the course.',
+            toast.success('Đã phân công giảng viên', {
+                description: 'Giảng viên đã được thêm vào khóa học thành công.',
             });
             setSelectedLecturerId('');
             isPrimary.setFalse();
         } catch (error: any) {
-            toast.error('Assignment Failed', {
-                description: error.response?.data?.message || 'Could not assign lecturer.',
+            toast.error('Phân công thất bại', {
+                description: error.response?.data?.message || 'Không thể phân công giảng viên.',
             });
         }
     };
@@ -69,12 +69,12 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
     const handleUnassign = async (id: string) => {
         try {
             await unassignMutation.mutateAsync(id);
-            toast.success('Instructor Removed', {
-                description: 'Instructor has been removed from the course.',
+            toast.success('Đã gỡ bỏ giảng viên', {
+                description: 'Giảng viên đã được gỡ khỏi khóa học.',
             });
         } catch (error: any) {
-            toast.error('Removal Failed', {
-                description: error.response?.data?.message || 'Could not remove lecturer.',
+            toast.error('Gỡ bỏ thất bại', {
+                description: error.response?.data?.message || 'Không thể gỡ bỏ giảng viên.',
             });
         }
     };
@@ -85,19 +85,19 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                 id,
                 dto: { isPrimary: !currentPrimary },
             });
-            toast.success('Privileges Updated', {
-                description: `Primary instructor status have been ${!currentPrimary ? 'granted' : 'revoked'}.`,
+            toast.success('Cập nhật quyền hạn', {
+                description: `Trạng thái chủ nhiệm đã được ${!currentPrimary ? 'cấp' : 'thu hồi'}.`,
             });
         } catch (error: any) {
-            toast.error('Update Failed', {
-                description: error.response?.data?.message || 'Could not update instructor status.',
+            toast.error('Cập nhật thất bại', {
+                description: error.response?.data?.message || 'Không thể cập nhật trạng thái giảng viên.',
             });
         }
     };
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:max-w-[800px] flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background overflow-hidden">
+            <SheetContent className="w-full sm:max-w-[800px] flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background">
                 {!course ? (
                     <div className="flex-1 flex items-center justify-center">
                         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -105,16 +105,16 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                 ) : (
                     <>
                         <SheetHeader className="px-8 py-6 border-b border-border/10">
-                            <div className="relative flex items-center gap-4 z-10">
+                            <div className="relative flex items-center gap-4">
                                 <div className="p-2.5 rounded-xl bg-primary/10 text-primary border border-primary/20 shadow-sm">
                                     <Users className="h-5 w-5" />
                                 </div>
                                 <div className="space-y-0.5">
-                                    <SheetTitle className="text-xl font-semibold tracking-tight">
-                                        Manage Instructors
+                                    <SheetTitle className="text-xl font-bold tracking-tight text-foreground">
+                                        Quản lý Giảng viên
                                     </SheetTitle>
                                     <SheetDescription className="text-xs font-medium text-muted-foreground/60">
-                                        Assignment for <span className="text-foreground">{course.title}</span>
+                                        Phân công cho khóa học <span className="text-foreground font-semibold">{course.title}</span>
                                     </SheetDescription>
                                 </div>
                             </div>
@@ -125,9 +125,9 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
 
                                 {/* Current Instructors */}
                                 <div className="space-y-4">
-                                    <h4 className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/40 flex items-center gap-2">
-                                        <Users className="h-3 w-3" />
-                                        Current Team
+                                    <h4 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/50 flex items-center gap-2">
+                                        <Users className="h-3.5 w-3.5" />
+                                        Đội ngũ Hiện tại
                                     </h4>
 
                                     {loadingInstructors ? (
@@ -135,13 +135,13 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                                             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground/50" />
                                         </div>
                                     ) : !instructors || instructors.length === 0 ? (
-                                        <div className="rounded-3xl border border-dashed border-muted-foreground/20 p-8 text-center bg-muted/5">
-                                            <UserIcon className="h-12 w-12 mx-auto mb-3 text-muted-foreground/20" />
+                                        <div className="rounded-2xl border border-dashed border-muted-foreground/20 p-8 text-center bg-muted/5">
+                                            <UserIcon className="h-10 w-10 mx-auto mb-3 text-muted-foreground/20" />
                                             <p className="text-sm font-bold uppercase tracking-wide text-muted-foreground/60">
-                                                No instructors assigned
+                                                Chưa có giảng viên
                                             </p>
                                             <p className="text-[10px] uppercase font-bold text-muted-foreground/40 mt-1 tracking-widest">
-                                                Assign personnel below to initialize
+                                                Vui lòng phân công giảng viên bên dưới
                                             </p>
                                         </div>
                                     ) : (
@@ -149,28 +149,28 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                                             {instructors.map((instructor) => (
                                                 <div
                                                     key={instructor.id}
-                                                    className="flex items-center justify-between p-4 rounded-xl bg-muted/10 border border-border/5 hover:bg-muted/20 transition-all group"
+                                                    className="flex items-center justify-between p-4 rounded-xl bg-card border border-border/40 hover:bg-muted/30 transition-all group shadow-sm hover:shadow-md"
                                                 >
                                                     <div className="flex items-center gap-4">
-                                                        <Avatar className="h-10 w-10 border border-border/10">
+                                                        <Avatar className="h-10 w-10 border border-border/20 rounded-lg">
                                                             <AvatarImage src={instructor.lecturer?.avatarUrl || undefined} />
-                                                            <AvatarFallback className="bg-primary/5 text-primary text-xs font-semibold">
+                                                            <AvatarFallback className="bg-primary/5 text-primary text-xs font-bold rounded-lg">
                                                                 {instructor.lecturer?.displayName?.charAt(0) || 'L'}
                                                             </AvatarFallback>
                                                         </Avatar>
                                                         <div className="space-y-0.5">
                                                             <div className="flex items-center gap-2">
-                                                                <p className="text-sm font-medium text-foreground">{instructor.lecturer?.displayName}</p>
+                                                                <p className="text-sm font-semibold text-foreground">{instructor.lecturer?.displayName}</p>
                                                                 {instructor.isPrimary && (
-                                                                    <Badge variant="secondary" className="h-4 px-1.5 rounded-md bg-amber-500/10 text-amber-600 border-amber-500/20 text-[9px] font-medium uppercase tracking-wider">
-                                                                        Lead
+                                                                    <Badge variant="secondary" className="h-4 px-1.5 rounded-md bg-amber-500/10 text-amber-600 border-amber-500/20 text-[9px] font-bold uppercase tracking-wider">
+                                                                        Chủ nhiệm
                                                                     </Badge>
                                                                 )}
                                                             </div>
-                                                            <p className="text-xs text-muted-foreground/60">{instructor.lecturer?.email}</p>
+                                                            <p className="text-xs text-muted-foreground/60 font-medium">{instructor.lecturer?.email}</p>
                                                         </div>
                                                     </div>
-                                                    <div className="flex items-center gap-1">
+                                                    <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
                                                         <Button
                                                             size="icon"
                                                             variant="ghost"
@@ -180,8 +180,9 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                                                             )}
                                                             onClick={() => handleTogglePrimary(instructor.id, instructor.isPrimary)}
                                                             disabled={updatePrimaryMutation.isPending}
+                                                            title="Đặt làm chủ nhiệm"
                                                         >
-                                                            <Crown className={cn("h-3.5 w-3.5", instructor.isPrimary && "fill-current")} />
+                                                            <Crown className={cn("h-4 w-4", instructor.isPrimary && "fill-current")} />
                                                         </Button>
                                                         <Button
                                                             size="icon"
@@ -189,8 +190,9 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                                                             className="h-8 w-8 rounded-lg text-muted-foreground/40 hover:text-destructive hover:bg-destructive/5"
                                                             onClick={() => handleUnassign(instructor.id)}
                                                             disabled={unassignMutation.isPending}
+                                                            title="Gỡ bỏ giảng viên"
                                                         >
-                                                            <Trash2 className="h-3.5 w-3.5" />
+                                                            <Trash2 className="h-4 w-4" />
                                                         </Button>
                                                     </div>
                                                 </div>
@@ -199,16 +201,18 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                                     )}
                                 </div>
 
-                                <div className="space-y-6 pt-6">
-                                    <div className="space-y-4 p-6 rounded-2xl bg-muted/10 border border-border/10">
+                                <div className="space-y-6 pt-6 relative">
+                                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border/40 to-transparent" />
+
+                                    <div className="space-y-4 p-6 rounded-2xl bg-muted/20 border border-border/10">
                                         <Field className="space-y-2.5">
-                                            <FieldLabel htmlFor="lecturer-select" className="text-xs font-medium text-muted-foreground ml-1">New Assignment</FieldLabel>
+                                            <FieldLabel htmlFor="lecturer-select" className="text-xs font-bold text-muted-foreground/70 ml-1 uppercase tracking-wider">Thêm giảng viên</FieldLabel>
                                             <Select
                                                 value={selectedLecturerId}
                                                 onValueChange={setSelectedLecturerId}
                                             >
-                                                <SelectTrigger id="lecturer-select" className="h-10 border-border/40 bg-background/50 hover:bg-muted/50 focus:ring-primary/20 rounded-xl transition-all">
-                                                    <SelectValue placeholder="Select a lecturer..." />
+                                                <SelectTrigger id="lecturer-select" className="h-11 border-border/40 bg-background hover:bg-background/80 focus:ring-primary/20 rounded-xl transition-all shadow-sm">
+                                                    <SelectValue placeholder="Chọn giảng viên..." />
                                                 </SelectTrigger>
                                                 <SelectContent className="border-border/10 shadow-xl bg-background/95 backdrop-blur-xl rounded-xl overflow-hidden p-1">
                                                     {availableLecturers.map((lecturer) => (
@@ -219,39 +223,39 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                                                     ))}
                                                     {availableLecturers.length === 0 && (
                                                         <div className="p-4 text-center">
-                                                            <p className="text-xs text-muted-foreground/60 italic">No available lecturers</p>
+                                                            <p className="text-xs text-muted-foreground/60 italic">Không có giảng viên khả dụng</p>
                                                         </div>
                                                     )}
                                                 </SelectContent>
                                             </Select>
                                         </Field>
 
-                                        <div className="flex items-center gap-3 p-3.5 rounded-xl bg-background/50 border border-border/10 cursor-pointer hover:bg-muted/30 transition-all" onClick={() => isPrimary.setValue(!isPrimary.value)}>
+                                        <div className="flex items-center gap-3 p-3.5 rounded-xl bg-background border border-border/20 cursor-pointer hover:bg-muted/30 transition-all shadow-sm" onClick={() => isPrimary.setValue(!isPrimary.value)}>
                                             <Checkbox
                                                 id="is-primary"
                                                 checked={isPrimary.value}
                                                 onCheckedChange={(checked: boolean) => isPrimary.setValue(checked)}
                                                 className="h-4 w-4 rounded border-border/40 text-primary focus:ring-primary/20"
                                             />
-                                            <label htmlFor="is-primary" className="text-xs font-medium text-muted-foreground/80 cursor-pointer select-none">
-                                                Designate as Primary Instructor
+                                            <label htmlFor="is-primary" className="text-xs font-medium text-foreground/80 cursor-pointer select-none">
+                                                Đặt làm giảng viên chủ nhiệm
                                             </label>
                                         </div>
 
                                         <Button
                                             onClick={handleAssign}
                                             disabled={!selectedLecturerId || assignMutation.isPending}
-                                            className="w-full rounded-xl h-10 bg-primary text-primary-foreground text-xs font-medium shadow-lg shadow-primary/10 hover:bg-primary/95 transition-all"
+                                            className="w-full rounded-xl h-11 bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide shadow-lg shadow-primary/20 hover:bg-primary/90 hover:shadow-primary/30 transition-all"
                                         >
                                             {assignMutation.isPending ? (
                                                 <>
                                                     <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
-                                                    Assigning...
+                                                    Đang xử lý...
                                                 </>
                                             ) : (
                                                 <>
                                                     <Plus className="mr-2 h-3.5 w-3.5" />
-                                                    Assign Instructor
+                                                    Phân công
                                                 </>
                                             )}
                                         </Button>

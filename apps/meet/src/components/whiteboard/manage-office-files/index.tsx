@@ -4,7 +4,7 @@ import { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types';
 import { debounce } from 'es-toolkit';
 import { useTranslation } from 'react-i18next';
 
-import { X } from 'lucide-react';
+import { X, Paperclip } from 'lucide-react';
 import { updateCurrentWhiteboardOfficeFileId } from '../../../store/slices/whiteboard';
 import { store, useAppDispatch } from '../../../store';
 import FileUploadProgress from './fileUploadProgress';
@@ -139,7 +139,7 @@ const ManageOfficeFilesModal = ({
                     <span className="line inline-block h-[1px] w-20 bg-border"></span>
                   </div>
                   <button className="h-9 w-auto m-auto px-4 flex items-center justify-center rounded-lg text-sm font-semibold text-foreground bg-muted hover:bg-muted/80 border border-border transition-all duration-300 shadow-sm cursor-pointer">
-                    <i className="wajlc-attachment text-[14px] ltr:mr-1 rtl:ml-1" />
+                    <Paperclip className="w-3.5 h-3.5 ltr:mr-1.5 rtl:ml-1.5" />
                     {t('whiteboard.select-file')}
                   </button>
                 </div>

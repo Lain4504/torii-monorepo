@@ -12,12 +12,13 @@ import DashboardPage from '@/routes/dashboard/dashboard-page.tsx'
 import AnalyticsPage from '@/routes/dashboard/analytics-page.tsx'
 import { UsersPage } from '@/routes/users/users-page.tsx'
 import CoursesPage from '@/routes/courses/courses-page.tsx'
+import CourseReviewsPage from '@/routes/courses/course-reviews-page.tsx'
 import CourseDetailPage from '@/routes/courses/course-detail-page.tsx'
 
 import RoomsPage from '@/routes/rooms/rooms-page.tsx'
 import OrdersPage from '@/routes/finance/orders-page.tsx'
 import TransactionsPage from '@/routes/finance/payments-page.tsx'
-import AIServicePage from '@/routes/ai/ai-service-page.tsx'
+
 import NotificationsPage from '@/routes/settings/notifications-page.tsx'
 import SettingsPage from '@/routes/settings/settings-page.tsx'
 import { PostPage } from '@/routes/post/post-page.tsx'
@@ -61,6 +62,7 @@ function App() {
                 <Route index element={<DashboardPage />} />
                 <Route path="users" element={<UsersPage />} />
                 <Route path="courses" element={<CoursesPage />} />
+                <Route path="courses/reviews" element={<CourseReviewsPage />} />
                 <Route path="courses/:id" element={<CourseDetailPage />} />
 
                 <Route path="rooms" element={<RoomsPage />} />
@@ -78,7 +80,6 @@ function App() {
                 <Route path="orders" element={<OrdersPage />} />
                 <Route path="transactions" element={<TransactionsPage />} />
                 <Route path="analytics" element={<AnalyticsPage />} />
-                <Route path="ai-service" element={<AIServicePage />} />
                 <Route path="notifications" element={<NotificationsPage />} />
                 <Route path="authorization/audit-logs" element={<AuditLogsPage />} />
                 <Route path="permissions" element={<PermissionsPage />} />

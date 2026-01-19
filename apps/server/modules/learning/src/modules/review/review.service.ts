@@ -14,7 +14,7 @@ import type { IReviewService } from '../../interfaces/services';
 export class ReviewService implements IReviewService {
   private readonly logger = new Logger(ReviewService.name);
 
-  constructor(private readonly reviewRepository: ReviewRepository) {}
+  constructor(private readonly reviewRepository: ReviewRepository) { }
 
   /**
    * Map Review entity to ReviewResponseDTO
@@ -34,6 +34,71 @@ export class ReviewService implements IReviewService {
         avatarUrl: review.user.avatarUrl || undefined,
       },
     };
+  }
+
+  /**
+   * Get all reviews with pagination
+   */
+  async findAll(query: any): Promise<PaginatedReviewResponseDTO> {
+    try {
+      const { page = 1, limit = 10, search, rating, courseId } = query;
+      const pageNum = parseInt(String(page || 1), 10);
+      const limitNum = parseInt(String(limit || 10), 10);
+      const skip = (pageNum - 1) * limitNum;
+
+      const where: any = {};
+
+      if (rating) {
+        where.rating = parseInt(String(rating), 10);
+      }
+
+      if (courseId) {
+        where.courseId = courseId;
+      }
+
+      if (search) {
+        where.OR = [
+          { comment: { contains: search, mode: 'insensitive' } },
+          { user: { displayName: { contains: search, mode: 'insensitive' } } },
+          { course: { title: { contains: search, mode: 'insensitive' } } }
+        ];
+      }
+
+      const [total, reviews] = await Promise.all([
+        this.reviewRepository.count(where),
+        this.reviewRepository.findMany({
+          skip,
+          take: limitNum,
+          where,
+          include: {
+            user: true,
+            course: true,
+          }
+        }),
+      ]);
+
+      const totalPages = Math.ceil(total / limitNum);
+
+      return {
+        data: reviews.map((review) => ({
+          ...this.toReviewResponseDto(review),
+          courseTitle: review.course?.title
+        })),
+        total,
+        page: pageNum,
+        limit: limitNum,
+        totalPages,
+      };
+    } catch (error: any) {
+      this.logger.error('Failed to retrieve all reviews', error);
+      return {
+        data: [],
+        total: 0,
+        page: 1,
+        limit: 10,
+        totalPages: 0,
+      };
+    }
   }
 
   /**

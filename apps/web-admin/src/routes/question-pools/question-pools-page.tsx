@@ -157,19 +157,17 @@ export default function QuestionPoolsPage() {
     return (
         <div className="space-y-10 animate-in fade-in duration-700 pb-20 px-2 lg:px-6">
             {/* Header Section */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-8 relative">
-                <div className="space-y-4 max-w-2xl text-center sm:text-left">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[9px] font-black uppercase tracking-[0.3em]">
+            <div className="flex flex-col sm:flex-row items-start justify-between gap-8 relative px-2">
+                <div className="space-y-4 max-w-2xl">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-bold uppercase tracking-wider">
                         <Layers className="size-3" />
-                        Logic Asset Management
+                        Quản lý Tài nguyên Logic
                     </div>
-                    <h1 className="text-5xl font-black tracking-tight text-foreground uppercase italic leading-[0.85]">
-                        Question <br />
-                        <span className="text-primary not-italic text-3xl sm:text-5xl tracking-normal">POOL REGISTRY</span>
+                    <h1 className="text-3xl md:text-5xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+                        Quản lý <span className="text-primary not-italic">Kho đề</span>
                     </h1>
-                    <p className="text-[11px] font-bold text-muted-foreground/40 uppercase tracking-[0.15em] italic border-l-2 border-primary/20 pl-6 mt-6">
-                        Quản lý các kho đề thi và ngân hàng câu hỏi, <br />
-                        phân phối dữ liệu cho các <span className="text-foreground">Training Nodes</span>.
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
+                        Quản lý các kho đề thi và ngân hàng câu hỏi Torii
                     </p>
                 </div>
 
@@ -179,7 +177,7 @@ export default function QuestionPoolsPage() {
                         className="h-16 px-10 rounded-[1.5rem] bg-primary shadow-xl shadow-primary/20 hover:scale-[1.05] hover:-translate-y-1 transition-all active:scale-95 group"
                     >
                         <Plus className="mr-3 size-5 group-hover:rotate-90 transition-transform duration-500" />
-                        <span className="text-xs font-black uppercase tracking-widest">Deploy New Pool</span>
+                        <span className="text-xs font-black uppercase tracking-widest">Tạo Kho đề mới</span>
                     </Button>
                 </Can>
             </div>
@@ -190,7 +188,7 @@ export default function QuestionPoolsPage() {
                     <div className="relative flex-1 group">
                         <Search className="absolute left-5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/30 group-focus-within:text-primary transition-colors" />
                         <Input
-                            placeholder="SEARCH POOL IDENTIFIER OR CRYPTONYM..."
+                            placeholder="TÌM KIẾM MÃ KHO ĐỀ HOẶC TÊN..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             className="h-14 pl-12 rounded-2xl border-border/10 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-[11px] font-black uppercase tracking-widest placeholder:text-muted-foreground/20"
@@ -205,16 +203,16 @@ export default function QuestionPoolsPage() {
                         <SelectTrigger className="h-14 sm:w-[220px] px-6 rounded-2xl border-border/10 bg-muted/20 hover:bg-muted/30 focus:ring-primary/20 transition-all text-[10px] font-black uppercase tracking-widest">
                             <div className="flex items-center gap-3">
                                 <Target className="size-4 opacity-30" />
-                                <SelectValue placeholder="MATRIX LEVEL" />
+                                <SelectValue placeholder="CẤP ĐỘ JLPT" />
                             </div>
                         </SelectTrigger>
                         <SelectContent className="border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-[2rem] p-2">
-                            <SelectItem value="all" className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer italic">ALL MATRIX</SelectItem>
-                            <SelectItem value={QuestionJlptLevel.N5} className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">N5 FOUNDATION</SelectItem>
-                            <SelectItem value={QuestionJlptLevel.N4} className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">N4 ELEMENTARY</SelectItem>
-                            <SelectItem value={QuestionJlptLevel.N3} className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">N3 INTERMEDIATE</SelectItem>
-                            <SelectItem value={QuestionJlptLevel.N2} className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">N2 ADVANCED</SelectItem>
-                            <SelectItem value={QuestionJlptLevel.N1} className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">N1 MASTERY</SelectItem>
+                            <SelectItem value="all" className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer italic">TẤT CẢ CẤP ĐỘ</SelectItem>
+                            <SelectItem value={QuestionJlptLevel.N5} className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">N5 CƠ BẢN</SelectItem>
+                            <SelectItem value={QuestionJlptLevel.N4} className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">N4 SƠ CẤP</SelectItem>
+                            <SelectItem value={QuestionJlptLevel.N3} className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">N3 TRUNG CẤP</SelectItem>
+                            <SelectItem value={QuestionJlptLevel.N2} className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">N2 CAO CẤP</SelectItem>
+                            <SelectItem value={QuestionJlptLevel.N1} className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">N1 THUẦN THỤC</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
@@ -227,11 +225,11 @@ export default function QuestionPoolsPage() {
                         <TableHeader className="bg-muted/10 border-b border-border/20">
                             <TableRow className="border-none hover:bg-transparent">
                                 <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-8">#</TableHead>
-                                <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-6">Pool Designation</TableHead>
-                                <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-6">Definition Summary</TableHead>
-                                <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-6">Matrix Sync</TableHead>
-                                <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-6">Logic Payload</TableHead>
-                                <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-8 text-right">Protocol</TableHead>
+                                <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-6">Tên Kho đề</TableHead>
+                                <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-6">Mô tả tóm tắt</TableHead>
+                                <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-6">Cấp độ</TableHead>
+                                <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-6">Số lượng câu hỏi</TableHead>
+                                <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-8 text-right">Thao tác</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -267,8 +265,8 @@ export default function QuestionPoolsPage() {
                                                 <Inbox className="size-10 text-muted-foreground/20 relative z-10" />
                                             </div>
                                             <div className="space-y-2">
-                                                <h3 className="text-xl font-black uppercase italic tracking-tight text-foreground/40">Repository Void</h3>
-                                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/20 italic">No question pool nodes detected in the current matrix.</p>
+                                                <h3 className="text-xl font-bold uppercase tracking-tight text-foreground/40">Kho lưu trữ trống</h3>
+                                                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/20">Không tìm thấy kho đề nào trong hệ thống.</p>
                                             </div>
                                         </div>
                                     </TableCell>
@@ -284,10 +282,10 @@ export default function QuestionPoolsPage() {
                         <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/30">
                             <div className="inline-flex items-center gap-2">
                                 <Sparkles className="size-3" />
-                                Registry: <span className="text-foreground text-xs">{meta.total} Entities</span>
+                                Danh sách: <span className="text-foreground text-xs">{meta.total} Kho đề</span>
                             </div>
                             <div className="w-1 h-1 rounded-full bg-border" />
-                            <div className="italic">Data Point 0{page} of 0{meta.totalPages}</div>
+                            <div className="italic">Dữ liệu trang 0{page} / 0{meta.totalPages}</div>
                         </div>
 
                         {meta.totalPages > 1 && (
@@ -378,20 +376,20 @@ function PoolRow({
             key={pool.id}
             className="border-b border-border/10 hover:bg-primary/[0.02] transition-all duration-500 group"
         >
-            <TableCell className="px-8 font-black italic text-muted-foreground/30 tabular-nums text-[10px]">
+            <TableCell className="px-8 font-bold text-muted-foreground/30 tabular-nums text-[10px]">
                 {((page - 1) * 10 + index + 1) < 10 ? `0${(page - 1) * 10 + index + 1}` : (page - 1) * 10 + index + 1}
             </TableCell>
             <TableCell className="px-6">
                 <div className="flex flex-col gap-1">
-                    <div className="font-black italic text-[14px] text-foreground/80 group-hover:text-primary transition-colors uppercase tracking-tight">{pool.name}</div>
+                    <div className="font-bold text-[14px] text-foreground/80 group-hover:text-primary transition-colors uppercase tracking-tight">{pool.name}</div>
                     <div className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40">UID: {pool.id.slice(0, 8)}</div>
                 </div>
             </TableCell>
             <TableCell className="px-6 max-w-[300px]">
-                <div className="truncate text-[12px] font-bold italic text-foreground/60 leading-relaxed group-hover:text-foreground transition-colors">{pool.description || 'NO DESCRIPTION ARCHIVED'}</div>
+                <div className="truncate text-[12px] font-bold text-foreground/60 leading-relaxed group-hover:text-foreground transition-colors">{pool.description || 'CHƯA CÓ MÔ TẢ'}</div>
             </TableCell>
             <TableCell className="px-6">
-                <div className="inline-flex items-center px-3 py-1 rounded-full border border-primary/20 bg-primary/5 text-[10px] font-black italic text-primary">
+                <div className="inline-flex items-center px-3 py-1 rounded-full border border-primary/20 bg-primary/5 text-[10px] font-bold text-primary">
                     {pool.jlptLevel || '??'}
                 </div>
             </TableCell>
@@ -401,8 +399,8 @@ function PoolRow({
                         <FileQuestion className="size-4" />
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-sm font-black italic leading-none">{questionCount}</span>
-                        <span className="text-[7px] font-black uppercase tracking-widest text-muted-foreground/30 mt-1">LOGIC ENTITIES</span>
+                        <span className="text-sm font-bold leading-none">{questionCount}</span>
+                        <span className="text-[7px] font-black uppercase tracking-widest text-muted-foreground/30 mt-1">CÂU HỎI</span>
                     </div>
                 </div>
             </TableCell>
@@ -425,14 +423,14 @@ function PoolRow({
                             className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
                         >
                             <Eye className="h-4 w-4 opacity-30" />
-                            <span>Inspect Payload</span>
+                            <span>Xem chi tiết</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem
                             onClick={onEdit}
                             className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
                         >
                             <Pencil className="h-4 w-4 opacity-30" />
-                            <span>Calibrate Pool</span>
+                            <span>Điều chỉnh kho đề</span>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator className="bg-border/20 mx-2" />
                         <DropdownMenuItem
@@ -440,7 +438,7 @@ function PoolRow({
                             className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer flex gap-3"
                         >
                             <Trash className="h-4 w-4 opacity-30" />
-                            <span>Purge Registry</span>
+                            <span>Xóa kho đề</span>
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

@@ -17,7 +17,7 @@ import {
   updateSelectedChatOption,
   updateUnreadMsgFrom,
 } from '../../store/slices/roomSettingsSlice';
-import { X, Check } from 'lucide-react';
+import { X, Check, MessageSquareDot } from 'lucide-react';
 import { setActiveSidePanel } from '../../store/slices/bottomIconsActivitySlice';
 import i18n from '../../helpers/i18n';
 import ChatTranslation from './chatTranslation';
@@ -137,7 +137,7 @@ const ChatTabs = () => {
             <span className="pointer-events-none absolute inset-y-0 right-3 3xl:right-5 flex items-center">
               {hasUnreadMessages && (
                 <span className="shake pr-1 -mb-1">
-                  <i className="wajlc-chat shake" />
+                  <MessageSquareDot className="w-4 h-4 text-primary shake" />
                 </span>
               )}
               <svg
@@ -182,7 +182,7 @@ const ChatTabs = () => {
                         {option.title}
                         {option.hasUnread && (
                           <span className="shake pl-2">
-                            <i className="wajlc-chat shake" />
+                            <MessageSquareDot className="w-4 h-4 text-primary shake" />
                           </span>
                         )}
                       </span>

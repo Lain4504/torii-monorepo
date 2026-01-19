@@ -73,13 +73,13 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
                     <div className="space-y-3 md:space-y-4">
                         <div className="flex items-center gap-2 text-primary opacity-60">
                             <Sparkles className="w-3 h-3" />
-                            <span className="text-[10px] font-black uppercase tracking-widest">Premium Enrolment</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest">Đăng ký Premium</span>
                         </div>
 
                         <div className="flex flex-col">
                             <div className="flex items-end gap-3 filter-none min-w-0 flex-wrap">
-                                <span className="text-3xl md:text-5xl font-serif font-bold italic text-foreground tracking-tight leading-none break-all">
-                                    {course.isFree ? 'FREE' : (course.discountPrice ? formatPrice(Number(course.discountPrice)) : formatPrice(Number(course.price)))}
+                                <span className="text-3xl md:text-4xl font-serif font-bold italic text-foreground tracking-tight leading-none break-all">
+                                    {course.isFree ? 'MIỄN PHÍ' : (course.discountPrice ? formatPrice(Number(course.discountPrice)) : formatPrice(Number(course.price)))}
                                 </span>
                                 {course.discountPrice && !course.isFree && (
                                     <span className="text-xs md:text-sm text-muted-foreground/40 line-through mb-1 md:mb-2 font-bold tracking-tight">
@@ -158,7 +158,7 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
 
                     <div className="pt-2 flex items-center justify-center gap-2 text-emerald-500/60">
                         <ShieldCheck className="w-3 h-3 md:w-3.5 md:h-3.5" />
-                        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest">30-Day Guarantee</span>
+                        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest">Đảm bảo trong 30 ngày</span>
                     </div>
                 </CardContent>
             </Card>

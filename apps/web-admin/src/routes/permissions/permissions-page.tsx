@@ -1,297 +1,311 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@workspace/ui/components/button';
 import { Checkbox } from '@workspace/ui/components/checkbox';
-import { Label } from '@workspace/ui/components/label';
+import { Loader2, RotateCcw, Zap, Cpu, Lock } from 'lucide-react';
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@workspace/ui/components/select';
-import { Loader2, RotateCcw, Database, ShieldCheck, Fingerprint, Activity, Zap, Cpu } from 'lucide-react';
-import {
-    useFetchPermissions, useReseedPermissions,
-    useRolePermissions,
+    useFetchPermissions,
     useRoles,
     useUpdateRolePermissions
 } from "@/api/services/permissions.ts";
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { cn } from '@workspace/ui/lib/utils';
-import { Card } from '@workspace/ui/components/card';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@workspace/ui/components/table";
+import { useQueries } from '@tanstack/react-query';
+import { apiClient } from '@/api/api-client.ts';
 
 export function PermissionsPage() {
-    const [selectedRole, setSelectedRole] = useState<string>('');
-    const [selectedPerms, setSelectedPerms] = useState<Set<string>>(new Set());
+    useTranslation(['admin', 'common']);
 
+    // Data fetching
     const { data: roles, isLoading: rolesLoading } = useRoles();
     const { data: permissions, isLoading: permsLoading } = useFetchPermissions();
-    const { data: rolePermissions, isLoading: rolePermsLoading } = useRolePermissions(selectedRole);
+
+    // Fetch permissions for all roles
+    const rolePermissionsQueries = useQueries({
+        queries: (roles || []).map(role => ({
+            queryKey: ['authorization', 'role-permissions', role.code],
+            queryFn: async () => {
+                const res = await apiClient.get(`/api/authorization/roles/${role.code}/permissions`);
+                return {
+                    roleCode: role.code,
+                    permissions: res.data.data.permissions as string[]
+                };
+            },
+            enabled: !!roles,
+        }))
+    });
+
+    const isAnyRolePermsLoading = rolePermissionsQueries.some(q => q.isLoading);
     const updateMutation = useUpdateRolePermissions();
-    const reseedMutation = useReseedPermissions();
 
-    // Auto-select first role
+    // Helper to identify group boundaries
+    const groupBoundaries = useMemo(() => {
+        if (!permissions) return new Set<string>();
+        const lastInGroups = new Set<string>();
+        Object.values(permissions.byCategory).forEach(perms => {
+            if (perms.length > 0) {
+                lastInGroups.add(perms[perms.length - 1].code);
+            }
+        });
+        return lastInGroups;
+    }, [permissions]);
+
+    // Local state for the matrix
+    const [matrix, setMatrix] = useState<Record<string, Set<string>>>({});
+    const [initialMatrix, setInitialMatrix] = useState<Record<string, Set<string>>>({});
+
+    // Initialize matrix when data is loaded
     useEffect(() => {
-        if (roles && roles.length > 0 && !selectedRole) {
-            setSelectedRole(roles[0].code);
+        if (!isAnyRolePermsLoading && roles && rolePermissionsQueries.every(q => q.isSuccess)) {
+            const newMatrix: Record<string, Set<string>> = {};
+            rolePermissionsQueries.forEach(q => {
+                if (q.data) {
+                    newMatrix[q.data.roleCode] = new Set(q.data.permissions);
+                }
+            });
+            setMatrix(newMatrix);
+            setInitialMatrix(JSON.parse(JSON.stringify(newMatrix, (_, value) =>
+                value instanceof Set ? Array.from(value) : value
+            )));
         }
-    }, [roles, selectedRole]);
+    }, [isAnyRolePermsLoading, roles, rolePermissionsQueries.map(q => q.isSuccess).join(',')]);
 
-    // Update selected permissions when role changes
-    useEffect(() => {
-        if (rolePermissions) {
-            setSelectedPerms(new Set(rolePermissions));
-        }
-    }, [rolePermissions]);
-
-    const handleSave = () => {
-        if (!selectedRole) return;
-
-        updateMutation.mutate({
-            roleCode: selectedRole,
-            permissions: Array.from(selectedPerms),
+    const handleToggle = (roleCode: string, permCode: string) => {
+        setMatrix(prev => {
+            const newRoleSet = new Set(prev[roleCode] || []);
+            if (newRoleSet.has(permCode)) {
+                newRoleSet.delete(permCode);
+            } else {
+                newRoleSet.add(permCode);
+            }
+            return {
+                ...prev,
+                [roleCode]: newRoleSet
+            };
         });
     };
 
+    const hasChanges = () => {
+        return Object.keys(matrix).some(roleCode => {
+            const current = matrix[roleCode];
+            const initialArr = (initialMatrix[roleCode] as any) || [];
+            const initial = new Set(initialArr);
+
+            if (current.size !== initial.size) return true;
+            for (const p of current) {
+                if (!initial.has(p)) return true;
+            }
+            return false;
+        });
+    };
+
+    const handleSave = async () => {
+        // Find which roles have changes
+        const changedRoles = Object.keys(matrix).filter(roleCode => {
+            const current = matrix[roleCode];
+            const initialArr = (initialMatrix[roleCode] as any) || [];
+            const initial = new Set(initialArr);
+            if (current.size !== initial.size) return true;
+            for (const p of current) {
+                if (!initial.has(p)) return true;
+            }
+            return false;
+        });
+
+        for (const roleCode of changedRoles) {
+            await updateMutation.mutateAsync({
+                roleCode,
+                permissions: Array.from(matrix[roleCode]),
+            });
+        }
+
+        // After all updates, the query client will invalidate and we re-sync
+        // In the mutation onSuccess, we already invalidate.
+    };
+
     const handleReset = () => {
-        if (rolePermissions) {
-            setSelectedPerms(new Set(rolePermissions));
-        }
+        const resetMatrix: Record<string, Set<string>> = {};
+        Object.keys(initialMatrix).forEach(roleCode => {
+            resetMatrix[roleCode] = new Set(initialMatrix[roleCode] as any);
+        });
+        setMatrix(resetMatrix);
     };
 
-    const handleTogglePermission = (permCode: string) => {
-        const newSet = new Set(selectedPerms);
-        if (newSet.has(permCode)) {
-            newSet.delete(permCode);
-        } else {
-            newSet.add(permCode);
-        }
-        setSelectedPerms(newSet);
-    };
-
-    const hasChanges = rolePermissions
-        ? rolePermissions.length !== selectedPerms.size ||
-        !rolePermissions.every(p => selectedPerms.has(p))
-        : false;
-
-    if (rolesLoading || permsLoading) {
+    if (rolesLoading || permsLoading || (roles && isAnyRolePermsLoading)) {
         return (
-            <div className="space-y-10 animate-in fade-in duration-700 pb-20 px-6">
+            <div className="space-y-8 animate-in fade-in duration-700 pb-20 px-6">
                 <div className="space-y-4">
-                    <Skeleton className="h-14 w-96 bg-muted/20 rounded-2xl" />
-                    <Skeleton className="h-6 w-[32rem] bg-muted/20 rounded-xl" />
+                    <Skeleton className="h-10 w-64 bg-muted/30 rounded-xl" />
+                    <Skeleton className="h-5 w-96 bg-muted/20 rounded-lg" />
                 </div>
-                <div className="flex items-center justify-between gap-8 p-10 rounded-[3rem] border border-border/20 bg-background/40">
-                    <Skeleton className="h-14 w-full max-w-sm bg-muted/20 rounded-2xl" />
-                    <Skeleton className="h-14 w-48 bg-muted/20 rounded-2xl" />
-                </div>
-                <div className="grid grid-cols-1 gap-10">
-                    {Array.from({ length: 3 }).map((_, i) => (
-                        <Skeleton key={i} className="h-80 w-full bg-muted/20 rounded-[3rem]" />
-                    ))}
+                <div className="rounded-2xl border border-border/50 bg-muted/5 p-6 mt-8">
+                    <Skeleton className="h-[400px] w-full bg-muted/20 rounded-xl" />
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="space-y-10 animate-in fade-in duration-700 pb-40 px-6 max-w-[1400px] mx-auto">
+        <div className="space-y-8 animate-in fade-in duration-700 pb-40 px-6 max-w-full mx-auto">
+            {/* Header Section - Refined for Consistency */}
             {/* Header Section */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-8 relative">
-                <div className="space-y-4 max-w-2xl text-center sm:text-left">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-medium tracking-wide">
-                        <ShieldCheck className="size-3.5" />
-                        Access Management
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
+                <div className="space-y-4 max-w-2xl">
+                    <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-serif font-bold italic tracking-wide uppercase mb-1">
+                        <Lock className="size-3.5" />
+                        Phân quyền Hệ thống
                     </div>
-                    <h1 className="text-3xl sm:text-5xl font-serif font-medium tracking-tight text-foreground leading-[1.1]">
-                        Role <span className="text-primary italic">Permissions</span>
+                    <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+                        Quản lý <span className="text-primary not-italic">Quyền truy cập</span>
                     </h1>
-                    <p className="text-sm text-muted-foreground/80 leading-relaxed max-w-lg border-l-2 border-primary/20 pl-4 mt-4">
-                        Configure granular authorization protocols and system-wide <br />
-                        permission nodes for the <span className="text-foreground font-medium">Torii Platform</span>.
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
+                        Kiểm soát quyền truy cập chi tiết hệ thống
                     </p>
                 </div>
 
-                <div className="flex flex-col items-end gap-3 px-8 py-6 rounded-[2.5rem] bg-background/40 border border-border/20 backdrop-blur-xl hidden sm:flex shadow-sm">
-                    <div className="flex items-center gap-3">
-                        <Activity className="size-4 text-emerald-500 animate-pulse" />
-                        <span className="text-[10px] font-medium uppercase tracking-widest text-emerald-500">System Online</span>
+                <div className="flex items-center gap-4">
+                    <div className="hidden lg:flex flex-col items-end px-4 border-r border-border/40">
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic">Tổng số vai trò</span>
+                        <span className="text-2xl font-bold text-foreground tabular-nums">{roles?.length || 0}</span>
                     </div>
-                    <p className="text-[9px] font-medium uppercase tracking-[0.2em] text-muted-foreground/40 text-right">Last Sync: {new Date().toLocaleTimeString()}</p>
                 </div>
             </div>
 
-            {/* Role & System Actions */}
-            <Card className="rounded-[2.5rem] bg-background/50 backdrop-blur-3xl border border-white/20 p-8 flex flex-col lg:flex-row items-end justify-between gap-8 shadow-xl shadow-black/5">
-                <div className="w-full max-w-md space-y-3">
-                    <label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2 ml-1">
-                        <Fingerprint className="size-3.5" />
-                        Select Role
-                    </label>
-                    <Select value={selectedRole} onValueChange={setSelectedRole}>
-                        <SelectTrigger className="h-14 px-6 rounded-xl border-border/20 bg-background/50 hover:bg-background/80 focus:ring-primary/20 transition-all text-sm font-medium">
-                            <SelectValue placeholder="Select a role..." />
-                        </SelectTrigger>
-                        <SelectContent className="border-border/20 shadow-2xl bg-background/95 backdrop-blur-3xl rounded-2xl p-2">
-                            {roles?.map((role) => (
-                                <SelectItem key={role.code} value={role.code} className="rounded-xl px-4 py-3 focus:bg-primary/5 focus:text-primary cursor-pointer group">
-                                    <div className="flex flex-col gap-0.5">
-                                        <span className="font-medium group-hover:translate-x-1 transition-transform origin-left">{role.name}</span>
-                                        <span className="text-[10px] text-muted-foreground/60">
-                                            {role.description}
-                                        </span>
-                                    </div>
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-
-                <div className="flex items-center gap-4 w-full lg:w-auto">
-                    <Button
-                        variant="ghost"
-                        onClick={() => reseedMutation.mutate()}
-                        disabled={reseedMutation.isPending}
-                        className="h-14 rounded-xl bg-muted/20 hover:bg-primary/5 text-primary border border-border/10 px-6 flex-1 sm:flex-none text-xs font-medium uppercase tracking-wide"
-                    >
-                        {reseedMutation.isPending ? (
-                            <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Reseeding...
-                            </>
-                        ) : (
-                            <>
-                                <Database className="mr-2 h-4 w-4 opacity-40" />
-                                Reseed Defaults
-                            </>
-                        )}
-                    </Button>
-                </div>
-            </Card>
-
-            {/* Permissions Matrix */}
-            {rolePermsLoading ? (
-                <div className="space-y-10">
-                    {Array.from({ length: 2 }).map((_, i) => (
-                        <div key={i} className="p-10 rounded-[3rem] border border-border/20 bg-background/40 space-y-10">
-                            <Skeleton className="h-8 w-48 bg-muted/20 rounded-xl" />
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                {Array.from({ length: 6 }).map((_, j) => (
-                                    <Skeleton key={j} className="h-16 w-full bg-muted/20 rounded-2xl" />
+            {/* Matrix Table */}
+            <div className="rounded-xl bg-background border border-border shadow-sm overflow-hidden">
+                <div className="relative overflow-x-auto">
+                    <Table className="min-w-full border-collapse">
+                        <TableHeader className="bg-muted/30">
+                            {/* Permission Category Row */}
+                            <TableRow className="hover:bg-transparent border-b border-border/50">
+                                <TableHead className="sticky left-0 z-40 bg-muted/50 border-r border-border h-12 px-6">
+                                    <span className="text-[10px] font-serif font-bold italic uppercase tracking-widest text-muted-foreground/60">
+                                        Vai trò / Chức năng
+                                    </span>
+                                </TableHead>
+                                {permissions && Object.entries(permissions.byCategory).map(([category, perms]) => (
+                                    <TableHead
+                                        key={category}
+                                        colSpan={perms.length}
+                                        className="text-center border-r border-border/50 bg-primary/[0.02] py-2 last:border-r-0"
+                                    >
+                                        <div className="flex items-center justify-center gap-2">
+                                            <Cpu className="size-3 text-primary/40" />
+                                            <span className="text-[10px] font-serif font-bold italic uppercase tracking-tight text-primary/70">
+                                                {category}
+                                            </span>
+                                        </div>
+                                    </TableHead>
                                 ))}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            ) : permissions && (
-                <div className="space-y-12">
-                    {Object.entries(permissions.byCategory).map(([category, perms]) => (
-                        <div key={category} className="group/category">
-                            <div className="flex items-center gap-4 mb-6 px-4">
-                                <div className="p-2.5 rounded-xl bg-primary/5 text-primary border border-primary/10 group-hover/category:bg-primary group-hover/category:text-white transition-all duration-500">
-                                    <Cpu className="size-4" />
-                                </div>
-                                <div className="space-y-0.5">
-                                    <h3 className="text-xl font-medium tracking-tight text-foreground/80 group-hover/category:text-primary transition-colors capitalize">{category.toLowerCase()}</h3>
-                                    <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/40">
-                                        {perms.length} Permission{perms.length !== 1 ? 's' : ''}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <Card className="rounded-[2.5rem] bg-background/40 backdrop-blur-3xl border border-white/20 p-8 lg:p-10 hover:border-primary/20 transition-all duration-700 shadow-sm">
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-8">
-                                    {perms.map((perm) => (
-                                        <div
+                            </TableRow>
+                            {/* Individual Permission Row */}
+                            <TableRow className="hover:bg-transparent border-b border-border/50">
+                                <TableHead className="sticky left-0 z-40 bg-muted/50 border-r border-border h-16">
+                                    {/* Empty corner cell */}
+                                </TableHead>
+                                {permissions && permissions.all.map((perm) => (
+                                    <TableHead
+                                        key={perm.code}
+                                        className={cn(
+                                            "min-w-[150px] max-w-[200px] px-4 py-3 border-r border-border/10 text-center align-top",
+                                            groupBoundaries.has(perm.code) && "border-r border-primary/20"
+                                        )}
+                                    >
+                                        <div className="flex flex-col items-center gap-1.5 mt-1">
+                                            <span className="text-[10px] font-bold leading-relaxed text-foreground/80 break-words w-full">
+                                                {perm.description}
+                                            </span>
+                                            <span className="text-[8px] font-mono text-muted-foreground/30 uppercase tracking-tighter">
+                                                {perm.code.split('.').pop()}
+                                            </span>
+                                        </div>
+                                    </TableHead>
+                                ))}
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {roles?.map((role) => (
+                                <TableRow key={role.code} className="hover:bg-muted/20 transition-colors group">
+                                    <TableCell className="sticky left-0 z-30 bg-background border-r border-border min-w-[200px] px-6 py-4 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] transition-colors group-hover:bg-muted/30">
+                                        <div className="flex flex-col gap-0.5">
+                                            <span className="font-serif font-bold italic text-sm text-foreground group-hover:text-primary transition-colors">{role.name}</span>
+                                            <span className="text-[9px] font-serif font-bold italic text-muted-foreground/40 uppercase tracking-wider">{role.code}</span>
+                                        </div>
+                                    </TableCell>
+                                    {permissions?.all.map((perm) => (
+                                        <TableCell
                                             key={perm.code}
                                             className={cn(
-                                                "flex items-start gap-4 group/node p-4 rounded-2xl hover:bg-primary/[0.03] transition-all duration-300 cursor-pointer border border-transparent hover:border-primary/10",
-                                                selectedPerms.has(perm.code) ? "bg-primary/[0.02]" : ""
+                                                "text-center p-0 border-r border-border/10",
+                                                groupBoundaries.has(perm.code) && "border-r border-primary/20"
                                             )}
-                                            onClick={() => handleTogglePermission(perm.code)}
                                         >
-                                            <div className="pt-0.5">
+                                            <label
+                                                className="flex items-center justify-center w-full h-16 cursor-pointer hover:bg-primary/[0.03] transition-colors"
+                                            >
                                                 <Checkbox
-                                                    id={perm.code}
-                                                    checked={selectedPerms.has(perm.code)}
-                                                    onCheckedChange={() => { }} // Controlled by parent div click
-                                                    className="size-4.5 rounded-md border-2 border-border/40 data-[state=checked]:bg-primary data-[state=checked]:border-primary transition-all duration-300"
+                                                    checked={matrix[role.code]?.has(perm.code)}
+                                                    onCheckedChange={() => handleToggle(role.code, perm.code)}
+                                                    className="size-4.5 rounded border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary shadow-sm"
                                                 />
-                                            </div>
-                                            <div className="flex-1 space-y-1">
-                                                <Label
-                                                    htmlFor={perm.code}
-                                                    className="text-sm font-medium leading-tight text-foreground/70 group-hover/node:text-primary transition-colors cursor-pointer"
-                                                >
-                                                    {perm.description}
-                                                </Label>
-                                                <p className="text-[10px] font-mono text-muted-foreground/30 tracking-tight group-hover/node:text-primary/40 transition-colors">
-                                                    {perm.code}
-                                                </p>
-                                            </div>
-                                        </div>
+                                            </label>
+                                        </TableCell>
                                     ))}
-                                </div>
-                            </Card>
-                        </div>
-                    ))}
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
                 </div>
-            )}
+                <div className="px-6 py-3 bg-muted/10 border-t border-border/50">
+                    <p className="text-[10px] text-muted-foreground/60 flex items-center gap-2 italic">
+                        <Lock className="size-3" />
+                        Lưu ý: Các thay đổi chỉ có hiệu lực sau khi bạn nhấn "Lưu thay đổi". Di chuột để xem chi tiết từng quyền hạn.
+                    </p>
+                </div>
+            </div>
 
-            {/* Portal Action Console (Sticky) */}
-            {!rolePermsLoading && selectedRole && (
-                <div className="fixed bottom-10 left-1/2 -translate-x-1/2 w-full max-w-2xl px-6 z-50">
-                    <div className="bg-background/80 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/10 rounded-[2rem] p-3 flex items-center justify-between gap-4 group/console">
-                        <div className="absolute inset-0 bg-primary/[0.02] rounded-[2rem] pointer-events-none group-hover/console:bg-primary/[0.05] transition-colors" />
+            {/* Sticky Action Footer */}
+            {hasChanges() && (
+                <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-5 duration-500 w-full max-w-md px-4">
+                    <div className="bg-background border border-border shadow-2xl rounded-2xl p-2 flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3 ml-3">
+                            <div className="size-2 rounded-full bg-primary animate-pulse" />
+                            <span className="text-[11px] font-serif font-bold italic text-foreground uppercase tracking-wider">Có thay đổi chưa lưu</span>
+                        </div>
 
-                        <div className="flex items-center gap-3 ml-2 relative">
+                        <div className="flex items-center gap-2">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleReset}
+                                disabled={updateMutation.isPending}
+                                className="h-9 rounded-xl px-4 text-[11px] font-semibold text-muted-foreground hover:bg-muted"
+                            >
+                                <RotateCcw className="size-3.5 mr-2" />
+                                <span className="font-serif font-bold italic uppercase tracking-widest">Hoàn tác</span>
+                            </Button>
                             <Button
                                 onClick={handleSave}
-                                disabled={!hasChanges || updateMutation.isPending}
-                                className="h-12 rounded-xl px-8 bg-primary shadow-lg shadow-primary/20 hover:scale-[1.02] hover:-translate-y-0.5 transition-all active:scale-95 disabled:opacity-50 disabled:hover:scale-100 disabled:hover:translate-y-0"
+                                disabled={updateMutation.isPending}
+                                className="h-9 rounded-xl px-6 bg-primary text-primary-foreground text-[11px] font-semibold shadow-md active:scale-95 transition-all"
                             >
                                 {updateMutation.isPending ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        <span className="text-[10px] font-bold uppercase tracking-wider">Saving...</span>
-                                    </>
+                                    <Loader2 className="size-3.5 animate-spin" />
                                 ) : (
                                     <>
-                                        <Zap className="mr-2 h-4 w-4 fill-white" />
-                                        <span className="text-[10px] font-bold uppercase tracking-wider">Save Changes</span>
+                                        <Zap className="size-3.5 mr-2 fill-primary-foreground" />
+                                        <span className="font-serif font-bold italic uppercase tracking-widest">Lưu thay đổi</span>
                                     </>
                                 )}
                             </Button>
-
-                            <Button
-                                variant="ghost"
-                                onClick={handleReset}
-                                disabled={!hasChanges || updateMutation.isPending}
-                                className="h-12 rounded-xl px-6 hover:bg-primary/10 hover:text-primary transition-all disabled:opacity-30"
-                            >
-                                <RotateCcw className="mr-2 h-4 w-4 opacity-40" />
-                                <span className="text-[10px] font-bold uppercase tracking-wider">Reset</span>
-                            </Button>
-                        </div>
-
-                        <div className="pr-6 relative">
-                            {hasChanges ? (
-                                <div className="flex items-center gap-3">
-                                    <div className="flex flex-col items-end">
-                                        <span className="text-[10px] font-medium text-primary">Unsaved Changes</span>
-                                        <span className="text-[9px] text-muted-foreground/40 text-right">Commit Required</span>
-                                    </div>
-                                    <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(var(--primary),0.6)]" />
-                                </div>
-                            ) : (
-                                <div className="flex items-center gap-3">
-                                    <div className="flex flex-col items-end">
-                                        <span className="text-[10px] font-medium text-muted-foreground/40">Synced</span>
-                                        <span className="text-[9px] text-muted-foreground/20 text-right">No Changes</span>
-                                    </div>
-                                    <div className="w-1.5 h-1.5 rounded-full bg-border" />
-                                </div>
-                            )}
                         </div>
                     </div>
                 </div>

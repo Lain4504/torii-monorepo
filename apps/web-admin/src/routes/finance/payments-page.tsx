@@ -18,7 +18,8 @@ import {
     Database,
     Clock,
     Globe,
-    Info
+    Info,
+    Sparkles
 } from 'lucide-react';
 import { orderApi } from '../../api/services/order-api';
 import type { PaymentResponseDTO } from '@workspace/schemas';
@@ -102,22 +103,37 @@ export default function TransactionsPage() {
         }
     };
 
+    const getStatusLabel = (status?: string) => {
+        switch (status?.toLowerCase()) {
+            case 'success':
+                return 'Thành công';
+            case 'fail':
+            case 'failed':
+                return 'Thất bại';
+            case 'orphan':
+                return 'Giao dịch lẻ';
+            case 'duplicate':
+                return 'Trùng lặp';
+            default:
+                return status || 'Không xác định';
+        }
+    };
+
     return (
         <div className="p-4 lg:p-10 space-y-10 animate-in fade-in duration-700">
             {/* Header Section */}
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 pb-4">
                 <div className="space-y-4 max-w-2xl text-center sm:text-left">
                     <div
-                        className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-medium tracking-wide">
+                        className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-serif font-bold italic uppercase tracking-wide">
                         <Database className="size-3.5" />
-                        System Logs
+                        Hạ tầng
                     </div>
-                    <h1 className="text-3xl sm:text-5xl font-serif font-medium tracking-tight text-foreground leading-[1.1]">
-                        Transaction <span className="text-primary italic">Logs</span>
+                    <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+                        Nhật ký <span className="text-primary not-italic">Giao dịch</span>
                     </h1>
-                    <p className="text-sm text-muted-foreground/80 leading-relaxed max-w-lg border-l-2 border-primary/20 pl-4 mt-4">
-                        Raw incoming transaction data from payment gateways. Use this to trace payments and verify <span
-                            className="text-foreground font-medium">SePay/PayOS</span> webhooks.
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
+                        Tra cứu dòng tiền và xác minh webhook SePay/PayOS
                     </p>
                 </div>
 
@@ -126,46 +142,46 @@ export default function TransactionsPage() {
                         onClick={loadTransactions}
                         disabled={isLoading}
                         variant="outline"
-                        className="w-full sm:w-auto h-12 px-6 rounded-xl font-medium text-sm transition-all group"
+                        className="w-full sm:w-auto h-11 px-6 rounded-xl font-serif font-bold italic text-xs uppercase tracking-wide border-primary/20 text-primary hover:bg-primary/5 transition-all group"
                     >
-                        Refresh Logs
+                        Cập nhật Nhật ký
                         <RotateCcw className={cn("ml-2 size-4 opacity-70 group-hover:opacity-100 transition-all", isLoading && "animate-spin")} />
                     </Button>
                 </div>
             </div>
 
             {/* Main Table Container */}
-            <Card className="rounded-2xl bg-background/50 backdrop-blur-3xl border border-white/20 shadow-xl overflow-hidden">
-                <div className="p-4 lg:p-8 space-y-6">
+            <Card className="rounded-2xl bg-background/50 backdrop-blur-3xl border border-border/40 shadow-sm overflow-hidden">
+                <div className="p-4 lg:p-6 space-y-6">
                     <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
                         <div className="relative flex-1 w-full">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40" />
                             <Input
-                                placeholder="Search Transaction ID..."
-                                className="pl-11 h-11 w-full bg-background/40 border-border/20 rounded-lg text-sm font-medium"
+                                placeholder="Tìm kiếm Mã giao dịch..."
+                                className="pl-10 h-11 w-full bg-background border-border/40 rounded-xl text-sm font-medium focus-visible:ring-primary/20"
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                             />
                         </div>
                     </div>
 
-                    <div className="rounded-xl border border-white/20 bg-background/40 overflow-hidden relative">
-                        <Table>
-                            <TableHeader className="bg-muted/5">
-                                <TableRow className="border-none">
-                                    <TableHead className="h-12 text-[10px] font-medium text-muted-foreground uppercase tracking-wider px-6">Source</TableHead>
-                                    <TableHead className="h-12 text-[10px] font-medium text-muted-foreground uppercase tracking-wider px-6">Transaction ID</TableHead>
-                                    <TableHead className="h-12 text-[10px] font-medium text-muted-foreground uppercase tracking-wider px-6 text-center">Amount</TableHead>
-                                    <TableHead className="h-12 text-[10px] font-medium text-muted-foreground uppercase tracking-wider px-6 text-center">Status</TableHead>
-                                    <TableHead className="h-12 text-[10px] font-medium text-muted-foreground uppercase tracking-wider px-6 text-right">Processed At</TableHead>
+                    <div className="rounded-xl border border-border/40 bg-background/40 overflow-hidden relative shadow-sm">
+                        <Table className="border-collapse bg-transparent">
+                            <TableHeader className="bg-muted/30 border-b border-border">
+                                <TableRow className="border-none hover:bg-transparent">
+                                    <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/50 last:border-r-0">Nguồn</TableHead>
+                                    <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/50 last:border-r-0">Mã giao dịch</TableHead>
+                                    <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/50 last:border-r-0 text-center">Số tiền</TableHead>
+                                    <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/50 last:border-r-0 text-center">Trạng thái</TableHead>
+                                    <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 text-right">Thời gian xử lý</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {isLoading ? (
                                     Array.from({ length: 5 }).map((_, i) => (
-                                        <TableRow key={i} className="border-b border-border/5">
+                                        <TableRow key={i} className="border-b border-border/50">
                                             <TableCell colSpan={5} className="py-4 px-6">
-                                                <Skeleton className="h-4 w-full bg-muted/20 rounded-md" />
+                                                <Skeleton className="h-5 w-full bg-muted/20 rounded-md" />
                                             </TableCell>
                                         </TableRow>
                                     ))
@@ -173,8 +189,8 @@ export default function TransactionsPage() {
                                     <TableRow>
                                         <TableCell colSpan={5} className="h-64 text-center">
                                             <div className="flex flex-col items-center justify-center p-12 space-y-4 text-muted-foreground/40">
-                                                <Info className="size-8" />
-                                                <p>No transaction logs found.</p>
+                                                <Info className="size-8 opacity-50" />
+                                                <p className="text-sm font-serif font-bold italic uppercase tracking-tight">Không tìm thấy nhật ký giao dịch nào.</p>
                                             </div>
                                         </TableCell>
                                     </TableRow>
@@ -182,36 +198,36 @@ export default function TransactionsPage() {
                                     transactions.map((tx) => (
                                         <TableRow
                                             key={tx.id}
-                                            className="border-b border-border/5 hover:bg-primary/[0.02] transition-colors group cursor-pointer"
+                                            className="border-b border-border/40 hover:bg-muted/20 transition-all duration-200 group cursor-pointer"
                                             onClick={() => {
                                                 setSelectedTx(tx);
                                                 setIsSheetOpen(true);
                                             }}
                                         >
-                                            <TableCell className="py-3 px-6">
+                                            <TableCell className="py-3 px-4">
                                                 <div className="flex items-center gap-2">
                                                     <Globe className="size-3 text-primary/50" />
-                                                    <span className="text-xs font-medium uppercase">{tx.gateway || 'Unknown'}</span>
+                                                    <span className="text-xs font-bold text-foreground/70 group-hover:text-primary transition-colors uppercase">{tx.gateway || 'KHÔNG XÁC ĐỊNH'}</span>
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="py-3 px-6">
-                                                <code className="text-[10px] font-mono bg-muted/30 px-1.5 py-0.5 rounded text-primary/70">
+                                            <TableCell className="py-3 px-4">
+                                                <code className="text-[10px] font-bold font-mono bg-primary/5 text-primary px-1.5 py-0.5 rounded transition-transform group-hover:scale-105 inline-block border border-primary/10">
                                                     {tx.transactionId || tx.id.slice(0, 8)}
                                                 </code>
                                             </TableCell>
-                                            <TableCell className="py-3 px-6 text-center">
-                                                <span className="font-serif font-medium text-sm">
+                                            <TableCell className="py-3 px-4 text-center">
+                                                <span className="text-sm font-bold text-foreground tabular-nums tracking-tight">
                                                     {formatCurrency(tx.amount || 0)}
                                                 </span>
                                             </TableCell>
-                                            <TableCell className="py-3 px-6 text-center">
-                                                <Badge className={cn("text-[10px] uppercase font-bold px-2 py-0 border shadow-none", getStatusColor(tx.status))}>
-                                                    {tx.status}
+                                            <TableCell className="py-3 px-4 text-center">
+                                                <Badge className={cn("text-[9px] uppercase font-bold px-2 py-0.5 border shadow-none rounded-md tracking-wider", getStatusColor(tx.status))}>
+                                                    {getStatusLabel(tx.status)}
                                                 </Badge>
                                             </TableCell>
-                                            <TableCell className="py-3 px-6 text-right">
-                                                <div className="flex items-center justify-end gap-2 text-muted-foreground/50 text-[11px]">
-                                                    <Clock className="size-3" />
+                                            <TableCell className="py-3 px-4 text-right">
+                                                <div className="flex items-center justify-end gap-1.5 text-muted-foreground/60 text-xs font-medium tabular-nums">
+                                                    <Clock className="size-3 opacity-50" />
                                                     {formatDateTime(tx.processedAt)}
                                                 </div>
                                             </TableCell>
@@ -224,12 +240,13 @@ export default function TransactionsPage() {
 
                     {/* Pagination */}
                     {totalPages > 1 && (
-                        <div className="flex flex-col lg:flex-row items-center justify-between gap-4 pt-4">
-                            <div className="text-xs text-muted-foreground font-medium">
-                                <span>Total: <span className="text-foreground">{total} Log Entries</span></span>
+                        <div className="flex flex-col lg:flex-row items-center justify-between gap-4 pt-4 border-t border-border/10">
+                            <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground/60">
+                                <Sparkles className="size-3.5 text-primary/60" />
+                                <span><span className="font-bold text-foreground">{total}</span> bản ghi</span>
                             </div>
 
-                            <Pagination>
+                            <Pagination className="w-auto mx-0">
                                 <PaginationContent className="flex items-center gap-2">
                                     <PaginationItem>
                                         <PaginationPrevious
@@ -238,14 +255,14 @@ export default function TransactionsPage() {
                                                 setPage(p => Math.max(1, p - 1));
                                             }}
                                             className={cn(
-                                                "h-10 px-4 rounded-xl bg-background/50 border border-border/20 text-xs font-medium transition-all",
-                                                page === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary cursor-pointer"
+                                                "h-9 px-3 rounded-lg border border-border/40 text-xs font-medium transition-all hover:bg-muted/50",
+                                                page === 1 ? "opacity-30 cursor-not-allowed" : "hover:text-primary cursor-pointer"
                                             )}
                                         />
                                     </PaginationItem>
 
                                     <div className="flex items-center gap-1 mx-2">
-                                        <span className="text-xs font-medium text-muted-foreground">Page {page} of {totalPages}</span>
+                                        <span className="text-xs font-medium text-muted-foreground/60 px-2">Trang {page} trên {totalPages}</span>
                                     </div>
 
                                     <PaginationItem>
@@ -255,8 +272,8 @@ export default function TransactionsPage() {
                                                 setPage(p => Math.min(totalPages, p + 1));
                                             }}
                                             className={cn(
-                                                "h-10 px-4 rounded-xl bg-background/50 border border-border/20 text-xs font-medium transition-all",
-                                                page === totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary cursor-pointer"
+                                                "h-9 px-3 rounded-lg border border-border/40 text-xs font-medium transition-all hover:bg-muted/50",
+                                                page === totalPages ? "opacity-30 cursor-not-allowed" : "hover:text-primary cursor-pointer"
                                             )}
                                         />
                                     </PaginationItem>
@@ -269,56 +286,59 @@ export default function TransactionsPage() {
 
             {/* Transaction Details Sheet */}
             <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-                <SheetContent className="sm:max-w-xl bg-background/95 backdrop-blur-xl">
+                <SheetContent className="sm:max-w-xl bg-background/95 backdrop-blur-xl border-l border-border/40 shadow-2xl p-0">
                     {selectedTx && (
                         <div className="flex flex-col h-full">
-                            <SheetHeader className="pb-6 border-b border-border/10">
-                                <div className="flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-bold w-fit mb-4">
-                                    LOG ENTRY
+                            <SheetHeader className="px-8 py-6 border-b border-border/10 bg-muted/5">
+                                <div className="flex items-center gap-2 px-2.5 py-1 bg-primary/10 text-primary border border-primary/10 rounded-full text-[10px] font-bold w-fit mb-4 uppercase tracking-wider">
+                                    Bản ghi hệ thống
                                 </div>
-                                <SheetTitle className="text-3xl font-serif font-bold italic">Transaction Details</SheetTitle>
-                                <SheetDescription className="text-xs uppercase font-medium text-muted-foreground/60">
+                                <SheetTitle className="text-2xl font-serif font-bold italic uppercase tracking-tight">Chi tiết Giao dịch</SheetTitle>
+                                <SheetDescription className="text-xs font-mono font-medium text-muted-foreground/60">
                                     ID: {selectedTx.id}
                                 </SheetDescription>
                             </SheetHeader>
 
-                            <div className="flex-1 overflow-y-auto py-8 space-y-8">
-                                <div className="grid grid-cols-2 gap-6">
-                                    <div className="space-y-1">
-                                        <p className="text-[10px] uppercase font-bold text-muted-foreground">Gateway</p>
-                                        <p className="text-sm font-medium">{selectedTx.gateway}</p>
+                            <div className="flex-1 overflow-y-auto px-8 py-8 space-y-8 custom-scrollbar">
+                                <div className="grid grid-cols-2 gap-8">
+                                    <div className="space-y-1.5">
+                                        <p className="text-[10px] uppercase font-bold text-muted-foreground/60 tracking-wider">Cổng thanh toán</p>
+                                        <p className="text-sm font-semibold text-foreground uppercase tracking-wide">{selectedTx.gateway}</p>
                                     </div>
-                                    <div className="space-y-1">
-                                        <p className="text-[10px] uppercase font-bold text-muted-foreground">Reference Order</p>
-                                        <p className="text-sm font-medium">{selectedTx.orderId || 'N/A'}</p>
+                                    <div className="space-y-1.5">
+                                        <p className="text-[10px] uppercase font-bold text-muted-foreground/60 tracking-wider">Đơn hàng tham chiếu</p>
+                                        <p className="text-sm font-semibold text-foreground truncate" title={selectedTx.orderId}>{selectedTx.orderId || 'N/A'}</p>
                                     </div>
-                                    <div className="space-y-1">
-                                        <p className="text-[10px] uppercase font-bold text-muted-foreground">Amount</p>
-                                        <p className="text-lg font-serif font-bold italic text-primary">{formatCurrency(selectedTx.amount || 0)}</p>
+                                    <div className="space-y-1.5">
+                                        <p className="text-[10px] uppercase font-bold text-muted-foreground/60 tracking-wider">Số tiền</p>
+                                        <p className="text-xl font-bold text-primary tracking-tight">{formatCurrency(selectedTx.amount || 0)}</p>
                                     </div>
-                                    <div className="space-y-1">
-                                        <p className="text-[10px] uppercase font-bold text-muted-foreground">Processed At</p>
-                                        <p className="text-sm font-medium">{formatDateTime(selectedTx.processedAt)}</p>
+                                    <div className="space-y-1.5">
+                                        <p className="text-[10px] uppercase font-bold text-muted-foreground/60 tracking-wider">Thời gian xử lý</p>
+                                        <p className="text-sm font-medium text-foreground">{formatDateTime(selectedTx.processedAt)}</p>
                                     </div>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <p className="text-[10px] uppercase font-bold text-muted-foreground">Description / Content</p>
+                                <div className="space-y-3">
+                                    <p className="text-[10px] uppercase font-bold text-muted-foreground/60 tracking-wider">Nội dung giao dịch</p>
                                     <div className="p-4 rounded-xl bg-muted/30 border border-border/10 text-xs text-foreground/80 leading-relaxed italic">
-                                        "{selectedTx.content || 'No content provided'}"
+                                        "{selectedTx.content || 'Không có nội dung'}"
                                     </div>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <p className="text-[10px] uppercase font-bold text-muted-foreground">Raw Response Data</p>
-                                    <pre className="p-4 rounded-xl bg-slate-950 text-emerald-400 text-[10px] overflow-auto max-h-64 custom-scrollbar font-mono leading-normal">
-                                        {JSON.stringify(selectedTx.rawResponse, null, 2)}
-                                    </pre>
+                                <div className="space-y-3">
+                                    <p className="text-[10px] uppercase font-bold text-muted-foreground/60 tracking-wider">Dữ liệu phản hồi thô</p>
+                                    <div className="relative">
+                                        <pre className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-emerald-400 text-[10px] overflow-auto max-h-64 custom-scrollbar font-mono leading-normal shadow-inner">
+                                            {JSON.stringify(selectedTx.rawResponse, null, 2)}
+                                        </pre>
+                                        <div className="absolute top-2 right-2 px-2 py-1 rounded bg-slate-900 border border-slate-700 text-[9px] text-slate-400 font-mono">JSON</div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="pt-6 border-t border-border/10">
-                                <Button className="w-full h-12 rounded-xl" onClick={() => setIsSheetOpen(false)}>Close Log</Button>
+                            <div className="p-6 border-t border-border/10 bg-muted/5">
+                                <Button className="w-full h-11 rounded-xl font-bold uppercase tracking-wide text-xs shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all" onClick={() => setIsSheetOpen(false)}>Đóng chi tiết</Button>
                             </div>
                         </div>
                     )}

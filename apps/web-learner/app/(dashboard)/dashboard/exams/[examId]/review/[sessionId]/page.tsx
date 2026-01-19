@@ -19,7 +19,7 @@ export default function ExamReviewPage() {
     const { data: reviewData, isLoading, error } = useAttemptDetails(sessionId)
 
     if (isLoading) {
-        return <PageLoading text="Analyzing Performance Metrics..." className="h-screen" />
+        return <PageLoading text="Đang phân tích kết quả bài thi..." className="h-screen" />
     }
 
     if (error || !reviewData) {
@@ -35,9 +35,9 @@ export default function ExamReviewPage() {
                     </div>
                 </div>
                 <div className="flex flex-col items-center justify-center space-y-6 py-20 border border-dashed border-white/10 rounded-[3rem] bg-white/5">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Review data not found</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Không tìm thấy dữ liệu kết quả</p>
                     <Button onClick={() => router.push(`/dashboard/exams/${examId}`)} className="rounded-xl px-8 uppercase font-black tracking-widest">
-                        Return to Exam Overview
+                        Quay lại trang bài thi
                     </Button>
                 </div>
             </div>
@@ -60,10 +60,10 @@ export default function ExamReviewPage() {
                     </Link>
                     <div>
                         <h1 className="text-3xl font-black uppercase tracking-tighter italic text-foreground flex items-center gap-3">
-                            Performance Review
+                            Kết quả bài thi
                         </h1>
                         <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
-                            {reviewData.quizTitle || 'Exam Review'} | Session {sessionId.substring(0, 8)}...
+                            {reviewData.quizTitle || 'Báo cáo bài thi'} | Phiên làm bài {sessionId.substring(0, 8)}...
                         </p>
                     </div>
                 </div>
@@ -81,7 +81,7 @@ export default function ExamReviewPage() {
                                     <span className="text-2xl font-black">N/A</span>
                                 )}
                             </div>
-                            <div className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">Score</div>
+                            <div className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">Điểm số</div>
                         </div>
 
                         <div className="flex flex-col items-center justify-center gap-2">
@@ -90,9 +90,9 @@ export default function ExamReviewPage() {
                                     {reviewData.score !== undefined ? reviewData.score : 'N/A'}
                                 </span>
                             </div>
-                            <div className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">Points</div>
+                            <div className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">Số câu đúng</div>
                             {reviewData.maxScore !== undefined && (
-                                <div className="text-[8px] text-muted-foreground/40">of {reviewData.maxScore}</div>
+                                <div className="text-[8px] text-muted-foreground/40">trên {reviewData.maxScore}</div>
                             )}
                         </div>
 
@@ -100,10 +100,10 @@ export default function ExamReviewPage() {
                             <div className="size-16 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500">
                                 <Clock className="size-8" />
                             </div>
-                            <div className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">Time Taken</div>
+                            <div className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">Thời gian làm</div>
                             {reviewData.timeTakenSeconds !== undefined && (
                                 <div className="text-[8px] text-muted-foreground/40">
-                                    {Math.round(reviewData.timeTakenSeconds / 60)}m
+                                    {Math.round(reviewData.timeTakenSeconds / 60)} phút
                                 </div>
                             )}
                         </div>
@@ -112,9 +112,9 @@ export default function ExamReviewPage() {
                             <div className={`size-16 rounded-full flex items-center justify-center ${isPassed ? 'bg-emerald-500/10 text-emerald-500' : 'bg-destructive/10 text-destructive'}`}>
                                 {isPassed ? <Award className="size-8" /> : <XCircle className="size-8" />}
                             </div>
-                            <div className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">Status</div>
+                            <div className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">Trạng thái</div>
                             <Badge variant={isPassed ? 'default' : 'destructive'} className="text-[8px] font-black uppercase">
-                                {isPassed ? 'PASSED' : 'FAILED'}
+                                {isPassed ? 'ĐẠT' : 'KHÔNG ĐẠT'}
                             </Badge>
                         </div>
                     </div>
@@ -122,7 +122,7 @@ export default function ExamReviewPage() {
                     {reviewData.submittedAt && (
                         <div className="mt-6 pt-6 border-t border-white/5 text-center">
                             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
-                                Submitted: {format(new Date(reviewData.submittedAt), 'dd MMM yyyy, HH:mm')}
+                                Ngày nộp bài: {format(new Date(reviewData.submittedAt), 'dd/MM/yyyy, HH:mm')}
                             </p>
                         </div>
                     )}
@@ -135,7 +135,7 @@ export default function ExamReviewPage() {
                     <CardHeader className="border-b border-white/5 p-6">
                         <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 italic flex items-center gap-2">
                             <FileText className="w-4 h-4" />
-                            Question Review ({details.length} questions)
+                            Chi tiết bài làm ({details.length} câu)
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="p-0">
@@ -149,16 +149,16 @@ export default function ExamReviewPage() {
                                                 {detail.isCorrect ? (
                                                     <Badge variant="default" className="bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border-0 text-[8px] font-black uppercase tracking-wider gap-1">
                                                         <CheckCircle2 className="size-3" />
-                                                        Correct
+                                                        Đúng
                                                     </Badge>
                                                 ) : (
                                                     <Badge variant="destructive" className="bg-destructive/10 text-destructive hover:bg-destructive/20 border-0 text-[8px] font-black uppercase tracking-wider gap-1">
                                                         <XCircle className="size-3" />
-                                                        Incorrect
+                                                        Sai
                                                     </Badge>
                                                 )}
                                                 <span className="text-[9px] font-bold text-muted-foreground/60">
-                                                    {detail.pointsEarned} / {detail.pointsEarned + (detail.isCorrect ? 0 : detail.pointsEarned)} points
+                                                    {detail.pointsEarned} / {detail.pointsEarned + (detail.isCorrect ? 0 : 1)} điểm
                                                 </span>
                                             </div>
                                             <p className="text-base font-medium text-foreground leading-relaxed">
@@ -170,7 +170,7 @@ export default function ExamReviewPage() {
                                     <div className="space-y-3 pl-4 border-l-2 border-white/5">
                                         {detail.options && typeof detail.options === 'object' && (
                                             <div className="space-y-2">
-                                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Options:</p>
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Các lựa chọn:</p>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                                     {Object.entries(detail.options).map(([key, value]: [string, any]) => (
                                                         <div
@@ -193,15 +193,15 @@ export default function ExamReviewPage() {
                                         )}
 
                                         <div className="space-y-1">
-                                            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Your Answer:</p>
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Câu trả lời của bạn:</p>
                                             <p className={`text-sm font-medium ${detail.isCorrect ? 'text-emerald-500' : 'text-destructive'}`}>
-                                                {detail.userAnswer || 'No answer provided'}
+                                                {detail.userAnswer || 'Chưa có câu trả lời'}
                                             </p>
                                         </div>
 
                                         {detail.correctAnswer !== undefined && (
                                             <div className="space-y-1">
-                                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Correct Answer:</p>
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Đáp án đúng:</p>
                                                 <p className="text-sm font-medium text-blue-500">
                                                     {detail.correctAnswer}
                                                 </p>
@@ -210,7 +210,7 @@ export default function ExamReviewPage() {
 
                                         {detail.explanation && (
                                             <div className="space-y-1">
-                                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Explanation:</p>
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Giải thích:</p>
                                                 <p className="text-sm text-muted-foreground leading-relaxed">
                                                     {detail.explanation}
                                                 </p>
@@ -230,14 +230,14 @@ export default function ExamReviewPage() {
                     onClick={() => router.push(`/dashboard/exams/${examId}`)}
                     className="rounded-xl px-8 uppercase font-black tracking-widest"
                 >
-                    Return to Exam Overview
+                    Quay lại trang bài thi
                 </Button>
                 <Button
                     variant="outline"
                     onClick={() => router.push(`/dashboard/exams/${examId}/history`)}
                     className="rounded-xl px-8 uppercase font-black tracking-widest"
                 >
-                    View All Attempts
+                    Xem tất cả lịch sử
                 </Button>
             </div>
         </div>

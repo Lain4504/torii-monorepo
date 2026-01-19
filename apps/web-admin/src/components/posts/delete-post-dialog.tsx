@@ -44,7 +44,7 @@ export function DeletePostDialog({
 
     return (
         <AlertDialog open={open} onOpenChange={onOpenChange}>
-            <AlertDialogContent className="sm:max-w-[480px] p-0 gap-0 overflow-hidden border border-border/50 shadow-2xl bg-background rounded-3xl">
+            <AlertDialogContent className="sm:max-w-[480px] p-0 gap-0 border border-border/50 shadow-2xl bg-background rounded-3xl">
                 <AlertDialogHeader className="px-8 py-6 border-b border-border/10">
                     <div className="flex items-start gap-5">
                         <div className="p-3 rounded-2xl bg-destructive/10 border border-destructive/20 shadow-sm flex-shrink-0">

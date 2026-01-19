@@ -30,7 +30,7 @@ export function ViewQuestionPoolDialog({ open, onOpenChange, pool, onEdit }: Vie
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-2xl border border-border/50 shadow-2xl bg-background rounded-3xl p-0 overflow-hidden">
+            <DialogContent className="max-w-2xl border border-border/50 shadow-2xl bg-background rounded-3xl p-0">
                 <DialogHeader className="p-8 pb-4 bg-muted/5 border-b border-border/10">
                     <DialogTitle className="text-2xl font-semibold tracking-tight flex items-center gap-2">
                         <Database className="h-6 w-6 text-primary" />

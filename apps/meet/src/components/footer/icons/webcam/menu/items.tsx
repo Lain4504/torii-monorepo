@@ -9,7 +9,7 @@ import {
   updateIsActiveWebcam,
   updateVirtualBackground,
 } from '../../../../../store/slices/bottomIconsActivitySlice';
-import { Check, VideoOff } from 'lucide-react';
+import { Check, VideoOff, LogOut } from 'lucide-react';
 
 interface IWebcamMenuItemsProps {
   currentRoom: Room;
@@ -105,7 +105,7 @@ const WebcamMenuItems = ({
               className="group h-8 w-full flex items-center text-sm gap-2 leading-none font-medium text-red-700 px-2 rounded-lg transition-all duration-300 hover:bg-Red-600 hover:text-white"
               onClick={leaveWebcam}
             >
-              <i className="wajlc-logout text-base transition ease-in" />
+              <LogOut className="w-4 h-4 transition ease-in" />
               {t('footer.menus.leave-webcam')}
             </p>
           )}

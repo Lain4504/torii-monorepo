@@ -7,7 +7,6 @@ export * from './i-review.repository';
 export * from './i-wishlist.repository';
 export * from './i-exam.repository';
 export * from './i-enrollment.repository';
-export * from './i-order.repository';
 export * from './i-comment.repository';
 export * from './i-post.repository';
 export * from './i-learning-progress.repository';
@@ -21,5 +20,3 @@ export const LESSON_MATERIAL_REPOSITORY_TOKEN = Symbol('LESSON_MATERIAL_REPOSITO
 export const REVIEW_REPOSITORY_TOKEN = Symbol('REVIEW_REPOSITORY');
 export { EXAM_REPOSITORY_TOKEN } from './i-exam.repository';
 export const ENROLLMENT_REPOSITORY_TOKEN = Symbol('ENROLLMENT_REPOSITORY');
-export const ORDER_REPOSITORY_TOKEN = Symbol('ORDER_REPOSITORY');
-export const PAYMENT_REPOSITORY_TOKEN = ORDER_REPOSITORY_TOKEN; // Legacy

@@ -28,7 +28,7 @@ export function ViewPostSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:w-[900px] sm:max-w-[900px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background overflow-hidden">
+            <SheetContent className="w-full sm:w-[900px] sm:max-w-[900px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background">
                 <SheetHeader className="px-8 pt-8 pb-6 border-b border-border/10 bg-muted/5 relative overflow-hidden">
                     <div className="absolute inset-0 bg-primary/5 blur-3xl opacity-50 pointer-events-none" />
                     <div className="relative flex items-center justify-between z-10">
@@ -37,8 +37,8 @@ export function ViewPostSheet({
                                 <FileText className="h-6 w-6" />
                             </div>
                             <div className="space-y-1">
-                                <SheetTitle className="text-2xl font-medium tracking-tight">
-                                    View <span className="text-primary italic">Post</span>
+                                <SheetTitle className="text-2xl font-bold tracking-tight">
+                                    View <span className="text-primary">Post</span>
                                 </SheetTitle>
                                 <SheetDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2">
                                     ID: <span className="font-mono text-primary">{post.id.substring(0, 8)}</span>

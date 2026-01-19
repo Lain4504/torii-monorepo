@@ -1,4 +1,5 @@
 import React from 'react';
+import { Presentation } from 'lucide-react';
 
 import { useAppSelector } from '../../../../store';
 import IconWrapper from './iconWrapper';
@@ -17,7 +18,7 @@ const PresenterIcon = ({ userId }: IPresenterIconProps) => {
   return (
     isPresenter && (
       <IconWrapper>
-        <i className="wajlc-presenter text-foreground dark:text-white text-sm 3xl:text-base" />
+        <Presentation className="w-3 h-3 3xl:w-4 3xl:h-4 text-foreground dark:text-white" />
       </IconWrapper>
     )
   );

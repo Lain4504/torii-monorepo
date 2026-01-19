@@ -14,6 +14,7 @@ import { StorageModule } from './modules/storage/storage.module';
 import { GamificationModule } from './modules/gamification/gamification.module';
 // Agents Module - AI Agents Service via NATS
 import { AgentsModule } from './modules/agents/agents.module';
+import { BillingModule } from './modules/billing/billing.module';
 
 
 /**
@@ -46,6 +47,8 @@ import { AgentsModule } from './modules/agents/agents.module';
 
     // Agents Module - AI Agents Service via NATS
     AgentsModule,
+    // Billing Module
+    BillingModule,
     // Meet Module - Handles Meet service routes via NATS
     MeetModule,
     // Identity Module - Handles Identity service routes via NATS

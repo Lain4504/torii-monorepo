@@ -62,7 +62,7 @@ export default function ForgotPasswordPage() {
                         <div className="w-12 h-12 bg-primary flex items-center justify-center rounded-xl shadow-lg shadow-primary/20">
                             <span className="text-white font-bold text-xl">A</span>
                         </div>
-                        <span className="text-xl font-bold tracking-tight leading-none text-foreground">Nextor <span className="text-primary">Admin</span></span>
+                        <span className="text-xl font-bold tracking-tight leading-none text-foreground">Torii <span className="text-primary">Admin</span></span>
                     </div>
                 </div>
 

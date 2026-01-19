@@ -36,12 +36,12 @@ export default function QuestionBankPage() {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     {/* Page Title - Hidden on mobile if needed, but keeping for context */}
                     <div className="hidden md:block space-y-1">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-medium tracking-wide">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-bold uppercase tracking-wider">
                             <Database className="size-3.5" />
-                            <span>Knowledge Base</span>
+                            <span>Cơ sở tri thức</span>
                         </div>
-                        <h1 className="text-3xl font-serif font-medium tracking-tight text-foreground">
-                            Question <span className="text-primary italic">Bank</span>
+                        <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+                            Ngân hàng <span className="text-primary not-italic">Câu hỏi</span>
                         </h1>
                     </div>
 
@@ -55,8 +55,8 @@ export default function QuestionBankPage() {
                                     <FileQuestion className="size-4 opacity-50 group-data-[state=active]:opacity-100 group-data-[state=active]:text-primary" />
                                 </div>
                                 <div className="flex flex-col items-start gap-0.5">
-                                    <span className="text-[11px] font-medium text-muted-foreground group-data-[state=active]:text-foreground">Questions</span>
-                                    <span className="text-[9px] font-medium text-muted-foreground/40 hidden sm:block">Manage Items</span>
+                                    <span className="text-[11px] font-medium text-muted-foreground group-data-[state=active]:text-foreground">Câu hỏi</span>
+                                    <span className="text-[9px] font-medium text-muted-foreground/40 hidden sm:block">Quản lý mục</span>
                                 </div>
                             </div>
                         </TabsTrigger>
@@ -69,8 +69,8 @@ export default function QuestionBankPage() {
                                     <Database className="size-4 opacity-50 group-data-[state=active]:opacity-100 group-data-[state=active]:text-primary" />
                                 </div>
                                 <div className="flex flex-col items-start gap-0.5">
-                                    <span className="text-[11px] font-medium text-muted-foreground group-data-[state=active]:text-foreground">Pools</span>
-                                    <span className="text-[9px] font-medium text-muted-foreground/40 hidden sm:block">Organize Collections</span>
+                                    <span className="text-[11px] font-medium text-muted-foreground group-data-[state=active]:text-foreground">Bộ câu hỏi</span>
+                                    <span className="text-[9px] font-medium text-muted-foreground/40 hidden sm:block">Tổ chức bộ sưu tập</span>
                                 </div>
                             </div>
                         </TabsTrigger>

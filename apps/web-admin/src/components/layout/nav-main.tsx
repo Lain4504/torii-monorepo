@@ -52,7 +52,7 @@ export function NavMain({
     labelKey: string
     items: NavMainItem[]
 }) {
-    const { t } = useTranslation('common')
+    const { t } = useTranslation(['common', 'admin'])
     const { pathname } = useLocation()
     const { state } = useSidebar()
     const isCollapsed = state === "collapsed"
@@ -72,14 +72,14 @@ export function NavMain({
                             tooltip={isCollapsed ? undefined : t(item.titleKey)}
                             className={cn(
                                 "h-11 rounded-xl transition-all duration-300",
-                                isItemActive ? "bg-primary/10 text-primary hover:bg-primary/20" : "text-muted-foreground/70 hover:bg-muted/50 hover:text-foreground",
+                                isItemActive && !hasSubItems ? "bg-primary/10 text-primary hover:bg-primary/20" : "text-muted-foreground/70 hover:bg-muted/50 hover:text-foreground",
                                 "group-data-[collapsible=icon]:!size-10 group-data-[collapsible=icon]:!p-0 group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:justify-center"
                             )}
                         >
                             <div className="flex items-center justify-center shrink-0">
                                 {item.icon && <item.icon className={cn("size-4 shadow-sm transition-transform", isItemActive && "scale-110")} />}
                             </div>
-                            <span className="ml-2 font-medium tracking-wide group-data-[collapsible=icon]:hidden truncate">{t(item.titleKey)}</span>
+                            <span className="ml-2 font-bold text-[11px] uppercase tracking-widest group-data-[collapsible=icon]:hidden truncate">{t(item.titleKey)}</span>
                             {hasSubItems && (
                                 <ChevronRight className="ml-auto size-4 transition-transform duration-300 group-data-[state=open]/collapsible:rotate-90 opacity-40 group-data-[collapsible=icon]:hidden" />
                             )}
@@ -112,7 +112,7 @@ export function NavMain({
                                                     <Link
                                                         to={subItem.url}
                                                         className={cn(
-                                                            "rounded-xl px-3 py-2.5 text-xs font-medium cursor-pointer transition-colors focus:bg-primary/5 focus:text-primary mb-1",
+                                                            "rounded-xl px-3 py-2.5 text-[11px] font-bold uppercase tracking-widest cursor-pointer transition-colors focus:bg-primary/5 focus:text-primary mb-1",
                                                             pathname === subItem.url ? "bg-primary/5 text-primary" : "text-muted-foreground/70"
                                                         )}
                                                     >
@@ -142,7 +142,7 @@ export function NavMain({
                                                     <PermissionWrapper permission={subItem.permission}>
                                                         <SidebarMenuSubButton asChild isActive={pathname === subItem.url}>
                                                             <Link to={subItem.url} className={cn(
-                                                                "h-9 rounded-lg text-xs font-medium transition-colors",
+                                                                "h-9 rounded-lg text-[11px] font-bold uppercase tracking-widest transition-colors",
                                                                 pathname === subItem.url ? "text-primary bg-primary/5" : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/30"
                                                             )}>
                                                                 <span className="truncate">{t(subItem.titleKey)}</span>
@@ -171,7 +171,7 @@ export function NavMain({
                                     <div className="flex items-center justify-center shrink-0">
                                         {item.icon && <item.icon className={cn("size-4 shadow-sm transition-transform", isItemActive && "scale-110")} />}
                                     </div>
-                                    <span className="ml-2 font-medium tracking-wide group-data-[collapsible=icon]:hidden truncate">{t(item.titleKey)}</span>
+                                    <span className="ml-2 font-bold text-[11px] uppercase tracking-widest group-data-[collapsible=icon]:hidden truncate">{t(item.titleKey)}</span>
                                     {isItemActive && (
                                         <Sparkles className="ml-auto size-3 text-primary opacity-50 animate-pulse group-data-[collapsible=icon]:hidden" />
                                     )}

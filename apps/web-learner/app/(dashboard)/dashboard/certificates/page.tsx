@@ -46,9 +46,17 @@ export default function CertificatesPage() {
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 max-w-6xl animate-in fade-in duration-500">
             {/* Header */}
-            <div className="space-y-1">
-                <h1 className="text-2xl font-bold text-foreground tracking-tight">Chứng chỉ của tôi</h1>
-                <p className="text-sm text-muted-foreground opacity-70">Ghi nhận sự nỗ lực và thành quả của bạn</p>
+            <div className="space-y-4 pb-2">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-serif font-bold italic uppercase tracking-wide">
+                    <Award className="size-3.5" />
+                    Achievements
+                </div>
+                <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+                    Chứng chỉ <span className="text-primary not-italic">Danh giá</span>
+                </h1>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
+                    Ghi nhận nỗ lực và thành quả Torii Learner Excellence
+                </p>
             </div>
 
             {/* Stats Row */}
@@ -56,7 +64,7 @@ export default function CertificatesPage() {
                 {stats.map((stat, index) => {
                     const Icon = stat.icon
                     return (
-                        <div key={index} className="p-4 rounded-2xl border border-border/50 bg-muted/5 flex flex-col items-center text-center space-y-1">
+                        <div key={index} className="p-4 rounded-2xl border border-border/60 bg-background/40 backdrop-blur-xl flex flex-col items-center text-center space-y-1 shadow-sm">
                             <Icon className={`w-4 h-4 ${stat.color} opacity-80`} />
                             <p className="text-xl font-bold">{stat.value}</p>
                             <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest">{stat.label}</p>
@@ -68,7 +76,7 @@ export default function CertificatesPage() {
             {/* Certificates List */}
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {certificates.map((cert) => (
-                    <Card key={cert.id} className="border-border/50 shadow-none bg-card/30 hover:bg-card/50 transition-all group overflow-hidden flex flex-col cursor-pointer">
+                    <Card key={cert.id} className="border-border/60 shadow-md bg-card/40 backdrop-blur-xl hover:bg-card/60 transition-all group overflow-hidden flex flex-col cursor-pointer">
                         <div className="aspect-[4/3] bg-gradient-to-br from-primary/10 via-primary/5 to-background border-b border-border/50 flex flex-col items-center justify-center p-6 text-center space-y-3 relative">
                             <div className="absolute top-3 right-3">
                                 <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-widest bg-background/50 border-primary/20 text-primary">

@@ -31,14 +31,14 @@ export default function ExamDetailPage() {
     }, [sessions])
 
     if (isLoading) {
-        return <PageLoading text="Accessing Exam Protocols..." className="h-[80vh]" />
+        return <PageLoading text="Đang tải dữ liệu bài thi..." className="h-[80vh]" />
     }
 
     if (examError || !exam) {
         return (
             <div className="flex flex-col items-center justify-center h-[60vh] space-y-4">
                 <FileText className="size-12 text-muted-foreground/30" />
-                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Data Sequence Not Found</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Không tìm thấy dữ liệu bài thi</p>
             </div>
         )
     }
@@ -56,11 +56,11 @@ export default function ExamDetailPage() {
                     <div>
                         <div className="flex items-center gap-3 mb-1">
                             <Badge variant="outline" className="rounded-md px-2 py-0.5 text-[9px] font-black uppercase tracking-widest border-primary/20 text-primary bg-primary/5">
-                                {exam.jlptLevel || 'N/A'} Protocol
+                                Trình độ {exam.jlptLevel || 'N/A'}
                             </Badge>
                             {bestScore !== null && (
                                 <Badge variant="secondary" className="rounded-md px-2 py-0.5 text-[9px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20">
-                                    Top Performance: {Math.round(bestScore)}%
+                                    Kết quả tốt nhất: {Math.round(bestScore)}%
                                 </Badge>
                             )}
                         </div>
@@ -78,7 +78,7 @@ export default function ExamDetailPage() {
                         <CardHeader className="border-b border-white/5 p-6">
                             <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 italic flex items-center gap-2">
                                 <FileText className="w-4 h-4" />
-                                Protocol Description
+                                Mô tả bài thi
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="p-8">
@@ -96,7 +96,7 @@ export default function ExamDetailPage() {
                             onClick={() => router.push(`/dashboard/exams/${examId}/take`)}
                         >
                             <Play className="mr-3 w-5 h-5" />
-                            Initiate Sequence
+                            Bắt đầu làm bài
                         </Button>
                         {sessions.length > 0 && (
                             <Button
@@ -106,7 +106,7 @@ export default function ExamDetailPage() {
                                 onClick={() => router.push(`/dashboard/exams/${examId}/history`)}
                             >
                                 <History className="mr-3 w-5 h-5" />
-                                Logs
+                                Lịch sử
                             </Button>
                         )}
                     </div>
@@ -119,15 +119,15 @@ export default function ExamDetailPage() {
                                 <FileText className="w-6 h-6" />
                             </div>
                             <div className="text-3xl font-black text-foreground tracking-tight">{exam.totalQuestions}</div>
-                            <div className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">Questions</div>
+                            <div className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">Câu hỏi</div>
                         </Card>
 
                         <Card className="bg-background/60 backdrop-blur-xl border-white/5 rounded-[1.5rem] p-6 flex flex-col items-center justify-center gap-2 group hover:border-primary/20 transition-all">
                             <div className="size-12 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500 mb-2 group-hover:scale-110 transition-transform">
                                 <Clock className="w-6 h-6" />
                             </div>
-                            <div className="text-3xl font-black text-foreground tracking-tight">{exam.totalTime || 0}m</div>
-                            <div className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">Duration</div>
+                            <div className="text-3xl font-black text-foreground tracking-tight">{exam.totalTime || 0}p</div>
+                            <div className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">Thời gian</div>
                         </Card>
                     </div>
 
@@ -137,7 +137,7 @@ export default function ExamDetailPage() {
                             <CardHeader className="border-b border-white/5 p-6">
                                 <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 italic flex items-center gap-2">
                                     <History className="w-4 h-4" />
-                                    Recent Activity
+                                    Hoạt động gần đây
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="p-0">
@@ -164,7 +164,7 @@ export default function ExamDetailPage() {
                                                             </span>
                                                             {isPassed && (
                                                                 <Badge variant="default" className="bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border-0 text-[8px] font-black uppercase tracking-wider">
-                                                                    Pass
+                                                                    Đạt
                                                                 </Badge>
                                                             )}
                                                         </div>

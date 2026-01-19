@@ -4,14 +4,13 @@ import {
     BookOpen,
     Video,
     FileQuestion,
-    ClipboardList,
+
     Newspaper,
     CreditCard,
-    Ticket,
     Settings,
     BarChart3,
-    Bell,
-    Sparkles,
+
+    ShieldCheck,
 } from "lucide-react";
 
 export interface NavItem {
@@ -31,116 +30,87 @@ export interface NavItem {
 
 export const mainNavItems: NavItem[] = [
     {
-        titleKey: "navigation.dashboard",
+        titleKey: "Bảng điều khiển",
         url: "/",
         icon: Home,
-        descriptionKey: "navDescriptions.dashboard",
+        descriptionKey: "common:navDescriptions.dashboard",
     },
     {
-        titleKey: "navigation.users",
-        url: "/users",
-        icon: Users,
-        permission: "user.manage",
-        descriptionKey: "navDescriptions.users",
-        items: [
-            { titleKey: "navigation.userList", url: "/users", permission: "user.view" },
-            { titleKey: "navigation.roles", url: "/permissions", permission: "system.config" },
-        ]
-    },
-    {
-        titleKey: "navigation.courses",
+        titleKey: "Khóa học",
         url: "/courses",
         icon: BookOpen,
         anyPermission: ["course.manage", "course.approve", "course.view_restricted"],
-        descriptionKey: "navDescriptions.courses",
+        descriptionKey: "common:navDescriptions.courses",
         items: [
-            { titleKey: "navigation.courseList", url: "/courses", permission: "course.view" },
-            { titleKey: "navigation.categories", url: "/courses/categories", permission: "course.manage" },
-            { titleKey: "navigation.reviews", url: "/courses/reviews", permission: "course.manage" },
+            { titleKey: "Danh sách khóa học", url: "/courses", permission: "course.view" },
+            { titleKey: "Đánh giá & Phản hồi", url: "/courses/reviews", permission: "course.manage" },
         ]
     },
     {
-        titleKey: "navigation.liveClasses",
+        titleKey: "Lớp học trực tuyến",
         url: "/rooms",
         icon: Video,
         anyPermission: ["live_class.schedule", "live_class.view"],
-        descriptionKey: "navDescriptions.liveClasses",
+        descriptionKey: "common:navDescriptions.liveClasses",
     },
     {
-        titleKey: "navigation.questionBank",
+        titleKey: "Kho đề thi",
         url: "/question-bank",
         icon: FileQuestion,
         anyPermission: ["question.manage", "question_pool.manage"],
-        descriptionKey: "navDescriptions.questionBank",
+        descriptionKey: "common:navDescriptions.questionBank",
     },
     {
-        titleKey: "navigation.examsTests",
-        url: "/exams",
-        icon: ClipboardList,
-        permission: "exam.manage",
-        descriptionKey: "navDescriptions.examsTests",
+        titleKey: "Người dùng",
+        url: "/users",
+        icon: Users,
+        permission: "user.manage",
+        descriptionKey: "common:navDescriptions.users",
+        items: [
+            { titleKey: "Danh sách người dùng", url: "/users", permission: "user.view" },
+            { titleKey: "Vai trò & Quyền", url: "/permissions", permission: "system.config" },
+        ]
     },
     {
-        titleKey: "navigation.post",
+        titleKey: "Bài viết & Tin tức",
         url: "/posts",
         icon: Newspaper,
         permission: "post.manage",
-        descriptionKey: "navDescriptions.post",
+        descriptionKey: "common:navDescriptions.post",
     },
 ];
 
 export const managementNavItems: NavItem[] = [
     {
-        titleKey: "navigation.financials",
+        titleKey: "Tài chính",
         url: "/orders",
         icon: CreditCard,
         permission: "payment.manage",
-        descriptionKey: "navDescriptions.financials",
-        items: [
-            { titleKey: "navigation.orders", url: "/orders", permission: "payment.manage" },
-            { titleKey: "navigation.payouts", url: "/payouts", permission: "payment.manage" },
-        ]
+        descriptionKey: "common:navDescriptions.financials",
     },
     {
-        titleKey: "navigation.promotions",
-        url: "/promotions",
-        icon: Ticket,
-        permission: "coupon.manage",
-        descriptionKey: "navDescriptions.promotions",
-    },
-    {
-        titleKey: "navigation.analytics",
+        titleKey: "Báo cáo nội dung",
         url: "/analytics",
         icon: BarChart3,
         permission: "report.view",
-        descriptionKey: "navDescriptions.analytics",
+        descriptionKey: "common:navDescriptions.analytics",
     },
 ];
 
 export const systemNavItems: NavItem[] = [
     {
-        titleKey: "navigation.aiService",
-        url: "/ai-service",
-        icon: Sparkles,
+        titleKey: "Nhật ký hệ thống",
+        url: "/authorization/audit-logs",
+        icon: ShieldCheck,
         permission: "system.config",
-        descriptionKey: "navDescriptions.aiService",
+        descriptionKey: "common:navDescriptions.auditLogs",
     },
     {
-        titleKey: "navigation.notifications",
-        url: "/notifications",
-        icon: Bell,
-        descriptionKey: "navDescriptions.notifications",
-    },
-    {
-        titleKey: "navigation.settings",
+        titleKey: "Cấu hình",
         url: "/settings",
         icon: Settings,
         permission: "system.config",
-        descriptionKey: "navDescriptions.settings",
-        items: [
-            { titleKey: "navigation.general", url: "/settings", permission: "system.config" },
-            { titleKey: "navigation.appearance", url: "/settings/appearance", permission: "system.config" },
-        ]
+        descriptionKey: "common:navDescriptions.settings",
     },
 ];
 

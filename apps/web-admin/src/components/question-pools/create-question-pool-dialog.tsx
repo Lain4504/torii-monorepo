@@ -59,20 +59,20 @@ export function CreateQuestionPoolDialog({ open, onOpenChange }: CreateQuestionP
     const onSubmit = async (data: CreateQuestionPoolFormData) => {
         try {
             await createPool.mutateAsync(data);
-            toast.success('Question pool created successfully');
+            toast.success('Đã tạo kho đề câu hỏi thành công');
             reset();
             onOpenChange(false);
         } catch (error: any) {
-            toast.error(error.response?.data?.message || 'Failed to create question pool');
+            toast.error(error.response?.data?.message || 'Tạo kho đề thất bại');
         }
     };
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-2xl border border-border/50 shadow-2xl bg-background rounded-3xl p-0 overflow-hidden max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-2xl border border-border/50 shadow-2xl bg-background rounded-3xl p-0 max-h-[90vh] overflow-y-auto">
                 <DialogHeader className="p-8 pb-4 bg-muted/5 border-b border-border/10">
                     <DialogTitle className="text-2xl font-semibold tracking-tight">
-                        Create Question Pool
+                        Tạo Kho đề Câu hỏi
                     </DialogTitle>
                 </DialogHeader>
 
@@ -82,10 +82,10 @@ export function CreateQuestionPoolDialog({ open, onOpenChange }: CreateQuestionP
                         control={control}
                         render={({ field, fieldState }) => (
                             <Field>
-                                <FieldLabel>Pool Name *</FieldLabel>
+                                <FieldLabel>Tên Kho đề *</FieldLabel>
                                 <Input
                                     {...field}
-                                    placeholder="Enter pool name..."
+                                    placeholder="Nhập tên kho đề..."
                                     className="bg-background/50 border-border/40"
                                 />
                                 {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
@@ -98,10 +98,10 @@ export function CreateQuestionPoolDialog({ open, onOpenChange }: CreateQuestionP
                         control={control}
                         render={({ field, fieldState }) => (
                             <Field>
-                                <FieldLabel>Description</FieldLabel>
+                                <FieldLabel>Mô tả</FieldLabel>
                                 <Textarea
                                     {...field}
-                                    placeholder="Enter pool description..."
+                                    placeholder="Nhập mô tả cho kho đề..."
                                     className="min-h-[100px] bg-background/50 border-border/40"
                                 />
                                 {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
@@ -115,13 +115,13 @@ export function CreateQuestionPoolDialog({ open, onOpenChange }: CreateQuestionP
                             control={control}
                             render={({ field, fieldState }) => (
                                 <Field>
-                                    <FieldLabel>Course (Optional)</FieldLabel>
+                                    <FieldLabel>Khóa học (Tùy chọn)</FieldLabel>
                                     <Select value={field.value || 'none'} onValueChange={(value) => field.onChange(value === 'none' ? undefined : value)}>
                                         <SelectTrigger className="bg-background/50 border-border/40">
-                                            <SelectValue placeholder="Select course" />
+                                            <SelectValue placeholder="Chọn khóa học" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="none">None</SelectItem>
+                                            <SelectItem value="none">Không</SelectItem>
                                             {coursesData?.data?.map((course) => (
                                                 <SelectItem key={course.id} value={course.id}>
                                                     {course.title}
@@ -139,13 +139,13 @@ export function CreateQuestionPoolDialog({ open, onOpenChange }: CreateQuestionP
                             control={control}
                             render={({ field, fieldState }) => (
                                 <Field>
-                                    <FieldLabel>JLPT Level (Optional)</FieldLabel>
+                                    <FieldLabel>Cấp độ JLPT (Tùy chọn)</FieldLabel>
                                     <Select value={field.value || 'none'} onValueChange={(value) => field.onChange(value === 'none' ? undefined : value)}>
                                         <SelectTrigger className="bg-background/50 border-border/40">
-                                            <SelectValue placeholder="Select JLPT level" />
+                                            <SelectValue placeholder="Chọn cấp độ JLPT" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="none">None</SelectItem>
+                                            <SelectItem value="none">Không</SelectItem>
                                             <SelectItem value={QuestionJlptLevel.N5}>N5</SelectItem>
                                             <SelectItem value={QuestionJlptLevel.N4}>N4</SelectItem>
                                             <SelectItem value={QuestionJlptLevel.N3}>N3</SelectItem>
@@ -162,7 +162,7 @@ export function CreateQuestionPoolDialog({ open, onOpenChange }: CreateQuestionP
                     {selectedCourse && (
                         <div className="p-4 bg-muted/30 rounded-lg border border-border/40">
                             <p className="text-sm text-muted-foreground">
-                                <span className="font-medium">Selected Course:</span> {selectedCourse.title}
+                                <span className="font-medium">Khóa học đã chọn:</span> {selectedCourse.title}
                             </p>
                         </div>
                     )}
@@ -177,11 +177,11 @@ export function CreateQuestionPoolDialog({ open, onOpenChange }: CreateQuestionP
                                 onOpenChange(false);
                             }}
                         >
-                            Cancel
+                            Hủy bỏ
                         </Button>
                         <Button type="submit" disabled={createPool.isPending} className="rounded-xl h-12 px-8">
                             {createPool.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            Create Pool
+                            Tạo Kho đề
                         </Button>
                     </div>
                 </form>

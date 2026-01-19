@@ -63,7 +63,7 @@ export function FilterSidebar({ selectedLevels = [], onLevelChange, priceFilter,
 
             {/* JLPT Level */}
             <div className="space-y-6">
-                <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/30">Linguistic Proficiency</h3>
+                <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/30">Cấp độ JLPT</h3>
                 <div className="space-y-4">
                     {JLPT_LEVELS.map(({ label, value }) => (
                         <div key={value} className="flex items-center group">
@@ -89,7 +89,7 @@ export function FilterSidebar({ selectedLevels = [], onLevelChange, priceFilter,
 
             {/* Price */}
             <div className="space-y-6">
-                <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/30">Investment Tier</h3>
+                <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/30">Phân loại chi phí</h3>
                 <div className="space-y-4">
                     {[
                         { label: 'Miễn phí', value: 'free' },

@@ -39,9 +39,9 @@ export function TestimonialsSection() {
                 <div className="text-center max-w-4xl mx-auto mb-20 space-y-6">
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[9px] font-black uppercase tracking-[0.3em]">
                         <Users className="w-3 h-3" />
-                        <span>Success Stories</span>
+                        <span>Câu chuyện thành công</span>
                     </div>
-                    <h2 className="text-6xl md:text-7xl font-serif font-bold tracking-tight text-foreground uppercase italic leading-[0.9]">
+                    <h2 className="text-5xl md:text-7xl font-serif font-bold tracking-tight text-foreground uppercase italic leading-[0.9]">
                         Cảm Nhận Từ <br /> <span className="text-primary not-italic">Học Viên</span>
                     </h2>
                     <p className="text-[11px] font-black uppercase tracking-[0.25em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-8 py-2">
@@ -97,7 +97,7 @@ export function TestimonialsSection() {
                         { label: 'Tỉ lệ hài lòng', value: '98%', icon: Heart },
                         { label: 'Học viên đã học', value: '50K+', icon: Users },
                         { label: 'Điểm đánh giá', value: '4.9/5', icon: Star },
-                        { label: 'Hỗ trợ AI 24/7', value: 'Active', icon: Heart },
+                        { label: 'Hỗ trợ AI 24/7', value: 'Sẵn sàng', icon: Heart },
                     ].map((stat, idx) => (
                         <div key={idx} className="text-center space-y-2">
                             <div className="text-3xl font-black tracking-tighter">{stat.value}</div>

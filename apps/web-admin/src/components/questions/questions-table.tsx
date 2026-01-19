@@ -131,8 +131,8 @@ export function QuestionsTable({
                                     <BrainCircuit className="size-10 text-muted-foreground/20 relative z-10" />
                                 </div>
                                 <div className="space-y-2">
-                                    <h3 className="text-xl font-black uppercase italic tracking-tight text-foreground/40">Logic Void</h3>
-                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/20 italic">No question entities detected in the knowledge stream.</p>
+                                    <h3 className="text-xl font-black uppercase italic tracking-tight text-foreground/40">Vùng trống câu hỏi</h3>
+                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/20 italic">Không phát hiện thực thể câu hỏi nào trong luồng tri thức.</p>
                                 </div>
                             </div>
                         </TableCell>

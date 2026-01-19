@@ -46,12 +46,12 @@ export default function LoginPage() {
 
       // Block learner role
       if (user.role === 'learner') {
-        dispatch(setError('Learners cannot access admin panel.'));
-        toast.error('Access denied: Admin portals are restricted.');
+        dispatch(setError('Học viên không thể truy cập bảng quản trị.'));
+        toast.error('Từ chối truy cập: Cổng quản trị bị hạn chế.');
         return;
       }
 
-      toast.success(`Welcome back, ${user.displayName || 'Admin'}`);
+      toast.success(`Chào mừng trở lại, ${user.displayName || 'Quản trị viên'}`);
       navigate('/', { replace: true });
     } catch (err: any) {
       // Check for 2FA requirement in rejection payload
@@ -67,7 +67,7 @@ export default function LoginPage() {
       }
 
       // Error message already extracted by extractErrorMessage in auth-slice
-      const errorMessage = typeof err === 'string' ? err : (err?.message || 'Authentication failed');
+      const errorMessage = typeof err === 'string' ? err : (err?.message || 'Xác thực thất bại');
       toast.error(errorMessage);
     }
   };
@@ -93,7 +93,7 @@ export default function LoginPage() {
               </svg>
             </div>
             <div className="flex flex-col">
-              <span className="text-xl font-serif font-medium tracking-tight text-foreground">Torii <span className="text-primary italic">Admin</span></span>
+              <span className="text-xl font-bold tracking-tight text-foreground">Torii <span className="text-primary">Admin</span></span>
             </div>
           </div>
         </div>
@@ -101,12 +101,12 @@ export default function LoginPage() {
         {/* Hero Section */}
         <div className="relative z-10 max-w-lg space-y-8">
           <div className="space-y-4">
-            <h1 className="text-5xl font-serif font-medium tracking-tight text-foreground leading-[1.1]">
-              Manage your <br />
-              <span className="text-primary italic">Education Platform</span>
+            <h1 className="text-4xl font-bold tracking-tight text-foreground leading-[1.1]">
+              Quản lý <br />
+              <span className="text-primary">Nền tảng Giáo dục</span>
             </h1>
             <p className="text-sm font-medium text-muted-foreground/60 leading-relaxed max-w-md">
-              Streamline course management, student engagement, and content delivery from one central dashboard.
+              Tối ưu hóa quản lý khóa học, tương tác với học viên và cung cấp nội dung từ một bảng điều khiển trung tâm.
             </p>
           </div>
         </div>
@@ -117,7 +117,7 @@ export default function LoginPage() {
           <div className="h-px w-8 bg-border/20"></div>
           <span className="flex items-center gap-1.5">
             <ShieldCheck className="size-3" />
-            Secure Connection
+            Kết nối an toàn
           </span>
         </div>
       </div>
@@ -126,27 +126,27 @@ export default function LoginPage() {
       <div className="flex flex-1 flex-col items-center justify-center p-8 lg:p-16 relative bg-background">
         <div className="w-full max-w-[400px] space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
           <div className="space-y-2 text-center lg:text-left">
-            <h2 className="text-3xl font-serif font-medium tracking-tight text-foreground">Welcome back</h2>
-            <p className="text-sm text-muted-foreground/60">Please enter your details to sign in.</p>
+            <h2 className="text-2xl font-bold tracking-tight text-foreground">Chào mừng trở lại</h2>
+            <p className="text-sm text-muted-foreground/80">Vui lòng đăng nhập để tiếp tục truy cập.</p>
           </div>
 
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6" noValidate>
-            <div className="space-y-5">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5" noValidate>
+            <div className="space-y-4">
               <Controller
                 name="email"
                 control={form.control}
                 render={({ field, fieldState }) => (
-                  <div className="space-y-2">
-                    <label htmlFor={field.name} className="flex items-center gap-2 text-xs font-medium text-muted-foreground/70 ml-1">
-                      Email Address
+                  <div className="space-y-1.5">
+                    <label htmlFor={field.name} className="flex items-center gap-2 text-xs font-semibold text-foreground/80 ml-1">
+                      Địa chỉ Email
                     </label>
                     <div className="relative group">
-                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
+                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/50 group-focus-within:text-primary transition-colors" />
                       <Input
                         {...field}
                         id={field.name}
                         placeholder="name@example.com"
-                        className="h-12 pl-11 rounded-xl border-border/20 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-sm font-medium placeholder:text-muted-foreground/30"
+                        className="h-10 pl-10 rounded-lg border-border/50 bg-background hover:bg-muted/20 focus-visible:ring-primary/20 transition-all text-sm font-medium placeholder:text-muted-foreground/30 shadow-sm"
                         autoComplete="email"
                         type="email"
                       />
@@ -160,37 +160,37 @@ export default function LoginPage() {
                 name="password"
                 control={form.control}
                 render={({ field, fieldState }) => (
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                     <div className="flex items-center justify-between ml-1">
-                      <label htmlFor={field.name} className="flex items-center gap-2 text-xs font-medium text-muted-foreground/70">
-                        Password
+                      <label htmlFor={field.name} className="flex items-center gap-2 text-xs font-semibold text-foreground/80">
+                        Mật khẩu
                       </label>
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         onClick={() => navigate('/forgot-password')}
                         className="text-[10px] font-medium text-primary hover:text-primary/80 transition-colors"
                       >
-                        Forgot password?
+                        Quên mật khẩu?
                       </button>
                     </div>
                     <div className="relative group">
-                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
+                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/50 group-focus-within:text-primary transition-colors" />
                       <Input
                         {...field}
                         id={field.name}
                         type={showPassword ? "text" : "password"}
-                        placeholder="Enter your password"
-                        className="h-12 pl-11 pr-12 rounded-xl border-border/20 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-sm font-medium placeholder:text-muted-foreground/30"
+                        placeholder="Nhập mật khẩu của bạn"
+                        className="h-10 pl-10 pr-10 rounded-lg border-border/50 bg-background hover:bg-muted/20 focus-visible:ring-primary/20 transition-all text-sm font-medium placeholder:text-muted-foreground/30 shadow-sm"
                         autoComplete="current-password"
                       />
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon"
-                        className="absolute right-2 top-1/2 -translate-y-1/2 size-8 hover:bg-background/50 text-muted-foreground/40 hover:text-foreground transition-colors rounded-lg"
+                        className="absolute right-1 top-1/2 -translate-y-1/2 size-8 hover:bg-muted rounded-md text-muted-foreground/50 hover:text-foreground transition-colors"
                         onClick={() => setShowPassword(!showPassword)}
                       >
-                        {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                        {showPassword ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
                       </Button>
                       {fieldState.invalid && <p className="text-[10px] font-medium text-rose-500 mt-1.5 ml-1">{fieldState.error?.message}</p>}
                     </div>
@@ -200,31 +200,31 @@ export default function LoginPage() {
             </div>
 
             <div className="flex items-center gap-3 px-1">
-              <Checkbox id="remember" className="rounded-md size-4 border-muted-foreground/30 data-[state=checked]:bg-primary data-[state=checked]:border-primary" />
-              <label htmlFor="remember" className="text-xs font-medium text-muted-foreground/70 cursor-pointer select-none hover:text-foreground transition-colors">Remember for 30 days</label>
+              <Checkbox id="remember" className="rounded size-4 border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary" />
+              <label htmlFor="remember" className="text-xs font-medium text-muted-foreground cursor-pointer select-none hover:text-foreground transition-colors">Ghi nhớ đăng nhập 30 ngày</label>
             </div>
 
             {error && (
-              <div className="rounded-xl bg-rose-500/5 border border-rose-500/10 p-4 flex items-center gap-3 animate-in fade-in zoom-in-95">
+              <div className="rounded-lg bg-rose-500/5 border border-rose-500/20 p-3 flex items-center gap-3 animate-in fade-in zoom-in-95">
                 <div className="size-1.5 rounded-full bg-rose-500 shrink-0" />
-                <p className="text-xs font-medium text-rose-500">{error}</p>
+                <p className="text-xs font-medium text-rose-600">{error}</p>
               </div>
             )}
 
             <Button
               type="submit"
-              className="w-full h-12 rounded-xl bg-primary text-white font-medium text-sm shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 active:scale-95 transition-all duration-300 group"
+              className="w-full h-10 rounded-lg bg-primary text-primary-foreground font-semibold text-xs shadow-sm shadow-primary/10 hover:shadow-primary/20 hover:-translate-y-0.5 active:scale-95 transition-all duration-300 group"
               disabled={loading}
             >
               {loading ? (
                 <>
-                  <Loader2 className="mr-2 size-4 animate-spin opacity-70" />
-                  Signing in...
+                  <Loader2 className="mr-2 size-3.5 animate-spin opacity-70" />
+                  Đang đăng nhập...
                 </>
               ) : (
                 <>
-                  Sign In
-                  <ArrowRight className="ml-2 size-4 opacity-70 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+                  Đăng nhập
+                  <ArrowRight className="ml-2 size-3.5 opacity-70 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
                 </>
               )}
             </Button>

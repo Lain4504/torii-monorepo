@@ -358,7 +358,7 @@ export class CourseService implements ICourseService {
       if (dto.description !== undefined) updateData.description = dto.description;
       if (dto.shortDescription !== undefined) updateData.shortDescription = dto.shortDescription;
       if (dto.jlptLevel !== undefined) updateData.jlptLevel = dto.jlptLevel;
-      if (dto.aiMetadata !== undefined) updateData.aiMetadata = dto.aiMetadata;
+      if ((dto as any).aiMetadata !== undefined) updateData.aiMetadata = (dto as any).aiMetadata;
       if (dto.thumbnailUrl !== undefined) updateData.thumbnailUrl = dto.thumbnailUrl;
       if (dto.previewVideoUrl !== undefined) updateData.previewVideoUrl = dto.previewVideoUrl;
       if (dto.price !== undefined) updateData.price = dto.price;

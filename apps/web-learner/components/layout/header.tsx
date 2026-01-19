@@ -131,7 +131,7 @@ export function Header() {
                                     className="w-48 border-white/10 shadow-2xl bg-background/80 backdrop-blur-3xl p-3 rounded-[2rem] animate-in slide-in-from-top-2 duration-500"
                                 >
                                     <div className="px-4 py-3 mb-2 border-b border-white/5">
-                                        <p className="text-[9px] font-black uppercase tracking-[0.25em] text-muted-foreground/40 italic">Chromatic Mode</p>
+                                        <p className="text-[9px] font-black uppercase tracking-[0.25em] text-muted-foreground/40 italic">Chủ đề hiển thị</p>
                                     </div>
                                     <div className="space-y-1">
                                         <DropdownMenuItem

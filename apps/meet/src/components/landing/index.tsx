@@ -15,7 +15,7 @@ import {
   updateSelectedAudioDevice,
   updateSelectedVideoDevice,
 } from '../../store/slices/roomSettingsSlice';
-import { Volume2, MicOff, VideoOff, Loader2 } from 'lucide-react';
+import { Volume2, MicOff, VideoOff, Loader2, Lock as LockIcon } from 'lucide-react';
 import { roomConnectionStatus } from '../app/helper';
 import { getNatsConn } from '../../helpers/nats';
 import { useMediaDevices } from './hooks/useMediaDevices';
@@ -182,7 +182,7 @@ const Landing = ({
                 {lockMicrophone ? (
                   <div className="microphone-wrap relative cursor-not-allowed shadow-sm border border-destructive/30 bg-destructive/5 rounded-xl h-11 w-11 flex items-center justify-center transition-all duration-300 text-destructive">
                     <MicOff className="h-6 w-6" />
-                    <i className="wajlc-lock absolute -top-1 -right-1 z-10 text-destructive"></i>
+                    <LockIcon className="w-3 h-3 absolute -top-1 -right-1 z-10 text-destructive" />
                   </div>
                 ) : (
                   <MicrophoneIcon
@@ -196,7 +196,7 @@ const Landing = ({
                 {lockWebcam || !isWebcamAllowed ? (
                   <div className="cam-wrap relative cursor-not-allowed shadow-sm border border-destructive/30 bg-destructive/5 rounded-xl h-11 w-11 flex items-center justify-center transition-all duration-300 text-destructive">
                     <VideoOff className="h-6 w-6" />
-                    <i className="wajlc-lock absolute -top-1 -right-1 z-10 text-destructive" />
+                    <LockIcon className="w-3 h-3 absolute -top-1 -right-1 z-10 text-destructive" />
                   </div>
                 ) : (
                   <WebcamIcon

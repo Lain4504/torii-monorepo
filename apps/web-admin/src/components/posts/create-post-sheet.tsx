@@ -15,6 +15,7 @@ import { Input } from '@workspace/ui/components/input';
 import { Textarea } from '@workspace/ui/components/textarea';
 import { TiptapEditor } from '@workspace/ui/components/tiptap-editor';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
+import { Separator } from '@workspace/ui/components/separator';
 import {
     Select,
     SelectContent,
@@ -27,7 +28,7 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { Loader2, UploadCloud, X, FileText, Sparkles, Image as ImageIcon } from 'lucide-react';
+import { Loader2, UploadCloud, X, FileText } from 'lucide-react';
 import { PostStatus, type PostCreateDTO } from '@workspace/schemas';
 import { useCreatePost } from '@/api/services/post.ts';
 import { toast } from '@workspace/ui/components/sonner';
@@ -42,8 +43,6 @@ const createPostSchema = z.object({
     status: z.nativeEnum(PostStatus).optional(),
     tags: z.string().optional(), // String input, will be parsed to array
     publishedAt: z.string().optional(), // ISO date string from datetime-local input
-    seoTitle: z.string().optional(),
-    seoDescription: z.string().optional(),
 });
 
 type CreatePostFormData = z.infer<typeof createPostSchema>;
@@ -74,8 +73,6 @@ export function CreatePostSheet({
             excerpt: '',
             status: PostStatus.DRAFT,
             tags: '',
-            seoTitle: '',
-            seoDescription: '',
             publishedAt: '',
         },
     });
@@ -167,8 +164,6 @@ export function CreatePostSheet({
                 authorId: user.id,
                 tags,
                 coverImageUrl,
-                seoTitle: data.seoTitle || undefined,
-                seoDescription: data.seoDescription || undefined,
                 publishedAt,
             };
 
@@ -197,38 +192,31 @@ export function CreatePostSheet({
 
     return (
         <Sheet open={open} onOpenChange={handleClose}>
-            <SheetContent className="w-full sm:w-[900px] sm:max-w-[900px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background overflow-hidden">
-                <SheetHeader className="px-8 pt-8 pb-6 border-b border-border/10 bg-muted/5 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-primary/5 blur-3xl opacity-50 pointer-events-none" />
-                    <div className="relative flex items-center gap-4 z-10">
-                        <div className="p-3 rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-inner">
+            <SheetContent className="w-full sm:w-[900px] sm:max-w-[900px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background">
+                <SheetHeader className="px-6 py-6 border-b border-border">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 rounded-xl bg-primary/10 text-primary">
                             <FileText className="h-6 w-6" />
                         </div>
-                        <div className="flex-1 space-y-1">
-                            <SheetTitle className="text-2xl font-medium tracking-tight">
-                                Create New <span className="text-primary italic">Post</span>
+                        <div className="space-y-1">
+                            <SheetTitle className="text-xl font-bold text-foreground">
+                                Tạo bài viết mới
                             </SheetTitle>
-                            <SheetDescription className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground/60">
-                                Write and configure your new article
+                            <SheetDescription className="text-sm text-muted-foreground">
+                                Điền thông tin chi tiết để tạo bài viết mới.
                             </SheetDescription>
-                        </div>
-                        <div className="p-2 bg-background/50 backdrop-blur-md rounded-full border border-border/40 text-muted-foreground">
-                            <Sparkles className="size-4 animate-pulse text-primary" />
                         </div>
                     </div>
                 </SheetHeader>
 
-                <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col flex-1 min-h-0 overflow-hidden relative z-10">
+                <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col flex-1 min-h-0">
                     <ScrollArea className="flex-1 min-h-0">
-                        <div className="px-8 py-10 space-y-10 animate-in fade-in slide-in-from-right-8 duration-500">
+                        <div className="p-6 space-y-8">
                             {/* Basic Information */}
                             <div className="space-y-6">
-                                <div className="flex items-center gap-3 pb-2 border-b border-border/40">
-                                    <div className="h-px flex-1 bg-border/20" />
-                                    <h3 className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground/40 text-center">
-                                        General Information
-                                    </h3>
-                                    <div className="h-px flex-1 bg-border/20" />
+                                <div className="space-y-1">
+                                    <h3 className="text-sm font-semibold text-foreground">Thông tin chung</h3>
+                                    <Separator />
                                 </div>
 
                                 <Controller
@@ -236,17 +224,17 @@ export function CreatePostSheet({
                                     name="title"
                                     render={({ field, fieldState }) => (
                                         <Field>
-                                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
-                                                Post Title <span className="text-destructive">*</span>
+                                            <FieldLabel htmlFor={field.name} className="required">
+                                                Tiêu đề bài viết
                                             </FieldLabel>
                                             <Input
                                                 id={field.name}
                                                 {...field}
-                                                placeholder="ARTICLE DESIGNATION"
-                                                className="h-14 px-5 rounded-2xl bg-muted/10 border-border/40 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all uppercase"
+                                                placeholder="Nhập tiêu đề bài viết..."
+                                                className="h-10"
                                                 aria-invalid={fieldState.invalid}
                                             />
-                                            {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
+                                            {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
                                         </Field>
                                     )}
                                 />
@@ -256,19 +244,19 @@ export function CreatePostSheet({
                                     name="excerpt"
                                     render={({ field, fieldState }) => (
                                         <Field>
-                                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
-                                                Excerpt / Short Description
+                                            <FieldLabel htmlFor={field.name}>
+                                                Mô tả ngắn
                                             </FieldLabel>
                                             <Textarea
                                                 id={field.name}
                                                 {...field}
                                                 value={field.value || ''}
-                                                placeholder="BRIEF SUMMARY FOR CARDS..."
+                                                placeholder="Tóm tắt nội dung bài viết..."
                                                 rows={3}
-                                                className="rounded-2xl bg-muted/10 border-border/40 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all resize-none p-4"
+                                                className="resize-none"
                                                 aria-invalid={fieldState.invalid}
                                             />
-                                            {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
+                                            {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
                                         </Field>
                                     )}
                                 />
@@ -278,19 +266,21 @@ export function CreatePostSheet({
                                     name="content"
                                     render={({ field, fieldState }) => (
                                         <Field>
-                                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
-                                                Content <span className="text-destructive">*</span>
+                                            <FieldLabel htmlFor={field.name} className="required">
+                                                Nội dung chi tiết
                                             </FieldLabel>
-                                            <TiptapEditor
-                                                content={field.value || ''}
-                                                onChange={(html: string) => field.onChange(html)}
-                                                placeholder="DETAILED ARTICLE CONTENT..."
-                                                ariaInvalid={fieldState.invalid}
-                                                className="min-h-[400px]"
-                                                showCharacterCount={true}
-                                                mode="admin"
-                                            />
-                                            {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
+                                            <div className="rounded-md border border-input">
+                                                <TiptapEditor
+                                                    content={field.value || ''}
+                                                    onChange={(html: string) => field.onChange(html)}
+                                                    placeholder="Viết nội dung bài viết..."
+                                                    ariaInvalid={fieldState.invalid}
+                                                    className="min-h-[400px] border-none focus-visible:ring-0"
+                                                    showCharacterCount={true}
+                                                    mode="admin"
+                                                />
+                                            </div>
+                                            {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
                                         </Field>
                                     )}
                                 />
@@ -301,23 +291,23 @@ export function CreatePostSheet({
                                         name="status"
                                         render={({ field, fieldState }) => (
                                             <Field>
-                                                <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
-                                                    Operational Status
+                                                <FieldLabel htmlFor={field.name}>
+                                                    Trạng thái
                                                 </FieldLabel>
                                                 <Select
                                                     value={field.value}
                                                     onValueChange={(value) => field.onChange(value as PostStatus)}
                                                 >
-                                                    <SelectTrigger id={field.name} className="h-14 px-5 rounded-2xl bg-muted/10 border-border/40 hover:bg-muted/20 focus:ring-primary/20 text-sm font-bold uppercase transition-all">
-                                                        <SelectValue placeholder="SELECT STATUS" />
+                                                    <SelectTrigger id={field.name} className="h-10">
+                                                        <SelectValue placeholder="Chọn trạng thái" />
                                                     </SelectTrigger>
-                                                    <SelectContent className="border-border/10 shadow-2xl bg-background/95 backdrop-blur-3xl rounded-2xl overflow-hidden p-1">
-                                                        <SelectItem value={PostStatus.DRAFT} className="rounded-xl cursor-pointer text-xs font-bold uppercase tracking-wide focus:bg-primary/10 focus:text-primary py-3">DRAFT</SelectItem>
-                                                        <SelectItem value={PostStatus.PUBLISHED} className="rounded-xl cursor-pointer text-xs font-bold uppercase tracking-wide focus:bg-primary/10 focus:text-primary py-3">PUBLISHED</SelectItem>
-                                                        <SelectItem value={PostStatus.ARCHIVED} className="rounded-xl cursor-pointer text-xs font-bold uppercase tracking-wide focus:bg-primary/10 focus:text-primary py-3">ARCHIVED</SelectItem>
+                                                    <SelectContent>
+                                                        <SelectItem value={PostStatus.DRAFT}>Bản nháp</SelectItem>
+                                                        <SelectItem value={PostStatus.PUBLISHED}>Đã xuất bản</SelectItem>
+                                                        <SelectItem value={PostStatus.ARCHIVED}>Đã lưu trữ</SelectItem>
                                                     </SelectContent>
                                                 </Select>
-                                                {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
+                                                {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
                                             </Field>
                                         )}
                                     />
@@ -327,18 +317,18 @@ export function CreatePostSheet({
                                         name="publishedAt"
                                         render={({ field, fieldState }) => (
                                             <Field>
-                                                <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
-                                                    Published At
+                                                <FieldLabel htmlFor={field.name}>
+                                                    Ngày xuất bản
                                                 </FieldLabel>
                                                 <Input
                                                     id={field.name}
                                                     type="datetime-local"
                                                     {...field}
                                                     value={field.value || ''}
-                                                    className="h-14 px-5 rounded-2xl bg-muted/10 border-border/40 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold transition-all font-mono"
+                                                    className="h-10 font-mono"
                                                     aria-invalid={fieldState.invalid}
                                                 />
-                                                {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
+                                                {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
                                             </Field>
                                         )}
                                     />
@@ -349,38 +339,35 @@ export function CreatePostSheet({
                                     name="tags"
                                     render={({ field, fieldState }) => (
                                         <Field>
-                                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
+                                            <FieldLabel htmlFor={field.name}>
                                                 Tags
                                             </FieldLabel>
                                             <Input
                                                 id={field.name}
                                                 {...field}
                                                 value={field.value || ''}
-                                                placeholder="BLOG, NEWS, TUTORIAL (COMMA SEPARATED)"
-                                                className="h-14 px-5 rounded-2xl bg-muted/10 border-border/40 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all uppercase"
+                                                placeholder="Blog, News, Tutorial (ngăn cách bởi dấu phẩy)"
+                                                className="h-10"
                                                 aria-invalid={fieldState.invalid}
                                             />
-                                            {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
+                                            {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
                                         </Field>
                                     )}
                                 />
                             </div>
 
                             {/* Media Files */}
-                            <div className="space-y-6 pt-6">
-                                <div className="flex items-center gap-3 pb-2 border-b border-border/40">
-                                    <div className="h-px flex-1 bg-border/20" />
-                                    <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">
-                                        Data Assets (Optional)
-                                    </h3>
-                                    <div className="h-px flex-1 bg-border/20" />
+                            <div className="space-y-6">
+                                <div className="space-y-1">
+                                    <h3 className="text-sm font-semibold text-foreground">Hình ảnh & Media</h3>
+                                    <Separator />
                                 </div>
 
                                 <Field>
-                                    <FieldLabel htmlFor="cover-image-upload" className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
-                                        Cover Image
+                                    <FieldLabel htmlFor="cover-image-upload">
+                                        Ảnh bìa
                                     </FieldLabel>
-                                    <div className="space-y-3">
+                                    <div className="space-y-4">
                                         <div className="flex items-center gap-3">
                                             <div className="relative flex-1">
                                                 <Input
@@ -388,9 +375,8 @@ export function CreatePostSheet({
                                                     type="file"
                                                     accept="image/*"
                                                     onChange={handleCoverImageChange}
-                                                    className="h-14 px-4 pt-3.5 rounded-2xl bg-muted/10 border-border/40 hover:bg-muted/20 focus-visible:ring-primary/20 text-xs font-bold file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all"
+                                                    className="h-10 pt-2 file:text-foreground"
                                                 />
-                                                <UploadCloud className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50 pointer-events-none" />
                                             </div>
                                             {coverImageFile && (
                                                 <Button
@@ -398,118 +384,53 @@ export function CreatePostSheet({
                                                     variant="ghost"
                                                     size="icon"
                                                     onClick={removeCoverImage}
-                                                    className="h-12 w-12 rounded-2xl bg-destructive/10 text-destructive hover:bg-destructive/20"
+                                                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
                                                 >
                                                     <X className="h-4 w-4" />
                                                 </Button>
                                             )}
                                         </div>
-                                        {coverImageFile && (
-                                            <div className="flex items-center gap-3 p-3 rounded-2xl bg-primary/5 border border-primary/10">
-                                                <div className="p-2 rounded-xl bg-primary/10 text-primary">
-                                                    <ImageIcon className="h-4 w-4" />
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="text-xs font-bold text-foreground truncate">{coverImageFile.name}</p>
-                                                    <p className="text-[10px] text-muted-foreground font-mono">{(coverImageFile.size / 1024 / 1024).toFixed(2)} MB</p>
-                                                </div>
-                                            </div>
-                                        )}
-                                        {coverImagePreview && (
-                                            <div className="relative rounded-2xl overflow-hidden border border-border/40">
+
+                                        {(coverImagePreview || coverImageFile) && (
+                                            <div className="relative rounded-lg overflow-hidden border border-border/50 aspect-video w-full max-w-sm">
                                                 <img
-                                                    src={coverImagePreview}
-                                                    alt="Cover preview"
-                                                    className="w-full h-48 object-cover"
+                                                    src={coverImagePreview || ''}
+                                                    alt="Preview"
+                                                    className="w-full h-full object-cover"
                                                 />
                                             </div>
                                         )}
                                     </div>
                                 </Field>
                             </div>
-
-                            {/* SEO Metadata */}
-                            <div className="space-y-6 pt-6">
-                                <div className="flex items-center gap-3 pb-2 border-b border-border/40">
-                                    <div className="h-px flex-1 bg-border/20" />
-                                    <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">
-                                        SEO Metadata
-                                    </h3>
-                                    <div className="h-px flex-1 bg-border/20" />
-                                </div>
-
-                                <Controller
-                                    control={control}
-                                    name="seoTitle"
-                                    render={({ field, fieldState }) => (
-                                        <Field>
-                                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
-                                                SEO Title
-                                            </FieldLabel>
-                                            <Input
-                                                id={field.name}
-                                                {...field}
-                                                value={field.value || ''}
-                                                placeholder="SEO TITLE FOR SEARCH ENGINES..."
-                                                className="h-14 px-5 rounded-2xl bg-muted/10 border-border/40 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all uppercase"
-                                                aria-invalid={fieldState.invalid}
-                                            />
-                                            {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
-                                        </Field>
-                                    )}
-                                />
-
-                                <Controller
-                                    control={control}
-                                    name="seoDescription"
-                                    render={({ field, fieldState }) => (
-                                        <Field>
-                                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
-                                                SEO Description
-                                            </FieldLabel>
-                                            <Textarea
-                                                id={field.name}
-                                                {...field}
-                                                value={field.value || ''}
-                                                placeholder="SEO DESCRIPTION FOR SEARCH ENGINES..."
-                                                rows={3}
-                                                className="rounded-2xl bg-muted/10 border-border/40 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all resize-none p-4"
-                                                aria-invalid={fieldState.invalid}
-                                            />
-                                            {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
-                                        </Field>
-                                    )}
-                                />
-                            </div>
                         </div>
                     </ScrollArea>
 
                     {/* Footer */}
-                    <SheetFooter className="px-8 py-6 bg-background border-t border-border/10 flex flex-row items-center justify-between gap-4 relative z-20 flex-shrink-0">
+                    <SheetFooter className="px-6 py-4 bg-background border-t border-border flex flex-row items-center justify-between gap-4">
                         <Button
                             type="button"
                             variant="ghost"
                             onClick={handleClose}
                             disabled={uploading}
-                            className="rounded-xl h-12 px-6 text-[11px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground hover:bg-muted/20 group"
+                            className="h-10 px-6"
                         >
-                            <X className="mr-2 h-4 w-4 transition-transform group-hover:rotate-90" />
-                            Cancel
+                            Hủy bỏ
                         </Button>
                         <Button
                             type="submit"
                             disabled={uploading || createPost.isPending}
-                            className="rounded-xl h-12 px-8 bg-primary text-primary-foreground text-[11px] font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-1 transition-all"
+                            className="h-10 px-8 bg-primary text-primary-foreground font-semibold shadow-sm hover:translate-y-0"
                         >
                             {uploading || createPost.isPending ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Saving...
+                                    Đang lưu...
                                 </>
                             ) : (
                                 <>
                                     <UploadCloud className="mr-2 h-4 w-4" />
-                                    Create Post
+                                    Tạo bài viết
                                 </>
                             )}
                         </Button>

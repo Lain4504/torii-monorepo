@@ -7,10 +7,10 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { Public } from '@server/shared'; // Assuming a Public decorator exists or needs to be imported
+import { Public } from '@server/shared';
 import { successResponse, errorResponse } from '@server/shared';
 
-@Controller('api/payos')
+@Controller('payos')
 export class PayOSController {
     private readonly logger = new Logger(PayOSController.name);
 
@@ -23,7 +23,7 @@ export class PayOSController {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
-                    { cmd: 'learning.payos.webhook' },
+                    { cmd: 'billing.payos.webhook' },
                     webhookData
                 )
             );

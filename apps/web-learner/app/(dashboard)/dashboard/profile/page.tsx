@@ -261,11 +261,11 @@ export default function ProfilePage() {
                 <div className="flex-1 text-center md:text-left space-y-3">
                     <div className="space-y-1">
                         <div className="flex items-center justify-center md:justify-start gap-3">
-                            <h1 className="text-3xl font-serif font-bold text-foreground tracking-tight italic">
+                            <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
                                 {user?.displayName || 'Người dùng'}
                             </h1>
                             <Badge variant="outline" className="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest border-primary/20 text-primary">
-                                {user?.role?.toUpperCase() || 'LEARNER'}
+                                {user?.role?.toUpperCase() === 'LEARNER' ? 'HỌC VIÊN' : (user?.role?.toUpperCase() || 'HỌC VIÊN')}
                             </Badge>
                         </div>
                         <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-xs text-muted-foreground/60 font-medium italic">
@@ -428,7 +428,7 @@ export default function ProfilePage() {
                     ) : (
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                             {stats.map((stat, index) => (
-                                <div key={index} className="px-6 py-5 rounded-2xl border border-border/10 bg-muted/5 group hover:bg-background hover:shadow-lg transition-all">
+                                <div key={index} className="px-6 py-5 rounded-2xl border border-border/40 bg-card/40 backdrop-blur-xl group hover:bg-background hover:shadow-lg transition-all shadow-sm">
                                     <p className="text-[10px] text-muted-foreground/60 font-black uppercase tracking-widest mb-1">{stat.label}</p>
                                     <div className="flex items-center gap-3">
                                         <stat.icon className={`w-4 h-4 ${stat.color}`} />
@@ -461,9 +461,9 @@ export default function ProfilePage() {
                             <div className="grid gap-3">
                                 {achievements.map((achievement) => (
                                     <div key={achievement.id} className={cn(
-                                        "flex items-center gap-4 p-4 rounded-2xl border transition-all",
+                                        "flex items-center gap-4 p-4 rounded-2xl border transition-all shadow-sm",
                                         achievement.earned
-                                            ? "bg-muted/5 border-border/10"
+                                            ? "bg-card/40 backdrop-blur-md border-border/40"
                                             : "opacity-20 grayscale bg-transparent border-transparent"
                                     )}>
                                         <div className={cn(
@@ -491,12 +491,12 @@ export default function ProfilePage() {
                     {/* Certificates */}
                     <div className="space-y-6">
                         <h3 className="text-sm font-serif font-bold italic uppercase tracking-widest text-muted-foreground px-1">Văn bằng & Chứng chỉ</h3>
-                        <div className="rounded-2xl border border-border/10 bg-muted/5 overflow-hidden">
+                        <div className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md overflow-hidden shadow-sm">
                             {[1, 2].map((c) => (
                                 <div key={c} className="p-4 flex items-center justify-between hover:bg-background transition-colors border-b last:border-none border-border/10 group cursor-pointer">
                                     <div className="flex items-center gap-3">
                                         <FileText className="w-4 h-4 text-muted-foreground/40 group-hover:text-primary transition-colors" />
-                                        <p className="text-xs font-bold text-foreground/80">JLPT Level N{c + 3} Certificate</p>
+                                        <p className="text-xs font-bold text-foreground/80">Chứng chỉ JLPT N{c + 3}</p>
                                     </div>
                                     <ChevronRight className="w-4 h-4 text-muted-foreground/20 group-hover:text-primary transition-colors" />
                                 </div>

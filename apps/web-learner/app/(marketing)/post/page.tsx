@@ -75,7 +75,7 @@ export default function PostListingPage() {
                         <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                         <span>Torii Nihongo Journal</span>
                     </div>
-                    <h1 className="text-5xl md:text-7xl font-serif font-bold tracking-tight text-foreground uppercase italic leading-[1.1]">
+                    <h1 className="text-4xl md:text-7xl font-serif font-bold tracking-tight text-foreground uppercase italic leading-[1.1]">
                         Kiến Thức & <span className="text-primary">Cảm Hứng</span>
                     </h1>
                     <p className="text-[11px] md:text-xs font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-8 max-w-2xl mx-auto py-1 leading-relaxed">

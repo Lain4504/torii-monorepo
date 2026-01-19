@@ -46,12 +46,12 @@ export function DeleteLessonDialog({ lesson, open, onOpenChange }: DeleteLessonD
         setIsDeleting(true);
         try {
             await deleteLesson.mutateAsync(lesson.id);
-            toast.success('Lesson Deleted', {
-                description: `${lesson.title} has been removed.`,
+            toast.success('Đã xóa bài học', {
+                description: `Bài học "${lesson.title}" đã được xóa khỏi hệ thống.`,
             });
             onOpenChange(false);
         } catch (error: any) {
-            toast.error('Deletion Failed', {
+            toast.error('Xóa thất bại', {
                 description: error.response?.data?.error || error.message,
             });
         } finally {
@@ -63,7 +63,7 @@ export function DeleteLessonDialog({ lesson, open, onOpenChange }: DeleteLessonD
 
     return (
         <AlertDialog open={open} onOpenChange={onOpenChange}>
-            <AlertDialogContent className="sm:max-w-[480px] p-0 gap-0 overflow-hidden border border-border/50 bg-background shadow-2xl flex flex-col rounded-3xl">
+            <AlertDialogContent className="sm:max-w-[480px] p-0 gap-0 border border-border/50 bg-background shadow-2xl flex flex-col rounded-3xl">
                 <div className="p-6 pb-0">
                     <div className="flex items-start gap-5">
                         <div className="p-3 rounded-2xl bg-destructive/10 border border-destructive/20 shadow-inner flex-shrink-0">
@@ -71,13 +71,13 @@ export function DeleteLessonDialog({ lesson, open, onOpenChange }: DeleteLessonD
                         </div>
                         <div className="space-y-1.5 pt-1">
                             <AlertDialogHeader className="space-y-1.5 text-left">
-                                <AlertDialogTitle className="text-lg font-semibold tracking-tight text-foreground">
-                                    Delete Lesson?
+                                <AlertDialogTitle className="text-lg font-bold tracking-tight text-foreground">
+                                    Xóa Bài Học?
                                 </AlertDialogTitle>
                                 <AlertDialogDescription className="text-sm font-medium text-muted-foreground leading-relaxed">
-                                    Are you sure you want to delete <span className="text-foreground font-semibold">"{lesson.title}"</span>?
+                                    Bạn có chắc chắn muốn xóa bài học <span className="text-foreground font-bold">"{lesson.title}"</span>?
                                     <br />
-                                    This action cannot be undone and all associated data will be removed.
+                                    Hành động này không thể hoàn tác và tất cả dữ liệu liên quan sẽ bị xóa vĩnh viễn.
                                 </AlertDialogDescription>
                             </AlertDialogHeader>
                         </div>
@@ -90,9 +90,9 @@ export function DeleteLessonDialog({ lesson, open, onOpenChange }: DeleteLessonD
                         {getLessonIcon(lesson.contentType)}
                     </div>
                     <div className="flex flex-col min-w-0">
-                        <span className="text-xs font-semibold text-foreground truncate">{lesson.title}</span>
+                        <span className="text-xs font-bold text-foreground truncate">{lesson.title}</span>
                         <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-medium text-muted-foreground capitalize">{lesson.contentType.toLowerCase()}</span>
+                            <span className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">{getLessonTypeLabel(lesson.contentType)}</span>
                             <span className="text-[10px] font-mono text-muted-foreground/40">{lesson.id.slice(0, 8)}...</span>
                         </div>
                     </div>
@@ -101,24 +101,24 @@ export function DeleteLessonDialog({ lesson, open, onOpenChange }: DeleteLessonD
                 <AlertDialogFooter className="p-6 mt-4 bg-background border-t border-border/10 gap-3">
                     <AlertDialogCancel
                         disabled={isDeleting}
-                        className="rounded-xl h-11 text-xs font-medium border-border/20 bg-background hover:bg-muted/50 hover:text-foreground shadow-sm"
+                        className="rounded-xl h-11 text-xs font-bold uppercase tracking-wider border-border/20 bg-background hover:bg-muted/50 hover:text-foreground shadow-sm"
                     >
-                        Cancel
+                        Hủy Bỏ
                     </AlertDialogCancel>
                     <AlertDialogAction
                         onClick={handleDelete}
                         disabled={isDeleting}
-                        className="rounded-xl h-11 px-6 text-xs font-medium bg-destructive hover:bg-destructive/90 text-destructive-foreground shadow-lg shadow-destructive/20 hover:shadow-destructive/30 transition-all hover:-translate-y-0.5"
+                        className="rounded-xl h-11 px-6 text-xs font-bold uppercase tracking-wider bg-destructive hover:bg-destructive/90 text-destructive-foreground shadow-lg shadow-destructive/20 hover:shadow-destructive/30 transition-all hover:-translate-y-0.5"
                     >
                         {isDeleting ? (
                             <>
                                 <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
-                                Deleting...
+                                Đang xóa...
                             </>
                         ) : (
                             <>
                                 <Trash className="mr-2 h-3.5 w-3.5" />
-                                Delete Lesson
+                                Xóa Bài Học
                             </>
                         )}
                     </AlertDialogAction>
@@ -127,3 +127,18 @@ export function DeleteLessonDialog({ lesson, open, onOpenChange }: DeleteLessonD
         </AlertDialog>
     );
 }
+
+const getLessonTypeLabel = (type: string) => {
+    switch (type) {
+        case LessonContentType.VIDEO:
+            return "Video";
+        case LessonContentType.ARTICLE:
+            return "Bài Viết";
+        case LessonContentType.QUIZ:
+            return "Trắc Nghiệm";
+        case LessonContentType.ASSIGNMENT:
+            return "Bài Tập";
+        default:
+            return type;
+    }
+};

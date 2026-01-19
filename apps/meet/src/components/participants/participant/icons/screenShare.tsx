@@ -1,4 +1,5 @@
 import React from 'react';
+import { Monitor } from 'lucide-react';
 
 import { useAppSelector } from '../../../../store';
 import IconWrapper from './iconWrapper';
@@ -16,7 +17,7 @@ const ScreenShareIcon = ({ userId }: IScreenShareIconProps) => {
   return (
     screenShareTrack > 0 && (
       <IconWrapper>
-        <i className="wajlc-screen-share text-foreground dark:text-white text-[10px] 3xl:text-sm" />
+        <Monitor className="text-foreground dark:text-white w-2.5 h-2.5 3xl:w-3.5 3xl:h-3.5" />
       </IconWrapper>
     )
   );

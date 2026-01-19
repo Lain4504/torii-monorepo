@@ -12,34 +12,34 @@ export class OrderHandler {
         private readonly payOSService: PayOSService
     ) { }
 
-    @MessagePattern({ cmd: 'learning.order.findAll' })
+    @MessagePattern({ cmd: 'billing.order.findAll' })
     async findAll(@Payload() query: OrderQueryDTO) {
         return this.orderService.findAll(query);
     }
 
-    @MessagePattern({ cmd: 'learning.order.findAllPayments' })
+    @MessagePattern({ cmd: 'billing.order.findAllPayments' })
     async findAllPayments(@Payload() query: PaymentQueryDTO) {
         return this.orderService.findAllPayments(query);
     }
 
-    @MessagePattern({ cmd: 'learning.order.findOne' })
+    @MessagePattern({ cmd: 'billing.order.findOne' })
     async findOne(@Payload() data: { id: string }) {
         return this.orderService.findOne(data.id);
     }
 
-    @MessagePattern({ cmd: 'learning.order.create' })
+    @MessagePattern({ cmd: 'billing.order.create' })
     async create(@Payload() data: OrderCreateDTO & { userId: string }) {
         const { userId, ...input } = data;
         return this.orderService.create(userId, input);
     }
 
-    @MessagePattern({ cmd: 'learning.order.confirm' })
+    @MessagePattern({ cmd: 'billing.order.confirm' })
     async confirm(@Payload() data: { id: string, input: OrderConfirmDTO }) {
         return this.orderService.confirm(data.id, data.input);
     }
 
     // PayOS Webhook
-    @MessagePattern({ cmd: 'learning.payos.webhook' })
+    @MessagePattern({ cmd: 'billing.payos.webhook' })
     async handleWebhook(@Payload() webhookData: any) {
         // Verify webhook data
         const verifiedData = this.payOSService.verifyPaymentWebhookData(webhookData);

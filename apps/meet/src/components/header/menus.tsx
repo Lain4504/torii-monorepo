@@ -9,6 +9,8 @@ import {
 } from '../../store/slices/roomSettingsSlice';
 // import DarkThemeSwitcher from './darkThemeSwitcher';
 
+import { Settings, Keyboard, LogOut } from 'lucide-react';
+
 interface IHeaderMenusProps {
   onOpenAlert(task: string): void;
 }
@@ -31,7 +33,7 @@ const HeaderMenus = ({ onOpenAlert }: IHeaderMenusProps) => {
           className="h-9 md:h-10 w-full cursor-pointer flex items-center hover:bg-muted text-sm gap-2 leading-none font-medium text-foreground px-2 md:px-3 rounded-lg transition-all duration-300 relative"
           onClick={() => dispatch(updateShowRoomSettingsModal(true))}
         >
-          <i className="wajlc-settings text-primary text-base ltr:mr-2 rtl:ml-2 transition ease-in" />
+          <Settings className="text-primary w-4 h-4 ltr:mr-2 rtl:ml-2 transition ease-in" />
           {t('header.menus.settings')}
         </button>
       </MenuItem>
@@ -41,7 +43,7 @@ const HeaderMenus = ({ onOpenAlert }: IHeaderMenusProps) => {
           className="h-9 md:h-10 w-full cursor-pointer flex items-center hover:bg-muted text-sm gap-2 leading-none font-medium text-foreground px-2 md:px-3 rounded-lg transition-all duration-300 relative"
           onClick={() => dispatch(updateShowKeyboardShortcutsModal(true))}
         >
-          <i className="wajlc-keyboard text-primary text-lg ltr:mr-2 rtl:ml-2 transition ease-in" />
+          <Keyboard className="text-primary w-4 h-4 ltr:mr-2 rtl:ml-2 transition ease-in" />
           {t('header.menus.keyboard-shortcuts')}
         </button>
       </MenuItem>
@@ -51,7 +53,7 @@ const HeaderMenus = ({ onOpenAlert }: IHeaderMenusProps) => {
           className="h-9 md:h-10 w-full cursor-pointer flex items-center hover:bg-muted text-sm gap-2 leading-none font-medium text-foreground px-2 md:px-3 rounded-lg transition-all duration-300 relative"
           onClick={() => onOpenAlert('logout')}
         >
-          <i className="wajlc-logout text-primary text-lg ltr:mr-2 rtl:ml-2 transition ease-in" />
+          <LogOut className="text-primary w-4 h-4 ltr:mr-2 rtl:ml-2 transition ease-in" />
           {t('header.menus.logout')}
         </button>
       </MenuItem>

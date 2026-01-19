@@ -21,11 +21,11 @@ export function HeroSection() {
                         <div className="space-y-6">
                             <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-primary/5 border border-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.2em] animate-in fade-in slide-in-from-top-2 duration-500">
                                 <Sparkles className="w-3.5 h-3.5" />
-                                <span>WebRTC + AI-Powered Learning</span>
+                                <span>Học trực tuyến & Trợ lý AI</span>
                             </div>
 
-                            <h1 className="text-6xl sm:text-7xl lg:text-9xl font-serif font-bold tracking-tight leading-[0.8] text-foreground animate-in fade-in slide-in-from-left-4 duration-700 uppercase italic">
-                                <span className="text-primary/20 block mb-4 not-italic font-sans font-black tracking-tighter text-4xl lg:text-5xl">Chinh Phục</span>
+                            <h1 className="text-5xl sm:text-7xl lg:text-8xl font-serif font-bold tracking-tight leading-[0.8] text-foreground animate-in fade-in slide-in-from-left-4 duration-700 uppercase italic">
+                                <span className="text-primary/20 block mb-4 not-italic font-sans font-black tracking-tighter text-4xl lg:text-4xl">Chinh Phục</span>
                                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary to-blue-600">Tiếng Nhật</span>
                                 <br />
                                 <span className="text-3xl lg:text-4xl text-muted-foreground font-black tracking-[0.4em] uppercase opacity-30 not-italic font-sans mt-8 block">

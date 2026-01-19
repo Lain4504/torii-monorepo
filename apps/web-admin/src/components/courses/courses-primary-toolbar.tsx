@@ -26,19 +26,19 @@ export function CoursesPrimaryToolbar({
     onJlptLevelFilterChange,
 }: CoursesPrimaryToolbarProps) {
     return (
-        <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between w-full">
-            {/* Zen Search Input */}
+        <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between w-full">
+            {/* Search Input */}
             <div className="relative flex-1 group">
-                <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/30 group-focus-within:text-primary transition-colors duration-500" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
                 <Input
-                    placeholder="ENTER COURSE IDENTIFIER OR NOMENCLATURE..."
+                    placeholder="Tìm kiếm khóa học theo tên hoặc mã..."
                     value={search}
                     onChange={(e) => onSearchChange(e.target.value)}
-                    className="h-12 pl-12 rounded-xl border-border/40 bg-background/50 hover:bg-background/80 focus-visible:ring-primary/20 transition-all text-[11px] font-black uppercase tracking-[0.15em] placeholder:text-muted-foreground/20"
+                    className="h-10 pl-9 rounded-lg border-border bg-background focus-visible:ring-primary/20 transition-all text-sm placeholder:text-muted-foreground/50"
                 />
             </div>
 
-            <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                 {/* Status Filter */}
                 <Select
                     value={statusFilter || 'all'}
@@ -46,17 +46,17 @@ export function CoursesPrimaryToolbar({
                         onStatusFilterChange(value === 'all' ? '' : value)
                     }
                 >
-                    <SelectTrigger className="h-12 w-full md:w-[180px] rounded-xl border-border/40 bg-background/50 hover:bg-background/80 transition-all text-[10px] font-black uppercase tracking-widest focus:ring-primary/20">
+                    <SelectTrigger className="h-10 w-full sm:w-[180px] rounded-lg border-border bg-background hover:bg-muted/50 transition-all text-sm">
                         <div className="flex items-center gap-2">
-                            <Layers className="size-3.5 opacity-30" />
-                            <SelectValue placeholder="STATUS" />
+                            <Layers className="size-3.5 text-muted-foreground" />
+                            <SelectValue placeholder="Trạng thái" />
                         </div>
                     </SelectTrigger>
-                    <SelectContent className="border-border/40 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-2xl p-2">
-                        <SelectItem value="all" className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer italic">ALL REPOSITORIES</SelectItem>
-                        <SelectItem value="draft" className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">DRAFT</SelectItem>
-                        <SelectItem value="published" className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">PUBLISHED</SelectItem>
-                        <SelectItem value="archived" className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">ARCHIVED</SelectItem>
+                    <SelectContent className="border-border rounded-lg shadow-lg bg-background">
+                        <SelectItem value="all" className="text-sm">Tất cả trạng thái</SelectItem>
+                        <SelectItem value="draft" className="text-sm">Bản nháp (Draft)</SelectItem>
+                        <SelectItem value="published" className="text-sm">Đã xuất bản (Published)</SelectItem>
+                        <SelectItem value="archived" className="text-sm">Đã lưu trữ (Archived)</SelectItem>
                     </SelectContent>
                 </Select>
 
@@ -67,19 +67,19 @@ export function CoursesPrimaryToolbar({
                         onJlptLevelFilterChange(value === 'all' ? '' : value)
                     }
                 >
-                    <SelectTrigger className="h-12 w-full md:w-[180px] rounded-xl border-border/40 bg-background/50 hover:bg-background/80 transition-all text-[10px] font-black uppercase tracking-widest focus:ring-primary/20">
+                    <SelectTrigger className="h-10 w-full sm:w-[180px] rounded-lg border-border bg-background hover:bg-muted/50 transition-all text-sm">
                         <div className="flex items-center gap-2">
-                            <Layout className="size-3.5 opacity-30" />
-                            <SelectValue placeholder="LRN LEVEL" />
+                            <Layout className="size-3.5 text-muted-foreground" />
+                            <SelectValue placeholder="Trình độ JLPT" />
                         </div>
                     </SelectTrigger>
-                    <SelectContent className="border-border/40 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-2xl p-2">
-                        <SelectItem value="all" className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer italic font-bold">ALL LEVELS</SelectItem>
-                        <SelectItem value="N5" className="rounded-xl px-4 py-3 text-[10px] font-bold uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">N5 FOUNDATION</SelectItem>
-                        <SelectItem value="N4" className="rounded-xl px-4 py-3 text-[10px] font-bold uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">N4 ELEMENTARY</SelectItem>
-                        <SelectItem value="N3" className="rounded-xl px-4 py-3 text-[10px] font-bold uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">N3 INTERMEDIATE</SelectItem>
-                        <SelectItem value="N2" className="rounded-xl px-4 py-3 text-[10px] font-bold uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">N2 ADVANCED</SelectItem>
-                        <SelectItem value="N1" className="rounded-xl px-4 py-3 text-[10px] font-bold uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">N1 MASTERY</SelectItem>
+                    <SelectContent className="border-border rounded-lg shadow-lg bg-background">
+                        <SelectItem value="all" className="text-sm">Tất cả trình độ</SelectItem>
+                        <SelectItem value="N5" className="text-sm">N5 - Sơ cấp 1</SelectItem>
+                        <SelectItem value="N4" className="text-sm">N4 - Sơ cấp 2</SelectItem>
+                        <SelectItem value="N3" className="text-sm">N3 - Trung cấp</SelectItem>
+                        <SelectItem value="N2" className="text-sm">N2 - Cao cấp</SelectItem>
+                        <SelectItem value="N1" className="text-sm">N1 - Thượng thừa</SelectItem>
                     </SelectContent>
                 </Select>
             </div>

@@ -300,15 +300,15 @@ export default function TakeExamPage() {
     }, [])
 
     if (loading) {
-        return <PageLoading text="Initializing Exam Matrix..." className="h-screen" />
+        return <PageLoading text="Đang tải dữ liệu bài thi..." className="h-screen" />
     }
 
     if (error) {
         return (
             <div className="flex items-center justify-center h-screen bg-background">
                 <div className="text-center">
-                    <p className="text-destructive mb-4 font-bold uppercase tracking-widest text-[10px]">Error: {error}</p>
-                    <Button onClick={() => router.push('/dashboard/exams')} variant="outline">Return to Base</Button>
+                    <p className="text-destructive mb-4 font-bold uppercase tracking-widest text-[10px]">Lỗi: {error}</p>
+                    <Button onClick={() => router.push('/dashboard/exams')} variant="outline">Quay lại</Button>
                 </div>
             </div>
         )

@@ -9,8 +9,8 @@ export default function NotFound() {
         <div className="flex min-h-screen items-center justify-center bg-background">
             <ErrorState
                 code="404"
-                title="Trôi dạt vào cõi không"
-                description="Trang bạn tìm kiếm đã tan biến vào hư vô. Đây là bản chất vô thường của vạn vật kỹ thuật số."
+                title="Không tìm thấy trang"
+                description="Trang bạn đang tìm kiếm không tồn tại hoặc đã được di chuyển. Vui lòng quay lại trang chủ."
                 variant="404"
                 onBack={() => router.back()}
                 onHome={() => router.push("/")}

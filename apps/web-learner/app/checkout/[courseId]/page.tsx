@@ -126,8 +126,8 @@ export default function CheckoutPage() {
                     <ArrowLeft className="w-5 h-5 text-primary" />
                 </div>
                 <div className="space-y-0.5">
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40">Return to</span>
-                    <p className="text-[11px] font-black uppercase tracking-[0.1em] text-foreground">Course Overview</p>
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40">Quay lại</span>
+                    <p className="text-[11px] font-black uppercase tracking-[0.1em] text-foreground">Tổng quan khóa học</p>
                 </div>
             </Link>
 
@@ -139,13 +139,13 @@ export default function CheckoutPage() {
                         <div className="p-10 md:p-14 pb-8 space-y-4">
                             <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[9px] font-black uppercase tracking-[0.3em]">
                                 <ShieldCheck className="w-3 h-3" />
-                                <span>Secure Checkout</span>
+                                <span>Thanh toán Bảo mật</span>
                             </div>
-                            <h1 className="text-4xl md:text-5xl font-serif font-bold text-foreground tracking-tight uppercase italic leading-[0.9]">
-                                Confirm <br /> <span className="text-primary not-italic">Order</span>
+                            <h1 className="text-4xl md:text-4xl font-serif font-bold text-foreground tracking-tight uppercase italic leading-[0.9]">
+                                Xác nhận <br /> <span className="text-primary not-italic">Đơn hàng</span>
                             </h1>
                             <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 italic border-l-2 border-primary/20 pl-6 py-1">
-                                Review your academic investment before final processing.
+                                Kiểm tra lại thông tin học tập của bạn trước khi tiến hành thanh toán.
                             </p>
                         </div>
 
@@ -160,7 +160,7 @@ export default function CheckoutPage() {
                                             <CreditCard className="w-8 h-8 text-primary" />
                                         </div>
                                         <div className="space-y-1 relative z-10">
-                                            <p className="text-[9px] font-black text-primary uppercase tracking-[0.3em]">Academic Asset</p>
+                                            <p className="text-[9px] font-black text-primary uppercase tracking-[0.3em]">Hệ đào tạo</p>
                                             <h3 className="font-serif text-2xl font-bold text-foreground leading-none italic uppercase tracking-tight">
                                                 {course.title}
                                             </h3>
@@ -171,13 +171,13 @@ export default function CheckoutPage() {
                                     <div className="space-y-6 pt-10 border-t border-border/20">
                                         <div className="flex items-end justify-between">
                                             <div className="space-y-1">
-                                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/30">Total Investment</span>
+                                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/30">Tổng chi phí đầu tư</span>
                                                 <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest flex items-center gap-1.5">
-                                                    <CheckCircle2 className="w-3.5 h-3.5" /> All taxes & fees included
+                                                    <CheckCircle2 className="w-3.5 h-3.5" /> Đã bao gồm tất cả thuế & phí
                                                 </p>
                                             </div>
                                             <div className="text-right">
-                                                <span className="block text-4xl md:text-5xl font-serif font-bold text-foreground italic tracking-tighter leading-none">
+                                                <span className="block text-4xl md:text-4xl font-serif font-bold text-foreground italic tracking-tighter leading-none">
                                                     {course.price.toLocaleString('vi-VN')} VNĐ
                                                 </span>
                                             </div>
@@ -194,17 +194,17 @@ export default function CheckoutPage() {
                                             {isCreatingLink ? (
                                                 <>
                                                     <Loader2 className="mr-3 h-5 w-5 animate-spin" />
-                                                    Generating Secure Link...
+                                                    Đang tạo liên kết chuyển khoản...
                                                 </>
                                             ) : (
                                                 <>
-                                                    Initiate Payment <ArrowLeft className="ml-3 w-4 h-4 rotate-180" />
+                                                    Tiến hành Thanh toán <ArrowLeft className="ml-3 w-4 h-4 rotate-180" />
                                                 </>
                                             )}
                                         </Button>
                                         <div className="flex items-center justify-center gap-3 py-4 rounded-2xl bg-muted/10 border border-border/40">
                                             <Lock className="w-4 h-4 text-primary/40" />
-                                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">100% Encrypted Gateway Powered by PayOS</span>
+                                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Cổng thanh toán mã hóa bởi PayOS</span>
                                         </div>
                                     </div>
                                 </div>
@@ -227,8 +227,8 @@ export default function CheckoutPage() {
                                     <CreditCard className="w-6 h-6 text-primary" />
                                 </div>
                                 <div className="space-y-0.5">
-                                    <h3 className="text-xl font-serif font-bold italic uppercase tracking-tight text-foreground">Secure <span className="text-primary not-italic">Payment</span></h3>
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Powered by PayOS Terminal</p>
+                                    <h3 className="text-xl font-serif font-bold italic uppercase tracking-tight text-foreground">Thanh toán <span className="text-primary not-italic">bảo mật</span></h3>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Dịch vụ cung cấp bởi PayOS Terminal</p>
                                 </div>
                             </div>
                             <button

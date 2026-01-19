@@ -86,8 +86,8 @@ export default function NotificationsPage() {
     const [page] = useState(1)
 
     // Fetch notifications with pagination
-    const { data: notificationsData, isLoading } = useNotifications({ 
-        limit: 50, 
+    const { data: notificationsData, isLoading } = useNotifications({
+        limit: 50,
         page,
         isRead: filter === 'unread' ? false : undefined,
     })
@@ -102,7 +102,7 @@ export default function NotificationsPage() {
         if (notificationsData) {
             console.log('🔔 Notifications Page (Learner) - Response:', notificationsData);
         }
-        
+
         // Handle response structure: PaginatedApiResponse = { data: NotificationResponseDTO[], total, page, limit, totalPages }
         if (!notificationsData?.data) return []
         return notificationsData.data.map(mapNotificationToUI)
@@ -149,9 +149,8 @@ export default function NotificationsPage() {
                         <Bell className="w-3 h-3" />
                         Trung tâm thông báo
                     </div>
-                    <h1 className="text-4xl md:text-6xl font-serif font-bold tracking-tight text-foreground italic leading-[0.85]">
-                        Notification <br />
-                        <span className="text-primary not-italic text-3xl md:text-5xl">Hub & History</span>
+                    <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+                        Notification <span className="text-primary not-italic">Center</span>
                     </h1>
                     <p className="text-[11px] font-bold text-muted-foreground/40 uppercase tracking-[0.15em] italic border-l-2 border-primary/20 pl-6">
                         Quản lý tất cả các cập nhật, nhắc nhở và thông tin quan trọng từ <span className="text-foreground">Torii Intelligence</span>.
@@ -174,7 +173,7 @@ export default function NotificationsPage() {
 
             {/* Quick Actions & Search */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 px-4">
-                <Card className="md:col-span-3 rounded-[2.5rem] bg-background/40 backdrop-blur-3xl border border-border/20 p-2 flex items-center">
+                <Card className="md:col-span-3 rounded-[2.5rem] bg-card/40 backdrop-blur-3xl border border-border/40 p-2 flex items-center shadow-sm">
                     <div className="relative flex-1">
                         <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/30" />
                         <Input
@@ -185,7 +184,7 @@ export default function NotificationsPage() {
                         />
                     </div>
                 </Card>
-                <div className="flex items-center p-2 rounded-[2.5rem] bg-background/40 backdrop-blur-3xl border border-border/20">
+                <div className="flex items-center p-2 rounded-[2.5rem] bg-card/40 backdrop-blur-3xl border border-border/40 shadow-sm">
                     <div className="flex-1 flex justify-center gap-2">
                         <div className="text-center">
                             <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 mb-1">Chưa đọc</p>
@@ -221,7 +220,7 @@ export default function NotificationsPage() {
 
             {/* Notifications List */}
             <div className="px-4 pb-20">
-                <Card className="rounded-[3rem] bg-background/40 backdrop-blur-3xl border border-border/20 shadow-2xl shadow-primary/5 overflow-hidden">
+                <Card className="rounded-[3rem] bg-card/40 backdrop-blur-3xl border border-border/40 shadow-xl shadow-primary/5 overflow-hidden">
                     <div className="divide-y divide-border/10">
                         {isLoading ? (
                             <div className="py-32 text-center space-y-6">

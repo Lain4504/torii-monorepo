@@ -37,7 +37,7 @@ export function DeleteQuestionPoolDialog({ open, onOpenChange, pool }: DeleteQue
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-md border border-border/50 shadow-2xl bg-background rounded-3xl p-0 overflow-hidden">
+            <DialogContent className="max-w-md border border-border/50 shadow-2xl bg-background rounded-3xl p-0">
                 <DialogHeader className="p-8 pb-4 bg-red-500/5 border-b border-red-500/10">
                     <DialogTitle className="flex items-center gap-2 text-destructive text-xl font-semibold tracking-tight">
                         <AlertTriangle className="h-5 w-5" />

@@ -36,9 +36,9 @@ export function SystemStasis({
                 </div>
 
                 <div className="space-y-2">
-                    <h2 className="text-3xl sm:text-5xl font-serif font-medium tracking-tight text-foreground leading-tight">
+                    <h2 className="text-3xl sm:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
                         {title.split(' ').map((word, i) => (
-                            <span key={i} className={cn(i % 2 === 1 ? "text-primary italic" : "")}>{word} </span>
+                            <span key={i} className={cn(i % 2 === 1 ? "text-primary not-italic" : "")}>{word} </span>
                         ))}
                     </h2>
                     <p className="text-sm font-medium text-muted-foreground/60 max-w-lg mx-auto leading-relaxed pt-2">

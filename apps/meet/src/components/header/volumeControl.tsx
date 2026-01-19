@@ -117,9 +117,9 @@ const VolumeControl = () => {
                 </p>
                 <div className="w-5 h-5 flex items-center justify-center">
                   {localRoomVolume > 0 ? (
-                    <i className="wajlc-speaker text-foreground" />
+                    <Volume2 className="w-4 h-4 text-foreground" />
                   ) : (
-                    <i className="wajlc-speaker-muted text-foreground" />
+                    <VolumeX className="w-4 h-4 text-foreground" />
                   )}
                 </div>
               </section>
@@ -140,9 +140,9 @@ const VolumeControl = () => {
                 </p>
                 <div className="w-5 h-5 flex items-center justify-center">
                   {localScreenShareVolume > 0 ? (
-                    <i className="wajlc-speaker text-foreground" />
+                    <Volume2 className="w-4 h-4 text-foreground" />
                   ) : (
-                    <i className="wajlc-speaker-muted text-foreground" />
+                    <VolumeX className="w-4 h-4 text-foreground" />
                   )}
                 </div>
               </section>

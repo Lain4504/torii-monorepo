@@ -52,6 +52,7 @@ RUN npx nest build agents
 RUN npx nest build gamification
 RUN npx nest build communication
 RUN npx nest build storage
+RUN npx nest build billing
 
 # --- Runner Stage ---
 FROM node:20-slim AS runner
