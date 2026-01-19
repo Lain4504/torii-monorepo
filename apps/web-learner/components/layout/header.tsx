@@ -62,9 +62,9 @@ export function Header() {
     }
 
     const navigation = [
-        { name: 'Khóa học', href: '/courses', icon: BookOpen },
-        { name: 'Lớp học trực tuyến', href: '/live-classes', icon: Users },
-        { name: 'Cộng đồng', href: '/post', icon: Newspaper },
+        { nameKey: 'learner.header.courses', href: '/courses', icon: BookOpen },
+        { nameKey: 'learner.header.liveClasses', href: '/live-classes', icon: Users },
+        { nameKey: 'learner.header.post', href: '/post', icon: Newspaper },
     ]
 
     return (
@@ -93,12 +93,12 @@ export function Header() {
                                 const Icon = item.icon
                                 return (
                                     <Link
-                                        key={item.name}
+                                        key={item.nameKey}
                                         href={item.href}
                                         className="px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/80 hover:text-primary hover:bg-background/80 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 flex items-center gap-2 group"
                                     >
                                         <Icon className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100 group-hover:text-primary transition-all" />
-                                        {item.name}
+                                        {t(item.nameKey)}
                                     </Link>
                                 )
                             })}
@@ -131,28 +131,28 @@ export function Header() {
                                     className="w-48 border-white/10 shadow-2xl bg-background/80 backdrop-blur-3xl p-3 rounded-[2rem] animate-in slide-in-from-top-2 duration-500"
                                 >
                                     <div className="px-4 py-3 mb-2 border-b border-white/5">
-                                        <p className="text-[9px] font-black uppercase tracking-[0.25em] text-muted-foreground/40 italic">Chủ đề hiển thị</p>
+                                        <p className="text-[9px] font-black uppercase tracking-[0.25em] text-muted-foreground/40 italic">{t('learner.header.theme.title')}</p>
                                     </div>
                                     <div className="space-y-1">
                                         <DropdownMenuItem
                                             onClick={() => setTheme("light")}
                                             className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest cursor-pointer focus:bg-primary/5 focus:text-primary transition-all flex items-center justify-between group/mode"
                                         >
-                                            <span>Light Emission</span>
+                                            <span>{t('learner.header.theme.light')}</span>
                                             <Sun className="size-3 opacity-20 group-hover/mode:opacity-100 transition-opacity" />
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
                                             onClick={() => setTheme("dark")}
                                             className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest cursor-pointer focus:bg-primary/5 focus:text-primary transition-all flex items-center justify-between group/mode"
                                         >
-                                            <span>Void Matrix</span>
+                                            <span>{t('learner.header.theme.dark')}</span>
                                             <Moon className="size-3 opacity-20 group-hover/mode:opacity-100 transition-opacity" />
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
                                             onClick={() => setTheme("system")}
                                             className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest cursor-pointer focus:bg-primary/5 focus:text-primary transition-all flex items-center justify-between group/mode"
                                         >
-                                            <span>System Logic</span>
+                                            <span>{t('learner.header.theme.system')}</span>
                                             <div className="size-1 rounded-full bg-border group-hover/mode:bg-primary transition-colors" />
                                         </DropdownMenuItem>
                                     </div>
@@ -177,7 +177,7 @@ export function Header() {
                                                 <span className="text-[10px] font-black uppercase tracking-widest text-foreground/80 group-hover:text-primary transition-colors">
                                                     {user?.displayName}
                                                 </span>
-                                                <span className="text-[8px] font-bold uppercase tracking-wider text-muted-foreground/40">Learner ID: {user?.id?.substring(0, 6)}</span>
+                                                <span className="text-[8px] font-bold uppercase tracking-wider text-muted-foreground/40">{t('learner.header.userMenu.learnerId')}: {user?.id?.substring(0, 6)}</span>
                                             </div>
                                             <ChevronDown className="w-3.5 h-3.5 text-muted-foreground/30 group-hover:text-primary transition-colors" />
                                         </div>
@@ -185,7 +185,7 @@ export function Header() {
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end" className="w-64 rounded-[2rem] p-2 border-white/10 shadow-2xl bg-background/90 backdrop-blur-3xl animate-in slide-in-from-top-4 duration-300">
                                     <DropdownMenuLabel className="px-5 py-4 border-b border-white/5">
-                                        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic mb-1">Access Terminal</p>
+                                        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic mb-1">{t('learner.header.userMenu.title')}</p>
                                         <p className="text-sm font-black text-foreground truncate">{user?.displayName}</p>
                                         <p className="text-[10px] font-medium text-muted-foreground truncate opacity-50">{user?.email}</p>
                                     </DropdownMenuLabel>
@@ -193,13 +193,13 @@ export function Header() {
                                         <Link href="/dashboard">
                                             <DropdownMenuItem className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary hover:bg-primary/5 transition-colors cursor-pointer group">
                                                 <LayoutDashboard className="w-4 h-4 mr-3 opacity-40 group-hover:opacity-100 transition-opacity" />
-                                                Main Dashboard
+                                                {t('learner.header.userMenu.dashboard')}
                                             </DropdownMenuItem>
                                         </Link>
                                         <Link href="/dashboard/settings">
                                             <DropdownMenuItem className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary hover:bg-primary/5 transition-colors cursor-pointer group">
                                                 <Settings className="w-4 h-4 mr-3 opacity-40 group-hover:opacity-100 transition-opacity" />
-                                                Configuration
+                                                {t('learner.header.userMenu.settings')}
                                             </DropdownMenuItem>
                                         </Link>
                                     </div>
@@ -211,7 +211,7 @@ export function Header() {
                                             className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-red-600 hover:bg-red-500/5 transition-colors cursor-pointer group"
                                         >
                                             <LogOut className="w-4 h-4 mr-3 opacity-40 group-hover:opacity-100 transition-opacity" />
-                                            {isLoggingOut ? 'Disconnecting...' : 'Terminate Session'}
+                                            {isLoggingOut ? t('learner.header.loggingOut') : t('learner.header.userMenu.logout')}
                                         </DropdownMenuItem>
                                     </div>
                                 </DropdownMenuContent>
@@ -265,14 +265,14 @@ export function Header() {
                     </nav>
 
                     <div className="flex items-center justify-between px-2 pt-4">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Visual Interface</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">{t('learner.header.mobile.interface')}</span>
                         <Button
                             variant="outline"
                             size="sm"
                             onClick={() => setTheme(useTheme().theme === 'dark' ? 'light' : 'dark')}
                             className="rounded-xl h-10 px-4 text-[10px] font-black uppercase tracking-widest border-white/10"
                         >
-                            Toggle Mode
+                            {t('learner.header.mobile.toggleMode')}
                         </Button>
                     </div>
 

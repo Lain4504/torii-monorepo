@@ -49,9 +49,21 @@ export const coursesApi = {
         return response.data.data!.course;
     },
 
+    // POST /api/courses/:id/submit-for-review
+    async submitForReview(id: string): Promise<CourseResponseDTO> {
+        const response = await apiClient.post<StandardApiResponse<{ course: CourseResponseDTO }>>(`/api/courses/${id}/submit-for-review`);
+        return response.data.data!.course;
+    },
+
     // POST /api/courses/:id/unpublish
     async unpublish(id: string): Promise<CourseResponseDTO> {
         const response = await apiClient.post<StandardApiResponse<{ course: CourseResponseDTO }>>(`/api/courses/${id}/unpublish`);
+        return response.data.data!.course;
+    },
+
+    // PATCH /api/courses/:id/live-config
+    async updateLiveConfig(id: string, config: any): Promise<CourseResponseDTO> {
+        const response = await apiClient.patch<StandardApiResponse<{ course: CourseResponseDTO }>>(`/api/courses/${id}/live-config`, config);
         return response.data.data!.course;
     },
 };
@@ -166,6 +178,35 @@ export function useUnpublishCourse() {
         onSuccess: (_, id) => {
             queryClient.invalidateQueries({ queryKey: ['courses', id] });
             queryClient.invalidateQueries({ queryKey: ['courses'] });
+        },
+    });
+}
+
+/**
+ * Hook: Submit course for review
+ */
+export function useSubmitCourseForReview() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (id: string) => coursesApi.submitForReview(id),
+        onSuccess: (_, id) => {
+            queryClient.invalidateQueries({ queryKey: ['courses', id] });
+            queryClient.invalidateQueries({ queryKey: ['courses'] });
+        },
+    });
+}
+
+/**
+ * Hook: Update livestream configuration
+ */
+export function useUpdateLiveConfig() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ id, config }: { id: string; config: any }) => coursesApi.updateLiveConfig(id, config),
+        onSuccess: (_, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['courses', variables.id] });
         },
     });
 }

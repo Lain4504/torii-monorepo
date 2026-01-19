@@ -74,6 +74,9 @@ permissions:
   - code: course.publish
     description: Publish/unpublish courses
     category: Course Management
+  - code: course.view_my
+    description: View own courses
+    category: Course Management
   - code: module.create
     description: Create course modules
     category: Course Management
@@ -202,6 +205,7 @@ default_role_permissions:
     - material.view
     - blog.manage
     - tag.manage
+    - course.view_restricted
     
   # Staff-Support: Customer support (inherits staff + adds more)
   staff-support:
@@ -232,8 +236,10 @@ default_role_permissions:
     - material.upload
     - material.view
     - schedule.view
+    - course.create
     - course.update
     - module.update
+    - course.view_my
     
   # Learner: No admin permissions
   learner: []

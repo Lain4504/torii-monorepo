@@ -67,6 +67,18 @@ export class CourseHandler {
         return this.courseService.publish(requester, id);
     }
 
+    @MessagePattern({ cmd: 'learning.course.submitForReview' })
+    async submitForReview(@Payload() data: { id: string, userId: string, userRole: string }) {
+        const { id, userId, userRole } = data;
+        const requester: Requester = { sub: userId, role: userRole as any };
+        return this.courseService.submitForReview(requester, id);
+    }
+
+    @MessagePattern({ cmd: 'learning.course.updateLiveConfig' })
+    async updateLiveConfig(@Payload() data: { id: string, config: any }) {
+        return this.courseService.updateLiveConfig(data.id, data.config);
+    }
+
     @MessagePattern({ cmd: 'learning.course.unpublish' })
     async unpublish(@Payload() data: { id: string, userId: string, userRole: string }) {
         const { id, userId, userRole } = data;

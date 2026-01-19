@@ -16,6 +16,7 @@ datasource db {
 
 enum CourseStatus {
   draft
+  pending_review
   published
 }
 

@@ -21,13 +21,15 @@ export type CoursesColumnsProps = {
     onModules: (course: CourseResponseDTO) => void;
     onManageInstructors: (course: CourseResponseDTO) => void;
     onPublish: (course: CourseResponseDTO) => void;
+    onSubmitForReview: (course: CourseResponseDTO) => void;
     onUnpublish: (course: CourseResponseDTO) => void;
     onTitleClick: (course: CourseResponseDTO) => void;
+    can: (permission: string) => boolean;
     page: number;
     limit: number;
 };
 
-export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstructors, onPublish, onUnpublish, onTitleClick, page, limit }: CoursesColumnsProps) => [
+export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstructors, onPublish, onSubmitForReview, onUnpublish, onTitleClick, can, page, limit }: CoursesColumnsProps) => [
     // STT Column
     columnHelper.display({
         id: 'stt',
@@ -110,6 +112,7 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
             const status = info.getValue() as string;
             const config = {
                 published: { label: 'Đã xuất bản', class: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' },
+                pending_review: { label: 'Chờ duyệt', class: 'bg-blue-500/10 text-blue-600 border-blue-500/20' },
                 draft: { label: 'Bản nháp', class: 'bg-amber-500/10 text-amber-600 border-amber-500/20' },
                 archived: { label: 'Đã lưu trữ', class: 'bg-slate-500/10 text-slate-600 border-slate-500/20' }
             };
@@ -200,33 +203,45 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
                                 <span>Chương trình học</span>
                             </DropdownMenuItem>
 
-                            <DropdownMenuItem
-                                onClick={() => onEdit(course)}
-                                className="rounded-lg px-3 py-2.5 text-xs font-medium focus:bg-primary/10 focus:text-primary cursor-pointer flex gap-2.5"
-                            >
-                                <Pencil className="h-4 w-4 opacity-50" />
-                                <span>Chỉnh sửa thông tin</span>
-                            </DropdownMenuItem>
+                            {can('course.update') && (
+                                <DropdownMenuItem
+                                    onClick={() => onEdit(course)}
+                                    className="rounded-lg px-3 py-2.5 text-xs font-medium focus:bg-primary/10 focus:text-primary cursor-pointer flex gap-2.5"
+                                >
+                                    <Pencil className="h-4 w-4 opacity-50" />
+                                    <span>Chỉnh sửa thông tin</span>
+                                </DropdownMenuItem>
+                            )}
 
-                            <DropdownMenuItem
-                                onClick={() => onManageInstructors(course)}
-                                className="rounded-lg px-3 py-2.5 text-xs font-medium focus:bg-primary/10 focus:text-primary cursor-pointer flex gap-2.5"
-                            >
-                                <Users className="h-4 w-4 opacity-50" />
-                                <span>Quản lý giảng viên</span>
-                            </DropdownMenuItem>
+                            {can('course.update') && (
+                                <DropdownMenuItem
+                                    onClick={() => onManageInstructors(course)}
+                                    className="rounded-lg px-3 py-2.5 text-xs font-medium focus:bg-primary/10 focus:text-primary cursor-pointer flex gap-2.5"
+                                >
+                                    <Users className="h-4 w-4 opacity-50" />
+                                    <span>Quản lý giảng viên</span>
+                                </DropdownMenuItem>
+                            )}
 
                             <DropdownMenuSeparator className="bg-border/40 m-1" />
 
-                            {course.status === 'draft' ? (
+                            {course.status === 'draft' && can('course.update') ? (
+                                <DropdownMenuItem
+                                    onClick={() => onSubmitForReview(course)}
+                                    className="rounded-lg px-3 py-2.5 text-xs font-medium text-blue-600 focus:text-blue-700 focus:bg-blue-500/10 cursor-pointer flex gap-2.5"
+                                >
+                                    <Layers className="h-4 w-4 opacity-60" />
+                                    <span>Gửi yêu cầu kiểm duyệt</span>
+                                </DropdownMenuItem>
+                            ) : (course.status as any) === 'pending_review' && can('course.publish') ? (
                                 <DropdownMenuItem
                                     onClick={() => onPublish(course)}
                                     className="rounded-lg px-3 py-2.5 text-xs font-medium text-emerald-600 focus:text-emerald-700 focus:bg-emerald-500/10 cursor-pointer flex gap-2.5"
                                 >
                                     <CheckCircle className="h-4 w-4 opacity-60" />
-                                    <span>Xuất bản khóa học</span>
+                                    <span>Phê duyệt & Xuất bản</span>
                                 </DropdownMenuItem>
-                            ) : course.status === 'published' ? (
+                            ) : course.status === 'published' && can('course.publish') ? (
                                 <DropdownMenuItem
                                     onClick={() => onUnpublish(course)}
                                     className="rounded-lg px-3 py-2.5 text-xs font-medium text-amber-600 focus:text-amber-700 focus:bg-amber-500/10 cursor-pointer flex gap-2.5"
@@ -236,15 +251,18 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
                                 </DropdownMenuItem>
                             ) : null}
 
-                            <DropdownMenuSeparator className="bg-border/40 m-1" />
-
-                            <DropdownMenuItem
-                                onClick={() => onDelete(course)}
-                                className="rounded-lg px-3 py-2.5 text-xs font-medium text-rose-600 focus:text-rose-700 focus:bg-rose-500/10 cursor-pointer flex gap-2.5"
-                            >
-                                <Trash className="h-4 w-4 opacity-50" />
-                                <span>Xóa khóa học</span>
-                            </DropdownMenuItem>
+                            {can('user.manage') && ( // Assuming course deletion is restricted to high-level users
+                                <>
+                                    <DropdownMenuSeparator className="bg-border/40 m-1" />
+                                    <DropdownMenuItem
+                                        onClick={() => onDelete(course)}
+                                        className="rounded-lg px-3 py-2.5 text-xs font-medium text-rose-600 focus:text-rose-700 focus:bg-rose-500/10 cursor-pointer flex gap-2.5"
+                                    >
+                                        <Trash className="h-4 w-4 opacity-50" />
+                                        <span>Xóa khóa học</span>
+                                    </DropdownMenuItem>
+                                </>
+                            )}
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>

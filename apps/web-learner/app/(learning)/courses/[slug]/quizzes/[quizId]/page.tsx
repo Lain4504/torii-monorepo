@@ -50,10 +50,10 @@ export default function TakeCourseQuizPage() {
                 <Card>
                     <CardContent className="p-12 text-center">
                         <p className="text-muted-foreground mb-4">
-                            Quiz component sẽ được tích hợp ở đây
+                            Nội dung bài kiểm tra sẽ được hiển thị tại đây
                         </p>
                         <p className="text-sm text-muted-foreground">
-                            Course: {slug} | Quiz: {quizId}
+                            Khóa học: {slug} | Bài kiểm tra: {quizId}
                         </p>
                     </CardContent>
                 </Card>

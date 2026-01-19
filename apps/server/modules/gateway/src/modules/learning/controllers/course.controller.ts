@@ -3,6 +3,7 @@ import {
     Get,
     Post,
     Put,
+    Patch,
     Delete,
     Body,
     Param,
@@ -39,7 +40,7 @@ export class CourseController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     @Post()
-    @Roles(UserRole.ADMIN, UserRole.LECTURER)
+    @Roles(UserRole.ADMIN, UserRole.LECTURER, UserRole.STAFF, UserRole.STAFF_LMS)
     @HttpCode(HttpStatus.CREATED)
     async createCourse(@Body() dto: any, @Req() req: RequestWithUser) {
         const user = req.user;
@@ -81,7 +82,14 @@ export class CourseController {
 
     @Get()
     @Public()
-    async getCourses(@Query() query: any) {
+    async getCourses(@Query() query: any, @Req() req: RequestWithUser) {
+        const user = req.user;
+
+        // If lecturer, only show their courses by default
+        if (user?.role === UserRole.LECTURER) {
+            query.instructorId = user.sub;
+        }
+
         const result = await firstValueFrom(
             this.natsClient.send({ cmd: 'learning.course.findAll' }, query)
         );
@@ -115,7 +123,7 @@ export class CourseController {
     }
 
     @Put(':id')
-    @Roles(UserRole.ADMIN, UserRole.LECTURER)
+    @Roles(UserRole.ADMIN, UserRole.LECTURER, UserRole.STAFF, UserRole.STAFF_LMS)
     async updateCourse(
         @Param('id') id: string,
         @Body() dto: any,
@@ -164,7 +172,7 @@ export class CourseController {
     }
 
     @Post(':id/unpublish')
-    @Roles(UserRole.ADMIN, UserRole.LECTURER)
+    @Roles(UserRole.ADMIN, UserRole.STAFF, UserRole.STAFF_LMS)
     async unpublishCourse(@Param('id') id: string, @Req() req: RequestWithUser) {
         const user = req.user;
         const result = await firstValueFrom(
@@ -176,8 +184,34 @@ export class CourseController {
         return successResponse({ course: result }, 'Course unpublished successfully');
     }
 
+    @Patch(':id/live-config')
+    @Roles(UserRole.ADMIN, UserRole.STAFF, UserRole.STAFF_LMS, UserRole.LECTURER)
+    async updateLiveConfig(@Param('id') id: string, @Body() config: any, @Req() req: RequestWithUser) {
+        // TODO: Ensure lecturer is assigned to this course before allowing update
+        const result = await firstValueFrom(
+            this.natsClient.send(
+                { cmd: 'learning.course.updateLiveConfig' },
+                { id, config }
+            )
+        );
+        return successResponse({ course: result }, 'Live configuration updated successfully');
+    }
+
+    @Post(':id/submit-for-review')
+    @Roles(UserRole.ADMIN, UserRole.STAFF, UserRole.STAFF_LMS, UserRole.LECTURER)
+    async submitForReview(@Param('id') id: string, @Req() req: RequestWithUser) {
+        const user = req.user;
+        const result = await firstValueFrom(
+            this.natsClient.send(
+                { cmd: 'learning.course.submitForReview' },
+                { id, userId: user.sub, userRole: user.role }
+            )
+        );
+        return successResponse({ course: result }, 'Course submitted for review successfully');
+    }
+
     @Post(':id/publish')
-    @Roles(UserRole.ADMIN, UserRole.LECTURER)
+    @Roles(UserRole.ADMIN, UserRole.STAFF, UserRole.STAFF_LMS)
     async publishCourse(@Param('id') id: string, @Req() req: RequestWithUser) {
         const user = req.user;
         const result = await firstValueFrom(

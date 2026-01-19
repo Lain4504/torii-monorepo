@@ -3,7 +3,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/core';
 import { generateSlug } from '@server/shared';
-import type { Course } from '@prisma/generated';
+import { Course, CourseStatus as PrismaCourseStatus, Prisma } from '@prisma/generated';
 import { validate as uuidValidate } from 'uuid';
 
 import { UserRole, CourseStatus } from '@workspace/schemas';
@@ -69,9 +69,9 @@ export class CourseService implements ICourseService {
     return `${baseSlug}-${dateStr}-${timestamp}`;
   }
 
-  async findAll(options: PaginationOptionsDTO & { status?: CourseStatus; jlptLevel?: string }): Promise<PaginatedResponseDTO<CourseResponseDTO>> {
+  async findAll(options: PaginationOptionsDTO & { status?: CourseStatus; jlptLevel?: string; instructorId?: string }): Promise<PaginatedResponseDTO<CourseResponseDTO>> {
     try {
-      const { page = 1, limit = 10, search, status, jlptLevel } = options;
+      const { page = 1, limit = 10, search, status, jlptLevel, instructorId } = options;
       // Ensure page and limit are numbers for Prisma
       const pageNum = typeof page === 'string' ? parseInt(page, 10) : page;
       const limitNum = typeof limit === 'string' ? parseInt(limit, 10) : limit;
@@ -84,15 +84,26 @@ export class CourseService implements ICourseService {
       // Filter by status column
       if (status) {
         if (status === CourseStatus.PUBLISHED) {
-          where.status = 'published';
+          where.status = PrismaCourseStatus.published;
+        } else if (status === CourseStatus.PENDING_REVIEW) {
+          where.status = PrismaCourseStatus.pending_review;
         } else if (status === CourseStatus.DRAFT) {
-          where.status = 'draft';
+          where.status = PrismaCourseStatus.draft;
         }
       }
 
       // Filter by JLPT level
       if (jlptLevel) {
         where.jlptLevel = jlptLevel;
+      }
+
+      // Filter by Instructor
+      if (instructorId) {
+        where.instructors = {
+          some: {
+            lecturerId: instructorId,
+          },
+        };
       }
 
       if (search) {
@@ -288,9 +299,9 @@ export class CourseService implements ICourseService {
    * Create a new course
    */
   async create(requester: Requester, dto: CourseCreateDTO): Promise<CourseResponseDTO> {
-    // Check permissions (only ADMIN and LECTURER can create courses)
-    if (![UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
-      throw new ForbiddenException('Only admins and lecturers can create courses');
+    // Check permissions (only ADMIN, STAFF and LECTURER can create courses)
+    if (![UserRole.ADMIN, UserRole.LECTURER, UserRole.STAFF, UserRole.STAFF_LMS].includes(requester.role as UserRole)) {
+      throw new ForbiddenException('Only admins, staff and lecturers can create courses');
     }
 
     try {
@@ -333,8 +344,8 @@ export class CourseService implements ICourseService {
    */
   async update(requester: Requester, courseId: string, dto: CourseUpdateDTO): Promise<CourseResponseDTO> {
     // Check permissions
-    if (![UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
-      throw new ForbiddenException('Only admins and lecturers can update courses');
+    if (![UserRole.ADMIN, UserRole.LECTURER, UserRole.STAFF, UserRole.STAFF_LMS].includes(requester.role as UserRole)) {
+      throw new ForbiddenException('Only admins, staff and lecturers can update courses');
     }
 
     const existing = await this.courseRepository.findById(courseId);
@@ -458,11 +469,49 @@ export class CourseService implements ICourseService {
   }
 
   /**
+   * Submit a course for review
+   */
+  async submitForReview(requester: Requester, courseId: string): Promise<CourseResponseDTO> {
+    if (![UserRole.ADMIN, UserRole.STAFF, UserRole.STAFF_LMS, UserRole.LECTURER].includes(requester.role as UserRole)) {
+      throw new ForbiddenException('Only admins, staff and lecturers can submit courses for review');
+    }
+
+    const existing = await this.courseRepository.findById(courseId);
+    if (!existing || existing.deletedAt) {
+      throw new NotFoundException(`Course with id ${courseId} not found`);
+    }
+
+    if (existing.status === 'published') {
+      throw new BadRequestException('Course is already published');
+    }
+
+    const course = await this.courseRepository.update(courseId, { status: PrismaCourseStatus.pending_review });
+    return this.toCourseResponseDTO(course);
+  }
+
+  /**
+   * Update livestream configuration
+   */
+  async updateLiveConfig(courseId: string, config: any): Promise<CourseResponseDTO> {
+    const existing = await this.courseRepository.findById(courseId);
+    if (!existing || existing.deletedAt) {
+      throw new NotFoundException(`Course with id ${courseId} not found`);
+    }
+
+    if (existing.type !== 'live') {
+      throw new BadRequestException('Only live courses can have livestream configuration');
+    }
+
+    const course = await this.courseRepository.update(courseId, { liveConfig: config });
+    return this.toCourseResponseDTO(course);
+  }
+
+  /**
    * Publish a course (set approvedBy and approvedAt)
    */
   async publish(requester: Requester, courseId: string): Promise<CourseResponseDTO> {
-    if (![UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
-      throw new ForbiddenException('Only admins and lecturers can publish courses');
+    if (![UserRole.ADMIN, UserRole.STAFF, UserRole.STAFF_LMS].includes(requester.role as UserRole)) {
+      throw new ForbiddenException('Only admins and staff can publish courses');
     }
 
     const existing = await this.courseRepository.findById(courseId);
@@ -500,8 +549,8 @@ export class CourseService implements ICourseService {
    * Unpublish a course (clear approvedBy and approvedAt)
    */
   async unpublish(requester: Requester, courseId: string): Promise<CourseResponseDTO> {
-    if (![UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
-      throw new ForbiddenException('Only admins and lecturers can unpublish courses');
+    if (![UserRole.ADMIN, UserRole.STAFF, UserRole.STAFF_LMS].includes(requester.role as UserRole)) {
+      throw new ForbiddenException('Only admins and staff can unpublish courses');
     }
 
     const existing = await this.courseRepository.findById(courseId);

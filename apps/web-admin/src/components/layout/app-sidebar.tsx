@@ -45,7 +45,7 @@ const WORKSPACES: Workspace[] = [
         name: "Operations",
         logo: LayoutGrid,
         plan: "Enterprise Ops",
-        roles: [UserRole.LECTURER],
+        roles: [UserRole.LECTURER, UserRole.STAFF_LMS, UserRole.STAFF_SUPPORT, UserRole.STAFF_SALES, UserRole.STAFF],
         navItems: [
             { labelKey: "common:sidebar.management", items: managementNavItems }
         ]
@@ -55,7 +55,7 @@ const WORKSPACES: Workspace[] = [
         name: "Security",
         logo: Command,
         plan: "System Config",
-        roles: [],
+        roles: [UserRole.ADMIN, UserRole.STAFF_LMS],
         navItems: [
             { labelKey: "common:sidebar.system", items: systemNavItems }
         ]

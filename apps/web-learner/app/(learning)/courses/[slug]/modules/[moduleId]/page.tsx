@@ -55,7 +55,7 @@ export default function ModulePage() {
     if (!course || !module) {
         return (
             <div className="flex items-center justify-center h-screen">
-                <p className="text-muted-foreground">Không tìm thấy module</p>
+                <p className="text-muted-foreground">Không tìm thấy học phần</p>
             </div>
         )
     }
@@ -139,7 +139,7 @@ export default function ModulePage() {
                                 ))
                             ) : (
                                 <p className="text-muted-foreground text-center py-8">
-                                    Chưa có bài học nào trong module này
+                                    Chưa có bài học nào trong học phần này
                                 </p>
                             )}
                         </div>

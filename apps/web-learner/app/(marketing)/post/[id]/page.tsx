@@ -75,7 +75,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                 <p className="text-muted-foreground">Có vẻ như bài viết đã bị gỡ bỏ hoặc link không chính xác.</p>
                 <Link href="/post">
                     <Button className="rounded-full px-8 h-12 font-bold shadow-lg shadow-primary/20">
-                        Quay lại trang Posts
+                        Quay lại chuyên mục bài viết
                     </Button>
                 </Link>
             </div>

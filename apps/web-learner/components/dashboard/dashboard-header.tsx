@@ -89,10 +89,10 @@ export function DashboardHeader() {
                                     </Avatar>
                                     <div className="hidden lg:block text-left mr-1">
                                         <p className="text-[10px] font-bold text-foreground leading-none truncate max-w-[100px] uppercase tracking-wider">
-                                            {user?.displayName || 'User'}
+                                            {user?.displayName || 'Người dùng'}
                                         </p>
                                         <p className="text-[9px] text-muted-foreground font-medium mt-1 uppercase tracking-tighter opacity-60">
-                                            {user?.role || 'Học viên'}
+                                            {user?.role?.toUpperCase() === 'LEARNER' ? 'Học viên' : user?.role || 'Học viên'}
                                         </p>
                                     </div>
                                 </div>
