@@ -445,7 +445,7 @@ export class ExamService implements IExamService {
                 : 0;
             const isPassed = quiz?.passingScore
                 ? percentage >= Number(quiz.passingScore)
-                : null;
+                : percentage >= 60; // Default to 60% if not set
 
             // Update attempt with grading results
             const updated = await this.examRepository.updateAttempt(sessionId, {

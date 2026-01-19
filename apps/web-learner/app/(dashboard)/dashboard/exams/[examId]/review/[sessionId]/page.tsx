@@ -45,7 +45,7 @@ export default function ExamReviewPage() {
     }
 
     const percentage = reviewData.percentage !== undefined ? Math.round(reviewData.percentage) : null
-    const isPassed = reviewData.isPassed !== undefined ? reviewData.isPassed : (percentage !== null && percentage >= 60)
+    const isPassed = (reviewData.isPassed !== undefined && reviewData.isPassed !== null) ? reviewData.isPassed : (percentage !== null && percentage >= 60)
     const details = reviewData.details || []
 
     return (
@@ -175,15 +175,14 @@ export default function ExamReviewPage() {
                                                     {Object.entries(detail.options).map(([key, value]: [string, any]) => (
                                                         <div
                                                             key={key}
-                                                            className={`p-2 rounded-lg text-sm ${
-                                                                detail.userAnswer === key
+                                                            className={`p-2 rounded-lg text-sm ${detail.userAnswer === key
                                                                     ? detail.isCorrect
                                                                         ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-500'
                                                                         : 'bg-destructive/10 border border-destructive/20 text-destructive'
                                                                     : detail.correctAnswer === key && !detail.isCorrect
                                                                         ? 'bg-blue-500/10 border border-blue-500/20 text-blue-500'
                                                                         : 'bg-white/5 border border-white/5 text-muted-foreground'
-                                                            }`}
+                                                                }`}
                                                         >
                                                             <span className="font-bold mr-2">{key}:</span>
                                                             {value}
