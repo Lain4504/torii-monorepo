@@ -44,15 +44,15 @@ export function DeleteUserDialog({
 
     return (
         <AlertDialog open={open} onOpenChange={onOpenChange}>
-            <AlertDialogContent className="z-50 w-full max-w-md gap-0 overflow-hidden rounded-3xl border border-border/50 bg-background p-0 shadow-2xl">
+            <AlertDialogContent className="z-50 w-full max-w-md gap-0 rounded-3xl border border-border/50 bg-background p-0 shadow-2xl">
                 <div className="absolute inset-0 bg-rose-500/5 blur-3xl opacity-20 pointer-events-none" />
 
                 <AlertDialogHeader className="relative px-8 pt-10 pb-6 text-center">
                     <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-lg bg-rose-500/10 text-rose-500 ring-8 ring-rose-500/5">
                         <AlertTriangle className="h-8 w-8 animate-pulse" />
                     </div>
-                    <AlertDialogTitle className="text-2xl font-medium tracking-tight text-foreground">
-                        Delete <span className="text-rose-500 italic">Account</span>
+                    <AlertDialogTitle className="text-2xl font-serif font-bold italic uppercase tracking-tight text-foreground">
+                        Delete <span className="text-rose-500">Account</span>
                     </AlertDialogTitle>
                     <AlertDialogDescription className="text-sm text-muted-foreground/80 font-medium leading-relaxed max-w-[280px] mx-auto">
                         This action will permanently remove this user and all associated data.

@@ -75,7 +75,7 @@ export function VerificationContent() {
                 <Spinner className="h-14 w-14 text-primary" />
                 <div className="space-y-2">
                     <h3 className="text-xl font-black uppercase tracking-tight italic">Đang <span className="text-primary not-italic">Xác thực...</span></h3>
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/30 italic">Establishing security tunnel</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/30 italic">Đang thiết lập kết nối bảo mật</p>
                 </div>
             </div>
         );
@@ -103,7 +103,7 @@ export function VerificationContent() {
                     <div className="pt-6 border-t border-border/20 flex flex-col items-center gap-4">
                         <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.4em] text-muted-foreground/40">
                             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                            Redirecting to HQ in 3s
+                            Chuyển hướng sau 3 giây
                         </div>
                     </div>
                 </div>

@@ -30,7 +30,7 @@ export default function LoginPage() {
                         </div>
                         <div className="flex flex-col">
                             <span className="text-lg font-bold tracking-tight leading-none text-foreground">Torii <span className="text-primary">Nihongo</span></span>
-                            <span className="text-[10px] font-medium tracking-widest text-muted-foreground/60 mt-0.5">Japanese Learning Platform</span>
+                            <span className="text-[10px] font-medium tracking-widest text-muted-foreground/60 mt-0.5">Nền tảng học tiếng Nhật</span>
                         </div>
                     </Link>
 
@@ -39,9 +39,9 @@ export default function LoginPage() {
                         <div className="space-y-6 mb-16 animate-in fade-in slide-in-from-left-8 duration-700">
                             <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium tracking-wide">
                                 <Sparkles className="w-3.5 h-3.5" />
-                                <span>Sensei Approved</span>
+                                <span>Giáo viên tin dùng</span>
                             </div>
-                            <h2 className="text-4xl lg:text-5xl font-serif font-bold tracking-tight text-foreground leading-[0.9] uppercase italic">
+                            <h2 className="text-4xl lg:text-4xl font-serif font-bold tracking-tight text-foreground leading-[0.9] uppercase italic">
                                 Học tiếng Nhật <br />
                                 <span className="text-primary not-italic">Thông minh hơn.</span>
                             </h2>
@@ -53,9 +53,9 @@ export default function LoginPage() {
                         {/* Feature Cards Grid */}
                         <div className="grid gap-4 animate-in fade-in slide-in-from-left-12 duration-1000">
                             {[
-                                { icon: Video, title: 'WebRTC Live', desc: 'Tương tác thời gian thực' },
-                                { icon: Brain, title: 'AI Sensei', desc: 'Trợ lý học tập 24/7' },
-                                { icon: GraduationCap, title: 'JLPT Mastery', desc: 'Lộ trình chuẩn quốc tế' }
+                                { icon: Video, title: 'Lớp học trực tuyến', desc: 'Tương tác thời gian thực' },
+                                { icon: Brain, title: 'AI Sensei trợ lực', desc: 'Trợ lý học tập 24/7' },
+                                { icon: GraduationCap, title: 'Lộ trình cá nhân', desc: 'Chinh phục JLPT N5 - N1' }
                             ].map((f, i) => (
                                 <div key={i} className="group flex items-center gap-4 p-4 rounded-2xl bg-background/60 border border-border/40 hover:border-primary/20 hover:bg-background transition-all">
                                     <div className="w-10 h-10 rounded-xl bg-primary/5 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
@@ -73,7 +73,7 @@ export default function LoginPage() {
                     {/* Footer Shield */}
                     <div className="mt-auto flex items-center gap-3 text-muted-foreground/30">
                         <ShieldCheck className="w-4 h-4" />
-                        <span className="text-[9px] font-black uppercase tracking-[0.3em]">AES-256 Cloud Security Verified</span>
+                        <span className="text-[9px] font-black uppercase tracking-[0.3em]">Bảo mật AES-256 cloud</span>
                     </div>
                 </div>
 

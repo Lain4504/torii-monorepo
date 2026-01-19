@@ -213,7 +213,7 @@ export default function LessonDetailPage() {
                                             <FileText className="w-6 h-6" />
                                         </div>
                                         <div className="space-y-1">
-                                            <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50">Reading Lesson</span>
+                                            <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50">Bài học lý thuyết</span>
                                             <h2 className="text-3xl font-serif font-bold italic tracking-tight">{currentLesson.title}</h2>
                                         </div>
                                     </div>

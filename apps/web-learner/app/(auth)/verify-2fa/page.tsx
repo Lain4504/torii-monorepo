@@ -137,7 +137,7 @@ export default function TwoFactorVerifyPage() {
                     {/* Center Content */}
                     <div className="relative z-20 flex-1 flex flex-col justify-center max-w-md">
                         <div className="space-y-6 mb-16 animate-in fade-in slide-in-from-left-8 duration-700">
-                            <h2 className="text-4xl lg:text-5xl font-serif font-bold tracking-tight text-foreground leading-[0.9] uppercase italic">
+                            <h2 className="text-4xl lg:text-4xl font-serif font-bold tracking-tight text-foreground leading-[0.9] uppercase italic">
                                 Bảo mật <br />
                                 <span className="text-primary not-italic">Hai lớp</span>
                             </h2>
@@ -192,7 +192,7 @@ export default function TwoFactorVerifyPage() {
                                                     id={field.name}
                                                     placeholder={useBackupCode ? "XXXXXXXX" : "000000"}
                                                     maxLength={useBackupCode ? 8 : 6}
-                                                    className="h-14 pl-11 text-center text-2xl font-mono tracking-widest rounded-xl border-border/20 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all placeholder:text-muted-foreground/30"
+                                                    className="h-14 pl-11 text-center text-2xl font-mono tracking-[0.3em] rounded-2xl border-border/40 bg-muted/20 hover:bg-muted/30 focus:border-primary/40 transition-all placeholder:text-muted-foreground/20 shadow-sm"
                                                     autoComplete="off"
                                                     autoFocus
                                                 />

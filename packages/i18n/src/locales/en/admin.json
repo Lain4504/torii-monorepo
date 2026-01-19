@@ -16,8 +16,9 @@
         "dashboard": "Dashboard"
     },
     "permissions": {
-        "title": "Permissions",
-        "description": "Manage role-based access control and system permissions.",
+        "title": "Access Control Matrix",
+        "description": "Manage system-wide permissions across all organizational roles.",
+        "roleHeader": "Roles / Permissions",
         "currentRole": "Current Role",
         "identifyRole": "Identify Role",
         "searchLabel": "Search Permissions",
@@ -26,10 +27,11 @@
         "selectAll": "Select All",
         "noPermissions": "No permissions found",
         "adjustQuery": "Adjust your search query to find specific permission nodes.",
-        "unsavedChanges": "Unsaved Changes",
+        "unsavedChanges": "Unsaved Matrix Changes",
         "synced": "Configuration Synced",
-        "reset": "Reset",
+        "reset": "Revert",
         "saveChanges": "Save Changes",
+        "commitMatrix": "Apply Changes",
         "commitProtocol": "Commit Protocol"
     },
     "reviews": {

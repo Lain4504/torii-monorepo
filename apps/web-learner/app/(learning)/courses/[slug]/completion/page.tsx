@@ -88,7 +88,7 @@ export default function CourseCompletionPage() {
                                 Chứng chỉ chính thức
                             </Badge>
                         </div>
-                        <h1 className="text-4xl md:text-5xl font-black text-foreground tracking-tighter leading-none">
+                        <h1 className="text-4xl md:text-4xl font-black text-foreground tracking-tighter leading-none">
                             XIN CHÚC MỪNG!
                         </h1>
                         <p className="text-lg text-muted-foreground font-medium opacity-80 max-w-md mx-auto">

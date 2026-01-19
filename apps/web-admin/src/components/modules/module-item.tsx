@@ -56,13 +56,13 @@ const LessonRow = ({
                             {lesson.title}
                         </span>
                         {lesson.isPreview && (
-                            <Badge variant="outline" className="text-[10px] h-4 px-1.5 font-medium border-green-500/30 text-green-600 bg-green-500/5">
-                                Preview
+                            <Badge variant="outline" className="text-[10px] h-4 px-1.5 font-bold border-green-500/30 text-green-600 bg-green-500/5 uppercase tracking-wide">
+                                Xem thử
                             </Badge>
                         )}
                         {lesson.isUnlocked && (
-                            <Badge variant="outline" className="text-[10px] h-4 px-1.5 font-medium border-blue-500/30 text-blue-600 bg-blue-500/5">
-                                Open
+                            <Badge variant="outline" className="text-[10px] h-4 px-1.5 font-bold border-blue-500/30 text-blue-600 bg-blue-500/5 uppercase tracking-wide">
+                                Mở khóa
                             </Badge>
                         )}
                     </div>
@@ -70,7 +70,7 @@ const LessonRow = ({
             </div>
             <div className="flex items-center gap-1 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                 <div className="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-md bg-muted/20 border border-border/20 mr-2">
-                    <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">
                         {lesson.contentType}
                     </span>
                 </div>
@@ -82,7 +82,7 @@ const LessonRow = ({
                         e.stopPropagation();
                         onEdit(lesson);
                     }}
-                    title="Edit Lesson"
+                    title="Chỉnh sửa bài học"
                 >
                     <Pencil className="h-3.5 w-3.5" />
                 </Button>
@@ -94,7 +94,7 @@ const LessonRow = ({
                         e.stopPropagation();
                         onDelete(lesson);
                     }}
-                    title="Delete Lesson"
+                    title="Xóa bài học"
                 >
                     <Trash className="h-3.5 w-3.5" />
                 </Button>
@@ -141,27 +141,27 @@ export function ModuleItem({
                                 <Layers className="size-4" />
                             </div>
                             <div className="flex flex-col items-start gap-1 flex-1 min-w-0 text-left">
-                                <span className="font-semibold text-sm text-foreground leading-tight truncate w-full group-hover/module:text-primary transition-colors duration-300">
+                                <span className="font-serif font-bold italic text-sm text-foreground leading-tight truncate w-full group-hover/module:text-primary transition-colors duration-300">
                                     {module.title}
                                 </span>
                                 <div className="flex flex-wrap items-center gap-3">
                                     <div className="flex items-center gap-1.5 ">
-                                        <span className="text-[10px] font-medium text-muted-foreground">
-                                            Idx: 0{module.orderIndex}
+                                        <span className="text-[10px] font-serif font-bold italic text-muted-foreground uppercase tracking-wider">
+                                            STT: 0{module.orderIndex}
                                         </span>
                                     </div>
                                     <div className="w-px h-3 bg-border/40" />
                                     <div className="flex items-center gap-1.5">
-                                        <span className="text-[10px] font-medium text-muted-foreground">
-                                            {lessons.length} Lessons
+                                        <span className="text-[10px] font-serif font-bold italic text-muted-foreground uppercase tracking-wider">
+                                            {lessons.length} Bài học
                                         </span>
                                     </div>
                                     {module.durationMinutes != null && module.durationMinutes > 0 && (
                                         <>
                                             <div className="w-px h-3 bg-border/40" />
                                             <div className="flex items-center gap-1.5">
-                                                <span className="text-[10px] font-medium text-muted-foreground">
-                                                    {module.durationMinutes}m
+                                                <span className="text-[10px] font-serif font-bold italic text-muted-foreground uppercase tracking-wider">
+                                                    {module.durationMinutes} phút
                                                 </span>
                                             </div>
                                         </>
@@ -178,38 +178,38 @@ export function ModuleItem({
                     <Button
                         variant="outline"
                         size="sm"
-                        className="h-8 gap-2 text-xs font-medium hidden sm:inline-flex border-border/40 hover:border-primary/50 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all duration-300 rounded-lg"
+                        className="h-9 gap-2 text-xs font-bold uppercase tracking-wider hidden sm:inline-flex border-border/40 hover:border-primary/50 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all duration-300 rounded-xl"
                         onClick={(e) => {
                             e.stopPropagation();
                             onAddLesson(module.id);
                         }}
                     >
                         <Plus className="h-3.5 w-3.5" />
-                        Add Lesson
+                        Thêm bài học
                     </Button>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8 hover:bg-muted/50 text-muted-foreground hover:text-foreground cursor-pointer rounded-lg transition-colors duration-300"
+                                className="h-9 w-9 hover:bg-muted/50 text-muted-foreground hover:text-foreground cursor-pointer rounded-xl transition-colors duration-300"
                                 onClick={(e) => e.stopPropagation()}
                             >
                                 <MoreVertical className="h-4 w-4" />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-56 rounded-xl shadow-lg border border-border/20 bg-background/95 backdrop-blur-md p-1">
+                        <DropdownMenuContent align="end" className="w-56 rounded-xl shadow-lg border border-border/20 bg-background/95 backdrop-blur-md p-1.5">
                             <DropdownMenuItem onClick={() => onAddLesson(module.id)} className="sm:hidden cursor-pointer rounded-lg text-xs font-medium py-2.5">
-                                <Plus className="mr-2 h-4 w-4 opacity-70" /> Add Lesson
+                                <Plus className="mr-2 h-4 w-4 opacity-70" /> Thêm bài học
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => onEditModule(module)} className="cursor-pointer rounded-lg text-xs font-medium py-2.5">
-                                <Pencil className="mr-2 h-4 w-4 opacity-70" /> Edit Module
+                                <Pencil className="mr-2 h-4 w-4 opacity-70" /> Chỉnh sửa học phần
                             </DropdownMenuItem>
                             <DropdownMenuItem
                                 onClick={() => onDeleteModule(module)}
                                 className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer rounded-lg text-xs font-medium py-2.5"
                             >
-                                <Trash className="mr-2 h-4 w-4 opacity-70" /> Delete Module
+                                <Trash className="mr-2 h-4 w-4 opacity-70" /> Xóa học phần
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
@@ -224,7 +224,7 @@ export function ModuleItem({
                             <div className="py-8 text-center flex justify-center">
                                 <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-muted/20 border border-border/20">
                                     <div className="h-4 w-4 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
-                                    <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Fetching Data...</span>
+                                    <span className="text-[10px] font-serif font-bold italic uppercase tracking-widest text-muted-foreground">Đang tải dữ liệu...</span>
                                 </div>
                             </div>
                         ) : lessons.length === 0 ? (
@@ -233,18 +233,18 @@ export function ModuleItem({
                                     <Sparkles className="size-5 text-muted-foreground/40" />
                                 </div>
                                 <div className="space-y-1">
-                                    <p className="text-sm font-medium text-foreground">No lessons found</p>
+                                    <p className="text-sm font-medium text-foreground">Chưa có bài học nào</p>
                                     <p className="text-xs text-muted-foreground max-w-[200px] mx-auto leading-relaxed">
-                                        This module is currently empty.
+                                        Học phần này hiện đang trống.
                                     </p>
                                 </div>
                                 <Button
                                     variant="outline"
                                     onClick={() => onAddLesson(module.id)}
-                                    className="gap-2 cursor-pointer rounded-lg mt-1 text-xs font-medium hover:text-primary transition-all duration-300 h-9 px-4"
+                                    className="gap-2 cursor-pointer rounded-xl mt-2 text-xs font-bold uppercase tracking-wider hover:text-primary transition-all duration-300 h-9 px-4"
                                 >
                                     <Plus className="h-3.5 w-3.5" />
-                                    Add First Lesson
+                                    Thêm bài học đầu tiên
                                 </Button>
                             </div>
                         ) : (

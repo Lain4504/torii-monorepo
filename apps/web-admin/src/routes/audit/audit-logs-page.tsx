@@ -19,7 +19,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@workspace/ui/components/dialog';
-import { Eye, ShieldCheck, Activity, Terminal, Calendar, Search, Sparkles, Fingerprint, Zap, ShieldAlert, Clock, Layers } from 'lucide-react';
+import { Eye, ShieldCheck, Activity, Terminal, Calendar, Search, Fingerprint, Zap, ShieldAlert, Clock } from 'lucide-react';
 import { type AuditLog, useAuditLogs } from "@/api/services/audit-logs.ts";
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
@@ -33,7 +33,6 @@ import {
     PaginationPrevious,
 } from "@workspace/ui/components/pagination";
 import { cn } from '@workspace/ui/lib/utils';
-import { Card } from '@workspace/ui/components/card';
 
 function AuditLogDetailsDialog({ log }: { log: AuditLog }) {
     return (
@@ -52,10 +51,10 @@ function AuditLogDetailsDialog({ log }: { log: AuditLog }) {
                         </div>
                         <div className="space-y-1">
                             <DialogTitle className="text-xl font-bold tracking-tight">
-                                Log Entry Details
+                                Chi tiết Nhật ký
                             </DialogTitle>
                             <DialogDescription className="text-xs font-medium text-muted-foreground/60">
-                                Timestamp: {format(new Date(log.createdAt), 'yyyy-MM-dd HH:mm:ss.SSS')}
+                                Thời gian: {format(new Date(log.createdAt), 'yyyy-MM-dd HH:mm:ss.SSS')}
                             </DialogDescription>
                         </div>
                     </div>
@@ -65,11 +64,11 @@ function AuditLogDetailsDialog({ log }: { log: AuditLog }) {
                     {/* Summary */}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                         <div className="space-y-1">
-                            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/40">User</p>
+                            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/40">Người dùng</p>
                             <p className="text-sm font-medium text-foreground truncate">{log.userEmail}</p>
                         </div>
                         <div className="space-y-1">
-                            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/40">Role</p>
+                            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/40">Vai trò</p>
                             <div className="pt-1">
                                 <Badge variant="outline" className="text-[10px] font-medium bg-primary/5 border-primary/20 text-primary rounded-full px-2.5">
                                     {log.userRole}
@@ -77,13 +76,13 @@ function AuditLogDetailsDialog({ log }: { log: AuditLog }) {
                             </div>
                         </div>
                         <div className="space-y-1">
-                            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/40">Action</p>
+                            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/40">Hành động</p>
                             <div className="pt-1">
                                 <Badge variant="secondary" className="text-[10px] font-medium bg-muted/30 border-none rounded-md px-2.5">{log.action}</Badge>
                             </div>
                         </div>
                         <div className="space-y-1">
-                            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/40">Entity</p>
+                            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/40">Đối tượng</p>
                             <p className="text-sm font-medium text-foreground truncate font-mono">{log.entity}</p>
                         </div>
                     </div>
@@ -92,7 +91,7 @@ function AuditLogDetailsDialog({ log }: { log: AuditLog }) {
                     <div className="space-y-3">
                         <div className="flex items-center gap-2">
                             <Activity className="size-3.5 text-primary opacity-50" />
-                            <h4 className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Action Details</h4>
+                            <h4 className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Chi tiết Hành động</h4>
                         </div>
                         <div className="p-5 rounded-xl bg-muted/10 border border-border/10 leading-relaxed text-sm font-medium text-foreground/80">
                             {log.description}
@@ -104,7 +103,7 @@ function AuditLogDetailsDialog({ log }: { log: AuditLog }) {
                         <div className="space-y-3">
                             <div className="flex items-center gap-2">
                                 <Terminal className="size-3.5 text-primary opacity-50" />
-                                <h4 className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Metadata</h4>
+                                <h4 className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Siêu dữ liệu</h4>
                             </div>
                             <pre className="text-xs bg-muted/20 p-6 rounded-xl overflow-x-auto border border-border/10 font-mono text-muted-foreground/80 leading-relaxed custom-scrollbar">
                                 {JSON.stringify(log.metadata, null, 2)}
@@ -117,7 +116,7 @@ function AuditLogDetailsDialog({ log }: { log: AuditLog }) {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             {log.oldValues && (
                                 <div className="space-y-3">
-                                    <h4 className="text-[10px] font-medium uppercase tracking-wider text-rose-500/70 ml-1">Previous State</h4>
+                                    <h4 className="text-[10px] font-medium uppercase tracking-wider text-rose-500/70 ml-1">Trạng thái trước</h4>
                                     <pre className="text-xs bg-rose-500/[0.02] p-5 rounded-xl overflow-x-auto max-h-80 border border-rose-500/10 font-mono text-rose-500/70 leading-relaxed custom-scrollbar">
                                         {JSON.stringify(log.oldValues, null, 2)}
                                     </pre>
@@ -125,7 +124,7 @@ function AuditLogDetailsDialog({ log }: { log: AuditLog }) {
                             )}
                             {log.newValues && (
                                 <div className="space-y-3">
-                                    <h4 className="text-[10px] font-medium uppercase tracking-wider text-emerald-500/70 ml-1">New State</h4>
+                                    <h4 className="text-[10px] font-medium uppercase tracking-wider text-emerald-500/70 ml-1">Trạng thái mới</h4>
                                     <pre className="text-xs bg-emerald-500/[0.02] p-5 rounded-xl overflow-x-auto max-h-80 border border-emerald-500/10 font-mono text-emerald-500/70 leading-relaxed custom-scrollbar">
                                         {JSON.stringify(log.newValues, null, 2)}
                                     </pre>
@@ -138,7 +137,7 @@ function AuditLogDetailsDialog({ log }: { log: AuditLog }) {
                     <div className="pt-8 border-t border-border/10 grid grid-cols-1 md:grid-cols-2 gap-8">
                         {log.ipAddress && (
                             <div className="space-y-1">
-                                <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/40">IP Address</p>
+                                <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/40">Địa chỉ IP</p>
                                 <p className="text-xs font-medium text-foreground/70 font-mono">{log.ipAddress}</p>
                             </div>
                         )}
@@ -198,14 +197,17 @@ export function AuditLogsPage() {
             items.push(
                 <PaginationItem key={1}>
                     <PaginationLink
-                        onClick={() => setPage(1)}
-                        className="rounded-lg h-10 w-10 text-xs font-medium hover:bg-primary/10 transition-all cursor-pointer"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            setPage(1);
+                        }}
+                        className="rounded-md border border-border h-9 w-9 text-xs font-semibold hover:bg-primary hover:text-primary-foreground transition-all"
                     >
                         1
                     </PaginationLink>
                 </PaginationItem>
             );
-            if (startPage > 2) items.push(<PaginationEllipsis key="start-ellipsis" className="opacity-20" />);
+            if (startPage > 2) items.push(<PaginationEllipsis key="start-ellipsis" className="opacity-50" />);
         }
 
         for (let i = startPage; i <= endPage; i++) {
@@ -213,10 +215,15 @@ export function AuditLogsPage() {
                 <PaginationItem key={i}>
                     <PaginationLink
                         isActive={page === i}
-                        onClick={() => setPage(i)}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            setPage(i);
+                        }}
                         className={cn(
-                            "rounded-lg h-10 w-10 text-xs font-medium transition-all cursor-pointer",
-                            page === i ? "bg-primary text-white shadow-lg shadow-primary/20" : "hover:bg-primary/10 text-muted-foreground/60 hover:text-primary"
+                            "rounded-md border h-9 w-9 text-xs font-semibold transition-all",
+                            page === i
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "bg-background border-border hover:bg-muted text-muted-foreground hover:text-foreground"
                         )}
                     >
                         {i}
@@ -226,12 +233,15 @@ export function AuditLogsPage() {
         }
 
         if (endPage < data.totalPages) {
-            if (endPage < data.totalPages - 1) items.push(<PaginationEllipsis key="end-ellipsis" className="opacity-20" />);
+            if (endPage < data.totalPages - 1) items.push(<PaginationEllipsis key="end-ellipsis" className="opacity-50" />);
             items.push(
                 <PaginationItem key={data.totalPages}>
                     <PaginationLink
-                        onClick={() => setPage(data.totalPages)}
-                        className="rounded-lg h-10 w-10 text-xs font-medium hover:bg-primary/10 transition-all cursor-pointer"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            setPage(data.totalPages);
+                        }}
+                        className="rounded-md border border-border h-9 w-9 text-xs font-semibold hover:bg-primary hover:text-primary-foreground transition-all"
                     >
                         {data.totalPages}
                     </PaginationLink>
@@ -243,161 +253,160 @@ export function AuditLogsPage() {
     };
 
     return (
-        <div className="space-y-10 animate-in fade-in duration-700 pb-20 px-0 lg:px-6">
+        <div className="flex flex-col gap-6 p-4 md:p-6 animate-in fade-in duration-500 pb-20">
             {/* Header Section */}
-            <div className="flex flex-col sm:flex-row items-start justify-between gap-8 relative">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
                 <div className="space-y-4 max-w-2xl">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-bold uppercase tracking-wider">
+                    <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-bold tracking-wide uppercase mb-1">
                         <Activity className="size-3.5" />
-                        Infrastructure
+                        Cơ sở hạ tầng
                     </div>
-                    <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-foreground leading-[1.1]">
-                        System <span className="text-primary">Audit Logs</span>
+                    <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+                        Nhật ký <span className="text-primary not-italic">Hệ thống</span>
                     </h1>
-                    <p className="text-base text-muted-foreground mt-4 leading-relaxed max-w-lg border-l-2 border-primary/20 pl-4">
-                        Monitor and track all system activities and data changes to ensure the integrity of the <span className="text-foreground font-semibold">Torii Platform</span>.
+                    <p className="text-sm font-medium border-l-2 border-primary/20 pl-4 mt-2 text-muted-foreground/70 leading-relaxed max-w-xl">
+                        Theo dõi và truy vết tất cả các hoạt động hệ thống và thay đổi dữ liệu để đảm bảo tính toàn vẹn của <span className="text-foreground font-semibold">Nền tảng Torii</span>.
                     </p>
                 </div>
 
-                <div className="flex flex-col items-end gap-2 p-6 rounded-2xl bg-muted/20 border border-border/20 hidden sm:flex">
-                    <div className="space-y-1">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 text-center">Total Logs</p>
-                        <h3 className="text-3xl font-bold text-center leading-none text-primary">{data?.total || 0}</h3>
+                <div className="flex items-center gap-4">
+                    <div className="hidden lg:flex flex-col items-end px-4 border-r border-border/40">
+                        <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-wider">Tổng số nhật ký</span>
+                        <span className="text-2xl font-bold text-foreground tabular-nums">{data?.total || 0}</span>
                     </div>
                 </div>
             </div>
 
-            {/* Filters */}
-            <Card className="rounded-2xl bg-background/50 backdrop-blur-3xl border border-white/20 p-8 lg:p-10 shadow-xl shadow-black/5">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60 flex items-center gap-2 ml-1">
-                            <Zap className="size-3.5" />
-                            Action
-                        </label>
-                        <div className="relative group">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
+            <div className="space-y-4">
+                {/* Toolbar */}
+                <div className="bg-background p-4 rounded-xl border border-border shadow-sm">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60 flex items-center gap-2 ml-1">
+                                <Zap className="size-3.5" />
+                                Hành động
+                            </label>
+                            <div className="relative group">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/50" />
+                                <Input
+                                    placeholder="Tìm kiếm hành động..."
+                                    value={action}
+                                    onChange={(e) => setAction(e.target.value)}
+                                    className="h-10 pl-9 rounded-lg border-border bg-background hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-sm"
+                                />
+                            </div>
+                        </div>
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60 flex items-center gap-2 ml-1">
+                                <Fingerprint className="size-3.5" />
+                                Đối tượng
+                            </label>
+                            <div className="relative group">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/50" />
+                                <Input
+                                    placeholder="Tìm kiếm đối tượng..."
+                                    value={entity}
+                                    onChange={(e) => setEntity(e.target.value)}
+                                    className="h-10 pl-9 rounded-lg border-border bg-background hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-sm"
+                                />
+                            </div>
+                        </div>
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60 flex items-center gap-2 ml-1">
+                                <Calendar className="size-3.5" />
+                                Ngày bắt đầu
+                            </label>
                             <Input
-                                placeholder="Search actions..."
-                                value={action}
-                                onChange={(e) => setAction(e.target.value)}
-                                className="h-11 pl-10 rounded-lg border-border/10 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-xs font-medium placeholder:text-muted-foreground/40"
+                                type="date"
+                                value={dateRange.startDate}
+                                onChange={(e) => setDateRange(prev => ({ ...prev, startDate: e.target.value }))}
+                                className="h-10 rounded-lg border-border bg-background hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-sm"
                             />
                         </div>
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60 flex items-center gap-2 ml-1">
-                            <Layers className="size-3.5" />
-                            Entity
-                        </label>
-                        <div className="relative group">
-                            <Fingerprint className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60 flex items-center gap-2 ml-1">
+                                <Clock className="size-3.5" />
+                                Ngày kết thúc
+                            </label>
                             <Input
-                                placeholder="Search entities..."
-                                value={entity}
-                                onChange={(e) => setEntity(e.target.value)}
-                                className="h-11 pl-10 rounded-lg border-border/10 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-xs font-medium placeholder:text-muted-foreground/40"
+                                type="date"
+                                value={dateRange.endDate}
+                                onChange={(e) => setDateRange(prev => ({ ...prev, endDate: e.target.value }))}
+                                className="h-10 rounded-lg border-border bg-background hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-sm"
                             />
                         </div>
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60 flex items-center gap-2 ml-1">
-                            <Calendar className="size-3.5" />
-                            Start Date
-                        </label>
-                        <Input
-                            type="date"
-                            value={dateRange.startDate}
-                            onChange={(e) => setDateRange(prev => ({ ...prev, startDate: e.target.value }))}
-                            className="h-11 rounded-lg border-border/10 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-xs font-medium [color-scheme:dark]"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60 flex items-center gap-2 ml-1">
-                            <Clock className="size-3.5" />
-                            End Date
-                        </label>
-                        <Input
-                            type="date"
-                            value={dateRange.endDate}
-                            onChange={(e) => setDateRange(prev => ({ ...prev, endDate: e.target.value }))}
-                            className="h-11 rounded-lg border-border/10 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-xs font-medium [color-scheme:dark]"
-                        />
                     </div>
                 </div>
-            </Card>
 
-            {/* Audit History */}
-            <Card className="rounded-2xl bg-background/40 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-primary/5 overflow-hidden">
-                <div className="overflow-x-auto">
+                {/* Table */}
+                <div className="bg-background rounded-xl border border-border overflow-hidden shadow-sm">
                     <Table className="min-w-[1000px] border-collapse bg-transparent">
-                        <TableHeader className="bg-muted/10 border-b border-border/10">
+                        <TableHeader className="bg-muted/30 border-b border-border">
                             <TableRow className="border-none hover:bg-transparent">
-                                <TableHead className="h-12 text-[10px] font-medium text-muted-foreground uppercase tracking-wider px-8 whitespace-nowrap">Timestamp</TableHead>
-                                <TableHead className="h-12 text-[10px] font-medium text-muted-foreground uppercase tracking-wider px-6">User</TableHead>
-                                <TableHead className="h-12 text-[10px] font-medium text-muted-foreground uppercase tracking-wider px-6">Action</TableHead>
-                                <TableHead className="h-12 text-[10px] font-medium text-muted-foreground uppercase tracking-wider px-6">Description</TableHead>
-                                <TableHead className="h-12 text-[10px] font-medium text-muted-foreground uppercase tracking-wider px-8 text-right">Access</TableHead>
+                                <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/50 last:border-r-0 whitespace-nowrap">Thời gian</TableHead>
+                                <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/50 last:border-r-0">Người dùng</TableHead>
+                                <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/50 last:border-r-0">Hành động</TableHead>
+                                <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/50 last:border-r-0">Mô tả</TableHead>
+                                <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/50 last:border-r-0 text-right">Truy cập</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {isLoading ? (
-                                Array.from({ length: 10 }).map((_, index) => (
-                                    <TableRow key={index} className="border-b border-border/5">
-                                        <TableCell className="px-8"><Skeleton className="h-4 w-32 bg-muted/20 rounded-md" /></TableCell>
-                                        <TableCell className="px-6">
+                                Array.from({ length: 5 }).map((_, index) => (
+                                    <TableRow key={index} className="border-b border-border/50 hover:bg-transparent">
+                                        <TableCell className="py-3 px-4 border-r border-border/10 last:border-r-0"><Skeleton className="h-4 w-32 bg-muted/20" /></TableCell>
+                                        <TableCell className="py-3 px-4 border-r border-border/10 last:border-r-0">
                                             <div className="space-y-1">
-                                                <Skeleton className="h-4 w-40 bg-muted/20 rounded-md" />
-                                                <Skeleton className="h-3 w-20 bg-muted/20 rounded-md" />
+                                                <Skeleton className="h-4 w-40 bg-muted/20" />
+                                                <Skeleton className="h-3 w-20 bg-muted/20" />
                                             </div>
                                         </TableCell>
-                                        <TableCell className="px-6"><Skeleton className="h-5 w-24 bg-muted/20 rounded-md" /></TableCell>
-                                        <TableCell className="px-6"><Skeleton className="h-4 w-full bg-muted/20 rounded-md" /></TableCell>
-                                        <TableCell className="px-8 text-right"><Skeleton className="h-8 w-8 bg-muted/20 rounded-lg ml-auto" /></TableCell>
+                                        <TableCell className="py-3 px-4 border-r border-border/10 last:border-r-0"><Skeleton className="h-5 w-24 bg-muted/20" /></TableCell>
+                                        <TableCell className="py-3 px-4 border-r border-border/10 last:border-r-0"><Skeleton className="h-4 w-full bg-muted/20" /></TableCell>
+                                        <TableCell className="py-3 px-4 border-r border-border/10 last:border-r-0"><Skeleton className="h-8 w-8 bg-muted/20 ml-auto" /></TableCell>
                                     </TableRow>
                                 ))
                             ) : data?.data.length === 0 ? (
-                                <TableRow className="hover:bg-transparent">
-                                    <TableCell colSpan={5} className="h-64 text-center">
-                                        <div className="flex flex-col items-center justify-center p-12 space-y-4">
-                                            <div className="w-16 h-16 rounded-xl bg-muted/10 flex items-center justify-center border border-white/10 relative">
-                                                <div className="absolute inset-0 bg-primary/5 blur-2xl rounded-full" />
-                                                <ShieldAlert className="size-8 text-muted-foreground/30 relative z-10" />
+                                <TableRow className="hover:bg-transparent border-none">
+                                    <TableCell colSpan={5} className="h-[300px] text-center p-0">
+                                        <div className="flex flex-col items-center justify-center p-8">
+                                            <div className="w-16 h-16 rounded-full bg-muted/20 flex items-center justify-center text-muted-foreground/30 mb-4">
+                                                <ShieldAlert className="size-8" />
                                             </div>
                                             <div className="space-y-1">
-                                                <h3 className="text-lg font-medium text-foreground/60">No Logs Found</h3>
-                                                <p className="text-xs text-muted-foreground/40">No audit records found matching your current filters.</p>
+                                                <p className="text-lg font-semibold text-foreground/50">Không tìm thấy nhật ký</p>
+                                                <p className="text-sm text-muted-foreground/40">Không tìm thấy bản ghi nhật ký nào khớp với bộ lọc hiện tại.</p>
                                             </div>
                                         </div>
                                     </TableCell>
                                 </TableRow>
                             ) : (
                                 data?.data.map((log) => (
-                                    <TableRow key={log.id} className="border-b border-border/5 hover:bg-primary/[0.02] transition-colors group">
-                                        <TableCell className="px-8 font-mono text-[10px] font-medium text-muted-foreground/50 tabular-nums">
+                                    <TableRow key={log.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors group">
+                                        <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0 font-mono">
                                             {format(new Date(log.createdAt), 'yyyy-MM-dd HH:mm:ss')}
                                         </TableCell>
-                                        <TableCell className="px-6">
+                                        <TableCell className="py-3 px-4 text-sm text-foreground/80 border-r border-border/10 last:border-r-0">
                                             <div className="flex flex-col gap-0.5">
-                                                <div className="font-medium text-xs text-foreground/80 group-hover:text-primary transition-colors">{log.userEmail.split('@')[0]}</div>
-                                                <div className="text-[9px] font-medium text-muted-foreground/40 uppercase tracking-widest">{log.userRole}</div>
+                                                <div className="font-semibold text-foreground group-hover:text-primary transition-colors">{log.userEmail.split('@')[0]}</div>
+                                                <div className="text-[10px] font-medium text-muted-foreground/50 uppercase tracking-wider">{log.userRole}</div>
                                             </div>
                                         </TableCell>
-                                        <TableCell className="px-6">
-                                            <div className="space-y-1.5">
-                                                <Badge variant="secondary" className="bg-muted/30 text-[9px] font-medium uppercase tracking-wide px-2 py-0.5 border-none rounded-md">
+                                        <TableCell className="py-3 px-4 text-sm text-foreground/80 border-r border-border/10 last:border-r-0">
+                                            <div className="space-y-1">
+                                                <Badge variant="secondary" className="bg-muted/50 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 border border-border/50">
                                                     {log.action}
                                                 </Badge>
-                                                <div className="text-[9px] font-medium uppercase tracking-tight text-muted-foreground/40 flex items-center gap-1.5 ml-1">
-                                                    <Fingerprint className="size-3 opacity-30" />
+                                                <div className="text-[10px] font-medium uppercase tracking-tight text-muted-foreground/50 flex items-center gap-1.5">
+                                                    <Fingerprint className="size-3 opacity-50" />
                                                     {log.entity}
                                                 </div>
                                             </div>
                                         </TableCell>
-                                        <TableCell className="px-6 max-w-md">
-                                            <div className="truncate text-xs font-medium text-muted-foreground/70 leading-relaxed group-hover:text-foreground transition-colors">{log.description}</div>
+                                        <TableCell className="py-3 px-4 text-sm text-foreground/80 border-r border-border/10 last:border-r-0 max-w-md">
+                                            <div className="truncate font-medium text-muted-foreground/80 group-hover:text-foreground transition-colors">{log.description}</div>
                                         </TableCell>
-                                        <TableCell className="px-8 text-right">
+                                        <TableCell className="py-3 px-4 text-sm text-foreground/80 border-r border-border/10 last:border-r-0 text-right">
                                             <AuditLogDetailsDialog log={log} />
                                         </TableCell>
                                     </TableRow>
@@ -407,41 +416,44 @@ export function AuditLogsPage() {
                     </Table>
                 </div>
 
-                {/* Pagination Meta */}
-                {data && (
-                    <div className="flex flex-col lg:flex-row items-center justify-between gap-6 p-6 border-t border-border/10">
-                        <div className="flex flex-col lg:flex-row lg:items-center gap-4 text-[11px] font-medium text-muted-foreground/40 text-center lg:text-left pl-2">
-                            <div className="inline-flex items-center gap-2 group-hover:text-primary transition-colors">
-                                <Sparkles className="size-3.5" />
-                                Total: <span className="text-foreground">{data.total} Records</span>
-                            </div>
-                            <div className="hidden lg:block w-1 h-1 rounded-full bg-border" />
-                            <div>Page {page} of {data.totalPages}</div>
+                {/* Pagination */}
+                {(data?.total || 0) > 0 && (
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2 px-1">
+                        <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                            <span>Hiển thị trang <span className="text-foreground">{page}</span> / {data?.totalPages}</span>
+                            <span className="mx-1 text-border">|</span>
+                            <span>Tổng cộng <span className="text-foreground">{data?.total}</span> bản ghi</span>
                         </div>
 
-                        {data.totalPages > 1 && (
-                            <Pagination>
-                                <PaginationContent className="flex items-center gap-2">
+                        {data && data.totalPages > 1 && (
+                            <Pagination className="w-auto mx-0">
+                                <PaginationContent className="flex items-center gap-1">
                                     <PaginationItem>
                                         <PaginationPrevious
-                                            onClick={() => setPage(p => Math.max(1, p - 1))}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                setPage(p => Math.max(1, p - 1));
+                                            }}
                                             className={cn(
-                                                "h-10 px-4 rounded-lg bg-background/50 border border-border/20 text-xs font-medium transition-all cursor-pointer",
-                                                page === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary active:scale-95"
+                                                "h-9 px-3 rounded-md border border-border text-xs font-medium transition-all",
+                                                page === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-muted cursor-pointer"
                                             )}
                                         />
                                     </PaginationItem>
 
-                                    <div className="hidden md:flex items-center gap-1 mx-2">
+                                    <div className="hidden md:flex items-center gap-1">
                                         {renderPaginationItems()}
                                     </div>
 
                                     <PaginationItem>
                                         <PaginationNext
-                                            onClick={() => setPage(p => Math.min(data.totalPages, p + 1))}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                setPage(p => Math.min(data.totalPages, p + 1));
+                                            }}
                                             className={cn(
-                                                "h-10 px-4 rounded-lg bg-background/50 border border-border/20 text-xs font-medium transition-all cursor-pointer",
-                                                page === data.totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary active:scale-95"
+                                                "h-9 px-3 rounded-md border border-border text-xs font-medium transition-all",
+                                                page === data.totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-muted cursor-pointer"
                                             )}
                                         />
                                     </PaginationItem>
@@ -450,7 +462,7 @@ export function AuditLogsPage() {
                         )}
                     </div>
                 )}
-            </Card>
+            </div>
         </div>
     );
 }

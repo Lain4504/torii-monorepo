@@ -46,7 +46,7 @@ export function FlashcardStudy({ deckId }: FlashcardStudyProps) {
             // Prefetch or invalidate if needed
         },
         onError: () => {
-            toast.error("Failed to sync progress to neural network.")
+            toast.error("Không thể đồng bộ tiến độ học tập.")
         }
     })
 
@@ -90,13 +90,13 @@ export function FlashcardStudy({ deckId }: FlashcardStudyProps) {
             })
             // Force re-fetch of due cards to see if more appeared or just show "Done" state locally
             // Ideally show a summary screen
-            toast.success("Memory consolidation complete.")
+            toast.success("Đã hoàn thành phiên ôn tập!")
             router.push('/dashboard/flashcards')
         }
     }
 
     if (isStartingSession || isLoadingCards) {
-        return <PageLoading text="Initializing Neural Interface..." className="h-[60vh]" />
+        return <PageLoading text="Đang chuẩn bị bộ thẻ nhớ..." className="h-[60vh]" />
     }
 
     if (!cardsDue || cardsDue.length === 0) {
@@ -106,11 +106,11 @@ export function FlashcardStudy({ deckId }: FlashcardStudyProps) {
                     <CheckCircle2 className="size-12" />
                 </div>
                 <div className="text-center space-y-2">
-                    <h2 className="text-3xl font-black uppercase tracking-tighter italic">All Targets Neutralized</h2>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">No pending memory protocols for this sector.</p>
+                    <h2 className="text-3xl font-black uppercase tracking-tighter italic">Hoàn thành mục tiêu</h2>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">Không còn thẻ nào cần ôn tập trong bộ này.</p>
                 </div>
                 <Button onClick={() => router.push('/dashboard/flashcards')} className="rounded-xl px-8 uppercase font-black tracking-widest">
-                    Return to Command
+                    Quay lại kho thẻ
                 </Button>
             </div>
         )
@@ -121,8 +121,8 @@ export function FlashcardStudy({ deckId }: FlashcardStudyProps) {
     if (!currentCard) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh]">
-                <p>Session Complete.</p>
-                <Button onClick={handleCompleteSession}>Finish</Button>
+                <p>Đã hoàn thành phiên học.</p>
+                <Button onClick={handleCompleteSession}>Kết thúc</Button>
             </div>
         )
     }
@@ -138,14 +138,14 @@ export function FlashcardStudy({ deckId }: FlashcardStudyProps) {
                 </Button>
                 <div className="flex-1 px-8">
                     <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 mb-2">
-                        <span>Progress sequence</span>
+                        <span>Tiến độ học tập</span>
                         <span>{currentIndex + 1} / {cardsDue.length}</span>
                     </div>
                     <Progress value={progress} className="h-1 bg-white/5" indicatorClassName="bg-primary/50" />
                 </div>
                 <div className="flex items-center gap-2 text-primary/80 font-mono text-xs">
                     <Timer className="size-4" />
-                    <span>{Math.floor((Date.now() - sessionStartTime) / 1000)}s</span>
+                    <span>{Math.floor((Date.now() - sessionStartTime) / 1000)} giây</span>
                 </div>
             </div>
 
@@ -170,13 +170,13 @@ export function FlashcardStudy({ deckId }: FlashcardStudyProps) {
                             <div className="size-2 rounded-full bg-white/5" />
                         </div>
                         <div className="absolute top-6 right-6 text-[9px] font-black uppercase tracking-[0.2em] text-white/10">
-                            {isFlipped ? "Back Face // Audio Enabled" : "Front Face // Pattern Recognition"}
+                            {isFlipped ? "Mặt sau // Tích hợp âm thanh" : "Mặt trước // Nhận diện mặt chữ"}
                         </div>
 
                         <div className="space-y-6 max-w-2xl">
                             {isFlipped ? (
                                 <>
-                                    <h2 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-white/50">
+                                    <h2 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-white/50">
                                         {currentCard.backText}
                                     </h2>
                                     {currentCard.reading && <p className="text-xl text-primary/60 font-mono">{currentCard.reading}</p>}
@@ -187,14 +187,14 @@ export function FlashcardStudy({ deckId }: FlashcardStudyProps) {
                                     )}
                                 </>
                             ) : (
-                                <h2 className="text-5xl md:text-7xl font-black tracking-tight text-foreground">
+                                <h2 className="text-4xl md:text-7xl font-black tracking-tight text-foreground">
                                     {currentCard.frontText}
                                 </h2>
                             )}
                         </div>
 
                         <div className="absolute bottom-6 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/20 animate-pulse">
-                            {isFlipped ? "Tap to flip back" : "Tap to reveal"}
+                            {isFlipped ? "Chạm để lật lại" : "Chạm để xem đáp án"}
                         </div>
                     </motion.div>
                 </AnimatePresence>
@@ -206,24 +206,24 @@ export function FlashcardStudy({ deckId }: FlashcardStudyProps) {
                     <div className="grid grid-cols-4 gap-4 h-full">
                         <Button onClick={() => handleRate(0)} variant="outline" className="h-full rounded-2xl flex flex-col gap-2 border-red-500/20 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/50 transition-all">
                             <XCircle className="size-6" />
-                            <span className="text-[10px] font-black uppercase tracking-widest">Again</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest">Làm lại</span>
                         </Button>
                         <Button onClick={() => handleRate(1)} variant="outline" className="h-full rounded-2xl flex flex-col gap-2 border-orange-500/20 hover:bg-orange-500/10 hover:text-orange-500 hover:border-orange-500/50 transition-all">
                             <BrainCircuit className="size-6" />
-                            <span className="text-[10px] font-black uppercase tracking-widest">Hard</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest">Khó</span>
                         </Button>
                         <Button onClick={() => handleRate(2)} variant="outline" className="h-full rounded-2xl flex flex-col gap-2 border-primary/20 hover:bg-primary/10 hover:text-primary hover:border-primary/50 transition-all">
                             <CheckCircle2 className="size-6" />
-                            <span className="text-[10px] font-black uppercase tracking-widest">Good</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest">Tốt</span>
                         </Button>
                         <Button onClick={() => handleRate(3)} variant="outline" className="h-full rounded-2xl flex flex-col gap-2 border-emerald-500/20 hover:bg-emerald-500/10 hover:text-emerald-500 hover:border-emerald-500/50 transition-all">
                             <Trophy className="size-6" />
-                            <span className="text-[10px] font-black uppercase tracking-widest">Easy</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest">Dễ</span>
                         </Button>
                     </div>
                 ) : (
                     <Button onClick={handleFlip} className="w-full h-full rounded-2xl text-lg font-black uppercase tracking-[0.2em] bg-white/5 hover:bg-white/10 text-foreground border border-white/5 hover:border-primary/30 transition-all shadow-xl">
-                        Reveal Answer
+                        Xem đáp án
                     </Button>
                 )}
             </div>

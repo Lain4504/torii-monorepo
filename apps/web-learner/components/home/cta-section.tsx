@@ -22,7 +22,7 @@ export function CTASection() {
                             Đặc quyền học viên
                         </div>
 
-                        <h2 className="text-6xl md:text-8xl font-serif font-bold text-background tracking-tight leading-[0.9] uppercase italic">
+                        <h2 className="text-5xl md:text-7xl font-serif font-bold text-background tracking-tight leading-[0.9] uppercase italic">
                             Sẵn Sàng <br /> <span className="text-primary not-italic">Chinh Phục</span> <br className="hidden md:block" /> Tiếng Nhật?
                         </h2>
 
@@ -34,7 +34,7 @@ export function CTASection() {
                             <Link href="/register">
                                 <Button
                                     size="lg"
-                                    className="h-16 px-12 text-sm font-black uppercase tracking-widest rounded-2xl bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/20 cursor-pointer transition-all active:scale-95"
+                                    className="h-16 px-12 text-sm font-black uppercase tracking-widest rounded-2xl bg-primary hover:bg-primary/90 text-background shadow-xl shadow-primary/20 cursor-pointer transition-all active:scale-95"
                                 >
                                     Đăng ký ngay
                                     <ArrowRight className="ml-3 w-5 h-5" />
@@ -43,7 +43,7 @@ export function CTASection() {
                             <Button
                                 size="lg"
                                 variant="outline"
-                                className="h-16 px-12 text-sm font-black uppercase tracking-widest rounded-2xl border-background/20 text-background hover:bg-background/10 cursor-pointer transition-all active:scale-95"
+                                className="h-16 px-12 text-sm font-black uppercase tracking-widest rounded-2xl border-background/20 text-accent-foreground hover:bg-background/10 cursor-pointer transition-all active:scale-95"
                             >
                                 Tư vấn miễn phí
                             </Button>

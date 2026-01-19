@@ -100,7 +100,7 @@ export function ForgotPasswordForm() {
                                     {...field}
                                     id={field.name}
                                     placeholder="your-registered-email@domain.com"
-                                    className="pl-10 h-11 rounded-xl bg-muted/30 border-border/40 focus:bg-background focus:border-primary/20 focus:ring-4 focus:ring-primary/[0.03] text-sm font-medium transition-all placeholder:text-muted-foreground/30 hover:bg-muted/50 hover:border-border/60"
+                                    className="pl-10 h-11 rounded-xl bg-muted/30 border-border/40 focus:bg-background focus:border-primary/30 focus:ring-4 focus:ring-primary/[0.03] text-sm font-medium transition-all placeholder:text-muted-foreground/30 hover:bg-muted/50 hover:border-border/60 shadow-sm"
                                     aria-invalid={fieldState.invalid}
                                 />
                             </div>

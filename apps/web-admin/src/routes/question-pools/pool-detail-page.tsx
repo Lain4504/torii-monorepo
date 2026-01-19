@@ -41,9 +41,9 @@ export default function PoolDetailPage() {
                 id: question.id,
                 question: { poolId: undefined },
             });
-            toast.success('Question removed from pool');
+            toast.success('Đã gỡ câu hỏi khỏi kho đề');
         } catch (error: any) {
-            toast.error(error.response?.data?.message || 'Failed to remove question from pool');
+            toast.error(error.response?.data?.message || 'Gỡ câu hỏi khỏi kho đề thất bại');
         }
     };
 
@@ -55,8 +55,8 @@ export default function PoolDetailPage() {
                     <Activity className="absolute -top-1 -right-1 size-4 text-emerald-500 animate-bounce" />
                 </div>
                 <div className="text-center space-y-2">
-                    <h2 className="text-2xl font-bold tracking-tight text-foreground/80">Accessing Knowledge Node</h2>
-                    <p className="text-sm text-muted-foreground/60">Decrypting data streams from central repository...</p>
+                    <h2 className="text-2xl font-bold tracking-tight text-foreground/80">Đang truy cập Kho tri thức</h2>
+                    <p className="text-sm text-muted-foreground/60">Đang tải dữ liệu từ kho lưu trữ trung tâm...</p>
                 </div>
             </div>
         );
@@ -70,10 +70,10 @@ export default function PoolDetailPage() {
                     <ShieldAlert className="size-12 text-destructive/40 relative z-10" />
                 </div>
                 <div className="text-center space-y-3">
-                    <h2 className="text-3xl font-bold tracking-tight text-destructive/60">Node Sync Failed</h2>
+                    <h2 className="text-3xl font-bold tracking-tight text-destructive/60">Đồng bộ hóa thất bại</h2>
                     <p className="text-base text-muted-foreground/60 max-w-md mx-auto">
-                        Identified sequence mismatch or repository corruption. <br />
-                        {poolError?.message || 'CRITICAL: Knowledge node reference is invalid.'}
+                        Phát hiện lỗi không khớp dữ liệu hoặc kho lưu trữ bị hỏng. <br />
+                        {poolError?.message || 'LỖI: Tham chiếu kho tri thức không hợp lệ.'}
                     </p>
                 </div>
                 <Button
@@ -81,7 +81,7 @@ export default function PoolDetailPage() {
                     className="h-14 px-10 rounded-2xl bg-muted/20 hover:bg-muted/30 border border-border/10 text-[10px] font-black uppercase tracking-widest transition-all"
                 >
                     <ArrowLeft className="mr-3 size-4 opacity-40" />
-                    Return to Registry
+                    Quay lại Danh sách
                 </Button>
             </div>
         );
@@ -108,7 +108,7 @@ export default function PoolDetailPage() {
                                 <Database className="size-4 text-primary opacity-40" />
                                 <h1 className="text-xl font-bold tracking-tight text-foreground">{pool.name}</h1>
                                 <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 text-[8px] font-black tracking-widest rounded-full px-3">
-                                    NODE ACTIVE
+                                    ĐANG HOẠT ĐỘNG
                                 </Badge>
                             </div>
                         </div>
@@ -117,7 +117,7 @@ export default function PoolDetailPage() {
                     <div className="flex items-center gap-6 hidden sm:flex">
                         <div className="flex items-center gap-3 text-right">
                             <div className="flex flex-col">
-                                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30">Registry Level</span>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30">Cấp độ Kho đề</span>
                                 <span className="text-[12px] font-black italic text-primary">{pool.jlptLevel || 'N/A'}</span>
                             </div>
                             <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center border border-primary/20">
@@ -139,10 +139,10 @@ export default function PoolDetailPage() {
                             </div>
 
                             <div className="space-y-2 relative">
-                                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/40">Repository Signature</p>
+                                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/40">Mã nhận diện Kho lưu trữ</p>
                                 <h2 className="text-3xl font-bold tracking-tight text-foreground/80 leading-none">{pool.name}</h2>
                                 <p className="text-sm text-muted-foreground/60 mt-4 leading-relaxed line-clamp-4">
-                                    {pool.description || 'System generated knowledge node. No extensive documentation provided in current registry cycle.'}
+                                    {pool.description || 'Kho tri thức do hệ thống tạo. Chưa có mô tả chi tiết.'}
                                 </p>
                             </div>
 
@@ -152,9 +152,9 @@ export default function PoolDetailPage() {
                                         <div className="size-8 rounded-lg bg-muted/20 flex items-center justify-center">
                                             <FileQuestion className="size-4 text-muted-foreground/40" />
                                         </div>
-                                        <span className="text-[10px] font-bold uppercase tracking-wider">Unit Payload</span>
+                                        <span className="text-[10px] font-bold uppercase tracking-wider">Số lượng câu hỏi</span>
                                     </div>
-                                    <span className="text-sm font-bold">{questions?.length || 0} Entities</span>
+                                    <span className="text-sm font-bold">{questions?.length || 0} Câu hỏi</span>
                                 </div>
 
                                 <div className="flex items-center justify-between">
@@ -162,9 +162,9 @@ export default function PoolDetailPage() {
                                         <div className="size-8 rounded-lg bg-muted/20 flex items-center justify-center">
                                             <Zap className="size-4 text-muted-foreground/40" />
                                         </div>
-                                        <span className="text-[10px] font-bold uppercase tracking-wider">Sync Protocol</span>
+                                        <span className="text-[10px] font-bold uppercase tracking-wider">Giao thức đồng bộ</span>
                                     </div>
-                                    <Badge variant="outline" className="bg-emerald-500/5 text-emerald-500 border-emerald-500/20 text-[8px] font-black rounded-lg px-2">AUTOMATIC</Badge>
+                                    <Badge variant="outline" className="bg-emerald-500/5 text-emerald-500 border-emerald-500/20 text-[8px] font-black rounded-lg px-2">TỰ ĐỘNG</Badge>
                                 </div>
 
                                 <div className="flex items-center justify-between">
@@ -172,9 +172,9 @@ export default function PoolDetailPage() {
                                         <div className="size-8 rounded-lg bg-muted/20 flex items-center justify-center">
                                             <Layout className="size-4 text-muted-foreground/40" />
                                         </div>
-                                        <span className="text-[10px] font-bold uppercase tracking-wider">Linked Assets</span>
+                                        <span className="text-[10px] font-bold uppercase tracking-wider">Tài nguyên liên kết</span>
                                     </div>
-                                    <span className="text-[10px] font-black italic uppercase tracking-widest">{pool.courseId ? 'COURSE TIED' : 'UNALIGNED'}</span>
+                                    <span className="text-[10px] font-black italic uppercase tracking-widest">{pool.courseId ? 'ĐÃ LIÊN KẾT KHÓA HỌC' : 'CHƯA LIÊN KẾT'}</span>
                                 </div>
                             </div>
 
@@ -183,7 +183,7 @@ export default function PoolDetailPage() {
                                 className="w-full h-16 rounded-[1.5rem] bg-primary shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all relative group"
                             >
                                 <Plus className="mr-3 size-5 group-hover:rotate-90 transition-transform duration-500" />
-                                <span className="text-xs font-black uppercase tracking-widest">Append Logic Unit</span>
+                                <span className="text-xs font-black uppercase tracking-widest">Thêm Câu hỏi mới</span>
                                 <div className="absolute inset-0 rounded-[1.5rem] bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                             </Button>
                         </Card>
@@ -192,11 +192,11 @@ export default function PoolDetailPage() {
                         <div className="p-8 rounded-[2.5rem] border border-border/10 bg-muted/5 space-y-4">
                             <div className="flex items-center gap-3 text-muted-foreground/30 uppercase tracking-[0.3em] font-black text-[9px]">
                                 <Clock className="size-3" />
-                                Registry Cycle 2024.08
+                                Chu kỳ hệ thống 2024.08
                             </div>
                             <p className="text-[10px] font-bold text-muted-foreground/40 italic leading-relaxed">
-                                All units appended to this pool will inherit the matrix level default <span className="text-foreground/40">({pool.jlptLevel || 'GLOBAL'})</span>.
-                                Cross-registry sync is enabled for active training sessions.
+                                Tất cả câu hỏi trong kho đề này sẽ thừa hưởng cấp độ mặc định <span className="text-foreground/40">({pool.jlptLevel || 'GLOBAL'})</span>.
+                                Đồng bộ hóa chéo kho lưu trữ được bật cho các phiên đào tạo đang hoạt động.
                             </p>
                         </div>
                     </div>
@@ -209,8 +209,8 @@ export default function PoolDetailPage() {
                                     <BrainCircuit className="size-5" />
                                 </div>
                                 <div className="flex flex-col">
-                                    <h3 className="text-xl font-bold tracking-tight text-foreground/80">Questions Registry</h3>
-                                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/30">Detailed manifest of logic node payload.</p>
+                                    <h3 className="text-xl font-bold tracking-tight text-foreground/80">Danh mục Câu hỏi</h3>
+                                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/30">Danh sách chi tiết các thực thể logic trong kho đề.</p>
                                 </div>
                             </div>
                         </div>
@@ -221,10 +221,10 @@ export default function PoolDetailPage() {
                                     <TableHeader className="bg-muted/10 border-b border-border/20">
                                         <TableRow className="border-none hover:bg-transparent">
                                             <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-8">#</TableHead>
-                                            <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-6">Prompt Architecture</TableHead>
-                                            <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-6">Unit Type</TableHead>
-                                            <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-6">Status</TableHead>
-                                            <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-8 text-right">Protocol</TableHead>
+                                            <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-6">Cấu trúc Câu hỏi</TableHead>
+                                            <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-6">Loại hình</TableHead>
+                                            <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-6">Trạng thái</TableHead>
+                                            <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-8 text-right">Giao thức</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
@@ -250,7 +250,7 @@ export default function PoolDetailPage() {
                                                     <TableCell className="px-6">
                                                         <div className="flex flex-col gap-1 cursor-pointer" onClick={() => setViewingQuestion(question)}>
                                                             <div className="font-bold text-[13px] text-foreground/80 group-hover:text-primary transition-colors uppercase tracking-tight truncate max-w-[300px]">{question.questionText}</div>
-                                                            <div className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/40">{question.category || 'GENERAL DOMAIN'}</div>
+                                                            <div className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/40">{question.category || 'LĨNH VỰC CHUNG'}</div>
                                                         </div>
                                                     </TableCell>
                                                     <TableCell className="px-6">
@@ -264,7 +264,7 @@ export default function PoolDetailPage() {
                                                             question.status === 'active' ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : "bg-muted/10 text-muted-foreground border-border/20"
                                                         )}>
                                                             <div className={cn("size-1 rounded-full mr-2", question.status === 'active' ? "bg-emerald-500 animate-pulse" : "bg-current")} />
-                                                            {question.status}
+                                                            {question.status === 'active' ? 'ĐANG HOẠT ĐỘNG' : question.status}
                                                         </div>
                                                     </TableCell>
                                                     <TableCell className="px-8 text-right">
@@ -275,7 +275,7 @@ export default function PoolDetailPage() {
                                                                 onClick={() => setViewingQuestion(question)}
                                                                 className="h-9 px-4 rounded-xl hover:bg-primary/10 hover:text-primary text-[10px] font-black uppercase tracking-widest transition-all"
                                                             >
-                                                                Inspect
+                                                                Xem chi tiết
                                                             </Button>
                                                             <Button
                                                                 variant="ghost"
@@ -283,7 +283,7 @@ export default function PoolDetailPage() {
                                                                 onClick={() => handleRemoveFromPool(question)}
                                                                 className="h-9 px-4 rounded-xl hover:bg-rose-500/10 hover:text-rose-500 text-[10px] font-black uppercase tracking-widest transition-all"
                                                             >
-                                                                Eject
+                                                                Gỡ bỏ
                                                             </Button>
                                                         </div>
                                                     </TableCell>
@@ -298,8 +298,8 @@ export default function PoolDetailPage() {
                                                             <Inbox className="size-10 text-muted-foreground/20 relative z-10" />
                                                         </div>
                                                         <div className="space-y-2">
-                                                            <h3 className="text-xl font-bold uppercase tracking-tight text-foreground/40">Logic Gap Detected</h3>
-                                                            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/20">No question entities mapped to this repository node.</p>
+                                                            <h3 className="text-xl font-bold uppercase tracking-tight text-foreground/40">Chưa có Câu hỏi</h3>
+                                                            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/20">Không có thực thể câu hỏi nào được liên kết với kho đề này.</p>
                                                         </div>
                                                     </div>
                                                 </TableCell>

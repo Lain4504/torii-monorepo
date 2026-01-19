@@ -1,4 +1,5 @@
-﻿import { useForm, Controller, type SubmitHandler } from 'react-hook-form';
+﻿import { useEffect } from 'react';
+import { useForm, Controller, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { moduleCreateDTOSchema, type ModuleResponseDTO, type ModuleCreateDTO } from '@workspace/schemas';
 import {
@@ -26,7 +27,7 @@ const getCreateModuleSchema = (existingTitles: string[] = []) =>
     moduleCreateDTOSchema.extend({
         title: moduleCreateDTOSchema.shape.title.refine(
             (title) => !existingTitles.includes(title.trim()),
-            { message: 'A module with this title already exists in this course.' },
+            { message: 'Học phần với tiêu đề này đã tồn tại trong khóa học này.' },
         ),
     });
 
@@ -63,16 +64,28 @@ export function CreateModuleSheet({ open, onOpenChange, courseId, existingModule
         },
     });
 
+    // Reset form when courseId changes
+    useEffect(() => {
+        if (courseId) {
+            reset({
+                courseId: courseId,
+                title: '',
+                orderIndex: existingModules.length + 1,
+                durationMinutes: 0,
+            });
+        }
+    }, [courseId, reset, existingModules.length]);
+
     const onSubmitForm: SubmitHandler<CreateModuleFormData> = async (data) => {
         try {
             await createModule.mutateAsync(data);
-            toast.success('Module Created', {
-                description: `${data.title} successfully added to the course.`,
+            toast.success('Đã tạo học phần', {
+                description: `${data.title} đã được thêm vào khóa học.`,
             });
             onOpenChange(false);
             reset();
         } catch (error: any) {
-            toast.error('Creation Failed', {
+            toast.error('Tạo thất bại', {
                 description: error.response?.data?.error || error.message,
             });
         }
@@ -85,27 +98,27 @@ export function CreateModuleSheet({ open, onOpenChange, courseId, existingModule
 
     return (
         <Sheet open={open} onOpenChange={handleClose}>
-            <SheetContent className="w-full sm:w-[600px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background overflow-hidden [&>button]:top-6 [&>button]:right-6 [&>button]:bg-background/20 [&>button]:rounded-xl [&>button]:w-10 [&>button]:h-10">
+            <SheetContent className="w-full sm:w-[600px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background [&>button]:top-6 [&>button]:right-6 [&>button]:bg-background/20 [&>button]:rounded-xl [&>button]:w-10 [&>button]:h-10">
 
                 {/* Header Section with Ambient Glow */}
                 {/* Header Section */}
-                <SheetHeader className="px-6 py-6 border-b border-border/10 relative overflow-hidden flex-shrink-0">
-                    <div className="relative z-10 space-y-2">
+                <SheetHeader className="px-6 py-6 border-b border-border/10 flex-shrink-0">
+                    <div className="space-y-2">
                         <div className="flex items-center gap-3 mb-1">
                             <div className="p-2 rounded-lg bg-primary/10 border border-primary/20 text-primary">
                                 <Box className="size-4" />
                             </div>
                             <div className="space-y-0.5">
-                                <SheetTitle className="text-xl font-semibold tracking-tight">
-                                    Create Module
+                                <SheetTitle className="text-xl font-bold tracking-tight">
+                                    Tạo Học Phần Mới
                                 </SheetTitle>
                                 <p className="text-xs font-medium text-muted-foreground/60">
-                                    Course: {courseTitle || 'Untitled Course'}
+                                    Khóa học: <span className="text-foreground">{courseTitle || 'Chưa có tên'}</span>
                                 </p>
                             </div>
                         </div>
                         <SheetDescription className="text-sm text-muted-foreground leading-relaxed">
-                            Organize your course content by creating a new module.
+                            Tổ chức nội dung khóa học bằng cách tạo các học phần mới.
                         </SheetDescription>
                     </div>
                 </SheetHeader>
@@ -120,18 +133,18 @@ export function CreateModuleSheet({ open, onOpenChange, courseId, existingModule
                                 name="title"
                                 render={({ field, fieldState }) => (
                                     <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                        <FieldLabel className="text-xs font-medium text-muted-foreground ml-1 flex items-center gap-2">
+                                        <FieldLabel className="text-xs font-bold text-muted-foreground ml-1 flex items-center gap-2 uppercase tracking-wider">
                                             <Layers className="size-3.5" />
-                                            Module Title
+                                            Tên Học Phần
                                         </FieldLabel>
                                         <div className="relative">
                                             <Input
                                                 {...field}
-                                                placeholder="e.g. Introduction to Grammar"
-                                                className="h-10 pl-4 pr-4 rounded-xl border-border/20 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all font-medium text-sm"
+                                                placeholder="VD: Bài 1 - Giới thiệu về ngữ pháp"
+                                                className="h-11 pl-4 pr-4 rounded-xl border-border bg-background hover:bg-muted/30 focus-visible:ring-primary/20 transition-all font-medium text-sm"
                                             />
                                         </div>
-                                        <FieldError errors={[fieldState.error]} className="text-xs font-medium text-red-500 ml-1" />
+                                        <FieldError errors={[fieldState.error]} className="text-xs font-medium text-destructive ml-1" />
                                     </Field>
                                 )}
                             />
@@ -141,16 +154,16 @@ export function CreateModuleSheet({ open, onOpenChange, courseId, existingModule
                                 name="description"
                                 render={({ field, fieldState }) => (
                                     <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                        <FieldLabel className="text-xs font-medium text-muted-foreground ml-1 flex items-center gap-2">
+                                        <FieldLabel className="text-xs font-bold text-muted-foreground ml-1 flex items-center gap-2 uppercase tracking-wider">
                                             <AlignLeft className="size-3.5" />
-                                            Description
+                                            Mô Tả
                                         </FieldLabel>
                                         <Textarea
                                             {...field}
-                                            placeholder="Briefly describe what students will learn..."
-                                            className="min-h-[100px] p-4 rounded-xl border-border/20 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all resize-none font-medium text-sm leading-relaxed"
+                                            placeholder="Mô tả ngắn gọn nội dung học viên sẽ học..."
+                                            className="min-h-[100px] p-4 rounded-xl border-border bg-background hover:bg-muted/30 focus-visible:ring-primary/20 transition-all resize-none font-medium text-sm leading-relaxed"
                                         />
-                                        <FieldError errors={[fieldState.error]} className="text-xs font-medium text-red-500 ml-1" />
+                                        <FieldError errors={[fieldState.error]} className="text-xs font-medium text-destructive ml-1" />
                                     </Field>
                                 )}
                             />
@@ -161,17 +174,17 @@ export function CreateModuleSheet({ open, onOpenChange, courseId, existingModule
                                     name="orderIndex"
                                     render={({ field, fieldState }) => (
                                         <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                            <FieldLabel className="text-xs font-medium text-muted-foreground ml-1 flex items-center gap-2">
+                                            <FieldLabel className="text-xs font-bold text-muted-foreground ml-1 flex items-center gap-2 uppercase tracking-wider">
                                                 <Hash className="size-3.5" />
-                                                Order Index
+                                                Thứ Tự
                                             </FieldLabel>
                                             <Input
                                                 type="number"
                                                 {...field}
                                                 onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                                                className="h-10 rounded-xl border-border/20 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all font-mono font-medium text-sm"
+                                                className="h-11 rounded-xl border-border bg-background hover:bg-muted/30 focus-visible:ring-primary/20 transition-all font-mono font-medium text-sm"
                                             />
-                                            <FieldError errors={[fieldState.error]} className="text-xs font-medium text-red-500 ml-1" />
+                                            <FieldError errors={[fieldState.error]} className="text-xs font-medium text-destructive ml-1" />
                                         </Field>
                                     )}
                                 />
@@ -181,17 +194,17 @@ export function CreateModuleSheet({ open, onOpenChange, courseId, existingModule
                                     name="durationMinutes"
                                     render={({ field, fieldState }) => (
                                         <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                            <FieldLabel className="text-xs font-medium text-muted-foreground ml-1 flex items-center gap-2">
+                                            <FieldLabel className="text-xs font-bold text-muted-foreground ml-1 flex items-center gap-2 uppercase tracking-wider">
                                                 <Clock className="size-3.5" />
-                                                Duration (min)
+                                                Thời Lượng (phút)
                                             </FieldLabel>
                                             <Input
                                                 type="number"
                                                 {...field}
                                                 onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                                                className="h-12 rounded-xl border-border/20 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all font-mono font-medium text-sm"
+                                                className="h-11 rounded-xl border-border bg-background hover:bg-muted/30 focus-visible:ring-primary/20 transition-all font-mono font-medium text-sm"
                                             />
-                                            <FieldError errors={[fieldState.error]} className="text-xs font-medium text-red-500 ml-1" />
+                                            <FieldError errors={[fieldState.error]} className="text-xs font-medium text-destructive ml-1" />
                                         </Field>
                                     )}
                                 />
@@ -205,24 +218,24 @@ export function CreateModuleSheet({ open, onOpenChange, courseId, existingModule
                                 type="button"
                                 variant="ghost"
                                 onClick={handleClose}
-                                className="flex-1 h-10 rounded-xl text-xs font-medium uppercase tracking-wider hover:bg-muted/10 border border-transparent hover:border-border/10"
+                                className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-muted/10 border border-transparent hover:border-border/10"
                             >
-                                Cancel
+                                Hủy Bỏ
                             </Button>
                             <Button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className="flex-[2] h-10 rounded-xl text-xs font-medium uppercase tracking-wider bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-0.5"
+                                className="flex-[2] h-11 rounded-xl text-xs font-bold uppercase tracking-wider bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-0.5"
                             >
                                 {isSubmitting ? (
                                     <>
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Creating...
+                                        Đang tạo...
                                     </>
                                 ) : (
                                     <>
                                         <Plus className="mr-2 h-4 w-4" />
-                                        Create Module
+                                        Tạo Học Phần
                                     </>
                                 )}
                             </Button>

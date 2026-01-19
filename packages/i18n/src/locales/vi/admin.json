@@ -16,8 +16,9 @@
         "dashboard": "Bảng điều khiển"
     },
     "permissions": {
-        "title": "Phân quyền",
-        "description": "Quản lý quyền truy cập dựa trên vai trò và quyền hệ thống.",
+        "title": "Ma trận phân quyền",
+        "description": "Quản lý quyền truy cập hệ thống trên tất cả các vai trò tổ chức.",
+        "roleHeader": "Vai trò / Quyền hạn",
         "currentRole": "Vai trò hiện tại",
         "identifyRole": "Chọn vai trò",
         "searchLabel": "Tìm kiếm quyền",
@@ -26,10 +27,11 @@
         "selectAll": "Chọn tất cả",
         "noPermissions": "Không tìm thấy quyền nào",
         "adjustQuery": "Điều chỉnh tìm kiếm để tìm các quyền cụ thể.",
-        "unsavedChanges": "Chưa lưu thay đổi",
+        "unsavedChanges": "Ma trận có thay đổi chưa lưu",
         "synced": "Đã đồng bộ cấu hình",
-        "reset": "Đặt lại",
+        "reset": "Hoàn tác",
         "saveChanges": "Lưu thay đổi",
+        "commitMatrix": "Áp dụng thay đổi",
         "commitProtocol": "Lưu giao thức"
     },
     "reviews": {

@@ -23,6 +23,15 @@ export type PostColumnsProps = {
     limit: number;
 };
 
+const getStatusLabel = (status: string) => {
+    const labels: Record<string, string> = {
+        published: 'Đã đăng',
+        draft: 'Bản nháp',
+        archived: 'Đã lưu trữ',
+    };
+    return labels[status] || status;
+};
+
 export const getPostColumns = ({ onView, onEdit, onDelete, page, limit }: PostColumnsProps) => [
     // STT Column
     columnHelper.display({
@@ -42,7 +51,7 @@ export const getPostColumns = ({ onView, onEdit, onDelete, page, limit }: PostCo
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
                     className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group"
                 >
-                    Title
+                    Tiêu đề
                     <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
                 </Button>
             );
@@ -60,19 +69,19 @@ export const getPostColumns = ({ onView, onEdit, onDelete, page, limit }: PostCo
         ),
     }),
     columnHelper.accessor('author', {
-        header: () => <div className="px-1">Author</div>,
+        header: () => <div className="px-1 text-[9px] font-black uppercase tracking-[0.2em]">Tác giả</div>,
         cell: (info) => {
             const author = info.getValue();
             return (
-                <div className="text-[11px] font-bold text-foreground/80">
-                    {author?.displayName || 'Unknown'}
+                <div className="text-[11px] font-bold text-foreground/80 lowercase">
+                    {author?.displayName || 'Không xác định'}
                 </div>
             );
         },
         size: 120,
     }),
     columnHelper.accessor('status', {
-        header: () => <div className="px-1">Status</div>,
+        header: () => <div className="px-1 text-[9px] font-black uppercase tracking-[0.2em]">Trạng thái</div>,
         cell: (info) => {
             const status = info.getValue() as string;
             const colors = {
@@ -85,7 +94,7 @@ export const getPostColumns = ({ onView, onEdit, onDelete, page, limit }: PostCo
             return (
                 <div className={cn("inline-flex items-center px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] border shadow-sm", colorClass)}>
                     <div className={cn("size-1 rounded-full mr-2", status === 'published' ? 'bg-emerald-500 animate-pulse' : 'bg-current')} />
-                    {status}
+                    {getStatusLabel(status)}
                 </div>
             );
         },
@@ -99,7 +108,7 @@ export const getPostColumns = ({ onView, onEdit, onDelete, page, limit }: PostCo
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
                     className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group w-full justify-center"
                 >
-                    Views
+                    Lượt xem
                     <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
                 </Button>
             );
@@ -107,7 +116,7 @@ export const getPostColumns = ({ onView, onEdit, onDelete, page, limit }: PostCo
         cell: (info) => (
             <div className="flex flex-col items-center">
                 <div className="font-bold text-xl leading-none text-primary">{info.getValue() || 0}</div>
-                <div className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40 mt-1.5">Views</div>
+                <div className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40 mt-1.5 uppercase">Lượt xem</div>
             </div>
         ),
         size: 100,
@@ -120,7 +129,7 @@ export const getPostColumns = ({ onView, onEdit, onDelete, page, limit }: PostCo
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
                     className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group w-full justify-center"
                 >
-                    Comments
+                    Bình luận
                     <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
                 </Button>
             );
@@ -128,7 +137,7 @@ export const getPostColumns = ({ onView, onEdit, onDelete, page, limit }: PostCo
         cell: (info) => (
             <div className="flex flex-col items-center">
                 <div className="font-bold text-xl leading-none text-amber-500">{info.getValue() || 0}</div>
-                <div className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40 mt-1.5">Comments</div>
+                <div className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40 mt-1.5 uppercase">Bình luận</div>
             </div>
         ),
         size: 100,
@@ -141,7 +150,7 @@ export const getPostColumns = ({ onView, onEdit, onDelete, page, limit }: PostCo
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
                     className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group w-full justify-center"
                 >
-                    Published At
+                    Ngày đăng
                     <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
                 </Button>
             );
@@ -159,7 +168,7 @@ export const getPostColumns = ({ onView, onEdit, onDelete, page, limit }: PostCo
     }),
     columnHelper.display({
         id: 'actions',
-        header: () => <div className="text-center">Manage</div>,
+        header: () => <div className="text-center text-[9px] font-black uppercase tracking-[0.2em]">Quản lý</div>,
         cell: ({ row }) => {
             const post = row.original;
 
@@ -171,7 +180,7 @@ export const getPostColumns = ({ onView, onEdit, onDelete, page, limit }: PostCo
                                 variant="ghost"
                                 className="h-10 w-10 p-0 rounded-lg hover:bg-primary/10 hover:text-primary transition-all data-[state=open]:bg-primary/20"
                             >
-                                <span className="sr-only">Open Post Menu</span>
+                                <span className="sr-only">Menu Thao tác</span>
                                 <Zap className="h-4 w-4 opacity-40 group-hover:opacity-100" />
                             </Button>
                         </DropdownMenuTrigger>
@@ -184,7 +193,7 @@ export const getPostColumns = ({ onView, onEdit, onDelete, page, limit }: PostCo
                                 className="rounded-md px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
                             >
                                 <EyeIcon className="h-4 w-4 opacity-30" />
-                                <span>View Details</span>
+                                <span>Xem Chi tiết</span>
                             </DropdownMenuItem>
 
                             <Can permission="post.manage">
@@ -193,7 +202,7 @@ export const getPostColumns = ({ onView, onEdit, onDelete, page, limit }: PostCo
                                     className="rounded-md px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
                                 >
                                     <Pencil className="h-4 w-4 opacity-30" />
-                                    <span>Edit Content</span>
+                                    <span>Chỉnh sửa Nội dung</span>
                                 </DropdownMenuItem>
 
                                 <DropdownMenuSeparator className="bg-border/20 mx-2" />
@@ -203,7 +212,7 @@ export const getPostColumns = ({ onView, onEdit, onDelete, page, limit }: PostCo
                                     className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer flex gap-3"
                                 >
                                     <Trash className="h-4 w-4 opacity-30" />
-                                    <span>Delete Post</span>
+                                    <span>Xóa bài viết</span>
                                 </DropdownMenuItem>
                             </Can>
                         </DropdownMenuContent>

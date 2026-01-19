@@ -1,10 +1,8 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { Bell, Search, Check, Trash2, Clock, Info, CheckCircle2, AlertTriangle, XCircle, MoreVertical, BellOff } from 'lucide-react'
+import { Bell, Check, Trash2, Clock, Info, CheckCircle2, AlertTriangle, XCircle, MoreVertical, BellOff } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
-import { Input } from '@workspace/ui/components/input'
-import { Card } from '@workspace/ui/components/card'
 import { cn } from '@workspace/ui/lib/utils'
 import { format, formatDistanceToNow } from 'date-fns'
 import {
@@ -13,6 +11,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '@workspace/ui/components/pagination'
 import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead, useDeleteNotification } from '@/api/services/notifications'
 import type { NotificationResponseDTO, NotificationType } from '@workspace/schemas'
 
@@ -33,13 +38,16 @@ function mapNotificationType(notificationType: NotificationType): 'info' | 'succ
   switch (notificationType) {
     case 'course':
     case 'achievement':
+    case 'order_success':
       return 'success'
     case 'system':
       return 'warning'
     case 'payment':
-      return 'success'
+    case 'order_status_update':
+      return 'info'
     case 'live_class':
     case 'reminder':
+    case 'comment_reply':
       return 'info'
     default:
       return 'info'
@@ -52,12 +60,14 @@ function mapNotificationCategory(notificationType: NotificationType): 'system' |
     case 'system':
       return 'system'
     case 'payment':
+    case 'order_success':
+    case 'order_status_update':
       return 'finance'
     case 'course':
     case 'achievement':
     case 'reminder':
-      return 'system'
     case 'live_class':
+    case 'comment_reply':
       return 'system'
     default:
       return 'system'
@@ -101,9 +111,8 @@ function mapNotificationToUI(notification: NotificationResponseDTO): Notificatio
 }
 
 export default function NotificationsPage() {
-  const [filter, setFilter] = useState<'all' | 'unread' | 'system' | 'security'>('all')
-  const [search, setSearch] = useState('')
-  const [page] = useState(1)
+  const [filter, setFilter] = useState<'all' | 'unread' | 'system' | 'security' | 'finance' | 'identity'>('all')
+  const [page, setPage] = useState(1)
 
   // Fetch notifications with pagination
   const { data: notificationsData, isLoading } = useNotifications({
@@ -126,15 +135,15 @@ export default function NotificationsPage() {
   // Filter notifications by search
   const filteredNotifications = useMemo(() => {
     return notifications.filter((n: Notification) => {
-      const matchesSearch = n.title.toLowerCase().includes(search.toLowerCase()) ||
-        n.message.toLowerCase().includes(search.toLowerCase())
-      if (filter === 'all') return matchesSearch
-      if (filter === 'unread') return !n.read && matchesSearch
-      if (filter === 'system') return n.category === 'system' && matchesSearch
-      if (filter === 'security') return n.category === 'security' && matchesSearch
-      return matchesSearch
+      if (filter === 'all') return true
+      if (filter === 'unread') return !n.read
+      if (filter === 'system') return n.category === 'system'
+      if (filter === 'security') return n.category === 'security'
+      if (filter === 'finance') return n.category === 'finance'
+      if (filter === 'identity') return n.category === 'identity'
+      return true
     })
-  }, [notifications, search, filter])
+  }, [notifications, filter])
 
   const markAsRead = (id: string) => {
     markAsReadMutation.mutate(id)
@@ -156,96 +165,81 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      {/* Header */}
+    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20 p-4 md:p-6">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 px-4">
-        <div className="space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-bold uppercase tracking-wider">
-            <Bell className="w-3.5 h-3.5" />
-            System Updates
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-2">
+          <div className="p-2 rounded-xl bg-primary/10 text-primary">
+            <Bell className="size-5" />
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-foreground leading-[1.1]">
-            Notification <span className="text-primary">Center</span>
+          <h1 className="text-2xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+            Thông báo <span className="text-primary not-italic">Hệ thống</span>
           </h1>
-          <p className="text-base text-muted-foreground mt-4 leading-relaxed max-w-lg border-l-2 border-primary/20 pl-4">
-            Stay updated with important alerts, system messages, and community updates for <span className="text-foreground font-semibold">Torii Academy</span>.
+        </div>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4">
+            Cập nhật tin tức và cảnh báo bảo mật Torii
           </p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => markAllAsReadMutation.mutate()}
-            disabled={markAllAsReadMutation.isPending || unreadCount === 0}
-            className="rounded-xl h-10 px-4 text-xs font-medium border-border/40 hover:bg-primary/5 hover:text-primary transition-all cursor-pointer disabled:opacity-50"
-          >
-            <Check className="w-3.5 h-3.5 mr-2" />
-            {markAllAsReadMutation.isPending ? 'Marking...' : 'Mark all as read'}
-          </Button>
-        </div>
-      </div>
-
-      {/* Quick Actions & Search */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 px-4">
-        <Card className="md:col-span-3 rounded-[2.5rem] bg-background/40 backdrop-blur-3xl border border-border/20 p-2 flex items-center shadow-sm">
-          <div className="relative flex-1">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/30" />
-            <Input
-              placeholder="Search notifications..."
-              className="pl-14 h-14 border-transparent bg-transparent focus-visible:ring-0 text-sm font-medium placeholder:text-muted-foreground/40"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-        </Card>
-        <div className="flex items-center p-2 rounded-[2.5rem] bg-background/40 backdrop-blur-3xl border border-border/20 shadow-sm">
-          <div className="flex-1 flex justify-center gap-2">
-            <div className="text-center">
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-1">Unread</p>
-              <h3 className="text-2xl font-bold text-primary">{unreadCount}</h3>
-            </div>
+          <div className="flex items-center gap-3">
+            {unreadCount > 0 && (
+              <span className="text-xs font-medium text-primary bg-primary/5 px-2.5 py-1 rounded-full border border-primary/10">
+                {unreadCount} chưa đọc
+              </span>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => markAllAsReadMutation.mutate()}
+              disabled={markAllAsReadMutation.isPending || unreadCount === 0}
+              className="rounded-xl h-9 px-4 text-xs font-bold uppercase tracking-wide border-border/40 hover:bg-primary/5 hover:text-primary transition-all cursor-pointer disabled:opacity-50"
+            >
+              <Check className="size-3.5 mr-2" />
+              {markAllAsReadMutation.isPending ? 'Đang xử lý...' : 'Đã đọc tất cả'}
+            </Button>
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-2 px-6">
+      <div className="flex flex-wrap items-center gap-2">
         {[
-          { id: 'all', label: 'All' },
-          { id: 'unread', label: 'Unread' },
-          { id: 'system', label: 'System' },
-          { id: 'security', label: 'Security' }
+          { id: 'all', label: 'Tất cả' },
+          { id: 'unread', label: 'Chưa đọc' },
+          { id: 'system', label: 'Hệ thống' },
+          { id: 'security', label: 'Bảo mật' },
+          { id: 'finance', label: 'Tài chính' },
+          { id: 'identity', label: 'Tài khoản' }
         ].map((btn) => (
           <Button
             key={btn.id}
             variant="ghost"
-            onClick={() => setFilter(btn.id as any)}
+            onClick={() => {
+              setFilter(btn.id as any);
+              setPage(1);
+            }}
             className={cn(
-              "rounded-full h-9 px-6 text-[11px] font-medium transition-all cursor-pointer",
+              "rounded-xl h-9 px-4 text-xs font-medium transition-all cursor-pointer border border-transparent",
               filter === btn.id
-                ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
-                : "text-muted-foreground hover:bg-primary/5 hover:text-primary"
+                ? "bg-background border-border shadow-sm text-foreground font-semibold"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
             )}
           >
-            {btn.label}
+            <span className="font-serif font-bold italic uppercase tracking-wider">{btn.label}</span>
           </Button>
         ))}
       </div>
 
       {/* Notifications List */}
-      <div className="px-4 pb-20">
-        <Card className="rounded-[3rem] bg-background/40 backdrop-blur-3xl border border-white/20 shadow-xl shadow-black/5 overflow-hidden">
-          <div className="divide-y divide-border/10">
+      <div className="">
+        <div className="bg-background rounded-xl border border-border shadow-sm overflow-hidden">
+          <div className="divide-y divide-border/40">
             {isLoading ? (
-              <div className="py-32 text-center space-y-6">
-                <div className="w-24 h-24 rounded-[3rem] bg-muted/20 mx-auto flex items-center justify-center border border-white/10 relative">
-                  <div className="absolute inset-0 bg-primary/5 blur-3xl rounded-full" />
-                  <Bell className="w-10 h-10 text-muted-foreground/20 relative z-10 animate-pulse" />
+              <div className="py-20 text-center space-y-4">
+                <div className="w-12 h-12 rounded-xl bg-muted/20 mx-auto flex items-center justify-center border border-border/10">
+                  <Bell className="size-5 text-muted-foreground/30 animate-pulse" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-xl font-bold text-foreground/40 text-center">Loading notifications...</h3>
+                  <p className="text-sm font-serif font-bold italic uppercase tracking-widest text-muted-foreground/60">Đang tải thông báo...</p>
                 </div>
               </div>
             ) : filteredNotifications.length > 0 ? (
@@ -256,37 +250,34 @@ export default function NotificationsPage() {
                   <div
                     key={notification.id}
                     className={cn(
-                      "group p-8 flex flex-col sm:flex-row gap-6 transition-all duration-300 relative",
-                      !notification.read && "bg-primary/[0.02]",
-                      "hover:bg-primary/[0.04]"
+                      "group p-6 flex flex-col sm:flex-row gap-5 transition-all duration-200 relative hover:bg-muted/30",
+                      !notification.read && "bg-primary/[0.02]"
                     )}
                   >
                     <div className={cn(
-                      "w-14 h-14 rounded-[1.5rem] shrink-0 flex items-center justify-center transition-transform group-hover:scale-110 duration-500",
+                      "size-10 rounded-xl shrink-0 flex items-center justify-center transition-transform group-hover:scale-105 border border-transparent",
                       styles.bg,
                       styles.color
                     )}>
-                      <Icon className="w-6 h-6" />
+                      <Icon className="size-5" />
                     </div>
 
-                    <div className="flex-1 space-y-2">
+                    <div className="flex-1 space-y-1.5">
                       <div className="flex items-start justify-between">
                         <div className="space-y-1">
                           <h3 className={cn(
-                            "text-lg font-medium tracking-tight transition-colors",
-                            !notification.read ? "text-foreground" : "text-muted-foreground/60"
+                            "text-base font-semibold transition-colors",
+                            !notification.read ? "text-foreground" : "text-muted-foreground/80"
                           )}>
                             {notification.title}
                           </h3>
-                          <div className="flex items-center gap-3">
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-muted/30 text-[10px] font-medium text-primary border border-primary/20">
+                          <div className="flex flex-wrap items-center gap-2.5">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-muted/50 text-[10px] font-serif font-bold italic uppercase tracking-wider text-muted-foreground border border-border/50">
                               {notification.node}
                             </span>
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-muted/30 text-[10px] font-medium text-muted-foreground/60 border border-border/40">
-                              {notification.category}
-                            </span>
-                            <div className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground/40">
-                              <Clock className="w-3 h-3" />
+                            <span className="text-border text-[10px]">|</span>
+                            <div className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground/60">
+                              <Clock className="size-3 opacity-70" />
                               {notification.date} • {notification.time}
                             </div>
                           </div>
@@ -294,33 +285,33 @@ export default function NotificationsPage() {
 
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="rounded-xl opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                              <MoreVertical className="w-4 h-4 text-muted-foreground/40" />
+                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-muted-foreground hover:text-foreground">
+                              <MoreVertical className="size-4" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="rounded-2xl border-border/40 min-w-[160px] p-1.5">
+                          <DropdownMenuContent align="end" className="rounded-xl border-border shadow-lg min-w-[160px] p-1">
                             {!notification.read && (
                               <DropdownMenuItem
                                 onClick={() => markAsRead(notification.id)}
                                 disabled={markAsReadMutation.isPending}
-                                className="rounded-xl text-xs font-medium cursor-pointer px-4 py-2.5 focus:bg-primary/5 focus:text-primary disabled:opacity-50"
+                                className="rounded-lg text-xs font-medium cursor-pointer px-3 py-2 disabled:opacity-50"
                               >
-                                <Check className="w-3.5 h-3.5 mr-2 opacity-50" />
-                                {markAsReadMutation.isPending ? 'Marking...' : 'Mark as Read'}
+                                <Check className="size-3.5 mr-2 opacity-50" />
+                                {markAsReadMutation.isPending ? 'Đang xử lý...' : 'Đánh dấu đã đọc'}
                               </DropdownMenuItem>
                             )}
                             <DropdownMenuItem
                               onClick={() => deleteNotification(notification.id)}
                               disabled={deleteNotificationMutation.isPending}
-                              className="rounded-xl text-xs font-medium cursor-pointer px-4 py-2.5 text-destructive focus:bg-destructive/5 focus:text-destructive disabled:opacity-50"
+                              className="rounded-lg text-xs font-medium cursor-pointer px-3 py-2 text-rose-500 focus:text-rose-600 focus:bg-rose-50 disabled:opacity-50"
                             >
-                              <Trash2 className="w-3.5 h-3.5 mr-2 opacity-50" />
-                              {deleteNotificationMutation.isPending ? 'Deleting...' : 'Delete'}
+                              <Trash2 className="size-3.5 mr-2 opacity-50" />
+                              {deleteNotificationMutation.isPending ? 'Đang xóa...' : 'Xóa thông báo'}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
-                      <p className="max-w-3xl text-sm font-medium text-muted-foreground/70 leading-relaxed">
+                      <p className="max-w-3xl text-sm text-muted-foreground/70 leading-relaxed">
                         {notification.message}
                       </p>
                     </div>
@@ -328,19 +319,51 @@ export default function NotificationsPage() {
                 )
               })
             ) : (
-              <div className="py-32 text-center space-y-6">
-                <div className="w-24 h-24 rounded-[3rem] bg-muted/20 mx-auto flex items-center justify-center border border-white/10 relative">
-                  <div className="absolute inset-0 bg-primary/5 blur-3xl rounded-full" />
-                  <BellOff className="w-10 h-10 text-muted-foreground/20 relative z-10" />
+              <div className="py-20 text-center space-y-4">
+                <div className="w-16 h-16 rounded-2xl bg-muted/20 mx-auto flex items-center justify-center border border-border/10">
+                  <BellOff className="size-8 text-muted-foreground/20" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-xl font-bold text-foreground/40 text-center">No Notifications</h3>
-                  <p className="text-xs font-bold text-muted-foreground/30">You're all caught up!</p>
+                  <h3 className="text-base font-serif font-bold italic uppercase tracking-tight text-foreground">Không có thông báo</h3>
+                  <p className="text-sm text-muted-foreground/60">Bạn đã xem hết tất cả thông tin quan trọng.</p>
                 </div>
               </div>
             )}
           </div>
-        </Card>
+        </div>
+
+        {/* Pagination Section */}
+        {notificationsData && notificationsData.totalPages > 1 && (
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-border/10">
+            <div className="text-xs font-medium text-muted-foreground ml-2">
+              Trang <span className="text-foreground">{page}</span> / {notificationsData.totalPages}
+            </div>
+
+            <Pagination className="w-auto mx-0">
+              <PaginationContent className="gap-2">
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    className={cn(
+                      "h-9 px-3 rounded-md border border-border text-xs font-medium transition-all cursor-pointer",
+                      page === 1 ? "opacity-30 cursor-not-allowed pointer-events-none" : "hover:bg-muted"
+                    )}
+                  />
+                </PaginationItem>
+
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() => setPage((p) => Math.min(notificationsData.totalPages, p + 1))}
+                    className={cn(
+                      "h-9 px-3 rounded-md border border-border text-xs font-medium transition-all cursor-pointer",
+                      page === notificationsData.totalPages ? "opacity-30 cursor-not-allowed pointer-events-none" : "hover:bg-muted"
+                    )}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        )}
       </div>
     </div>
   )

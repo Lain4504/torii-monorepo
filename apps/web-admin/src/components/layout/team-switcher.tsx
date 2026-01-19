@@ -57,8 +57,8 @@ export function TeamSwitcher({
                                 <activeTeam.logo className="size-4 group-data-[collapsible=icon]:size-3.5" />
                             </div>
                             <div className="grid flex-1 text-left text-sm leading-tight ml-2 group-data-[collapsible=icon]:hidden">
-                                <span className="truncate font-bold">{activeTeam.name}</span>
-                                <span className="truncate text-[10px] text-muted-foreground/60 uppercase tracking-wider">{activeTeam.plan}</span>
+                                <span className="truncate font-serif font-bold italic tracking-tight">{activeTeam.name}</span>
+                                <span className="truncate text-[10px] font-serif font-bold italic text-muted-foreground/60 uppercase tracking-wider">{activeTeam.plan}</span>
                             </div>
                             <ChevronsUpDown className="ml-auto opacity-50 group-data-[collapsible=icon]:hidden" />
                         </SidebarMenuButton>
@@ -69,7 +69,7 @@ export function TeamSwitcher({
                         side={isMobile ? "bottom" : "right"}
                         sideOffset={4}
                     >
-                        <DropdownMenuLabel className="text-muted-foreground/40 text-[10px] uppercase tracking-[0.2em] px-3 py-2">
+                        <DropdownMenuLabel className="text-muted-foreground/40 text-[10px] font-serif font-bold italic uppercase tracking-[0.2em] px-3 py-2">
                             Workspaces
                         </DropdownMenuLabel>
                         {teams.map((team) => (

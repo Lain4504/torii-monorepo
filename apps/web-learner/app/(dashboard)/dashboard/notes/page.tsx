@@ -34,9 +34,17 @@ export default function NotesPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 max-w-5xl animate-in fade-in duration-500">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-2">
-                <div className="space-y-1">
-                    <h1 className="text-2xl font-bold text-foreground tracking-tight">Ghi chú của tôi</h1>
-                    <p className="text-sm text-muted-foreground opacity-70">Lưu lại những kiến thức quan trọng</p>
+                <div className="space-y-4">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-serif font-bold italic uppercase tracking-wide">
+                        <FileText className="size-3.5" />
+                        Knowledge
+                    </div>
+                    <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+                        Ghi chú <span className="text-primary not-italic">Vạn năng</span>
+                    </h1>
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
+                        Lưu giữ tinh hoa kiến thức Torii Academy
+                    </p>
                 </div>
                 <div className="relative w-full md:w-72">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
@@ -50,7 +58,7 @@ export default function NotesPage() {
             {/* Notes Grid */}
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {notes.map((note) => (
-                    <Card key={note.id} className="border-border/50 shadow-none bg-card/30 hover:bg-card/50 transition-all group cursor-pointer flex flex-col h-full">
+                    <Card key={note.id} className="border-border/60 shadow-sm bg-card/40 backdrop-blur-xl hover:border-primary/40 hover:bg-card/60 transition-all group cursor-pointer flex flex-col h-full">
                         <CardContent className="p-6 space-y-4 flex-1 flex flex-col">
                             <div className="flex items-start justify-between">
                                 <div className="p-2.5 rounded-xl bg-primary/5 text-primary">

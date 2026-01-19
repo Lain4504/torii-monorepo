@@ -16,7 +16,6 @@ import { cn } from "@workspace/ui/lib/utils";
 const columnHelper = createColumnHelper<CourseResponseDTO>();
 
 export type CoursesColumnsProps = {
-    onView: (course: CourseResponseDTO) => void;
     onEdit: (course: CourseResponseDTO) => void;
     onDelete: (course: CourseResponseDTO) => void;
     onModules: (course: CourseResponseDTO) => void;
@@ -28,16 +27,16 @@ export type CoursesColumnsProps = {
     limit: number;
 };
 
-export const getCoursesColumns = ({ onView, onEdit, onDelete, onModules, onManageInstructors, onPublish, onUnpublish, onTitleClick, page, limit }: CoursesColumnsProps) => [
+export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstructors, onPublish, onUnpublish, onTitleClick, page, limit }: CoursesColumnsProps) => [
     // STT Column
     columnHelper.display({
         id: 'stt',
         header: () => <div className="text-center">#</div>,
         cell: ({ row }) => {
             const stt = (page - 1) * limit + row.index + 1;
-            return <div className="text-center font-black italic text-muted-foreground/30 tabular-nums text-[10px]">0{stt}</div>;
+            return <div className="text-center font-bold text-muted-foreground/50 tabular-nums text-xs">{stt}</div>;
         },
-        size: 60,
+        size: 50,
     }),
     columnHelper.accessor('title', {
         header: ({ column }) => {
@@ -45,36 +44,36 @@ export const getCoursesColumns = ({ onView, onEdit, onDelete, onModules, onManag
                 <Button
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                    className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group"
+                    className="-ml-4 h-9 px-4 text-xs font-semibold hover:bg-primary/5 hover:text-primary transition-all group"
                 >
-                    Course Name
-                    <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
+                    Tên khóa học
+                    <ArrowUpDown className="ml-2 h-3.5 w-3.5 opacity-40 group-hover:opacity-100 transition-opacity" />
                 </Button>
             );
         },
         cell: (info) => (
             <div
-                className="flex items-center gap-3 group/title cursor-pointer"
+                className="flex items-center gap-3 group/title cursor-pointer max-w-[280px]"
                 onClick={() => onTitleClick(info.row.original)}
             >
-                <div className="w-10 h-10 rounded-lg bg-primary/5 border border-primary/10 flex items-center justify-center text-primary group-hover/title:bg-primary group-hover/title:text-white transition-all">
+                <div className="w-9 h-9 shrink-0 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary group-hover/title:bg-primary group-hover/title:text-white transition-all duration-300">
                     <BookOpen className="size-4" />
                 </div>
-                <div className="flex flex-col">
-                    <span className="font-bold text-foreground text-lg group-hover/title:text-primary transition-colors line-clamp-1">{info.getValue()}</span>
-                    <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest mt-0.5">ID: {info.row.original.id.slice(0, 8)}</span>
+                <div className="flex flex-col min-w-0">
+                    <span className="font-semibold text-foreground text-sm group-hover/title:text-primary transition-colors truncate">{info.getValue()}</span>
+                    <span className="text-[10px] font-medium text-muted-foreground/60 uppercase tracking-wider truncate">ID: {info.row.original.id.slice(0, 8)}</span>
                 </div>
             </div>
         ),
     }),
     columnHelper.accessor('jlptLevel', {
-        header: () => <div className="px-1 text-center">Course Level</div>,
+        header: () => <div className="px-1 text-center">Trình độ</div>,
         cell: (info) => {
             const level = info.getValue() || 'N/A';
             return (
                 <div className="flex justify-center">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-muted/20 border border-border/20 text-[9px] font-black uppercase tracking-widest text-muted-foreground">
-                        <Target className="size-3 opacity-40 text-primary" />
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-muted/30 border border-border/40 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                        <Target className="size-3 opacity-50 text-primary" />
                         {level}
                     </div>
                 </div>
@@ -88,17 +87,17 @@ export const getCoursesColumns = ({ onView, onEdit, onDelete, onModules, onManag
                 <Button
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                    className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group w-full justify-center"
+                    className="-ml-4 h-9 px-4 text-xs font-semibold hover:bg-primary/5 hover:text-primary transition-all group w-full justify-center"
                 >
-                    Pricing
-                    <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
+                    Học phí
+                    <ArrowUpDown className="ml-2 h-3.5 w-3.5 opacity-40 group-hover:opacity-100 transition-opacity" />
                 </Button>
             );
         },
         cell: (info) => {
             const formatted = formatCurrency(info.getValue());
             return (
-                <div className="text-center font-bold text-[16px] text-foreground tabular-nums tracking-tight">
+                <div className="text-center font-semibold text-sm text-foreground tabular-nums tracking-tight">
                     {formatted}
                 </div>
             );
@@ -106,24 +105,26 @@ export const getCoursesColumns = ({ onView, onEdit, onDelete, onModules, onManag
         size: 120,
     }),
     columnHelper.accessor('status', {
-        header: () => <div className="px-1">Visibility</div>,
+        header: () => <div className="px-1 text-center">Trạng thái</div>,
         cell: (info) => {
             const status = info.getValue() as string;
-            const colors = {
-                published: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
-                draft: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
-                archived: 'bg-muted/10 text-muted-foreground border-border/20'
+            const config = {
+                published: { label: 'Đã xuất bản', class: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' },
+                draft: { label: 'Bản nháp', class: 'bg-amber-500/10 text-amber-600 border-amber-500/20' },
+                archived: { label: 'Đã lưu trữ', class: 'bg-slate-500/10 text-slate-600 border-slate-500/20' }
             };
-            const colorClass = colors[status as keyof typeof colors] || 'bg-muted/10 text-muted-foreground border-border/20';
+            const current = config[status as keyof typeof config] || { label: status, class: 'bg-muted/30 text-muted-foreground border-border/40' };
 
             return (
-                <div className={cn("inline-flex items-center px-3 py-1 rounded-md text-[9px] font-black uppercase tracking-[0.2em] border shadow-sm", colorClass)}>
-                    <div className={cn("size-1 rounded-full mr-2", status === 'published' ? 'bg-emerald-500 animate-pulse' : 'bg-current')} />
-                    {status}
+                <div className="flex justify-center">
+                    <div className={cn("inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border shadow-sm", current.class)}>
+                        <div className={cn("size-1.5 rounded-full mr-2", status === 'published' ? 'bg-emerald-500 animate-pulse' : 'bg-current opacity-50')} />
+                        {current.label}
+                    </div>
                 </div>
             );
         },
-        size: 120,
+        size: 130,
     }),
     columnHelper.accessor('totalStudents', {
         header: ({ column }) => {
@@ -131,17 +132,17 @@ export const getCoursesColumns = ({ onView, onEdit, onDelete, onModules, onManag
                 <Button
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                    className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group w-full justify-center"
+                    className="-ml-4 h-9 px-4 text-xs font-semibold hover:bg-primary/5 hover:text-primary transition-all group w-full justify-center"
                 >
-                    Enrolled
-                    <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
+                    Học viên
+                    <ArrowUpDown className="ml-2 h-3.5 w-3.5 opacity-40 group-hover:opacity-100 transition-opacity" />
                 </Button>
             );
         },
         cell: (info) => (
             <div className="flex flex-col items-center">
-                <div className="font-bold text-xl leading-none text-primary">{info.getValue() || 0}</div>
-                <div className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40 mt-1.5">Students</div>
+                <div className="font-bold text-sm text-foreground">{info.getValue() || 0}</div>
+                <div className="text-[9px] font-medium text-muted-foreground/60">đã đăng ký</div>
             </div>
         ),
         size: 100,
@@ -152,16 +153,16 @@ export const getCoursesColumns = ({ onView, onEdit, onDelete, onModules, onManag
                 <Button
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                    className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group w-full justify-center"
+                    className="-ml-4 h-9 px-4 text-xs font-semibold hover:bg-primary/5 hover:text-primary transition-all group w-full justify-center"
                 >
-                    Last Updated
-                    <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
+                    Cập nhật
+                    <ArrowUpDown className="ml-2 h-3.5 w-3.5 opacity-40 group-hover:opacity-100 transition-opacity" />
                 </Button>
             );
         },
         cell: (info) => (
-            <div className="flex items-center justify-center gap-2 text-muted-foreground/40 tabular-nums text-[10px] font-bold">
-                <Clock className="size-3 opacity-40" />
+            <div className="flex items-center justify-center gap-1.5 text-muted-foreground text-xs tabular-nums font-medium">
+                <Clock className="size-3 opacity-50" />
                 {formatDateTime(info.getValue())}
             </div>
         ),
@@ -169,7 +170,7 @@ export const getCoursesColumns = ({ onView, onEdit, onDelete, onModules, onManag
     }),
     columnHelper.display({
         id: 'actions',
-        header: () => <div className="text-center">Manage</div>,
+        header: () => <div className="text-center">Thao tác</div>,
         cell: ({ row }) => {
             const course = row.original;
 
@@ -179,82 +180,76 @@ export const getCoursesColumns = ({ onView, onEdit, onDelete, onModules, onManag
                         <DropdownMenuTrigger asChild>
                             <Button
                                 variant="ghost"
-                                className="h-10 w-10 p-0 rounded-lg hover:bg-primary/10 hover:text-primary transition-all data-[state=open]:bg-primary/20"
+                                className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 hover:text-primary transition-all data-[state=open]:bg-primary/10 data-[state=open]:text-primary"
                             >
-                                <span className="sr-only">Open Course Menu</span>
-                                <Zap className="h-4 w-4 opacity-40 group-hover:opacity-100" />
+                                <span className="sr-only">Mở menu</span>
+                                <Zap className="h-4 w-4 opacity-50 group-hover:opacity-100" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
                             align="end"
-                            className="w-[220px] border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-lg p-2"
+                            className="w-[200px] border-border/40 shadow-xl bg-background/95 backdrop-blur-xl rounded-xl p-1.5"
                         >
-                            <DropdownMenuItem
-                                onClick={() => onView(course)}
-                                className="rounded-md px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
-                            >
-                                <BookOpen className="h-4 w-4 opacity-30" />
-                                <span>View Details</span>
-                            </DropdownMenuItem>
+
 
                             <DropdownMenuItem
                                 onClick={() => onModules(course)}
-                                className="rounded-md px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
+                                className="rounded-lg px-3 py-2.5 text-xs font-medium focus:bg-primary/10 focus:text-primary cursor-pointer flex gap-2.5"
                             >
-                                <Layers className="h-4 w-4 opacity-30" />
-                                <span>Curriculum</span>
+                                <Layers className="h-4 w-4 opacity-50" />
+                                <span>Chương trình học</span>
                             </DropdownMenuItem>
 
                             <DropdownMenuItem
                                 onClick={() => onEdit(course)}
-                                className="rounded-md px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
+                                className="rounded-lg px-3 py-2.5 text-xs font-medium focus:bg-primary/10 focus:text-primary cursor-pointer flex gap-2.5"
                             >
-                                <Pencil className="h-4 w-4 opacity-30" />
-                                <span>Edit Course</span>
+                                <Pencil className="h-4 w-4 opacity-50" />
+                                <span>Chỉnh sửa thông tin</span>
                             </DropdownMenuItem>
 
                             <DropdownMenuItem
                                 onClick={() => onManageInstructors(course)}
-                                className="rounded-md px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
+                                className="rounded-lg px-3 py-2.5 text-xs font-medium focus:bg-primary/10 focus:text-primary cursor-pointer flex gap-2.5"
                             >
-                                <Users className="h-4 w-4 opacity-30" />
-                                <span>Instructors</span>
+                                <Users className="h-4 w-4 opacity-50" />
+                                <span>Quản lý giảng viên</span>
                             </DropdownMenuItem>
 
-                            <DropdownMenuSeparator className="bg-border/20 mx-2" />
+                            <DropdownMenuSeparator className="bg-border/40 m-1" />
 
                             {course.status === 'draft' ? (
                                 <DropdownMenuItem
                                     onClick={() => onPublish(course)}
-                                    className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest text-emerald-500 focus:text-emerald-600 focus:bg-emerald-500/10 cursor-pointer flex gap-3"
+                                    className="rounded-lg px-3 py-2.5 text-xs font-medium text-emerald-600 focus:text-emerald-700 focus:bg-emerald-500/10 cursor-pointer flex gap-2.5"
                                 >
                                     <CheckCircle className="h-4 w-4 opacity-60" />
-                                    <span>Publish</span>
+                                    <span>Xuất bản khóa học</span>
                                 </DropdownMenuItem>
                             ) : course.status === 'published' ? (
                                 <DropdownMenuItem
                                     onClick={() => onUnpublish(course)}
-                                    className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest text-amber-500 focus:text-amber-600 focus:bg-amber-500/10 cursor-pointer flex gap-3"
+                                    className="rounded-lg px-3 py-2.5 text-xs font-medium text-amber-600 focus:text-amber-700 focus:bg-amber-500/10 cursor-pointer flex gap-2.5"
                                 >
                                     <XCircle className="h-4 w-4 opacity-60" />
-                                    <span>Unpublish</span>
+                                    <span>Gỡ bỏ khóa học</span>
                                 </DropdownMenuItem>
                             ) : null}
 
-                            <DropdownMenuSeparator className="bg-border/20 mx-2" />
+                            <DropdownMenuSeparator className="bg-border/40 m-1" />
 
                             <DropdownMenuItem
                                 onClick={() => onDelete(course)}
-                                className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer flex gap-3"
+                                className="rounded-lg px-3 py-2.5 text-xs font-medium text-rose-600 focus:text-rose-700 focus:bg-rose-500/10 cursor-pointer flex gap-2.5"
                             >
-                                <Trash className="h-4 w-4 opacity-30" />
-                                <span>Delete Course</span>
+                                <Trash className="h-4 w-4 opacity-50" />
+                                <span>Xóa khóa học</span>
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
             );
         },
-        size: 100,
+        size: 80,
     }),
 ];

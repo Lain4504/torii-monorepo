@@ -59,7 +59,7 @@ export function LessonContent({ description }: LessonContentProps) {
                                 ))
                             ) : (
                                 <p className="text-muted-foreground/40 font-black uppercase tracking-[0.2em] text-sm">
-                                    The faculty has designated this sesson as self-explanatory. Focus on the visual components provided in our premium player.
+                                    Nội dung bài học này được giảng viên thiết kế để học viên tự nghiên cứu qua video và các học liệu đi kèm.
                                 </p>
                             )}
                         </div>
@@ -76,15 +76,15 @@ export function LessonContent({ description }: LessonContentProps) {
                                 <FileText className="w-8 h-8" />
                             </div>
                             <div className="space-y-1">
-                                <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">Available Asset</p>
-                                <h4 className="text-2xl font-serif font-bold italic text-foreground tracking-tight uppercase leading-none">Lesson Manuscript PDF</h4>
+                                <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">Tài liệu đi kèm</p>
+                                <h4 className="text-2xl font-serif font-bold italic text-foreground tracking-tight uppercase leading-none">Giáo trình bài học (PDF)</h4>
                                 <p className="text-[10px] text-muted-foreground/30 font-black uppercase tracking-[0.2em] flex items-center gap-2">
-                                    <span>PDF FORMAT</span> <div className="w-1 h-1 bg-primary/40 rounded-full" /> <span>4.2 MB SIZE</span>
+                                    <span>ĐỊNH DẠNG PDF</span> <div className="w-1 h-1 bg-primary/40 rounded-full" /> <span>DUNG LƯỢNG 4.2 MB</span>
                                 </p>
                             </div>
                         </div>
                         <Button className="h-14 rounded-2xl px-8 text-[11px] font-black uppercase tracking-[0.2em] bg-primary text-white hover:opacity-90 transition-all relative z-10 shadow-lg shadow-primary/20">
-                            <Download className="w-4 h-4 mr-3" /> Fetch Asset
+                            <Download className="w-4 h-4 mr-3" /> Tải tài liệu
                         </Button>
                     </div>
                 </div>
@@ -97,16 +97,16 @@ export function LessonContent({ description }: LessonContentProps) {
                         <MessageSquare className="w-10 h-10 text-primary/20 group-hover:text-primary transition-colors duration-500" />
                     </div>
                     <div className="space-y-3">
-                        <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-primary">Academic Forum</h4>
+                        <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-primary">Diễn đàn thảo luận</h4>
                         <p className="text-3xl font-serif font-bold italic text-foreground tracking-tight uppercase max-w-md mx-auto leading-none">
-                            Join the Global <span className="text-primary not-italic">Discussion</span>
+                            Tham gia <span className="text-primary not-italic">Trao đổi kiến thức</span>
                         </p>
                         <p className="text-[11px] text-muted-foreground/50 font-black uppercase tracking-[0.1em] max-w-sm mx-auto">
-                            Collaborate with fellow students and faculty experts in our encrypted learning channel.
+                            Tương tác với các học viên khác và đội ngũ giảng viên chuyên môn để giải đáp thắc mắc.
                         </p>
                     </div>
                     <Button className="h-16 rounded-2xl px-12 text-[11px] font-black uppercase tracking-[0.3em] bg-muted/10 text-foreground border border-border/40 hover:bg-primary hover:text-white hover:border-primary transition-all duration-500">
-                        Initiate Conversation
+                        Bắt đầu thảo luận
                     </Button>
                 </div>
             </TabsContent>

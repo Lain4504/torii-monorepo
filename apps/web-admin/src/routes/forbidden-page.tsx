@@ -16,9 +16,9 @@ export default function ForbiddenPage() {
                     </div>
 
                     <div className="space-y-2">
-                        <h2 className="text-2xl font-bold tracking-tight text-foreground">Access Restricted</h2>
+                        <h2 className="text-2xl font-bold tracking-tight text-foreground">Truy cập bị hạn chế</h2>
                         <p className="text-sm font-medium text-muted-foreground/80 leading-relaxed">
-                            You don't have enough permission to access this resource.
+                            Bạn không có đủ quyền hạn để truy cập tài nguyên này.
                         </p>
                     </div>
 
@@ -27,7 +27,7 @@ export default function ForbiddenPage() {
                         className="rounded-xl mt-4 w-full h-12 text-xs font-medium uppercase tracking-widest shadow-lg shadow-primary/20 hover:shadow-primary/30"
                     >
                         <a href="/">
-                            Return to Dashboard
+                            Quay lại Bảng điều khiển
                         </a>
                     </Button>
                 </div>

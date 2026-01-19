@@ -32,32 +32,32 @@ interface Workspace extends Team {
 const WORKSPACES: Workspace[] = [
     {
         id: "overview",
-        name: "Overview",
+        name: "Academic Hub",
         logo: GalleryVerticalEnd,
-        plan: "Education Core",
-        roles: ["*"], // Accessible by everyone
+        plan: "Nihongo Pro",
+        roles: ["*"],
         navItems: [
-            { labelKey: "sidebar.overview", items: mainNavItems }
+            { labelKey: "common:sidebar.overview", items: mainNavItems }
         ]
     },
     {
         id: "management",
-        name: "Management",
-        logo: LayoutGrid, // Using LayoutGrid instead of AudioWaveform for better semantics
-        plan: "Business Ops",
-        roles: [UserRole.LECTURER], // Admin included via super-admin check, explicitly listed for Staff
+        name: "Operations",
+        logo: LayoutGrid,
+        plan: "Enterprise Ops",
+        roles: [UserRole.LECTURER],
         navItems: [
-            { labelKey: "sidebar.management", items: managementNavItems }
+            { labelKey: "common:sidebar.management", items: managementNavItems }
         ]
     },
     {
         id: "system",
-        name: "System Admin",
+        name: "Security",
         logo: Command,
         plan: "System Config",
-        roles: [], // Only Admin (handled by super-admin check)
+        roles: [],
         navItems: [
-            { labelKey: "sidebar.system", items: systemNavItems }
+            { labelKey: "common:sidebar.system", items: systemNavItems }
         ]
     },
 ];
@@ -79,9 +79,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 plan: "Enterprise",
                 roles: [UserRole.ADMIN],
                 navItems: [
-                    { labelKey: "sidebar.overview", items: mainNavItems },
-                    { labelKey: "sidebar.management", items: managementNavItems },
-                    { labelKey: "sidebar.system", items: systemNavItems }
+                    { labelKey: "common:sidebar.overview", items: mainNavItems },
+                    { labelKey: "common:sidebar.management", items: managementNavItems },
+                    { labelKey: "common:sidebar.system", items: systemNavItems }
                 ]
             }];
         }

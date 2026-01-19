@@ -137,7 +137,7 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                             <div className="flex items-center gap-2">
                                 {renderStars(review.rating, false, 3)}
                                 <span className="text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.2em]">
-                                    Verified
+                                    Đã xác thực
                                 </span>
                             </div>
                         </div>
@@ -152,7 +152,7 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                     <div className="flex items-center gap-4 pt-1">
                         <button className="flex items-center gap-1.5 group/btn cursor-pointer">
                             <ThumbsUp className="w-3 h-3 text-muted-foreground/40 group-hover/btn:text-primary transition-colors" />
-                            <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 group-hover/btn:text-foreground transition-colors">Helpful</span>
+                            <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 group-hover/btn:text-foreground transition-colors">Hữu ích</span>
                         </button>
                     </div>
                 </div>
@@ -203,7 +203,7 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                 <div className="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center animate-pulse">
                     <Sparkles className="w-6 h-6 text-primary" />
                 </div>
-                <span className="text-[10px] font-black uppercase tracking-[0.3em]">Loading perspectives...</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.3em]">Đang tải đánh giá...</span>
             </div>
         )
     }
@@ -212,7 +212,7 @@ export function CourseReviews({ course }: CourseReviewsProps) {
         <div className="space-y-12 animate-in fade-in duration-700" id="reviews">
             <div className="flex items-center gap-4">
                 <MessageSquare className="w-5 h-5 text-primary/40" />
-                <h2 className="text-2xl md:text-3xl font-serif font-bold italic text-foreground uppercase tracking-tight">Student Perspectives</h2>
+                <h2 className="text-2xl md:text-3xl font-serif font-bold italic text-foreground uppercase tracking-tight">Cảm tưởng học viên</h2>
             </div>
 
             <div>
@@ -227,8 +227,8 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                                 <div className="flex justify-center lg:justify-start">
                                     {renderStars(averageRating, false, 5)}
                                 </div>
-                                <div className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/40">Collective Academic Score</div>
-                                <div className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{totalReviews} Verified Subscriptions</div>
+                                <div className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/40">Điểm đánh giá trung bình</div>
+                                <div className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{totalReviews} học viên đã tham gia</div>
                             </div>
                         </div>
 
@@ -239,7 +239,7 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                         <div className="hidden xl:block flex-1 max-w-[200px]">
                             <div className="p-6 rounded-[1.5rem] bg-background border border-border/40 text-center space-y-3">
                                 <Sparkles className="w-6 h-6 text-primary mx-auto opacity-40" />
-                                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-relaxed">Top rated by 98% of students</p>
+                                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-relaxed">Được 98% học viên đánh giá cao</p>
                             </div>
                         </div>
                     </div>
@@ -252,40 +252,40 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                                     <DialogTrigger asChild>
                                         <Button className="h-14 px-10 rounded-2xl bg-primary text-white font-black uppercase tracking-widest text-[10px] shadow-2xl shadow-primary/20 cursor-pointer active:scale-95 transition-all w-full md:w-auto">
                                             <Plus className="mr-3 h-4 w-4" />
-                                            Submit Evaluation
+                                            Gửi đánh giá
                                         </Button>
                                     </DialogTrigger>
                                     <DialogContent className="sm:max-w-2xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
                                         <div className="p-10 space-y-10">
                                             <DialogHeader>
-                                                <DialogTitle className="text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase">Rate <span className="text-primary not-italic">Course</span></DialogTitle>
+                                                <DialogTitle className="text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase">Đánh giá <span className="text-primary not-italic">khóa học</span></DialogTitle>
                                                 <DialogDescription className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 mt-4 leading-relaxed">
-                                                    Your authentic perspective helps the Torii community maintain academic excellence.
+                                                    Những chia sẻ chân thực của bạn sẽ giúp cộng đồng học viên Torii có thêm thông tin hữu ích.
                                                 </DialogDescription>
                                             </DialogHeader>
                                             <div className="space-y-8">
                                                 <div className="flex flex-col items-center gap-6 py-10 bg-muted/20 rounded-[2.5rem] border border-border/40 relative overflow-hidden group/star">
                                                     <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover/star:opacity-100 transition-opacity" />
-                                                    <label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 relative z-10">Linguistic Satisfaction Level</label>
+                                                    <label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 relative z-10">Mức độ hài lòng</label>
                                                     <div className="relative z-10">{renderStars(newRating, true, 10)}</div>
                                                     <span className="text-[11px] font-serif font-bold italic text-primary uppercase tracking-[0.2em] h-5 relative z-10">
-                                                        {newRating > 0 ? ['Lacking', 'Passable', 'Professional', 'Excellent', 'Superior Experience'][newRating - 1] : 'Quantify your experience'}
+                                                        {newRating > 0 ? ['Rất kém', 'Cần cải thiện', 'Tốt', 'Rất tốt', 'Tuyệt vời'][newRating - 1] : 'Hãy chọn mức độ hài lòng của bạn'}
                                                     </span>
                                                 </div>
                                                 <div className="space-y-4">
-                                                    <label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 ml-4">Detailed Insights</label>
+                                                    <label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 ml-4">Nhận xét chi tiết</label>
                                                     <Textarea
                                                         value={newComment}
                                                         onChange={(e) => setNewComment(e.target.value)}
-                                                        placeholder="Share your thoughts on the curriculum, faculty support, or technical experience..."
+                                                        placeholder="Chia sẻ cảm nhận của bạn về học liệu, giảng viên hoặc trải nghiệm ứng dụng..."
                                                         className="min-h-[180px] rounded-[2rem] bg-muted/20 border-border/40 p-8 text-sm font-bold focus:bg-background focus:ring-0 resize-none transition-all placeholder:text-muted-foreground/20 leading-relaxed italic"
                                                     />
                                                 </div>
                                             </div>
                                             <DialogFooter className="gap-4 pt-4">
-                                                <Button variant="ghost" onClick={() => setShowReviewForm(false)} className="rounded-xl font-black uppercase tracking-[0.2em] text-[10px] h-14 px-8 border-border/40 hover:bg-muted/40 transition-all">Cancel</Button>
+                                                <Button variant="ghost" onClick={() => setShowReviewForm(false)} className="rounded-xl font-black uppercase tracking-[0.2em] text-[10px] h-14 px-8 border-border/40 hover:bg-muted/40 transition-all">Hủy</Button>
                                                 <Button onClick={handleSubmitReview} disabled={submitting || newRating === 0} className="flex-1 rounded-xl h-14 bg-primary text-white font-black uppercase tracking-[0.2em] text-[10px] shadow-2xl shadow-primary/20 active:scale-95 transition-all">
-                                                    {submitting ? 'Transmitting...' : 'Post Evaluation'}
+                                                    {submitting ? 'Đang gửi...' : 'Đăng nhận xét'}
                                                 </Button>
                                             </DialogFooter>
                                         </div>
@@ -344,7 +344,7 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                                         <div className="flex gap-1">
                                             {renderStars(averageRating, false, 5)}
                                         </div>
-                                        <div className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/40">{totalReviews} Verified Perspectives</div>
+                                        <div className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/40">{totalReviews} đánh giá đã xác thực</div>
                                     </div>
                                 </div>
 
@@ -363,8 +363,8 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                         <div className="flex-1 flex flex-col h-full bg-background overflow-hidden relative pt-20 md:pt-0">
                             <div className="p-8 md:p-12 border-b border-border/20 flex flex-col md:flex-row gap-6 md:items-center justify-between">
                                 <div className="space-y-1">
-                                    <h3 className="text-xl font-black uppercase tracking-tight text-foreground">Community Mentions</h3>
-                                    <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Sorted by most relevant</div>
+                                    <h3 className="text-xl font-black uppercase tracking-tight text-foreground">Ý kiến từ Cộng đồng</h3>
+                                    <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Sắp xếp theo mức độ phù hợp</div>
                                 </div>
                                 <div className="relative">
                                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/40" />

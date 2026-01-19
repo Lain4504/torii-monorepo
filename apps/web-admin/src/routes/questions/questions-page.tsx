@@ -72,36 +72,36 @@ export default function QuestionsPage() {
     const handleApprove = async (question: QuestionResponseDTO) => {
         try {
             await approveMutation.mutateAsync(question.id);
-            toast.success('Question approved successfully');
+            toast.success('Duyệt câu hỏi thành công');
         } catch (error: any) {
-            toast.error(error.response?.data?.message || 'Failed to approve question');
+            toast.error(error.response?.data?.message || 'Duyệt câu hỏi thất bại');
         }
     };
 
     const handleDeactivate = async (question: QuestionResponseDTO) => {
         try {
             await deactivateMutation.mutateAsync(question.id);
-            toast.success('Question deactivated successfully');
+            toast.success('Đã ngưng kích hoạt câu hỏi');
         } catch (error: any) {
-            toast.error(error.response?.data?.message || 'Failed to deactivate question');
+            toast.error(error.response?.data?.message || 'Ngưng kích hoạt câu hỏi thất bại');
         }
     };
 
     const handleReject = async (question: QuestionResponseDTO) => {
         try {
             await rejectMutation.mutateAsync(question.id);
-            toast.success('Question rejected successfully');
+            toast.success('Đã từ chối câu hỏi thành công');
         } catch (error: any) {
-            toast.error(error.response?.data?.message || 'Failed to reject question');
+            toast.error(error.response?.data?.message || 'Từ chối câu hỏi thất bại');
         }
     };
 
     const handleSendForReview = async (question: QuestionResponseDTO) => {
         try {
             await sendForReviewMutation.mutateAsync(question.id);
-            toast.success('Question sent for review successfully');
+            toast.success('Đã gửi yêu cầu xét duyệt thành công');
         } catch (error: any) {
-            toast.error(error.response?.data?.message || 'Failed to send question for review');
+            toast.error(error.response?.data?.message || 'Gửi yêu cầu xét duyệt thất bại');
         }
     };
 
@@ -112,7 +112,7 @@ export default function QuestionsPage() {
                     <ShieldAlert className="size-8 text-destructive" />
                 </div>
                 <div className="space-y-1">
-                    <h3 className="text-lg font-semibold">Error Loading Questions</h3>
+                    <h3 className="text-lg font-semibold">Lỗi tải Danh sách Câu hỏi</h3>
                     <p className="text-sm text-muted-foreground">{error.message}</p>
                 </div>
             </div>
@@ -196,19 +196,19 @@ export default function QuestionsPage() {
                 <div className="space-y-4 max-w-2xl">
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-bold uppercase tracking-wider">
                         <Cpu className="size-3.5" />
-                        Logic Engine
+                        Hệ thống Câu hỏi
                     </div>
-                    <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-foreground leading-[1.1]">
-                        Question <span className="text-primary">Bank</span>
+                    <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+                        Ngân hàng <span className="text-primary not-italic">Câu hỏi</span>
                     </h1>
-                    <p className="text-base text-muted-foreground mt-4 leading-relaxed max-w-lg border-l-2 border-primary/20 pl-4">
-                        Manage and organize questions, validation logic, and assessments for the <span className="text-foreground font-semibold">Torii Intelligence</span> system.
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
+                        Hệ thống ngân hàng câu hỏi và Logic Engine Torii
                     </p>
                 </div>
                 <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto pt-6 sm:pt-0">
                     <div className="flex items-center gap-4 p-4 rounded-2xl bg-background/60 border border-border/20 backdrop-blur-xl hidden sm:flex shadow-sm">
                         <div className="space-y-0.5">
-                            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium text-center">Total Questions</p>
+                            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium text-center">Tổng số Câu hỏi</p>
                             <h3 className="text-2xl font-bold text-center text-primary">{meta?.total || 0}</h3>
                         </div>
                     </div>
@@ -217,7 +217,7 @@ export default function QuestionsPage() {
                             onClick={() => setShowCreateDialog(true)}
                             className="w-full sm:w-auto h-12 px-6 rounded-xl bg-primary text-primary-foreground font-medium text-sm shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all group"
                         >
-                            Create Question
+                            Tạo Câu hỏi Mới
                             <Plus className="ml-2 size-4 opacity-70 group-hover:opacity-100 transition-opacity" />
                         </Button>
                     </Can>
@@ -269,10 +269,10 @@ export default function QuestionsPage() {
                         <div className="flex flex-col lg:flex-row lg:items-center gap-4 text-xs text-muted-foreground font-medium text-center lg:text-left pl-2">
                             <div className="inline-flex items-center gap-2">
                                 <Sparkles className="size-3.5 text-primary/70" />
-                                <span>Total: <span className="text-foreground">{meta.total} Questions</span></span>
+                                <span>Tổng cộng: <span className="text-foreground">{meta.total} Câu hỏi</span></span>
                             </div>
                             <div className="hidden lg:block w-1 h-1 rounded-full bg-border" />
-                            <div>Page {page} of {meta.totalPages}</div>
+                            <div>Trang {page} / {meta.totalPages}</div>
                         </div>
 
                         {meta.totalPages > 1 && (

@@ -99,7 +99,7 @@ export default function ExamPage() {
     }
 
     const levels = ['Tất cả', 'N5', 'N4', 'N3', 'N2', 'N1']
-    const types = ['Full Test', 'Mini Test']
+    const types = ['Bài thi thực tế', 'Đề thi rút gọn']
 
     return (
         <div className="min-h-screen bg-background py-24 selection:bg-primary/10 selection:text-primary">
@@ -109,9 +109,9 @@ export default function ExamPage() {
                 <div className="mb-20 space-y-4 text-center md:text-left">
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[9px] font-black uppercase tracking-[0.3em]">
                         <Sparkles className="w-3 h-3" />
-                        <span>Challenger Arena</span>
+                        <span>Đấu trường Thử thách</span>
                     </div>
-                    <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-foreground uppercase italic leading-[0.8] mb-6">
+                    <h1 className="text-4xl md:text-7xl font-black tracking-tighter text-foreground uppercase italic leading-[0.8] mb-6">
                         Luyện thi <span className="text-primary not-italic">JLPT</span>
                     </h1>
                     <p className="text-xl text-muted-foreground/60 font-bold max-w-2xl">
@@ -163,7 +163,7 @@ export default function ExamPage() {
                         <div className="flex flex-wrap items-center gap-3">
                             <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 mr-2 flex items-center gap-2">
                                 <Filter className="w-3 h-3" />
-                                Filters:
+                                Bộ lọc:
                             </div>
                             {levels.map((level) => (
                                 <button

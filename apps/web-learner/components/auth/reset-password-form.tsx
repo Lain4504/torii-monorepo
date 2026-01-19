@@ -170,7 +170,7 @@ function ResetPasswordFormContent() {
                                     id={field.name}
                                     type={showPassword ? 'text' : 'password'}
                                     placeholder="••••••••••••"
-                                    className="pl-9 pr-9 h-11 rounded-xl bg-muted/5 border-border/20 focus:bg-background focus:border-primary/20 focus:ring-2 focus:ring-primary/10 text-sm font-medium transition-all placeholder:text-muted-foreground/40"
+                                    className="pl-9 pr-9 h-11 rounded-xl bg-muted/5 border-border/40 focus:bg-background focus:border-primary/30 focus:ring-2 focus:ring-primary/10 text-sm font-medium transition-all placeholder:text-muted-foreground/40 shadow-sm"
                                     aria-invalid={fieldState.invalid}
                                 />
                                 <button
@@ -234,7 +234,7 @@ function ResetPasswordFormContent() {
                                     id={field.name}
                                     type={showConfirmPassword ? 'text' : 'password'}
                                     placeholder="••••••••••••"
-                                    className="pl-9 pr-9 h-11 rounded-xl bg-muted/5 border-border/20 focus:bg-background focus:border-primary/20 focus:ring-2 focus:ring-primary/10 text-sm font-medium transition-all placeholder:text-muted-foreground/40"
+                                    className="pl-9 pr-9 h-11 rounded-xl bg-muted/5 border-border/40 focus:bg-background focus:border-primary/30 focus:ring-2 focus:ring-primary/10 text-sm font-medium transition-all placeholder:text-muted-foreground/40 shadow-sm"
                                     aria-invalid={fieldState.invalid}
                                 />
                                 <button

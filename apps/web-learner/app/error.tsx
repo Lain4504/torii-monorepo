@@ -21,10 +21,10 @@ export default function Error({
         <div className="flex min-h-screen items-center justify-center bg-background">
             <ErrorState
                 code="500"
-                title="Sự cố trong dòng chảy"
-                description="Ngay cả những viên đá vững chãi nhất cũng có thể nứt vỡ dưới áp lực của ngọn núi. Hệ thống đang được khôi phục."
+                title="Đã xảy ra lỗi hệ thống"
+                description="Hệ thống gặp sự cố không mong muốn trong quá trình xử lý. Đội ngũ kỹ thuật của Torii đã được thông báo."
                 variant="500"
-                actionLabel="Khôi phục kết nối"
+                actionLabel="Thử lại"
                 onAction={() => reset()}
                 onBack={() => router.back()}
                 onHome={() => router.push("/")}

@@ -28,7 +28,7 @@ import { Layers, AlignLeft, Clock, Hash, Loader2, Save, Box, BookOpen } from 'lu
 const getUpdateModuleSchema = (existingTitles: string[] = []) =>
     moduleUpdateDTOSchema.extend({
         title: moduleUpdateDTOSchema.shape.title!.refine((title) => !title || !existingTitles.includes(title.trim()), {
-            message: 'A module with this title already exists in this course.',
+            message: 'Học phần với tiêu đề này đã tồn tại trong khóa học này.',
         }),
     });
 
@@ -83,12 +83,12 @@ export function EditModuleSheet({ module, open, onOpenChange, existingModules = 
 
         try {
             await updateModule.mutateAsync({ id: module.id, module: data });
-            toast.success('Module Updated', {
-                description: `Changes to ${data.title || module.title} have been saved.`,
+            toast.success('Đã cập nhật học phần', {
+                description: `Thay đổi cho ${data.title || module.title} đã được lưu.`,
             });
             onOpenChange(false);
         } catch (error: any) {
-            toast.error('Update Failed', {
+            toast.error('Cập nhật thất bại', {
                 description: error.response?.data?.error || error.message,
             });
         }
@@ -98,19 +98,19 @@ export function EditModuleSheet({ module, open, onOpenChange, existingModules = 
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:w-[600px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background overflow-hidden [&>button]:top-6 [&>button]:right-6 [&>button]:bg-background/20 [&>button]:rounded-xl [&>button]:w-10 [&>button]:h-10">
+            <SheetContent className="w-full sm:w-[600px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background [&>button]:top-6 [&>button]:right-6 [&>button]:bg-background/20 [&>button]:rounded-xl [&>button]:w-10 [&>button]:h-10">
 
                 {/* Header Section with Ambient Glow */}
                 {/* Header Section */}
-                <SheetHeader className="px-6 py-6 border-b border-border/10 relative overflow-hidden flex-shrink-0">
-                    <div className="relative z-10 space-y-2">
+                <SheetHeader className="px-6 py-6 border-b border-border/10 flex-shrink-0">
+                    <div className="space-y-2">
                         <div className="flex items-center gap-3 mb-1">
                             <div className="p-2 rounded-lg bg-primary/10 border border-primary/20 text-primary">
                                 <Box className="size-4" />
                             </div>
                             <div className="space-y-0.5">
-                                <SheetTitle className="text-xl font-semibold tracking-tight">
-                                    Edit Module
+                                <SheetTitle className="text-xl font-bold tracking-tight">
+                                    Chỉnh Sửa Học Phần
                                 </SheetTitle>
                                 <p className="text-xs font-medium text-muted-foreground/60">
                                     ID: {module.id.substring(0, 8)}...
@@ -118,7 +118,7 @@ export function EditModuleSheet({ module, open, onOpenChange, existingModules = 
                             </div>
                         </div>
                         <SheetDescription className="text-sm text-muted-foreground leading-relaxed">
-                            Update module details and metadata.
+                            Cập nhật chi tiết học phần và thông tin liên quan.
                         </SheetDescription>
                     </div>
                 </SheetHeader>
@@ -130,14 +130,14 @@ export function EditModuleSheet({ module, open, onOpenChange, existingModules = 
 
                             {courseTitle && (
                                 <div className="space-y-2 opacity-80 pointer-events-none">
-                                    <FieldLabel className="text-xs font-medium text-muted-foreground ml-1 flex items-center gap-2">
+                                    <FieldLabel className="text-xs font-bold text-muted-foreground ml-1 flex items-center gap-2 uppercase tracking-wider">
                                         <BookOpen className="size-3.5" />
-                                        Parent Course
+                                        Khóa Học (Cha)
                                     </FieldLabel>
                                     <Input
                                         value={courseTitle}
                                         readOnly
-                                        className="h-12 pl-4 pr-4 rounded-xl border-border/20 bg-muted/20 font-medium text-sm"
+                                        className="h-11 pl-4 pr-4 rounded-xl border-border bg-background font-medium text-sm"
                                     />
                                 </div>
                             )}
@@ -147,18 +147,18 @@ export function EditModuleSheet({ module, open, onOpenChange, existingModules = 
                                 name="title"
                                 render={({ field, fieldState }) => (
                                     <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                        <FieldLabel className="text-xs font-medium text-muted-foreground ml-1 flex items-center gap-2">
+                                        <FieldLabel className="text-xs font-bold text-muted-foreground ml-1 flex items-center gap-2 uppercase tracking-wider">
                                             <Layers className="size-3.5" />
-                                            Module Title
+                                            Tên Học Phần
                                         </FieldLabel>
                                         <div className="relative">
                                             <Input
                                                 {...field}
-                                                placeholder="e.g. Introduction to Grammar"
-                                                className="h-12 pl-4 pr-4 rounded-xl border-border/20 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all font-medium text-sm"
+                                                placeholder="VD: Bài 1 - Giới thiệu về ngữ pháp"
+                                                className="h-11 pl-4 pr-4 rounded-xl border-border bg-background hover:bg-muted/30 focus-visible:ring-primary/20 transition-all font-medium text-sm"
                                             />
                                         </div>
-                                        <FieldError errors={[fieldState.error]} className="text-xs font-medium text-red-500 ml-1" />
+                                        <FieldError errors={[fieldState.error]} className="text-xs font-medium text-destructive ml-1" />
                                     </Field>
                                 )}
                             />
@@ -168,17 +168,17 @@ export function EditModuleSheet({ module, open, onOpenChange, existingModules = 
                                 name="description"
                                 render={({ field, fieldState }) => (
                                     <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                        <FieldLabel className="text-xs font-medium text-muted-foreground ml-1 flex items-center gap-2">
+                                        <FieldLabel className="text-xs font-bold text-muted-foreground ml-1 flex items-center gap-2 uppercase tracking-wider">
                                             <AlignLeft className="size-3.5" />
-                                            Description
+                                            Mô Tả
                                         </FieldLabel>
                                         <Textarea
                                             {...field}
                                             value={field.value || ''}
-                                            placeholder="Briefly describe what students will learn..."
-                                            className="min-h-[100px] p-4 rounded-xl border-border/20 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all resize-none font-medium text-sm leading-relaxed"
+                                            placeholder="Mô tả ngắn gọn nội dung học viên sẽ học..."
+                                            className="min-h-[100px] p-4 rounded-xl border-border bg-background hover:bg-muted/30 focus-visible:ring-primary/20 transition-all resize-none font-medium text-sm leading-relaxed"
                                         />
-                                        <FieldError errors={[fieldState.error]} className="text-xs font-medium text-red-500 ml-1" />
+                                        <FieldError errors={[fieldState.error]} className="text-xs font-medium text-destructive ml-1" />
                                     </Field>
                                 )}
                             />
@@ -189,17 +189,17 @@ export function EditModuleSheet({ module, open, onOpenChange, existingModules = 
                                     name="orderIndex"
                                     render={({ field, fieldState }) => (
                                         <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                            <FieldLabel className="text-xs font-medium text-muted-foreground ml-1 flex items-center gap-2">
+                                            <FieldLabel className="text-xs font-bold text-muted-foreground ml-1 flex items-center gap-2 uppercase tracking-wider">
                                                 <Hash className="size-3.5" />
-                                                Order Index
+                                                Thứ Tự
                                             </FieldLabel>
                                             <Input
                                                 type="number"
                                                 {...field}
                                                 onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                                                className="h-12 rounded-xl border-border/20 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all font-mono font-medium text-sm"
+                                                className="h-11 rounded-xl border-border bg-background hover:bg-muted/30 focus-visible:ring-primary/20 transition-all font-mono font-medium text-sm"
                                             />
-                                            <FieldError errors={[fieldState.error]} className="text-xs font-medium text-red-500 ml-1" />
+                                            <FieldError errors={[fieldState.error]} className="text-xs font-medium text-destructive ml-1" />
                                         </Field>
                                     )}
                                 />
@@ -209,17 +209,17 @@ export function EditModuleSheet({ module, open, onOpenChange, existingModules = 
                                     name="durationMinutes"
                                     render={({ field, fieldState }) => (
                                         <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                            <FieldLabel className="text-xs font-medium text-muted-foreground ml-1 flex items-center gap-2">
+                                            <FieldLabel className="text-xs font-bold text-muted-foreground ml-1 flex items-center gap-2 uppercase tracking-wider">
                                                 <Clock className="size-3.5" />
-                                                Duration (min)
+                                                Thời Lượng (phút)
                                             </FieldLabel>
                                             <Input
                                                 type="number"
                                                 {...field}
                                                 onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                                                className="h-12 rounded-xl border-border/20 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all font-mono font-medium text-sm"
+                                                className="h-11 rounded-xl border-border bg-background hover:bg-muted/30 focus-visible:ring-primary/20 transition-all font-mono font-medium text-sm"
                                             />
-                                            <FieldError errors={[fieldState.error]} className="text-xs font-medium text-red-500 ml-1" />
+                                            <FieldError errors={[fieldState.error]} className="text-xs font-medium text-destructive ml-1" />
                                         </Field>
                                     )}
                                 />
@@ -233,24 +233,24 @@ export function EditModuleSheet({ module, open, onOpenChange, existingModules = 
                                 type="button"
                                 variant="ghost"
                                 onClick={() => onOpenChange(false)}
-                                className="flex-1 h-12 rounded-xl text-xs font-medium uppercase tracking-wider hover:bg-muted/10 border border-transparent hover:border-border/10"
+                                className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-muted/10 border border-transparent hover:border-border/10"
                             >
-                                Cancel
+                                Hủy Bỏ
                             </Button>
                             <Button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className="flex-[2] h-12 rounded-xl text-xs font-medium uppercase tracking-wider bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-0.5"
+                                className="flex-[2] h-11 rounded-xl text-xs font-bold uppercase tracking-wider bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-0.5"
                             >
                                 {isSubmitting ? (
                                     <>
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Saving...
+                                        Đang lưu...
                                     </>
                                 ) : (
                                     <>
                                         <Save className="mr-2 h-4 w-4" />
-                                        Save Changes
+                                        Lưu Thay Đổi
                                     </>
                                 )}
                             </Button>

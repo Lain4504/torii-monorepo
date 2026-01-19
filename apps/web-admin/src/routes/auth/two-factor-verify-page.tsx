@@ -147,7 +147,7 @@ export default function TwoFactorVerifyPage() {
                 {/* Hero Section */}
                 <div className="relative z-10 max-w-lg space-y-8">
                     <div className="space-y-4">
-                        <h1 className="text-5xl font-bold tracking-tight text-foreground leading-[1.1]">
+                        <h1 className="text-4xl font-bold tracking-tight text-foreground leading-[1.1]">
                             Secure <br />
                             <span className="text-primary">Authentication</span>
                         </h1>

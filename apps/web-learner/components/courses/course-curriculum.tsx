@@ -78,20 +78,20 @@ export function CourseCurriculum({ curriculum, courseSlug }: CourseCurriculumPro
                 <div className="space-y-3">
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[9px] font-black uppercase tracking-[0.3em]">
                         <Clock className="w-3 h-3" />
-                        <span>Curriculum Timeline</span>
+                        <span>Tiến độ chương trình</span>
                     </div>
-                    <h2 className="text-4xl md:text-5xl font-serif font-bold tracking-tight text-foreground uppercase italic leading-[0.9]">
-                        Academic <span className="text-primary not-italic">Syllabus</span>
+                    <h2 className="text-4xl md:text-4xl font-serif font-bold tracking-tight text-foreground uppercase italic leading-[0.9]">
+                        Nội dung <span className="text-primary not-italic">Khóa học</span>
                     </h2>
                     <div className="flex flex-wrap items-center gap-4 pt-1">
                         <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">
                             <Layers className="w-3.5 h-3.5" />
-                            <span>{curriculum.modules.length} modules</span>
+                            <span>{curriculum.modules.length} chương</span>
                         </div>
                         <span className="w-1 h-1 rounded-full bg-border" />
                         <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">
                             <PlayCircle className="w-3.5 h-3.5" />
-                            <span>{totalLessons} lessons</span>
+                            <span>{totalLessons} bài học</span>
                         </div>
                         {getTotalDuration() && (
                             <>
@@ -135,7 +135,7 @@ export function CourseCurriculum({ curriculum, courseSlug }: CourseCurriculumPro
                                     <Sparkles className="w-5 h-5 md:w-6 md:h-6" />
                                 </div>
                                 <div className="space-y-1">
-                                    <p className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 group-hover:text-primary transition-colors">Phase 0{index + 1}</p>
+                                    <p className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 group-hover:text-primary transition-colors">Chương 0{index + 1}</p>
                                     <h3 className="text-xl md:text-2xl font-serif font-bold italic tracking-tight text-foreground uppercase line-clamp-2 md:line-clamp-none leading-[1.1]">{module.title}</h3>
                                 </div>
                             </div>
@@ -189,14 +189,14 @@ export function CourseCurriculum({ curriculum, courseSlug }: CourseCurriculumPro
                                                         {lesson.title}
                                                     </h4>
                                                     <span className="text-[8px] md:text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest block truncate">
-                                                        {lesson.contentType === 'video' ? 'Video Lesson' : 'Learning Material'}
+                                                        {lesson.contentType === 'video' ? 'Bài giảng Video' : 'Tài liệu học tập'}
                                                     </span>
                                                 </div>
                                             </div>
 
                                             <div className="flex items-center gap-2 md:gap-4 shrink-0">
                                                 {lesson.isPreview && (
-                                                    <span className="hidden sm:inline-block text-[8px] md:text-[9px] font-black uppercase tracking-widest px-2 md:px-3 py-1 rounded-full bg-primary/10 text-primary whitespace-nowrap">Free Preview</span>
+                                                    <span className="hidden sm:inline-block text-[8px] md:text-[9px] font-black uppercase tracking-widest px-2 md:px-3 py-1 rounded-full bg-primary/10 text-primary whitespace-nowrap">Xem thử</span>
                                                 )}
                                                 <div className="flex items-center justify-end min-w-[40px] md:min-w-[50px]">
                                                     {lesson.isPreview && lesson.videoDuration ? (

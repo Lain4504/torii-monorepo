@@ -12,9 +12,17 @@ export default function SettingsPage() {
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 max-w-4xl animate-in fade-in duration-500">
             {/* Simple Header */}
-            <div className="flex flex-col gap-2 pb-8 border-b border-border/10">
-                <h1 className="text-2xl font-serif font-bold text-foreground italic">Cài đặt hệ thống</h1>
-                <p className="text-xs text-muted-foreground/60 font-medium">Quản lý tài khoản và tùy chỉnh trải nghiệm cá nhân của bạn</p>
+            <div className="space-y-4 pb-8 border-b border-border/10">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-serif font-bold italic uppercase tracking-wide">
+                    <Globe className="size-3.5" />
+                    Hệ thống
+                </div>
+                <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+                    Cài đặt <span className="text-primary not-italic">Tài khoản</span>
+                </h1>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
+                    Tùy chỉnh trải nghiệm học tập Torii Academy
+                </p>
             </div>
 
             <div className="space-y-8">
@@ -24,7 +32,7 @@ export default function SettingsPage() {
                         <div className="w-1 h-4 bg-primary/40 rounded-full" />
                         <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60">Thông báo</h3>
                     </div>
-                    <div className="divide-y divide-border/10 bg-muted/5 rounded-2xl border border-border/10 overflow-hidden">
+                    <div className="divide-y divide-border/10 bg-card/40 backdrop-blur-md rounded-2xl border border-border/40 overflow-hidden shadow-sm">
                         {[
                             { id: 'email-notifications', label: 'Email thông báo', desc: 'Các cập nhật về khóa học qua email', checked: true },
                             { id: 'course-updates', label: 'Bài học mới', desc: 'Thông báo khi giảng viên đăng bài mới', checked: true },
@@ -47,7 +55,7 @@ export default function SettingsPage() {
                         <div className="w-1 h-4 bg-emerald-500/40 rounded-full" />
                         <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60">Riêng tư & Ngôn ngữ</h3>
                     </div>
-                    <div className="divide-y divide-border/10 bg-muted/5 rounded-2xl border border-border/10 overflow-hidden">
+                    <div className="divide-y divide-border/10 bg-card/40 backdrop-blur-md rounded-2xl border border-border/40 overflow-hidden shadow-sm">
                         <div className="flex items-center justify-between p-5 hover:bg-muted/5 transition-colors">
                             <div className="space-y-1">
                                 <Label htmlFor="profile-visibility" className="text-sm font-bold cursor-pointer">Hồ sơ công khai</Label>

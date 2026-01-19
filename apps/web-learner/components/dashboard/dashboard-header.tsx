@@ -63,7 +63,7 @@ export function DashboardHeader() {
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/30 group-focus-within:text-primary transition-colors" />
                         <Input
                             placeholder="Tìm kiếm bài học, kanji, từ vựng..."
-                            className="pl-11 h-12 w-full bg-muted/20 border-border/5 focus:border-primary/20 focus:bg-background/80 rounded-2xl transition-all text-sm font-medium placeholder:text-muted-foreground/30 shadow-none ring-0 focus-visible:ring-0"
+                            className="pl-11 h-12 w-full bg-muted/20 border-border/40 focus:border-primary/30 focus:bg-background/80 rounded-2xl transition-all text-sm font-medium placeholder:text-muted-foreground/30 shadow-none ring-0 focus-visible:ring-0"
                         />
                     </div>
                 </div>
@@ -71,7 +71,7 @@ export function DashboardHeader() {
                 {/* Right: Actions */}
                 <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                     {/* Interactive Tools Group - Synchronized with Admin style */}
-                    <div className="flex items-center gap-1 p-1 rounded-xl bg-muted/10 border border-border/5">
+                    <div className="flex items-center gap-1 p-1 rounded-xl bg-muted/10 border border-border/20 shadow-sm">
                         <NotificationsDropdown />
                         <LanguageSwitcher />
                         <ModeToggle />

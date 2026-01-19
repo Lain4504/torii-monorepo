@@ -10,14 +10,17 @@ export enum JlptLevel {
 
 export enum CourseStatus {
     DRAFT = 'draft',
+    PENDING_REVIEW = 'pending_review',
     PUBLISHED = 'published',
 }
 
 /**
  * Helper function to derive course status from approvedBy and approvedAt
  */
-export function deriveCourseStatus(approvedBy: string | null | undefined, approvedAt: Date | null | undefined): CourseStatus {
-    return (approvedBy && approvedAt) ? CourseStatus.PUBLISHED : CourseStatus.DRAFT;
+export function deriveCourseStatus(approvedBy: string | null | undefined, approvedAt: Date | null | undefined, isSubmittedForReview?: boolean): CourseStatus {
+    if (approvedBy && approvedAt) return CourseStatus.PUBLISHED;
+    if (isSubmittedForReview) return CourseStatus.PENDING_REVIEW;
+    return CourseStatus.DRAFT;
 }
 
 export const courseSchema = z.object({

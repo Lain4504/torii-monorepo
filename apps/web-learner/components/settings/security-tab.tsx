@@ -37,7 +37,7 @@ export function SecurityTab() {
             </div>
 
             {/* Two-Factor Authentication Card */}
-            <div className="divide-y divide-border/10 bg-muted/5 rounded-2xl border border-border/10 overflow-hidden">
+            <div className="divide-y divide-border/10 bg-card/40 backdrop-blur-md rounded-2xl border border-border/40 overflow-hidden shadow-sm">
                 {/* Header Section */}
                 <div className="p-6 space-y-6">
                     <div className="flex items-start justify-between">
@@ -65,20 +65,20 @@ export function SecurityTab() {
                     {/* Status Info */}
                     {isEnabled && status && (
                         <div className="grid gap-3 sm:grid-cols-2 pt-2">
-                            <div className="rounded-xl border border-border/20 bg-muted/10 p-4 space-y-1">
+                            <div className="rounded-xl border border-border/40 bg-background/50 backdrop-blur-sm p-4 space-y-1 shadow-sm">
                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Phương thức</p>
                                 <p className="text-sm font-bold text-foreground">
                                     {status.method === 'totp' ? 'Ứng dụng xác thực' : 'Không xác định'}
                                 </p>
                             </div>
-                            <div className="rounded-xl border border-border/20 bg-muted/10 p-4 space-y-1">
+                            <div className="rounded-xl border border-border/40 bg-background/50 backdrop-blur-sm p-4 space-y-1 shadow-sm">
                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Mã dự phòng</p>
                                 <p className="text-sm font-bold text-foreground">
                                     {status.backupCodesRemaining || 0} mã còn lại
                                 </p>
                             </div>
                             {status.enabledAt && (
-                                <div className="rounded-xl border border-border/20 bg-muted/10 p-4 space-y-1">
+                                <div className="rounded-xl border border-border/40 bg-background/50 backdrop-blur-sm p-4 space-y-1 shadow-sm">
                                     <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Đã bật</p>
                                     <p className="text-sm font-bold text-foreground">
                                         {formatDistanceToNow(new Date(status.enabledAt), { addSuffix: true, locale: vi })}
@@ -86,7 +86,7 @@ export function SecurityTab() {
                                 </div>
                             )}
                             {status.lastUsedAt && (
-                                <div className="rounded-xl border border-border/20 bg-muted/10 p-4 space-y-1">
+                                <div className="rounded-xl border border-border/40 bg-background/50 backdrop-blur-sm p-4 space-y-1 shadow-sm">
                                     <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Sử dụng lần cuối</p>
                                     <p className="text-sm font-bold text-foreground">
                                         {formatDistanceToNow(new Date(status.lastUsedAt), { addSuffix: true, locale: vi })}

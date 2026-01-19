@@ -23,7 +23,7 @@ import {
 } from "@workspace/ui/components/pagination";
 import { toast } from '@workspace/ui/components/sonner';
 import { cn } from '@workspace/ui/lib/utils';
-import { BookOpen, Plus, Sparkles, ShieldAlert } from 'lucide-react';
+import { Plus, ShieldAlert } from 'lucide-react';
 
 
 export default function CoursesPage() {
@@ -67,9 +67,9 @@ export default function CoursesPage() {
   const handleUnpublish = async (course: CourseResponseDTO) => {
     try {
       await unpublishMutation.mutateAsync(course.id);
-      toast.success('Course unpublished successfully');
+      toast.success('Hủy xuất bản khóa học thành công');
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to unpublish course');
+      toast.error(error.response?.data?.message || 'Không thể hủy xuất bản khóa học');
     }
   };
 
@@ -80,7 +80,7 @@ export default function CoursesPage() {
           <ShieldAlert className="size-8 text-destructive/50" />
         </div>
         <div className="space-y-1">
-          <h3 className="text-lg font-medium text-foreground">System Notice</h3>
+          <h3 className="text-lg font-serif font-bold italic uppercase tracking-tight text-foreground">Thông báo hệ thống</h3>
           <p className="text-sm text-muted-foreground">{error.message}</p>
         </div>
       </div>
@@ -107,13 +107,13 @@ export default function CoursesPage() {
               e.preventDefault();
               setPage(1);
             }}
-            className="rounded-xl h-10 w-10 text-xs font-medium hover:bg-primary/10 transition-all"
+            className="rounded-md border border-border h-9 w-9 text-xs font-semibold hover:bg-primary hover:text-primary-foreground transition-all"
           >
             1
           </PaginationLink>
         </PaginationItem>
       );
-      if (startPage > 2) items.push(<PaginationEllipsis key="start-ellipsis" className="opacity-20" />);
+      if (startPage > 2) items.push(<PaginationEllipsis key="start-ellipsis" className="opacity-50" />);
     }
 
     for (let i = startPage; i <= endPage; i++) {
@@ -126,8 +126,10 @@ export default function CoursesPage() {
               setPage(i);
             }}
             className={cn(
-              "rounded-xl h-10 w-10 text-xs font-medium transition-all",
-              page === i ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" : "hover:bg-primary/10 text-muted-foreground hover:text-primary"
+              "rounded-md border h-9 w-9 text-xs font-semibold transition-all",
+              page === i
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-background border-border hover:bg-muted text-muted-foreground hover:text-foreground"
             )}
           >
             {i}
@@ -137,7 +139,7 @@ export default function CoursesPage() {
     }
 
     if (endPage < meta.totalPages) {
-      if (endPage < meta.totalPages - 1) items.push(<PaginationEllipsis key="end-ellipsis" className="opacity-20" />);
+      if (endPage < meta.totalPages - 1) items.push(<PaginationEllipsis key="end-ellipsis" className="opacity-50" />);
       items.push(
         <PaginationItem key={meta.totalPages}>
           <PaginationLink
@@ -145,7 +147,7 @@ export default function CoursesPage() {
               e.preventDefault();
               setPage(meta.totalPages);
             }}
-            className="rounded-xl h-10 w-10 text-xs font-medium hover:bg-primary/10 transition-all"
+            className="rounded-md border border-border h-9 w-9 text-xs font-semibold hover:bg-primary hover:text-primary-foreground transition-all"
           >
             {meta.totalPages}
           </PaginationLink>
@@ -159,61 +161,52 @@ export default function CoursesPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-700 pb-10">
       {/* Header Section */}
-      <div className="flex flex-col sm:flex-row items-start justify-between gap-8 relative px-0 md:px-2">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
         <div className="space-y-4 max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-bold uppercase tracking-wider">
-            <BookOpen className="size-3.5" />
-            Educational Assets
-          </div>
-          <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-foreground leading-[1.1]">
-            Course <span className="text-primary">Management</span>
+          <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+            Quản lý <span className="text-primary not-italic">Khóa học</span>
           </h1>
-          <p className="text-base text-muted-foreground mt-4 leading-relaxed max-w-lg border-l-2 border-primary/20 pl-4">
-            Create and manage the curriculum ecosystem for <span className="text-foreground font-semibold">Torii Academy</span>.
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
+            Hệ sinh thái chương trình giảng dạy Torii Academy
           </p>
         </div>
-        <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto pt-6 sm:pt-0">
-          <div className="flex items-center gap-4 p-4 rounded-2xl bg-muted/20 border border-border/20 hidden sm:flex">
-            <div className="space-y-0.5">
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold text-center">Active Courses</p>
-              <h3 className="text-2xl font-bold text-center text-primary">{meta?.total || 0}</h3>
-            </div>
+        <div className="flex items-center gap-4">
+          <div className="hidden lg:flex flex-col items-end px-4 border-r border-border/40">
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic">Tổng số khóa học</span>
+            <span className="text-2xl font-bold text-foreground tabular-nums">{meta?.total.toLocaleString() || 0}</span>
           </div>
           <Can permission="course.create">
             <Button
               onClick={() => setShowCreateDialog(true)}
-              className="w-full sm:w-auto h-12 px-6 rounded-xl bg-primary text-primary-foreground font-medium text-sm shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all group"
+              className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-serif font-bold italic text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 hover:shadow-md transition-all"
             >
-              Create New Course
-              <Plus className="ml-2 size-4 opacity-70 group-hover:opacity-100 transition-opacity" />
+              Tạo Khóa học Mới
+              <Plus className="ml-2 size-4" />
             </Button>
           </Can>
         </div>
       </div>
 
-      <div className="space-y-6 px-0 md:px-2">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
-          <div className="flex-1 w-full">
-            <CoursesPrimaryToolbar
-              search={search}
-              onSearchChange={setSearch}
-              statusFilter={statusFilter}
-              onStatusFilterChange={setStatusFilter}
-              jlptLevelFilter={jlptLevelFilter}
-              onJlptLevelFilterChange={setJlptLevelFilter}
-            />
-          </div>
+      <div className="space-y-4">
+        <div className="bg-background p-4 rounded-xl border border-border shadow-sm">
+          <CoursesPrimaryToolbar
+            search={search}
+            onSearchChange={setSearch}
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+            jlptLevelFilter={jlptLevelFilter}
+            onJlptLevelFilterChange={setJlptLevelFilter}
+          />
         </div>
 
-        <div className="rounded-3xl border border-white/20 bg-background/50 backdrop-blur-3xl overflow-hidden relative shadow-sm">
-          <div className="absolute inset-0 bg-primary/[0.02] pointer-events-none" />
+        <div className="bg-background rounded-xl border border-border overflow-hidden shadow-sm">
           <CoursesTable
             data={courses}
             onEdit={setEditingCourse}
             onDelete={setDeletingCourse}
-            onView={setEditingCourse}
+
             onTitleClick={(course) => navigate(`/courses/${course.id}`)}
-            onModules={setEditingCourse}
+            onModules={(course) => navigate(`/courses/${course.id}`)}
             onManageInstructors={setManagingInstructorsCourse}
             onPublish={setPublishingCourse}
             onUnpublish={handleUnpublish}
@@ -224,20 +217,17 @@ export default function CoursesPage() {
         </div>
 
         {/* Pagination */}
-        {meta && (
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-4 pt-2">
-            <div className="flex flex-col lg:flex-row lg:items-center gap-4 text-xs text-muted-foreground font-medium text-center lg:text-left pl-2">
-              <div className="inline-flex items-center gap-2">
-                <Sparkles className="size-3.5 text-primary/70" />
-                <span>Total Courses: <span className="text-foreground">{meta.total}</span></span>
-              </div>
-              <div className="hidden lg:block w-1 h-1 rounded-full bg-border" />
-              <div>Page {page} of {meta.totalPages}</div>
+        {(meta && (meta.total > 0 || isLoading)) && (
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2 px-1">
+            <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+              <span>Hiển thị trang <span className="text-foreground">{page}</span> / {meta.totalPages}</span>
+              <span className="mx-1 text-border">|</span>
+              <span>Tổng cộng <span className="text-foreground">{meta.total}</span> khóa học</span>
             </div>
 
             {meta.totalPages > 1 && (
-              <Pagination>
-                <PaginationContent className="flex items-center gap-2">
+              <Pagination className="w-auto mx-0">
+                <PaginationContent className="flex items-center gap-1">
                   <PaginationItem>
                     <PaginationPrevious
                       onClick={(e) => {
@@ -245,13 +235,13 @@ export default function CoursesPage() {
                         setPage(p => Math.max(1, p - 1));
                       }}
                       className={cn(
-                        "h-10 px-4 rounded-xl bg-background/50 border border-border/20 text-xs font-medium transition-all",
-                        page === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary cursor-pointer"
+                        "h-9 px-3 rounded-md border border-border text-xs font-medium transition-all",
+                        page === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-muted cursor-pointer"
                       )}
                     />
                   </PaginationItem>
 
-                  <div className="hidden md:flex items-center gap-1 mx-2">
+                  <div className="hidden md:flex items-center gap-1">
                     {renderPaginationItems()}
                   </div>
 
@@ -262,8 +252,8 @@ export default function CoursesPage() {
                         setPage(p => Math.min(meta.totalPages, p + 1));
                       }}
                       className={cn(
-                        "h-10 px-4 rounded-xl bg-background/50 border border-border/20 text-xs font-medium transition-all",
-                        page === meta.totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary cursor-pointer"
+                        "h-9 px-3 rounded-md border border-border text-xs font-medium transition-all",
+                        page === meta.totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-muted cursor-pointer"
                       )}
                     />
                   </PaginationItem>

@@ -69,7 +69,7 @@ export function CourseCard(props: CourseCardProps) {
                         {isLive && (
                             <Badge className="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] bg-red-600 text-white border-none shadow-lg flex items-center gap-1.5">
                                 <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                                LIVE
+                                TRỰC TUYẾN
                             </Badge>
                         )}
                     </div>
@@ -84,11 +84,11 @@ export function CourseCard(props: CourseCardProps) {
                                 <div className="flex items-center gap-2">
                                     <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
                                     <span className="text-[11px] font-black tracking-tighter text-foreground">{safeRating.toFixed(1)}</span>
-                                    <span className="text-[9px] text-muted-foreground/30 font-black uppercase tracking-tight">({reviewCount} reviews)</span>
+                                    <span className="text-[9px] text-muted-foreground/30 font-black uppercase tracking-tight">({reviewCount} đánh giá)</span>
                                 </div>
                                 <div className="flex items-center gap-1.5 text-primary/40">
                                     <Sparkles className="w-3.5 h-3.5" />
-                                    <span className="text-[9px] font-black uppercase tracking-[0.2em]">Verified</span>
+                                    <span className="text-[9px] font-black uppercase tracking-[0.2em]">Đã xác minh</span>
                                 </div>
                             </div>
 
@@ -98,7 +98,7 @@ export function CourseCard(props: CourseCardProps) {
                                     {title}
                                 </h3>
                                 <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic leading-none">
-                                    By {instructor?.name || 'Academic Faculty'}
+                                    Giảng viên: {instructor?.name || 'Chuyên gia Torii'}
                                 </p>
                             </div>
                         </div>
@@ -107,11 +107,11 @@ export function CourseCard(props: CourseCardProps) {
                         <div className="flex items-center gap-6 py-4 border-y border-border/10">
                             <div className="flex items-center gap-2">
                                 <Users className="w-4 h-4 text-primary/30" />
-                                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">{safeStudents.toLocaleString()} Students</span>
+                                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">{safeStudents.toLocaleString()} Học viên</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <BookOpen className="w-4 h-4 text-primary/30" />
-                                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">{safeTotalLessons} Modules</span>
+                                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">{safeTotalLessons} Học phần</span>
                             </div>
                         </div>
                     </div>
@@ -129,9 +129,9 @@ export function CourseCard(props: CourseCardProps) {
                                     "text-xl md:text-2xl font-serif font-bold italic tracking-tighter leading-none",
                                     isFree ? "text-emerald-500" : "text-primary"
                                 )}>
-                                    {isFree ? 'FREE' : `${safePrice.toLocaleString()} VNĐ`}
+                                    {isFree ? 'MIỄN PHÍ' : `${safePrice.toLocaleString()} VNĐ`}
                                 </span>
-                                {!isFree && <span className="text-[8px] font-black uppercase tracking-[0.1em] text-muted-foreground/30 ml-1">/ one-time</span>}
+                                {!isFree && <span className="text-[8px] font-black uppercase tracking-[0.1em] text-muted-foreground/30 ml-1">/ trọn gói</span>}
                             </div>
                         </div>
 

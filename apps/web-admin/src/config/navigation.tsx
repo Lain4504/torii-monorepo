@@ -7,7 +7,6 @@ import {
 
     Newspaper,
     CreditCard,
-    Ticket,
     Settings,
     BarChart3,
     Bell,
@@ -32,50 +31,49 @@ export interface NavItem {
 
 export const mainNavItems: NavItem[] = [
     {
-        titleKey: "common:navigation.dashboard",
+        titleKey: "Bảng điều khiển",
         url: "/",
         icon: Home,
         descriptionKey: "common:navDescriptions.dashboard",
     },
     {
-        titleKey: "common:navigation.users",
-        url: "/users",
-        icon: Users,
-        permission: "user.manage",
-        descriptionKey: "common:navDescriptions.users",
-        items: [
-            { titleKey: "admin:navigation.userList", url: "/users", permission: "user.view" },
-            { titleKey: "admin:navigation.roles", url: "/permissions", permission: "system.config" },
-        ]
-    },
-    {
-        titleKey: "common:navigation.courses",
+        titleKey: "Khóa học",
         url: "/courses",
         icon: BookOpen,
         anyPermission: ["course.manage", "course.approve", "course.view_restricted"],
         descriptionKey: "common:navDescriptions.courses",
         items: [
-            { titleKey: "admin:navigation.courseList", url: "/courses", permission: "course.view" },
-            { titleKey: "admin:navigation.reviews", url: "/courses/reviews", permission: "course.manage" },
+            { titleKey: "Danh sách khóa học", url: "/courses", permission: "course.view" },
+            { titleKey: "Đánh giá & Phản hồi", url: "/courses/reviews", permission: "course.manage" },
         ]
     },
     {
-        titleKey: "common:navigation.liveClasses",
+        titleKey: "Lớp học trực tuyến",
         url: "/rooms",
         icon: Video,
         anyPermission: ["live_class.schedule", "live_class.view"],
         descriptionKey: "common:navDescriptions.liveClasses",
     },
     {
-        titleKey: "common:navigation.questionBank",
+        titleKey: "Kho đề thi",
         url: "/question-bank",
         icon: FileQuestion,
         anyPermission: ["question.manage", "question_pool.manage"],
         descriptionKey: "common:navDescriptions.questionBank",
     },
-
     {
-        titleKey: "common:navigation.post",
+        titleKey: "Người dùng",
+        url: "/users",
+        icon: Users,
+        permission: "user.manage",
+        descriptionKey: "common:navDescriptions.users",
+        items: [
+            { titleKey: "Danh sách người dùng", url: "/users", permission: "user.view" },
+            { titleKey: "Vai trò & Quyền", url: "/permissions", permission: "system.config" },
+        ]
+    },
+    {
+        titleKey: "Bài viết & Tin tức",
         url: "/posts",
         icon: Newspaper,
         permission: "post.manage",
@@ -85,21 +83,14 @@ export const mainNavItems: NavItem[] = [
 
 export const managementNavItems: NavItem[] = [
     {
-        titleKey: "common:navigation.financials",
+        titleKey: "Tài chính",
         url: "/orders",
         icon: CreditCard,
         permission: "payment.manage",
         descriptionKey: "common:navDescriptions.financials",
     },
     {
-        titleKey: "common:navigation.promotions",
-        url: "/promotions",
-        icon: Ticket,
-        permission: "coupon.manage",
-        descriptionKey: "common:navDescriptions.promotions",
-    },
-    {
-        titleKey: "common:navigation.analytics",
+        titleKey: "Báo cáo nội dung",
         url: "/analytics",
         icon: BarChart3,
         permission: "report.view",
@@ -109,28 +100,18 @@ export const managementNavItems: NavItem[] = [
 
 export const systemNavItems: NavItem[] = [
     {
-        titleKey: "common:navigation.auditLogs",
+        titleKey: "Nhật ký hệ thống",
         url: "/authorization/audit-logs",
         icon: ShieldCheck,
         permission: "system.config",
         descriptionKey: "common:navDescriptions.auditLogs",
     },
     {
-        titleKey: "common:navigation.notifications",
-        url: "/notifications",
-        icon: Bell,
-        descriptionKey: "common:navDescriptions.notifications",
-    },
-    {
-        titleKey: "common:navigation.settings",
+        titleKey: "Cấu hình",
         url: "/settings",
         icon: Settings,
         permission: "system.config",
         descriptionKey: "common:navDescriptions.settings",
-        items: [
-            { titleKey: "admin:navigation.general", url: "/settings", permission: "system.config" },
-            { titleKey: "admin:navigation.appearance", url: "/settings/appearance", permission: "system.config" },
-        ]
     },
 ];
 

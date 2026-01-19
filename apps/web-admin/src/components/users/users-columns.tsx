@@ -31,9 +31,9 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
         header: () => <div className="text-center">#</div>,
         cell: ({ row }) => {
             const stt = (page - 1) * limit + row.index + 1;
-            return <div className="text-center font-black italic text-muted-foreground/30 tabular-nums text-[10px]">0{stt}</div>;
+            return <div className="text-center font-medium text-muted-foreground/60 tabular-nums text-xs">{stt}</div>;
         },
-        size: 60,
+        size: 50,
     }),
     columnHelper.accessor('displayName', {
         header: ({ column }) => {
@@ -41,19 +41,19 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
                 <Button
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                    className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group"
+                    className="-ml-3 h-8 px-3 text-xs font-semibold hover:bg-muted transition-all group rounded-md"
                 >
-                    Full Name
-                    <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
+                    Họ và tên
+                    <ArrowUpDown className="ml-2 h-3 w-3 text-muted-foreground opacity-50 group-hover:opacity-100 transition-opacity" />
                 </Button>
             );
         },
         cell: (info) => (
             <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary transition-all group-hover/row:scale-110">
-                    <UserCircle className="size-4" />
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
+                    <UserCircle className="size-4.5" />
                 </div>
-                <div className="font-bold text-foreground text-[14px]">{info.getValue()}</div>
+                <div className="font-semibold text-foreground text-[14px]">{info.getValue()}</div>
             </div>
         ),
     }),
@@ -63,39 +63,46 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
                 <Button
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                    className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group"
+                    className="-ml-3 h-8 px-3 text-xs font-semibold hover:bg-muted transition-all group rounded-md"
                 >
-                    Email Address
-                    <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
+                    Email
+                    <ArrowUpDown className="ml-2 h-3 w-3 text-muted-foreground opacity-50 group-hover:opacity-100 transition-opacity" />
                 </Button>
             );
         },
         cell: (info) => (
-            <div className="flex items-center gap-2 text-muted-foreground/60 text-[11px] font-bold">
-                <Mail className="size-3 opacity-20" />
+            <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium">
+                <Mail className="size-3 text-muted-foreground/40" />
                 {info.getValue()}
             </div>
         ),
     }),
     columnHelper.accessor('role', {
-        header: () => <div className="px-1">User Role</div>,
+        header: () => <div className="px-1 text-xs font-semibold">Vai trò</div>,
         cell: (info) => {
             const role = info.getValue() as string;
             const colors = {
-                admin: 'bg-rose-500/10 text-rose-500 border-rose-500/20',
-                staff: 'bg-primary/10 text-primary border-primary/20',
-                lecturer: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
-                learner: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+                admin: 'bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20',
+                staff: 'bg-primary/10 text-primary border-primary/20 dark:bg-primary/5 dark:text-primary-foreground dark:border-primary/10',
+                lecturer: 'bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20',
+                learner: 'bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20'
             };
-            const colorClass = colors[role as keyof typeof colors] || 'bg-muted/10 text-muted-foreground border-border/20';
+            const roleLabels = {
+                admin: 'Quản trị viên',
+                staff: 'Nhân viên',
+                lecturer: 'Giảng viên',
+                learner: 'Học viên'
+            };
+            const colorClass = colors[role as keyof typeof colors] || 'bg-muted text-muted-foreground border-border';
+            const label = roleLabels[role as keyof typeof roleLabels] || role;
 
             return (
-                <div className={cn("inline-flex items-center px-3 py-1 rounded-md text-[9px] font-black uppercase tracking-[0.2em] border", colorClass)}>
-                    {role}
+                <div className={cn("inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border", colorClass)}>
+                    {label}
                 </div>
             );
         },
-        size: 100,
+        size: 130,
     }),
     columnHelper.accessor(row => {
         if (row.deletedAt) return 'DELETED';
@@ -104,21 +111,33 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
         return 'ACTIVE';
     }, {
         id: 'status',
-        header: () => <div className="px-1">Status</div>,
+        header: () => <div className="px-1 text-xs font-semibold">Trạng thái</div>,
         cell: (info) => {
             const status = info.getValue() as string;
-            let dotColor = 'bg-emerald-500 shadow-emerald-500/50';
-            if (status !== 'ACTIVE') dotColor = 'bg-amber-500 shadow-amber-500/50';
-            if (status === 'DELETED' || status === 'BANNED') dotColor = 'bg-rose-500 shadow-rose-500/50';
+            let dotColor = 'bg-emerald-500';
+            let label = 'Hoạt động';
+
+            if (status !== 'ACTIVE') {
+                dotColor = 'bg-amber-500';
+                label = 'Chưa xác thực';
+            }
+            if (status === 'DELETED') {
+                dotColor = 'bg-rose-500';
+                label = 'Đã xóa';
+            }
+            if (status === 'BANNED') {
+                dotColor = 'bg-slate-900 dark:bg-slate-100';
+                label = 'Đã khóa';
+            }
 
             return (
-                <div className="flex items-center gap-2 text-[10px] font-black tracking-widest text-foreground group">
-                    <div className={cn("size-1.5 rounded-full shadow-sm animate-pulse", dotColor)} />
-                    {status}
+                <div className="flex items-center gap-2 text-xs font-medium text-foreground/70">
+                    <div className={cn("size-1.5 rounded-full", dotColor)} />
+                    {label}
                 </div>
             );
         },
-        size: 100,
+        size: 130,
     }),
     columnHelper.accessor('lastSignInAt', {
         header: ({ column }) => {
@@ -126,24 +145,24 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
                 <Button
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                    className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group"
+                    className="-ml-3 h-8 px-3 text-xs font-semibold hover:bg-muted transition-all group rounded-md"
                 >
-                    Last Login
-                    <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
+                    Đăng nhập lần cuối
+                    <ArrowUpDown className="ml-2 h-3 w-3 text-muted-foreground opacity-50 group-hover:opacity-100 transition-opacity" />
                 </Button>
             );
         },
         cell: (info) => (
-            <div className="flex items-center gap-2 text-muted-foreground/40 tabular-nums text-[10px] font-bold">
-                <Clock className="size-3 opacity-40" />
-                {info.getValue() ? formatDateTime(info.getValue()) : 'NEVER'}
+            <div className="flex items-center gap-2 text-muted-foreground/60 tabular-nums text-[11px] font-medium">
+                <Clock className="size-3 text-muted-foreground/30" />
+                {info.getValue() ? formatDateTime(info.getValue()) : 'Chưa đăng nhập'}
             </div>
         ),
-        size: 140,
+        size: 160,
     }),
     columnHelper.display({
         id: 'actions',
-        header: () => <div className="text-center">Manage</div>,
+        header: () => <div className="text-center text-xs font-semibold">Thao tác</div>,
         cell: ({ row }) => {
             const user = row.original;
 
@@ -153,33 +172,33 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
                         <DropdownMenuTrigger asChild>
                             <Button
                                 variant="ghost"
-                                className="h-10 w-10 p-0 rounded-lg hover:bg-primary/10 hover:text-primary transition-all data-[state=open]:bg-primary/20"
+                                className="h-8 w-8 p-0 rounded-md border-transparent hover:bg-muted transition-all"
                             >
-                                <span className="sr-only">Open User Menu</span>
-                                <ShieldIcon className="h-4 w-4 opacity-40 group-hover:opacity-100" />
+                                <span className="sr-only">Menu thao tác</span>
+                                <ShieldIcon className="h-4 w-4 text-muted-foreground" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
                             align="end"
-                            className="w-[200px] border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-lg p-2"
+                            className="w-[180px] border border-border rounded-xl shadow-xl bg-background p-1"
                         >
                             <Can permission="user.manage">
                                 <DropdownMenuItem
                                     onClick={() => onEdit(user)}
-                                    className="rounded-md px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
+                                    className="rounded-lg px-3 py-2 text-sm focus:bg-primary focus:text-white cursor-pointer flex gap-2"
                                 >
-                                    <Pencil className="h-4 w-4 opacity-40" />
-                                    <span>Edit Profile</span>
+                                    <Pencil className="h-3.5 w-3.5 opacity-70" />
+                                    <span>Chỉnh sửa thông tin</span>
                                 </DropdownMenuItem>
 
-                                <DropdownMenuSeparator className="bg-border/20 mx-2" />
+                                <DropdownMenuSeparator className="bg-border mx-1 my-1" />
 
                                 <DropdownMenuItem
                                     onClick={() => onDelete(user)}
-                                    className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer flex gap-3"
+                                    className="rounded-lg px-3 py-2 text-sm text-rose-600 focus:text-white focus:bg-rose-600 cursor-pointer flex gap-2"
                                 >
-                                    <Trash className="h-4 w-4 opacity-40" />
-                                    <span>Delete Account</span>
+                                    <Trash className="h-3.5 w-3.5 opacity-70" />
+                                    <span>Xóa tài khoản</span>
                                 </DropdownMenuItem>
                             </Can>
                         </DropdownMenuContent>
@@ -187,6 +206,6 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
                 </div>
             );
         },
-        size: 100,
+        size: 80,
     }),
 ];

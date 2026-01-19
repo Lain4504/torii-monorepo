@@ -34,59 +34,58 @@ export function UsersPrimaryToolbar({
     onSortChange,
 }: UsersPrimaryToolbarProps) {
     return (
-        <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between w-full">
-            {/* Zen Search Input */}
+        <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between w-full">
+            {/* Search Input */}
             <div className="relative flex-1 group">
-                <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/30 group-focus-within:text-primary transition-colors duration-500" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
                 <Input
-                    placeholder="ENTER IDENTITY SIGNATURE OR EMAIL..."
+                    placeholder="Tìm kiếm theo tên hoặc email..."
                     value={search}
                     onChange={(e) => onSearchChange(e.target.value)}
-                    className="h-12 pl-12 rounded-xl border-border/40 bg-background/50 hover:bg-background/80 focus-visible:ring-primary/20 transition-all text-[11px] font-black uppercase tracking-[0.15em] placeholder:text-muted-foreground/20"
+                    className="h-10 pl-9 rounded-lg border-border bg-background focus-visible:ring-primary/20 transition-all text-sm placeholder:text-muted-foreground/50"
                 />
             </div>
 
-            <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                 <Select
                     value={filters.role || 'all'}
                     onValueChange={(value) => onFilterChange({ ...filters, role: value === 'all' ? undefined : value })}
                 >
-                    <SelectTrigger className="h-12 w-full md:w-[200px] rounded-xl border-border/40 bg-background/50 hover:bg-background/80 transition-all text-[10px] font-black uppercase tracking-widest focus:ring-primary/20">
+                    <SelectTrigger className="h-10 w-full sm:w-[180px] rounded-lg border-border bg-background hover:bg-muted/50 transition-all text-sm">
                         <div className="flex items-center gap-2">
-                            <Filter className="size-3.5 opacity-30" />
-                            <SelectValue placeholder="ENTITY CLASSIFICATION" />
+                            <Filter className="size-3.5 text-muted-foreground" />
+                            <SelectValue placeholder="Vai trò" />
                         </div>
                     </SelectTrigger>
-                    <SelectContent className="border-border/40 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-[1.5rem] p-2">
-                        <SelectItem value="all" className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer italic">ALL ENTITIES</SelectItem>
-                        <SelectItem value="admin" className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">ADMIN</SelectItem>
-                        <SelectItem value="learner" className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">LEARNER</SelectItem>
-                        <SelectItem value="lecturer" className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">LECTURER</SelectItem>
+                    <SelectContent className="border-border rounded-lg shadow-lg bg-background">
+                        <SelectItem value="all" className="text-sm">Tất cả vai trò</SelectItem>
+                        <SelectItem value="admin" className="text-sm">Quản trị viên</SelectItem>
+                        <SelectItem value="learner" className="text-sm">Học viên</SelectItem>
+                        <SelectItem value="lecturer" className="text-sm">Giảng viên</SelectItem>
                     </SelectContent>
                 </Select>
 
                 {/* Sort Controls */}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-12 w-full md:w-auto rounded-xl border border-border/40 bg-background/50 hover:bg-background/80 px-4 gap-3 text-[10px] font-black uppercase tracking-widest transition-all group">
-                            <SlidersHorizontal className="h-4 w-4 opacity-30 group-hover:text-primary transition-colors" />
-                            <span className="hidden sm:inline">Sequence Protocol</span>
-                            <span className="sm:hidden">Sort</span>
+                        <Button variant="outline" className="h-10 w-full sm:w-auto rounded-lg border-border bg-background hover:bg-muted/50 px-4 gap-2 text-sm font-medium transition-all">
+                            <SlidersHorizontal className="h-3.5 w-3.5 text-muted-foreground" />
+                            <span>Sắp xếp</span>
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-64 border-border/40 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-[1.5rem] p-2">
-                        <DropdownMenuGroup className="space-y-1">
-                            <DropdownMenuItem onClick={() => onSortChange('createdAt', 'desc')} className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex justify-between">
-                                LEAST HISTORICAL FIRST <Sparkles className="size-3 opacity-20" />
+                    <DropdownMenuContent align="end" className="w-56 border-border rounded-xl shadow-xl bg-background p-1">
+                        <DropdownMenuGroup>
+                            <DropdownMenuItem onClick={() => onSortChange('createdAt', 'desc')} className="rounded-lg px-3 py-2 text-sm cursor-pointer flex justify-between">
+                                Mới nhất <Sparkles className="size-3 text-amber-500" />
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onSortChange('createdAt', 'asc')} className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">
-                                HISTORICAL ARCHIVE FIRST
+                            <DropdownMenuItem onClick={() => onSortChange('createdAt', 'asc')} className="rounded-lg px-3 py-2 text-sm cursor-pointer">
+                                Cũ nhất
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onSortChange('displayName', 'asc')} className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">
-                                IDENTITY ALPHABET (A-Z)
+                            <DropdownMenuItem onClick={() => onSortChange('displayName', 'asc')} className="rounded-lg px-3 py-2 text-sm cursor-pointer">
+                                Tên (A-Z)
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onSortChange('email', 'asc')} className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer">
-                                CORE SIGNATURE (EMAIL)
+                            <DropdownMenuItem onClick={() => onSortChange('email', 'asc')} className="rounded-lg px-3 py-2 text-sm cursor-pointer">
+                                Email (A-Z)
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                     </DropdownMenuContent>

@@ -29,7 +29,7 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { Loader2, UploadCloud, X, FileText, Save, Calendar, Eye, MessageCircle } from 'lucide-react';
+import { Loader2, X, FileText, Save, Calendar, Eye, MessageCircle } from 'lucide-react';
 import { postUpdateDTOSchema, PostStatus, type PostUpdateDTO, type PostResponseDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
 import { storageApi } from '@/api/services/storage-api.ts';
@@ -190,109 +190,94 @@ export function EditPostSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:w-[900px] sm:max-w-[900px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background overflow-hidden">
-                <SheetHeader className="px-8 pt-8 pb-6 border-b border-border/10 bg-muted/5 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-primary/5 blur-3xl opacity-50 pointer-events-none" />
-                    <div className="relative flex items-center justify-between z-10">
+            <SheetContent className="w-full sm:w-[900px] sm:max-w-[900px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background">
+                <SheetHeader className="px-6 py-6 border-b border-border">
+                    <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                            <div className="p-3 rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-inner">
+                            <div className="p-3 rounded-xl bg-primary/10 text-primary">
                                 <FileText className="h-6 w-6" />
                             </div>
                             <div className="space-y-1">
-                                <SheetTitle className="text-2xl font-bold tracking-tight">
-                                    Edit <span className="text-primary">Post</span>
+                                <SheetTitle className="text-xl font-bold text-foreground">
+                                    Chỉnh sửa bài viết
                                 </SheetTitle>
-                                <SheetDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2">
-                                    ID: <span className="font-mono text-primary">{post.id.substring(0, 8)}</span>
+                                <SheetDescription className="text-sm text-muted-foreground flex items-center gap-2">
+                                    ID: <span className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">{post.id.substring(0, 8)}</span>
                                 </SheetDescription>
                             </div>
                         </div>
                         <Badge
                             variant="outline"
                             className={cn(
-                                "px-3 py-1.5 uppercase tracking-widest text-[10px] font-black border-2",
+                                "px-2.5 py-0.5 text-xs font-semibold border-transparent",
                                 post.status === 'published'
-                                    ? "border-emerald-500/20 text-emerald-500 bg-emerald-500/10"
+                                    ? "bg-emerald-500/10 text-emerald-600"
                                     : post.status === 'draft'
-                                        ? "border-blue-500/20 text-blue-500 bg-blue-500/10"
-                                        : "border-muted-foreground/20 text-muted-foreground bg-muted/10"
+                                        ? "bg-blue-500/10 text-blue-600"
+                                        : "bg-muted text-muted-foreground"
                             )}>
-                            {post.status}
+                            {post.status === 'published' ? 'Đã xuất bản' : post.status === 'draft' ? 'Bản nháp' : 'Lưu trữ'}
                         </Badge>
                     </div>
                 </SheetHeader>
 
-                <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col flex-1 min-h-0 overflow-hidden relative z-10">
+                <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col flex-1 min-h-0">
                     <ScrollArea className="flex-1 min-h-0">
-                        <div className="px-8 py-10 space-y-10 animate-in fade-in slide-in-from-right-8 duration-500">
+                        <div className="p-6 space-y-8">
 
                             {/* Key Metrics */}
                             <div className="grid grid-cols-3 gap-4">
-                                <div className="p-5 rounded-3xl bg-muted/5 border border-border/10 hover:border-primary/20 hover:bg-muted/10 transition-all group">
-                                    <div className="flex items-center gap-3 text-muted-foreground mb-3">
-                                        <div className="p-2 rounded-xl bg-background/50 text-primary border border-border/10">
-                                            <Eye className="h-4 w-4" />
-                                        </div>
-                                        <span className="text-[10px] font-black uppercase tracking-widest opacity-60">Views</span>
+                                <div className="p-4 rounded-xl border border-border bg-card shadow-sm">
+                                    <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                                        <Eye className="h-4 w-4" />
+                                        <span className="text-xs font-medium">Lượt xem</span>
                                     </div>
-                                    <div className="text-4xl font-black text-foreground tracking-tight group-hover:text-primary transition-colors">
+                                    <div className="text-2xl font-bold text-foreground">
                                         {post.viewCount || 0}
                                     </div>
                                 </div>
-                                <div className="p-5 rounded-3xl bg-muted/5 border border-border/10 hover:border-primary/20 hover:bg-muted/10 transition-all group">
-                                    <div className="flex items-center gap-3 text-muted-foreground mb-3">
-                                        <div className="p-2 rounded-xl bg-background/50 text-blue-500 border border-border/10">
-                                            <MessageCircle className="h-4 w-4" />
-                                        </div>
-                                        <span className="text-[10px] font-black uppercase tracking-widest opacity-60">Comments</span>
+                                <div className="p-4 rounded-xl border border-border bg-card shadow-sm">
+                                    <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                                        <MessageCircle className="h-4 w-4" />
+                                        <span className="text-xs font-medium">Bình luận</span>
                                     </div>
-                                    <div className="text-4xl font-black text-foreground tracking-tight group-hover:text-blue-500 transition-colors">
+                                    <div className="text-2xl font-bold text-foreground">
                                         {post.commentCount || 0}
                                     </div>
                                 </div>
-                                <div className="p-5 rounded-3xl bg-muted/5 border border-border/10 hover:border-primary/20 hover:bg-muted/10 transition-all group">
-                                    <div className="flex items-center gap-3 text-muted-foreground mb-3">
-                                        <div className="p-2 rounded-xl bg-background/50 text-purple-500 border border-border/10">
-                                            <Calendar className="h-4 w-4" />
-                                        </div>
-                                        <span className="text-[10px] font-black uppercase tracking-widest opacity-60">Last Updated</span>
+                                <div className="p-4 rounded-xl border border-border bg-card shadow-sm">
+                                    <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                                        <Calendar className="h-4 w-4" />
+                                        <span className="text-xs font-medium">Cập nhật</span>
                                     </div>
-                                    <div className="text-xl font-bold text-foreground font-mono tracking-tight group-hover:text-purple-500 transition-colors pt-2">
-                                        {new Date(post.updatedAt).toLocaleDateString(undefined, {
-                                            month: 'short',
-                                            day: 'numeric',
-                                            year: 'numeric'
-                                        })}
+                                    <div className="text-sm font-medium text-foreground">
+                                        {new Date(post.updatedAt).toLocaleDateString()}
                                     </div>
                                 </div>
                             </div>
 
-                            <Separator className="bg-border/20" />
+                            <Separator />
 
                             {/* Form Fields */}
                             <div className="space-y-6">
-                                <div className="flex items-center gap-3 pb-2 border-b border-border/20">
-                                    <div className="h-px flex-1 bg-border/20" />
-                                    <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">
-                                        Core Specifications
-                                    </h3>
-                                    <div className="h-px flex-1 bg-border/20" />
+                                <div className="space-y-1">
+                                    <h3 className="text-sm font-semibold text-foreground">Thông tin chính</h3>
                                 </div>
 
                                 <Controller
                                     control={control}
                                     name="title"
                                     render={({ field, fieldState }) => (
-                                        <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">Title</FieldLabel>
+                                        <Field className="space-y-2">
+                                            <FieldLabel htmlFor={field.name} className="required">Tiêu đề</FieldLabel>
                                             <Input
                                                 id={field.name}
                                                 {...field}
-                                                placeholder="ARTICLE DESIGNATION"
-                                                className="h-14 px-5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all uppercase"
+                                                placeholder="Tiêu đề bài viết"
+                                                className="h-10"
                                                 aria-invalid={fieldState.invalid}
                                             />
-                                            <FieldError errors={[fieldState.error]} className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2" />
+                                            {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
                                         </Field>
                                     )}
                                 />
@@ -301,17 +286,17 @@ export function EditPostSheet({
                                     control={control}
                                     name="excerpt"
                                     render={({ field, fieldState }) => (
-                                        <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">Excerpt</FieldLabel>
+                                        <Field className="space-y-2">
+                                            <FieldLabel htmlFor={field.name}>Mô tả ngắn</FieldLabel>
                                             <Textarea
                                                 id={field.name}
                                                 {...field}
                                                 value={field.value || ''}
-                                                placeholder="BRIEF SUMMARY FOR CARDS..."
-                                                className="min-h-[80px] rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all resize-none p-4"
+                                                placeholder="Tóm tắt nội dung..."
+                                                className="min-h-[80px] resize-none"
                                                 aria-invalid={fieldState.invalid}
                                             />
-                                            <FieldError errors={[fieldState.error]} className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2" />
+                                            {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
                                         </Field>
                                     )}
                                 />
@@ -320,20 +305,20 @@ export function EditPostSheet({
                                     control={control}
                                     name="content"
                                     render={({ field, fieldState }) => (
-                                        <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">Content</FieldLabel>
-                                            <div className="rounded-2xl border border-border/20 bg-background overflow-hidden">
+                                        <Field className="space-y-2">
+                                            <FieldLabel htmlFor={field.name} className="required">Nội dung</FieldLabel>
+                                            <div className="rounded-md border border-input">
                                                 <TiptapEditor
                                                     content={field.value || ''}
                                                     onChange={(html) => field.onChange(html)}
-                                                    placeholder="WRITE YOUR ARTICLE CONTENT HERE..."
+                                                    placeholder="Nội dung bài viết..."
                                                     ariaInvalid={fieldState.invalid}
-                                                    className="min-h-[400px]"
+                                                    className="min-h-[400px] border-none focus-visible:ring-0"
                                                     showCharacterCount={true}
                                                     mode="admin"
                                                 />
                                             </div>
-                                            <FieldError errors={[fieldState.error]} className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2" />
+                                            {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
                                         </Field>
                                     )}
                                 />
@@ -343,22 +328,22 @@ export function EditPostSheet({
                                         control={control}
                                         name="status"
                                         render={({ field, fieldState }) => (
-                                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                                <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">Status</FieldLabel>
+                                            <Field className="space-y-2">
+                                                <FieldLabel htmlFor={field.name}>Trạng thái</FieldLabel>
                                                 <Select
                                                     value={field.value}
                                                     onValueChange={(value) => field.onChange(value as PostStatus)}
                                                 >
-                                                    <SelectTrigger id={field.name} className="h-14 px-5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus:ring-primary/20 text-sm font-bold uppercase transition-all" aria-invalid={fieldState.invalid}>
-                                                        <SelectValue placeholder="SELECT STATUS" />
+                                                    <SelectTrigger id={field.name} className="h-10">
+                                                        <SelectValue placeholder="Chọn trạng thái" />
                                                     </SelectTrigger>
-                                                    <SelectContent className="border-border/10 shadow-2xl bg-background/95 backdrop-blur-3xl rounded-2xl overflow-hidden p-1">
-                                                        <SelectItem value={PostStatus.DRAFT} className="rounded-xl cursor-pointer text-xs font-bold uppercase tracking-wide focus:bg-primary/10 focus:text-primary py-3">Draft</SelectItem>
-                                                        <SelectItem value={PostStatus.PUBLISHED} className="rounded-xl cursor-pointer text-xs font-bold uppercase tracking-wide focus:bg-primary/10 focus:text-primary py-3">Published</SelectItem>
-                                                        <SelectItem value={PostStatus.ARCHIVED} className="rounded-xl cursor-pointer text-xs font-bold uppercase tracking-wide focus:bg-primary/10 focus:text-primary py-3">Archived</SelectItem>
+                                                    <SelectContent>
+                                                        <SelectItem value={PostStatus.DRAFT}>Bản nháp</SelectItem>
+                                                        <SelectItem value={PostStatus.PUBLISHED}>Đã xuất bản</SelectItem>
+                                                        <SelectItem value={PostStatus.ARCHIVED}>Đã lưu trữ</SelectItem>
                                                     </SelectContent>
                                                 </Select>
-                                                <FieldError errors={[fieldState.error]} className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2" />
+                                                {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
                                             </Field>
                                         )}
                                     />
@@ -367,17 +352,17 @@ export function EditPostSheet({
                                         control={control}
                                         name="publishedAt"
                                         render={({ field, fieldState }) => (
-                                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                                <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">Published At</FieldLabel>
+                                            <Field className="space-y-2">
+                                                <FieldLabel htmlFor={field.name}>Ngày xuất bản</FieldLabel>
                                                 <Input
                                                     id={field.name}
                                                     type="datetime-local"
                                                     {...field}
                                                     value={field.value || ''}
-                                                    className="h-14 px-5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold transition-all font-mono"
+                                                    className="h-10 font-mono"
                                                     aria-invalid={fieldState.invalid}
                                                 />
-                                                <FieldError errors={[fieldState.error]} className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2" />
+                                                {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
                                             </Field>
                                         )}
                                     />
@@ -387,34 +372,31 @@ export function EditPostSheet({
                                     control={control}
                                     name="tags"
                                     render={({ field, fieldState }) => (
-                                        <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">Tags</FieldLabel>
+                                        <Field className="space-y-2">
+                                            <FieldLabel htmlFor={field.name}>Tags</FieldLabel>
                                             <Input
                                                 id={field.name}
                                                 {...field}
                                                 value={field.value || ''}
-                                                placeholder="JLPT, GRAMMAR, BEGINNER (COMMA SEPARATED)"
-                                                className="h-14 px-5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all uppercase"
+                                                placeholder="Thẻ bài viết (ngăn cách bởi dấu phẩy)"
+                                                className="h-10"
                                                 aria-invalid={fieldState.invalid}
                                             />
-                                            <FieldError errors={[fieldState.error]} className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2" />
+                                            {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
                                         </Field>
                                     )}
                                 />
 
                                 {/* Media Upload */}
                                 <div className="space-y-6 pt-6">
-                                    <div className="flex items-center gap-3 pb-2 border-b border-border/20">
-                                        <div className="h-px flex-1 bg-border/20" />
-                                        <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">
-                                            Data Assets (Optional)
-                                        </h3>
-                                        <div className="h-px flex-1 bg-border/20" />
+                                    <div className="space-y-1">
+                                        <h3 className="text-sm font-semibold text-foreground">Hình ảnh & Media</h3>
+                                        <Separator />
                                     </div>
 
                                     <Field className="space-y-2">
-                                        <FieldLabel htmlFor="cover-image-upload" className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">Cover Image</FieldLabel>
-                                        <div className="space-y-3">
+                                        <FieldLabel htmlFor="cover-image-upload">Ảnh bìa</FieldLabel>
+                                        <div className="space-y-4">
                                             <div className="flex items-center gap-3">
                                                 <div className="relative flex-1">
                                                     <Input
@@ -422,9 +404,8 @@ export function EditPostSheet({
                                                         type="file"
                                                         accept="image/*"
                                                         onChange={handleCoverImageChange}
-                                                        className="h-14 px-4 pt-3.5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-xs font-bold file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all"
+                                                        className="h-10 pt-2 file:text-foreground"
                                                     />
-                                                    <UploadCloud className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50 pointer-events-none" />
                                                 </div>
                                                 {coverImageFile && (
                                                     <Button
@@ -432,7 +413,7 @@ export function EditPostSheet({
                                                         variant="ghost"
                                                         size="icon"
                                                         onClick={removeCoverImage}
-                                                        className="h-12 w-12 rounded-2xl bg-destructive/10 text-destructive hover:bg-destructive/20"
+                                                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
                                                     >
                                                         <X className="h-4 w-4" />
                                                     </Button>
@@ -440,13 +421,12 @@ export function EditPostSheet({
                                             </div>
 
                                             {(coverImagePreview || coverImageFile) && (
-                                                <div className="rounded-2xl overflow-hidden border border-border/40 bg-muted/30 aspect-video relative shadow-sm max-w-xs group">
+                                                <div className="relative rounded-lg overflow-hidden border border-border/50 aspect-video w-full max-w-sm">
                                                     <img
                                                         src={coverImagePreview || URL.createObjectURL(coverImageFile!)}
-                                                        alt="Cover preview"
-                                                        className="object-cover w-full h-full transition-transform group-hover:scale-105"
+                                                        alt="Preview"
+                                                        className="object-cover w-full h-full"
                                                     />
-                                                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity" />
                                                 </div>
                                             )}
                                         </div>
@@ -458,30 +438,29 @@ export function EditPostSheet({
                         </div>
                     </ScrollArea>
 
-                    <SheetFooter className="px-8 py-6 bg-background border-t border-border/10 flex flex-row items-center justify-between gap-4 relative z-20 flex-shrink-0">
+                    <SheetFooter className="px-6 py-4 bg-background border-t border-border flex flex-row items-center justify-between gap-4">
                         <Button
                             type="button"
                             variant="ghost"
                             onClick={() => onOpenChange(false)}
-                            className="rounded-xl h-12 px-6 text-[11px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground hover:bg-muted/20 group"
+                            className="h-10 px-6"
                         >
-                            <X className="mr-2 h-4 w-4 transition-transform group-hover:rotate-90" />
-                            Discard
+                            Hủy bỏ
                         </Button>
                         <Button
                             type="submit"
                             disabled={uploading || (!isDirty && !coverImageFile)}
-                            className="rounded-xl h-12 px-8 bg-primary text-primary-foreground text-[11px] font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-1 transition-all"
+                            className="h-10 px-8 bg-primary text-primary-foreground font-semibold shadow-sm hover:translate-y-0"
                         >
                             {uploading ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Syncing...
+                                    Đang đồng bộ...
                                 </>
                             ) : (
                                 <>
                                     <Save className="mr-2 h-4 w-4" />
-                                    Save Changes
+                                    Lưu thay đổi
                                 </>
                             )}
                         </Button>

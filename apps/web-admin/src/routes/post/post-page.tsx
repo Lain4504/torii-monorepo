@@ -20,7 +20,7 @@ import {
     PaginationPrevious,
 } from "@workspace/ui/components/pagination";
 import { cn } from '@workspace/ui/lib/utils';
-import { FileText, Plus, Sparkles, ShieldAlert } from 'lucide-react';
+import { Plus, ShieldAlert } from 'lucide-react';
 
 export function PostPage() {
     const [page, setPage] = useState(1);
@@ -59,7 +59,7 @@ export function PostPage() {
                     <ShieldAlert className="size-8 text-destructive/50" />
                 </div>
                 <div className="space-y-1">
-                    <h3 className="text-lg font-medium text-foreground">System Notice</h3>
+                    <h3 className="text-lg font-medium text-foreground">Thông báo Hệ thống</h3>
                     <p className="text-sm text-muted-foreground">{error.message}</p>
                 </div>
             </div>
@@ -94,13 +94,13 @@ export function PostPage() {
                             e.preventDefault();
                             setPage(1);
                         }}
-                        className="rounded-xl h-10 w-10 text-xs font-medium hover:bg-primary/10 transition-all"
+                        className="rounded-md border border-border h-9 w-9 text-xs font-semibold hover:bg-primary hover:text-primary-foreground transition-all"
                     >
                         1
                     </PaginationLink>
                 </PaginationItem>
             );
-            if (startPage > 2) items.push(<PaginationEllipsis key="start-ellipsis" className="opacity-20" />);
+            if (startPage > 2) items.push(<PaginationEllipsis key="start-ellipsis" className="opacity-50" />);
         }
 
         for (let i = startPage; i <= endPage; i++) {
@@ -113,8 +113,10 @@ export function PostPage() {
                             setPage(i);
                         }}
                         className={cn(
-                            "rounded-xl h-10 w-10 text-xs font-medium transition-all",
-                            page === i ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" : "hover:bg-primary/10 text-muted-foreground hover:text-primary"
+                            "rounded-md border h-9 w-9 text-xs font-semibold transition-all",
+                            page === i
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "bg-background border-border hover:bg-muted text-muted-foreground hover:text-foreground"
                         )}
                     >
                         {i}
@@ -124,7 +126,7 @@ export function PostPage() {
         }
 
         if (endPage < meta.totalPages) {
-            if (endPage < meta.totalPages - 1) items.push(<PaginationEllipsis key="end-ellipsis" className="opacity-20" />);
+            if (endPage < meta.totalPages - 1) items.push(<PaginationEllipsis key="end-ellipsis" className="opacity-50" />);
             items.push(
                 <PaginationItem key={meta.totalPages}>
                     <PaginationLink
@@ -132,7 +134,7 @@ export function PostPage() {
                             e.preventDefault();
                             setPage(meta.totalPages);
                         }}
-                        className="rounded-xl h-10 w-10 text-xs font-medium hover:bg-primary/10 transition-all"
+                        className="rounded-md border border-border h-9 w-9 text-xs font-semibold hover:bg-primary hover:text-primary-foreground transition-all"
                     >
                         {meta.totalPages}
                     </PaginationLink>
@@ -144,56 +146,46 @@ export function PostPage() {
     };
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-700 pb-10">
+        <div className="flex flex-col gap-6 p-4 md:p-6 animate-in fade-in duration-500">
             {/* Header Section */}
-            <div className="flex flex-col sm:flex-row items-start justify-between gap-8 relative px-0 md:px-2">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
                 <div className="space-y-4 max-w-2xl">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-bold uppercase tracking-wider">
-                        <FileText className="size-3.5" />
-                        Content Library
-                    </div>
-                    <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-foreground leading-[1.1]">
-                        Content <span className="text-primary">& News</span>
+                    <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+                        Bài viết & <span className="text-primary not-italic">Tin tức</span>
                     </h1>
-                    <p className="text-base text-muted-foreground mt-4 leading-relaxed max-w-lg border-l-2 border-primary/20 pl-4">
-                        Manage articles, news updates, and community content for <span className="text-foreground font-semibold">Torii Academy</span>.
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
+                        Quản lý nội dung học thuật và cộng đồng Torii
                     </p>
                 </div>
-                <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto pt-6 sm:pt-0">
-                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-muted/20 border border-border/20 hidden sm:flex">
-                        <div className="space-y-0.5">
-                            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold text-center">Total Posts</p>
-                            <h3 className="text-2xl font-bold text-center text-primary">{meta?.total || 0}</h3>
-                        </div>
-                    </div>
+
+                <div className="flex items-center gap-4">
                     <Button
                         onClick={() => setShowCreateDialog(true)}
-                        className="w-full sm:w-auto h-12 px-6 rounded-xl bg-primary text-primary-foreground font-medium text-sm shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all group"
+                        className="h-10 px-4 rounded-xl font-medium shadow-sm"
                     >
-                        Create New Post
-                        <Plus className="ml-2 size-4 opacity-70 group-hover:opacity-100 transition-opacity" />
+                        <Plus className="mr-2 size-4" />
+                        Tạo bài viết mới
                     </Button>
                 </div>
             </div>
 
-            <div className="space-y-6 px-0 md:px-2">
-                <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
-                    <div className="flex-1 w-full">
-                        <PostPrimaryToolbar
-                            search={search}
-                            onSearchChange={setSearch}
-                            statusFilter={statusFilter}
-                            onStatusFilterChange={setStatusFilter}
-                            onSortChange={(field, order) => {
-                                setSortBy(field);
-                                setSortOrder(order);
-                            }}
-                        />
-                    </div>
+            <div className="space-y-4">
+                {/* Toolbar area */}
+                <div className="bg-background p-4 rounded-xl border border-border shadow-sm">
+                    <PostPrimaryToolbar
+                        search={search}
+                        onSearchChange={setSearch}
+                        statusFilter={statusFilter}
+                        onStatusFilterChange={setStatusFilter}
+                        onSortChange={(field, order) => {
+                            setSortBy(field);
+                            setSortOrder(order);
+                        }}
+                    />
                 </div>
 
-                <div className="rounded-3xl border border-white/20 bg-background/50 backdrop-blur-3xl overflow-hidden relative shadow-sm">
-                    <div className="absolute inset-0 bg-primary/[0.02] pointer-events-none" />
+                {/* Table container */}
+                <div className="bg-background rounded-xl border border-border overflow-hidden shadow-sm">
                     <PostTable
                         data={posts}
                         onEdit={setEditingPost}
@@ -206,20 +198,17 @@ export function PostPage() {
                 </div>
 
                 {/* Pagination */}
-                {meta && (
-                    <div className="flex flex-col lg:flex-row items-center justify-between gap-4 pt-2">
-                        <div className="flex flex-col lg:flex-row lg:items-center gap-4 text-xs text-muted-foreground font-medium text-center lg:text-left pl-2">
-                            <div className="inline-flex items-center gap-2">
-                                <Sparkles className="size-3.5 text-primary/70" />
-                                <span>Total: <span className="text-foreground">{meta.total} Published Posts</span></span>
-                            </div>
-                            <div className="hidden lg:block w-1 h-1 rounded-full bg-border" />
-                            <div>Page {page} of {meta.totalPages}</div>
+                {meta && (meta.total > 0 || isLoading) && (
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2 px-1">
+                        <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                            <span>Hiển thị trang <span className="text-foreground">{page}</span> / {meta.totalPages}</span>
+                            <span className="mx-1 text-border">|</span>
+                            <span>Tổng cộng <span className="text-foreground">{meta.total}</span> bài viết</span>
                         </div>
 
                         {meta.totalPages > 1 && (
-                            <Pagination>
-                                <PaginationContent className="flex items-center gap-2">
+                            <Pagination className="w-auto mx-0">
+                                <PaginationContent className="flex items-center gap-1">
                                     <PaginationItem>
                                         <PaginationPrevious
                                             onClick={(e) => {
@@ -227,13 +216,13 @@ export function PostPage() {
                                                 setPage(p => Math.max(1, p - 1));
                                             }}
                                             className={cn(
-                                                "h-10 px-4 rounded-xl bg-background/50 border border-border/20 text-xs font-medium transition-all",
-                                                page === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary cursor-pointer"
+                                                "h-9 px-3 rounded-md border border-border text-xs font-medium transition-all",
+                                                page === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-muted cursor-pointer"
                                             )}
                                         />
                                     </PaginationItem>
 
-                                    <div className="hidden md:flex items-center gap-1 mx-2">
+                                    <div className="hidden md:flex items-center gap-1">
                                         {renderPaginationItems()}
                                     </div>
 
@@ -244,8 +233,8 @@ export function PostPage() {
                                                 setPage(p => Math.min(meta.totalPages, p + 1));
                                             }}
                                             className={cn(
-                                                "h-10 px-4 rounded-xl bg-background/50 border border-border/20 text-xs font-medium transition-all",
-                                                page === meta.totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary cursor-pointer"
+                                                "h-9 px-3 rounded-md border border-border text-xs font-medium transition-all",
+                                                page === meta.totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-muted cursor-pointer"
                                             )}
                                         />
                                     </PaginationItem>

@@ -47,60 +47,60 @@ export default function LiveClassesPage() {
     const liveCourses: LiveCourse[] = [
         {
             id: 1,
-            title: "JLPT N4 Intensive Bootcamp",
+            title: "Khóa luyện thi JLPT N4 cấp tốc",
             code: "N4-BATCH-24",
-            description: "A comprehensive 3-month cohort designed to take you from N5 basic proficiency to N4 mastery. Focuses on heavy conversation practice and grammar drills.",
+            description: "Chương trình đào tạo chuyên sâu trong 3 tháng nhằm giúp học viên đạt trình độ N4 từ nền tảng N5. Tập trung vào thực hành hội thoại và ngữ pháp nâng cao.",
             level: "N4",
-            startDate: "Nov 15, 2024",
-            duration: "12 Weeks",
-            schedule: "Mon & Wed, 19:30 - 21:00 (JST)",
+            startDate: "15/11/2024",
+            duration: "12 Tuần",
+            schedule: "Thứ 2 & Thứ 4, 19:30 - 21:00 (JST)",
             instructor: {
                 name: "Yuki Tanaka",
                 avatar: "",
-                role: "Senior Linguist"
+                role: "Giảng viên cao cấp"
             },
             price: "4.500.000 VNĐ",
-            features: ["Live pronunciation checks", "24/7 Discord Community", "Unlimited Replays"],
+            features: ["Kiểm tra phát âm trực tiếp", "Cộng đồng Discord 24/7", "Xem lại không giới hạn"],
             status: "filling_fast",
-            curriculum_highlight: "Mastering Keigo Basics"
+            curriculum_highlight: "Làm chủ Kính ngữ cơ bản"
         },
         {
             id: 2,
-            title: "Zero to Hero: N5 Starter",
+            title: "Nhập môn N5 cho người bắt đầu",
             code: "N5-BATCH-08",
-            description: "The perfect starting point. Learn Hiragana, Katakana, and essential survival Japanese in a supportive live group environment.",
+            description: "Điểm khởi đầu hoàn hảo. Học Hiragana, Katakana và tiếng Nhật giao tiếp cơ bản trong môi trường nhóm tương tác trực tiếp.",
             level: "N5",
-            startDate: "Dec 01, 2024",
-            duration: "8 Weeks",
-            schedule: "Sat & Sun, 10:00 - 11:30 (JST)",
+            startDate: "01/12/2024",
+            duration: "8 Tuần",
+            schedule: "Thứ 7 & Chủ nhật, 10:00 - 11:30 (JST)",
             instructor: {
                 name: " Sarah Jenkins",
                 avatar: "",
-                role: "Bilingual Expert"
+                role: "Chuyên gia Ngôn ngữ"
             },
             price: "3.500.000 VNĐ",
-            features: ["Cultural Workshops", "Kanji PDF Workbooks", "1-on-1 Feedback"],
+            features: ["Hội thảo Văn hóa", "Sách bài tập Kanji PDF", "Phản hồi 1-kèm-1"],
             status: "open",
-            curriculum_highlight: "Daily Life Conversations"
+            curriculum_highlight: "Giao tiếp đời sống hàng ngày"
         },
         {
             id: 3,
-            title: "Business Japanese N2 Masterclass",
+            title: "Tiếng Nhật Thương mại N2 Masterclass",
             code: "BIZ-N2-03",
-            description: "Advanced business etiquette, email writing, and boardroom negotiation tactics for professionals working with Japanese clients.",
+            description: "Nghi thức kinh doanh nâng cao, kỹ năng viết email và đàm phán dành cho các chuyên gia làm việc với đối tác Nhật Bản.",
             level: "N2",
-            startDate: "Jan 10, 2025",
-            duration: "10 Weeks",
-            schedule: "Tue & Thu, 20:00 - 21:30 (JST)",
+            startDate: "10/01/2025",
+            duration: "10 Tuần",
+            schedule: "Thứ 3 & Thứ 5, 20:00 - 21:30 (JST)",
             instructor: {
                 name: "Kenji Sato",
                 avatar: "",
-                role: "Corporate Trainer"
+                role: "Đào tạo doanh nghiệp"
             },
             price: "6.000.000 VNĐ",
-            features: ["Resume Review", "Mock Interviews", "Networking Events"],
+            features: ["Đánh giá CV", "Phỏng vấn thử", "Sự kiện kết nối"],
             status: "waitlist",
-            curriculum_highlight: "Negotiation Tactics"
+            curriculum_highlight: "Kỹ năng Đàm phán"
         }
     ]
 
@@ -112,8 +112,8 @@ export default function LiveClassesPage() {
         // Simulate API
         setTimeout(() => {
             setIsLoading(false)
-            toast.success("Application Received!", {
-                description: `We have received your enrollment request for ${selectedCourse?.title}. A confirmation email has been sent.`,
+            toast.success("Đăng ký thành công!", {
+                description: `Chúng tôi đã nhận được yêu cầu của bạn cho lớp ${selectedCourse?.title}. Email xác nhận đã được gửi.`,
                 className: "border-emerald-500/20 bg-background/90 backdrop-blur-xl",
                 duration: 5000
             })
@@ -122,7 +122,7 @@ export default function LiveClassesPage() {
     }
 
     if (isLoading) {
-        return <PageLoading text="Processing Enrollment..." className="h-screen" />
+        return <PageLoading text="Đang xử lý đăng ký..." className="h-screen" />
     }
 
     return (
@@ -137,16 +137,16 @@ export default function LiveClassesPage() {
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                             </div>
-                            <span>Academic Cohorts 2024/25</span>
+                            <span>Lịch khai giảng 2024/25</span>
                         </div>
 
-                        <h1 className="max-w-4xl text-5xl md:text-8xl font-serif font-bold tracking-tight text-foreground uppercase italic leading-[0.9]">
-                            Master Japanese in <br />
-                            <span className="text-primary not-italic">Real-Time.</span>
+                        <h1 className="max-w-4xl text-4xl md:text-7xl font-serif font-bold tracking-tight text-foreground uppercase italic leading-[0.9]">
+                            Làm chủ tiếng Nhật <br />
+                            <span className="text-primary not-italic">Trực tuyến.</span>
                         </h1>
 
                         <p className="max-w-2xl text-[11px] md:text-xs font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-8 mx-auto py-2 leading-relaxed">
-                            Structured curriculum, live interaction, and a community of <br /> dedicated learners driven by results.
+                            Lộ trình bài bản, tương tác trực tiếp và cộng đồng học viên <br /> năng động, cam kết đạt mục tiêu đầu ra.
                         </p>
                     </div>
                 </div>
@@ -181,7 +181,7 @@ export default function LiveClassesPage() {
                                                         course.level === 'N4' ? "bg-emerald-500 text-white" :
                                                             course.level === 'N2' ? "bg-purple-500 text-white" : "bg-muted text-foreground"
                                                 )}>
-                                                    Level {course.level}
+                                                    Cấp độ {course.level}
                                                 </Badge>
                                                 <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/30">{course.code}</span>
                                             </div>
@@ -212,21 +212,21 @@ export default function LiveClassesPage() {
                                         <div className="grid grid-cols-2 lg:flex lg:items-center gap-y-6 gap-x-12 lg:shrink-0 lg:min-w-fit pt-6 lg:pt-0 border-t lg:border-t-0 border-border/40">
                                             <div className="space-y-2">
                                                 <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">
-                                                    <Calendar className="w-3 h-3 text-primary/40" /> Start Date
+                                                    <Calendar className="w-3 h-3 text-primary/40" /> Ngày bắt đầu
                                                 </div>
                                                 <p className="text-[11px] font-black uppercase tracking-wider text-foreground">{course.startDate}</p>
                                             </div>
 
                                             <div className="space-y-2">
                                                 <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">
-                                                    <Clock className="w-3 h-3 text-primary/40" /> Schedule
+                                                    <Clock className="w-3 h-3 text-primary/40" /> Lịch học
                                                 </div>
                                                 <p className="text-[11px] font-black uppercase tracking-wider text-foreground">{course.schedule}</p>
                                             </div>
 
                                             <div className="space-y-2">
                                                 <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">
-                                                    <GraduationCap className="w-3 h-3 text-primary/40" /> Duration
+                                                    <GraduationCap className="w-3 h-3 text-primary/40" /> Thời lượng
                                                 </div>
                                                 <p className="text-[11px] font-black uppercase tracking-wider text-foreground">{course.duration}</p>
                                             </div>
@@ -235,7 +235,7 @@ export default function LiveClassesPage() {
                                         {/* 3. Price & Action */}
                                         <div className="flex items-center justify-between lg:justify-end gap-10 pt-6 lg:pt-0 border-t lg:border-t-0 border-border/40 lg:w-[280px] lg:shrink-0">
                                             <div className="text-right space-y-1">
-                                                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/30">Tuition Fee</p>
+                                                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/30">Học phí</p>
                                                 <p className="text-3xl font-serif font-bold text-foreground tracking-tighter italic">{course.price}</p>
                                             </div>
 
@@ -260,10 +260,10 @@ export default function LiveClassesPage() {
                     <DialogHeader className="p-10 pb-6 bg-muted/5 border-b border-border/40">
                         <DialogTitle className="text-4xl font-serif font-bold uppercase italic tracking-tight flex items-center gap-4">
                             <Sparkles className="w-8 h-8 text-primary/40 animate-pulse" />
-                            Enrollment
+                            Đăng ký nhập học
                         </DialogTitle>
                         <DialogDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 mt-2">
-                            Applying for cohort: <span className="text-primary">{selectedCourse?.code}</span>
+                            Đang đăng ký khóa: <span className="text-primary">{selectedCourse?.code}</span>
                         </DialogDescription>
                     </DialogHeader>
 
@@ -275,43 +275,43 @@ export default function LiveClassesPage() {
                             </div>
                             <div className="space-y-1">
                                 <h4 className="font-serif text-xl font-bold text-foreground italic uppercase tracking-tight">{selectedCourse?.title}</h4>
-                                <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground/40">Starts {selectedCourse?.startDate} • {selectedCourse?.schedule}</p>
+                                <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground/40">Khai giảng {selectedCourse?.startDate} • {selectedCourse?.schedule}</p>
                             </div>
                         </div>
 
                         <form id="enroll-form" onSubmit={handleConfirmRegistration} className="space-y-6">
                             <div className="grid grid-cols-2 gap-6">
                                 <div className="space-y-2.5">
-                                    <Label htmlFor="fname" className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 ml-1">First Name</Label>
-                                    <Input id="fname" required className="bg-muted/10 border-border/40 h-14 rounded-2xl focus:bg-background focus:ring-primary/20 transition-all text-sm font-medium" placeholder="E.g. John" />
+                                    <Label htmlFor="fname" className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 ml-1">Họ</Label>
+                                    <Input id="fname" required className="bg-muted/10 border-border/40 h-14 rounded-2xl focus:bg-background focus:ring-primary/20 transition-all text-sm font-medium" placeholder="VD: Nguyễn" />
                                 </div>
                                 <div className="space-y-2.5">
-                                    <Label htmlFor="lname" className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 ml-1">Last Name</Label>
-                                    <Input id="lname" required className="bg-muted/10 border-border/40 h-14 rounded-2xl focus:bg-background focus:ring-primary/20 transition-all text-sm font-medium" placeholder="E.g. Doe" />
+                                    <Label htmlFor="lname" className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 ml-1">Tên</Label>
+                                    <Input id="lname" required className="bg-muted/10 border-border/40 h-14 rounded-2xl focus:bg-background focus:ring-primary/20 transition-all text-sm font-medium" placeholder="VD: Văn A" />
                                 </div>
                             </div>
                             <div className="space-y-2.5">
-                                <Label htmlFor="email" className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 ml-1">Email Address</Label>
-                                <Input id="email" type="email" required className="bg-muted/10 border-border/40 h-14 rounded-2xl focus:bg-background focus:ring-primary/20 transition-all text-sm font-medium" placeholder="john@example.com" />
+                                <Label htmlFor="email" className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 ml-1">Địa chỉ Email</Label>
+                                <Input id="email" type="email" required className="bg-muted/10 border-border/40 h-14 rounded-2xl focus:bg-background focus:ring-primary/20 transition-all text-sm font-medium" placeholder="nguyenvan@example.com" />
                             </div>
                             <div className="space-y-2.5">
-                                <Label htmlFor="phone" className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 ml-1">Phone Number</Label>
-                                <Input id="phone" type="tel" className="bg-muted/10 border-border/40 h-14 rounded-2xl focus:bg-background focus:ring-primary/20 transition-all text-sm font-medium" placeholder="+81 ..." />
+                                <Label htmlFor="phone" className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 ml-1">Số điện thoại</Label>
+                                <Input id="phone" type="tel" className="bg-muted/10 border-border/40 h-14 rounded-2xl focus:bg-background focus:ring-primary/20 transition-all text-sm font-medium" placeholder="090 ..." />
                             </div>
                         </form>
 
                         <div className="flex items-start gap-4 p-5 rounded-2xl bg-muted/5 text-[11px] text-muted-foreground/60 leading-relaxed italic border border-border/40">
                             <ShieldCheck className="w-5 h-5 text-primary/40 shrink-0 mt-0.5" />
-                            <p>By proceeding, you agree to the enrollment terms. Payment details will be collected in the next step via our secure gateway.</p>
+                            <p>Bằng việc tiếp tục, bạn đồng ý với các điều khoản nhập học. Thông tin thanh toán sẽ được thực hiện trong bước tiếp theo qua cổng bảo mật.</p>
                         </div>
                     </div>
 
                     <DialogFooter className="p-10 pt-6 bg-muted/5 border-t border-border/40 flex items-center justify-between">
                         <Button variant="ghost" onClick={() => setIsRegisterOpen(false)} className="rounded-2xl h-14 px-8 hover:bg-primary/5 group/btn">
-                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 group-hover:text-foreground transition-colors">Cancel</span>
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 group-hover:text-foreground transition-colors">Hủy</span>
                         </Button>
                         <Button type="submit" form="enroll-form" className="rounded-2xl h-14 px-10 bg-primary text-white hover:bg-primary/90 shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
-                            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Continue to Payment</span>
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Tiếp tục thanh toán</span>
                         </Button>
                     </DialogFooter>
                 </DialogContent>

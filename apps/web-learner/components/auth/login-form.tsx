@@ -27,7 +27,7 @@ export function LoginForm() {
     const googleAuthMutation = useGoogleAuth()
     const [googleLoading, setGoogleLoading] = useState(false)
 
-  
+
 
     const form = useForm<UserLoginDTO>({
         resolver: zodResolver(userLoginDTOSchema),
@@ -47,12 +47,12 @@ export function LoginForm() {
                 toast.success('Đăng nhập thành công', {
                     description: 'Chào mừng quay trở lại Torii Nihongo!',
                 })
-                
+
                 // Get redirect URL from 'from' param or default to dashboard
                 const redirectTo = searchParams.get('from') || '/dashboard'
-                
+
                 router.push(redirectTo)
-                
+
             } else {
                 // Check for 2FA requirement in rejection payload
                 if (resultAction.payload && typeof resultAction.payload === 'object' && 'requiresTwoFactor' in resultAction.payload) {
@@ -60,13 +60,13 @@ export function LoginForm() {
                     if (payload.tempToken) {
                         // Store temp token in sessionStorage for 2FA page
                         sessionStorage.setItem('2fa_tempToken', payload.tempToken);
-                        
+
                         // Pass 'from' param to verify-2fa page if it exists
                         const fromParam = searchParams.get('from');
-                        const verify2faUrl = fromParam 
+                        const verify2faUrl = fromParam
                             ? `/verify-2fa?token=${payload.tempToken}&from=${encodeURIComponent(fromParam)}`
                             : `/verify-2fa?token=${payload.tempToken}`;
-                        
+
                         router.push(verify2faUrl);
                         return;
                     }
@@ -114,10 +114,10 @@ export function LoginForm() {
                     const result = await googleAuthMutation.mutateAsync(response.credential);
                     await dispatch(checkAuth());
                     toast.success(`Chào mừng quay trở lại, ${result.user.displayName || 'Người dùng'}!`);
-                    
+
                     // Get redirect URL from 'from' param or default to dashboard
                     const redirectTo = searchParams.get('from') || '/dashboard';
-                    
+
                     router.push(redirectTo);
                 } catch (error: any) {
                     toast.error(error?.message || 'Đăng nhập Google thất bại');
@@ -198,7 +198,7 @@ export function LoginForm() {
                                     type="email"
                                     aria-invalid={fieldState.invalid}
                                     placeholder="yourname@domain.com"
-                                    className="pl-9 h-11 rounded-xl bg-muted/5 border-border/20 focus:bg-background focus:border-primary/20 focus:ring-2 focus:ring-primary/10 text-sm font-medium transition-all placeholder:text-muted-foreground/40"
+                                    className="pl-9 h-11 rounded-xl bg-muted/5 border-border/40 focus:bg-background focus:border-primary/30 focus:ring-2 focus:ring-primary/10 text-sm font-medium transition-all placeholder:text-muted-foreground/40 shadow-sm"
                                 />
                             </div>
                             {fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-xs font-medium text-destructive mt-1" />}
@@ -227,7 +227,7 @@ export function LoginForm() {
                                     type={showPassword ? 'text' : 'password'}
                                     aria-invalid={fieldState.invalid}
                                     placeholder="••••••••••••"
-                                    className="pl-9 pr-9 h-11 rounded-xl bg-muted/5 border-border/20 focus:bg-background focus:border-primary/20 focus:ring-2 focus:ring-primary/10 text-sm font-medium transition-all placeholder:text-muted-foreground/40"
+                                    className="pl-9 pr-9 h-11 rounded-xl bg-muted/5 border-border/40 focus:bg-background focus:border-primary/30 focus:ring-2 focus:ring-primary/10 text-sm font-medium transition-all placeholder:text-muted-foreground/40 shadow-sm"
                                 />
                                 <button
                                     type="button"

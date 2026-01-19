@@ -27,27 +27,27 @@ export function ViewUserSheet({
     if (!user) return null;
 
     // Determine user status
-    let status = 'active';
+    let status = 'Đang hoạt động';
     let statusBadgeClass = 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.2)]';
     let StatusIcon = Zap;
 
     if (user.deletedAt) {
-        status = 'deleted';
+        status = 'Đã xóa';
         statusBadgeClass = 'bg-destructive/10 text-destructive border-destructive/20 shadow-[0_0_10px_rgba(220,38,38,0.2)]';
         StatusIcon = AlertTriangle;
     } else if (user.bannedUntil && new Date(user.bannedUntil) > new Date()) {
-        status = 'suspended';
+        status = 'Đang bị cấm';
         statusBadgeClass = 'bg-orange-500/10 text-orange-500 border-orange-500/20 shadow-[0_0_10px_rgba(249,115,22,0.2)]';
         StatusIcon = Lock;
     } else if (!user.verifiedAt) {
-        status = 'inactive';
+        status = 'Chưa kích hoạt';
         statusBadgeClass = 'bg-muted text-muted-foreground border-border/50';
         StatusIcon = Clock;
     }
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:w-[500px] sm:max-w-[500px] flex flex-col p-0 border-l border-border/50 shadow-2xl bg-background overflow-hidden">
+            <SheetContent className="w-full sm:w-[500px] sm:max-w-[500px] flex flex-col p-0 border-l border-border/50 shadow-2xl bg-background">
                 <SheetHeader className="px-8 pt-8 pb-6 border-b border-border/10 bg-muted/5 relative overflow-hidden">
                     <div className="absolute inset-0 bg-primary/5 blur-3xl opacity-50 pointer-events-none" />
                     <div className="relative flex items-center gap-4 z-10">
@@ -55,11 +55,11 @@ export function ViewUserSheet({
                             <ScanEye className="h-6 w-6" />
                         </div>
                         <div className="flex-1 space-y-1">
-                            <SheetTitle className="text-2xl font-bold tracking-tight">
-                                User <span className="text-primary">Profile</span>
+                            <SheetTitle className="text-2xl font-serif font-bold italic uppercase tracking-tight">
+                                Hồ sơ <span className="text-primary">Người dùng</span>
                             </SheetTitle>
                             <SheetDescription className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground/60">
-                                Detailed account information and activity
+                                Thông tin chi tiết tài khoản và hoạt động
                             </SheetDescription>
                         </div>
                         <Badge variant="outline" className="font-mono text-[10px] bg-background border-border/20">
@@ -79,13 +79,13 @@ export function ViewUserSheet({
                                     </AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1 space-y-1.5 overflow-hidden">
-                                    <h3 className="text-xl font-bold tracking-tight text-foreground truncate">{user.displayName}</h3>
+                                    <h3 className="text-xl font-serif font-bold italic tracking-tight text-foreground truncate">{user.displayName}</h3>
                                     <div className="flex items-center gap-2 text-muted-foreground">
                                         <Mail className="h-3.5 w-3.5" />
                                         <p className="font-medium text-xs truncate">{user.email}</p>
                                     </div>
                                     <Badge variant="secondary" className="mt-2 text-[10px] font-bold uppercase tracking-wider bg-primary/5 text-primary border-primary/10">
-                                        Verified
+                                        Đã xác minh
                                     </Badge>
                                 </div>
                             </div>
@@ -96,7 +96,7 @@ export function ViewUserSheet({
                             <div className="p-5 rounded-xl bg-muted/5 border border-border/10 space-y-3 group hover:bg-muted/10 transition-colors">
                                 <div className="flex items-center gap-2 text-muted-foreground/60 group-hover:text-primary/80 transition-colors">
                                     <Shield className="h-4 w-4" />
-                                    <span className="text-[10px] font-medium uppercase tracking-widest">Role</span>
+                                    <span className="text-[10px] font-serif font-bold italic uppercase tracking-widest">Vai trò</span>
                                 </div>
                                 <div className="pt-1">
                                     <Badge variant="outline" className="w-full justify-center py-1.5 capitalize border-border/20 bg-background text-foreground font-medium text-xs tracking-wide shadow-sm">
@@ -108,7 +108,7 @@ export function ViewUserSheet({
                             <div className="p-5 rounded-xl bg-muted/5 border border-border/10 space-y-3 group hover:bg-muted/10 transition-colors">
                                 <div className="flex items-center gap-2 text-muted-foreground/60 group-hover:text-primary/80 transition-colors">
                                     <Activity className="h-4 w-4" />
-                                    <span className="text-[10px] font-medium uppercase tracking-widest">Status</span>
+                                    <span className="text-[10px] font-serif font-bold italic uppercase tracking-widest">Trạng thái</span>
                                 </div>
                                 <div className="pt-1">
                                     <Badge className={cn("w-full justify-center py-1.5 capitalize border font-medium text-xs tracking-wide", statusBadgeClass)}>
@@ -123,18 +123,18 @@ export function ViewUserSheet({
                         <div className="space-y-6">
                             <div className="flex items-center gap-3">
                                 <div className="h-px flex-1 bg-border/20" />
-                                <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground/40">History</span>
+                                <span className="text-[10px] font-serif font-bold italic uppercase tracking-widest text-muted-foreground/40">Lịch sử</span>
                                 <div className="h-px flex-1 bg-border/20" />
                             </div>
 
                             <div className="grid gap-3">
                                 {[
-                                    { label: 'Member Since', value: user.createdAt, icon: Fingerprint, color: 'text-blue-500' },
-                                    { label: 'Last Updated', value: user.updatedAt, icon: Terminal, color: 'text-violet-500' },
-                                    user.verifiedAt && { label: 'Verification', value: user.verifiedAt, icon: Shield, color: 'text-emerald-500' },
-                                    user.lastSignInAt && { label: 'Last Login', value: user.lastSignInAt, icon: Clock, color: 'text-amber-500' },
-                                    user.bannedUntil && new Date(user.bannedUntil) > new Date() && { label: 'Suspension Lift', value: user.bannedUntil, icon: Lock, color: 'text-orange-500' },
-                                    user.deletedAt && { label: 'Account Deleted', value: user.deletedAt, icon: AlertTriangle, color: 'text-red-500' }
+                                    { label: 'Thành viên từ', value: user.createdAt, icon: Fingerprint, color: 'text-blue-500' },
+                                    { label: 'Cập nhật lần cuối', value: user.updatedAt, icon: Terminal, color: 'text-violet-500' },
+                                    user.verifiedAt && { label: 'Thời gian xác minh', value: user.verifiedAt, icon: Shield, color: 'text-emerald-500' },
+                                    user.lastSignInAt && { label: 'Đăng nhập cuối', value: user.lastSignInAt, icon: Clock, color: 'text-amber-500' },
+                                    user.bannedUntil && new Date(user.bannedUntil) > new Date() && { label: 'Thời gian hết hạn cấm', value: user.bannedUntil, icon: Lock, color: 'text-orange-500' },
+                                    user.deletedAt && { label: 'Thời gian đã xóa', value: user.deletedAt, icon: AlertTriangle, color: 'text-red-500' }
                                 ]
                                     .filter(Boolean)
                                     .map((item: any, i) => (
