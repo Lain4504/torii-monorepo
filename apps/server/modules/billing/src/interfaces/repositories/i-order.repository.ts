@@ -69,4 +69,9 @@ export interface IOrderRepository {
      * Count payments with optional filter
      */
     countPayments(where?: Prisma.PaymentWhereInput): Promise<number>;
+
+    /**
+     * Get user by ID (for notification purposes)
+     */
+    getUserById(userId: string): Promise<{ id: string; email: string; displayName: string | null } | null>;
 }

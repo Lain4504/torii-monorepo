@@ -29,7 +29,7 @@ export class OrderController {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
-                    { cmd: 'learning.order.findAll' },
+                    { cmd: 'billing.order.findAll' },
                     query
                 )
             );
@@ -44,7 +44,7 @@ export class OrderController {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
-                    { cmd: 'learning.order.findAllPayments' },
+                    { cmd: 'billing.order.findAllPayments' },
                     query
                 )
             );
@@ -59,7 +59,7 @@ export class OrderController {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
-                    { cmd: 'learning.order.findOne' },
+                    { cmd: 'billing.order.findOne' },
                     { id }
                 )
             );
@@ -75,7 +75,7 @@ export class OrderController {
             const user = req.user as any;
             const result = await firstValueFrom(
                 this.natsClient.send(
-                    { cmd: 'learning.order.create' },
+                    { cmd: 'billing.order.create' },
                     { ...input, userId: user.sub, userRole: user.role }
                 )
             );
@@ -90,7 +90,7 @@ export class OrderController {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
-                    { cmd: 'learning.order.confirm' },
+                    { cmd: 'billing.order.confirm' },
                     { id, input }
                 )
             );

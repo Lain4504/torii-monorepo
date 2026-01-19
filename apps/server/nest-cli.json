@@ -90,6 +90,16 @@
         "tsConfigPath": "modules/storage/tsconfig.app.json",
         "webpack": false
       }
+    },
+    "billing": {
+      "type": "application",
+      "root": "modules/billing",
+      "entryFile": "main",
+      "sourceRoot": "modules/billing/src",
+      "compilerOptions": {
+        "tsConfigPath": "modules/billing/tsconfig.app.json",
+        "webpack": false
+      }
     }
   }
 }

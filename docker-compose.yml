@@ -87,6 +87,7 @@ services:
       - LEARNING_SERVICE_URL=http://learning:8082
       - AGENTS_SERVICE_URL=http://agents:8090
       - MEET_SERVICE_URL=http://meet:8091
+      - BILLING_SERVICE_URL=http://billing:8084
     ports:
       - "${GATEWAY_PORT:-8080}:8080"
     depends_on:
@@ -97,6 +98,7 @@ services:
       - learning
       - meet
       - agents
+      - billing
 
   identity:
     image: ${DOCKER_USERNAME}/torii-backend:latest
@@ -229,6 +231,24 @@ services:
       - REDIS_URL=redis://redis:6379
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+    depends_on:
+      - nats
+      - postgres
+      - redis
+
+  billing:
+    image: ${DOCKER_USERNAME}/torii-backend:latest
+    command: npm run prod:billing
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - NATS_URL=nats://nats:4222
+      - DATABASE_URL=postgresql://postgres:123456789@postgres:5432/wajlc
+      - REDIS_URL=redis://redis:6379
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - BILLING_HTTP_PORT=8084
     depends_on:
       - nats
       - postgres

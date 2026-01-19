@@ -39,4 +39,9 @@ export class EnrollmentHandler {
     async updateProgress(@Payload() data: { id: string, completionPercentage: number }) {
         return this.enrollmentService.updateProgress(data.id, data.completionPercentage);
     }
+
+    @MessagePattern({ cmd: 'learning.enrollment.updateOrderId' })
+    async updateOrderId(@Payload() data: { id: string, orderId: string }) {
+        return this.enrollmentService.updateOrderId(data.id, data.orderId);
+    }
 }

@@ -15,7 +15,6 @@ import { ReviewModule } from './modules/review/review.module';
 import { CourseInstructorModule } from './modules/course-instructor/course-instructor.module';
 import { LessonMaterialModule } from './modules/lesson-material/lesson-material.module';
 import { EnrollmentModule } from './modules/enrollment/enrollment.module';
-import { OrderModule } from './modules/payment/order.module';
 import { LearningProgressModule } from './modules/learning-progress/learning-progress.module';
 
 // Community Modules
@@ -43,7 +42,6 @@ import { CourseInstructorHandler } from './interfaces/nats/course-instructor.han
 import { StaffDashboardHandler } from './interfaces/nats/staff-dashboard.handler';
 import { ExamHandler } from './interfaces/nats/exam.handler';
 import { EnrollmentHandler } from './interfaces/nats/enrollment.handler';
-import { OrderHandler } from './interfaces/nats/order.handler';
 import { QuestionHandler } from './interfaces/nats/question.handler';
 import { QuestionPoolHandler } from './interfaces/nats/question-pool.handler';
 import { ReviewHandler } from './interfaces/nats/review.handler';
@@ -72,7 +70,6 @@ import { LearningProgressHandler } from './interfaces/nats/learning-progress.han
     CourseInstructorModule,
     LessonMaterialModule,
     EnrollmentModule,
-    OrderModule,
     LearningProgressModule,
 
     // Community Modules
@@ -101,7 +98,6 @@ import { LearningProgressHandler } from './interfaces/nats/learning-progress.han
     StaffDashboardHandler,
     ExamHandler,
     EnrollmentHandler,
-    OrderHandler,
     QuestionHandler,
     QuestionPoolHandler,
     ReviewHandler,
