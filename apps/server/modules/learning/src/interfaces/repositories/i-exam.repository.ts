@@ -91,6 +91,16 @@ export interface IExamRepository {
      * Update question usage count
      */
     incrementQuestionUsageCount(questionId: string): Promise<void>;
+
+    /**
+     * Find questions by pool ID with usage count ordering
+     */
+    findQuestionsByPool(poolId: string, take: number): Promise<any[]>;
+
+    /**
+     * Find attempt details with questions by attempt ID
+     */
+    findAttemptDetails(attemptId: string): Promise<any[]>;
 }
 
 export const EXAM_REPOSITORY_TOKEN = Symbol('EXAM_REPOSITORY_TOKEN');

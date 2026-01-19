@@ -45,6 +45,16 @@ export class ExamHandler {
         return this.examService.getAttemptDetails(data.sessionId, data.userId);
     }
 
+    @MessagePattern({ cmd: 'learning.exam.getExamById' })
+    async getExamById(@Payload() data: { examId: string, userId?: string }) {
+        return this.examService.getExamById(data.examId, data.userId);
+    }
+
+    @MessagePattern({ cmd: 'learning.exam.getExamSessions' })
+    async getExamSessions(@Payload() data: { examId: string, userId: string, query?: ExamSessionQueryDTO }) {
+        return this.examService.getExamSessions(data.examId, data.userId, data.query);
+    }
+
     // --- Exam Admin Controller Methods ---
 
     @MessagePattern({ cmd: 'learning.exam-admin.findAll' })

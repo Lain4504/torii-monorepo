@@ -24,24 +24,23 @@ export function ExamTimer({ durationMinutes, initialSeconds, onTimeUp, onTimeUpd
     }, [initialSeconds]) // Only depend on initialSeconds, not timeLeft to avoid infinite loop
 
     useEffect(() => {
+        if (onTimeUpdate) {
+            onTimeUpdate(timeLeft)
+        }
+    }, [timeLeft, onTimeUpdate])
+
+    useEffect(() => {
         if (timeLeft <= 0) {
             onTimeUp()
             return
         }
 
         const timer = setInterval(() => {
-            setTimeLeft((prev) => {
-                const newTime = prev - 1
-                // Notify parent of time update (every second)
-                if (onTimeUpdate) {
-                    onTimeUpdate(newTime)
-                }
-                return newTime
-            })
+            setTimeLeft((prev) => prev - 1)
         }, 1000)
 
         return () => clearInterval(timer)
-    }, [timeLeft, onTimeUp, onTimeUpdate])
+    }, [timeLeft, onTimeUp])
 
     const formatTime = (seconds: number) => {
         const m = Math.floor(seconds / 60)

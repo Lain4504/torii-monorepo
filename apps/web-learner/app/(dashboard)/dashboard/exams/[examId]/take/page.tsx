@@ -13,6 +13,18 @@ import { QuestionNavigator } from "@/components/exams/take/question-navigator"
 import { startExam, saveExamAnswers, submitExam } from "@/apis/services/exam-api"
 import type { ExamSessionStartResponseDTO, ExamSessionAnswersDTO } from '@workspace/schemas'
 import { PageLoading } from "@workspace/ui/components/page-loading"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@workspace/ui/components/alert-dialog"
+import { toast } from "@workspace/ui/components/sonner"
+import { AlertCircle, CheckCircle2 } from "lucide-react"
 
 // Type helper for resume data (schema includes these fields but types may not be updated)
 type ExamSessionStartResponseWithResume = ExamSessionStartResponseDTO & {
@@ -54,6 +66,8 @@ export default function TakeExamPage() {
     const [answers, setAnswers] = useState<Record<string, string>>({})
     const [flags, setFlags] = useState<Set<string>>(new Set())
     const [currentSection, setCurrentSection] = useState<string | null>(null)
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [showConfirmSubmit, setShowConfirmSubmit] = useState(false)
 
     // Auto-save refs
     const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null)
@@ -123,7 +137,7 @@ export default function TakeExamPage() {
 
     // Auto-save function
     const autoSave = useCallback(async () => {
-        if (!sessionId) return
+        if (!sessionId || isSubmitting) return
 
         const hasChanges =
             JSON.stringify(answers) !== JSON.stringify(lastSaveRef.current) ||
@@ -147,7 +161,7 @@ export default function TakeExamPage() {
             console.error('Auto-save failed:', err)
             // Don't show error to user for auto-save failures
         }
-    }, [sessionId, answers, flags, currentSection, currentQuestionIndex, timeRemaining])
+    }, [sessionId, answers, flags, currentSection, currentQuestionIndex, timeRemaining, isSubmitting])
 
     // Auto-save on answer/flag change (debounced)
     useEffect(() => {
@@ -169,8 +183,8 @@ export default function TakeExamPage() {
     // Save on unmount
     useEffect(() => {
         return () => {
-            if (sessionId && Object.keys(answers).length > 0) {
-                // Final save on unmount
+            if (sessionId && !isSubmitting && Object.keys(answers).length > 0) {
+                // Final save on unmount only if not already submitting
                 const saveData = {
                     answers,
                     flaggedQuestions: Array.from(flags),
@@ -181,7 +195,7 @@ export default function TakeExamPage() {
                 saveExamAnswers(sessionId, saveData).catch(console.error)
             }
         }
-    }, [sessionId, answers, flags, currentSection, currentQuestionIndex, timeRemaining])
+    }, [sessionId, answers, flags, currentSection, currentQuestionIndex, timeRemaining, isSubmitting])
 
     const handleAnswer = (qId: string, optId: string) => {
         setAnswers(prev => ({ ...prev, [qId]: optId }))
@@ -211,14 +225,18 @@ export default function TakeExamPage() {
         }
     }
 
-    const handleSubmit = async () => {
-        if (!sessionId) return
+    const handleSubmit = () => {
+        if (!sessionId || isSubmitting) return
+        setShowConfirmSubmit(true)
+    }
 
-        if (!confirm("Bạn có chắc chắn muốn nộp bài không?")) {
-            return
-        }
+    const confirmSubmit = async () => {
+        if (!sessionId || isSubmitting) return
+        setShowConfirmSubmit(false)
 
         try {
+            setIsSubmitting(true)
+            toast.loading("Đang nộp bài...", { id: "submit-exam" })
             // Final save before submit
             const saveData = {
                 answers,
@@ -231,17 +249,20 @@ export default function TakeExamPage() {
 
             // Submit exam
             await submitExam(sessionId)
+            toast.success("Nộp bài thành công!", { id: "submit-exam" })
             router.push('/dashboard/exams')
         } catch (err: any) {
-            alert('Lỗi khi nộp bài: ' + (err.message || 'Unknown error'))
+            setIsSubmitting(false)
+            toast.error('Lỗi khi nộp bài: ' + (err.message || 'Unknown error'), { id: "submit-exam" })
             console.error('Error submitting exam:', err)
         }
     }
 
     const handleTimeUp = async () => {
-        if (!sessionId) return
+        if (!sessionId || isSubmitting) return
 
         try {
+            setIsSubmitting(true)
             // Auto-submit on time up
             const saveData = {
                 answers,
@@ -261,12 +282,13 @@ export default function TakeExamPage() {
 
             // Submit exam
             await submitExam(sessionId)
-            alert('Hết giờ! Bài thi đã được nộp tự động.')
+            toast.success('Hết giờ! Bài thi đã được nộp tự động.', { duration: 5000 })
             router.push('/dashboard/exams')
         } catch (err: any) {
+            setIsSubmitting(false)
             const errorMessage = err.response?.data?.message || err.message || 'Unknown error'
             console.error('Error auto-submitting exam:', err)
-            alert('Lỗi khi nộp bài tự động: ' + errorMessage)
+            toast.error('Lỗi khi nộp bài tự động: ' + errorMessage)
             // Still redirect to exams page even if submit fails
             router.push('/dashboard/exams')
         }
@@ -386,6 +408,40 @@ export default function TakeExamPage() {
                     )}
                 </main>
             </div>
+
+            {/* Confirmation Dialog */}
+            <AlertDialog open={showConfirmSubmit} onOpenChange={setShowConfirmSubmit}>
+                <AlertDialogContent className="max-w-[400px] p-0 overflow-hidden border-none bg-transparent shadow-none">
+                    <div className="bg-background border rounded-[2rem] overflow-hidden shadow-2xl">
+                        <div className="p-8 text-center space-y-6">
+                            <div className="mx-auto w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
+                                <AlertCircle className="w-8 h-8 text-primary" />
+                            </div>
+
+                            <div className="space-y-2">
+                                <AlertDialogTitle className="text-2xl font-bold tracking-tight">
+                                    Xác nhận nộp bài
+                                </AlertDialogTitle>
+                                <AlertDialogDescription className="text-muted-foreground text-base px-2 uppercase text-[10px] font-bold tracking-widest">
+                                    Bạn có chắc chắn muốn kết thúc bài thi này không? Hành động này không thể hoàn tác.
+                                </AlertDialogDescription>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3 pt-2">
+                                <AlertDialogCancel className="h-12 rounded-xl font-bold uppercase tracking-widest text-[11px] border-2 hover:bg-muted transition-all active:scale-95">
+                                    Hủy
+                                </AlertDialogCancel>
+                                <AlertDialogAction
+                                    onClick={confirmSubmit}
+                                    className="h-12 rounded-xl font-bold uppercase tracking-widest text-[11px] bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all active:scale-95"
+                                >
+                                    Nộp bài
+                                </AlertDialogAction>
+                            </div>
+                        </div>
+                    </div>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }

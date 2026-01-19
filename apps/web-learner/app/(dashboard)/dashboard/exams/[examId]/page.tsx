@@ -1,73 +1,40 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card'
 import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
-import { ArrowLeft, Clock, FileText, Play, History, Award } from 'lucide-react'
+import { ArrowLeft, Clock, FileText, Play, History } from 'lucide-react'
 import { PageLoading } from '@workspace/ui/components/page-loading'
-// import { examApi } from '@/api/services/exam-api' // TODO: Fix API service
+import { useExamById, useExamSessions } from '@/apis/services/exam-api'
+import { useMemo } from 'react'
+import { ExamSessionStatus } from '@workspace/schemas'
 
 export default function ExamDetailPage() {
     const params = useParams()
     const router = useRouter()
     const examId = params.examId as string
-    const [exam, setExam] = useState<any>(null)
-    const [sessions, setSessions] = useState<any[]>([])
-    const [loading, setLoading] = useState(true)
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setLoading(true)
-                // TODO: Fetch exam details from API
-                // const examData = await examApi.getExamById(examId)
+    const { data: exam, isLoading: examLoading, error: examError } = useExamById(examId)
+    const { data: sessionsData, isLoading: sessionsLoading } = useExamSessions(examId, { page: 1, limit: 10 })
 
-                // Mock data
-                setExam({
-                    id: examId,
-                    title: 'JLPT N5 Proficiency Test',
-                    description: 'Full examination covering Vocabulary, Grammar, Reading, and Listening modules.',
-                    totalQuestions: 50,
-                    timeLimit: 60,
-                    passingScore: 60,
-                    level: 'N5',
-                })
+    const isLoading = examLoading || sessionsLoading
+    const sessions = sessionsData?.data || []
 
-                // Mock sessions
-                setSessions([
-                    {
-                        id: '1',
-                        score: 85,
-                        completedAt: new Date().toISOString(),
-                        status: 'completed',
-                    },
-                    {
-                        id: '2',
-                        score: 72,
-                        completedAt: new Date(Date.now() - 86400000).toISOString(),
-                        status: 'completed',
-                    },
-                ])
-            } catch (error) {
-                console.error('Error fetching data:', error)
-            } finally {
-                setLoading(false)
-            }
-        }
+    const bestScore = useMemo(() => {
+        if (sessions.length === 0) return null
+        const scores = sessions
+            .filter((s: any) => s.score !== undefined && s.maxScore !== undefined)
+            .map((s: any) => (s.score / s.maxScore) * 100)
+        return scores.length > 0 ? Math.max(...scores) : null
+    }, [sessions])
 
-        if (examId) {
-            fetchData()
-        }
-    }, [examId])
-
-    if (loading) {
+    if (isLoading) {
         return <PageLoading text="Accessing Exam Protocols..." className="h-[80vh]" />
     }
 
-    if (!exam) {
+    if (examError || !exam) {
         return (
             <div className="flex flex-col items-center justify-center h-[60vh] space-y-4">
                 <FileText className="size-12 text-muted-foreground/30" />
@@ -75,10 +42,6 @@ export default function ExamDetailPage() {
             </div>
         )
     }
-
-    const bestScore = sessions.length > 0
-        ? Math.max(...sessions.map((s: any) => s.score || 0))
-        : null
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700 pb-12">
@@ -93,11 +56,11 @@ export default function ExamDetailPage() {
                     <div>
                         <div className="flex items-center gap-3 mb-1">
                             <Badge variant="outline" className="rounded-md px-2 py-0.5 text-[9px] font-black uppercase tracking-widest border-primary/20 text-primary bg-primary/5">
-                                {exam.level} Protocol
+                                {exam.jlptLevel || 'N/A'} Protocol
                             </Badge>
                             {bestScore !== null && (
                                 <Badge variant="secondary" className="rounded-md px-2 py-0.5 text-[9px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20">
-                                    Top Performance: {bestScore}%
+                                    Top Performance: {Math.round(bestScore)}%
                                 </Badge>
                             )}
                         </div>
@@ -163,7 +126,7 @@ export default function ExamDetailPage() {
                             <div className="size-12 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500 mb-2 group-hover:scale-110 transition-transform">
                                 <Clock className="w-6 h-6" />
                             </div>
-                            <div className="text-3xl font-black text-foreground tracking-tight">{exam.timeLimit}m</div>
+                            <div className="text-3xl font-black text-foreground tracking-tight">{exam.totalTime || 0}m</div>
                             <div className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">Duration</div>
                         </Card>
                     </div>
@@ -179,36 +142,50 @@ export default function ExamDetailPage() {
                             </CardHeader>
                             <CardContent className="p-0">
                                 <div className="divide-y divide-white/5">
-                                    {sessions.slice(0, 3).map((session: any) => (
-                                        <div
-                                            key={session.id}
-                                            className="flex items-center justify-between p-4 hover:bg-white/5 transition-colors group cursor-pointer"
-                                            onClick={() => router.push(`/dashboard/exams/${examId}/review/${session.id}`)}
-                                        >
-                                            <div>
-                                                <div className="flex items-center gap-2">
-                                                    <span className="font-black text-foreground">
-                                                        {session.score}%
-                                                    </span>
-                                                    {session.score >= exam.passingScore && (
-                                                        <Badge variant="default" className="bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border-0 text-[8px] font-black uppercase tracking-wider">
-                                                            Pass
-                                                        </Badge>
-                                                    )}
+                                    {sessions
+                                        .filter((s: any) => s.status === ExamSessionStatus.SUBMITTED || s.status === ExamSessionStatus.COMPLETED)
+                                        .slice(0, 3)
+                                        .map((session: any) => {
+                                            const percentage = session.score !== undefined && session.maxScore !== undefined
+                                                ? Math.round((session.score / session.maxScore) * 100)
+                                                : null
+                                            const isPassed = percentage !== null && percentage >= 60 // Assuming 60% is passing
+                                            
+                                            return (
+                                                <div
+                                                    key={session.id}
+                                                    className="flex items-center justify-between p-4 hover:bg-white/5 transition-colors group cursor-pointer"
+                                                    onClick={() => router.push(`/dashboard/exams/${examId}/review/${session.id}`)}
+                                                >
+                                                    <div>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="font-black text-foreground">
+                                                                {percentage !== null ? `${percentage}%` : 'N/A'}
+                                                            </span>
+                                                            {isPassed && (
+                                                                <Badge variant="default" className="bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border-0 text-[8px] font-black uppercase tracking-wider">
+                                                                    Pass
+                                                                </Badge>
+                                                            )}
+                                                        </div>
+                                                        <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-wider font-medium">
+                                                            {session.submittedAt 
+                                                                ? new Date(session.submittedAt).toLocaleDateString()
+                                                                : session.startedAt 
+                                                                    ? new Date(session.startedAt).toLocaleDateString()
+                                                                    : 'N/A'}
+                                                        </p>
+                                                    </div>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="h-8 w-8 p-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    >
+                                                        <Play className="w-3 h-3 ml-0.5" />
+                                                    </Button>
                                                 </div>
-                                                <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-wider font-medium">
-                                                    {new Date(session.completedAt).toLocaleDateString()}
-                                                </p>
-                                            </div>
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                className="h-8 w-8 p-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                                            >
-                                                <Play className="w-3 h-3 ml-0.5" />
-                                            </Button>
-                                        </div>
-                                    ))}
+                                            )
+                                        })}
                                 </div>
                             </CardContent>
                         </Card>

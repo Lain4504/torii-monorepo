@@ -1,57 +1,30 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Card, CardContent } from '@workspace/ui/components/card'
 import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
 import { PageLoading } from '@workspace/ui/components/page-loading'
-import { ArrowLeft, History, Award, Eye, Calendar, Trophy, Clock } from 'lucide-react'
+import { ArrowLeft, History, Eye, Calendar, Clock } from 'lucide-react'
 import { format } from 'date-fns'
+import { useExamSessions } from '@/apis/services/exam-api'
+import { ExamSessionStatus } from '@workspace/schemas'
 
 export default function ExamHistoryPage() {
     const params = useParams()
     const router = useRouter()
     const examId = params.examId as string
-    const [sessions, setSessions] = useState<any[]>([])
-    const [loading, setLoading] = useState(true)
 
-    useEffect(() => {
-        // TODO: Fetch exam history via API
-        // Simulating API call
-        setTimeout(() => {
-            setSessions([
-                {
-                    id: '1',
-                    score: 85,
-                    maxScore: 100,
-                    completedAt: new Date().toISOString(),
-                    status: 'completed',
-                    duration: 45 // minutes
-                },
-                {
-                    id: '2',
-                    score: 45,
-                    maxScore: 100,
-                    completedAt: new Date(Date.now() - 86400000).toISOString(),
-                    status: 'completed',
-                    duration: 50 // minutes
-                },
-                {
-                    id: '3',
-                    score: 92,
-                    maxScore: 100,
-                    completedAt: new Date(Date.now() - 172800000).toISOString(),
-                    status: 'completed',
-                    duration: 42 // minutes
-                },
-            ])
-            setLoading(false)
-        }, 1000)
-    }, [examId])
+    const { data: sessionsData, isLoading } = useExamSessions(examId, { 
+        page: 1,
+        limit: 50,
+        status: ExamSessionStatus.SUBMITTED 
+    })
 
-    if (loading) {
+    const sessions = sessionsData?.data || []
+
+    if (isLoading) {
         return <PageLoading text="Retreiving Archives..." className="h-screen" />
     }
 
@@ -89,8 +62,15 @@ export default function ExamHistoryPage() {
                     </div>
                 ) : (
                     <div className="grid gap-4">
-                        {sessions.map((session) => {
-                            const isPassed = session.score >= 60 // Assuming 60% is pass
+                        {sessions.map((session: any) => {
+                            const percentage = session.score !== undefined && session.maxScore !== undefined
+                                ? Math.round((session.score / session.maxScore) * 100)
+                                : null
+                            const isPassed = percentage !== null && percentage >= 60 // Assuming 60% is pass
+                            const timeTakenMinutes = session.timeTakenSeconds 
+                                ? Math.round(session.timeTakenSeconds / 60) 
+                                : null
+                            
                             return (
                                 <Card key={session.id} className="group overflow-hidden border-white/5 bg-background/40 backdrop-blur-sm hover:bg-background/60 hover:border-primary/20 transition-all duration-300">
                                     <CardContent className="p-6">
@@ -98,7 +78,7 @@ export default function ExamHistoryPage() {
                                             {/* Left: Score & Status */}
                                             <div className="flex items-center gap-6 w-full md:w-auto">
                                                 <div className={`relative w-16 h-16 flex items-center justify-center rounded-2xl border ${isPassed ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" : "bg-destructive/10 border-destructive/20 text-destructive"}`}>
-                                                    <span className="text-xl font-black tracking-tighter">{session.score}%</span>
+                                                    <span className="text-xl font-black tracking-tighter">{percentage !== null ? `${percentage}%` : 'N/A'}</span>
                                                     {isPassed && <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full animate-pulse shadow-lg shadow-emerald-500/50" />}
                                                 </div>
 
@@ -107,17 +87,23 @@ export default function ExamHistoryPage() {
                                                         <Badge variant="outline" className={`rounded-md px-1.5 py-0.5 text-[9px] font-black uppercase tracking-widest border-0 ${isPassed ? "bg-emerald-500/10 text-emerald-500" : "bg-destructive/10 text-destructive"}`}>
                                                             {isPassed ? "SUCCESS" : "FAILURE"}
                                                         </Badge>
-                                                        <span className="text-[10px] font-bold text-muted-foreground/40">ID: {session.id}</span>
+                                                        <span className="text-[10px] font-bold text-muted-foreground/40">ID: {session.id.substring(0, 8)}...</span>
                                                     </div>
                                                     <div className="flex items-center gap-4 text-xs font-medium text-muted-foreground">
                                                         <div className="flex items-center gap-1.5">
                                                             <Calendar className="w-3.5 h-3.5" />
-                                                            {format(new Date(session.completedAt), 'dd MMM yyyy, HH:mm')}
+                                                            {session.submittedAt 
+                                                                ? format(new Date(session.submittedAt), 'dd MMM yyyy, HH:mm')
+                                                                : session.startedAt
+                                                                    ? format(new Date(session.startedAt), 'dd MMM yyyy, HH:mm')
+                                                                    : 'N/A'}
                                                         </div>
-                                                        <div className="flex items-center gap-1.5">
-                                                            <Clock className="w-3.5 h-3.5" />
-                                                            {session.duration}m
-                                                        </div>
+                                                        {timeTakenMinutes !== null && (
+                                                            <div className="flex items-center gap-1.5">
+                                                                <Clock className="w-3.5 h-3.5" />
+                                                                {timeTakenMinutes}m
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
