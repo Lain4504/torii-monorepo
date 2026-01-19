@@ -10,7 +10,7 @@ import { firstValueFrom } from 'rxjs';
 import { Public } from '@server/shared';
 import { successResponse, errorResponse } from '@server/shared';
 
-@Controller('api/payos')
+@Controller('payos')
 export class PayOSController {
     private readonly logger = new Logger(PayOSController.name);
 

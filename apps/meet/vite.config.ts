@@ -21,6 +21,8 @@ export default defineConfig({
       ),
       '~': resolve(__dirname, 'src'),
     },
+    // Deduplicate React to avoid multiple instances
+    dedupe: ['react', 'react-dom', 'react-i18next', 'i18next'],
   },
   server: {
     port: 5180,

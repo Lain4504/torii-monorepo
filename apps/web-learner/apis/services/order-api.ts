@@ -41,7 +41,13 @@ export const orderApi = {
             },
         };
         const response = await apiClient.post<StandardApiResponse<{ order: OrderResponseDTO }>>('/api/orders', payload);
-        return response.data.data!.order;
+
+        if (!response.data || !response.data.data || !response.data.data.order) {
+            console.error('Invalid response structure:', response.data);
+            throw new Error('Failed to create order: Invalid response from server');
+        }
+
+        return response.data.data.order;
     },
 
     /**
@@ -49,7 +55,13 @@ export const orderApi = {
      */
     async confirmOrder(orderId: string, data: OrderConfirmDTO): Promise<OrderResponseDTO> {
         const response = await apiClient.post<StandardApiResponse<{ order: OrderResponseDTO }>>(`/api/orders/${orderId}/confirm`, data);
-        return response.data.data!.order;
+
+        if (!response.data || !response.data.data || !response.data.data.order) {
+            console.error('Invalid response structure:', response.data);
+            throw new Error('Failed to confirm order: Invalid response from server');
+        }
+
+        return response.data.data.order;
     },
 };
 
