@@ -87,6 +87,16 @@ export interface IExamService {
      * Get attempt details with explanations (if allowed)
      */
     getAttemptDetails(sessionId: string, userId: string): Promise<any>;
+
+    /**
+     * Get exam by ID with user session status (for learners)
+     */
+    getExamById(examId: string, userId?: string): Promise<ExamWithStatusResponseDTO>;
+
+    /**
+     * Get all sessions for a specific exam (for learners)
+     */
+    getExamSessions(examId: string, userId: string, query?: ExamSessionQueryDTO): Promise<PaginatedResponseDTO<ExamSessionWithExamResponseDTO>>;
 }
 
 export const EXAM_SERVICE_TOKEN = Symbol('EXAM_SERVICE');

@@ -1,7 +1,6 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
-import { examApi } from '@/apis/services/exam-api'
+import { useExams } from '@/apis/services/exam-api'
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { Card } from '@workspace/ui/components/card'
 import { Button } from '@workspace/ui/components/button'
@@ -9,60 +8,32 @@ import { Badge } from '@workspace/ui/components/badge'
 import { Input } from '@workspace/ui/components/input'
 import { FileText, Clock, Trophy, Search, Play, History } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
+import { ExamSessionStatus } from '@workspace/schemas'
 
 export default function ExamsPage() {
     const [searchQuery, setSearchQuery] = useState('')
 
-    // TODO: Use real API when ready
-    // const { data: examsData, isLoading } = useQuery({
-    //     queryKey: ['exams', searchQuery],
-    //     queryFn: () => examApi.getExams({ search: searchQuery }),
-    // })
+    const { data: examsData, isLoading } = useExams({ 
+        page: 1, 
+        limit: 50,
+        search: searchQuery || undefined 
+    })
 
-    // Mock data for now to ensure UI is visible
-    const isLoading = false
-    const examsData = {
-        data: [
-            {
-                id: '1',
-                title: 'JLPT N5 Proficiency Test',
-                level: 'N5',
-                totalQuestions: 50,
-                timeLimit: 60,
-                description: 'Full examination covering Vocabulary, Grammar, Reading, and Listening modules for N5 level.',
-                status: 'completed',
-                lastScore: 85
-            },
-            {
-                id: '2',
-                title: 'JLPT N4 Mock Exam A',
-                level: 'N4',
-                totalQuestions: 60,
-                timeLimit: 90,
-                description: 'Advanced simulation for N4 candidates. Focuses on speed and accuracy.',
-                status: 'in_progress',
-                lastScore: null
-            },
-            {
-                id: '3',
-                title: 'JLPT N3 Grammar Special',
-                level: 'N3',
-                totalQuestions: 30,
-                timeLimit: 45,
-                description: 'Specialized module targeting complex N3 grammar structures.',
-                status: 'not_started',
-                lastScore: null
-            }
-        ]
-    }
+    const exams = examsData?.data || []
+    
+    // Filter exams by search query
+    const filteredExams = useMemo(() => {
+        if (!searchQuery) return exams
+        return exams.filter(e => 
+            e.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            e.description?.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+    }, [exams, searchQuery])
 
     if (isLoading) {
         return <PageLoading text="Loading Examination Protocols..." className="h-[60vh]" />
     }
-
-    const exams = examsData?.data || []
-    const filteredExams = exams.filter(e => e.title.toLowerCase().includes(searchQuery.toLowerCase()))
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700 pb-12">
@@ -108,19 +79,21 @@ export default function ExamsPage() {
                                 <div className="p-6 space-y-6 relative z-10 flex-1">
                                     <div className="flex justify-between items-start">
                                         <Badge variant="outline" className={
-                                            `rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-widest border-white/10 ${exam.level === 'N5' ? 'bg-blue-500/10 text-blue-500' :
-                                                exam.level === 'N4' ? 'bg-emerald-500/10 text-emerald-500' :
-                                                    exam.level === 'N3' ? 'bg-amber-500/10 text-amber-500' :
-                                                        'bg-white/5 text-muted-foreground'
+                                            `rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-widest border-white/10 ${exam.jlptLevel === 'N5' ? 'bg-blue-500/10 text-blue-500' :
+                                                exam.jlptLevel === 'N4' ? 'bg-emerald-500/10 text-emerald-500' :
+                                                    exam.jlptLevel === 'N3' ? 'bg-amber-500/10 text-amber-500' :
+                                                        exam.jlptLevel === 'N2' ? 'bg-purple-500/10 text-purple-500' :
+                                                            exam.jlptLevel === 'N1' ? 'bg-red-500/10 text-red-500' :
+                                                                'bg-white/5 text-muted-foreground'
                                             }`
                                         }>
-                                            {exam.level}
+                                            {exam.jlptLevel || 'N/A'}
                                         </Badge>
 
-                                        {exam.status === 'completed' && (
+                                        {(exam.sessionStatus === ExamSessionStatus.SUBMITTED || exam.sessionStatus === ExamSessionStatus.COMPLETED) && exam.score !== undefined && (
                                             <Badge variant="default" className="bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border-0 text-[8px] font-black uppercase tracking-wider gap-1">
                                                 <Trophy className="size-3" />
-                                                {exam.lastScore ? `${exam.lastScore}%` : 'Done'}
+                                                {exam.maxScore ? `${Math.round((exam.score / exam.maxScore) * 100)}%` : exam.score}
                                             </Badge>
                                         )}
                                     </div>
@@ -130,25 +103,25 @@ export default function ExamsPage() {
                                             {exam.title}
                                         </h3>
                                         <p className="text-[11px] text-muted-foreground/60 line-clamp-2 min-h-[2.5em]">
-                                            {exam.description}
+                                            {exam.description || 'No description available'}
                                         </p>
                                     </div>
 
                                     <div className="flex items-center gap-4 text-muted-foreground/40 pt-2">
                                         <div className="flex items-center gap-2">
                                             <FileText className="size-3.5" />
-                                            <span className="text-[10px] font-black uppercase tracking-widest">{exam.totalQuestions} Qs</span>
+                                            <span className="text-[10px] font-black uppercase tracking-widest">{exam.totalQuestions || 0} Qs</span>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <Clock className="size-3.5" />
-                                            <span className="text-[10px] font-black uppercase tracking-widest">{exam.timeLimit} Min</span>
+                                            <span className="text-[10px] font-black uppercase tracking-widest">{exam.totalTime || 0} Min</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div className="p-2 relative z-10">
                                     <Button className="w-full h-12 rounded-[1.5rem] font-black uppercase tracking-[0.2em] text-[10px] bg-white/5 hover:bg-primary hover:text-primary-foreground text-foreground border border-white/5 transition-all shadow-none hover:shadow-lg hover:shadow-primary/20 group-hover:bg-white/10 group-hover:text-primary">
-                                        {exam.status === 'completed' ? (
+                                        {(exam.sessionStatus === ExamSessionStatus.SUBMITTED || exam.sessionStatus === ExamSessionStatus.COMPLETED) ? (
                                             <>
                                                 <History className="mr-2 size-3.5" /> Review Logs
                                             </>

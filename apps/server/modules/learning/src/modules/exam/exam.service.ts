@@ -353,7 +353,10 @@ export class ExamService implements IExamService {
             }
 
             if (attempt.status !== ExamSessionStatus.IN_PROGRESS) {
-                throw new BadRequestException('Session is not in progress');
+                // If the session is already submitted or completed, just ignore the save request instead of throwing error
+                // This prevents race conditions between auto-save and submission
+                this.logger.warn(`Attempt ${sessionId} is already ${attempt.status}, ignoring save request`);
+                return this.toExamSessionDto(attempt);
             }
 
             // Get quiz separately if not included
@@ -618,18 +621,7 @@ export class ExamService implements IExamService {
             }
             // Option 2: Use poolId to select questions from pool
             else if (section.poolId) {
-                // Use prisma directly for complex query with orderBy
-                sectionQuestions = await this.prisma.question.findMany({
-                    where: {
-                        poolId: section.poolId,
-                        status: 'active',
-                    },
-                    take: section.questionCount,
-                    orderBy: [
-                        { usageCount: 'asc' }, // Prefer less-used questions for better distribution
-                        { createdAt: 'desc' }, // Then by newest
-                    ],
-                });
+                sectionQuestions = await this.examRepository.findQuestionsByPool(section.poolId, section.questionCount);
 
                 if (sectionQuestions.length < section.questionCount) {
                     this.logger.warn(
@@ -880,22 +872,20 @@ export class ExamService implements IExamService {
             const totalQuestions = this.calculateTotalQuestions(dto.sections);
 
             // Create quiz
-            const quiz = await this.prisma.quiz.create({
-                data: {
-                    title: dto.title,
-                    description: dto.description || null,
-                    quizType: dto.examType, // Map examType to quizType
-                    jlptLevel: dto.jlptLevel || null,
-                    sections: dto.sections as any,
-                    totalTime: dto.totalTime || null,
-                    totalQuestions: totalQuestions,
-                    passingScore: null, // Can be set later
-                    maxAttempts: 1, // Default
-                    shuffleQuestions: true, // Default
-                    showExplanation: false, // Default
-                    status: ExamStatus.DRAFT,
-                    createdBy: requester.sub,
-                },
+            const quiz = await this.examRepository.create({
+                title: dto.title,
+                description: dto.description || null,
+                quizType: dto.examType, // Map examType to quizType
+                jlptLevel: dto.jlptLevel || null,
+                sections: dto.sections as any,
+                totalTime: dto.totalTime || null,
+                totalQuestions: totalQuestions,
+                passingScore: null, // Can be set later
+                maxAttempts: 1, // Default
+                shuffleQuestions: true, // Default
+                showExplanation: false, // Default
+                status: ExamStatus.DRAFT,
+                createdBy: requester.sub,
             });
 
             this.logger.log(`Exam ${quiz.id} created by ${requester.sub}`);
@@ -1163,6 +1153,134 @@ export class ExamService implements IExamService {
     }
 
     /**
+     * Get exam by ID with user session status (for learners)
+     * GET /api/exams/:id
+     */
+    async getExamById(examId: string, userId?: string): Promise<ExamWithStatusResponseDTO> {
+        try {
+            const quiz = await this.examRepository.findById(examId);
+
+            if (!quiz) {
+                throw new NotFoundException('Exam not found');
+            }
+
+            // Only show published exams to learners
+            if (userId && quiz.status !== ExamStatus.PUBLISHED) {
+                throw new NotFoundException('Exam not found');
+            }
+
+            const examDto = this.toExamDto(quiz);
+
+            // Get user's latest attempt if userId provided
+            let userAttempt: any = null;
+            if (userId) {
+                const attempts = await this.examRepository.findAttempts({
+                    skip: 0,
+                    take: 1,
+                    where: {
+                        quizId: examId,
+                        userId,
+                    },
+                    orderBy: { createdAt: 'desc' },
+                });
+                userAttempt = attempts[0] || null;
+            }
+
+            return {
+                ...examDto,
+                sessionStatus: userAttempt ? (userAttempt.status as ExamSessionStatus) : undefined,
+                sessionId: userAttempt?.id,
+                score: userAttempt?.status === ExamSessionStatus.SUBMITTED || userAttempt?.status === ExamSessionStatus.COMPLETED
+                    ? this.calculateScore(userAttempt)
+                    : undefined,
+                maxScore: quiz.totalQuestions,
+                progress: userAttempt ? this.calculateProgress(userAttempt, quiz.totalQuestions) : undefined,
+                lastAttemptDate: userAttempt?.submittedAt || userAttempt?.startedAt,
+            };
+        } catch (error: any) {
+            this.logger.error(`Error fetching exam ${examId}: ${error.message}`, error.stack);
+            throw error;
+        }
+    }
+
+    /**
+     * Get all sessions for a specific exam (for learners)
+     * GET /api/exams/:id/sessions
+     */
+    async getExamSessions(examId: string, userId: string, query?: ExamSessionQueryDTO): Promise<PaginatedResponseDTO<ExamSessionWithExamResponseDTO>> {
+        try {
+            const {
+                page = 1,
+                limit = 10,
+                status,
+            } = query || {};
+
+            const pageNum = typeof page === 'string' ? parseInt(page, 10) : Number(page) || 1;
+            const limitNum = typeof limit === 'string' ? parseInt(limit, 10) : Number(limit) || 10;
+
+            const validPage = pageNum > 0 ? pageNum : 1;
+            const validLimit = limitNum > 0 ? limitNum : 10;
+            const skip = (validPage - 1) * validLimit;
+
+            // Verify exam exists
+            const quiz = await this.examRepository.findById(examId);
+            if (!quiz) {
+                throw new NotFoundException('Exam not found');
+            }
+
+            const whereClause: any = {
+                quizId: examId,
+                userId, // Only get sessions for the requesting user
+            };
+
+            if (status) {
+                whereClause.status = status;
+            }
+
+            const [total, attempts] = await Promise.all([
+                this.examRepository.countAttempts(whereClause),
+                this.examRepository.findAttempts({
+                    skip,
+                    take: validLimit,
+                    where: whereClause,
+                    include: {
+                        quiz: true,
+                    },
+                    orderBy: { createdAt: 'desc' },
+                }),
+            ]);
+
+            const totalPages = Math.ceil(total / validLimit);
+
+            return {
+                data: attempts.map((a: any) => {
+                    const sessionDto = this.toExamSessionDto(a);
+                    const exam = a.quiz ? this.toExamDto(a.quiz) : undefined;
+                    const score = a.status === ExamSessionStatus.SUBMITTED || a.status === ExamSessionStatus.COMPLETED
+                        ? (a.score ? Number(a.score) : undefined)
+                        : undefined;
+                    const maxScore = a.maxScore ? Number(a.maxScore) : (exam?.totalQuestions || 0);
+
+                    return {
+                        ...sessionDto,
+                        exam,
+                        score,
+                        maxScore,
+                        passed: score !== undefined && maxScore > 0 ? score >= (maxScore * 0.6) : undefined,
+                    };
+                }),
+                total,
+                page: validPage,
+                limit: validLimit,
+                totalPages,
+            };
+        } catch (error: any) {
+            this.logger.error(`Error fetching exam sessions for ${examId}: ${error.message}`, error.stack);
+            throw error;
+        }
+    }
+
+    /**
      * Get attempt details with explanations (Phase 3.2)
      * GET /api/exams/sessions/:sessionId/details
      */
@@ -1192,12 +1310,7 @@ export class ExamService implements IExamService {
             const showExplanation = quiz?.showExplanation || false;
 
             // Get attempt details with questions
-            const detailsData = await this.prisma.quizAttemptDetail.findMany({
-                where: { attemptId: sessionId },
-                include: {
-                    question: true,
-                },
-            });
+            const detailsData = await this.examRepository.findAttemptDetails(sessionId);
 
             // Map attempt details with conditional explanation
             const details = detailsData.map((detail: any) => {

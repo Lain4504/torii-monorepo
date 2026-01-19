@@ -173,5 +173,34 @@ export class ExamRepository implements IExamRepository {
             },
         });
     }
+
+    /**
+     * Find questions by pool ID with usage count ordering
+     */
+    async findQuestionsByPool(poolId: string, take: number): Promise<any[]> {
+        return this.prisma.question.findMany({
+            where: {
+                poolId,
+                status: 'active',
+            },
+            take,
+            orderBy: [
+                { usageCount: 'asc' },
+                { createdAt: 'desc' },
+            ],
+        });
+    }
+
+    /**
+     * Find attempt details with questions by attempt ID
+     */
+    async findAttemptDetails(attemptId: string): Promise<any[]> {
+        return this.prisma.quizAttemptDetail.findMany({
+            where: { attemptId },
+            include: {
+                question: true,
+            },
+        });
+    }
 }
 

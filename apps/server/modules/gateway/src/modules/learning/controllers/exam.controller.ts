@@ -124,4 +124,36 @@ export class ExamController {
             return errorResponse(error.message || 'Failed to fetch attempt details');
         }
     }
+
+    @Get(':id/sessions')
+    async getExamSessions(@Param('id') examId: string, @Query() query: any, @Req() req: Request) {
+        try {
+            const user = req.user as any;
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'learning.exam.getExamSessions' },
+                    { examId, userId: user.sub, query }
+                )
+            );
+            return successPaginatedResponse(result);
+        } catch (error: any) {
+            return errorResponse(error.message || 'Failed to fetch exam sessions');
+        }
+    }
+
+    @Get(':id')
+    async getExamById(@Param('id') examId: string, @Req() req: Request) {
+        try {
+            const user = req.user as any;
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'learning.exam.getExamById' },
+                    { examId, userId: user.sub }
+                )
+            );
+            return successResponse({ exam: result });
+        } catch (error: any) {
+            return errorResponse(error.message || 'Failed to fetch exam');
+        }
+    }
 }
