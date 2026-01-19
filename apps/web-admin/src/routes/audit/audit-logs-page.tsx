@@ -51,7 +51,7 @@ function AuditLogDetailsDialog({ log }: { log: AuditLog }) {
                             <ShieldCheck className="size-5" />
                         </div>
                         <div className="space-y-1">
-                            <DialogTitle className="text-xl font-medium tracking-tight">
+                            <DialogTitle className="text-xl font-bold tracking-tight">
                                 Log Entry Details
                             </DialogTitle>
                             <DialogDescription className="text-xs font-medium text-muted-foreground/60">
@@ -243,26 +243,26 @@ export function AuditLogsPage() {
     };
 
     return (
-        <div className="space-y-10 animate-in fade-in duration-700 pb-20 px-2 lg:px-6">
+        <div className="space-y-10 animate-in fade-in duration-700 pb-20 px-0 lg:px-6">
             {/* Header Section */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-8 relative">
-                <div className="space-y-4 max-w-2xl text-center sm:text-left">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-medium tracking-wide">
+            <div className="flex flex-col sm:flex-row items-start justify-between gap-8 relative">
+                <div className="space-y-4 max-w-2xl">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-bold uppercase tracking-wider">
                         <Activity className="size-3.5" />
-                        Auditing
+                        Infrastructure
                     </div>
-                    <h1 className="text-3xl sm:text-5xl font-serif font-medium tracking-tight text-foreground leading-[1.1]">
-                        System <span className="text-primary italic">Audit Logs</span>
+                    <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-foreground leading-[1.1]">
+                        System <span className="text-primary">Audit Logs</span>
                     </h1>
-                    <p className="text-sm text-muted-foreground/80 leading-relaxed max-w-lg border-l-2 border-primary/20 pl-4 mt-4">
-                        Monitor and track all system activities and data changes to ensure the integrity of the <span className="text-foreground font-medium">Torii Platform</span>.
+                    <p className="text-base text-muted-foreground mt-4 leading-relaxed max-w-lg border-l-2 border-primary/20 pl-4">
+                        Monitor and track all system activities and data changes to ensure the integrity of the <span className="text-foreground font-semibold">Torii Platform</span>.
                     </p>
                 </div>
 
-                <div className="flex items-center gap-6 p-6 rounded-2xl bg-background/60 border border-border/20 backdrop-blur-xl hidden sm:flex shadow-sm">
+                <div className="flex flex-col items-end gap-2 p-6 rounded-2xl bg-muted/20 border border-border/20 hidden sm:flex">
                     <div className="space-y-1">
-                        <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60 text-center">Total Logs</p>
-                        <h3 className="text-3xl font-serif font-medium text-center leading-none text-primary">{data?.total || 0}</h3>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 text-center">Total Logs</p>
+                        <h3 className="text-3xl font-bold text-center leading-none text-primary">{data?.total || 0}</h3>
                     </div>
                 </div>
             </div>

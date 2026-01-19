@@ -60,7 +60,6 @@ export function CreateModuleSheet({ open, onOpenChange, courseId, existingModule
             title: '',
             orderIndex: existingModules.length + 1,
             durationMinutes: 0,
-            aiMetadata: {},
         },
     });
 

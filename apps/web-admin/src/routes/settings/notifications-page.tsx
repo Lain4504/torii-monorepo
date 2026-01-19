@@ -158,17 +158,18 @@ export default function NotificationsPage() {
   return (
     <div className="max-w-5xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-4">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 px-4">
         <div className="space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-medium tracking-wide">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-bold uppercase tracking-wider">
             <Bell className="w-3.5 h-3.5" />
             System Updates
           </div>
-          <h1 className="text-4xl md:text-6xl font-serif font-medium tracking-tight text-foreground leading-[1.1]">
-            Notification <span className="text-primary italic">Center</span>
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-foreground leading-[1.1]">
+            Notification <span className="text-primary">Center</span>
           </h1>
-          <p className="text-sm text-muted-foreground/80 leading-relaxed max-w-lg border-l-2 border-primary/20 pl-4 mt-4">
-            Stay updated with important alerts, system messages, and community updates for <span className="text-foreground font-medium">Torii Academy</span>.
+          <p className="text-base text-muted-foreground mt-4 leading-relaxed max-w-lg border-l-2 border-primary/20 pl-4">
+            Stay updated with important alerts, system messages, and community updates for <span className="text-foreground font-semibold">Torii Academy</span>.
           </p>
         </div>
 
@@ -202,8 +203,8 @@ export default function NotificationsPage() {
         <div className="flex items-center p-2 rounded-[2.5rem] bg-background/40 backdrop-blur-3xl border border-border/20 shadow-sm">
           <div className="flex-1 flex justify-center gap-2">
             <div className="text-center">
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">Unread</p>
-              <h3 className="text-2xl font-serif font-medium text-primary">{unreadCount}</h3>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-1">Unread</p>
+              <h3 className="text-2xl font-bold text-primary">{unreadCount}</h3>
             </div>
           </div>
         </div>
@@ -244,7 +245,7 @@ export default function NotificationsPage() {
                   <Bell className="w-10 h-10 text-muted-foreground/20 relative z-10 animate-pulse" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-xl font-serif font-medium text-foreground/40 text-center">Loading notifications...</h3>
+                  <h3 className="text-xl font-bold text-foreground/40 text-center">Loading notifications...</h3>
                 </div>
               </div>
             ) : filteredNotifications.length > 0 ? (
@@ -333,8 +334,8 @@ export default function NotificationsPage() {
                   <BellOff className="w-10 h-10 text-muted-foreground/20 relative z-10" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-xl font-serif font-medium text-foreground/40 text-center">No Notifications</h3>
-                  <p className="text-xs font-medium text-muted-foreground/30">You're all caught up!</p>
+                  <h3 className="text-xl font-bold text-foreground/40 text-center">No Notifications</h3>
+                  <p className="text-xs font-bold text-muted-foreground/30">You're all caught up!</p>
                 </div>
               </div>
             )}

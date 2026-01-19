@@ -7,30 +7,35 @@ import { DndProvider } from 'react-dnd';
 
 import 'react-toastify/dist/ReactToastify.css';
 import './styles/index.css';
-import './helpers/i18n';
-
+import { initializeI18n, NAMESPACES } from '@workspace/i18n';
 import { store } from './store';
 import App from './components/app';
 import Loading from './components/extra-pages/Loading';
 
 const container = document.getElementById('walearnconnect-app');
 
-if (container) {
-  const root = createRoot(container);
-  root.render(
-    <StrictMode>
-      <ReduxProvider store={store}>
-        <DndProvider backend={HTML5Backend}>
-          <Suspense fallback={<Loading text="" />}>
-            <App />
-          </Suspense>
-          <ToastContainer />
-        </DndProvider>
-      </ReduxProvider>
-    </StrictMode>,
-  );
-} else {
-  throw new Error(
-    "Root element with ID 'walearnconnect-app' was not found in the document. Ensure there is a corresponding HTML element with the ID 'walearnconnect-app' in your HTML file.",
-  );
-}
+// Initialize i18n before rendering
+initializeI18n({
+  defaultNS: NAMESPACES.MEET,
+  ns: [NAMESPACES.MEET],
+}).then(() => {
+  if (container) {
+    const root = createRoot(container);
+    root.render(
+      <StrictMode>
+        <ReduxProvider store={store}>
+          <DndProvider backend={HTML5Backend}>
+            <Suspense fallback={<Loading text="" />}>
+              <App />
+            </Suspense>
+            <ToastContainer />
+          </DndProvider>
+        </ReduxProvider>
+      </StrictMode>,
+    );
+  } else {
+    throw new Error(
+      "Root element with ID 'walearnconnect-app' was not found in the document. Ensure there is a corresponding HTML element with the ID 'walearnconnect-app' in your HTML file.",
+    );
+  }
+});

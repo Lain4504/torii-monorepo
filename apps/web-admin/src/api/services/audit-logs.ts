@@ -46,20 +46,9 @@ export interface PaginatedAuditLogs {
 
 // API calls
 const auditLogsApi = {
-    async query(filters: AuditLogFilters) {
-        const params = new URLSearchParams();
-
-        if (filters.userId) params.append('userId', filters.userId);
-        if (filters.action) params.append('action', filters.action);
-        if (filters.entity) params.append('entity', filters.entity);
-        if (filters.entityId) params.append('entityId', filters.entityId);
-        if (filters.startDate) params.append('startDate', filters.startDate);
-        if (filters.endDate) params.append('endDate', filters.endDate);
-        if (filters.page) params.append('page', filters.page.toString());
-        if (filters.limit) params.append('limit', filters.limit.toString());
-
-        const res = await apiClient.get(`/api/admin/audit-logs?${params.toString()}`);
-        return res.data.data as PaginatedAuditLogs;
+    async query(params: AuditLogFilters) {
+        const res = await apiClient.get<PaginatedAuditLogs>('/api/admin/audit-logs', { params });
+        return res.data;
     },
 };
 

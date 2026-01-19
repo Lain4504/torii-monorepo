@@ -4,14 +4,15 @@ import {
     BookOpen,
     Video,
     FileQuestion,
-    ClipboardList,
+
     Newspaper,
     CreditCard,
     Ticket,
     Settings,
     BarChart3,
     Bell,
-    Sparkles,
+
+    ShieldCheck,
 } from "lucide-react";
 
 export interface NavItem {
@@ -31,115 +32,104 @@ export interface NavItem {
 
 export const mainNavItems: NavItem[] = [
     {
-        titleKey: "navigation.dashboard",
+        titleKey: "common:navigation.dashboard",
         url: "/",
         icon: Home,
-        descriptionKey: "navDescriptions.dashboard",
+        descriptionKey: "common:navDescriptions.dashboard",
     },
     {
-        titleKey: "navigation.users",
+        titleKey: "common:navigation.users",
         url: "/users",
         icon: Users,
         permission: "user.manage",
-        descriptionKey: "navDescriptions.users",
+        descriptionKey: "common:navDescriptions.users",
         items: [
-            { titleKey: "navigation.userList", url: "/users", permission: "user.view" },
-            { titleKey: "navigation.roles", url: "/permissions", permission: "system.config" },
+            { titleKey: "admin:navigation.userList", url: "/users", permission: "user.view" },
+            { titleKey: "admin:navigation.roles", url: "/permissions", permission: "system.config" },
         ]
     },
     {
-        titleKey: "navigation.courses",
+        titleKey: "common:navigation.courses",
         url: "/courses",
         icon: BookOpen,
         anyPermission: ["course.manage", "course.approve", "course.view_restricted"],
-        descriptionKey: "navDescriptions.courses",
+        descriptionKey: "common:navDescriptions.courses",
         items: [
-            { titleKey: "navigation.courseList", url: "/courses", permission: "course.view" },
-            { titleKey: "navigation.categories", url: "/courses/categories", permission: "course.manage" },
-            { titleKey: "navigation.reviews", url: "/courses/reviews", permission: "course.manage" },
+            { titleKey: "admin:navigation.courseList", url: "/courses", permission: "course.view" },
+            { titleKey: "admin:navigation.reviews", url: "/courses/reviews", permission: "course.manage" },
         ]
     },
     {
-        titleKey: "navigation.liveClasses",
+        titleKey: "common:navigation.liveClasses",
         url: "/rooms",
         icon: Video,
         anyPermission: ["live_class.schedule", "live_class.view"],
-        descriptionKey: "navDescriptions.liveClasses",
+        descriptionKey: "common:navDescriptions.liveClasses",
     },
     {
-        titleKey: "navigation.questionBank",
+        titleKey: "common:navigation.questionBank",
         url: "/question-bank",
         icon: FileQuestion,
         anyPermission: ["question.manage", "question_pool.manage"],
-        descriptionKey: "navDescriptions.questionBank",
+        descriptionKey: "common:navDescriptions.questionBank",
     },
+
     {
-        titleKey: "navigation.examsTests",
-        url: "/exams",
-        icon: ClipboardList,
-        permission: "exam.manage",
-        descriptionKey: "navDescriptions.examsTests",
-    },
-    {
-        titleKey: "navigation.post",
+        titleKey: "common:navigation.post",
         url: "/posts",
         icon: Newspaper,
         permission: "post.manage",
-        descriptionKey: "navDescriptions.post",
+        descriptionKey: "common:navDescriptions.post",
     },
 ];
 
 export const managementNavItems: NavItem[] = [
     {
-        titleKey: "navigation.financials",
+        titleKey: "common:navigation.financials",
         url: "/orders",
         icon: CreditCard,
         permission: "payment.manage",
-        descriptionKey: "navDescriptions.financials",
-        items: [
-            { titleKey: "navigation.orders", url: "/orders", permission: "payment.manage" },
-            { titleKey: "navigation.payouts", url: "/payouts", permission: "payment.manage" },
-        ]
+        descriptionKey: "common:navDescriptions.financials",
     },
     {
-        titleKey: "navigation.promotions",
+        titleKey: "common:navigation.promotions",
         url: "/promotions",
         icon: Ticket,
         permission: "coupon.manage",
-        descriptionKey: "navDescriptions.promotions",
+        descriptionKey: "common:navDescriptions.promotions",
     },
     {
-        titleKey: "navigation.analytics",
+        titleKey: "common:navigation.analytics",
         url: "/analytics",
         icon: BarChart3,
         permission: "report.view",
-        descriptionKey: "navDescriptions.analytics",
+        descriptionKey: "common:navDescriptions.analytics",
     },
 ];
 
 export const systemNavItems: NavItem[] = [
     {
-        titleKey: "navigation.aiService",
-        url: "/ai-service",
-        icon: Sparkles,
+        titleKey: "common:navigation.auditLogs",
+        url: "/authorization/audit-logs",
+        icon: ShieldCheck,
         permission: "system.config",
-        descriptionKey: "navDescriptions.aiService",
+        descriptionKey: "common:navDescriptions.auditLogs",
     },
     {
-        titleKey: "navigation.notifications",
+        titleKey: "common:navigation.notifications",
         url: "/notifications",
         icon: Bell,
-        descriptionKey: "navDescriptions.notifications",
+        descriptionKey: "common:navDescriptions.notifications",
     },
     {
-        titleKey: "navigation.settings",
+        titleKey: "common:navigation.settings",
         url: "/settings",
         icon: Settings,
         permission: "system.config",
-        descriptionKey: "navDescriptions.settings",
+        descriptionKey: "common:navDescriptions.settings",
         items: [
-            { titleKey: "navigation.general", url: "/settings", permission: "system.config" },
-            { titleKey: "navigation.appearance", url: "/settings/appearance", permission: "system.config" },
+            { titleKey: "admin:navigation.general", url: "/settings", permission: "system.config" },
+            { titleKey: "admin:navigation.appearance", url: "/settings/appearance", permission: "system.config" },
         ]
     },
 ];

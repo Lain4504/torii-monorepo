@@ -25,7 +25,7 @@ import { storageApi } from '@/api/services/storage-api.ts';
 import { LessonContentType, lessonCreateDTOSchema } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
 import { useCreateLesson } from "@/api/services/lesson";
-import { Loader2, Plus, Video, FileText, ClipboardList, BookOpen, Sparkles, LayoutDashboard, CloudUpload, Lock, Eye, BookMarked, FileType } from 'lucide-react';
+import { Loader2, Plus, Video, FileText, ClipboardList, BookOpen, LayoutDashboard, CloudUpload, Lock, Eye, BookMarked, FileType } from 'lucide-react';
 
 const createLessonSchema = lessonCreateDTOSchema;
 
@@ -44,7 +44,6 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
 
     const {
         control,
-        register,
         handleSubmit,
         watch,
         reset,
@@ -58,7 +57,6 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
             orderIndex: 0,
             isPreview: false,
             isUnlocked: false,
-            aiMetadata: {},
         },
     });
 
@@ -76,7 +74,7 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
                 ...data,
                 status: (data as any).status ?? 'draft',
                 orderIndex: data.orderIndex ?? 0,
-                aiMetadata: data.aiMetadata ?? {},
+                aiMetadata: (data as any).aiMetadata ?? {},
                 isPreview: data.isPreview ?? false,
                 isUnlocked: data.isUnlocked ?? false,
                 videoUrl,
@@ -333,39 +331,7 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
                                 </div>
                             </div>
 
-                            {/* AI & Metadata */}
-                            <div className="space-y-6">
-                                <div className="flex items-center gap-2 pb-2 border-b border-border/10">
-                                    <Sparkles className="size-4 text-primary opacity-60" />
-                                    <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                                        AI Metadata
-                                    </h3>
-                                </div>
 
-                                <Field>
-                                    <FieldLabel htmlFor="aiSummary" className="text-xs font-medium text-muted-foreground ml-1">
-                                        Summary
-                                    </FieldLabel>
-                                    <Textarea
-                                        id="aiSummary"
-                                        {...register('aiMetadata.summary')}
-                                        placeholder="Context for AI agents..."
-                                        className="min-h-[80px] p-4 rounded-xl border-border/20 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all resize-none font-medium text-sm leading-relaxed"
-                                    />
-                                </Field>
-
-                                <Field>
-                                    <FieldLabel htmlFor="aiKeywords" className="text-xs font-medium text-muted-foreground ml-1">
-                                        Keywords
-                                    </FieldLabel>
-                                    <Input
-                                        id="aiKeywords"
-                                        {...register('aiMetadata.keywords')}
-                                        placeholder="e.g. grammar, syntax, n5"
-                                        className="h-12 pl-4 rounded-xl border-border/20 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all font-medium text-sm"
-                                    />
-                                </Field>
-                            </div>
                         </div>
                     </ScrollArea>
 

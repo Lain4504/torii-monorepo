@@ -146,28 +146,28 @@ export default function OrdersPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-700 pb-10">
       {/* Header Section */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-8 relative px-2">
-        <div className="space-y-4 max-w-2xl text-center sm:text-left">
+      <div className="flex flex-col sm:flex-row items-start justify-between gap-8 relative px-2">
+        <div className="space-y-4 max-w-2xl">
           <div
-            className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-medium tracking-wide">
+            className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-bold uppercase tracking-wider">
             <CreditCard className="size-3.5" />
-            Finance & Revenue
+            Revenue Management
           </div>
-          <h1 className="text-3xl sm:text-5xl font-serif font-medium tracking-tight text-foreground leading-[1.1]">
-            Financials & <span className="text-primary italic">Revenue</span>
+          <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-foreground leading-[1.1]">
+            Financials & <span className="text-primary">Revenue</span>
           </h1>
-          <p className="text-sm text-muted-foreground/80 leading-relaxed max-w-lg border-l-2 border-primary/20 pl-4 mt-4">
+          <p className="text-base text-muted-foreground mt-4 leading-relaxed max-w-lg border-l-2 border-primary/20 pl-4">
             Monitor cash flow, manage transactions, and optimize financial performance for <span
-              className="text-foreground font-medium">Torii Academy</span>.
+              className="text-foreground font-semibold">Torii Academy</span>.
           </p>
         </div>
 
         <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto pt-6 sm:pt-0">
           <div
-            className="flex items-center gap-4 p-4 rounded-2xl bg-background/60 border border-border/20 backdrop-blur-xl hidden sm:flex shadow-sm">
+            className="flex items-center gap-4 p-4 rounded-2xl bg-muted/20 border border-border/20 hidden sm:flex">
             <div className="space-y-0.5">
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium text-center">Total Payments</p>
-              <h3 className="text-2xl font-serif font-medium text-center text-primary">{total}</h3>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold text-center">Total Payments</p>
+              <h3 className="text-2xl font-bold text-center text-primary">{total}</h3>
             </div>
           </div>
           <Button
@@ -203,10 +203,10 @@ export default function OrdersPage() {
               </div>
               <div className="size-2 rounded-full bg-emerald-500 animate-pulse" />
             </div>
-            <h3 className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">{stat.label}</h3>
+            <h3 className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-1">{stat.label}</h3>
             <div className="flex items-baseline gap-2">
-              <p className="text-3xl font-serif font-medium text-foreground leading-none">{stat.value}</p>
-              <span className="text-[10px] font-medium text-muted-foreground/60">{stat.sub}</span>
+              <p className="text-3xl font-bold text-foreground leading-none">{stat.value}</p>
+              <span className="text-[10px] font-bold text-muted-foreground/60">{stat.sub}</span>
             </div>
           </div>
         ))}
@@ -305,7 +305,7 @@ export default function OrdersPage() {
                       </TableCell>
                       <TableCell className="py-3 px-6 text-center">
                         <span
-                          className="font-serif font-medium text-sm text-foreground tabular-nums tracking-tight">
+                          className="font-bold text-sm text-foreground tabular-nums tracking-tight">
                           {formatCurrency(payment.amount)}
                         </span>
                       </TableCell>
@@ -415,8 +415,7 @@ export default function OrdersPage() {
                     <Hash className="size-3" />
                     Order ID: {selectedOrder.id.slice(0, 12)}
                   </div>
-                  <h2 className="text-3xl font-serif font-medium italic text-foreground leading-none">Order
-                    Details</h2>
+                  <h2 className="text-3xl font-bold text-foreground leading-none">Order Details</h2>
                 </div>
               </div>
 
@@ -476,16 +475,16 @@ export default function OrdersPage() {
                   <div className="space-y-4">
                     <div className="flex justify-between items-center text-muted-foreground/70">
                       <span className="text-[11px] font-medium uppercase tracking-wide">Base Amount</span>
-                      <span className="font-serif font-medium">{formatCurrency(selectedOrder.amount)}</span>
+                      <span className="font-bold">{formatCurrency(selectedOrder.amount)}</span>
                     </div>
                     <div className="flex justify-between items-center text-muted-foreground/70">
                       <span className="text-[11px] font-medium uppercase tracking-wide">Fee</span>
-                      <span className="font-serif font-medium">{formatCurrency(0)}</span>
+                      <span className="font-bold">{formatCurrency(0)}</span>
                     </div>
                     <div className="pt-4 border-t border-white/10 flex justify-between items-center">
                       <span className="text-xs font-medium uppercase tracking-wider text-primary">Total Amount</span>
                       <span
-                        className="text-2xl font-serif font-medium italic text-foreground tracking-tight">{formatCurrency(selectedOrder.amount)}</span>
+                        className="text-2xl font-bold text-foreground tracking-tight">{formatCurrency(selectedOrder.amount)}</span>
                     </div>
                   </div>
                 </div>

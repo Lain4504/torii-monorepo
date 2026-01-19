@@ -21,8 +21,7 @@ import {
 import { toast } from '@workspace/ui/components/sonner';
 import { QuestionType, QuestionStatus, QuestionCategory, QuestionDifficultyLevel, QuestionJlptLevel } from '@workspace/schemas';
 import { cn } from '@workspace/ui/lib/utils';
-import { Plus, Search, Sparkles, ShieldAlert, Cpu } from 'lucide-react';
-import { Card } from '@workspace/ui/components/card';
+import { Plus, ShieldAlert, Cpu, Sparkles } from 'lucide-react';
 
 export default function QuestionsPage() {
     const [page, setPage] = useState(1);
@@ -108,13 +107,13 @@ export default function QuestionsPage() {
 
     if (error) {
         return (
-            <div className="flex flex-col items-center justify-center p-20 space-y-4 bg-destructive/5 rounded-[3rem] border border-dashed border-destructive/20 text-center animate-in fade-in duration-500">
-                <div className="w-16 h-16 rounded-2xl bg-white shadow-xl flex items-center justify-center">
-                    <ShieldAlert className="size-8 text-destructive opacity-40" />
+            <div className="flex flex-col items-center justify-center p-20 space-y-4 rounded-3xl border border-dashed text-center animate-in fade-in duration-500">
+                <div className="size-16 rounded-full bg-destructive/10 flex items-center justify-center">
+                    <ShieldAlert className="size-8 text-destructive" />
                 </div>
                 <div className="space-y-1">
-                    <h3 className="text-lg font-black uppercase tracking-tight italic">Registry Failure</h3>
-                    <p className="text-xs font-bold text-muted-foreground/60 italic uppercase tracking-widest">{error.message}</p>
+                    <h3 className="text-lg font-semibold">Error Loading Questions</h3>
+                    <p className="text-sm text-muted-foreground">{error.message}</p>
                 </div>
             </div>
         );
@@ -192,131 +191,128 @@ export default function QuestionsPage() {
     return (
         <div className="space-y-10 animate-in fade-in duration-700 pb-20">
             {/* Header Section */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-8 relative px-2">
-                <div className="space-y-4 max-w-2xl text-center sm:text-left">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[9px] font-black uppercase tracking-[0.3em]">
-                        <Cpu className="size-3" />
+            {/* Header Section */}
+            <div className="flex flex-col sm:flex-row items-start justify-between gap-8 relative px-2">
+                <div className="space-y-4 max-w-2xl">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-bold uppercase tracking-wider">
+                        <Cpu className="size-3.5" />
                         Logic Engine
                     </div>
-                    <h1 className="text-5xl font-black tracking-tight text-foreground uppercase italic leading-[0.85]">
-                        Question <br />
-                        <span className="text-primary not-italic text-4xl sm:text-5xl">Repositories</span>
+                    <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-foreground leading-[1.1]">
+                        Question <span className="text-primary">Bank</span>
                     </h1>
-                    <p className="text-[11px] font-bold text-muted-foreground/40 uppercase tracking-[0.15em] italic border-l-2 border-primary/20 pl-6 mt-6">
-                        Quản trị hệ thống ngân hàng câu hỏi, kiểm chuẩn và phân phối dữ liệu cho <span className="text-foreground">Torii Intelligence</span>.
+                    <p className="text-base text-muted-foreground mt-4 leading-relaxed max-w-lg border-l-2 border-primary/20 pl-4">
+                        Manage and organize questions, validation logic, and assessments for the <span className="text-foreground font-semibold">Torii Intelligence</span> system.
                     </p>
                 </div>
                 <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto pt-6 sm:pt-0">
-
+                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-background/60 border border-border/20 backdrop-blur-xl hidden sm:flex shadow-sm">
+                        <div className="space-y-0.5">
+                            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium text-center">Total Questions</p>
+                            <h3 className="text-2xl font-bold text-center text-primary">{meta?.total || 0}</h3>
+                        </div>
+                    </div>
                     <Can permission="question.create">
                         <Button
                             onClick={() => setShowCreateDialog(true)}
-                            className="w-full sm:w-auto h-11 px-8 rounded-xl bg-primary text-primary-foreground font-bold uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all group"
+                            className="w-full sm:w-auto h-12 px-6 rounded-xl bg-primary text-primary-foreground font-medium text-sm shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all group"
                         >
-                            Forge New Logic
-                            <Plus className="ml-2 size-3.5 opacity-50 group-hover:opacity-100 transition-opacity" />
+                            Create Question
+                            <Plus className="ml-2 size-4 opacity-70 group-hover:opacity-100 transition-opacity" />
                         </Button>
                     </Can>
                 </div>
             </div>
 
-            {/* Main Content Card */}
-            <Card className="rounded-[3rem] bg-background/40 backdrop-blur-3xl border border-border/20 shadow-2xl shadow-primary/5 overflow-hidden group">
-                <div className="p-8 lg:p-12 space-y-10">
-                    <div className="flex flex-col lg:flex-row items-center justify-between gap-6 p-6 rounded-[2rem] bg-muted/20 border border-border/20">
-                        <div className="flex flex-1 items-center gap-6 w-full group/search">
-                            <div className="p-3.5 rounded-2xl bg-background border border-border/20 text-muted-foreground group-focus-within/search:text-primary transition-colors">
-                                <Search className="size-5" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <QuestionsPrimaryToolbar
-                                    search={search}
-                                    onSearchChange={setSearch}
-                                    questionTypeFilter={questionTypeFilter}
-                                    onQuestionTypeFilterChange={setQuestionTypeFilter}
-                                    categoryFilter={categoryFilter}
-                                    onCategoryFilterChange={setCategoryFilter}
-                                    jlptLevelFilter={jlptLevelFilter}
-                                    onJlptLevelFilterChange={setJlptLevelFilter}
-                                    difficultyFilter={difficultyFilter}
-                                    onDifficultyFilterChange={setDifficultyFilter}
-                                    statusFilter={statusFilter}
-                                    onStatusFilterChange={setStatusFilter}
-                                    poolIdFilter={poolIdFilter}
-                                    onPoolIdFilterChange={setPoolIdFilter}
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="rounded-[2.5rem] border border-border/20 bg-background/40 overflow-hidden relative group/table">
-                        <div className="absolute inset-0 bg-primary/[0.01] pointer-events-none" />
-                        <QuestionsTable
-                            data={questions}
-                            onView={setViewingQuestion}
-                            onEdit={() => { }}
-                            onDelete={setDeletingQuestion}
-                            onApprove={handleApprove}
-                            onDeactivate={handleDeactivate}
-                            onReject={handleReject}
-                            onSendForReview={handleSendForReview}
-                            page={page}
-                            limit={queryParams.limit || 10}
-                            isLoading={isLoading}
+            <div className="space-y-6 px-2">
+                <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+                    <div className="flex-1 w-full">
+                        <QuestionsPrimaryToolbar
+                            search={search}
+                            onSearchChange={setSearch}
+                            questionTypeFilter={questionTypeFilter}
+                            onQuestionTypeFilterChange={setQuestionTypeFilter}
+                            categoryFilter={categoryFilter}
+                            onCategoryFilterChange={setCategoryFilter}
+                            jlptLevelFilter={jlptLevelFilter}
+                            onJlptLevelFilterChange={setJlptLevelFilter}
+                            difficultyFilter={difficultyFilter}
+                            onDifficultyFilterChange={setDifficultyFilter}
+                            statusFilter={statusFilter}
+                            onStatusFilterChange={setStatusFilter}
+                            poolIdFilter={poolIdFilter}
+                            onPoolIdFilterChange={setPoolIdFilter}
                         />
                     </div>
-
-                    {/* Pagination */}
-                    {meta && (
-                        <div className="flex flex-col lg:flex-row items-center justify-between gap-8 pt-10 border-t border-border/10">
-                            <div className="flex flex-col lg:flex-row lg:items-center gap-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 text-center lg:text-left">
-                                <div className="inline-flex items-center gap-2 group-hover:text-primary transition-colors">
-                                    <Sparkles className="size-3" />
-                                    Metric: <span className="text-foreground text-xs">{meta.total} Question Assets</span>
-                                </div>
-                                <div className="hidden lg:block w-1 h-1 rounded-full bg-border" />
-                                <div className="italic">Data Point 0{page} of 0{meta.totalPages}</div>
-                            </div>
-
-                            {meta.totalPages > 1 && (
-                                <Pagination>
-                                    <PaginationContent className="flex items-center gap-2">
-                                        <PaginationItem>
-                                            <PaginationPrevious
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    setPage(p => Math.max(1, p - 1));
-                                                }}
-                                                className={cn(
-                                                    "h-10 px-4 rounded-xl bg-muted/20 border border-border/20 text-[10px] font-black uppercase tracking-widest transition-all",
-                                                    page === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/10 hover:text-primary cursor-pointer active:scale-95"
-                                                )}
-                                            />
-                                        </PaginationItem>
-
-                                        <div className="hidden md:flex items-center gap-1 mx-2">
-                                            {renderPaginationItems()}
-                                        </div>
-
-                                        <PaginationItem>
-                                            <PaginationNext
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    setPage(p => Math.min(meta.totalPages, p + 1));
-                                                }}
-                                                className={cn(
-                                                    "h-10 px-4 rounded-xl bg-muted/20 border border-border/20 text-[10px] font-black uppercase tracking-widest transition-all",
-                                                    page === meta.totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/10 hover:text-primary cursor-pointer active:scale-95"
-                                                )}
-                                            />
-                                        </PaginationItem>
-                                    </PaginationContent>
-                                </Pagination>
-                            )}
-                        </div>
-                    )}
                 </div>
-            </Card>
+
+                <div className="rounded-3xl border border-white/20 bg-background/50 backdrop-blur-3xl overflow-hidden relative group/table shadow-sm">
+                    <div className="absolute inset-0 bg-primary/[0.02] pointer-events-none" />
+                    <QuestionsTable
+                        data={questions}
+                        onView={setViewingQuestion}
+                        onEdit={() => { }}
+                        onDelete={setDeletingQuestion}
+                        onApprove={handleApprove}
+                        onDeactivate={handleDeactivate}
+                        onReject={handleReject}
+                        onSendForReview={handleSendForReview}
+                        page={page}
+                        limit={queryParams.limit || 10}
+                        isLoading={isLoading}
+                    />
+                </div>
+
+                {/* Pagination */}
+                {meta && (
+                    <div className="flex flex-col lg:flex-row items-center justify-between gap-4 pt-2">
+                        <div className="flex flex-col lg:flex-row lg:items-center gap-4 text-xs text-muted-foreground font-medium text-center lg:text-left pl-2">
+                            <div className="inline-flex items-center gap-2">
+                                <Sparkles className="size-3.5 text-primary/70" />
+                                <span>Total: <span className="text-foreground">{meta.total} Questions</span></span>
+                            </div>
+                            <div className="hidden lg:block w-1 h-1 rounded-full bg-border" />
+                            <div>Page {page} of {meta.totalPages}</div>
+                        </div>
+
+                        {meta.totalPages > 1 && (
+                            <Pagination>
+                                <PaginationContent className="flex items-center gap-2">
+                                    <PaginationItem>
+                                        <PaginationPrevious
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                setPage(p => Math.max(1, p - 1));
+                                            }}
+                                            className={cn(
+                                                "h-10 px-4 rounded-xl bg-background/50 border border-border/20 text-xs font-medium transition-all",
+                                                page === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary cursor-pointer"
+                                            )}
+                                        />
+                                    </PaginationItem>
+
+                                    <div className="hidden md:flex items-center gap-1 mx-2">
+                                        {renderPaginationItems()}
+                                    </div>
+
+                                    <PaginationItem>
+                                        <PaginationNext
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                setPage(p => Math.min(meta.totalPages, p + 1));
+                                            }}
+                                            className={cn(
+                                                "h-10 px-4 rounded-xl bg-background/50 border border-border/20 text-xs font-medium transition-all",
+                                                page === meta.totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary cursor-pointer"
+                                            )}
+                                        />
+                                    </PaginationItem>
+                                </PaginationContent>
+                            </Pagination>
+                        )}
+                    </div>
+                )}
+            </div>
 
             {/* Dialogs */}
             <CreateQuestionDialog

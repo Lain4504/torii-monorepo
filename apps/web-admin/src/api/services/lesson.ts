@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, useQueries } from '@tanstack/react-query';
 import { apiClient } from '@/api/api-client.ts';
 import type {
     LessonResponseDTO,
@@ -134,4 +134,17 @@ export function useRestoreLesson() {
         },
     });
 }
-
+/**
+ * Hook: Fetch lessons for multiple modules in parallel
+ * Used in Course Detail Page to load curriculum
+ */
+export function useModulesLessons(modules: { id: string }[]) {
+    return useQueries({
+        queries: modules.map((module) => ({
+            queryKey: ['lessons', 'module', module.id],
+            queryFn: () => lessonsApi.findAll({ page: 1, limit: 100, moduleId: module.id }),
+            staleTime: 1000 * 60 * 5, // 5 minutes
+            enabled: !!module.id,
+        })),
+    });
+}

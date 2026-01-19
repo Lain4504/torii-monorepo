@@ -53,7 +53,7 @@ export const getPostColumns = ({ onView, onEdit, onDelete, page, limit }: PostCo
                     <FileText className="size-4" />
                 </div>
                 <div className="flex flex-col">
-                    <span className="font-serif font-bold italic text-foreground text-lg group-hover/title:text-primary transition-colors line-clamp-1">{info.getValue()}</span>
+                    <span className="font-bold text-foreground text-lg group-hover/title:text-primary transition-colors line-clamp-1">{info.getValue()}</span>
                     <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest mt-0.5">ID: {info.row.original.id.slice(0, 8)}</span>
                 </div>
             </div>
@@ -64,7 +64,7 @@ export const getPostColumns = ({ onView, onEdit, onDelete, page, limit }: PostCo
         cell: (info) => {
             const author = info.getValue();
             return (
-                <div className="text-[11px] font-bold text-foreground/80 italic">
+                <div className="text-[11px] font-bold text-foreground/80">
                     {author?.displayName || 'Unknown'}
                 </div>
             );
@@ -106,7 +106,7 @@ export const getPostColumns = ({ onView, onEdit, onDelete, page, limit }: PostCo
         },
         cell: (info) => (
             <div className="flex flex-col items-center">
-                <div className="font-serif font-bold italic text-xl leading-none text-primary">{info.getValue() || 0}</div>
+                <div className="font-bold text-xl leading-none text-primary">{info.getValue() || 0}</div>
                 <div className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40 mt-1.5">Views</div>
             </div>
         ),
@@ -127,7 +127,7 @@ export const getPostColumns = ({ onView, onEdit, onDelete, page, limit }: PostCo
         },
         cell: (info) => (
             <div className="flex flex-col items-center">
-                <div className="font-serif font-bold italic text-xl leading-none text-amber-500">{info.getValue() || 0}</div>
+                <div className="font-bold text-xl leading-none text-amber-500">{info.getValue() || 0}</div>
                 <div className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40 mt-1.5">Comments</div>
             </div>
         ),

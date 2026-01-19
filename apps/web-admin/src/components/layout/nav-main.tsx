@@ -52,7 +52,7 @@ export function NavMain({
     labelKey: string
     items: NavMainItem[]
 }) {
-    const { t } = useTranslation('common')
+    const { t } = useTranslation(['common', 'admin'])
     const { pathname } = useLocation()
     const { state } = useSidebar()
     const isCollapsed = state === "collapsed"

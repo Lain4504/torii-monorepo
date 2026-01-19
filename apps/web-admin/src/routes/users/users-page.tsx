@@ -139,24 +139,24 @@ export function UsersPage() {
     return (
         <div className="space-y-6 animate-in fade-in duration-700">
             {/* Header Section */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-8 relative px-2">
-                <div className="space-y-4 max-w-2xl text-center sm:text-left">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-medium tracking-wide">
+            <div className="flex flex-col sm:flex-row items-start justify-between gap-8 relative px-0 md:px-2">
+                <div className="space-y-4 max-w-2xl">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-bold uppercase tracking-wider">
                         <UsersIcon className="size-3.5" />
-                        User Management
+                        Management
                     </div>
-                    <h1 className="text-3xl sm:text-5xl font-serif font-medium tracking-tight text-foreground leading-[1.1]">
-                        Community <span className="text-primary italic">& Roles</span>
+                    <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-foreground leading-[1.1]">
+                        Community <span className="text-primary">& Roles</span>
                     </h1>
-                    <p className="text-sm text-muted-foreground/80 leading-relaxed max-w-lg border-l-2 border-primary/20 pl-4 mt-4">
-                        Manage members, roles, and access permissions for the <span className="text-foreground font-medium">Torii Global</span> ecosystem.
+                    <p className="text-base text-muted-foreground mt-4 leading-relaxed max-w-lg border-l-2 border-primary/20 pl-4">
+                        Manage members, roles, and access permissions for the <span className="text-foreground font-semibold">Torii Global</span> ecosystem.
                     </p>
                 </div>
                 <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto pt-6 sm:pt-0">
                     <div className="flex items-center gap-4 p-4 rounded-2xl bg-background/60 border border-border/20 backdrop-blur-xl hidden sm:flex shadow-sm">
                         <div className="space-y-0.5">
                             <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium text-center">Total Accounts</p>
-                            <h3 className="text-2xl font-serif font-medium text-center text-primary">{total}</h3>
+                            <h3 className="text-2xl font-bold text-center text-primary">{total}</h3>
                         </div>
                     </div>
                     <Button
@@ -169,7 +169,7 @@ export function UsersPage() {
                 </div>
             </div>
 
-            <div className="space-y-6 px-2">
+            <div className="space-y-6 px-0 md:px-2">
                 <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
                     <div className="flex-1 w-full">
                         <UsersPrimaryToolbar

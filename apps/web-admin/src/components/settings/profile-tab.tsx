@@ -23,7 +23,7 @@ export function ProfileTab() {
                         <div className="space-y-1">
                             <div className="flex items-center gap-2">
                                 <User className="size-5 text-primary" />
-                                <h3 className="text-lg font-serif font-medium text-foreground">
+                                <h3 className="text-lg font-bold text-foreground">
                                     Profile Information
                                 </h3>
                             </div>

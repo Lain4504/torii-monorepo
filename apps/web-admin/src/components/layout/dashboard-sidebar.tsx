@@ -40,7 +40,7 @@ interface SidebarProps {
 }
 
 export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: SidebarProps) {
-  const { t } = useTranslation('common')
+  const { t } = useTranslation(['common', 'admin'])
   const location = useLocation()
   const dispatch = useAppDispatch()
   const user = useAppSelector(selectUser)
@@ -158,8 +158,8 @@ export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: Sid
             </div>
             {!isCollapsed && (
               <div className="flex flex-col whitespace-nowrap animate-in fade-in slide-in-from-left-4 duration-700 delay-100">
-                <span className="text-xl font-serif font-medium tracking-tight text-foreground">Torii <span className="text-primary italic">Admin</span></span>
-                <span className="text-[10px] font-medium text-muted-foreground/50 mt-0.5">{t('sidebar.workspace')}</span>
+                <span className="text-xl font-bold tracking-tight text-foreground">Torii <span className="text-primary">Admin</span></span>
+                <span className="text-[10px] font-bold text-muted-foreground/50 mt-0.5">{t('sidebar.workspace')}</span>
               </div>
             )}
           </Link>

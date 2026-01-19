@@ -12,8 +12,6 @@ export const postCreateDTOSchema = postSchema
         authorId: true,
         status: true,
         publishedAt: true,
-        seoTitle: true,
-        seoDescription: true,
         tags: true,
     })
     .partial({
@@ -22,8 +20,6 @@ export const postCreateDTOSchema = postSchema
         coverImageUrl: true,
         status: true,
         publishedAt: true,
-        seoTitle: true,
-        seoDescription: true,
         tags: true,
     });
 

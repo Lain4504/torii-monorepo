@@ -34,12 +34,14 @@ export class LessonController {
         @Query('page') page: number = 1,
         @Query('limit') limit: number = 10,
         @Query('search') search: string = '',
+        @Query('moduleId') moduleId?: string,
+        @Query('contentType') contentType?: string,
     ) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.lesson.findAll' },
-                    { page, limit, search }
+                    { page, limit, search, moduleId, contentType }
                 )
             );
             return successPaginatedResponse(result);

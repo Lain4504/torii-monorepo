@@ -48,7 +48,7 @@ export function DisableTwoFactorDialog({ open, onOpenChange }: DisableTwoFactorD
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-md">
                 <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2 text-xl font-serif">
+                    <DialogTitle className="flex items-center gap-2 text-xl font-bold">
                         <AlertTriangle className="size-5 text-rose-600 dark:text-rose-400" />
                         Disable Two-Factor Authentication
                     </DialogTitle>

@@ -55,8 +55,8 @@ export function ViewUserSheet({
                             <ScanEye className="h-6 w-6" />
                         </div>
                         <div className="flex-1 space-y-1">
-                            <SheetTitle className="text-2xl font-medium tracking-tight">
-                                User <span className="text-primary italic">Profile</span>
+                            <SheetTitle className="text-2xl font-bold tracking-tight">
+                                User <span className="text-primary">Profile</span>
                             </SheetTitle>
                             <SheetDescription className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground/60">
                                 Detailed account information and activity

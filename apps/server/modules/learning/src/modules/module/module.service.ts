@@ -144,7 +144,7 @@ export class ModuleService implements IModuleService {
         course: { connect: { id: dto.courseId } },
         title: dto.title,
         description: dto.description || null,
-        aiMetadata: dto.aiMetadata || {},
+        aiMetadata: (dto as any).aiMetadata || {},
         orderIndex,
         status: (dto as any).status || 'published',
         durationMinutes: dto.durationMinutes || null,
@@ -183,7 +183,7 @@ export class ModuleService implements IModuleService {
 
       if (dto.title !== undefined) updateData.title = dto.title;
       if (dto.description !== undefined) updateData.description = dto.description;
-      if (dto.aiMetadata !== undefined) updateData.aiMetadata = dto.aiMetadata;
+      if ((dto as any).aiMetadata !== undefined) updateData.aiMetadata = (dto as any).aiMetadata;
       if (dto.orderIndex !== undefined) updateData.orderIndex = dto.orderIndex;
       if (dto.durationMinutes !== undefined) updateData.durationMinutes = dto.durationMinutes;
       if ((dto as any).status !== undefined) updateData.status = (dto as any).status;

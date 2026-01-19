@@ -42,8 +42,6 @@ const createPostSchema = z.object({
     status: z.nativeEnum(PostStatus).optional(),
     tags: z.string().optional(), // String input, will be parsed to array
     publishedAt: z.string().optional(), // ISO date string from datetime-local input
-    seoTitle: z.string().optional(),
-    seoDescription: z.string().optional(),
 });
 
 type CreatePostFormData = z.infer<typeof createPostSchema>;
@@ -74,8 +72,6 @@ export function CreatePostSheet({
             excerpt: '',
             status: PostStatus.DRAFT,
             tags: '',
-            seoTitle: '',
-            seoDescription: '',
             publishedAt: '',
         },
     });
@@ -167,8 +163,6 @@ export function CreatePostSheet({
                 authorId: user.id,
                 tags,
                 coverImageUrl,
-                seoTitle: data.seoTitle || undefined,
-                seoDescription: data.seoDescription || undefined,
                 publishedAt,
             };
 
@@ -205,8 +199,8 @@ export function CreatePostSheet({
                             <FileText className="h-6 w-6" />
                         </div>
                         <div className="flex-1 space-y-1">
-                            <SheetTitle className="text-2xl font-medium tracking-tight">
-                                Create New <span className="text-primary italic">Post</span>
+                            <SheetTitle className="text-2xl font-bold tracking-tight">
+                                Create New <span className="text-primary">Post</span>
                             </SheetTitle>
                             <SheetDescription className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground/60">
                                 Write and configure your new article
@@ -428,59 +422,7 @@ export function CreatePostSheet({
                                 </Field>
                             </div>
 
-                            {/* SEO Metadata */}
-                            <div className="space-y-6 pt-6">
-                                <div className="flex items-center gap-3 pb-2 border-b border-border/40">
-                                    <div className="h-px flex-1 bg-border/20" />
-                                    <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">
-                                        SEO Metadata
-                                    </h3>
-                                    <div className="h-px flex-1 bg-border/20" />
-                                </div>
 
-                                <Controller
-                                    control={control}
-                                    name="seoTitle"
-                                    render={({ field, fieldState }) => (
-                                        <Field>
-                                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
-                                                SEO Title
-                                            </FieldLabel>
-                                            <Input
-                                                id={field.name}
-                                                {...field}
-                                                value={field.value || ''}
-                                                placeholder="SEO TITLE FOR SEARCH ENGINES..."
-                                                className="h-14 px-5 rounded-2xl bg-muted/10 border-border/40 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all uppercase"
-                                                aria-invalid={fieldState.invalid}
-                                            />
-                                            {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
-                                        </Field>
-                                    )}
-                                />
-
-                                <Controller
-                                    control={control}
-                                    name="seoDescription"
-                                    render={({ field, fieldState }) => (
-                                        <Field>
-                                            <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">
-                                                SEO Description
-                                            </FieldLabel>
-                                            <Textarea
-                                                id={field.name}
-                                                {...field}
-                                                value={field.value || ''}
-                                                placeholder="SEO DESCRIPTION FOR SEARCH ENGINES..."
-                                                rows={3}
-                                                className="rounded-2xl bg-muted/10 border-border/40 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all resize-none p-4"
-                                                aria-invalid={fieldState.invalid}
-                                            />
-                                            {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
-                                        </Field>
-                                    )}
-                                />
-                            </div>
                         </div>
                     </ScrollArea>
 

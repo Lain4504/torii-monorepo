@@ -57,7 +57,7 @@ export function PasswordTab() {
                         <div className="space-y-1">
                             <div className="flex items-center gap-2">
                                 <KeyRound className="size-5 text-primary" />
-                                <h3 className="text-lg font-serif font-medium text-foreground">
+                                <h3 className="text-lg font-bold text-foreground">
                                     Change Password
                                 </h3>
                             </div>

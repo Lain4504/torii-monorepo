@@ -109,7 +109,7 @@ function AdminDashboard() {
                 Growth Stats
               </div>
             </div>
-            <CardTitle className="text-2xl font-serif font-medium tracking-tight text-foreground">Performance <span className="text-primary italic">Overview</span></CardTitle>
+            <CardTitle className="text-2xl font-bold tracking-tight text-foreground">Performance <span className="text-primary">Overview</span></CardTitle>
             <CardDescription className="text-xs font-medium text-muted-foreground/50 mt-1">Revenue & Enrollment metrics for Q1 2026</CardDescription>
           </CardHeader>
           <CardContent className="p-8 pt-0">
@@ -129,7 +129,7 @@ function AdminDashboard() {
               <DollarSign className="size-3.5" />
               Recent Activity
             </div>
-            <CardTitle className="text-2xl font-serif font-medium tracking-tight text-foreground">Latest <span className="text-amber-500 italic">Payments</span></CardTitle>
+            <CardTitle className="text-2xl font-bold tracking-tight text-foreground">Latest <span className="text-amber-500">Payments</span></CardTitle>
             <p className="text-xs font-medium text-muted-foreground/50 mt-1">Verified purchases & enrollments</p>
           </CardHeader>
           <CardContent className="px-8 pb-8">
@@ -167,7 +167,7 @@ function StaffDashboard() {
               <Target className="size-3.5" />
               Tasks
             </div>
-            <CardTitle className="text-2xl font-serif font-medium tracking-tight text-foreground">Required <span className="text-primary italic">Actions</span></CardTitle>
+            <CardTitle className="text-2xl font-bold tracking-tight text-foreground">Required <span className="text-primary">Actions</span></CardTitle>
             <p className="text-xs font-medium text-muted-foreground/50 mt-1">Daily operational tasks</p>
           </CardHeader>
           <CardContent className="px-6 pb-8 space-y-3">
@@ -183,7 +183,7 @@ function StaffDashboard() {
               <BookOpen className="size-3.5" />
               Updates
             </div>
-            <CardTitle className="text-2xl font-serif font-medium tracking-tight text-foreground">Course <span className="text-amber-500 italic">Activity</span></CardTitle>
+            <CardTitle className="text-2xl font-bold tracking-tight text-foreground">Course <span className="text-amber-500">Activity</span></CardTitle>
             <p className="text-xs font-medium text-muted-foreground/50 mt-1">Recent alerts and updates</p>
           </CardHeader>
           <CardContent className="px-6 pb-8">
@@ -231,7 +231,7 @@ function LecturerDashboard() {
                 Live Session
               </div>
             </div>
-            <h2 className="text-5xl font-serif font-medium tracking-tight text-foreground leading-tight">N4 Conversation <br /><span className="text-primary/40 italic">Masterclass</span></h2>
+            <h2 className="text-5xl font-bold tracking-tight text-foreground leading-tight">N4 Conversation <br /><span className="text-primary/40">Masterclass</span></h2>
             <p className="text-sm font-medium text-muted-foreground/60 leading-relaxed border-l-2 border-primary/20 pl-6 max-w-lg hidden lg:block">
               "Prepare thoroughly for today's Kaiwa session. Focus on complex sentence structures and N4 grammar reflexes."
             </p>
@@ -260,7 +260,7 @@ function LecturerDashboard() {
         <Card className="rounded-2xl bg-background/50 backdrop-blur-3xl border border-white/20 shadow-sm p-4">
           <CardHeader className="p-8 pb-6">
             <div className="flex items-center justify-between mb-4">
-              <CardTitle className="text-2xl font-serif font-medium tracking-tight text-foreground">Teaching <span className="text-primary italic">Timeline</span></CardTitle>
+              <CardTitle className="text-2xl font-bold tracking-tight text-foreground">Teaching <span className="text-primary">Timeline</span></CardTitle>
               <div className="p-2 rounded-xl bg-muted/20"><Calendar className="size-4 text-muted-foreground/40" /></div>
             </div>
             <p className="text-xs font-medium text-muted-foreground/50">Your upcoming classes and events</p>
@@ -287,7 +287,7 @@ function LecturerDashboard() {
         <Card className="rounded-2xl bg-background/50 backdrop-blur-3xl border border-white/20 shadow-sm p-4">
           <CardHeader className="p-8 pb-6">
             <div className="flex items-center justify-between mb-4">
-              <CardTitle className="text-2xl font-serif font-medium tracking-tight text-foreground">Assignment <span className="text-amber-500 italic">Queue</span></CardTitle>
+              <CardTitle className="text-2xl font-bold tracking-tight text-foreground">Assignment <span className="text-amber-500">Queue</span></CardTitle>
               <div className="p-2 rounded-xl bg-muted/20"><Zap className="size-4 text-muted-foreground/40" /></div>
             </div>
             <p className="text-xs font-medium text-muted-foreground/50">Pending evaluations</p>
@@ -383,9 +383,9 @@ export default function DashboardPage() {
             <Sparkles className="size-3.5" />
             Dashboard Overview
           </div>
-          <h2 className="text-5xl font-serif font-medium tracking-tight text-foreground leading-[0.9] animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <h2 className="text-5xl font-bold tracking-tight text-foreground leading-[0.9] animate-in fade-in slide-in-from-bottom-4 duration-700">
             {getGreeting()}, <br />
-            <span className="text-primary italic">{user?.displayName?.split(' ')[0] || 'User'}</span>.
+            <span className="text-primary">{user?.displayName?.split(' ')[0] || 'User'}</span>.
           </h2>
           <p className="text-sm font-medium italic border-l-2 border-primary/20 pl-6 mt-8 text-muted-foreground/60 leading-relaxed max-w-xl animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
             Welcome back to <span className="text-foreground/80 not-italic">Torii Platform</span>. Your systems are running smoothly.

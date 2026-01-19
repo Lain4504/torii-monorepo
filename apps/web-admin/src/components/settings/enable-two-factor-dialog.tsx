@@ -138,7 +138,7 @@ export function EnableTwoFactorDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-xl font-serif">
+          <DialogTitle className="flex items-center gap-2 text-xl font-bold">
             <Smartphone className="size-5 text-primary" />
             Enable Two-Factor Authentication
           </DialogTitle>

@@ -129,8 +129,8 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
                 <DialogHeader className="p-8 pb-6 bg-muted/5 border-b border-border/10 relative overflow-hidden">
                     <div className="absolute inset-0 bg-primary/5 blur-3xl opacity-50 pointer-events-none" />
                     <div className="relative z-10">
-                        <DialogTitle className="text-2xl font-semibold tracking-tight">
-                            Create <span className="text-primary italic">Question</span>
+                        <DialogTitle className="text-2xl font-bold tracking-tight">
+                            Create <span className="text-primary">Question</span>
                         </DialogTitle>
                         <DialogDescription className="text-xs font-medium text-muted-foreground/60 mt-1">
                             Define question parameters and evaluation criteria.

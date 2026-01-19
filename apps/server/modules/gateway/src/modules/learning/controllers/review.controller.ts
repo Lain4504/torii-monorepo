@@ -58,6 +58,22 @@ export class ReviewController {
         }
     }
 
+    @Get('reviews')
+    @UseGuards(GatewayAuthGuard)
+    async getAllReviews(@Query() query: any) {
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'learning.review.findAll' },
+                    { query }
+                )
+            );
+            return successPaginatedResponse(result);
+        } catch (error: any) {
+            return errorResponse(error.message || 'Failed to fetch all reviews');
+        }
+    }
+
     @Get(':courseId/reviews/distribution')
     @Public()
     async getRatingDistribution(@Param('courseId') courseId: string) {

@@ -14,6 +14,9 @@ export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[keyof typeof SUPPOR
 export const NAMESPACES = {
     COMMON: 'common',
     TRANSLATION: 'translation',
+    ADMIN: 'admin',
+    LEARNER: 'learner',
+    MEET: 'meet',
 } as const;
 
 export type TranslationNamespace = (typeof NAMESPACES)[keyof typeof NAMESPACES];

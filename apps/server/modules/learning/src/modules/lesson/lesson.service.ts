@@ -96,6 +96,15 @@ export class LessonService implements ILessonService {
         ];
       }
 
+      const queryParams = options as any;
+      if (queryParams.moduleId) {
+        where.moduleId = queryParams.moduleId;
+      }
+
+      if (queryParams.contentType) {
+        where.contentType = queryParams.contentType;
+      }
+
       const [total, lessons] = await Promise.all([
         this.lessonRepository.count(where),
         this.lessonRepository.findMany({
@@ -189,6 +198,7 @@ export class LessonService implements ILessonService {
       throw new ForbiddenException('Only admins and lecturers can create lessons');
     }
 
+
     try {
       // Get next order index if not provided
       let orderIndex = dto.orderIndex;
@@ -204,7 +214,7 @@ export class LessonService implements ILessonService {
         videoUrl: dto.videoUrl || null,
         videoDuration: dto.videoDuration || null,
         articleContent: dto.articleContent || null,
-        aiMetadata: dto.aiMetadata || {},
+        aiMetadata: (dto as any).aiMetadata || {},
         orderIndex,
         isPreview: dto.isPreview ?? false,
         isUnlocked: dto.isUnlocked ?? true,
@@ -247,7 +257,7 @@ export class LessonService implements ILessonService {
       if (dto.videoUrl !== undefined) updateData.videoUrl = dto.videoUrl;
       if (dto.videoDuration !== undefined) updateData.videoDuration = dto.videoDuration;
       if (dto.articleContent !== undefined) updateData.articleContent = dto.articleContent;
-      if (dto.aiMetadata !== undefined) updateData.aiMetadata = dto.aiMetadata;
+      if ((dto as any).aiMetadata !== undefined) updateData.aiMetadata = (dto as any).aiMetadata;
       if (dto.orderIndex !== undefined) updateData.orderIndex = dto.orderIndex;
       if (dto.isPreview !== undefined) updateData.isPreview = dto.isPreview;
       if (dto.isUnlocked !== undefined) updateData.isUnlocked = dto.isUnlocked;

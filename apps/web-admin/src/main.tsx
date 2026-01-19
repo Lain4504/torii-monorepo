@@ -7,7 +7,9 @@ import { initializeI18n } from '@workspace/i18n'
 
 
 // Initialize i18n before rendering
-initializeI18n().then(() => {
+initializeI18n({
+    defaultNS: 'admin',
+}).then(() => {
     createRoot(document.getElementById('root')!).render(
         <StrictMode>
             <App />

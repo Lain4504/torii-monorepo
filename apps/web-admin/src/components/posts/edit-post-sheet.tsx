@@ -87,8 +87,6 @@ export function EditPostSheet({
                 content: post.content,
                 status: post.status,
                 tags: post.tags ? post.tags.join(', ') : '',
-                seoTitle: post.seoTitle || '',
-                seoDescription: post.seoDescription || '',
                 publishedAt: publishedAtValue,
             });
             // Set cover image preview if exists
@@ -171,8 +169,6 @@ export function EditPostSheet({
                 status: data.status,
                 tags,
                 coverImageUrl,
-                seoTitle: data.seoTitle || undefined,
-                seoDescription: data.seoDescription || undefined,
                 publishedAt,
             };
 
@@ -203,8 +199,8 @@ export function EditPostSheet({
                                 <FileText className="h-6 w-6" />
                             </div>
                             <div className="space-y-1">
-                                <SheetTitle className="text-2xl font-medium tracking-tight">
-                                    Edit <span className="text-primary italic">Post</span>
+                                <SheetTitle className="text-2xl font-bold tracking-tight">
+                                    Edit <span className="text-primary">Post</span>
                                 </SheetTitle>
                                 <SheetDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2">
                                     ID: <span className="font-mono text-primary">{post.id.substring(0, 8)}</span>
@@ -457,55 +453,7 @@ export function EditPostSheet({
                                     </Field>
                                 </div>
 
-                                {/* SEO Metadata */}
-                                <div className="space-y-6 pt-6">
-                                    <div className="flex items-center gap-3 pb-2 border-b border-border/20">
-                                        <div className="h-px flex-1 bg-border/20" />
-                                        <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">
-                                            SEO Metadata
-                                        </h3>
-                                        <div className="h-px flex-1 bg-border/20" />
-                                    </div>
 
-                                    <Controller
-                                        control={control}
-                                        name="seoTitle"
-                                        render={({ field, fieldState }) => (
-                                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                                <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">SEO Title</FieldLabel>
-                                                <Input
-                                                    id={field.name}
-                                                    {...field}
-                                                    value={field.value || ''}
-                                                    placeholder="OPTIONAL SEO TITLE..."
-                                                    className="h-14 px-5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all"
-                                                    aria-invalid={fieldState.invalid}
-                                                />
-                                                <FieldError errors={[fieldState.error]} className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2" />
-                                            </Field>
-                                        )}
-                                    />
-
-                                    <Controller
-                                        control={control}
-                                        name="seoDescription"
-                                        render={({ field, fieldState }) => (
-                                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                                <FieldLabel htmlFor={field.name} className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">SEO Description</FieldLabel>
-                                                <Textarea
-                                                    id={field.name}
-                                                    {...field}
-                                                    value={field.value || ''}
-                                                    placeholder="OPTIONAL SEO DESCRIPTION..."
-                                                    rows={3}
-                                                    className="rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/20 transition-all resize-none p-4"
-                                                    aria-invalid={fieldState.invalid}
-                                                />
-                                                <FieldError errors={[fieldState.error]} className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2" />
-                                            </Field>
-                                        )}
-                                    />
-                                </div>
                             </div>
                         </div>
                     </ScrollArea>

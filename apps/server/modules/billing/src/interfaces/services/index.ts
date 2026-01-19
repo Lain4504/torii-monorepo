@@ -1,4 +1,3 @@
-export * from './i-order.service';
 export type { IOrderService } from './i-order.service';
 
 // Injection tokens for services

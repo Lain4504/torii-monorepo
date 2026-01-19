@@ -55,8 +55,8 @@ export default function PoolDetailPage() {
                     <Activity className="absolute -top-1 -right-1 size-4 text-emerald-500 animate-bounce" />
                 </div>
                 <div className="text-center space-y-2">
-                    <h2 className="text-2xl font-black uppercase italic tracking-tighter text-foreground/80">Accessing Knowledge Node</h2>
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 italic">Decrypting data streams from central repository...</p>
+                    <h2 className="text-2xl font-bold tracking-tight text-foreground/80">Accessing Knowledge Node</h2>
+                    <p className="text-sm text-muted-foreground/60">Decrypting data streams from central repository...</p>
                 </div>
             </div>
         );
@@ -70,8 +70,8 @@ export default function PoolDetailPage() {
                     <ShieldAlert className="size-12 text-destructive/40 relative z-10" />
                 </div>
                 <div className="text-center space-y-3">
-                    <h2 className="text-3xl font-black uppercase italic tracking-tighter text-destructive/60">Node Sync Failed</h2>
-                    <p className="text-[11px] font-bold text-muted-foreground/40 uppercase tracking-[0.15em] italic max-w-md mx-auto">
+                    <h2 className="text-3xl font-bold tracking-tight text-destructive/60">Node Sync Failed</h2>
+                    <p className="text-base text-muted-foreground/60 max-w-md mx-auto">
                         Identified sequence mismatch or repository corruption. <br />
                         {poolError?.message || 'CRITICAL: Knowledge node reference is invalid.'}
                     </p>
@@ -106,7 +106,7 @@ export default function PoolDetailPage() {
                         <div className="space-y-1">
                             <div className="flex items-center gap-3">
                                 <Database className="size-4 text-primary opacity-40" />
-                                <h1 className="text-[13px] font-black uppercase tracking-[0.25em]">{pool.name}</h1>
+                                <h1 className="text-xl font-bold tracking-tight text-foreground">{pool.name}</h1>
                                 <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 text-[8px] font-black tracking-widest rounded-full px-3">
                                     NODE ACTIVE
                                 </Badge>
@@ -139,9 +139,9 @@ export default function PoolDetailPage() {
                             </div>
 
                             <div className="space-y-2 relative">
-                                <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 italic">Repository Signature</p>
-                                <h2 className="text-3xl font-black tracking-tighter uppercase italic text-foreground/80 leading-none">{pool.name}</h2>
-                                <p className="text-[11px] font-bold text-muted-foreground/40 italic mt-4 leading-relaxed line-clamp-4">
+                                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/40">Repository Signature</p>
+                                <h2 className="text-3xl font-bold tracking-tight text-foreground/80 leading-none">{pool.name}</h2>
+                                <p className="text-sm text-muted-foreground/60 mt-4 leading-relaxed line-clamp-4">
                                     {pool.description || 'System generated knowledge node. No extensive documentation provided in current registry cycle.'}
                                 </p>
                             </div>
@@ -152,9 +152,9 @@ export default function PoolDetailPage() {
                                         <div className="size-8 rounded-lg bg-muted/20 flex items-center justify-center">
                                             <FileQuestion className="size-4 text-muted-foreground/40" />
                                         </div>
-                                        <span className="text-[10px] font-black uppercase tracking-[0.2em] italic">Unit Payload</span>
+                                        <span className="text-[10px] font-bold uppercase tracking-wider">Unit Payload</span>
                                     </div>
-                                    <span className="text-[14px] font-black italic">{questions?.length || 0} Entities</span>
+                                    <span className="text-sm font-bold">{questions?.length || 0} Entities</span>
                                 </div>
 
                                 <div className="flex items-center justify-between">
@@ -162,7 +162,7 @@ export default function PoolDetailPage() {
                                         <div className="size-8 rounded-lg bg-muted/20 flex items-center justify-center">
                                             <Zap className="size-4 text-muted-foreground/40" />
                                         </div>
-                                        <span className="text-[10px] font-black uppercase tracking-[0.2em] italic">Sync Protocol</span>
+                                        <span className="text-[10px] font-bold uppercase tracking-wider">Sync Protocol</span>
                                     </div>
                                     <Badge variant="outline" className="bg-emerald-500/5 text-emerald-500 border-emerald-500/20 text-[8px] font-black rounded-lg px-2">AUTOMATIC</Badge>
                                 </div>
@@ -172,7 +172,7 @@ export default function PoolDetailPage() {
                                         <div className="size-8 rounded-lg bg-muted/20 flex items-center justify-center">
                                             <Layout className="size-4 text-muted-foreground/40" />
                                         </div>
-                                        <span className="text-[10px] font-black uppercase tracking-[0.2em] italic">Linked Assets</span>
+                                        <span className="text-[10px] font-bold uppercase tracking-wider">Linked Assets</span>
                                     </div>
                                     <span className="text-[10px] font-black italic uppercase tracking-widest">{pool.courseId ? 'COURSE TIED' : 'UNALIGNED'}</span>
                                 </div>
@@ -209,8 +209,8 @@ export default function PoolDetailPage() {
                                     <BrainCircuit className="size-5" />
                                 </div>
                                 <div className="flex flex-col">
-                                    <h3 className="text-xl font-black uppercase italic tracking-tight text-foreground/80">Questions Registry</h3>
-                                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 italic">Detailed manifest of logic node payload.</p>
+                                    <h3 className="text-xl font-bold tracking-tight text-foreground/80">Questions Registry</h3>
+                                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/30">Detailed manifest of logic node payload.</p>
                                 </div>
                             </div>
                         </div>
@@ -249,8 +249,8 @@ export default function PoolDetailPage() {
                                                     </TableCell>
                                                     <TableCell className="px-6">
                                                         <div className="flex flex-col gap-1 cursor-pointer" onClick={() => setViewingQuestion(question)}>
-                                                            <div className="font-black italic text-[13px] text-foreground/80 group-hover:text-primary transition-colors uppercase tracking-tight truncate max-w-[300px]">{question.questionText}</div>
-                                                            <div className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40 italic">{question.category || 'GENERAL DOMAIN'}</div>
+                                                            <div className="font-bold text-[13px] text-foreground/80 group-hover:text-primary transition-colors uppercase tracking-tight truncate max-w-[300px]">{question.questionText}</div>
+                                                            <div className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/40">{question.category || 'GENERAL DOMAIN'}</div>
                                                         </div>
                                                     </TableCell>
                                                     <TableCell className="px-6">
@@ -298,8 +298,8 @@ export default function PoolDetailPage() {
                                                             <Inbox className="size-10 text-muted-foreground/20 relative z-10" />
                                                         </div>
                                                         <div className="space-y-2">
-                                                            <h3 className="text-xl font-black uppercase italic tracking-tight text-foreground/40">Logic Gap Detected</h3>
-                                                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/20 italic">No question entities mapped to this repository node.</p>
+                                                            <h3 className="text-xl font-bold uppercase tracking-tight text-foreground/40">Logic Gap Detected</h3>
+                                                            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/20">No question entities mapped to this repository node.</p>
                                                         </div>
                                                     </div>
                                                 </TableCell>

@@ -179,8 +179,8 @@ export function CreateUserSheet({
                             <ScanFace className="h-6 w-6" />
                         </div>
                         <div className="flex-1 space-y-1">
-                            <SheetTitle className="text-2xl font-medium tracking-tight">
-                                Add New <span className="text-primary italic">User</span>
+                            <SheetTitle className="text-2xl font-bold tracking-tight">
+                                Add New <span className="text-primary">User</span>
                             </SheetTitle>
                             <SheetDescription className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground/60">
                                 {currentStep === 1
@@ -323,7 +323,7 @@ export function CreateUserSheet({
                                                             <div className="flex items-center justify-between">
                                                                 <span className={cn(
                                                                     "font-medium uppercase tracking-tight text-sm",
-                                                                    isSelected ? "text-primary italic" : "text-foreground"
+                                                                    isSelected ? "text-primary" : "text-foreground"
                                                                 )}>
                                                                     {role.label}
                                                                 </span>

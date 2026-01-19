@@ -19,7 +19,7 @@ export default function SettingsPage() {
               <Settings2 className="size-6" />
             </div>
             <div>
-              <h1 className="text-3xl font-serif font-medium tracking-tight text-foreground">
+              <h1 className="text-3xl font-bold tracking-tight text-foreground">
                 Settings
               </h1>
               <p className="text-sm text-muted-foreground/60">

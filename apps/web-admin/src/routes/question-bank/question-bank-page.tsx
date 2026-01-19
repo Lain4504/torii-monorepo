@@ -36,12 +36,12 @@ export default function QuestionBankPage() {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     {/* Page Title - Hidden on mobile if needed, but keeping for context */}
                     <div className="hidden md:block space-y-1">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-medium tracking-wide">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-bold uppercase tracking-wider">
                             <Database className="size-3.5" />
                             <span>Knowledge Base</span>
                         </div>
-                        <h1 className="text-3xl font-serif font-medium tracking-tight text-foreground">
-                            Question <span className="text-primary italic">Bank</span>
+                        <h1 className="text-3xl font-bold tracking-tight text-foreground">
+                            Question <span className="text-primary">Bank</span>
                         </h1>
                     </div>
 

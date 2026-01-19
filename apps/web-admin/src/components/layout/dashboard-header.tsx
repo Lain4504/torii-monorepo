@@ -76,7 +76,7 @@ export function DashboardHeader() {
         </Breadcrumb>
       </div>
 
-      <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+      <div className="flex items-center gap-2 sm:gap-4 shrink-0 ml-auto">
         {/* Interactive Tools Group */}
         <div className="flex items-center gap-1 p-1 rounded-xl bg-muted/10 border border-border/5">
           <CommandMenu />

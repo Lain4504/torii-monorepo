@@ -79,8 +79,8 @@ export function EditUserSheet({
                             <UserCog className="h-6 w-6" />
                         </div>
                         <div className="flex-1 space-y-1">
-                            <SheetTitle className="text-2xl font-medium tracking-tight">
-                                Edit <span className="text-primary italic">User</span>
+                            <SheetTitle className="text-2xl font-bold tracking-tight">
+                                Edit <span className="text-primary">User</span>
                             </SheetTitle>
                             <SheetDescription className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground/60">
                                 Update profile and access permissions

@@ -29,6 +29,7 @@ import { LearningProgressController } from './controllers/learning-progress.cont
 @Module({
     imports: [NatsClientModule],
     controllers: [
+        ReviewController,
         CourseController,
         ModuleController,
         LessonController,
@@ -40,7 +41,6 @@ import { LearningProgressController } from './controllers/learning-progress.cont
         EnrollmentController,
         QuestionController,
         QuestionPoolController,
-        ReviewController,
 
         WishlistController,
         PostController,

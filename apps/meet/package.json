@@ -23,6 +23,7 @@
     "@reduxjs/toolkit": "2.11.2",
     "@tensorflow-models/body-pix": "2.2.1",
     "@tensorflow/tfjs": "4.22.0",
+    "@workspace/i18n": "workspace:^",
     "@workspace/protocol": "workspace:*",
     "@workspace/ui": "workspace:*",
     "axios": "1.13.2",

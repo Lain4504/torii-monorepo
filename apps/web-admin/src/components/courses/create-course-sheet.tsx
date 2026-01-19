@@ -20,7 +20,7 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { Loader2, Image as ImageIcon, Film, BookOpen, X, Database, UploadCloud } from 'lucide-react';
+import { Loader2, Image as ImageIcon, Film, BookOpen, X, UploadCloud } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 import { storageApi } from '@/api/services/storage-api.ts';
 import { JlptLevel, courseCreateDTOSchema, type CourseCreateDTO } from '@workspace/schemas';
@@ -62,7 +62,6 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
             tags: [],
             learningOutcomes: [],
             requirements: [],
-            aiMetadata: {},
         },
     });
 
@@ -535,44 +534,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                             </div>
 
                             {/* AI & Metadata */}
-                            <div className="space-y-6 pt-6">
-                                <div className="flex items-center gap-3 pb-2 border-b border-border/40">
-                                    <div className="h-px flex-1 bg-border/20" />
-                                    <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground/50 text-center flex items-center gap-2">
-                                        <span>AI Settings</span>
-                                    </h3>
-                                    <div className="h-px flex-1 bg-border/20" />
-                                </div>
 
-                                <Field>
-                                    <FieldLabel htmlFor="aiSummary" className="text-xs font-medium text-muted-foreground ml-1">
-                                        AI Summary
-                                    </FieldLabel>
-                                    <Textarea
-                                        id="aiSummary"
-                                        {...register('aiMetadata.summary')}
-                                        placeholder="Summary for AI..."
-                                        rows={3}
-                                        className="rounded-xl bg-muted/20 border-border/40 hover:bg-muted/30 focus-visible:ring-primary/20 text-sm font-medium placeholder:text-muted-foreground/30 transition-all resize-none p-4"
-                                    />
-                                    <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground/60 ml-2 mt-1 flex items-center gap-1">
-                                        <Database className="h-3 w-3" />
-                                        Used by AI for content analysis.
-                                    </p>
-                                </Field>
-
-                                <Field>
-                                    <FieldLabel htmlFor="aiKeywords" className="text-xs font-medium text-muted-foreground ml-1">
-                                        Keywords / Tags
-                                    </FieldLabel>
-                                    <Input
-                                        id="aiKeywords"
-                                        {...register('aiMetadata.keywords')}
-                                        placeholder="e.g. JLPT, Grammar, N5, Beginner"
-                                        className="h-12 px-4 rounded-xl bg-muted/20 border-border/40 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-medium placeholder:text-muted-foreground/30 transition-all"
-                                    />
-                                </Field>
-                            </div>
                         </div>
                     </ScrollArea>
 

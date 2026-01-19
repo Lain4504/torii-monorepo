@@ -53,7 +53,7 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
                 <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary transition-all group-hover/row:scale-110">
                     <UserCircle className="size-4" />
                 </div>
-                <div className="font-serif font-bold italic text-foreground text-[14px]">{info.getValue()}</div>
+                <div className="font-bold text-foreground text-[14px]">{info.getValue()}</div>
             </div>
         ),
     }),
@@ -71,7 +71,7 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
             );
         },
         cell: (info) => (
-            <div className="flex items-center gap-2 text-muted-foreground/60 italic text-[11px] font-bold">
+            <div className="flex items-center gap-2 text-muted-foreground/60 text-[11px] font-bold">
                 <Mail className="size-3 opacity-20" />
                 {info.getValue()}
             </div>
@@ -134,7 +134,7 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
             );
         },
         cell: (info) => (
-            <div className="flex items-center gap-2 text-muted-foreground/40 tabular-nums text-[10px] font-bold italic">
+            <div className="flex items-center gap-2 text-muted-foreground/40 tabular-nums text-[10px] font-bold">
                 <Clock className="size-3 opacity-40" />
                 {info.getValue() ? formatDateTime(info.getValue()) : 'NEVER'}
             </div>

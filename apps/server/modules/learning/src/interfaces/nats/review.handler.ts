@@ -20,6 +20,11 @@ export class ReviewHandler {
         });
     }
 
+    @MessagePattern({ cmd: 'learning.review.findAll' })
+    async findAll(@Payload() data: { query: any }) {
+        return this.reviewService.findAll(data.query);
+    }
+
     @MessagePattern({ cmd: 'learning.review.getRatingDistribution' })
     async getRatingDistribution(@Payload() data: { courseId: string }) {
         return this.reviewService.getRatingDistribution(data.courseId);

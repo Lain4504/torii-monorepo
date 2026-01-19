@@ -93,7 +93,7 @@ export default function LoginPage() {
               </svg>
             </div>
             <div className="flex flex-col">
-              <span className="text-xl font-serif font-medium tracking-tight text-foreground">Torii <span className="text-primary italic">Admin</span></span>
+              <span className="text-xl font-bold tracking-tight text-foreground">Torii <span className="text-primary">Admin</span></span>
             </div>
           </div>
         </div>
@@ -101,9 +101,9 @@ export default function LoginPage() {
         {/* Hero Section */}
         <div className="relative z-10 max-w-lg space-y-8">
           <div className="space-y-4">
-            <h1 className="text-5xl font-serif font-medium tracking-tight text-foreground leading-[1.1]">
+            <h1 className="text-5xl font-bold tracking-tight text-foreground leading-[1.1]">
               Manage your <br />
-              <span className="text-primary italic">Education Platform</span>
+              <span className="text-primary">Education Platform</span>
             </h1>
             <p className="text-sm font-medium text-muted-foreground/60 leading-relaxed max-w-md">
               Streamline course management, student engagement, and content delivery from one central dashboard.
@@ -126,7 +126,7 @@ export default function LoginPage() {
       <div className="flex flex-1 flex-col items-center justify-center p-8 lg:p-16 relative bg-background">
         <div className="w-full max-w-[400px] space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
           <div className="space-y-2 text-center lg:text-left">
-            <h2 className="text-3xl font-serif font-medium tracking-tight text-foreground">Welcome back</h2>
+            <h2 className="text-3xl font-bold tracking-tight text-foreground">Welcome back</h2>
             <p className="text-sm text-muted-foreground/60">Please enter your details to sign in.</p>
           </div>
 
@@ -165,8 +165,8 @@ export default function LoginPage() {
                       <label htmlFor={field.name} className="flex items-center gap-2 text-xs font-medium text-muted-foreground/70">
                         Password
                       </label>
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         onClick={() => navigate('/forgot-password')}
                         className="text-[10px] font-medium text-primary hover:text-primary/80 transition-colors"
                       >

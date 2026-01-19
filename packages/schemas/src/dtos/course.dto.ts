@@ -35,7 +35,6 @@ export const courseUpdateDTOSchema = courseSchema
         description: true,
         shortDescription: true,
         jlptLevel: true,
-        aiMetadata: true,
         thumbnailUrl: true,
         previewVideoUrl: true,
         price: true,

@@ -108,16 +108,16 @@ export default function TransactionsPage() {
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 pb-4">
                 <div className="space-y-4 max-w-2xl text-center sm:text-left">
                     <div
-                        className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-medium tracking-wide">
+                        className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-bold uppercase tracking-wider">
                         <Database className="size-3.5" />
-                        System Logs
+                        Infrastructure
                     </div>
-                    <h1 className="text-3xl sm:text-5xl font-serif font-medium tracking-tight text-foreground leading-[1.1]">
-                        Transaction <span className="text-primary italic">Logs</span>
+                    <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-foreground leading-[1.1]">
+                        Transaction <span className="text-primary">Logs</span>
                     </h1>
-                    <p className="text-sm text-muted-foreground/80 leading-relaxed max-w-lg border-l-2 border-primary/20 pl-4 mt-4">
+                    <p className="text-base text-muted-foreground mt-4 leading-relaxed max-w-lg border-l-2 border-primary/20 pl-4">
                         Raw incoming transaction data from payment gateways. Use this to trace payments and verify <span
-                            className="text-foreground font-medium">SePay/PayOS</span> webhooks.
+                            className="text-foreground font-semibold">SePay/PayOS</span> webhooks.
                     </p>
                 </div>
 
@@ -200,7 +200,7 @@ export default function TransactionsPage() {
                                                 </code>
                                             </TableCell>
                                             <TableCell className="py-3 px-6 text-center">
-                                                <span className="font-serif font-medium text-sm">
+                                                <span className="font-bold text-sm">
                                                     {formatCurrency(tx.amount || 0)}
                                                 </span>
                                             </TableCell>
@@ -276,7 +276,7 @@ export default function TransactionsPage() {
                                 <div className="flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-bold w-fit mb-4">
                                     LOG ENTRY
                                 </div>
-                                <SheetTitle className="text-3xl font-serif font-bold italic">Transaction Details</SheetTitle>
+                                <SheetTitle className="text-3xl font-bold">Transaction Details</SheetTitle>
                                 <SheetDescription className="text-xs uppercase font-medium text-muted-foreground/60">
                                     ID: {selectedTx.id}
                                 </SheetDescription>
@@ -294,7 +294,7 @@ export default function TransactionsPage() {
                                     </div>
                                     <div className="space-y-1">
                                         <p className="text-[10px] uppercase font-bold text-muted-foreground">Amount</p>
-                                        <p className="text-lg font-serif font-bold italic text-primary">{formatCurrency(selectedTx.amount || 0)}</p>
+                                        <p className="text-lg font-bold text-primary">{formatCurrency(selectedTx.amount || 0)}</p>
                                     </div>
                                     <div className="space-y-1">
                                         <p className="text-[10px] uppercase font-bold text-muted-foreground">Processed At</p>

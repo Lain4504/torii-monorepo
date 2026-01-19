@@ -37,8 +37,8 @@ export function ViewPostSheet({
                                 <FileText className="h-6 w-6" />
                             </div>
                             <div className="space-y-1">
-                                <SheetTitle className="text-2xl font-medium tracking-tight">
-                                    View <span className="text-primary italic">Post</span>
+                                <SheetTitle className="text-2xl font-bold tracking-tight">
+                                    View <span className="text-primary">Post</span>
                                 </SheetTitle>
                                 <SheetDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2">
                                     ID: <span className="font-mono text-primary">{post.id.substring(0, 8)}</span>

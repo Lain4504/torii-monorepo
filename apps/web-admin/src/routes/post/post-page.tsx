@@ -146,24 +146,24 @@ export function PostPage() {
     return (
         <div className="space-y-6 animate-in fade-in duration-700 pb-10">
             {/* Header Section */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-8 relative px-2">
-                <div className="space-y-4 max-w-2xl text-center sm:text-left">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-medium tracking-wide">
+            <div className="flex flex-col sm:flex-row items-start justify-between gap-8 relative px-0 md:px-2">
+                <div className="space-y-4 max-w-2xl">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-bold uppercase tracking-wider">
                         <FileText className="size-3.5" />
                         Content Library
                     </div>
-                    <h1 className="text-3xl sm:text-5xl font-serif font-medium tracking-tight text-foreground leading-[1.1]">
-                        Content <span className="text-primary italic">& News</span>
+                    <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-foreground leading-[1.1]">
+                        Content <span className="text-primary">& News</span>
                     </h1>
-                    <p className="text-sm text-muted-foreground/80 leading-relaxed max-w-lg border-l-2 border-primary/20 pl-4 mt-4">
-                        Manage articles, news updates, and community content for <span className="text-foreground font-medium">Torii Academy</span>.
+                    <p className="text-base text-muted-foreground mt-4 leading-relaxed max-w-lg border-l-2 border-primary/20 pl-4">
+                        Manage articles, news updates, and community content for <span className="text-foreground font-semibold">Torii Academy</span>.
                     </p>
                 </div>
                 <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto pt-6 sm:pt-0">
-                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-background/60 border border-border/20 backdrop-blur-xl hidden sm:flex shadow-sm">
+                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-muted/20 border border-border/20 hidden sm:flex">
                         <div className="space-y-0.5">
-                            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium text-center">Total Posts</p>
-                            <h3 className="text-2xl font-serif font-medium text-center text-primary">{meta?.total || 0}</h3>
+                            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold text-center">Total Posts</p>
+                            <h3 className="text-2xl font-bold text-center text-primary">{meta?.total || 0}</h3>
                         </div>
                     </div>
                     <Button
@@ -176,7 +176,7 @@ export function PostPage() {
                 </div>
             </div>
 
-            <div className="space-y-6 px-2">
+            <div className="space-y-6 px-0 md:px-2">
                 <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
                     <div className="flex-1 w-full">
                         <PostPrimaryToolbar

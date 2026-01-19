@@ -56,7 +56,6 @@ export function EditLessonSheet({ lesson, open, onOpenChange }: EditLessonDialog
             orderIndex: 0,
             isPreview: false,
             isUnlocked: false,
-            aiMetadata: {},
         },
     });
 
@@ -71,7 +70,6 @@ export function EditLessonSheet({ lesson, open, onOpenChange }: EditLessonDialog
                 orderIndex: lesson.orderIndex,
                 isPreview: lesson.isPreview,
                 isUnlocked: lesson.isUnlocked,
-                aiMetadata: lesson.aiMetadata || {},
             });
         }
     }, [lesson, reset]);

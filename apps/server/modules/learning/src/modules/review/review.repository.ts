@@ -11,7 +11,7 @@ import type { IReviewRepository } from '../../interfaces/repositories';
 export class ReviewRepository implements IReviewRepository {
   private readonly logger = new Logger(ReviewRepository.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   /**
    * Find review by ID
@@ -58,14 +58,14 @@ export class ReviewRepository implements IReviewRepository {
       where: { courseId },
       include: includeUser
         ? {
-            user: {
-              select: {
-                id: true,
-                displayName: true,
-                avatarUrl: true,
-              },
+          user: {
+            select: {
+              id: true,
+              displayName: true,
+              avatarUrl: true,
             },
-          }
+          },
+        }
         : undefined,
       orderBy: { createdAt: 'desc' },
       take,
@@ -148,6 +148,16 @@ export class ReviewRepository implements IReviewRepository {
       where: { id: courseId, deletedAt: null },
       select: { id: true },
     });
+  }
+
+  /**
+   * Find many reviews with generic filtering
+   */
+  async findMany(args: Prisma.ReviewFindManyArgs): Promise<(Review & {
+    user?: { id: string; displayName: string; avatarUrl: string | null };
+    course?: { id: string; title: string };
+  })[]> {
+    return this.prisma.review.findMany(args) as any;
   }
 
   /**

@@ -34,7 +34,7 @@ export function SecurityTab() {
                         <div className="space-y-1">
                             <div className="flex items-center gap-2">
                                 <Smartphone className="size-5 text-primary" />
-                                <h3 className="text-lg font-serif font-medium text-foreground">
+                                <h3 className="text-lg font-bold text-foreground">
                                     Two-Factor Authentication
                                 </h3>
                             </div>

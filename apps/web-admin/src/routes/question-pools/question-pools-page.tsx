@@ -157,19 +157,18 @@ export default function QuestionPoolsPage() {
     return (
         <div className="space-y-10 animate-in fade-in duration-700 pb-20 px-2 lg:px-6">
             {/* Header Section */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-8 relative">
-                <div className="space-y-4 max-w-2xl text-center sm:text-left">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[9px] font-black uppercase tracking-[0.3em]">
+            <div className="flex flex-col sm:flex-row items-start justify-between gap-8 relative px-2">
+                <div className="space-y-4 max-w-2xl">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-bold uppercase tracking-wider">
                         <Layers className="size-3" />
                         Logic Asset Management
                     </div>
-                    <h1 className="text-5xl font-black tracking-tight text-foreground uppercase italic leading-[0.85]">
-                        Question <br />
-                        <span className="text-primary not-italic text-3xl sm:text-5xl tracking-normal">POOL REGISTRY</span>
+                    <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-foreground leading-[1.1]">
+                        Question <span className="text-primary">Pool Registry</span>
                     </h1>
-                    <p className="text-[11px] font-bold text-muted-foreground/40 uppercase tracking-[0.15em] italic border-l-2 border-primary/20 pl-6 mt-6">
+                    <p className="text-base text-muted-foreground mt-4 leading-relaxed max-w-lg border-l-2 border-primary/20 pl-4">
                         Quản lý các kho đề thi và ngân hàng câu hỏi, <br />
-                        phân phối dữ liệu cho các <span className="text-foreground">Training Nodes</span>.
+                        phân phối dữ liệu cho các <span className="text-foreground font-semibold">Training Nodes</span>.
                     </p>
                 </div>
 
@@ -267,8 +266,8 @@ export default function QuestionPoolsPage() {
                                                 <Inbox className="size-10 text-muted-foreground/20 relative z-10" />
                                             </div>
                                             <div className="space-y-2">
-                                                <h3 className="text-xl font-black uppercase italic tracking-tight text-foreground/40">Repository Void</h3>
-                                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/20 italic">No question pool nodes detected in the current matrix.</p>
+                                                <h3 className="text-xl font-bold uppercase tracking-tight text-foreground/40">Repository Void</h3>
+                                                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/20">No question pool nodes detected in the current matrix.</p>
                                             </div>
                                         </div>
                                     </TableCell>
@@ -378,20 +377,20 @@ function PoolRow({
             key={pool.id}
             className="border-b border-border/10 hover:bg-primary/[0.02] transition-all duration-500 group"
         >
-            <TableCell className="px-8 font-black italic text-muted-foreground/30 tabular-nums text-[10px]">
+            <TableCell className="px-8 font-bold text-muted-foreground/30 tabular-nums text-[10px]">
                 {((page - 1) * 10 + index + 1) < 10 ? `0${(page - 1) * 10 + index + 1}` : (page - 1) * 10 + index + 1}
             </TableCell>
             <TableCell className="px-6">
                 <div className="flex flex-col gap-1">
-                    <div className="font-black italic text-[14px] text-foreground/80 group-hover:text-primary transition-colors uppercase tracking-tight">{pool.name}</div>
+                    <div className="font-bold text-[14px] text-foreground/80 group-hover:text-primary transition-colors uppercase tracking-tight">{pool.name}</div>
                     <div className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40">UID: {pool.id.slice(0, 8)}</div>
                 </div>
             </TableCell>
             <TableCell className="px-6 max-w-[300px]">
-                <div className="truncate text-[12px] font-bold italic text-foreground/60 leading-relaxed group-hover:text-foreground transition-colors">{pool.description || 'NO DESCRIPTION ARCHIVED'}</div>
+                <div className="truncate text-[12px] font-bold text-foreground/60 leading-relaxed group-hover:text-foreground transition-colors">{pool.description || 'NO DESCRIPTION ARCHIVED'}</div>
             </TableCell>
             <TableCell className="px-6">
-                <div className="inline-flex items-center px-3 py-1 rounded-full border border-primary/20 bg-primary/5 text-[10px] font-black italic text-primary">
+                <div className="inline-flex items-center px-3 py-1 rounded-full border border-primary/20 bg-primary/5 text-[10px] font-bold text-primary">
                     {pool.jlptLevel || '??'}
                 </div>
             </TableCell>
@@ -401,7 +400,7 @@ function PoolRow({
                         <FileQuestion className="size-4" />
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-sm font-black italic leading-none">{questionCount}</span>
+                        <span className="text-sm font-bold leading-none">{questionCount}</span>
                         <span className="text-[7px] font-black uppercase tracking-widest text-muted-foreground/30 mt-1">LOGIC ENTITIES</span>
                     </div>
                 </div>

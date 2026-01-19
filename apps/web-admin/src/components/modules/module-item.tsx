@@ -13,7 +13,7 @@ import {
 } from '@workspace/ui/components/dropdown-menu';
 import { Badge } from '@workspace/ui/components/badge';
 import { Layers, FileText, Plus, MoreVertical, Pencil, Trash, Video, ClipboardList, ChevronDown, Sparkles } from 'lucide-react';
-import { useLessons } from '@/api/services/lesson';
+
 import type { ModuleResponseDTO, LessonResponseDTO } from '@workspace/schemas';
 import { LessonContentType } from '@workspace/schemas';
 
@@ -106,6 +106,8 @@ const LessonRow = ({
 // Main Module Item Component
 export function ModuleItem({
     module,
+    lessons = [],
+    isLoading = false,
     onEditModule,
     onDeleteModule,
     onAddLesson,
@@ -113,19 +115,15 @@ export function ModuleItem({
     onDeleteLesson
 }: {
     module: ModuleResponseDTO;
+    lessons: LessonResponseDTO[];
+    isLoading?: boolean;
     onEditModule: (module: ModuleResponseDTO) => void;
     onDeleteModule: (module: ModuleResponseDTO) => void;
     onAddLesson: (moduleId: string) => void;
     onEditLesson: (lesson: LessonResponseDTO) => void;
     onDeleteLesson: (lesson: LessonResponseDTO) => void;
 }) {
-    const { data: lessonsData, isLoading } = useLessons({
-        page: 1,
-        limit: 100,
-        moduleId: module.id
-    });
-
-    const lessons = lessonsData?.data || [];
+    // Internal fetching removed in favor of passed props for better control and optimization
 
     return (
         <AccordionItem
