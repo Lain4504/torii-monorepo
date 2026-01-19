@@ -1,0 +1,68 @@
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { BroadcastBreakoutRoomMsgReqSchema } from '@workspace/protocol';
+import { create } from '@bufbuild/protobuf';
+
+import { useBroadcastBreakoutRoomMsgMutation } from '../../../store/services/breakoutRoomApi';
+import { BreakoutRoomMessage } from '..';
+
+interface IBroadcastMessageFormProps {
+  setMessage: (message: BreakoutRoomMessage | null) => void;
+}
+
+const BroadcastMessageForm = ({ setMessage }: IBroadcastMessageFormProps) => {
+  const { t } = useTranslation();
+  const [msg, setMsg] = useState<string>('');
+  const [broadcastMsg, { isLoading, data, isSuccess, error }] =
+    useBroadcastBreakoutRoomMsgMutation();
+
+  useEffect(() => {
+    if (isSuccess && data) {
+      if (data.status) {
+        setMessage({
+          text: t('breakout-room.broadcast-msg-success'),
+          type: 'info',
+        });
+        setMsg('');
+        setTimeout(() => setMessage(null), 5000);
+      } else {
+        setMessage({ text: t(data.msg), type: 'error' });
+      }
+    } else if (error) {
+      const errorMsg = (error as any)?.data?.msg ?? 'Unknown error';
+      setMessage({ text: t(errorMsg), type: 'error' });
+    }
+  }, [isSuccess, data, error, t, setMessage]);
+
+  const send = () => {
+    if (msg.trim() === '') {
+      return;
+    }
+    // clear previous error message
+    setMessage(null);
+    broadcastMsg(
+      create(BroadcastBreakoutRoomMsgReqSchema, {
+        msg,
+      }),
+    );
+  };
+
+  return (
+    <div className="broadcasting-message pb-4 mb-4 border-b border-border grid gap-2">
+      <textarea
+        value={msg}
+        onChange={(e) => setMsg(e.currentTarget.value)}
+        className="border border-border bg-card shadow-sm block px-3 py-2 w-full h-20 rounded-xl outline-hidden focus:border-primary text-foreground"
+      ></textarea>
+      <button
+        onClick={send}
+        disabled={isLoading || msg.trim() === ''}
+        className="h-9 ml-auto px-5 cursor-pointer text-sm font-semibold bg-primary hover:bg-primary/90 rounded-lg text-primary-foreground transition-all duration-300 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {t('breakout-room.broadcast-msg')}
+      </button>
+    </div>
+  );
+};
+
+export default BroadcastMessageForm;

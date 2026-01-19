@@ -94,8 +94,6 @@ export class PollsService {
     }
 
     private async createRoomPollHash(r: CreatePollReq): Promise<void> {
-        // Match Go server logic: use protobuf message and marshal via protojson
-        // Go: protojson.Marshal(p) where p is *plugnmeet.PollInfo
         const p = create(PollInfoSchema, {
             id: r.pollId,
             roomId: r.roomId,

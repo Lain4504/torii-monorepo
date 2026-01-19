@@ -36,7 +36,7 @@ export class WebhookController {
         this.logger.log(`Processing webhook event: ${event.event}`);
 
         // Dispatch to appropriate handler based on event type
-                switch (event.event) {
+        switch (event.event) {
             case 'room_started':
                 await this.webhookService.roomStarted(event);
                 break;
