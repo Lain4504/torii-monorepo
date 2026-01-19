@@ -9,7 +9,6 @@ import {
     CreditCard,
     Settings,
     BarChart3,
-    Bell,
 
     ShieldCheck,
 } from "lucide-react";

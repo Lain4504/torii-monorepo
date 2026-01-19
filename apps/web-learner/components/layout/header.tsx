@@ -62,9 +62,9 @@ export function Header() {
     }
 
     const navigation = [
-        { name: 'Khóa học', href: '/courses', icon: BookOpen },
-        { name: 'Lớp học trực tuyến', href: '/live-classes', icon: Users },
-        { name: 'Cộng đồng', href: '/post', icon: Newspaper },
+        { nameKey: 'learner.header.courses', href: '/courses', icon: BookOpen },
+        { nameKey: 'learner.header.liveClasses', href: '/live-classes', icon: Users },
+        { nameKey: 'learner.header.post', href: '/post', icon: Newspaper },
     ]
 
     return (
@@ -93,12 +93,12 @@ export function Header() {
                                 const Icon = item.icon
                                 return (
                                     <Link
-                                        key={item.name}
+                                        key={item.nameKey}
                                         href={item.href}
                                         className="px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/80 hover:text-primary hover:bg-background/80 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 flex items-center gap-2 group"
                                     >
                                         <Icon className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100 group-hover:text-primary transition-all" />
-                                        {item.name}
+                                        {t(item.nameKey)}
                                     </Link>
                                 )
                             })}
