@@ -16,8 +16,7 @@ import type { IOrderService } from '../../interfaces/services';
 import { OrderRepository } from './order.repository';
 import { PayOSService } from './payos.service';
 import type { Prisma } from '@prisma/generated';
-import { firstValueFrom, lastValueFrom, of } from 'rxjs';
-import { defaultIfEmpty, timeout, catchError } from 'rxjs/operators';
+import { lastValueFrom } from 'rxjs';
 
 /**
  * Order Service
@@ -195,16 +194,14 @@ export class OrderService implements IOrderService {
 
         if (input.orderType === OrderType.COURSE_PURCHASE && courseId) {
             // Fetch course via NATS
-            course = await firstValueFrom(
-                this.natsClient.send({ cmd: 'learning.course.findOne' }, { id: courseId }).pipe(
-                    timeout(5000),
-                    defaultIfEmpty(null),
-                    catchError((err) => {
-                        this.logger.error(`Error calling learning.course.findOne: ${err.message}`);
-                        return of(null);
-                    })
-                )
-            );
+            try {
+                course = await lastValueFrom(
+                    this.natsClient.send({ cmd: 'learning.course.findOne' }, { id: courseId })
+                );
+            } catch (error: any) {
+                this.logger.error(`Error calling learning.course.findOne: ${error.message}`);
+                course = null;
+            }
 
             if (!course) {
                 this.logger.error(`Course not found: ${courseId}`);
@@ -335,17 +332,12 @@ export class OrderService implements IOrderService {
             if (order.orderType === OrderType.COURSE_PURCHASE && metadata?.courseId) {
                 try {
                     // Create enrollment via NATS
-                    const enrollment = await firstValueFrom(
+                    // Create enrollment via NATS
+                    const enrollment = await lastValueFrom(
                         this.natsClient.send({ cmd: 'learning.enrollment.create' }, {
                             userId: order.userId,
                             courseId: metadata.courseId,
-                        }).pipe(
-                            timeout(10000),
-                            catchError(err => {
-                                this.logger.error(`Enrollment creation failed: ${err.message || JSON.stringify(err)}`);
-                                throw err;
-                            })
-                        )
+                        })
                     );
 
                     if (!enrollment) {
@@ -353,18 +345,11 @@ export class OrderService implements IOrderService {
                     }
 
                     // Update enrollment with orderId via NATS
-                    await firstValueFrom(
+                    await lastValueFrom(
                         this.natsClient.send({ cmd: 'learning.enrollment.updateOrderId' }, {
                             id: enrollment.id,
                             orderId: orderId,
-                        }).pipe(
-                            timeout(10000),
-                            defaultIfEmpty({ success: true }), // Fallback for void return
-                            catchError(err => {
-                                this.logger.error(`Updating enrollment orderId failed: ${err.message || JSON.stringify(err)}`);
-                                throw err;
-                            })
-                        )
+                        })
                     );
 
                     // Update order with enrollmentId
@@ -376,7 +361,7 @@ export class OrderService implements IOrderService {
 
                     // Emit order_payment_success event
                     try {
-                        const course = await firstValueFrom(
+                        const course = await lastValueFrom(
                             this.natsClient.send({ cmd: 'learning.course.findOne' }, { id: metadata.courseId })
                         );
                         const user = await this.orderRepository.getUserById(order.userId);
