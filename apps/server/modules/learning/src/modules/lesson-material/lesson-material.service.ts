@@ -33,6 +33,14 @@ export class LessonMaterialService implements ILessonMaterialService {
     ) { }
 
     /**
+     * Helper to check if requester has a specific permission
+     */
+    private hasPermission(requester: Requester, permission: string): boolean {
+        if (!requester.permissions) return false;
+        return requester.permissions.includes('*') || requester.permissions.includes(permission);
+    }
+
+    /**
      * Map LessonMaterial entity to LessonMaterialResponseDTO
      */
     private toLessonMaterialResponseDTO(material: any): LessonMaterialResponseDTO {
@@ -70,13 +78,14 @@ export class LessonMaterialService implements ILessonMaterialService {
      * Check if requester has access to lesson materials
      */
     private async checkAccess(lessonId: string, requester: Requester): Promise<void> {
-        // Admin and Staff have full access
-        if (['ADMIN', 'STAFF'].includes(requester.role)) {
-            return;
+        // Only authorized users can manage lesson materials
+        if (!this.hasPermission(requester, 'material.upload')) {
+            throw new ForbiddenException('Only authorized users can manage lesson materials');
         }
 
-        // Lecturers need to be assigned to the course
-        if (requester.role === UserRole.LECTURER) {
+        // If user cannot manage all blog/content (staff/admin proxy), check if they are assigned to the course
+        // Using blog.manage as a proxy for "Staff with management capability"
+        if (!this.hasPermission(requester, 'blog.manage')) {
             const hasAccess = await this.lessonMaterialRepository.checkLecturerAccess(
                 lessonId,
                 requester.sub
@@ -85,11 +94,7 @@ export class LessonMaterialService implements ILessonMaterialService {
             if (!hasAccess) {
                 throw new ForbiddenException('You are not assigned to this course');
             }
-            return;
         }
-
-        // Other roles (learner) cannot upload materials
-        throw new ForbiddenException('Only staff and lecturers can manage lesson materials');
     }
 
     /**

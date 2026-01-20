@@ -167,10 +167,13 @@ export class AuthService implements IAuthService {
     async adminLogin(dto: UserLoginDTO): Promise<LoginResponse> {
         const user = await this.usersRepository.findByEmail(dto.email);
 
-        if (user && user.role === UserRole.LEARNER) {
-            // Log security event for audit (F6)
-            console.warn(`[Security] Admin portal access denied for learner: ${dto.email}`);
-            throw new UnauthorizedException('Access denied: Admin portals are restricted');
+        if (user) {
+            const { permissions } = await this.authorizationService.getUserPermissions(user.id, user.role);
+            if (permissions.length === 0) {
+                // Log security event for audit (F6)
+                console.warn(`[Security] Admin portal access denied for user with no permissions: ${dto.email}`);
+                throw new UnauthorizedException('Access denied: Admin portals are restricted');
+            }
         }
 
         return this.processLoginFlow(user, dto);

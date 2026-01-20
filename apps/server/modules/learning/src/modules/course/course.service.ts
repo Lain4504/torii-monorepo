@@ -386,8 +386,8 @@ export class CourseService implements ICourseService {
       throw new NotFoundException(`Course with id ${courseId} not found`);
     }
 
-    // If lecturer, check if they are assigned to the course
-    if (requester.role === UserRole.LECTURER) {
+    // If user cannot publish courses (staff/admin only), check if they are assigned to the course
+    if (!this.hasPermission(requester, 'course.publish')) {
       const isInstructor = await this.isInstructor(requester.sub, courseId);
       if (!isInstructor) {
         throw new ForbiddenException('You are not assigned to this course');

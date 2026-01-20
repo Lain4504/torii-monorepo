@@ -20,9 +20,7 @@ import { firstValueFrom } from 'rxjs';
 import {
     GlobalExceptionsFilter,
     GatewayAuthGuard,
-    RolesGuard,
     PermissionsGuard,
-    Roles,
     Permissions,
     successResponse,
     successPaginatedResponse,
@@ -37,7 +35,7 @@ interface RequestWithUser extends Request {
 }
 
 @Controller('api/courses')
-@UseGuards(GatewayAuthGuard, RolesGuard, PermissionsGuard)
+@UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class CourseController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
@@ -87,9 +85,15 @@ export class CourseController {
     async getCourses(@Query() query: any, @Req() req: RequestWithUser) {
         const user = req.user;
 
-        // If lecturer, only show their courses by default
-        if (user?.role === UserRole.LECTURER) {
-            query.instructorId = user.sub;
+        const requester = user as any;
+        // Logic:
+        // 1. Admin/Staff (with * or course.view_restricted): see everything.
+        // 2. Lecturer: only see their assigned courses (instructorId = sub).
+        // 3. Learner: see everything but filtered by status (handled by default query).
+        if (requester && requester.role === UserRole.LECTURER) {
+            if (!requester.permissions?.includes('*') && !requester.permissions?.includes('course.view_restricted')) {
+                query.instructorId = requester.sub;
+            }
         }
 
         const result = await firstValueFrom(

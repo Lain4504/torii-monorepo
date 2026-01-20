@@ -36,44 +36,11 @@ export class AuthorizationSeederService implements OnModuleInit {
     }
 
     /**
-     * Resolve role inheritance - flatten permissions for roles that extend others
-     * Example: staff-lms extends staff → gets staff permissions + its own
+     * Resolve permissions for roles
+     * Since the config is now flat, this just returns the default_role_permissions
      */
-    private resolveInheritance(config: AuthorizationConfig): Record<string, string[]> {
-        const resolved: Record<string, string[]> = {};
-
-        // Helper to get role by code
-        const getRoleByCode = (code: string) => config.roles.find(r => r.code === code);
-
-        // Recursively resolve permissions
-        const resolvePerms = (roleCode: string, visited = new Set<string>()): string[] => {
-            // Prevent circular dependencies
-            if (visited.has(roleCode)) {
-                this.logger.warn(`Circular inheritance detected for role: ${roleCode}`);
-                return [];
-            }
-            visited.add(roleCode);
-
-            const role = getRoleByCode(roleCode);
-            if (!role) return [];
-
-            let permissions: string[] = config.default_role_permissions[roleCode] || [];
-
-            // If role extends another, inherit base permissions
-            if ('extends' in role && role.extends) {
-                const basePerms = resolvePerms(role.extends as string, visited);
-                permissions = [...basePerms, ...permissions];
-            }
-
-            return permissions;
-        };
-
-        // Resolve all roles
-        for (const roleCode of Object.keys(config.default_role_permissions)) {
-            resolved[roleCode] = resolvePerms(roleCode);
-        }
-
-        return resolved;
+    private resolvePermissions(config: AuthorizationConfig): Record<string, string[]> {
+        return config.default_role_permissions || {};
     }
 
     /**
@@ -92,8 +59,8 @@ export class AuthorizationSeederService implements OnModuleInit {
             this.logger.log('🌱 Seeding authorization from YAML config...');
             const config = this.loadYAML();
 
-            // Resolve inheritance to get final permission sets
-            const resolvedPerms = this.resolveInheritance(config);
+            // Use direct permissions since config is flat
+            const resolvedPerms = this.resolvePermissions(config);
 
             // Seed default role_permissions
             let seededCount = 0;
@@ -134,7 +101,7 @@ export class AuthorizationSeederService implements OnModuleInit {
         try {
             this.logger.log('🔄 Syncing permissions from YAML to Database...');
             const config = this.loadYAML();
-            const resolvedPerms = this.resolveInheritance(config);
+            const resolvedPerms = this.resolvePermissions(config);
 
             let addedCount = 0;
             for (const [roleCode, permissions] of Object.entries(resolvedPerms)) {

@@ -269,8 +269,8 @@ export class LessonService implements ILessonService {
       throw new NotFoundException(`Lesson with id ${lessonId} not found`);
     }
 
-    // If lecturer, check if they are assigned to the course
-    if (requester.role === UserRole.LECTURER) {
+    // If user cannot publish courses (staff/admin only), check if they are assigned to the course
+    if (!this.hasPermission(requester, 'course.publish')) {
       const module = await this.moduleRepository.findById(existing.moduleId);
       if (module) {
         const isInstructor = await this.courseService.isInstructor(requester.sub, module.courseId);

@@ -21,10 +21,6 @@ export class PermissionsGuard implements CanActivate {
         const user = request.user;
 
         if (!user || !user.permissions) {
-            // If user is authenticated but has no permissions list attached, 
-            // it might be an old token or a misconfiguration.
-            // Admin role usually has '*' wildcard.
-            if (user?.role === 'admin') return true;
             throw new UnauthorizedException('User permissions not found');
         }
 
