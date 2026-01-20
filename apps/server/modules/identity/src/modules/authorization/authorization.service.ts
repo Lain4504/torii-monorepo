@@ -117,8 +117,6 @@ export class AuthorizationService implements IAuthorizationService {
         if (context) {
             await this.auditLog.log({
                 userId: context.actorId,
-                userEmail: context.actorEmail,
-                userRole: context.actorRole,
                 action: 'permission.update_role',
                 entity: 'role_permission',
                 entityId: roleCode,

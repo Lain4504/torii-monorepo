@@ -310,8 +310,6 @@ model AuditLog {
 
   // Who performed the action
   userId    String @map("user_id") @db.Uuid
-  userEmail String @map("user_email") @db.VarChar(255)
-  userRole  String @map("user_role") @db.VarChar(50)
 
   // What action was performed
   action   String  @db.VarChar(100) // e.g., "permission.grant", "user.create", "course.delete"

@@ -117,6 +117,7 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
                 published: { label: 'Đã xuất bản', class: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' },
                 pending_review: { label: 'Chờ duyệt', class: 'bg-blue-500/10 text-blue-600 border-blue-500/20' },
                 draft: { label: 'Bản nháp', class: 'bg-amber-500/10 text-amber-600 border-amber-500/20' },
+                rejected: { label: 'Bị từ chối', class: 'bg-rose-500/10 text-rose-600 border-rose-500/20' },
                 archived: { label: 'Đã lưu trữ', class: 'bg-slate-500/10 text-slate-600 border-slate-500/20' }
             };
             const current = config[status as keyof typeof config] || { label: status, class: 'bg-muted/30 text-muted-foreground border-border/40' };
@@ -246,7 +247,7 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
 
                             <DropdownMenuSeparator className="bg-border/40 m-1" />
 
-                            {course.status === 'draft' && can('course.update') ? (
+                            {(course.status === 'draft' || course.status === 'rejected') && can('course.update') ? (
                                 <DropdownMenuItem
                                     onClick={() => onSubmitForReview(course)}
                                     className="rounded-lg px-3 py-2.5 text-xs font-medium text-blue-600 focus:text-blue-700 focus:bg-blue-500/10 cursor-pointer flex gap-2.5"

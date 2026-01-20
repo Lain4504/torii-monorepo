@@ -48,8 +48,6 @@ export class CourseService implements ICourseService {
    */
   private async createAuditLog(entry: {
     userId: string;
-    userEmail: string;
-    userRole: string;
     action: string;
     entity: string;
     entityId?: string;
@@ -351,8 +349,6 @@ export class CourseService implements ICourseService {
 
       await this.createAuditLog({
         userId: requester.sub,
-        userEmail: (requester as any).email || 'unknown',
-        userRole: requester.role,
         action: 'course.create',
         entity: 'course',
         entityId: course.id,
@@ -438,8 +434,6 @@ export class CourseService implements ICourseService {
 
       await this.createAuditLog({
         userId: requester.sub,
-        userEmail: (requester as any).email || 'unknown',
-        userRole: requester.role,
         action: 'course.update',
         entity: 'course',
         entityId: courseId,
@@ -495,8 +489,6 @@ export class CourseService implements ICourseService {
 
       await this.createAuditLog({
         userId: requester.sub,
-        userEmail: (requester as any).email || 'unknown',
-        userRole: requester.role,
         action: hardDelete ? 'course.hard_delete' : 'course.delete',
         entity: 'course',
         entityId: courseId,
@@ -544,12 +536,13 @@ export class CourseService implements ICourseService {
       throw new BadRequestException('Course is already published');
     }
 
-    const course = await this.courseRepository.update(courseId, { status: (PrismaCourseStatus as any).pending_review });
+    const course = await this.courseRepository.update(courseId, {
+      status: (PrismaCourseStatus as any).pending_review,
+      rejectionReason: null
+    });
 
     await this.createAuditLog({
       userId: requester.sub,
-      userEmail: (requester as any).email || 'unknown',
-      userRole: requester.role,
       action: 'course.submit_for_review',
       entity: 'course',
       entityId: courseId,
@@ -602,8 +595,6 @@ export class CourseService implements ICourseService {
 
     await this.createAuditLog({
       userId: requester.sub,
-      userEmail: (requester as any).email || 'unknown',
-      userRole: requester.role,
       action: 'course.publish',
       entity: 'course',
       entityId: courseId,
@@ -651,8 +642,6 @@ export class CourseService implements ICourseService {
 
     await this.createAuditLog({
       userId: requester.sub,
-      userEmail: (requester as any).email || 'unknown',
-      userRole: requester.role,
       action: 'course.unpublish',
       entity: 'course',
       entityId: courseId,
@@ -687,8 +676,6 @@ export class CourseService implements ICourseService {
 
     await this.createAuditLog({
       userId: requester.sub,
-      userEmail: (requester as any).email || 'unknown',
-      userRole: requester.role,
       action: 'course.reject',
       entity: 'course',
       entityId: courseId,

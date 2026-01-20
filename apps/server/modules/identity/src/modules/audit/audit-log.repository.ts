@@ -71,8 +71,6 @@ export class AuditLogRepository implements IAuditLogRepository {
         return logs.map((log: AuditLogWithUser) => ({
             id: log.id,
             userId: log.userId,
-            userEmail: log.userEmail,
-            userRole: log.userRole,
             action: log.action,
             entity: log.entity,
             entityId: log.entityId,
@@ -116,8 +114,6 @@ export class AuditLogRepository implements IAuditLogRepository {
         return logs.map((log: AuditLogWithUser) => ({
             id: log.id,
             userId: log.userId,
-            userEmail: log.userEmail,
-            userRole: log.userRole,
             action: log.action,
             entity: log.entity,
             entityId: log.entityId,

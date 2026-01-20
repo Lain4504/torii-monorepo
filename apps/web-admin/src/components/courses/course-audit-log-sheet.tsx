@@ -73,10 +73,10 @@ function LogItem({ log }: { log: AuditLog }) {
                 <div className="flex items-center gap-4 text-[11px] text-muted-foreground/60 font-medium">
                     <span className="flex items-center gap-1.5">
                         <User className="size-3 text-primary/40" />
-                        {log.userEmail.split('@')[0]}
+                        {log.user?.displayName || log.userId}
                     </span>
                     <span className="px-1.5 py-0.5 rounded-full bg-muted/50 border border-border/50 text-[9px] uppercase tracking-tighter">
-                        {log.userRole}
+                        {log.user?.role || 'User'}
                     </span>
                 </div>
 
