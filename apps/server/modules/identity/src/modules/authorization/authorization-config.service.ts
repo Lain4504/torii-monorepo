@@ -7,7 +7,6 @@ export interface RoleDefinition {
     code: string;
     name: string;
     description: string;
-    extends?: string;  // Support role inheritance
 }
 
 export interface PermissionDefinition {

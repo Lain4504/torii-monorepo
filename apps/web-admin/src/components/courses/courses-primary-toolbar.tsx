@@ -55,6 +55,7 @@ export function CoursesPrimaryToolbar({
                     <SelectContent className="border-border rounded-lg shadow-lg bg-background">
                         <SelectItem value="all" className="text-sm">Tất cả trạng thái</SelectItem>
                         <SelectItem value="draft" className="text-sm">Bản nháp (Draft)</SelectItem>
+                        <SelectItem value="pending_review" className="text-sm">Chờ duyệt (Review)</SelectItem>
                         <SelectItem value="published" className="text-sm">Đã xuất bản (Published)</SelectItem>
                         <SelectItem value="archived" className="text-sm">Đã lưu trữ (Archived)</SelectItem>
                     </SelectContent>

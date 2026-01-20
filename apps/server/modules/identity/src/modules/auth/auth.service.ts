@@ -167,10 +167,13 @@ export class AuthService implements IAuthService {
     async adminLogin(dto: UserLoginDTO): Promise<LoginResponse> {
         const user = await this.usersRepository.findByEmail(dto.email);
 
-        if (user && user.role === UserRole.LEARNER) {
-            // Log security event for audit (F6)
-            console.warn(`[Security] Admin portal access denied for learner: ${dto.email}`);
-            throw new UnauthorizedException('Access denied: Admin portals are restricted');
+        if (user) {
+            const { permissions } = await this.authorizationService.getUserPermissions(user.id, user.role);
+            if (permissions.length === 0) {
+                // Log security event for audit (F6)
+                console.warn(`[Security] Admin portal access denied for user with no permissions: ${dto.email}`);
+                throw new UnauthorizedException('Access denied: Admin portals are restricted');
+            }
         }
 
         return this.processLoginFlow(user, dto);
@@ -216,9 +219,11 @@ export class AuthService implements IAuthService {
         }
 
         // No 2FA - proceed with normal login
+        const { permissions } = await this.authorizationService.getUserPermissions(user.id, user.role);
         const accessToken = await this.jwtTokenProvider.generateToken({
             sub: user.id,
             role: user.role as UserRole,
+            permissions,
         });
 
         return {
@@ -227,11 +232,12 @@ export class AuthService implements IAuthService {
                 id: user.id,
                 email: user.email,
                 displayName: user.displayName,
-                role: user.role,
+                role: user.role as UserRole,
                 verifiedAt: user.verifiedAt,
                 createdAt: user.createdAt,
                 updatedAt: user.updatedAt,
-            } as UserResponseDTO,
+                permissions,
+            },
             accessToken,
         };
     }
@@ -310,9 +316,11 @@ export class AuthService implements IAuthService {
         }
 
         // Generate access token
+        const { permissions } = await this.authorizationService.getUserPermissions(user.id, user.role);
         const accessToken = await this.jwtTokenProvider.generateToken({
             sub: user.id,
             role: user.role as UserRole,
+            permissions,
         });
 
         // Emit activity
@@ -323,11 +331,12 @@ export class AuthService implements IAuthService {
                 id: user.id,
                 email: user.email,
                 displayName: user.displayName,
-                role: user.role,
+                role: user.role as UserRole,
                 verifiedAt: user.verifiedAt,
                 createdAt: user.createdAt,
                 updatedAt: user.updatedAt,
-            } as UserResponseDTO,
+                permissions,
+            },
             accessToken,
         };
     }
@@ -660,9 +669,9 @@ export class AuthService implements IAuthService {
         // Get current user to merge userMetadata
         const currentUser = await this.usersRepository.findById(userId);
         const currentMetadata = (currentUser?.userMetadata as Record<string, any>) || {};
-        
+
         // Merge userMetadata if provided
-        const mergedMetadata = dto.userMetadata 
+        const mergedMetadata = dto.userMetadata
             ? { ...currentMetadata, ...dto.userMetadata }
             : currentMetadata;
 
@@ -732,12 +741,12 @@ export class AuthService implements IAuthService {
         if (oldAvatarUrl) {
             try {
                 let fileIdToDelete = oldAvatarUrl;
-                
+
                 // If it's a full URL, try to extract the fileId (last segment)
                 if (oldAvatarUrl.startsWith('http')) {
                     const urlParts = oldAvatarUrl.split('/');
                     let potentialFileId = urlParts[urlParts.length - 1]; // "uuid.png"
-                    
+
                     // Strip extension if present to get raw UUID
                     if (potentialFileId.includes('.')) {
                         potentialFileId = potentialFileId.split('.')[0];
@@ -829,9 +838,11 @@ export class AuthService implements IAuthService {
             await this.userIdentityRepository.updateLastSignIn(existingIdentity.id);
 
             // Generate token
+            const { permissions } = await this.authorizationService.getUserPermissions(user.id, user.role);
             const accessToken = await this.jwtTokenProvider.generateToken({
                 sub: user.id,
                 role: user.role as UserRole,
+                permissions,
             });
 
             // Emit activity
@@ -842,11 +853,12 @@ export class AuthService implements IAuthService {
                     id: user.id,
                     email: user.email,
                     displayName: user.displayName,
-                    role: user.role,
+                    role: user.role as UserRole,
                     verifiedAt: user.verifiedAt,
                     createdAt: user.createdAt,
                     updatedAt: user.updatedAt,
-                } as UserResponseDTO,
+                    permissions,
+                },
                 accessToken,
             };
         }
@@ -878,9 +890,11 @@ export class AuthService implements IAuthService {
                 lastSignInAt: new Date(),
             });
 
+            const { permissions } = await this.authorizationService.getUserPermissions(existingUser.id, existingUser.role);
             const accessToken = await this.jwtTokenProvider.generateToken({
                 sub: existingUser.id,
                 role: existingUser.role as UserRole,
+                permissions,
             });
 
             // Emit activity
@@ -891,11 +905,11 @@ export class AuthService implements IAuthService {
                     id: existingUser.id,
                     email: existingUser.email,
                     displayName: existingUser.displayName,
-                    role: existingUser.role,
-                    emailVerified: true,
+                    role: existingUser.role as UserRole,
                     createdAt: existingUser.createdAt,
                     updatedAt: existingUser.updatedAt,
-                } as UserResponseDTO,
+                    permissions,
+                },
                 accessToken,
             };
         }
@@ -923,9 +937,11 @@ export class AuthService implements IAuthService {
             providerData: googleUser as unknown as Prisma.InputJsonValue,
         });
 
+        const { permissions } = await this.authorizationService.getUserPermissions(newUser.id, newUser.role);
         const accessToken = await this.jwtTokenProvider.generateToken({
             sub: newUser.id,
             role: newUser.role as UserRole,
+            permissions,
         });
 
         // Emit activity
@@ -936,11 +952,12 @@ export class AuthService implements IAuthService {
                 id: newUser.id,
                 email: newUser.email,
                 displayName: newUser.displayName,
-                role: newUser.role,
+                role: newUser.role as UserRole,
                 verifiedAt: newUser.verifiedAt,
                 createdAt: newUser.createdAt,
                 updatedAt: newUser.updatedAt,
-            } as UserResponseDTO,
+                permissions,
+            },
             accessToken,
         };
     }
@@ -1127,9 +1144,11 @@ export class AuthService implements IAuthService {
      * Generate access token for a user
      */
     async generateAccessToken(userId: string, role: string): Promise<string> {
+        const { permissions } = await this.authorizationService.getUserPermissions(userId, role);
         return this.jwtTokenProvider.generateToken({
             sub: userId,
             role: role as UserRole,
+            permissions,
         });
     }
 

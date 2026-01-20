@@ -30,17 +30,13 @@ export class AuthorizationService implements IAuthorizationService {
             return { permissions: ['*'] };
         }
 
-        // Get role permissions from DATABASE
+        // Get permissions for current role from DATABASE
         const rolePerms = await this.prisma.rolePermission.findMany({
             where: { roleCode: userRole },
         });
 
-        // Simplified: Strictly Role-Based Access Control
-        // No user-specific overrides
-        const allPermissions = rolePerms.map((rp) => rp.permissionCode);
-
         return {
-            permissions: Array.from(new Set(allPermissions)), // Remove duplicates
+            permissions: rolePerms.map(rp => rp.permissionCode),
         };
     }
 
@@ -117,8 +113,6 @@ export class AuthorizationService implements IAuthorizationService {
         if (context) {
             await this.auditLog.log({
                 userId: context.actorId,
-                userEmail: context.actorEmail,
-                userRole: context.actorRole,
                 action: 'permission.update_role',
                 entity: 'role_permission',
                 entityId: roleCode,

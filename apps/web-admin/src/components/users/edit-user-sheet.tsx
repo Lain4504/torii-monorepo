@@ -17,6 +17,7 @@ import {
 } from '@workspace/ui/components/field';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import type { UserResponseDTO } from '@workspace/schemas';
+import { UserRole } from '@workspace/schemas';
 import { Loader2, User, Mail, ShieldCheck, X, UserCog } from 'lucide-react';
 import { userAdminUpdateDTOSchema, type UserAdminUpdateDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
@@ -176,13 +177,13 @@ export function EditUserSheet({
                                                     <SelectValue />
                                                 </SelectTrigger>
                                                 <SelectContent className="border-border shadow-xl bg-background rounded-xl overflow-hidden p-1">
-                                                    <SelectItem value="learner" className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">Học viên</SelectItem>
-                                                    <SelectItem value="lecturer" className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">Giảng viên</SelectItem>
-                                                    <SelectItem value="staff" className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">Nhân viên</SelectItem>
-                                                    <SelectItem value="staff-lms" className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">QTV LMS</SelectItem>
-                                                    <SelectItem value="staff-support" className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">Hỗ trợ viên</SelectItem>
-                                                    <SelectItem value="staff-sales" className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">Kinh doanh</SelectItem>
-                                                    <SelectItem value="admin" className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">Quản trị viên (Admin)</SelectItem>
+                                                    <SelectItem value={UserRole.LEARNER} className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">Học viên</SelectItem>
+                                                    <SelectItem value={UserRole.LECTURER} className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">Giảng viên</SelectItem>
+                                                    <SelectItem value={UserRole.STAFF} className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">Nhân viên (Chung)</SelectItem>
+                                                    <SelectItem value={UserRole.STAFF_LMS} className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">Giáo vụ (LMS)</SelectItem>
+                                                    <SelectItem value={UserRole.STAFF_SUPPORT} className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">Hỗ trợ (Support)</SelectItem>
+                                                    <SelectItem value={UserRole.STAFF_SALES} className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">Kinh doanh (Sales)</SelectItem>
+                                                    <SelectItem value={UserRole.ADMIN} className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">Quản trị viên (Admin)</SelectItem>
                                                 </SelectContent>
                                             </Select>
                                             {fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-[11px] font-medium text-destructive mt-1" />}

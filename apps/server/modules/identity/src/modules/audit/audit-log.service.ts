@@ -1,4 +1,5 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
+import { Prisma } from '@prisma/generated';
 import type { IAuditLogRepository } from '../../interfaces/repositories';
 import type {
     AuditLogEntryDTO,
@@ -20,40 +21,85 @@ export class AuditLogService implements IAuditLogService {
     ) { }
 
     /**
+     * Helper to filter out noise from values and optionally compare changes
+     */
+    private formatAuditValues(oldValues: any, newValues: any): { old: any; new: any } {
+        const noiseFields = [
+            'id', 'createdAt', 'updatedAt', 'deletedAt',
+            'totalLessons', 'totalQuizzes', 'totalStudents',
+            'totalReviews', 'averageRating', 'slug',
+            'createdBy', 'approvedBy', 'approvedAt'
+        ];
+
+        const clean = (obj: any) => {
+            if (!obj || typeof obj !== 'object') return obj;
+            const result: any = {};
+            for (const key in obj) {
+                if (!noiseFields.includes(key)) {
+                    result[key] = obj[key];
+                }
+            }
+            return result;
+        };
+
+        const cleanedOld = clean(oldValues);
+        const cleanedNew = clean(newValues);
+
+        if (cleanedOld && cleanedNew && typeof cleanedOld === 'object' && typeof cleanedNew === 'object') {
+            const finalOld: any = {};
+            const finalNew: any = {};
+            let hasChanges = false;
+
+            const allKeys = new Set([...Object.keys(cleanedOld), ...Object.keys(cleanedNew)]);
+            for (const key of allKeys) {
+                const valOld = JSON.stringify(cleanedOld[key]);
+                const valNew = JSON.stringify(cleanedNew[key]);
+
+                if (valOld !== valNew) {
+                    finalOld[key] = cleanedOld[key];
+                    finalNew[key] = cleanedNew[key];
+                    hasChanges = true;
+                }
+            }
+            return hasChanges ? { old: finalOld, new: finalNew } : { old: null, new: null };
+        }
+
+        return { old: cleanedOld, new: cleanedNew };
+    }
+
+    /**
      * Log an action to the audit log
      */
     async log(entry: AuditLogEntryDTO): Promise<void> {
         try {
             console.log('📝 AuditLog.log() called with entry:', {
                 userId: entry.userId,
-                userEmail: entry.userEmail,
                 action: entry.action,
                 entity: entry.entity,
             });
+
+            const { old, new: newValue } = this.formatAuditValues(entry.oldValues, entry.newValues);
 
             await this.auditLogRepository.create({
                 user: {
                     connect: { id: entry.userId },
                 },
-                userEmail: entry.userEmail,
-                userRole: entry.userRole,
                 action: entry.action,
                 entity: entry.entity,
                 entityId: entry.entityId,
                 description: entry.description,
                 metadata: entry.metadata || {},
-                oldValues: entry.oldValues,
-                newValues: entry.newValues,
+                oldValues: old || Prisma.DbNull,
+                newValues: newValue || Prisma.DbNull,
                 ipAddress: entry.ipAddress,
                 userAgent: entry.userAgent,
             });
 
-            this.logger.log(`Audit: ${entry.action} by ${entry.userEmail} on ${entry.entity}`);
+            this.logger.log(`Audit: ${entry.action} by user ${entry.userId} on ${entry.entity}`);
             console.log('✅ Audit log created successfully');
         } catch (error) {
             this.logger.error('Failed to create audit log:', error);
             console.error('❌ Audit log creation failed:', error);
-            // Don't throw - audit log failures shouldn't break the main operation
         }
     }
 
@@ -66,16 +112,29 @@ export class AuditLogService implements IAuditLogService {
         const pageNum = typeof page === 'string' ? parseInt(page, 10) : Number(page) || 1;
         const limitNum = typeof limit === 'string' ? parseInt(limit, 10) : Number(limit) || 50;
 
-        const whereClause = {
-            userId: where.userId,
-            action: where.action,
-            entity: where.entity,
-            entityId: where.entityId,
-            createdAt: {
-                gte: startDate,
-                lte: endDate,
-            },
-        };
+        const whereClause: any = {};
+
+        if (where.userId && where.userId !== '') whereClause.userId = where.userId;
+        if (where.action && where.action !== '') whereClause.action = where.action;
+        if (where.entity && where.entity !== '') whereClause.entity = where.entity;
+        if (where.entityId && where.entityId !== '') whereClause.entityId = where.entityId;
+
+        if (startDate || endDate) {
+            whereClause.createdAt = {};
+            if (startDate) {
+                const sDate = new Date(startDate);
+                if (!isNaN(sDate.getTime())) {
+                    whereClause.createdAt.gte = sDate;
+                }
+            }
+            if (endDate) {
+                const eDate = new Date(endDate);
+                if (!isNaN(eDate.getTime())) {
+                    eDate.setHours(23, 59, 59, 999);
+                    whereClause.createdAt.lte = eDate;
+                }
+            }
+        }
 
         const [rawData, total] = await Promise.all([
             this.auditLogRepository.findMany({
@@ -100,8 +159,6 @@ export class AuditLogService implements IAuditLogService {
         const data: AuditLogResponseDTO[] = rawData.map((log: AuditLogWithUser) => ({
             id: log.id,
             userId: log.userId,
-            userEmail: log.userEmail,
-            userRole: log.userRole,
             action: log.action,
             entity: log.entity,
             entityId: log.entityId,
@@ -143,3 +200,4 @@ export class AuditLogService implements IAuditLogService {
         return this.auditLogRepository.findByEntity(entity, entityId, limit);
     }
 }
+

@@ -65,13 +65,13 @@ function AuditLogDetailsDialog({ log }: { log: AuditLog }) {
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                         <div className="space-y-1">
                             <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/40">Người dùng</p>
-                            <p className="text-sm font-medium text-foreground truncate">{log.userEmail}</p>
+                            <p className="text-sm font-medium text-foreground truncate">{log.user?.email || log.userId}</p>
                         </div>
                         <div className="space-y-1">
                             <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/40">Vai trò</p>
                             <div className="pt-1">
                                 <Badge variant="outline" className="text-[10px] font-medium bg-primary/5 border-primary/20 text-primary rounded-full px-2.5">
-                                    {log.userRole}
+                                    {log.user?.role || 'User'}
                                 </Badge>
                             </div>
                         </div>
@@ -388,8 +388,8 @@ export function AuditLogsPage() {
                                         </TableCell>
                                         <TableCell className="py-3 px-4 text-sm text-foreground/80 border-r border-border/10 last:border-r-0">
                                             <div className="flex flex-col gap-0.5">
-                                                <div className="font-semibold text-foreground group-hover:text-primary transition-colors">{log.userEmail.split('@')[0]}</div>
-                                                <div className="text-[10px] font-medium text-muted-foreground/50 uppercase tracking-wider">{log.userRole}</div>
+                                                <div className="font-semibold text-foreground group-hover:text-primary transition-colors">{log.user?.displayName || 'Unknown'}</div>
+                                                <div className="text-[10px] font-medium text-muted-foreground/50 uppercase tracking-wider">{log.user?.role || 'User'}</div>
                                             </div>
                                         </TableCell>
                                         <TableCell className="py-3 px-4 text-sm text-foreground/80 border-r border-border/10 last:border-r-0">

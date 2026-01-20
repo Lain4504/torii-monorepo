@@ -299,6 +299,7 @@ export class AuthController {
             displayName: user?.displayName,
             role: user?.role,
             verifiedAt: user?.verifiedAt,
+            permissions: (user as any)?.permissions || [],
         };
 
         if (platform === 'mobile') {
@@ -357,6 +358,7 @@ export class AuthController {
                         displayName: user.displayName,
                         role: user.role,
                         verifiedAt: user.verifiedAt,
+                        permissions: user.permissions || [],
                     },
                 });
             } else {
@@ -368,6 +370,7 @@ export class AuthController {
                         displayName: user.displayName,
                         role: user.role,
                         verifiedAt: user.verifiedAt,
+                        permissions: user.permissions || [],
                     },
                 });
             }
@@ -429,6 +432,7 @@ export class AuthController {
                         displayName: user.displayName,
                         role: user.role,
                         verifiedAt: user.verifiedAt,
+                        permissions: user.permissions || [],
                     },
                 });
             }

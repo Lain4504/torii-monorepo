@@ -19,13 +19,16 @@ import {
     successResponse,
     errorResponse,
     successPaginatedResponse,
-    Public
+    Public,
+    Permissions,
+    PermissionsGuard,
 } from '@server/shared';
 import { GatewayAuthGuard } from '@server/shared';
 import { Request } from 'express';
+import { UserRole } from '@workspace/schemas';
 
 @Controller('api/lessons')
-@UseGuards(GatewayAuthGuard)
+@UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class LessonController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
@@ -102,6 +105,7 @@ export class LessonController {
     }
 
     @Post()
+    @Permissions('lesson.create')
     @HttpCode(HttpStatus.CREATED)
     async create(@Body() dto: any, @Req() req: Request) {
         try {
@@ -119,6 +123,7 @@ export class LessonController {
     }
 
     @Post('reorder/:moduleId')
+    @Permissions('lesson.update')
     async reorder(
         @Param('moduleId') moduleId: string,
         @Body() lessonOrders: { id: string; orderIndex: number }[],
@@ -139,6 +144,7 @@ export class LessonController {
     }
 
     @Patch(':id')
+    @Permissions('lesson.update')
     async update(
         @Param('id') id: string,
         @Body() dto: any,
@@ -159,6 +165,7 @@ export class LessonController {
     }
 
     @Delete(':id')
+    @Permissions('lesson.delete')
     async delete(
         @Param('id') id: string,
         @Query('hardDelete') hardDelete: string,

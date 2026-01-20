@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@workspace/ui/components/button';
 import type { CourseQueryDTO, CourseResponseDTO } from '@workspace/schemas';
 import { Can } from "@/lib/guard/can";
-import { useCourses, useUnpublishCourse } from "@/api/services/courses.ts";
+import { useCourses, useUnpublishCourse, useSubmitCourseForReview } from "@/api/services/courses.ts";
 import { CoursesPrimaryToolbar } from "@/components/courses/courses-primary-toolbar.tsx";
 import { CoursesTable } from "@/components/courses/courses-table.tsx";
 import { CreateCourseSheet } from "@/components/courses/create-course-sheet.tsx";
@@ -11,6 +11,10 @@ import { EditCourseSheet } from "@/components/courses/edit-course-sheet.tsx";
 import { DeleteCourseDialog } from "@/components/courses/delete-course-dialog.tsx";
 import { ManageInstructorsSheet } from "@/components/courses/manage-instructors-sheet.tsx";
 import { PublishCourseDialog } from "@/components/courses/publish-course-dialog.tsx";
+import { RejectCourseDialog } from "@/components/courses/reject-course-dialog.tsx";
+import { CourseAuditLogSheet } from "@/components/courses/course-audit-log-sheet.tsx";
+import { LiveSessionManagementSheet } from "@/components/courses/live-session-management-sheet.tsx";
+import { usePermissions } from "@/hooks/use-permissions.ts";
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import {
   Pagination,
@@ -30,6 +34,7 @@ export default function CoursesPage() {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
+  const { can } = usePermissions();
   const [debouncedSearch] = useDebounceValue(search, 500);
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [jlptLevelFilter, setJlptLevelFilter] = useState<string>('');
@@ -40,6 +45,9 @@ export default function CoursesPage() {
   const [deletingCourse, setDeletingCourse] = useState<CourseResponseDTO | null>(null);
   const [managingInstructorsCourse, setManagingInstructorsCourse] = useState<CourseResponseDTO | null>(null);
   const [publishingCourse, setPublishingCourse] = useState<CourseResponseDTO | null>(null);
+  const [rejectingCourse, setRejectingCourse] = useState<CourseResponseDTO | null>(null);
+  const [viewingAuditLogCourse, setViewingAuditLogCourse] = useState<CourseResponseDTO | null>(null);
+  const [managingLiveSessionsCourse, setManagingLiveSessionsCourse] = useState<CourseResponseDTO | null>(null);
 
   const queryParams: CourseQueryDTO = {
     page,
@@ -51,6 +59,7 @@ export default function CoursesPage() {
 
   const { data: coursesData, isLoading, error } = useCourses(queryParams);
   const unpublishMutation = useUnpublishCourse();
+  const submitForReviewMutation = useSubmitCourseForReview();
 
   useEffect(() => {
     setPage(1);
@@ -70,6 +79,15 @@ export default function CoursesPage() {
       toast.success('Hủy xuất bản khóa học thành công');
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Không thể hủy xuất bản khóa học');
+    }
+  };
+
+  const handleSubmitForReview = async (course: CourseResponseDTO) => {
+    try {
+      await submitForReviewMutation.mutateAsync(course.id);
+      toast.success('Đã gửi yêu cầu kiểm duyệt khóa học');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Không thể gửi yêu cầu kiểm duyệt');
     }
   };
 
@@ -209,7 +227,12 @@ export default function CoursesPage() {
             onModules={(course) => navigate(`/courses/${course.id}`)}
             onManageInstructors={setManagingInstructorsCourse}
             onPublish={setPublishingCourse}
+            onReject={setRejectingCourse}
+            onViewAuditLog={setViewingAuditLogCourse}
+            onManageLiveSessions={setManagingLiveSessionsCourse}
+            onSubmitForReview={handleSubmitForReview}
             onUnpublish={handleUnpublish}
+            can={can}
             page={page}
             limit={queryParams.limit || 10}
             isLoading={isLoading}
@@ -292,6 +315,24 @@ export default function CoursesPage() {
         open={!!publishingCourse}
         onOpenChange={(open) => !open && setPublishingCourse(null)}
         course={publishingCourse}
+      />
+
+      <RejectCourseDialog
+        open={!!rejectingCourse}
+        onOpenChange={(open) => !open && setRejectingCourse(null)}
+        course={rejectingCourse}
+      />
+
+      <CourseAuditLogSheet
+        courseId={viewingAuditLogCourse?.id || null}
+        courseTitle={viewingAuditLogCourse?.title || null}
+        onClose={() => setViewingAuditLogCourse(null)}
+      />
+
+      <LiveSessionManagementSheet
+        open={!!managingLiveSessionsCourse}
+        onOpenChange={(open) => !open && setManagingLiveSessionsCourse(null)}
+        course={managingLiveSessionsCourse}
       />
     </div>
   );

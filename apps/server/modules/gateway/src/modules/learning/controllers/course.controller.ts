@@ -3,6 +3,7 @@ import {
     Get,
     Post,
     Put,
+    Patch,
     Delete,
     Body,
     Param,
@@ -19,8 +20,8 @@ import { firstValueFrom } from 'rxjs';
 import {
     GlobalExceptionsFilter,
     GatewayAuthGuard,
-    RolesGuard,
-    Roles,
+    PermissionsGuard,
+    Permissions,
     successResponse,
     successPaginatedResponse,
     Public
@@ -30,23 +31,23 @@ import { Request } from 'express';
 import { UserRole, Requester } from '@workspace/schemas';
 
 interface RequestWithUser extends Request {
-    user: Requester;
+    user: Requester & { email: string };
 }
 
 @Controller('api/courses')
-@UseGuards(GatewayAuthGuard, RolesGuard)
+@UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class CourseController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     @Post()
-    @Roles(UserRole.ADMIN, UserRole.LECTURER)
+    @Permissions('course.create')
     @HttpCode(HttpStatus.CREATED)
     async createCourse(@Body() dto: any, @Req() req: RequestWithUser) {
         const user = req.user;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.create' },
-                { ...dto, instructorId: user.sub, userRole: user.role }
+                { ...dto, instructorId: user.sub, userRole: user.role, userEmail: user.email, userPermissions: user.permissions }
             )
         );
         return successResponse({ course: result }, 'Course created successfully');
@@ -81,7 +82,20 @@ export class CourseController {
 
     @Get()
     @Public()
-    async getCourses(@Query() query: any) {
+    async getCourses(@Query() query: any, @Req() req: RequestWithUser) {
+        const user = req.user;
+
+        const requester = user as any;
+        // Logic:
+        // 1. Admin/Staff (with * or course.view_restricted): see everything.
+        // 2. Lecturer: only see their assigned courses (instructorId = sub).
+        // 3. Learner: see everything but filtered by status (handled by default query).
+        if (requester && requester.role === UserRole.LECTURER) {
+            if (!requester.permissions?.includes('*') && !requester.permissions?.includes('course.view_restricted')) {
+                query.instructorId = requester.sub;
+            }
+        }
+
         const result = await firstValueFrom(
             this.natsClient.send({ cmd: 'learning.course.findAll' }, query)
         );
@@ -115,7 +129,7 @@ export class CourseController {
     }
 
     @Put(':id')
-    @Roles(UserRole.ADMIN, UserRole.LECTURER)
+    @Permissions('course.update')
     async updateCourse(
         @Param('id') id: string,
         @Body() dto: any,
@@ -125,20 +139,20 @@ export class CourseController {
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.update' },
-                { id, ...dto, userId: user.sub, userRole: user.role }
+                { id, ...dto, userId: user.sub, userRole: user.role, userEmail: user.email, userPermissions: user.permissions }
             )
         );
         return successResponse({ course: result }, 'Course updated successfully');
     }
 
     @Delete(':id')
-    @Roles(UserRole.ADMIN)
+    @Permissions('course.delete')
     async deleteCourse(@Param('id') id: string, @Req() req: RequestWithUser) {
         const user = req.user;
         await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.delete' },
-                { id, userId: user.sub, userRole: user.role }
+                { id, userId: user.sub, userRole: user.role, userEmail: user.email, userPermissions: user.permissions }
             )
         );
         return successResponse(null, 'Course deleted successfully');
@@ -164,28 +178,72 @@ export class CourseController {
     }
 
     @Post(':id/unpublish')
-    @Roles(UserRole.ADMIN, UserRole.LECTURER)
+    @Permissions('course.publish')
     async unpublishCourse(@Param('id') id: string, @Req() req: RequestWithUser) {
         const user = req.user;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.unpublish' },
-                { id, userId: user.sub, userRole: user.role }
+                { id, userId: user.sub, userRole: user.role, userEmail: user.email, userPermissions: user.permissions }
             )
         );
         return successResponse({ course: result }, 'Course unpublished successfully');
     }
 
+    @Patch(':id/live-config')
+    @Permissions('course.update')
+    async updateLiveConfig(@Param('id') id: string, @Body() config: any, @Req() req: RequestWithUser) {
+        // TODO: Ensure lecturer is assigned to this course before allowing update
+        const result = await firstValueFrom(
+            this.natsClient.send(
+                { cmd: 'learning.course.updateLiveConfig' },
+                { id, config }
+            )
+        );
+        return successResponse({ course: result }, 'Live configuration updated successfully');
+    }
+
+    @Post(':id/submit-for-review')
+    @Permissions('course.update')
+    async submitForReview(@Param('id') id: string, @Req() req: RequestWithUser) {
+        const user = req.user;
+        const result = await firstValueFrom(
+            this.natsClient.send(
+                { cmd: 'learning.course.submitForReview' },
+                { id, userId: user.sub, userRole: user.role, userEmail: user.email, userPermissions: user.permissions }
+            )
+        );
+        return successResponse({ course: result }, 'Course submitted for review successfully');
+    }
+
     @Post(':id/publish')
-    @Roles(UserRole.ADMIN, UserRole.LECTURER)
+    @Permissions('course.publish')
     async publishCourse(@Param('id') id: string, @Req() req: RequestWithUser) {
         const user = req.user;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.publish' },
-                { id, userId: user.sub, userRole: user.role }
+                { id, userId: user.sub, userRole: user.role, userEmail: user.email, userPermissions: user.permissions }
             )
         );
         return successResponse({ course: result }, 'Course published successfully');
     }
+
+    @Post(':id/reject')
+    @Permissions('course.publish')
+    async rejectCourse(
+        @Param('id') id: string,
+        @Body() body: { reason: string },
+        @Req() req: RequestWithUser
+    ) {
+        const user = req.user;
+        const result = await firstValueFrom(
+            this.natsClient.send(
+                { cmd: 'learning.course.reject' },
+                { id, userId: user.sub, userRole: user.role, userEmail: user.email, reason: body.reason, userPermissions: user.permissions }
+            )
+        );
+        return successResponse({ course: result }, 'Course rejected successfully');
+    }
+
 }

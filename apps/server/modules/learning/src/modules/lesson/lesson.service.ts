@@ -36,6 +36,14 @@ export class LessonService implements ILessonService {
   ) { }
 
   /**
+   * Helper to check if requester has a specific permission
+   */
+  private hasPermission(requester: Requester, permission: string): boolean {
+    if (!requester.permissions) return false;
+    return requester.permissions.includes('*') || requester.permissions.includes(permission);
+  }
+
+  /**
    * Helper to trigger course stats update
    */
   private async triggerStatsUpdate(moduleId: string) {
@@ -172,7 +180,7 @@ export class LessonService implements ILessonService {
    */
   async findByModuleId(moduleId: string, requester?: Requester): Promise<LessonResponseDTO[]> {
     let includeDrafts = false;
-    if (requester && [UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
+    if (requester && (this.hasPermission(requester, 'lesson.create') || this.hasPermission(requester, 'lesson.update'))) {
       includeDrafts = true;
     }
 
@@ -194,12 +202,21 @@ export class LessonService implements ILessonService {
    */
   async create(requester: Requester, dto: LessonCreateDTO): Promise<LessonResponseDTO> {
     // Check permissions
-    if (![UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
-      throw new ForbiddenException('Only admins and lecturers can create lessons');
+    if (!this.hasPermission(requester, 'lesson.create')) {
+      throw new ForbiddenException('Only authorized staff can create lessons');
     }
 
-
     try {
+      const module = await this.moduleRepository.findById(dto.moduleId);
+      if (!module) throw new NotFoundException('Module not found');
+
+      const course = await this.courseService.findOne(module.courseId);
+
+      // Pure Split: LIVE courses cannot have video lessons (must be article/PDF)
+      if (course.type === 'live' && dto.contentType === 'video') {
+        throw new BadRequestException('Live courses cannot have video-only lessons. Use articles for PDF materials.');
+      }
+
       // Get next order index if not provided
       let orderIndex = dto.orderIndex;
       if (orderIndex === undefined) {
@@ -229,6 +246,9 @@ export class LessonService implements ILessonService {
 
       return this.toLessonResponseDTO(lesson);
     } catch (error: any) {
+      if (error instanceof NotFoundException || error instanceof BadRequestException || error instanceof ForbiddenException) {
+        throw error;
+      }
       this.logger.error('Error creating lesson', error);
       throw new BadRequestException(`Failed to create lesson: ${error?.message || 'Unknown error'}`);
     }
@@ -239,14 +259,25 @@ export class LessonService implements ILessonService {
    */
   async update(requester: Requester, lessonId: string, dto: LessonUpdateDTO): Promise<LessonResponseDTO> {
     // Check permissions
-    if (![UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
-      throw new ForbiddenException('Only admins and lecturers can update lessons');
+    if (!this.hasPermission(requester, 'lesson.update')) {
+      throw new ForbiddenException('Only authorized users can update lessons');
     }
 
     const existing = await this.lessonRepository.findById(lessonId);
 
     if (!existing || existing.deletedAt) {
       throw new NotFoundException(`Lesson with id ${lessonId} not found`);
+    }
+
+    // If user cannot publish courses (staff/admin only), check if they are assigned to the course
+    if (!this.hasPermission(requester, 'course.publish')) {
+      const module = await this.moduleRepository.findById(existing.moduleId);
+      if (module) {
+        const isInstructor = await this.courseService.isInstructor(requester.sub, module.courseId);
+        if (!isInstructor) {
+          throw new ForbiddenException('You are not assigned to this course');
+        }
+      }
     }
 
     try {
@@ -285,8 +316,9 @@ export class LessonService implements ILessonService {
    * Delete lesson
    */
   async delete(requester: Requester, lessonId: string, hardDelete = false): Promise<{ message: string }> {
-    if (requester.role !== UserRole.ADMIN) {
-      throw new ForbiddenException('Only admins can delete lessons');
+    // Only authorized users can delete lessons
+    if (!this.hasPermission(requester, 'lesson.delete')) {
+      throw new ForbiddenException('Only authorized staff can delete lessons');
     }
 
     const existing = await this.lessonRepository.findById(lessonId);
@@ -321,8 +353,9 @@ export class LessonService implements ILessonService {
     moduleId: string,
     lessonOrders: { id: string; orderIndex: number }[]
   ): Promise<{ message: string }> {
-    if (![UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
-      throw new ForbiddenException('Only admins and lecturers can reorder lessons');
+    // Only authorized users can reorder lessons
+    if (!this.hasPermission(requester, 'lesson.update')) {
+      throw new ForbiddenException('Only authorized staff can reorder lessons');
     }
 
     try {

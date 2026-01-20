@@ -43,7 +43,7 @@ export function PostCard({ post }: PostCardProps) {
                     <div className="flex items-center gap-4 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">
                         <span className="flex items-center gap-2 text-primary/60">
                             <Clock className="w-3.5 h-3.5" />
-                            {readingTime} min read
+                            {readingTime} phút đọc
                         </span>
                         <div className="w-1 h-1 rounded-full bg-border" />
                         <span className="flex items-center gap-2">

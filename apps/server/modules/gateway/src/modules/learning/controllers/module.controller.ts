@@ -18,13 +18,16 @@ import { firstValueFrom } from 'rxjs';
 import {
     successResponse,
     errorResponse,
-    successPaginatedResponse
+    successPaginatedResponse,
+    Permissions,
+    PermissionsGuard,
 } from '@server/shared';
 import { GatewayAuthGuard } from '@server/shared';
 import { Request } from 'express';
+import { UserRole } from '@workspace/schemas';
 
 @Controller('api/modules')
-@UseGuards(GatewayAuthGuard)
+@UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class ModuleController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
@@ -79,6 +82,7 @@ export class ModuleController {
     }
 
     @Post()
+    @Permissions('module.create')
     @HttpCode(HttpStatus.CREATED)
     async create(@Body() dto: any, @Req() req: Request) {
         try {
@@ -96,6 +100,7 @@ export class ModuleController {
     }
 
     @Post('reorder/:courseId')
+    @Permissions('module.update')
     async reorder(
         @Param('courseId') courseId: string,
         @Body() moduleOrders: { id: string; orderIndex: number }[],
@@ -116,6 +121,7 @@ export class ModuleController {
     }
 
     @Patch(':id')
+    @Permissions('module.update')
     async update(
         @Param('id') id: string,
         @Body() dto: any,
@@ -136,6 +142,7 @@ export class ModuleController {
     }
 
     @Delete(':id')
+    @Permissions('module.delete')
     async delete(
         @Param('id') id: string,
         @Query('hardDelete') hardDelete: string,

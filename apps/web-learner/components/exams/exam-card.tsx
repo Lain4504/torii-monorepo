@@ -65,7 +65,7 @@ export function ExamCard({
                                 {level}
                             </Badge>
                             <Badge variant="outline" className="border-border/40 text-muted-foreground/60 font-black uppercase tracking-widest text-[9px] px-3 py-1 rounded-full">
-                                {type}
+                                {type === 'Full Test' ? 'Bài thi thực tế' : 'Đề thi rút gọn'}
                             </Badge>
                         </div>
                         {status === 'completed' && (
@@ -119,7 +119,7 @@ export function ExamCard({
                                         "text-[8px] font-black px-2 py-0.5 rounded-lg border-none",
                                         (score || 0) >= (maxScore * 0.6) ? "bg-emerald-500/10 text-emerald-500" : "bg-destructive/10 text-destructive"
                                     )}>
-                                        {(score || 0) >= (maxScore * 0.6) ? "PASSED" : "FAILED"}
+                                        {(score || 0) >= (maxScore * 0.6) ? "ĐẠT" : "KHÔNG ĐẠT"}
                                     </Badge>
                                 </div>
                             </div>
@@ -133,7 +133,7 @@ export function ExamCard({
                             className="w-full h-14 rounded-2xl bg-primary text-white font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all cursor-pointer group/btn"
                             onClick={handleStartExam}
                         >
-                            Bắt đầu Arena
+                            Vào thi thử
                             <ArrowRight className="w-4 h-4 ml-2.5 group-hover:translate-x-1 transition-transform" />
                         </Button>
                     )}

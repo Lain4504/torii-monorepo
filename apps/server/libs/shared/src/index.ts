@@ -16,8 +16,8 @@ export * from './guards/gateway-auth.guard';
 export * from './guards/verified.guard';
 export * from './guards/verified-only.decorator';
 export * from './decorators/public.decorator';
-export * from './decorators/roles.decorator';
-export * from './guards/roles.guard';
+export * from './decorators/permissions.decorator';
+export * from './guards/permissions.guard';
 
 export * from './utils/slug.utils';
 export * from './utils/webhook_verify';

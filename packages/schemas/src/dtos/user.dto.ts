@@ -40,10 +40,9 @@ export const adminCreateInternalUserDTOSchema = z.object({
     role: z.enum([
         UserRole.LECTURER,
         UserRole.STAFF,
-        // Staff variants (specific roles)
-        'staff-lms' as any,
-        'staff-support' as any,
-        'staff-sales' as any,
+        UserRole.STAFF_LMS,
+        UserRole.STAFF_SUPPORT,
+        UserRole.STAFF_SALES,
     ]),
 });
 

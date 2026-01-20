@@ -4,6 +4,7 @@ import { Provider as ReduxProvider } from 'react-redux'
 import { store } from './store'
 import { Toaster } from '@workspace/ui/components/sonner'
 import { AuthGuard } from './lib/guard/auth-guard.tsx'
+import { RoutePermissionGuard } from './lib/guard/route-permission-guard.tsx'
 import { ThemeProvider } from "@/lib/providers/theme-provider.tsx"
 // Component imports
 import DashboardLayout from "@/components/layout/dashboard-layout.tsx";
@@ -14,6 +15,8 @@ import { UsersPage } from '@/routes/users/users-page.tsx'
 import CoursesPage from '@/routes/courses/courses-page.tsx'
 import CourseReviewsPage from '@/routes/courses/course-reviews-page.tsx'
 import CourseDetailPage from '@/routes/courses/course-detail-page.tsx'
+import MyCoursesPage from '@/routes/courses/my-courses-page.tsx'
+
 
 import RoomsPage from '@/routes/rooms/rooms-page.tsx'
 import OrdersPage from '@/routes/finance/orders-page.tsx'
@@ -60,13 +63,22 @@ function App() {
                 </AuthGuard>
               }>
                 <Route index element={<DashboardPage />} />
-                <Route path="users" element={<UsersPage />} />
+
                 <Route path="courses" element={<CoursesPage />} />
+                <Route path="courses/my" element={<MyCoursesPage />} />
                 <Route path="courses/reviews" element={<CourseReviewsPage />} />
                 <Route path="courses/:id" element={<CourseDetailPage />} />
 
                 <Route path="rooms" element={<RoomsPage />} />
-                <Route path="posts" element={<PostPage />} />
+
+                {/* Guarded Routes */}
+                <Route element={<RoutePermissionGuard permission="user.manage" />}>
+                  <Route path="users" element={<UsersPage />} />
+                </Route>
+
+                <Route element={<RoutePermissionGuard permission="post.manage" />}>
+                  <Route path="posts" element={<PostPage />} />
+                </Route>
 
                 {/* Question Bank - Unified entry point */}
                 <Route path="question-bank" element={<QuestionBankPage />}>
@@ -77,13 +89,23 @@ function App() {
 
                 {/* Pool detail page */}
                 <Route path="question-bank/pools/:id/questions" element={<PoolDetailPage />} />
-                <Route path="orders" element={<OrdersPage />} />
-                <Route path="transactions" element={<TransactionsPage />} />
-                <Route path="analytics" element={<AnalyticsPage />} />
-                <Route path="notifications" element={<NotificationsPage />} />
-                <Route path="authorization/audit-logs" element={<AuditLogsPage />} />
-                <Route path="permissions" element={<PermissionsPage />} />
-                <Route path="settings" element={<SettingsPage />} />
+
+                <Route element={<RoutePermissionGuard permission="payment.manage" />}>
+                  <Route path="orders" element={<OrdersPage />} />
+                  <Route path="transactions" element={<TransactionsPage />} />
+                </Route>
+
+                <Route element={<RoutePermissionGuard permission="report.view" />}>
+                  <Route path="analytics" element={<AnalyticsPage />} />
+                </Route>
+
+                <Route element={<RoutePermissionGuard permission="system.config" />}>
+                  <Route path="notifications" element={<NotificationsPage />} />
+                  <Route path="authorization/audit-logs" element={<AuditLogsPage />} />
+                  <Route path="permissions" element={<PermissionsPage />} />
+                  <Route path="settings" element={<SettingsPage />} />
+                </Route>
+
                 <Route path="access-denied" element={<AccessDeniedPage />} />
                 <Route path="*" element={<NotFoundPage />} />
               </Route>

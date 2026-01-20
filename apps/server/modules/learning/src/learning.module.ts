@@ -16,6 +16,7 @@ import { CourseInstructorModule } from './modules/course-instructor/course-instr
 import { LessonMaterialModule } from './modules/lesson-material/lesson-material.module';
 import { EnrollmentModule } from './modules/enrollment/enrollment.module';
 import { LearningProgressModule } from './modules/learning-progress/learning-progress.module';
+import { LiveSessionModule } from './modules/live-session/live-session.module';
 
 // Community Modules
 import { PostModule } from './modules/post/post.module';
@@ -52,6 +53,7 @@ import { FlashcardDeckHandler } from './interfaces/nats/flashcard-deck.handler';
 import { FlashcardHandler } from './interfaces/nats/flashcard.handler';
 import { FlashcardReviewHandler } from './interfaces/nats/flashcard-review.handler';
 import { LearningProgressHandler } from './interfaces/nats/learning-progress.handler';
+import { LiveSessionHandler } from './interfaces/nats/live-session.handler';
 
 @Module({
   imports: [
@@ -71,6 +73,7 @@ import { LearningProgressHandler } from './interfaces/nats/learning-progress.han
     LessonMaterialModule,
     EnrollmentModule,
     LearningProgressModule,
+    LiveSessionModule,
 
     // Community Modules
     PostModule,
@@ -108,6 +111,7 @@ import { LearningProgressHandler } from './interfaces/nats/learning-progress.han
     FlashcardHandler,
     FlashcardReviewHandler,
     LearningProgressHandler,
+    LiveSessionHandler,
   ],
   providers: [
     {

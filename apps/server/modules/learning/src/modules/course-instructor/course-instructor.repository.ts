@@ -127,6 +127,27 @@ export class CourseInstructorRepository implements ICourseInstructorRepository {
     }
 
     /**
+     * Update instructor assignment
+     */
+    async update(id: string, data: Prisma.CourseInstructorUpdateInput): Promise<CourseInstructor> {
+        return this.prisma.courseInstructor.update({
+            where: { id },
+            data,
+            include: {
+                course: {
+                    select: {
+                        id: true,
+                        title: true,
+                        slug: true,
+                        thumbnailUrl: true,
+                        status: true,
+                    },
+                },
+            },
+        });
+    }
+
+    /**
      * Unassign lecturer from course
      */
     async unassign(id: string): Promise<void> {

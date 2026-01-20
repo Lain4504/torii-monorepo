@@ -9,7 +9,6 @@ import {
     CreditCard,
     Settings,
     BarChart3,
-
     ShieldCheck,
 } from "lucide-react";
 
@@ -39,18 +38,19 @@ export const mainNavItems: NavItem[] = [
         titleKey: "Khóa học",
         url: "/courses",
         icon: BookOpen,
-        anyPermission: ["course.manage", "course.approve", "course.view_restricted"],
+        anyPermission: ["course.manage", "course.approve", "course.view_restricted", "course.update", "course.create"],
         descriptionKey: "common:navDescriptions.courses",
         items: [
-            { titleKey: "Danh sách khóa học", url: "/courses", permission: "course.view" },
-            { titleKey: "Đánh giá & Phản hồi", url: "/courses/reviews", permission: "course.manage" },
+            { titleKey: "Khóa học của tôi", url: "/courses/my", permission: "course.view_my" },
+            { titleKey: "Tất cả khóa học", url: "/courses", permission: "course.view_restricted" },
+            { titleKey: "Phản hồi học viên", url: "/courses/reviews", permission: "course.manage" },
         ]
     },
     {
         titleKey: "Lớp học trực tuyến",
         url: "/rooms",
         icon: Video,
-        anyPermission: ["live_class.schedule", "live_class.view"],
+        anyPermission: ["live_class.schedule", "live_class.view", "live_class.manage"],
         descriptionKey: "common:navDescriptions.liveClasses",
     },
     {
@@ -68,7 +68,7 @@ export const mainNavItems: NavItem[] = [
         descriptionKey: "common:navDescriptions.users",
         items: [
             { titleKey: "Danh sách người dùng", url: "/users", permission: "user.view" },
-            { titleKey: "Vai trò & Quyền", url: "/permissions", permission: "system.config" },
+            { titleKey: "Vai trò & Quyền", url: "/permissions", permission: "user.manage" },
         ]
     },
     {
@@ -102,7 +102,7 @@ export const systemNavItems: NavItem[] = [
         titleKey: "Nhật ký hệ thống",
         url: "/authorization/audit-logs",
         icon: ShieldCheck,
-        permission: "system.config",
+        permission: "audit.view",
         descriptionKey: "common:navDescriptions.auditLogs",
     },
     {

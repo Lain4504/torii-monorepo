@@ -49,6 +49,7 @@ export * from './dtos/staff-dashboard.dto';
 export * from './dtos/enrollment.dto';
 export * from './dtos/order.dto';
 export * from './dtos/gamification.dto';
+export * from './dtos/live-session.dto';
 
 // Interfaces (only internal/utility types)
 export * from './interfaces/auth.interface';

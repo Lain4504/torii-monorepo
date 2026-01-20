@@ -90,7 +90,7 @@ export default function CourseReviewsPage() {
                 <div className="flex items-center gap-4">
                     <div className="hidden lg:flex flex-col items-end px-4 border-r border-border/40">
                         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic">Tổng số đánh giá</span>
-                        <span className="text-2xl font-bold text-foreground tabular-nums">{data?.total.toLocaleString() || 0}</span>
+                        <span className="text-2xl font-bold text-foreground tabular-nums">{data?.total?.toLocaleString() || 0}</span>
                     </div>
                 </div>
             </div>
@@ -254,7 +254,7 @@ export default function CourseReviewsPage() {
                         <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                             <span>Hiển thị trang <span className="text-foreground">{page}</span> / {totalPages}</span>
                             <span className="mx-1 text-border">|</span>
-                            <span>Tổng cộng <span className="text-foreground">{data?.total.toLocaleString() || 0}</span> đánh giá</span>
+                            <span>Tổng cộng <span className="text-foreground">{data?.total?.toLocaleString() || 0}</span> đánh giá</span>
                         </div>
 
                         {totalPages > 1 && (

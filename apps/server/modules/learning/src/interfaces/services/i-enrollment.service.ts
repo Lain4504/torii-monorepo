@@ -43,7 +43,7 @@ export interface IEnrollmentService {
     /**
      * Update enrollment order ID (internal use)
      */
-    updateOrderId(enrollmentId: string, orderId: string): Promise<void>;
+    updateOrderId(enrollmentId: string, orderId: string): Promise<EnrollmentResponseDTO>;
 }
 
 

@@ -6,8 +6,6 @@ import { z } from 'zod';
  */
 export const auditLogEntryDTOSchema = z.object({
     userId: z.string().uuid(),
-    userEmail: z.string().email(),
-    userRole: z.string(),
     action: z.string(),
     entity: z.string(),
     entityId: z.string().optional(),
@@ -59,8 +57,6 @@ export type AuditContextDTO = z.infer<typeof auditContextDTOSchema>;
 export const auditLogResponseDTOSchema = z.object({
     id: z.string().uuid(),
     userId: z.string().uuid(),
-    userEmail: z.string().email(),
-    userRole: z.string(),
     action: z.string(),
     entity: z.string(),
     entityId: z.string().nullable(),

@@ -57,6 +57,7 @@ export const courseQueryDTOSchema = z.object({
     jlptLevel: z.nativeEnum(JlptLevel).optional(),
     status: z.nativeEnum(CourseStatus).optional(), // Filter by computed status
     search: z.string().optional(),
+    instructorId: z.string().uuid().optional(),
 });
 
 export type CourseQueryDTO = z.infer<typeof courseQueryDTOSchema>;

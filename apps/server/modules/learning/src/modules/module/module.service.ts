@@ -32,6 +32,14 @@ export class ModuleService implements IModuleService {
   ) { }
 
   /**
+   * Helper to check if requester has a specific permission
+   */
+  private hasPermission(requester: Requester, permission: string): boolean {
+    if (!requester.permissions) return false;
+    return requester.permissions.includes('*') || requester.permissions.includes(permission);
+  }
+
+  /**
    * Map Module entity to ModuleResponseDTO
    */
   /**
@@ -116,7 +124,7 @@ export class ModuleService implements IModuleService {
    */
   async findByCourseId(courseId: string, requester?: Requester): Promise<ModuleResponseDTO[]> {
     let includeDrafts = false;
-    if (requester && [UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
+    if (requester && (this.hasPermission(requester, 'module.create') || this.hasPermission(requester, 'module.update'))) {
       includeDrafts = true;
     }
     const modules = await this.moduleRepository.findByCourseId(courseId, includeDrafts);
@@ -128,8 +136,8 @@ export class ModuleService implements IModuleService {
    */
   async create(requester: Requester, dto: ModuleCreateDTO): Promise<ModuleResponseDTO> {
     // Check permissions
-    if (![UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
-      throw new ForbiddenException('Only admins and lecturers can create modules');
+    if (!this.hasPermission(requester, 'module.create')) {
+      throw new ForbiddenException('Only authorized staff can create modules');
     }
 
     try {
@@ -168,14 +176,22 @@ export class ModuleService implements IModuleService {
    */
   async update(requester: Requester, moduleId: string, dto: ModuleUpdateDTO): Promise<ModuleResponseDTO> {
     // Check permissions
-    if (![UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
-      throw new ForbiddenException('Only admins and lecturers can update modules');
+    if (!this.hasPermission(requester, 'module.update')) {
+      throw new ForbiddenException('Only authorized users can update modules');
     }
 
     const existing = await this.moduleRepository.findById(moduleId);
 
     if (!existing || existing.deletedAt) {
       throw new NotFoundException(`Module with id ${moduleId} not found`);
+    }
+
+    // If user cannot publish courses (staff/admin only), check if they are assigned to the course
+    if (!this.hasPermission(requester, 'course.publish')) {
+      const isInstructor = await this.courseService.isInstructor(requester.sub, existing.courseId);
+      if (!isInstructor) {
+        throw new ForbiddenException('You are not assigned to this course');
+      }
     }
 
     try {
@@ -210,8 +226,9 @@ export class ModuleService implements IModuleService {
    * Delete module
    */
   async delete(requester: Requester, moduleId: string, hardDelete = false): Promise<{ message: string }> {
-    if (requester.role !== UserRole.ADMIN) {
-      throw new ForbiddenException('Only admins can delete modules');
+    // Only authorized users can delete modules
+    if (!this.hasPermission(requester, 'module.delete')) {
+      throw new ForbiddenException('Only authorized staff can delete modules');
     }
 
     const existing = await this.moduleRepository.findById(moduleId);
@@ -246,8 +263,9 @@ export class ModuleService implements IModuleService {
     courseId: string,
     moduleOrders: { id: string; orderIndex: number }[]
   ): Promise<{ message: string }> {
-    if (![UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
-      throw new ForbiddenException('Only admins and lecturers can reorder modules');
+    // Only authorized staff can reorder modules
+    if (!this.hasPermission(requester, 'module.update')) {
+      throw new ForbiddenException('Only authorized staff can reorder modules');
     }
 
     try {

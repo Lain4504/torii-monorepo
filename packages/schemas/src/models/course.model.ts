@@ -12,13 +12,23 @@ export enum CourseStatus {
     DRAFT = 'draft',
     PENDING_REVIEW = 'pending_review',
     PUBLISHED = 'published',
+    REJECTED = 'rejected',
+    ARCHIVED = 'archived',
+}
+
+export enum InstructorRole {
+    MAIN = 'MAIN',
+    ASSISTANT = 'ASSISTANT',
+    RECORDER = 'RECORDER',
 }
 
 /**
  * Helper function to derive course status from approvedBy and approvedAt
  */
-export function deriveCourseStatus(approvedBy: string | null | undefined, approvedAt: Date | null | undefined, isSubmittedForReview?: boolean): CourseStatus {
+export function deriveCourseStatus(approvedBy: string | null | undefined, approvedAt: Date | null | undefined, isSubmittedForReview?: boolean, rejectionReason?: string | null, deletedAt?: Date | null): CourseStatus {
+    if (deletedAt) return CourseStatus.ARCHIVED;
     if (approvedBy && approvedAt) return CourseStatus.PUBLISHED;
+    if (rejectionReason) return CourseStatus.REJECTED;
     if (isSubmittedForReview) return CourseStatus.PENDING_REVIEW;
     return CourseStatus.DRAFT;
 }
@@ -51,6 +61,7 @@ export const courseSchema = z.object({
     createdBy: z.string().uuid().optional(),
     approvedBy: z.string().uuid().optional(),
     approvedAt: z.date().optional(),
+    rejectionReason: z.string().optional().nullable(),
     createdAt: z.date(),
     updatedAt: z.date(),
     deletedAt: z.date().optional(),

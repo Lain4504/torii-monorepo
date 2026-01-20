@@ -5,8 +5,6 @@ import { apiClient } from '@/api/api-client.ts';
 export interface AuditLog {
     id: string;
     userId: string;
-    userEmail: string;
-    userRole: string;
     action: string;
     entity: string;
     entityId: string | null;
@@ -47,16 +45,30 @@ export interface PaginatedAuditLogs {
 // API calls
 const auditLogsApi = {
     async query(params: AuditLogFilters) {
-        const res = await apiClient.get<PaginatedAuditLogs>('/api/admin/audit-logs', { params });
-        return res.data;
+        const res = await apiClient.get<{ success: boolean; data: PaginatedAuditLogs }>('/api/admin/audit-logs', { params });
+        return res.data.data;
+    },
+    async getEntityActivity(entity: string, entityId: string, limit: number = 20) {
+        const res = await apiClient.get<{ success: boolean; data: AuditLog[] }>(`/api/admin/audit-logs/entity/${entity}/${entityId}`, {
+            params: { limit }
+        });
+        return res.data.data;
     },
 };
 
-// React Query hook
+// React Query hooks
 export function useAuditLogs(filters: AuditLogFilters) {
     return useQuery({
         queryKey: ['audit-logs', filters],
         queryFn: () => auditLogsApi.query(filters),
+    });
+}
+
+export function useEntityActivity(entity: string, entityId: string, limit: number = 20) {
+    return useQuery({
+        queryKey: ['audit-logs', 'entity', entity, entityId, limit],
+        queryFn: () => auditLogsApi.getEntityActivity(entity, entityId, limit),
+        enabled: !!entityId,
     });
 }
 

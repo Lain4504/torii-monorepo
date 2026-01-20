@@ -28,23 +28,20 @@ roles:
     name: Center Staff
     description: Base role for all center staff members
     
-  # Staff Variant 1: LMS/Academic Staff (extends staff)
+  # Staff Variant 1: LMS/Academic Staff
   - code: staff-lms
     name: LMS Staff
     description: Learning Management & Academic Operations staff
-    extends: staff  # Inherits base staff permissions
     
-  # Staff Variant 2: Support Staff (extends staff)
+  # Staff Variant 2: Support Staff
   - code: staff-support
     name: Support Staff
     description: Customer support and general inquiries
-    extends: staff  # Inherits base staff permissions
     
-  # Staff Variant 3: Sales/Marketing Staff (extends staff)
+  # Staff Variant 3: Sales/Marketing Staff
   - code: staff-sales
     name: Sales Staff
     description: Sales, marketing, and business development
-    extends: staff  # Inherits base staff permissions
     
   # Main Actor 3: Lecturer
   - code: lecturer
@@ -74,6 +71,9 @@ permissions:
   - code: course.publish
     description: Publish/unpublish courses
     category: Course Management
+  - code: course.view_my
+    description: View own courses
+    category: Course Management
   - code: module.create
     description: Create course modules
     category: Course Management
@@ -82,6 +82,15 @@ permissions:
     category: Course Management
   - code: module.delete
     description: Delete course modules
+    category: Course Management
+  - code: lesson.create
+    description: Create course lessons
+    category: Course Management
+  - code: lesson.update
+    description: Edit course lessons
+    category: Course Management
+  - code: lesson.delete
+    description: Delete course lessons
     category: Course Management
     
   # Class Management
@@ -166,6 +175,9 @@ permissions:
   - code: ai.config
     description: Configure AI features
     category: System
+  - code: audit.view
+    description: View system audit logs
+    category: System
 
 # ============================================
 # Default Role Permissions
@@ -182,17 +194,23 @@ default_role_permissions:
     - user.view
     - blog.write
     - report.view
+    - audit.view
     
-  # Staff-LMS: Academic operations (inherits staff + adds more)
+  # Staff-LMS: Academic operations
   staff-lms:
-    # Inherits: user.view, blog.write, report.view
-    # Additional permissions:
+    - user.view
+    - blog.write
+    - report.view
+    - audit.view
     - course.create
     - course.update
     - course.publish
     - module.create
     - module.update
     - module.delete
+    - lesson.create
+    - lesson.update
+    - lesson.delete
     - exam.manage
     - live_class.schedule
     - class_member.view
@@ -202,19 +220,24 @@ default_role_permissions:
     - material.view
     - blog.manage
     - tag.manage
+    - course.view_restricted
     
-  # Staff-Support: Customer support (inherits staff + adds more)
+  # Staff-Support: Customer support
   staff-support:
-    # Inherits: user.view, blog.write, report.view
-    # Additional permissions:
+    - user.view
+    - blog.write
+    - report.view
+    - audit.view
     - user.manage
     - payment.view
     - course.view_restricted
     
-  # Staff-Sales: Sales & Marketing (inherits staff + adds more)
+  # Staff-Sales: Sales & Marketing
   staff-sales:
-    # Inherits: user.view, blog.write, report.view
-    # Additional permissions:
+    - user.view
+    - blog.write
+    - report.view
+    - audit.view
     - payment.view
     - coupon.manage
     - blog.manage
@@ -232,8 +255,13 @@ default_role_permissions:
     - material.upload
     - material.view
     - schedule.view
+    - course.create
     - course.update
     - module.update
+    - lesson.create
+    - lesson.update
+    - lesson.delete
+    - course.view_my
     
   # Learner: No admin permissions
   learner: []

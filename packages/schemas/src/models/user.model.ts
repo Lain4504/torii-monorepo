@@ -6,6 +6,9 @@ export enum UserRole {
     LECTURER = 'lecturer',
     LEARNER = 'learner',
     STAFF = 'staff',
+    STAFF_LMS = 'staff-lms',
+    STAFF_SUPPORT = 'staff-support',
+    STAFF_SALES = 'staff-sales',
 }
 
 // User status is now determined by timestamps:
@@ -41,6 +44,7 @@ export const userSchema = z.object({
     createdAt: z.date(),
     updatedAt: z.date(),
     deletedAt: z.date().optional().nullable(),
+    permissions: z.array(z.string()).optional(),
 });
 
 export type User = z.infer<typeof userSchema>;

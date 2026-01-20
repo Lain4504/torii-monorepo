@@ -42,16 +42,19 @@ export default function LoginPage() {
     dispatch(setError(null));
 
     try {
-      const user = await dispatch(login(data)).unwrap();
+      await dispatch(login(data)).unwrap();
+
+      // Refresh auth state to get full permissions/profile
+      const fullUser = await dispatch(checkAuth()).unwrap();
 
       // Block learner role
-      if (user.role === 'learner') {
+      if (fullUser.role === 'learner') {
         dispatch(setError('Học viên không thể truy cập bảng quản trị.'));
         toast.error('Từ chối truy cập: Cổng quản trị bị hạn chế.');
         return;
       }
 
-      toast.success(`Chào mừng trở lại, ${user.displayName || 'Quản trị viên'}`);
+      toast.success(`Chào mừng trở lại, ${fullUser.displayName || 'Quản trị viên'}`);
       navigate('/', { replace: true });
     } catch (err: any) {
       // Check for 2FA requirement in rejection payload

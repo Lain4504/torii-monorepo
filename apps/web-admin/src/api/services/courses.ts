@@ -49,9 +49,26 @@ export const coursesApi = {
         return response.data.data!.course;
     },
 
+    // POST /api/courses/:id/submit-for-review
+    async submitForReview(id: string): Promise<CourseResponseDTO> {
+        const response = await apiClient.post<StandardApiResponse<{ course: CourseResponseDTO }>>(`/api/courses/${id}/submit-for-review`);
+        return response.data.data!.course;
+    },
+
     // POST /api/courses/:id/unpublish
     async unpublish(id: string): Promise<CourseResponseDTO> {
         const response = await apiClient.post<StandardApiResponse<{ course: CourseResponseDTO }>>(`/api/courses/${id}/unpublish`);
+        return response.data.data!.course;
+    },
+
+    async updateLiveConfig(id: string, config: any): Promise<CourseResponseDTO> {
+        const response = await apiClient.patch<StandardApiResponse<{ course: CourseResponseDTO }>>(`/api/courses/${id}/live-config`, config);
+        return response.data.data!.course;
+    },
+
+    // POST /api/courses/:id/reject
+    async reject(id: string, reason: string): Promise<CourseResponseDTO> {
+        const response = await apiClient.post<StandardApiResponse<{ course: CourseResponseDTO }>>(`/api/courses/${id}/reject`, { reason });
         return response.data.data!.course;
     },
 };
@@ -156,6 +173,21 @@ export function usePublishCourse() {
 }
 
 /**
+ * Hook: Reject course
+ */
+export function useRejectCourse() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ id, reason }: { id: string; reason: string }) => coursesApi.reject(id, reason),
+        onSuccess: (_, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['courses', variables.id] });
+            queryClient.invalidateQueries({ queryKey: ['courses'] });
+        },
+    });
+}
+
+/**
  * Hook: Unpublish course
  */
 export function useUnpublishCourse() {
@@ -166,6 +198,35 @@ export function useUnpublishCourse() {
         onSuccess: (_, id) => {
             queryClient.invalidateQueries({ queryKey: ['courses', id] });
             queryClient.invalidateQueries({ queryKey: ['courses'] });
+        },
+    });
+}
+
+/**
+ * Hook: Submit course for review
+ */
+export function useSubmitCourseForReview() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (id: string) => coursesApi.submitForReview(id),
+        onSuccess: (_, id) => {
+            queryClient.invalidateQueries({ queryKey: ['courses', id] });
+            queryClient.invalidateQueries({ queryKey: ['courses'] });
+        },
+    });
+}
+
+/**
+ * Hook: Update livestream configuration
+ */
+export function useUpdateLiveConfig() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ id, config }: { id: string; config: any }) => coursesApi.updateLiveConfig(id, config),
+        onSuccess: (_, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['courses', variables.id] });
         },
     });
 }

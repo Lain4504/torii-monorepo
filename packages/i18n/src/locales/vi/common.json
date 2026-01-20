@@ -107,14 +107,31 @@
         "header": {
             "courses": "Khóa học",
             "liveClasses": "Lớp trực tuyến",
-            "post": "Bài viết",
+            "post": "Cộng đồng",
             "jlptPractice": "Luyện thi JLPT",
             "flashcards": "Flashcards",
             "login": "Đăng nhập",
             "registerFree": "Đăng ký miễn phí",
             "dashboard": "Bảng điều khiển",
             "logout": "Đăng xuất",
-            "loggingOut": "Đang đăng xuất..."
+            "loggingOut": "Đang đăng xuất...",
+            "theme": {
+                "title": "Chủ đề hiển thị",
+                "light": "Chế độ Sáng",
+                "dark": "Chế độ Tối",
+                "system": "Theo Hệ thống"
+            },
+            "userMenu": {
+                "title": "Trung tâm cá nhân",
+                "dashboard": "Bảng điều khiển",
+                "settings": "Cài đặt tài khoản",
+                "logout": "Đăng xuất",
+                "learnerId": "Mã học viên"
+            },
+            "mobile": {
+                "interface": "Giao diện",
+                "toggleMode": "Đổi chế độ"
+            }
         },
         "footer": {
             "platformDescription": "Nền tảng học tiếng Nhật trực tuyến hàng đầu Việt Nam. Kết hợp lớp học WebRTC chất lượng cao và AI Sensei để mang đến trải nghiệm học tập hiệu quả nhất.",

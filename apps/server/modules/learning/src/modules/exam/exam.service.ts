@@ -843,8 +843,9 @@ export class ExamService implements IExamService {
      * Check if user has permission to manage exams
      */
     private checkPermission(requester: Requester, action: string): void {
-        if (![UserRole.ADMIN, UserRole.STAFF].includes(requester.role as UserRole)) {
-            throw new ForbiddenException(`Only admins and staff can ${action} exams`);
+        const hasPermission = requester.permissions?.includes('*') || requester.permissions?.includes('exam.manage');
+        if (!hasPermission) {
+            throw new ForbiddenException(`Only authorized staff can ${action} exams`);
         }
     }
 

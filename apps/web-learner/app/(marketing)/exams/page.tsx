@@ -65,7 +65,7 @@ export default function ExamPage() {
                 }
 
                 if (selectedType) {
-                    query.examType = selectedType === 'Full Test' ? ExamType.PRACTICE : ExamType.PRACTICE
+                    query.examType = selectedType === 'Bài thi thực tế' ? ExamType.PRACTICE : ExamType.PRACTICE
                 }
 
                 if (searchQuery.trim()) {

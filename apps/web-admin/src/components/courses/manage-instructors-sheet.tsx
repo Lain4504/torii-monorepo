@@ -16,7 +16,7 @@ import { Badge } from '@workspace/ui/components/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar';
 import { Loader2, User as UserIcon, Trash2, Crown, Users, Plus } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
-import { type CourseResponseDTO, UserRole } from '@workspace/schemas';
+import { type CourseResponseDTO, UserRole, InstructorRole } from '@workspace/schemas';
 import { useUsers } from '@/api/services/users';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
 import { Field, FieldLabel } from '@workspace/ui/components/field';
@@ -30,6 +30,7 @@ interface ManageInstructorsSheetProps {
 
 export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageInstructorsSheetProps) {
     const [selectedLecturerId, setSelectedLecturerId] = useState<string>('');
+    const [selectedRole, setSelectedRole] = useState<InstructorRole>(InstructorRole.MAIN);
     const isPrimary = useBoolean(false);
 
     const { data: instructors, isLoading: loadingInstructors } = useCourseInstructors(course?.id || '');
@@ -39,11 +40,11 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
     const updatePrimaryMutation = useUpdatePrimaryInstructor();
 
     // Filter only lecturers from users
-    const lecturers = (usersData?.data || []).filter(user => user.role === UserRole.LECTURER);
+    const lecturers = (usersData?.data || []).filter((user: any) => user.role === UserRole.LECTURER);
 
     // Filter lecturers not already assigned
     const assignedLecturerIds = new Set(instructors?.map(i => i.lecturerId) || []);
-    const availableLecturers = lecturers.filter(l => !assignedLecturerIds.has(l.id));
+    const availableLecturers = lecturers.filter((l: any) => !assignedLecturerIds.has(l.id));
 
     const handleAssign = async () => {
         if (!course || !selectedLecturerId) return;
@@ -52,6 +53,7 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
             await assignMutation.mutateAsync({
                 courseId: course.id,
                 lecturerId: selectedLecturerId,
+                role: selectedRole,
                 isPrimary: isPrimary.value,
             });
             toast.success('Đã phân công giảng viên', {
@@ -226,6 +228,23 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                                                             <p className="text-xs text-muted-foreground/60 italic">Không có giảng viên khả dụng</p>
                                                         </div>
                                                     )}
+                                                </SelectContent>
+                                            </Select>
+                                        </Field>
+
+                                        <Field className="space-y-2.5">
+                                            <FieldLabel htmlFor="role-select" className="text-xs font-bold text-muted-foreground/70 ml-1 uppercase tracking-wider">Vai trò</FieldLabel>
+                                            <Select
+                                                value={selectedRole}
+                                                onValueChange={(val) => setSelectedRole(val as InstructorRole)}
+                                            >
+                                                <SelectTrigger id="role-select" className="h-11 border-border/40 bg-background hover:bg-background/80 focus:ring-primary/20 rounded-xl transition-all shadow-sm">
+                                                    <SelectValue placeholder="Chọn vai trò..." />
+                                                </SelectTrigger>
+                                                <SelectContent className="border-border/10 shadow-xl bg-background/95 backdrop-blur-xl rounded-xl overflow-hidden p-1">
+                                                    <SelectItem value={InstructorRole.MAIN} className="rounded-lg cursor-pointer text-xs font-medium py-2.5">Giảng viên chính</SelectItem>
+                                                    <SelectItem value={InstructorRole.ASSISTANT} className="rounded-lg cursor-pointer text-xs font-medium py-2.5">Trợ giảng</SelectItem>
+                                                    <SelectItem value={InstructorRole.RECORDER} className="rounded-lg cursor-pointer text-xs font-medium py-2.5">Người ghi hình (VOD)</SelectItem>
                                                 </SelectContent>
                                             </Select>
                                         </Field>

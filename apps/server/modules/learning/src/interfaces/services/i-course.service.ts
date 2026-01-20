@@ -18,7 +18,7 @@ export interface ICourseService {
      * @param options - Pagination options including page, limit, search, status, and jlptLevel
      * @returns Paginated response of courses
      */
-    findAll(options: PaginationOptionsDTO & { status?: CourseStatus; jlptLevel?: string }): Promise<PaginatedResponseDTO<CourseResponseDTO>>;
+    findAll(options: PaginationOptionsDTO & { status?: CourseStatus; jlptLevel?: string; instructorId?: string }): Promise<PaginatedResponseDTO<CourseResponseDTO>>;
 
     /**
      * Advanced search for clients
@@ -96,6 +96,17 @@ export interface ICourseService {
     getByType(type: 'vod' | 'live'): Promise<CourseResponseDTO[]>;
 
     /**
+     * Submit course for review
+     * @param requester - The user making the request
+     * @param courseId - The course's unique identifier
+     * @returns The updated course
+     * @throws ForbiddenException if requester doesn't have permission
+     * @throws NotFoundException if course not found
+     */
+    submitForReview(requester: Requester, courseId: string): Promise<CourseResponseDTO>;
+    updateLiveConfig(courseId: string, config: any): Promise<CourseResponseDTO>;
+
+    /**
      * Publish a course
      * @param requester - The user making the request
      * @param courseId - The course's unique identifier
@@ -114,6 +125,17 @@ export interface ICourseService {
      * @throws NotFoundException if course not found
      */
     unpublish(requester: Requester, courseId: string): Promise<CourseResponseDTO>;
+
+    /**
+     * Reject a course (set to rejected and add reason)
+     * @param requester - The user making the request
+     * @param courseId - The course's unique identifier
+     * @param reason - Rejection reason
+     * @returns The updated course
+     * @throws ForbiddenException if requester doesn't have permission
+     * @throws NotFoundException if course not found
+     */
+    reject(requester: Requester, courseId: string, reason: string): Promise<CourseResponseDTO>;
 
     /**
      * Get course curriculum (modules with lessons)
@@ -146,4 +168,12 @@ export interface ICourseService {
      * @param courseId - The course's unique identifier
      */
     recalculateStats(courseId: string): Promise<void>;
+
+    /**
+     * Check if a user is an instructor for a course
+     * @param userId - The user's unique identifier
+     * @param courseId - The course's unique identifier
+     */
+    isInstructor(userId: string, courseId: string): Promise<boolean>;
+
 }

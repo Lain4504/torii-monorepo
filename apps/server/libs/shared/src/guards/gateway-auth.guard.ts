@@ -61,7 +61,11 @@ export class GatewayAuthGuard implements CanActivate {
 
         // Assign payload to request
         request['user'] = payload;
-        request['requester'] = { sub: payload.sub, role: payload.role };
+        request['requester'] = {
+            sub: payload.sub,
+            role: payload.role,
+            permissions: payload.permissions || []
+        };
 
         return true;
     }

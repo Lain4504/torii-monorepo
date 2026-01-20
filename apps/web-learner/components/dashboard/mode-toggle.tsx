@@ -3,6 +3,7 @@
 import * as React from "react"
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
+import { useTranslation } from "@workspace/i18n"
 
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -14,6 +15,7 @@ import {
 
 export function ModeToggle() {
     const { setTheme } = useTheme()
+    const { t } = useTranslation()
 
     return (
         <DropdownMenu>
@@ -33,28 +35,28 @@ export function ModeToggle() {
                 className="w-48 border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl p-3 rounded-[2rem] animate-in slide-in-from-top-2 duration-500"
             >
                 <div className="px-4 py-3 mb-2">
-                    <p className="text-[9px] font-black uppercase tracking-[0.25em] text-muted-foreground/30 italic">Chromatic Mode</p>
+                    <p className="text-[9px] font-black uppercase tracking-[0.25em] text-muted-foreground/30 italic">{t('learner.header.theme.title')}</p>
                 </div>
                 <div className="space-y-1">
                     <DropdownMenuItem
                         onClick={() => setTheme("light")}
                         className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest cursor-pointer focus:bg-primary/5 focus:text-primary transition-all flex items-center justify-between group/mode"
                     >
-                        <span>Light Emission</span>
+                        <span>{t('learner.header.theme.light')}</span>
                         <Sun className="size-3 opacity-20 group-hover/mode:opacity-100 transition-opacity" />
                     </DropdownMenuItem>
                     <DropdownMenuItem
                         onClick={() => setTheme("dark")}
                         className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest cursor-pointer focus:bg-primary/5 focus:text-primary transition-all flex items-center justify-between group/mode"
                     >
-                        <span>Void Matrix</span>
+                        <span>{t('learner.header.theme.dark')}</span>
                         <Moon className="size-3 opacity-20 group-hover/mode:opacity-100 transition-opacity" />
                     </DropdownMenuItem>
                     <DropdownMenuItem
                         onClick={() => setTheme("system")}
                         className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest cursor-pointer focus:bg-primary/5 focus:text-primary transition-all flex items-center justify-between group/mode"
                     >
-                        <span>System Logic</span>
+                        <span>{t('learner.header.theme.system')}</span>
                         <div className="size-1 rounded-full bg-border group-hover/mode:bg-primary transition-colors" />
                     </DropdownMenuItem>
                 </div>

@@ -38,6 +38,7 @@ export class CourseInstructorService implements ICourseInstructorService {
             id: instructor.id,
             courseId: instructor.courseId,
             lecturerId: instructor.lecturerId,
+            role: instructor.role as any,
             isPrimary: instructor.isPrimary,
             assignedDate: instructor.assignedDate,
         };
@@ -112,6 +113,7 @@ export class CourseInstructorService implements ICourseInstructorService {
             const assignment = await this.courseInstructorRepository.assign({
                 course: { connect: { id: dto.courseId } },
                 lecturerId: dto.lecturerId,
+                role: dto.role as any,
                 isPrimary: dto.isPrimary ?? false,
             });
 
@@ -166,7 +168,7 @@ export class CourseInstructorService implements ICourseInstructorService {
     }
 
     /**
-     * Update the primary instructor flag
+     * Update the course instructor assignment
      */
     async updatePrimaryInstructor(requester: Requester, instructorId: string, dto: CourseInstructorUpdateDTO): Promise<CourseInstructorResponseDTO> {
         // Check permissions
@@ -182,10 +184,14 @@ export class CourseInstructorService implements ICourseInstructorService {
         }
 
         try {
-            const updated = await this.courseInstructorRepository.updatePrimary(instructorId, dto.isPrimary);
+            const updateData: any = {};
+            if (dto.isPrimary !== undefined) updateData.isPrimary = dto.isPrimary;
+            if (dto.role !== undefined) updateData.role = dto.role;
+
+            const updated = await this.courseInstructorRepository.update(instructorId, updateData);
             return this.toCourseInstructorResponseDTO(updated);
         } catch (error: any) {
-            this.logger.error('Error updating primary instructor flag', error);
+            this.logger.error('Error updating instructor assignment', error);
             throw new BadRequestException(`Failed to update instructor: ${error?.message || 'Unknown error'}`);
         }
     }
