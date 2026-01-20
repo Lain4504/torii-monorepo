@@ -4,12 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="implement meet UI and logic">
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/auth/login-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/auth/login-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/courses-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/courses-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/question-bank/question-bank-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/question-bank/question-bank-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/rooms/rooms-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/rooms/rooms-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/users/users-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/users/users-page.tsx" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: refactoring order and payos to billing service (#91)">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/payment/order.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/payment/order.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/payment/payos.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/payment/payos.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/services/i-enrollment.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/services/i-enrollment.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/enrollment/enrollment.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/enrollment/enrollment.service.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,7 +17,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1564" />
+    <option name="cachedIndexableFilesCount" value="1648" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -35,7 +35,7 @@
     </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="main" />
+        <entry key="$PROJECT_DIR$" value="refactor-billing" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -122,7 +122,7 @@
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;refactor-billing&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
@@ -136,7 +136,7 @@
     &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;preferences.fileTypes&quot;,
     &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;E:\\projectdev\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
   &quot;keyToStringList&quot;: {
@@ -196,9 +196,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JavaScript Debug.localhost:5173" />
         <item itemvalue="JavaScript Debug.localhost:3000" />
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
-        <item itemvalue="JavaScript Debug.localhost:5173" />
         <item itemvalue="JavaScript Debug.localhost:3000" />
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
       </list>
@@ -207,8 +207,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-28b599e66164-intellij.indexing.shared.core-IU-242.26775.15" />
-        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-IU-242.26775.15" />
+        <option value="bundled-jdk-30f59d01ecdd-26cb7f24e5b0-intellij.indexing.shared.core-IU-253.29346.138" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.29346.138" />
       </set>
     </attachedChunks>
   </component>
@@ -318,6 +318,7 @@
       <workItem from="1768825976336" duration="322000" />
       <workItem from="1768826857511" duration="19000" />
       <workItem from="1768829101896" duration="55000" />
+      <workItem from="1768869517046" duration="1468000" />
     </task>
     <task id="LOCAL-00688" summary="rebuild UI">
       <option name="closed" value="true" />
@@ -728,7 +729,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="meet-ui" />
+                        <option value="main" />
                       </list>
                     </value>
                   </entry>
@@ -746,8 +747,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="docker file build#2" />
-    <MESSAGE value="update nats_server.conf" />
     <MESSAGE value="renmae" />
     <MESSAGE value="fix order bug" />
     <MESSAGE value="fix sepay" />
@@ -771,7 +770,9 @@
     <MESSAGE value="implement meet UI and logic#0" />
     <MESSAGE value="implement meet UI and logic" />
     <MESSAGE value="remove unused files" />
-    <option name="LAST_COMMIT_MESSAGE" value="remove unused files" />
+    <MESSAGE value="fix i18n initialize" />
+    <MESSAGE value="refactor: refactoring order and payos to billing service (#91)" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor: refactoring order and payos to billing service (#91)" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
