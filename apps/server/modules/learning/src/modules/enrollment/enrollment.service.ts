@@ -218,11 +218,12 @@ export class EnrollmentService implements IEnrollmentService {
     /**
      * Update enrollment order ID (internal use for order service)
      */
-    async updateOrderId(enrollmentId: string, orderId: string): Promise<void> {
+    async updateOrderId(enrollmentId: string, orderId: string): Promise<EnrollmentResponseDTO> {
         try {
-            await this.enrollmentRepository.update(enrollmentId, {
+            const updated = await this.enrollmentRepository.update(enrollmentId, {
                 order: { connect: { id: orderId } },
             });
+            return this.toEnrollmentDto(updated);
         } catch (error: any) {
             this.logger.error(`Error updating enrollment order ID: ${error.message}`, error.stack);
             throw error;
