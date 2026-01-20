@@ -660,9 +660,9 @@ export class AuthService implements IAuthService {
         // Get current user to merge userMetadata
         const currentUser = await this.usersRepository.findById(userId);
         const currentMetadata = (currentUser?.userMetadata as Record<string, any>) || {};
-        
+
         // Merge userMetadata if provided
-        const mergedMetadata = dto.userMetadata 
+        const mergedMetadata = dto.userMetadata
             ? { ...currentMetadata, ...dto.userMetadata }
             : currentMetadata;
 
@@ -732,12 +732,12 @@ export class AuthService implements IAuthService {
         if (oldAvatarUrl) {
             try {
                 let fileIdToDelete = oldAvatarUrl;
-                
+
                 // If it's a full URL, try to extract the fileId (last segment)
                 if (oldAvatarUrl.startsWith('http')) {
                     const urlParts = oldAvatarUrl.split('/');
                     let potentialFileId = urlParts[urlParts.length - 1]; // "uuid.png"
-                    
+
                     // Strip extension if present to get raw UUID
                     if (potentialFileId.includes('.')) {
                         potentialFileId = potentialFileId.split('.')[0];

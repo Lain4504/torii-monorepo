@@ -31,7 +31,7 @@ import { Request } from 'express';
 import { UserRole, Requester } from '@workspace/schemas';
 
 interface RequestWithUser extends Request {
-    user: Requester;
+    user: Requester & { email: string };
 }
 
 @Controller('api/courses')
@@ -40,14 +40,14 @@ export class CourseController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     @Post()
-    @Roles(UserRole.ADMIN, UserRole.LECTURER, UserRole.STAFF, UserRole.STAFF_LMS)
+    @Roles(UserRole.ADMIN, UserRole.STAFF, UserRole.STAFF_LMS)
     @HttpCode(HttpStatus.CREATED)
     async createCourse(@Body() dto: any, @Req() req: RequestWithUser) {
         const user = req.user;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.create' },
-                { ...dto, instructorId: user.sub, userRole: user.role }
+                { ...dto, instructorId: user.sub, userRole: user.role, userEmail: user.email }
             )
         );
         return successResponse({ course: result }, 'Course created successfully');
@@ -133,7 +133,7 @@ export class CourseController {
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.update' },
-                { id, ...dto, userId: user.sub, userRole: user.role }
+                { id, ...dto, userId: user.sub, userRole: user.role, userEmail: user.email }
             )
         );
         return successResponse({ course: result }, 'Course updated successfully');
@@ -146,7 +146,7 @@ export class CourseController {
         await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.delete' },
-                { id, userId: user.sub, userRole: user.role }
+                { id, userId: user.sub, userRole: user.role, userEmail: user.email }
             )
         );
         return successResponse(null, 'Course deleted successfully');
@@ -178,7 +178,7 @@ export class CourseController {
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.unpublish' },
-                { id, userId: user.sub, userRole: user.role }
+                { id, userId: user.sub, userRole: user.role, userEmail: user.email }
             )
         );
         return successResponse({ course: result }, 'Course unpublished successfully');
@@ -204,7 +204,7 @@ export class CourseController {
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.submitForReview' },
-                { id, userId: user.sub, userRole: user.role }
+                { id, userId: user.sub, userRole: user.role, userEmail: user.email }
             )
         );
         return successResponse({ course: result }, 'Course submitted for review successfully');
@@ -217,9 +217,27 @@ export class CourseController {
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.publish' },
-                { id, userId: user.sub, userRole: user.role }
+                { id, userId: user.sub, userRole: user.role, userEmail: user.email }
             )
         );
         return successResponse({ course: result }, 'Course published successfully');
     }
+
+    @Post(':id/reject')
+    @Roles(UserRole.ADMIN, UserRole.STAFF, UserRole.STAFF_LMS)
+    async rejectCourse(
+        @Param('id') id: string,
+        @Body() body: { reason: string },
+        @Req() req: RequestWithUser
+    ) {
+        const user = req.user;
+        const result = await firstValueFrom(
+            this.natsClient.send(
+                { cmd: 'learning.course.reject' },
+                { id, userId: user.sub, userRole: user.role, userEmail: user.email, reason: body.reason }
+            )
+        );
+        return successResponse({ course: result }, 'Course rejected successfully');
+    }
+
 }

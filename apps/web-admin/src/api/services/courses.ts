@@ -61,9 +61,14 @@ export const coursesApi = {
         return response.data.data!.course;
     },
 
-    // PATCH /api/courses/:id/live-config
     async updateLiveConfig(id: string, config: any): Promise<CourseResponseDTO> {
         const response = await apiClient.patch<StandardApiResponse<{ course: CourseResponseDTO }>>(`/api/courses/${id}/live-config`, config);
+        return response.data.data!.course;
+    },
+
+    // POST /api/courses/:id/reject
+    async reject(id: string, reason: string): Promise<CourseResponseDTO> {
+        const response = await apiClient.post<StandardApiResponse<{ course: CourseResponseDTO }>>(`/api/courses/${id}/reject`, { reason });
         return response.data.data!.course;
     },
 };
@@ -162,6 +167,21 @@ export function usePublishCourse() {
         mutationFn: (id: string) => coursesApi.publish(id),
         onSuccess: (_, id) => {
             queryClient.invalidateQueries({ queryKey: ['courses', id] });
+            queryClient.invalidateQueries({ queryKey: ['courses'] });
+        },
+    });
+}
+
+/**
+ * Hook: Reject course
+ */
+export function useRejectCourse() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ id, reason }: { id: string; reason: string }) => coursesApi.reject(id, reason),
+        onSuccess: (_, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['courses', variables.id] });
             queryClient.invalidateQueries({ queryKey: ['courses'] });
         },
     });

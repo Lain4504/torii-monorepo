@@ -13,6 +13,7 @@ import { EnrollmentController } from './controllers/enrollment.controller';
 import { QuestionController } from './controllers/question.controller';
 import { QuestionPoolController } from './controllers/question-pool.controller';
 import { ReviewController } from './controllers/review.controller';
+import { LiveSessionController } from './controllers/live-session.controller';
 
 import { WishlistController } from './controllers/wishlist.controller';
 import { PostController } from './controllers/post.controller';
@@ -49,6 +50,7 @@ import { LearningProgressController } from './controllers/learning-progress.cont
         FlashcardController,
         FlashcardReviewController,
         LearningProgressController,
+        LiveSessionController,
     ],
 })
 export class LearningModule { }

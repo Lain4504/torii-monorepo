@@ -42,7 +42,7 @@ export default function LoginPage() {
     dispatch(setError(null));
 
     try {
-      const user = await dispatch(login(data)).unwrap();
+      await dispatch(login(data)).unwrap();
 
       // Refresh auth state to get full permissions/profile
       const fullUser = await dispatch(checkAuth()).unwrap();

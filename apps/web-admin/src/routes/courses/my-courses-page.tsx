@@ -13,6 +13,9 @@ import { Button } from '@workspace/ui/components/button';
 import { CreateCourseSheet } from "@/components/courses/create-course-sheet.tsx";
 import { Plus } from 'lucide-react';
 import type { CourseResponseDTO } from '@workspace/schemas';
+import { CourseAuditLogSheet } from '@/components/courses/course-audit-log-sheet';
+import { LiveSessionManagementSheet } from '@/components/courses/live-session-management-sheet';
+import { RejectCourseDialog } from '@/components/courses/reject-course-dialog';
 
 import { useNavigate } from 'react-router-dom';
 import { EditCourseSheet } from "@/components/courses/edit-course-sheet.tsx";
@@ -31,6 +34,9 @@ export default function MyCoursesPage() {
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [selectedCourse, setSelectedCourse] = useState<CourseResponseDTO | null>(null);
     const [managingInstructorsCourse, setManagingInstructorsCourse] = useState<CourseResponseDTO | null>(null);
+    const [viewingAuditLogCourse, setViewingAuditLogCourse] = useState<CourseResponseDTO | null>(null);
+    const [managingLiveSessionsCourse, setManagingLiveSessionsCourse] = useState<CourseResponseDTO | null>(null);
+    const [rejectingCourse, setRejectingCourse] = useState<CourseResponseDTO | null>(null);
 
     const submitForReviewMutation = useSubmitCourseForReview();
 
@@ -96,6 +102,9 @@ export default function MyCoursesPage() {
                 onModules={(course) => navigate(`/courses/${course.id}`)}
                 onManageInstructors={setManagingInstructorsCourse}
                 onPublish={() => { }}
+                onReject={setRejectingCourse}
+                onViewAuditLog={setViewingAuditLogCourse}
+                onManageLiveSessions={setManagingLiveSessionsCourse}
                 onSubmitForReview={handleSubmitForReview}
                 onUnpublish={() => { }}
                 onTitleClick={(course) => navigate(`/courses/${course.id}`)}
@@ -136,6 +145,24 @@ export default function MyCoursesPage() {
                 open={!!managingInstructorsCourse}
                 onOpenChange={(open) => !open && setManagingInstructorsCourse(null)}
                 course={managingInstructorsCourse}
+            />
+
+            <CourseAuditLogSheet
+                courseId={viewingAuditLogCourse?.id || null}
+                courseTitle={viewingAuditLogCourse?.title || null}
+                onClose={() => setViewingAuditLogCourse(null)}
+            />
+
+            <LiveSessionManagementSheet
+                open={!!managingLiveSessionsCourse}
+                onOpenChange={(open: boolean) => !open && setManagingLiveSessionsCourse(null)}
+                course={managingLiveSessionsCourse}
+            />
+
+            <RejectCourseDialog
+                open={!!rejectingCourse}
+                onOpenChange={(open: boolean) => !open && setRejectingCourse(null)}
+                course={rejectingCourse}
             />
         </div>
     );

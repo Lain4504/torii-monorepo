@@ -193,13 +193,22 @@ export class LessonService implements ILessonService {
    * Create a new lesson
    */
   async create(requester: Requester, dto: LessonCreateDTO): Promise<LessonResponseDTO> {
-    // Check permissions
-    if (![UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
-      throw new ForbiddenException('Only admins and lecturers can create lessons');
+    // Check permissions (Only Admin and Staff can create lessons to standardize syllabus)
+    if (![UserRole.ADMIN, UserRole.STAFF, (UserRole as any).STAFF_LMS].includes(requester.role as UserRole)) {
+      throw new ForbiddenException('Only admins and academic staff can create lessons');
     }
 
-
     try {
+      const module = await this.moduleRepository.findById(dto.moduleId);
+      if (!module) throw new NotFoundException('Module not found');
+
+      const course = await this.courseService.findOne(module.courseId);
+
+      // Pure Split: LIVE courses cannot have video lessons (must be article/PDF)
+      if (course.type === 'live' && dto.contentType === 'video') {
+        throw new BadRequestException('Live courses cannot have video-only lessons. Use articles for PDF materials.');
+      }
+
       // Get next order index if not provided
       let orderIndex = dto.orderIndex;
       if (orderIndex === undefined) {
@@ -229,6 +238,9 @@ export class LessonService implements ILessonService {
 
       return this.toLessonResponseDTO(lesson);
     } catch (error: any) {
+      if (error instanceof NotFoundException || error instanceof BadRequestException || error instanceof ForbiddenException) {
+        throw error;
+      }
       this.logger.error('Error creating lesson', error);
       throw new BadRequestException(`Failed to create lesson: ${error?.message || 'Unknown error'}`);
     }
@@ -239,14 +251,25 @@ export class LessonService implements ILessonService {
    */
   async update(requester: Requester, lessonId: string, dto: LessonUpdateDTO): Promise<LessonResponseDTO> {
     // Check permissions
-    if (![UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
-      throw new ForbiddenException('Only admins and lecturers can update lessons');
+    if (![UserRole.ADMIN, UserRole.STAFF, (UserRole as any).STAFF_LMS, UserRole.LECTURER].includes(requester.role as UserRole)) {
+      throw new ForbiddenException('Only admins, staff and lecturers can update lessons');
     }
 
     const existing = await this.lessonRepository.findById(lessonId);
 
     if (!existing || existing.deletedAt) {
       throw new NotFoundException(`Lesson with id ${lessonId} not found`);
+    }
+
+    // If lecturer, check if they are assigned to the course
+    if (requester.role === UserRole.LECTURER) {
+      const module = await this.moduleRepository.findById(existing.moduleId);
+      if (module) {
+        const isInstructor = await this.courseService.isInstructor(requester.sub, module.courseId);
+        if (!isInstructor) {
+          throw new ForbiddenException('You are not assigned to this course');
+        }
+      }
     }
 
     try {
@@ -285,8 +308,9 @@ export class LessonService implements ILessonService {
    * Delete lesson
    */
   async delete(requester: Requester, lessonId: string, hardDelete = false): Promise<{ message: string }> {
-    if (requester.role !== UserRole.ADMIN) {
-      throw new ForbiddenException('Only admins can delete lessons');
+    // Only Admin and STAFF can delete lessons
+    if (![UserRole.ADMIN, UserRole.STAFF, (UserRole as any).STAFF_LMS].includes(requester.role as UserRole)) {
+      throw new ForbiddenException('Only admins and academic staff can delete lessons');
     }
 
     const existing = await this.lessonRepository.findById(lessonId);
@@ -321,8 +345,9 @@ export class LessonService implements ILessonService {
     moduleId: string,
     lessonOrders: { id: string; orderIndex: number }[]
   ): Promise<{ message: string }> {
-    if (![UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
-      throw new ForbiddenException('Only admins and lecturers can reorder lessons');
+    // Only Admin and STAFF can reorder lessons
+    if (![UserRole.ADMIN, UserRole.STAFF, (UserRole as any).STAFF_LMS].includes(requester.role as UserRole)) {
+      throw new ForbiddenException('Only admins and academic staff can reorder lessons');
     }
 
     try {

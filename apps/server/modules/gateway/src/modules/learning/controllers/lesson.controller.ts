@@ -19,13 +19,16 @@ import {
     successResponse,
     errorResponse,
     successPaginatedResponse,
-    Public
+    Public,
+    Roles,
+    RolesGuard,
 } from '@server/shared';
 import { GatewayAuthGuard } from '@server/shared';
 import { Request } from 'express';
+import { UserRole } from '@workspace/schemas';
 
 @Controller('api/lessons')
-@UseGuards(GatewayAuthGuard)
+@UseGuards(GatewayAuthGuard, RolesGuard)
 export class LessonController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
@@ -102,6 +105,7 @@ export class LessonController {
     }
 
     @Post()
+    @Roles(UserRole.ADMIN, UserRole.STAFF, UserRole.STAFF_LMS)
     @HttpCode(HttpStatus.CREATED)
     async create(@Body() dto: any, @Req() req: Request) {
         try {
@@ -119,6 +123,7 @@ export class LessonController {
     }
 
     @Post('reorder/:moduleId')
+    @Roles(UserRole.ADMIN, UserRole.STAFF, UserRole.STAFF_LMS)
     async reorder(
         @Param('moduleId') moduleId: string,
         @Body() lessonOrders: { id: string; orderIndex: number }[],
@@ -139,6 +144,7 @@ export class LessonController {
     }
 
     @Patch(':id')
+    @Roles(UserRole.ADMIN, UserRole.STAFF, UserRole.STAFF_LMS, UserRole.LECTURER)
     async update(
         @Param('id') id: string,
         @Body() dto: any,
@@ -159,6 +165,7 @@ export class LessonController {
     }
 
     @Delete(':id')
+    @Roles(UserRole.ADMIN, UserRole.STAFF, UserRole.STAFF_LMS)
     async delete(
         @Param('id') id: string,
         @Query('hardDelete') hardDelete: string,

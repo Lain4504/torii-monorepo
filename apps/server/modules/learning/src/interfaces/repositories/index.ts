@@ -1,4 +1,5 @@
 export * from './i-course.repository';
+export * from './i-live-session.repository';
 export * from './i-module.repository';
 export * from './i-lesson.repository';
 export * from './i-course-instructor.repository';
@@ -20,3 +21,4 @@ export const LESSON_MATERIAL_REPOSITORY_TOKEN = Symbol('LESSON_MATERIAL_REPOSITO
 export const REVIEW_REPOSITORY_TOKEN = Symbol('REVIEW_REPOSITORY');
 export { EXAM_REPOSITORY_TOKEN } from './i-exam.repository';
 export const ENROLLMENT_REPOSITORY_TOKEN = Symbol('ENROLLMENT_REPOSITORY');
+export const LIVE_SESSION_REPOSITORY_TOKEN = Symbol('LIVE_SESSION_REPOSITORY');

@@ -26,4 +26,9 @@ export class AuditLogHandler {
     async getEntityActivity(@Payload() data: { entity: string; entityId: string; limit: number }) {
         return this.auditLogService.getEntityActivity(data.entity, data.entityId, data.limit);
     }
+
+    @MessagePattern({ cmd: 'identity.audit.log' })
+    async log(@Payload() entry: any) {
+        return this.auditLogService.log(entry);
+    }
 }

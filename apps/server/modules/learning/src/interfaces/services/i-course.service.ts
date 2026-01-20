@@ -127,6 +127,17 @@ export interface ICourseService {
     unpublish(requester: Requester, courseId: string): Promise<CourseResponseDTO>;
 
     /**
+     * Reject a course (set to rejected and add reason)
+     * @param requester - The user making the request
+     * @param courseId - The course's unique identifier
+     * @param reason - Rejection reason
+     * @returns The updated course
+     * @throws ForbiddenException if requester doesn't have permission
+     * @throws NotFoundException if course not found
+     */
+    reject(requester: Requester, courseId: string, reason: string): Promise<CourseResponseDTO>;
+
+    /**
      * Get course curriculum (modules with lessons)
      * @param courseId - The course's unique identifier
      * @returns The curriculum data with modules and lessons
@@ -157,4 +168,12 @@ export interface ICourseService {
      * @param courseId - The course's unique identifier
      */
     recalculateStats(courseId: string): Promise<void>;
+
+    /**
+     * Check if a user is an instructor for a course
+     * @param userId - The user's unique identifier
+     * @param courseId - The course's unique identifier
+     */
+    isInstructor(userId: string, courseId: string): Promise<boolean>;
+
 }

@@ -2,7 +2,7 @@ import { createColumnHelper } from '@tanstack/react-table';
 import type { CourseResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
 
-import { ArrowUpDown, Pencil, Trash, Users, CheckCircle, XCircle, BookOpen, Clock, Zap, Target, Layers } from 'lucide-react';
+import { ArrowUpDown, Pencil, Trash, Users, CheckCircle, XCircle, BookOpen, Clock, Zap, Target, Layers, History, Video } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -23,13 +23,16 @@ export type CoursesColumnsProps = {
     onPublish: (course: CourseResponseDTO) => void;
     onSubmitForReview: (course: CourseResponseDTO) => void;
     onUnpublish: (course: CourseResponseDTO) => void;
+    onReject: (course: CourseResponseDTO) => void;
     onTitleClick: (course: CourseResponseDTO) => void;
+    onViewAuditLog: (course: CourseResponseDTO) => void;
+    onManageLiveSessions: (course: CourseResponseDTO) => void;
     can: (permission: string) => boolean;
     page: number;
     limit: number;
 };
 
-export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstructors, onPublish, onSubmitForReview, onUnpublish, onTitleClick, can, page, limit }: CoursesColumnsProps) => [
+export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstructors, onPublish, onSubmitForReview, onUnpublish, onReject, onTitleClick, onViewAuditLog, onManageLiveSessions, can, page, limit }: CoursesColumnsProps) => [
     // STT Column
     columnHelper.display({
         id: 'stt',
@@ -223,6 +226,24 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
                                 </DropdownMenuItem>
                             )}
 
+                            {course.type === 'live' && can('course.update') && (
+                                <DropdownMenuItem
+                                    onClick={() => onManageLiveSessions(course)}
+                                    className="rounded-lg px-3 py-2.5 text-xs font-medium focus:bg-primary/10 focus:text-primary cursor-pointer flex gap-2.5"
+                                >
+                                    <Video className="h-4 w-4 opacity-50" />
+                                    <span>Lịch dạy Live</span>
+                                </DropdownMenuItem>
+                            )}
+
+                            <DropdownMenuItem
+                                onClick={() => onViewAuditLog(course)}
+                                className="rounded-lg px-3 py-2.5 text-xs font-medium focus:bg-primary/10 focus:text-primary cursor-pointer flex gap-2.5"
+                            >
+                                <History className="h-4 w-4 opacity-50" />
+                                <span>Lịch sử kiểm duyệt</span>
+                            </DropdownMenuItem>
+
                             <DropdownMenuSeparator className="bg-border/40 m-1" />
 
                             {course.status === 'draft' && can('course.update') ? (
@@ -234,13 +255,22 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
                                     <span>Gửi yêu cầu kiểm duyệt</span>
                                 </DropdownMenuItem>
                             ) : (course.status as any) === 'pending_review' && can('course.publish') ? (
-                                <DropdownMenuItem
-                                    onClick={() => onPublish(course)}
-                                    className="rounded-lg px-3 py-2.5 text-xs font-medium text-emerald-600 focus:text-emerald-700 focus:bg-emerald-500/10 cursor-pointer flex gap-2.5"
-                                >
-                                    <CheckCircle className="h-4 w-4 opacity-60" />
-                                    <span>Phê duyệt & Xuất bản</span>
-                                </DropdownMenuItem>
+                                <>
+                                    <DropdownMenuItem
+                                        onClick={() => onPublish(course)}
+                                        className="rounded-lg px-3 py-2.5 text-xs font-medium text-emerald-600 focus:text-emerald-700 focus:bg-emerald-500/10 cursor-pointer flex gap-2.5"
+                                    >
+                                        <CheckCircle className="h-4 w-4 opacity-60" />
+                                        <span>Phê duyệt & Xuất bản</span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        onClick={() => onReject(course)}
+                                        className="rounded-lg px-3 py-2.5 text-xs font-medium text-rose-600 focus:text-rose-700 focus:bg-rose-500/10 cursor-pointer flex gap-2.5"
+                                    >
+                                        <XCircle className="h-4 w-4 opacity-60" />
+                                        <span>Từ chối & Phản hồi</span>
+                                    </DropdownMenuItem>
+                                </>
                             ) : course.status === 'published' && can('course.publish') ? (
                                 <DropdownMenuItem
                                     onClick={() => onUnpublish(course)}
@@ -249,6 +279,7 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
                                     <XCircle className="h-4 w-4 opacity-60" />
                                     <span>Gỡ bỏ khóa học</span>
                                 </DropdownMenuItem>
+
                             ) : null}
 
                             {can('user.manage') && ( // Assuming course deletion is restricted to high-level users

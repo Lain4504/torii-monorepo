@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UseGuards, Inject } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards, Inject, Param } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { successResponse, errorResponse, successPaginatedResponse, GatewayAuthGuard } from '@server/shared';
@@ -43,7 +43,7 @@ export class AuditLogController {
 
     @Get('user/:userId')
     async getUserActivity(
-        @Query('userId') userId: string,
+        @Param('userId') userId: string,
         @Query('limit') limit?: string,
     ) {
         try {
@@ -61,8 +61,8 @@ export class AuditLogController {
 
     @Get('entity/:entity/:entityId')
     async getEntityActivity(
-        @Query('entity') entity: string,
-        @Query('entityId') entityId: string,
+        @Param('entity') entity: string,
+        @Param('entityId') entityId: string,
         @Query('limit') limit?: string,
     ) {
         try {

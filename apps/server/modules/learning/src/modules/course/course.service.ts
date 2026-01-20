@@ -44,6 +44,28 @@ export class CourseService implements ICourseService {
   ) { }
 
   /**
+   * Helper to emit audit log event
+   */
+  private async createAuditLog(entry: {
+    userId: string;
+    userEmail: string;
+    userRole: string;
+    action: string;
+    entity: string;
+    entityId?: string;
+    description: string;
+    metadata?: any;
+    oldValues?: any;
+    newValues?: any;
+  }) {
+    try {
+      this.natsClient.emit({ cmd: 'identity.audit.log' }, entry);
+    } catch (error) {
+      this.logger.error(`Failed to emit audit log: ${error.message}`);
+    }
+  }
+
+  /**
    * Map Course entity to CourseResponseDTO using AutoMapper
    */
   private toCourseResponseDTO(course: Course): CourseResponseDTO {
@@ -83,13 +105,7 @@ export class CourseService implements ICourseService {
 
       // Filter by status column
       if (status) {
-        if (status === CourseStatus.PUBLISHED) {
-          where.status = PrismaCourseStatus.published;
-        } else if (status === CourseStatus.PENDING_REVIEW) {
-          where.status = PrismaCourseStatus.pending_review;
-        } else if (status === CourseStatus.DRAFT) {
-          where.status = PrismaCourseStatus.draft;
-        }
+        where.status = status;
       }
 
       // Filter by JLPT level
@@ -300,7 +316,7 @@ export class CourseService implements ICourseService {
    */
   async create(requester: Requester, dto: CourseCreateDTO): Promise<CourseResponseDTO> {
     // Check permissions (only ADMIN, STAFF and LECTURER can create courses)
-    if (![UserRole.ADMIN, UserRole.LECTURER, UserRole.STAFF, UserRole.STAFF_LMS].includes(requester.role as UserRole)) {
+    if (![UserRole.ADMIN, UserRole.LECTURER, UserRole.STAFF, (UserRole as any).STAFF_LMS].includes(requester.role as UserRole)) {
       throw new ForbiddenException('Only admins, staff and lecturers can create courses');
     }
 
@@ -332,6 +348,18 @@ export class CourseService implements ICourseService {
       };
 
       const course = await this.courseRepository.create(data);
+
+      await this.createAuditLog({
+        userId: requester.sub,
+        userEmail: (requester as any).email || 'unknown',
+        userRole: requester.role,
+        action: 'course.create',
+        entity: 'course',
+        entityId: course.id,
+        description: `Created course: ${course.title}`,
+        newValues: course,
+      });
+
       return this.toCourseResponseDTO(course);
     } catch (error: any) {
       this.logger.error('Error creating course', error);
@@ -344,7 +372,7 @@ export class CourseService implements ICourseService {
    */
   async update(requester: Requester, courseId: string, dto: CourseUpdateDTO): Promise<CourseResponseDTO> {
     // Check permissions
-    if (![UserRole.ADMIN, UserRole.LECTURER, UserRole.STAFF, UserRole.STAFF_LMS].includes(requester.role as UserRole)) {
+    if (![UserRole.ADMIN, UserRole.STAFF, (UserRole as any).STAFF_LMS, UserRole.LECTURER].includes(requester.role as UserRole)) {
       throw new ForbiddenException('Only admins, staff and lecturers can update courses');
     }
 
@@ -352,6 +380,14 @@ export class CourseService implements ICourseService {
 
     if (!existing || existing.deletedAt) {
       throw new NotFoundException(`Course with id ${courseId} not found`);
+    }
+
+    // If lecturer, check if they are assigned to the course
+    if (requester.role === UserRole.LECTURER) {
+      const isInstructor = await this.isInstructor(requester.sub, courseId);
+      if (!isInstructor) {
+        throw new ForbiddenException('You are not assigned to this course');
+      }
     }
 
     try {
@@ -400,6 +436,18 @@ export class CourseService implements ICourseService {
 
       const course = await this.courseRepository.update(courseId, updateData);
 
+      await this.createAuditLog({
+        userId: requester.sub,
+        userEmail: (requester as any).email || 'unknown',
+        userRole: requester.role,
+        action: 'course.update',
+        entity: 'course',
+        entityId: courseId,
+        description: `Updated course: ${course.title}`,
+        oldValues: existing,
+        newValues: course,
+      });
+
       // Emit event if publishing
       if (isPublishing) {
         try {
@@ -428,8 +476,8 @@ export class CourseService implements ICourseService {
    * Delete course
    */
   async delete(requester: Requester, courseId: string, hardDelete = false): Promise<{ message: string }> {
-    if (requester.role !== UserRole.ADMIN) {
-      throw new ForbiddenException('Only admins can delete courses');
+    if (requester.role !== UserRole.ADMIN && requester.role !== (UserRole as any).STAFF_LMS) {
+      throw new ForbiddenException('Only admins and LMS staff can delete courses');
     }
 
     const existing = await this.courseRepository.findById(courseId);
@@ -444,6 +492,17 @@ export class CourseService implements ICourseService {
       } else {
         await this.courseRepository.softDelete(courseId);
       }
+
+      await this.createAuditLog({
+        userId: requester.sub,
+        userEmail: (requester as any).email || 'unknown',
+        userRole: requester.role,
+        action: hardDelete ? 'course.hard_delete' : 'course.delete',
+        entity: 'course',
+        entityId: courseId,
+        description: `${hardDelete ? 'Hard deleted' : 'Soft deleted'} course: ${existing.title}`,
+        oldValues: existing,
+      });
 
       return { message: 'Course deleted successfully' };
     } catch (error: any) {
@@ -472,7 +531,7 @@ export class CourseService implements ICourseService {
    * Submit a course for review
    */
   async submitForReview(requester: Requester, courseId: string): Promise<CourseResponseDTO> {
-    if (![UserRole.ADMIN, UserRole.STAFF, UserRole.STAFF_LMS, UserRole.LECTURER].includes(requester.role as UserRole)) {
+    if (![UserRole.ADMIN, UserRole.STAFF, (UserRole as any).STAFF_LMS, UserRole.LECTURER].includes(requester.role as UserRole)) {
       throw new ForbiddenException('Only admins, staff and lecturers can submit courses for review');
     }
 
@@ -485,7 +544,20 @@ export class CourseService implements ICourseService {
       throw new BadRequestException('Course is already published');
     }
 
-    const course = await this.courseRepository.update(courseId, { status: PrismaCourseStatus.pending_review });
+    const course = await this.courseRepository.update(courseId, { status: (PrismaCourseStatus as any).pending_review });
+
+    await this.createAuditLog({
+      userId: requester.sub,
+      userEmail: (requester as any).email || 'unknown',
+      userRole: requester.role,
+      action: 'course.submit_for_review',
+      entity: 'course',
+      entityId: courseId,
+      description: `Submitted course for review: ${existing.title}`,
+      oldValues: existing,
+      newValues: course,
+    });
+
     return this.toCourseResponseDTO(course);
   }
 
@@ -510,7 +582,7 @@ export class CourseService implements ICourseService {
    * Publish a course (set approvedBy and approvedAt)
    */
   async publish(requester: Requester, courseId: string): Promise<CourseResponseDTO> {
-    if (![UserRole.ADMIN, UserRole.STAFF, UserRole.STAFF_LMS].includes(requester.role as UserRole)) {
+    if (![UserRole.ADMIN, UserRole.STAFF, (UserRole as any).STAFF_LMS].includes(requester.role as UserRole)) {
       throw new ForbiddenException('Only admins and staff can publish courses');
     }
 
@@ -522,10 +594,23 @@ export class CourseService implements ICourseService {
     const publishUpdateData: any = {
       approvedBy: requester.sub,
       approvedAt: new Date(),
-      status: 'published',
+      status: CourseStatus.PUBLISHED,
+      rejectionReason: null, // Clear any previous rejection
     };
 
     const course = await this.courseRepository.update(courseId, publishUpdateData);
+
+    await this.createAuditLog({
+      userId: requester.sub,
+      userEmail: (requester as any).email || 'unknown',
+      userRole: requester.role,
+      action: 'course.publish',
+      entity: 'course',
+      entityId: courseId,
+      description: `Published course: ${existing.title}`,
+      oldValues: existing,
+      newValues: course,
+    });
 
     // Emit event
     try {
@@ -549,7 +634,7 @@ export class CourseService implements ICourseService {
    * Unpublish a course (clear approvedBy and approvedAt)
    */
   async unpublish(requester: Requester, courseId: string): Promise<CourseResponseDTO> {
-    if (![UserRole.ADMIN, UserRole.STAFF, UserRole.STAFF_LMS].includes(requester.role as UserRole)) {
+    if (![UserRole.ADMIN, UserRole.STAFF, (UserRole as any).STAFF_LMS].includes(requester.role as UserRole)) {
       throw new ForbiddenException('Only admins and staff can unpublish courses');
     }
 
@@ -559,12 +644,59 @@ export class CourseService implements ICourseService {
     }
 
     const unpublishUpdateData: any = {
-      approvedBy: null,
-      approvedAt: null,
-      status: 'draft',
+      status: CourseStatus.ARCHIVED,
     };
 
     const course = await this.courseRepository.update(courseId, unpublishUpdateData);
+
+    await this.createAuditLog({
+      userId: requester.sub,
+      userEmail: (requester as any).email || 'unknown',
+      userRole: requester.role,
+      action: 'course.unpublish',
+      entity: 'course',
+      entityId: courseId,
+      description: `Unpublished course (Archived): ${existing.title}`,
+      oldValues: existing,
+      newValues: course,
+    });
+
+    return this.toCourseResponseDTO(course);
+  }
+
+  /**
+   * Reject a course (set status to rejected and add rejection reason)
+   */
+  async reject(requester: Requester, courseId: string, reason: string): Promise<CourseResponseDTO> {
+    if (![UserRole.ADMIN, UserRole.STAFF, (UserRole as any).STAFF_LMS].includes(requester.role as UserRole)) {
+      throw new ForbiddenException('Only admins and staff can reject courses');
+    }
+
+    const existing = await this.courseRepository.findById(courseId);
+    if (!existing || existing.deletedAt) {
+      throw new NotFoundException(`Course with id ${courseId} not found`);
+    }
+
+    const rejectUpdateData: any = {
+      approvedBy: requester.sub, // Track who rejected it
+      status: CourseStatus.REJECTED,
+      rejectionReason: reason,
+    };
+
+    const course = await this.courseRepository.update(courseId, rejectUpdateData);
+
+    await this.createAuditLog({
+      userId: requester.sub,
+      userEmail: (requester as any).email || 'unknown',
+      userRole: requester.role,
+      action: 'course.reject',
+      entity: 'course',
+      entityId: courseId,
+      description: `Rejected course: ${existing.title}. Reason: ${reason}`,
+      oldValues: existing,
+      newValues: course,
+      metadata: { reason }
+    });
 
     return this.toCourseResponseDTO(course);
   }
@@ -667,4 +799,18 @@ export class CourseService implements ICourseService {
       this.logger.error(`Failed to recalculate stats for course ${courseId}`, error);
     }
   }
+
+  /**
+   * Check if a user is an instructor for a course
+   */
+  async isInstructor(userId: string, courseId: string): Promise<boolean> {
+    try {
+      const instructors = await this.courseRepository.getInstructors(courseId);
+      return instructors.some(instructor => instructor.userId === userId);
+    } catch (error) {
+      this.logger.error(`Failed to check if user ${userId} is instructor for course ${courseId}`, error);
+      return false;
+    }
+  }
+
 }

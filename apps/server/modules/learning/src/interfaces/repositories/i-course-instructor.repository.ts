@@ -36,6 +36,11 @@ export interface ICourseInstructorRepository {
     updatePrimary(id: string, isPrimary: boolean): Promise<CourseInstructor>;
 
     /**
+     * Update instructor assignment
+     */
+    update(id: string, data: Prisma.CourseInstructorUpdateInput): Promise<CourseInstructor>;
+
+    /**
      * Unassign lecturer from course
      */
     unassign(id: string): Promise<void>;

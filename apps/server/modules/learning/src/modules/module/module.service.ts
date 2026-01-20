@@ -127,9 +127,9 @@ export class ModuleService implements IModuleService {
    * Create a new module
    */
   async create(requester: Requester, dto: ModuleCreateDTO): Promise<ModuleResponseDTO> {
-    // Check permissions
-    if (![UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
-      throw new ForbiddenException('Only admins and lecturers can create modules');
+    // Check permissions (Only Admin and Staff can create modules to standardize syllabus)
+    if (![UserRole.ADMIN, UserRole.STAFF, (UserRole as any).STAFF_LMS].includes(requester.role as UserRole)) {
+      throw new ForbiddenException('Only admins and academic staff can create modules');
     }
 
     try {
@@ -167,15 +167,23 @@ export class ModuleService implements IModuleService {
    * Update module
    */
   async update(requester: Requester, moduleId: string, dto: ModuleUpdateDTO): Promise<ModuleResponseDTO> {
-    // Check permissions
-    if (![UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
-      throw new ForbiddenException('Only admins and lecturers can update modules');
+    // Check permissions (Admin, Staff can update anything; Lecturer can update if assigned - assignment check TBD)
+    if (![UserRole.ADMIN, UserRole.STAFF, (UserRole as any).STAFF_LMS, UserRole.LECTURER].includes(requester.role as UserRole)) {
+      throw new ForbiddenException('Only admins, staff and lecturers can update modules');
     }
 
     const existing = await this.moduleRepository.findById(moduleId);
 
     if (!existing || existing.deletedAt) {
       throw new NotFoundException(`Module with id ${moduleId} not found`);
+    }
+
+    // If lecturer, check if they are assigned to the course
+    if (requester.role === UserRole.LECTURER) {
+      const isInstructor = await this.courseService.isInstructor(requester.sub, existing.courseId);
+      if (!isInstructor) {
+        throw new ForbiddenException('You are not assigned to this course');
+      }
     }
 
     try {
@@ -210,8 +218,9 @@ export class ModuleService implements IModuleService {
    * Delete module
    */
   async delete(requester: Requester, moduleId: string, hardDelete = false): Promise<{ message: string }> {
-    if (requester.role !== UserRole.ADMIN) {
-      throw new ForbiddenException('Only admins can delete modules');
+    // Only Admin and Staff can delete modules
+    if (![UserRole.ADMIN, UserRole.STAFF, (UserRole as any).STAFF_LMS].includes(requester.role as UserRole)) {
+      throw new ForbiddenException('Only admins and academic staff can delete modules');
     }
 
     const existing = await this.moduleRepository.findById(moduleId);
@@ -246,8 +255,9 @@ export class ModuleService implements IModuleService {
     courseId: string,
     moduleOrders: { id: string; orderIndex: number }[]
   ): Promise<{ message: string }> {
-    if (![UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
-      throw new ForbiddenException('Only admins and lecturers can reorder modules');
+    // Only Admin and Staff can reorder modules
+    if (![UserRole.ADMIN, UserRole.STAFF, (UserRole as any).STAFF_LMS].includes(requester.role as UserRole)) {
+      throw new ForbiddenException('Only admins and academic staff can reorder modules');
     }
 
     try {

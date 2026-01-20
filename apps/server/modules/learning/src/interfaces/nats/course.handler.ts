@@ -10,9 +10,9 @@ export class CourseHandler {
     ) { }
 
     @MessagePattern({ cmd: 'learning.course.create' })
-    async create(@Payload() data: CourseCreateDTO & { instructorId: string, userRole: string }) {
-        const { instructorId, userRole, ...dto } = data;
-        const requester: Requester = { sub: instructorId, role: userRole as any };
+    async create(@Payload() data: CourseCreateDTO & { instructorId: string, userRole: string, userEmail: string }) {
+        const { instructorId, userRole, userEmail, ...dto } = data;
+        const requester: Requester & { email: string } = { sub: instructorId, role: userRole as any, email: userEmail };
         return this.courseService.create(requester, dto);
     }
 
@@ -47,30 +47,30 @@ export class CourseHandler {
     }
 
     @MessagePattern({ cmd: 'learning.course.update' })
-    async update(@Payload() data: CourseUpdateDTO & { id: string, userId: string, userRole: string }) {
-        const { id, userId, userRole, ...dto } = data;
-        const requester: Requester = { sub: userId, role: userRole as any };
+    async update(@Payload() data: CourseUpdateDTO & { id: string, userId: string, userRole: string, userEmail: string }) {
+        const { id, userId, userRole, userEmail, ...dto } = data;
+        const requester: Requester & { email: string } = { sub: userId, role: userRole as any, email: userEmail };
         return this.courseService.update(requester, id, dto);
     }
 
     @MessagePattern({ cmd: 'learning.course.delete' })
-    async delete(@Payload() data: { id: string, hardDelete?: boolean, userId: string, userRole: string }) {
-        const { id, hardDelete, userId, userRole } = data;
-        const requester: Requester = { sub: userId, role: userRole as any };
+    async delete(@Payload() data: { id: string, hardDelete?: boolean, userId: string, userRole: string, userEmail: string }) {
+        const { id, hardDelete, userId, userRole, userEmail } = data;
+        const requester: Requester & { email: string } = { sub: userId, role: userRole as any, email: userEmail };
         return this.courseService.delete(requester, id, hardDelete);
     }
 
     @MessagePattern({ cmd: 'learning.course.publish' })
-    async publish(@Payload() data: { id: string, userId: string, userRole: string }) {
-        const { id, userId, userRole } = data;
-        const requester: Requester = { sub: userId, role: userRole as any };
+    async publish(@Payload() data: { id: string, userId: string, userRole: string, userEmail: string }) {
+        const { id, userId, userRole, userEmail } = data;
+        const requester: Requester & { email: string } = { sub: userId, role: userRole as any, email: userEmail };
         return this.courseService.publish(requester, id);
     }
 
     @MessagePattern({ cmd: 'learning.course.submitForReview' })
-    async submitForReview(@Payload() data: { id: string, userId: string, userRole: string }) {
-        const { id, userId, userRole } = data;
-        const requester: Requester = { sub: userId, role: userRole as any };
+    async submitForReview(@Payload() data: { id: string, userId: string, userRole: string, userEmail: string }) {
+        const { id, userId, userRole, userEmail } = data;
+        const requester: Requester & { email: string } = { sub: userId, role: userRole as any, email: userEmail };
         return this.courseService.submitForReview(requester, id);
     }
 
@@ -80,9 +80,17 @@ export class CourseHandler {
     }
 
     @MessagePattern({ cmd: 'learning.course.unpublish' })
-    async unpublish(@Payload() data: { id: string, userId: string, userRole: string }) {
-        const { id, userId, userRole } = data;
-        const requester: Requester = { sub: userId, role: userRole as any };
+    async unpublish(@Payload() data: { id: string, userId: string, userRole: string, userEmail: string }) {
+        const { id, userId, userRole, userEmail } = data;
+        const requester: Requester & { email: string } = { sub: userId, role: userRole as any, email: userEmail };
         return this.courseService.unpublish(requester, id);
     }
+
+    @MessagePattern({ cmd: 'learning.course.reject' })
+    async reject(@Payload() data: { id: string, userId: string, userRole: string, userEmail: string, reason: string }) {
+        const { id, userId, userRole, userEmail, reason } = data;
+        const requester: Requester & { email: string } = { sub: userId, role: userRole as any, email: userEmail };
+        return this.courseService.reject(requester, id, reason);
+    }
+
 }

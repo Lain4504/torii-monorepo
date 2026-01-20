@@ -11,6 +11,9 @@ import { EditCourseSheet } from "@/components/courses/edit-course-sheet.tsx";
 import { DeleteCourseDialog } from "@/components/courses/delete-course-dialog.tsx";
 import { ManageInstructorsSheet } from "@/components/courses/manage-instructors-sheet.tsx";
 import { PublishCourseDialog } from "@/components/courses/publish-course-dialog.tsx";
+import { RejectCourseDialog } from "@/components/courses/reject-course-dialog.tsx";
+import { CourseAuditLogSheet } from "@/components/courses/course-audit-log-sheet.tsx";
+import { LiveSessionManagementSheet } from "@/components/courses/live-session-management-sheet.tsx";
 import { usePermissions } from "@/hooks/use-permissions.ts";
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import {
@@ -42,6 +45,9 @@ export default function CoursesPage() {
   const [deletingCourse, setDeletingCourse] = useState<CourseResponseDTO | null>(null);
   const [managingInstructorsCourse, setManagingInstructorsCourse] = useState<CourseResponseDTO | null>(null);
   const [publishingCourse, setPublishingCourse] = useState<CourseResponseDTO | null>(null);
+  const [rejectingCourse, setRejectingCourse] = useState<CourseResponseDTO | null>(null);
+  const [viewingAuditLogCourse, setViewingAuditLogCourse] = useState<CourseResponseDTO | null>(null);
+  const [managingLiveSessionsCourse, setManagingLiveSessionsCourse] = useState<CourseResponseDTO | null>(null);
 
   const queryParams: CourseQueryDTO = {
     page,
@@ -221,6 +227,9 @@ export default function CoursesPage() {
             onModules={(course) => navigate(`/courses/${course.id}`)}
             onManageInstructors={setManagingInstructorsCourse}
             onPublish={setPublishingCourse}
+            onReject={setRejectingCourse}
+            onViewAuditLog={setViewingAuditLogCourse}
+            onManageLiveSessions={setManagingLiveSessionsCourse}
             onSubmitForReview={handleSubmitForReview}
             onUnpublish={handleUnpublish}
             can={can}
@@ -306,6 +315,24 @@ export default function CoursesPage() {
         open={!!publishingCourse}
         onOpenChange={(open) => !open && setPublishingCourse(null)}
         course={publishingCourse}
+      />
+
+      <RejectCourseDialog
+        open={!!rejectingCourse}
+        onOpenChange={(open) => !open && setRejectingCourse(null)}
+        course={rejectingCourse}
+      />
+
+      <CourseAuditLogSheet
+        courseId={viewingAuditLogCourse?.id || null}
+        courseTitle={viewingAuditLogCourse?.title || null}
+        onClose={() => setViewingAuditLogCourse(null)}
+      />
+
+      <LiveSessionManagementSheet
+        open={!!managingLiveSessionsCourse}
+        onOpenChange={(open) => !open && setManagingLiveSessionsCourse(null)}
+        course={managingLiveSessionsCourse}
       />
     </div>
   );

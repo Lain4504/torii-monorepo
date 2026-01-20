@@ -1,4 +1,5 @@
 export * from './i-course.service';
+export * from './i-live-session.service';
 export * from './i-module.service';
 export * from './i-lesson.service';
 export * from './i-course-instructor.service';
@@ -19,3 +20,4 @@ export const COURSE_INSTRUCTOR_SERVICE_TOKEN = Symbol('COURSE_INSTRUCTOR_SERVICE
 export const LESSON_MATERIAL_SERVICE_TOKEN = Symbol('LESSON_MATERIAL_SERVICE');
 export const REVIEW_SERVICE_TOKEN = Symbol('REVIEW_SERVICE');
 export const ENROLLMENT_SERVICE_TOKEN = Symbol('ENROLLMENT_SERVICE');
+export const LIVE_SESSION_SERVICE_TOKEN = Symbol('LIVE_SESSION_SERVICE');

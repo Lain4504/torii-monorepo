@@ -18,6 +18,8 @@ enum CourseStatus {
   draft
   pending_review
   published
+  rejected
+  archived
 }
 
 model Course {
@@ -41,6 +43,7 @@ model Course {
   averageRating    Decimal      @default(0.00) @map("average_rating") @db.Decimal(3, 2)
   totalReviews     Int          @default(0) @map("total_reviews")
   status           CourseStatus @default(draft)
+  rejectionReason  String?      @map("rejection_reason") @db.Text
   isFree           Boolean      @default(false) @map("is_free")
   tags             String[]     @default([]) @db.VarChar(50)
   learningOutcomes Json         @default("[]") @map("learning_outcomes")
@@ -53,12 +56,13 @@ model Course {
   deletedAt        DateTime?    @map("deleted_at")
 
   // Relations
-  modules     Module[]
-  wishlists   Wishlist[]
-  reviews     Review[]
-  quizzes     Quiz[]
-  instructors CourseInstructor[]
-  enrollments Enrollment[]
+  modules      Module[]
+  wishlists    Wishlist[]
+  reviews      Review[]
+  quizzes      Quiz[]
+  instructors  CourseInstructor[]
+  liveSessions LiveSession[]
+  enrollments  Enrollment[]
 
   @@index([jlptLevel])
   @@index([createdBy])
@@ -137,13 +141,20 @@ model LessonProgress {
   @@map("lesson_progress")
 }
 
+enum InstructorRole {
+  MAIN
+  ASSISTANT
+  RECORDER
+}
+
 // Course Instructor - Junction table linking courses to lecturers
 model CourseInstructor {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  courseId     String   @map("course_id") @db.Uuid
-  lecturerId   String   @map("lecturer_id") @db.Uuid
-  isPrimary    Boolean  @default(false) @map("is_primary")
-  assignedDate DateTime @default(now()) @map("assigned_date")
+  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courseId     String         @map("course_id") @db.Uuid
+  lecturerId   String         @map("lecturer_id") @db.Uuid
+  role         InstructorRole @default(MAIN)
+  isPrimary    Boolean        @default(false) @map("is_primary")
+  assignedDate DateTime       @default(now()) @map("assigned_date")
 
   course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
@@ -151,6 +162,27 @@ model CourseInstructor {
   @@index([courseId])
   @@index([lecturerId])
   @@map("course_instructors")
+}
+
+// Live Session - Scheduled live classes for a course
+model LiveSession {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courseId    String   @map("course_id") @db.Uuid
+  lecturerId  String?  @map("lecturer_id") @db.Uuid
+  title       String   @db.VarChar(255)
+  description String?  @db.Text
+  scheduledAt DateTime @map("scheduled_at")
+  duration    Int      @default(90) // minutes
+  status      String   @default("scheduled") // scheduled, live, ended, cancelled
+  meetingId   String?  @map("meeting_id") @db.VarChar(100)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+  
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId])
+  @@index([lecturerId])
+  @@map("live_sessions")
 }
 
 // Lesson Material - Junction table linking lessons to file assets for teaching materials

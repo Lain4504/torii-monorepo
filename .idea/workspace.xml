@@ -4,13 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="implement meet UI and logic">
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/auth/login-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/auth/login-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/courses-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/courses-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/question-bank/question-bank-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/question-bank/question-bank-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/rooms/rooms-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/rooms/rooms-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/users/users-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/users/users-page.tsx" afterDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="merge" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -318,14 +312,6 @@
       <workItem from="1768825976336" duration="322000" />
       <workItem from="1768826857511" duration="19000" />
       <workItem from="1768829101896" duration="55000" />
-    </task>
-    <task id="LOCAL-00688" summary="rebuild UI">
-      <option name="closed" value="true" />
-      <created>1768244727368</created>
-      <option name="number" value="00688" />
-      <option name="presentableId" value="LOCAL-00688" />
-      <option name="project" value="LOCAL" />
-      <updated>1768244727368</updated>
     </task>
     <task id="LOCAL-00689" summary="rebuild UI">
       <option name="closed" value="true" />
@@ -711,7 +697,15 @@
       <option name="project" value="LOCAL" />
       <updated>1768644648916</updated>
     </task>
-    <option name="localTasksCounter" value="737" />
+    <task id="LOCAL-00737" summary="merge">
+      <option name="closed" value="true" />
+      <created>1768881857434</created>
+      <option name="number" value="00737" />
+      <option name="presentableId" value="LOCAL-00737" />
+      <option name="project" value="LOCAL" />
+      <updated>1768881857434</updated>
+    </task>
+    <option name="localTasksCounter" value="738" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -728,7 +722,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="meet-ui" />
+                        <option value="refactor-billing" />
                       </list>
                     </value>
                   </entry>
@@ -746,7 +740,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="docker file build#2" />
     <MESSAGE value="update nats_server.conf" />
     <MESSAGE value="renmae" />
     <MESSAGE value="fix order bug" />
@@ -771,7 +764,8 @@
     <MESSAGE value="implement meet UI and logic#0" />
     <MESSAGE value="implement meet UI and logic" />
     <MESSAGE value="remove unused files" />
-    <option name="LAST_COMMIT_MESSAGE" value="remove unused files" />
+    <MESSAGE value="merge" />
+    <option name="LAST_COMMIT_MESSAGE" value="merge" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
