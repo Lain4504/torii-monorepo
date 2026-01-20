@@ -30,17 +30,32 @@ export class AuthorizationService implements IAuthorizationService {
             return { permissions: ['*'] };
         }
 
-        // Get role permissions from DATABASE
-        const rolePerms = await this.prisma.rolePermission.findMany({
-            where: { roleCode: userRole },
-        });
+        // Use a set to collect all permissions including inherited ones
+        const allPermissions = new Set<string>();
 
-        // Simplified: Strictly Role-Based Access Control
-        // No user-specific overrides
-        const allPermissions = rolePerms.map((rp) => rp.permissionCode);
+        // Recursive helper to get permissions from a role and its ancestors
+        const collectPermissions = async (roleCode: string, visited: Set<string>) => {
+            if (visited.has(roleCode)) return;
+            visited.add(roleCode);
+
+            // Get permissions for current role from DATABASE
+            const rolePerms = await this.prisma.rolePermission.findMany({
+                where: { roleCode },
+            });
+            rolePerms.forEach(rp => allPermissions.add(rp.permissionCode));
+
+            // Check if this role extends another role in the CONFIG
+            const roleDef = this.authorizationConfig.getRoleByCode(roleCode);
+            if (roleDef?.extends) {
+                await collectPermissions(roleDef.extends, visited);
+            }
+        };
+
+        const visitedRoles = new Set<string>();
+        await collectPermissions(userRole, visitedRoles);
 
         return {
-            permissions: Array.from(new Set(allPermissions)), // Remove duplicates
+            permissions: Array.from(allPermissions),
         };
     }
 

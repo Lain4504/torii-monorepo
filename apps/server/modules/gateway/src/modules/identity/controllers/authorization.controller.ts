@@ -10,10 +10,10 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { successResponse, errorResponse, GatewayAuthGuard } from '@server/shared';
+import { successResponse, errorResponse, GatewayAuthGuard, PermissionsGuard, Permissions } from '@server/shared';
 
 @Controller('api/authorization')
-@UseGuards(GatewayAuthGuard)
+@UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class AuthorizationController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
@@ -55,6 +55,7 @@ export class AuthorizationController {
     }
 
     @Put('roles/:roleCode/permissions')
+    @Permissions('user.manage')
     async setRolePermissions(
         @Param('roleCode') roleCode: string,
         @Body() data: { permissions: string[] },
@@ -73,6 +74,7 @@ export class AuthorizationController {
     }
 
     @Post('reseed')
+    @Permissions('user.manage')
     async reseedPermissions() {
         try {
             await firstValueFrom(

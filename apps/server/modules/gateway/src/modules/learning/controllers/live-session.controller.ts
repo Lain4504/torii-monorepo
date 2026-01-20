@@ -14,8 +14,8 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import {
     GatewayAuthGuard,
-    RolesGuard,
-    Roles,
+    PermissionsGuard,
+    Permissions,
     successResponse,
 } from '@server/shared';
 import {
@@ -33,14 +33,14 @@ interface RequestWithUser extends Request {
 }
 
 @Controller('live-sessions')
-@UseGuards(GatewayAuthGuard, RolesGuard)
+@UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class LiveSessionController {
     constructor(
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy
     ) { }
 
     @Post()
-    @Roles(UserRole.ADMIN, UserRole.STAFF, UserRole.STAFF_LMS)
+    @Permissions('live_class.schedule')
     async create(@Body() dto: LiveSessionCreateDTO, @Req() req: RequestWithUser) {
         const user = req.user;
         const result = await firstValueFrom(
@@ -69,7 +69,7 @@ export class LiveSessionController {
     }
 
     @Put(':id')
-    @Roles(UserRole.ADMIN, UserRole.STAFF, UserRole.STAFF_LMS)
+    @Permissions('live_class.schedule')
     async update(
         @Param('id') id: string,
         @Body() dto: LiveSessionUpdateDTO,
@@ -86,7 +86,7 @@ export class LiveSessionController {
     }
 
     @Delete(':id')
-    @Roles(UserRole.ADMIN, UserRole.STAFF, UserRole.STAFF_LMS)
+    @Permissions('live_class.schedule')
     async delete(@Param('id') id: string, @Req() req: RequestWithUser) {
         const user = req.user;
         const result = await firstValueFrom(
@@ -99,7 +99,7 @@ export class LiveSessionController {
     }
 
     @Post(':id/start')
-    @Roles(UserRole.ADMIN, UserRole.STAFF, UserRole.STAFF_LMS, UserRole.LECTURER)
+    @Permissions('live_class.manage')
     async start(@Param('id') id: string, @Req() req: RequestWithUser) {
         const user = req.user;
         const result = await firstValueFrom(
@@ -112,7 +112,7 @@ export class LiveSessionController {
     }
 
     @Post(':id/end')
-    @Roles(UserRole.ADMIN, UserRole.STAFF, UserRole.STAFF_LMS, UserRole.LECTURER)
+    @Permissions('live_class.manage')
     async end(@Param('id') id: string, @Req() req: RequestWithUser) {
         const user = req.user;
         const result = await firstValueFrom(

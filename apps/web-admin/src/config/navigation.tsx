@@ -68,7 +68,7 @@ export const mainNavItems: NavItem[] = [
         descriptionKey: "common:navDescriptions.users",
         items: [
             { titleKey: "Danh sách người dùng", url: "/users", permission: "user.view" },
-            { titleKey: "Vai trò & Quyền", url: "/permissions", permission: "system.config" },
+            { titleKey: "Vai trò & Quyền", url: "/permissions", permission: "user.manage" },
         ]
     },
     {
@@ -102,7 +102,7 @@ export const systemNavItems: NavItem[] = [
         titleKey: "Nhật ký hệ thống",
         url: "/authorization/audit-logs",
         icon: ShieldCheck,
-        permission: "system.config",
+        permission: "audit.view",
         descriptionKey: "common:navDescriptions.auditLogs",
     },
     {

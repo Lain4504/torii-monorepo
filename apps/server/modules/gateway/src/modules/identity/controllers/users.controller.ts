@@ -16,7 +16,7 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { ZodValidationPipe, successResponse, errorResponse, successPaginatedResponse, GatewayAuthGuard } from '@server/shared';
+import { ZodValidationPipe, successResponse, errorResponse, successPaginatedResponse, GatewayAuthGuard, PermissionsGuard, Permissions } from '@server/shared';
 import {
     userCreateDTOSchema,
     userAdminUpdateDTOSchema,
@@ -30,11 +30,12 @@ import type {
 import { Request } from 'express';
 
 @Controller('api/admin/users')
-@UseGuards(GatewayAuthGuard)
+@UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class UsersController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     @Get()
+    @Permissions('user.view')
     async findAll(
         @Query('page') page: number = 1,
         @Query('limit') limit: number = 10,
@@ -54,6 +55,7 @@ export class UsersController {
     }
 
     @Get(':id')
+    @Permissions('user.view')
     async findOne(@Param('id') id: string) {
         try {
             const user = await firstValueFrom(
@@ -66,6 +68,7 @@ export class UsersController {
     }
 
     @Post()
+    @Permissions('user.manage')
     @UsePipes(new ZodValidationPipe(userCreateDTOSchema))
     async create(@Body() dto: UserCreateDTO) {
         try {
@@ -77,6 +80,7 @@ export class UsersController {
     }
 
     @Post('internal')
+    @Permissions('user.manage')
     @UsePipes(new ZodValidationPipe(adminCreateInternalUserDTOSchema))
     async createInternal(
         @Req() req: Request,
@@ -97,6 +101,7 @@ export class UsersController {
     }
 
     @Patch(':id')
+    @Permissions('user.manage')
     @UsePipes(new ZodValidationPipe(userAdminUpdateDTOSchema))
     async update(
         @Req() req: Request,
@@ -118,6 +123,7 @@ export class UsersController {
     }
 
     @Delete(':id')
+    @Permissions('user.manage')
     async delete(
         @Req() req: Request,
         @Param('id') id: string,

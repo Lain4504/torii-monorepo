@@ -44,6 +44,14 @@ export class CourseService implements ICourseService {
   ) { }
 
   /**
+   * Helper to check if requester has a specific permission
+   */
+  private hasPermission(requester: Requester, permission: string): boolean {
+    if (!requester.permissions) return false;
+    return requester.permissions.includes('*') || requester.permissions.includes(permission);
+  }
+
+  /**
    * Helper to emit audit log event
    */
   private async createAuditLog(entry: {
@@ -313,9 +321,9 @@ export class CourseService implements ICourseService {
    * Create a new course
    */
   async create(requester: Requester, dto: CourseCreateDTO): Promise<CourseResponseDTO> {
-    // Check permissions (only ADMIN, STAFF and LECTURER can create courses)
-    if (![UserRole.ADMIN, UserRole.LECTURER, UserRole.STAFF, (UserRole as any).STAFF_LMS].includes(requester.role as UserRole)) {
-      throw new ForbiddenException('Only admins, staff and lecturers can create courses');
+    // Check permissions
+    if (!this.hasPermission(requester, 'course.create')) {
+      throw new ForbiddenException('You do not have permission to create courses');
     }
 
     try {
@@ -368,8 +376,8 @@ export class CourseService implements ICourseService {
    */
   async update(requester: Requester, courseId: string, dto: CourseUpdateDTO): Promise<CourseResponseDTO> {
     // Check permissions
-    if (![UserRole.ADMIN, UserRole.STAFF, (UserRole as any).STAFF_LMS, UserRole.LECTURER].includes(requester.role as UserRole)) {
-      throw new ForbiddenException('Only admins, staff and lecturers can update courses');
+    if (!this.hasPermission(requester, 'course.update')) {
+      throw new ForbiddenException('You do not have permission to update courses');
     }
 
     const existing = await this.courseRepository.findById(courseId);
@@ -470,8 +478,9 @@ export class CourseService implements ICourseService {
    * Delete course
    */
   async delete(requester: Requester, courseId: string, hardDelete = false): Promise<{ message: string }> {
-    if (requester.role !== UserRole.ADMIN && requester.role !== (UserRole as any).STAFF_LMS) {
-      throw new ForbiddenException('Only admins and LMS staff can delete courses');
+    const permission = hardDelete ? 'course.delete' : 'course.delete'; // Both use same for now, or could use course.hard_delete if defined
+    if (!this.hasPermission(requester, 'course.delete')) {
+      throw new ForbiddenException('You do not have permission to delete courses');
     }
 
     const existing = await this.courseRepository.findById(courseId);
@@ -523,8 +532,8 @@ export class CourseService implements ICourseService {
    * Submit a course for review
    */
   async submitForReview(requester: Requester, courseId: string): Promise<CourseResponseDTO> {
-    if (![UserRole.ADMIN, UserRole.STAFF, (UserRole as any).STAFF_LMS, UserRole.LECTURER].includes(requester.role as UserRole)) {
-      throw new ForbiddenException('Only admins, staff and lecturers can submit courses for review');
+    if (!this.hasPermission(requester, 'course.update')) {
+      throw new ForbiddenException('You do not have permission to submit courses for review');
     }
 
     const existing = await this.courseRepository.findById(courseId);
@@ -575,8 +584,8 @@ export class CourseService implements ICourseService {
    * Publish a course (set approvedBy and approvedAt)
    */
   async publish(requester: Requester, courseId: string): Promise<CourseResponseDTO> {
-    if (![UserRole.ADMIN, UserRole.STAFF, (UserRole as any).STAFF_LMS].includes(requester.role as UserRole)) {
-      throw new ForbiddenException('Only admins and staff can publish courses');
+    if (!this.hasPermission(requester, 'course.publish')) {
+      throw new ForbiddenException('You do not have permission to publish courses');
     }
 
     const existing = await this.courseRepository.findById(courseId);

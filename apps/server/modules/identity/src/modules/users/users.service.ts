@@ -45,6 +45,14 @@ export class UsersService implements IUsersService {
     ) { }
 
     /**
+     * Helper to check if requester has a specific permission
+     */
+    private hasPermission(requester: Requester, permission: string): boolean {
+        if (!requester.permissions) return false;
+        return requester.permissions.includes('*') || requester.permissions.includes(permission);
+    }
+
+    /**
      * Find all users with pagination and search
      */
     async findAll(options: PaginationOptionsDTO): Promise<PaginatedResponseDTO<UserResponseDTO>> {
@@ -216,7 +224,8 @@ export class UsersService implements IUsersService {
      * Note: Password changes handled by Firebase, not stored in DB
      */
     async update(requester: Requester, userId: string, dto: UserUpdateDTO): Promise<UserResponseDTO> {
-        if (requester.role !== UserRole.ADMIN && requester.sub !== userId) {
+        // Can edit self, or has user.manage permission
+        if (requester.sub !== userId && !this.hasPermission(requester, 'user.manage')) {
             throw new ForbiddenException('Forbidden');
         }
 
@@ -244,7 +253,8 @@ export class UsersService implements IUsersService {
      * Delete user (soft or hard delete)
      */
     async delete(requester: Requester, userId: string, hardDelete: boolean = false): Promise<{ message: string }> {
-        if (requester.role !== UserRole.ADMIN && requester.sub !== userId) {
+        // Can delete self, or has user.manage permission
+        if (requester.sub !== userId && !this.hasPermission(requester, 'user.manage')) {
             throw new ForbiddenException('Forbidden');
         }
 

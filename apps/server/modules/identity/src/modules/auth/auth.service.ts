@@ -216,9 +216,11 @@ export class AuthService implements IAuthService {
         }
 
         // No 2FA - proceed with normal login
+        const { permissions } = await this.authorizationService.getUserPermissions(user.id, user.role);
         const accessToken = await this.jwtTokenProvider.generateToken({
             sub: user.id,
             role: user.role as UserRole,
+            permissions,
         });
 
         return {
@@ -227,11 +229,12 @@ export class AuthService implements IAuthService {
                 id: user.id,
                 email: user.email,
                 displayName: user.displayName,
-                role: user.role,
+                role: user.role as UserRole,
                 verifiedAt: user.verifiedAt,
                 createdAt: user.createdAt,
                 updatedAt: user.updatedAt,
-            } as UserResponseDTO,
+                permissions,
+            },
             accessToken,
         };
     }
@@ -310,9 +313,11 @@ export class AuthService implements IAuthService {
         }
 
         // Generate access token
+        const { permissions } = await this.authorizationService.getUserPermissions(user.id, user.role);
         const accessToken = await this.jwtTokenProvider.generateToken({
             sub: user.id,
             role: user.role as UserRole,
+            permissions,
         });
 
         // Emit activity
@@ -323,11 +328,12 @@ export class AuthService implements IAuthService {
                 id: user.id,
                 email: user.email,
                 displayName: user.displayName,
-                role: user.role,
+                role: user.role as UserRole,
                 verifiedAt: user.verifiedAt,
                 createdAt: user.createdAt,
                 updatedAt: user.updatedAt,
-            } as UserResponseDTO,
+                permissions,
+            },
             accessToken,
         };
     }
@@ -829,9 +835,11 @@ export class AuthService implements IAuthService {
             await this.userIdentityRepository.updateLastSignIn(existingIdentity.id);
 
             // Generate token
+            const { permissions } = await this.authorizationService.getUserPermissions(user.id, user.role);
             const accessToken = await this.jwtTokenProvider.generateToken({
                 sub: user.id,
                 role: user.role as UserRole,
+                permissions,
             });
 
             // Emit activity
@@ -842,11 +850,12 @@ export class AuthService implements IAuthService {
                     id: user.id,
                     email: user.email,
                     displayName: user.displayName,
-                    role: user.role,
+                    role: user.role as UserRole,
                     verifiedAt: user.verifiedAt,
                     createdAt: user.createdAt,
                     updatedAt: user.updatedAt,
-                } as UserResponseDTO,
+                    permissions,
+                },
                 accessToken,
             };
         }
@@ -878,9 +887,11 @@ export class AuthService implements IAuthService {
                 lastSignInAt: new Date(),
             });
 
+            const { permissions } = await this.authorizationService.getUserPermissions(existingUser.id, existingUser.role);
             const accessToken = await this.jwtTokenProvider.generateToken({
                 sub: existingUser.id,
                 role: existingUser.role as UserRole,
+                permissions,
             });
 
             // Emit activity
@@ -891,11 +902,11 @@ export class AuthService implements IAuthService {
                     id: existingUser.id,
                     email: existingUser.email,
                     displayName: existingUser.displayName,
-                    role: existingUser.role,
-                    emailVerified: true,
+                    role: existingUser.role as UserRole,
                     createdAt: existingUser.createdAt,
                     updatedAt: existingUser.updatedAt,
-                } as UserResponseDTO,
+                    permissions,
+                },
                 accessToken,
             };
         }
@@ -923,9 +934,11 @@ export class AuthService implements IAuthService {
             providerData: googleUser as unknown as Prisma.InputJsonValue,
         });
 
+        const { permissions } = await this.authorizationService.getUserPermissions(newUser.id, newUser.role);
         const accessToken = await this.jwtTokenProvider.generateToken({
             sub: newUser.id,
             role: newUser.role as UserRole,
+            permissions,
         });
 
         // Emit activity
@@ -936,11 +949,12 @@ export class AuthService implements IAuthService {
                 id: newUser.id,
                 email: newUser.email,
                 displayName: newUser.displayName,
-                role: newUser.role,
+                role: newUser.role as UserRole,
                 verifiedAt: newUser.verifiedAt,
                 createdAt: newUser.createdAt,
                 updatedAt: newUser.updatedAt,
-            } as UserResponseDTO,
+                permissions,
+            },
             accessToken,
         };
     }
@@ -1127,9 +1141,11 @@ export class AuthService implements IAuthService {
      * Generate access token for a user
      */
     async generateAccessToken(userId: string, role: string): Promise<string> {
+        const { permissions } = await this.authorizationService.getUserPermissions(userId, role);
         return this.jwtTokenProvider.generateToken({
             sub: userId,
             role: role as UserRole,
+            permissions,
         });
     }
 
