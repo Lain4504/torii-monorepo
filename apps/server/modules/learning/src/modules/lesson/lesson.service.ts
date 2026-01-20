@@ -36,6 +36,14 @@ export class LessonService implements ILessonService {
   ) { }
 
   /**
+   * Helper to check if requester has a specific permission
+   */
+  private hasPermission(requester: Requester, permission: string): boolean {
+    if (!requester.permissions) return false;
+    return requester.permissions.includes('*') || requester.permissions.includes(permission);
+  }
+
+  /**
    * Helper to trigger course stats update
    */
   private async triggerStatsUpdate(moduleId: string) {
@@ -172,7 +180,7 @@ export class LessonService implements ILessonService {
    */
   async findByModuleId(moduleId: string, requester?: Requester): Promise<LessonResponseDTO[]> {
     let includeDrafts = false;
-    if (requester && [UserRole.ADMIN, UserRole.LECTURER].includes(requester.role as UserRole)) {
+    if (requester && (this.hasPermission(requester, 'lesson.create') || this.hasPermission(requester, 'lesson.update'))) {
       includeDrafts = true;
     }
 
@@ -193,9 +201,9 @@ export class LessonService implements ILessonService {
    * Create a new lesson
    */
   async create(requester: Requester, dto: LessonCreateDTO): Promise<LessonResponseDTO> {
-    // Check permissions (Only Admin and Staff can create lessons to standardize syllabus)
-    if (![UserRole.ADMIN, UserRole.STAFF, (UserRole as any).STAFF_LMS].includes(requester.role as UserRole)) {
-      throw new ForbiddenException('Only admins and academic staff can create lessons');
+    // Check permissions
+    if (!this.hasPermission(requester, 'lesson.create')) {
+      throw new ForbiddenException('Only authorized staff can create lessons');
     }
 
     try {
@@ -251,8 +259,8 @@ export class LessonService implements ILessonService {
    */
   async update(requester: Requester, lessonId: string, dto: LessonUpdateDTO): Promise<LessonResponseDTO> {
     // Check permissions
-    if (![UserRole.ADMIN, UserRole.STAFF, (UserRole as any).STAFF_LMS, UserRole.LECTURER].includes(requester.role as UserRole)) {
-      throw new ForbiddenException('Only admins, staff and lecturers can update lessons');
+    if (!this.hasPermission(requester, 'lesson.update')) {
+      throw new ForbiddenException('Only authorized users can update lessons');
     }
 
     const existing = await this.lessonRepository.findById(lessonId);
@@ -308,9 +316,9 @@ export class LessonService implements ILessonService {
    * Delete lesson
    */
   async delete(requester: Requester, lessonId: string, hardDelete = false): Promise<{ message: string }> {
-    // Only Admin and STAFF can delete lessons
-    if (![UserRole.ADMIN, UserRole.STAFF, (UserRole as any).STAFF_LMS].includes(requester.role as UserRole)) {
-      throw new ForbiddenException('Only admins and academic staff can delete lessons');
+    // Only authorized users can delete lessons
+    if (!this.hasPermission(requester, 'lesson.delete')) {
+      throw new ForbiddenException('Only authorized staff can delete lessons');
     }
 
     const existing = await this.lessonRepository.findById(lessonId);
@@ -345,9 +353,9 @@ export class LessonService implements ILessonService {
     moduleId: string,
     lessonOrders: { id: string; orderIndex: number }[]
   ): Promise<{ message: string }> {
-    // Only Admin and STAFF can reorder lessons
-    if (![UserRole.ADMIN, UserRole.STAFF, (UserRole as any).STAFF_LMS].includes(requester.role as UserRole)) {
-      throw new ForbiddenException('Only admins and academic staff can reorder lessons');
+    // Only authorized users can reorder lessons
+    if (!this.hasPermission(requester, 'lesson.update')) {
+      throw new ForbiddenException('Only authorized staff can reorder lessons');
     }
 
     try {

@@ -31,10 +31,17 @@ export class LiveSessionService implements ILiveSessionService {
     constructor(
         @Inject(LIVE_SESSION_REPOSITORY_TOKEN)
         private readonly liveSessionRepository: ILiveSessionRepository,
-        @Inject(COURSE_REPOSITORY_TOKEN)
         private readonly courseRepository: ICourseRepository,
         private readonly prisma: PrismaService,
     ) { }
+
+    /**
+     * Helper to check if requester has a specific permission
+     */
+    private hasPermission(requester: Requester, permission: string): boolean {
+        if (!requester.permissions) return false;
+        return requester.permissions.includes('*') || requester.permissions.includes(permission);
+    }
 
     private toLiveSessionResponseDTO(session: LiveSession): LiveSessionResponseDTO {
         return {
@@ -66,9 +73,9 @@ export class LiveSessionService implements ILiveSessionService {
     }
 
     async create(requester: Requester, dto: LiveSessionCreateDTO): Promise<LiveSessionResponseDTO> {
-        // Only Admin and Staff (LMS) can create live sessions
-        if (![UserRole.ADMIN, UserRole.STAFF, (UserRole as any).STAFF_LMS].includes(requester.role as UserRole)) {
-            throw new ForbiddenException('Only admins and academic staff can schedule live sessions');
+        // Only authorized users can create live sessions
+        if (!this.hasPermission(requester, 'live_class.schedule')) {
+            throw new ForbiddenException('Only authorized staff can schedule live sessions');
         }
 
         const course = await this.courseRepository.findById(dto.courseId);
@@ -93,9 +100,9 @@ export class LiveSessionService implements ILiveSessionService {
     }
 
     async update(requester: Requester, id: string, dto: LiveSessionUpdateDTO): Promise<LiveSessionResponseDTO> {
-        // Only Admin and Staff (LMS) can update live sessions
-        if (![UserRole.ADMIN, UserRole.STAFF, (UserRole as any).STAFF_LMS].includes(requester.role as UserRole)) {
-            throw new ForbiddenException('Only admins and academic staff can update live sessions');
+        // Only authorized users can update live sessions
+        if (!this.hasPermission(requester, 'live_class.schedule')) {
+            throw new ForbiddenException('Only authorized staff can update live sessions');
         }
 
         const existing = await this.liveSessionRepository.findById(id);
@@ -117,9 +124,9 @@ export class LiveSessionService implements ILiveSessionService {
     }
 
     async delete(requester: Requester, id: string): Promise<{ message: string }> {
-        // Only Admin and Staff (LMS) can delete live sessions
-        if (![UserRole.ADMIN, UserRole.STAFF, (UserRole as any).STAFF_LMS].includes(requester.role as UserRole)) {
-            throw new ForbiddenException('Only admins and academic staff can delete live sessions');
+        // Only authorized users can delete live sessions
+        if (!this.hasPermission(requester, 'live_class.schedule')) {
+            throw new ForbiddenException('Only authorized staff can delete live sessions');
         }
 
         const existing = await this.liveSessionRepository.findById(id);
@@ -137,11 +144,11 @@ export class LiveSessionService implements ILiveSessionService {
             throw new NotFoundException(`Live session with id ${id} not found`);
         }
 
-        // Only Admin, Staff, or the assigned Lecturer can start the session
+        // Only Admin, Staff (manage), or the assigned Lecturer can start the session
         const isAssigned = existing.lecturerId === requester.sub;
-        const isStaff = [UserRole.ADMIN, UserRole.STAFF, (UserRole as any).STAFF_LMS].includes(requester.role as UserRole);
+        const hasManagePermission = this.hasPermission(requester, 'live_class.manage');
 
-        if (!isAssigned && !isStaff) {
+        if (!isAssigned && !hasManagePermission) {
             throw new ForbiddenException('You are not authorized to start this session');
         }
 
@@ -155,11 +162,11 @@ export class LiveSessionService implements ILiveSessionService {
             throw new NotFoundException(`Live session with id ${id} not found`);
         }
 
-        // Only Admin, Staff, or the assigned Lecturer can end the session
+        // Only Admin, Staff (manage), or the assigned Lecturer can end the session
         const isAssigned = existing.lecturerId === requester.sub;
-        const isStaff = [UserRole.ADMIN, UserRole.STAFF, (UserRole as any).STAFF_LMS].includes(requester.role as UserRole);
+        const hasManagePermission = this.hasPermission(requester, 'live_class.manage');
 
-        if (!isAssigned && !isStaff) {
+        if (!isAssigned && !hasManagePermission) {
             throw new ForbiddenException('You are not authorized to end this session');
         }
 

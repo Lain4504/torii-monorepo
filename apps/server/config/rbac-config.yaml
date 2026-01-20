@@ -28,23 +28,20 @@ roles:
     name: Center Staff
     description: Base role for all center staff members
     
-  # Staff Variant 1: LMS/Academic Staff (extends staff)
+  # Staff Variant 1: LMS/Academic Staff
   - code: staff-lms
     name: LMS Staff
     description: Learning Management & Academic Operations staff
-    extends: staff  # Inherits base staff permissions
     
-  # Staff Variant 2: Support Staff (extends staff)
+  # Staff Variant 2: Support Staff
   - code: staff-support
     name: Support Staff
     description: Customer support and general inquiries
-    extends: staff  # Inherits base staff permissions
     
-  # Staff Variant 3: Sales/Marketing Staff (extends staff)
+  # Staff Variant 3: Sales/Marketing Staff
   - code: staff-sales
     name: Sales Staff
     description: Sales, marketing, and business development
-    extends: staff  # Inherits base staff permissions
     
   # Main Actor 3: Lecturer
   - code: lecturer
@@ -199,10 +196,12 @@ default_role_permissions:
     - report.view
     - audit.view
     
-  # Staff-LMS: Academic operations (inherits staff + adds more)
+  # Staff-LMS: Academic operations
   staff-lms:
-    # Inherits: user.view, blog.write, report.view
-    # Additional permissions:
+    - user.view
+    - blog.write
+    - report.view
+    - audit.view
     - course.create
     - course.update
     - course.publish
@@ -223,18 +222,22 @@ default_role_permissions:
     - tag.manage
     - course.view_restricted
     
-  # Staff-Support: Customer support (inherits staff + adds more)
+  # Staff-Support: Customer support
   staff-support:
-    # Inherits: user.view, blog.write, report.view
-    # Additional permissions:
+    - user.view
+    - blog.write
+    - report.view
+    - audit.view
     - user.manage
     - payment.view
     - course.view_restricted
     
-  # Staff-Sales: Sales & Marketing (inherits staff + adds more)
+  # Staff-Sales: Sales & Marketing
   staff-sales:
-    # Inherits: user.view, blog.write, report.view
-    # Additional permissions:
+    - user.view
+    - blog.write
+    - report.view
+    - audit.view
     - payment.view
     - coupon.manage
     - blog.manage

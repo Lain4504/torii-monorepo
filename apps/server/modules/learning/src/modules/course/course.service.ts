@@ -634,8 +634,8 @@ export class CourseService implements ICourseService {
    * Unpublish a course (clear approvedBy and approvedAt)
    */
   async unpublish(requester: Requester, courseId: string): Promise<CourseResponseDTO> {
-    if (![UserRole.ADMIN, UserRole.STAFF, (UserRole as any).STAFF_LMS].includes(requester.role as UserRole)) {
-      throw new ForbiddenException('Only admins and staff can unpublish courses');
+    if (!this.hasPermission(requester, 'course.publish')) {
+      throw new ForbiddenException('Only authorized staff can unpublish courses');
     }
 
     const existing = await this.courseRepository.findById(courseId);
@@ -666,8 +666,8 @@ export class CourseService implements ICourseService {
    * Reject a course (set status to rejected and add rejection reason)
    */
   async reject(requester: Requester, courseId: string, reason: string): Promise<CourseResponseDTO> {
-    if (![UserRole.ADMIN, UserRole.STAFF, (UserRole as any).STAFF_LMS].includes(requester.role as UserRole)) {
-      throw new ForbiddenException('Only admins and staff can reject courses');
+    if (!this.hasPermission(requester, 'course.publish')) {
+      throw new ForbiddenException('Only authorized staff can reject courses');
     }
 
     const existing = await this.courseRepository.findById(courseId);
