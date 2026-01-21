@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { SharedModule } from '@server/shared';
 import { FileModule } from '../file/file.module';
+import { WebhookModule } from '../../infrastructure/webhook/webhook.module';
+import { ArtifactsModule } from '../artifacts/artifacts.module';
 
 // Controllers
-
-import { WebhookController } from '../../infrastructure/webhook/webhook.controller';
 
 // NOTE: NatsAuthCalloutController removed - auth callout is now handled
 // directly in NatsController via raw NATS subscription to bypass JSON parsing
@@ -34,25 +34,20 @@ import { NatsController } from '../../interfaces/nats/nats.controller';
 // Redis Services
 import { RedisLockService } from '../../infrastructure/redis/redis-lock.service';
 import { RedisRoomService } from '../../infrastructure/redis/redis-room.service';
-
-// Other services
-import { WebhookService } from '../../infrastructure/webhook/webhook.service';
-import { WebhookNotifierService } from '../../infrastructure/webhook/webhook-notifier.service';
 import { LiveKitService } from '../../infrastructure/livekit/livekit.service';
 
 // Polls services
 import { PollsService } from '../polls/polls.service';
 import { RedisPollService } from '../../infrastructure/redis/redis-poll.service';
-// TODO: Import AnalyticsService later
-// import { AnalyticsService } from '../analytics/analytics.service';
+import { AnalyticsService } from '../analytics/analytics.service';
+import { RedisAnalyticsService } from '../../infrastructure/redis/redis-analytics.service';
 
 // Auth services
 import { WajlcAuthService } from '../auth/wajlc-auth.service';
 
 @Module({
-  imports: [SharedModule, FileModule],
+  imports: [SharedModule, FileModule, WebhookModule, ArtifactsModule],
   controllers: [
-    WebhookController,
     // NatsAuthCalloutController removed - handled in NatsController now
   ],
   providers: [
@@ -63,7 +58,6 @@ import { WajlcAuthService } from '../auth/wajlc-auth.service';
     RoomEndService,
     RoomDurationService,
     RoomUserService,
-    WebhookService,
     WaitingRoomService,
 
     // Auth services
@@ -89,13 +83,10 @@ import { WajlcAuthService } from '../auth/wajlc-auth.service';
     // LiveKit services
     LiveKitService,
 
-    // Webhook services
-    WebhookNotifierService,
-
     // Polls services
-    PollsService,
-    RedisPollService,
-    // TODO: Add AnalyticsService later
+    // Analytics services
+    AnalyticsService,
+    RedisAnalyticsService,
   ],
   exports: [
     RoomInfoService,
@@ -105,8 +96,8 @@ import { WajlcAuthService } from '../auth/wajlc-auth.service';
     RoomUserService,
     RoomDurationService,
     PollsService, // Export PollsService so it can be used in MeetModule
-    WebhookService, // Export WebhookService
-    WaitingRoomService, // Export WaitingRoomService
+    AnalyticsService,
+    WaitingRoomService,
     LiveKitService,
   ],
 })
