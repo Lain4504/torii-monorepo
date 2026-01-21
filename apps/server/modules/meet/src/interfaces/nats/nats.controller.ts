@@ -18,8 +18,9 @@ import { NatsAuthCalloutService } from './nats-auth-callout.service';
 import { RetentionPolicy, AckPolicy } from 'nats';
 import { NatsSystemEventsService } from './nats-system-events.service';
 import { fromBinary } from '@bufbuild/protobuf';
-import { NatsMsgClientToServerSchema, NatsMsgClientToServerEvents } from '@workspace/protocol';
+import { NatsMsgClientToServerSchema, NatsMsgClientToServerEvents, AnalyticsDataMsgSchema } from '@workspace/protocol';
 import { RoomUserService } from '../../modules/room/room-user.service';
+import { AnalyticsService } from '../../modules/analytics/analytics.service';
 
 // Constants
 const DEFAULT_NUM_WORKERS = 20; //50
@@ -64,6 +65,7 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
         private readonly authCalloutService: NatsAuthCalloutService,
         private readonly natsSystemEventsService: NatsSystemEventsService,
         private readonly roomUserService: RoomUserService,
+        private readonly analyticsService: AnalyticsService,
     ) { }
 
     /**
@@ -395,9 +397,14 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
                     break;
 
                 case NatsMsgClientToServerEvents.PUSH_ANALYTICS_DATA:
-                    // Analytics data from client - currently not implemented
-                    // But we log it to confirm we are receiving it from the migrated client
-                    this.logger.log(`Analytics data received from ${userId} in room ${roomId}. Implementation pending.`);
+                    {
+                        try {
+                            const analyticsData = fromBinary(AnalyticsDataMsgSchema, req.msg);
+                            await this.analyticsService.handleEvent(analyticsData);
+                        } catch (error) {
+                            this.logger.error(`Failed to parse or handle analytics data: ${error.message}`);
+                        }
+                    }
                     break;
 
                 default:

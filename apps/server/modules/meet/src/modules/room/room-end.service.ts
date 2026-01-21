@@ -18,6 +18,7 @@ import { waitUntilRoomCreationCompletes } from './room-lock.helper';
 import { RoomInfoService } from './room-info.service';
 import { RoomDurationService } from './room-duration.service';
 import { PollsService } from "../polls/polls.service";
+import { AnalyticsService } from '../analytics/analytics.service';
 
 /**
  * RoomEndService handles room termination and cleanup
@@ -37,7 +38,7 @@ export class RoomEndService {
         private readonly roomInfoService: RoomInfoService,
         private readonly roomDuration: RoomDurationService,
         private readonly pollsService: PollsService,
-
+        private readonly analyticsService: AnalyticsService,
     ) { }
 
     /**
@@ -285,9 +286,8 @@ export class RoomEndService {
         this.logger.log(`Room has been cleaned properly: ${roomId}`);
 
         // Step 15: Schedule the analytics export to run after a delay
-        // TODO: Implement analytics model
-        // setTimeout(() => {
-        //     this.analyticsModel.prepareToExportAnalytics(roomId, roomSID, metadata);
-        // }, 10000); // 10 seconds delay
+        setTimeout(() => {
+            this.analyticsService.prepareToExportAnalytics(roomId, roomSID, metadata);
+        }, 10000); // 10 seconds delay
     }
 }

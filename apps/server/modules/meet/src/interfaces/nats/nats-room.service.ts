@@ -29,6 +29,10 @@ const ROOM_STATUS_KEY = 'status';
 const ROOM_METADATA_KEY = 'metadata';
 const ROOM_CREATED_KEY = 'created_at';
 
+// Room files bucket and keys
+const ROOM_FILES_BUCKET_PREFIX = `${NATS_PREFIX}roomFiles-`;
+const ROOM_FILES_BUCKET = `${ROOM_FILES_BUCKET_PREFIX}%s`;
+
 // Room status constants
 export const ROOM_STATUS_CREATED = 'created';
 export const ROOM_STATUS_ACTIVE = 'active';
@@ -272,6 +276,127 @@ export class NatsRoomService {
         }
 
         this.logger.log(`Session end cleanup completed for room: ${roomId}`);
+    }
+
+    /**
+     * AddRoomFile adds or updates a file's metadata in the room's file bucket.
+     * The fileId will be used as the key.
+     */
+    async addRoomFile(roomId: string, meta: any): Promise<void> {
+        this.logger.log(`Adding room file metadata for: ${roomId}, fileId: ${meta.fileId}`);
+
+        const bucket = ROOM_FILES_BUCKET.replace('%s', roomId);
+        const numReplicas = this.configService.get<number>('NATS_NUM_REPLICAS') || 1;
+
+        try {
+            const js = this.natsService.getJetStream();
+            const kv = await js.views.kv(bucket, {
+                history: 1,
+                ttl: DEFAULT_TTL,
+                replicas: numReplicas,
+            });
+
+            // We use JSON.stringify to match protojson.Marshal in Go
+            const metaBytes = new TextEncoder().encode(JSON.stringify(meta));
+            await kv.put(meta.fileId, metaBytes);
+
+            this.logger.log(`Room file metadata added successfully: ${roomId}, fileId: ${meta.fileId}`);
+        } catch (error) {
+            this.logger.error(`Error adding room file metadata for ${roomId}: ${error.message}`);
+            throw error;
+        }
+    }
+
+    /**
+     * DeleteRoomFile removes a file's metadata from the room's file bucket.
+     */
+    async deleteRoomFile(roomId: string, fileId: string): Promise<void> {
+        this.logger.log(`Deleting room file metadata for: ${roomId}, fileId: ${fileId}`);
+
+        const bucket = ROOM_FILES_BUCKET.replace('%s', roomId);
+
+        try {
+            const js = this.natsService.getJetStream();
+            const kv = await js.views.kv(bucket);
+            await kv.purge(fileId);
+
+            this.logger.log(`Room file metadata deleted: ${roomId}, fileId: ${fileId}`);
+        } catch (error) {
+            // Ignore if bucket doesn't exist
+            if (error.message && (error.message.includes('bucket not found') || error.message.includes('stream not found'))) {
+                return;
+            }
+            this.logger.error(`Error deleting room file metadata for ${roomId}: ${error.message}`);
+            throw error;
+        }
+    }
+
+    /**
+     * GetRoomFile retrieves a specific file's metadata.
+     */
+    async getRoomFile(roomId: string, fileId: string): Promise<any | null> {
+        const bucket = ROOM_FILES_BUCKET.replace('%s', roomId);
+
+        try {
+            const js = this.natsService.getJetStream();
+            const kv = await js.views.kv(bucket);
+            const entry = await kv.get(fileId);
+
+            if (!entry || !entry.value) {
+                return null;
+            }
+
+            return JSON.parse(new TextDecoder().decode(entry.value));
+        } catch (error) {
+            // Return null if key or bucket not found
+            return null;
+        }
+    }
+
+    /**
+     * GetAllRoomFiles retrieves all file metadata for a given room.
+     */
+    async getAllRoomFiles(roomId: string): Promise<Record<string, any>> {
+        const bucket = ROOM_FILES_BUCKET.replace('%s', roomId);
+        const result: Record<string, any> = {};
+
+        try {
+            const js = this.natsService.getJetStream();
+            const kv = await js.views.kv(bucket);
+            const keys = await kv.keys();
+
+            for await (const k of keys) {
+                const entry = await kv.get(k);
+                if (entry && entry.value) {
+                    try {
+                        result[k] = JSON.parse(new TextDecoder().decode(entry.value));
+                    } catch (e) {
+                        // Skip invalid JSON
+                    }
+                }
+            }
+
+            return result;
+        } catch (error) {
+            // Return empty if bucket not found
+            return result;
+        }
+    }
+
+    /**
+     * DeleteAllRoomFiles purges the entire file bucket for a room.
+     */
+    async deleteAllRoomFiles(roomId: string): Promise<void> {
+        this.logger.log(`Deleting all room files for: ${roomId}`);
+        const bucket = ROOM_FILES_BUCKET.replace('%s', roomId);
+
+        try {
+            const jsm = this.natsService.getJetStreamManager();
+            const streamName = `KV_${bucket}`;
+            await jsm.streams.delete(streamName);
+        } catch (error) {
+            // Ignore if already deleted
+        }
     }
 
     // ============================================================================

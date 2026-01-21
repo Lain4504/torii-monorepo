@@ -15,13 +15,15 @@ import {
     PollsStats,
     PollsStatsSchema,
     NatsMsgServerToClientEvents,
+    AnalyticsEventType,
+    AnalyticsEvents,
+    AnalyticsDataMsg,
 } from '@workspace/protocol';
 import { RedisPollService } from '../../infrastructure/redis/redis-poll.service';
 import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
 import { NatsRoomEventsService } from '../../interfaces/nats/nats-room-events.service';
 import { NatsSystemEventsService } from '../../interfaces/nats/nats-system-events.service';
-// TODO: Implement AnalyticsService later
-// import { AnalyticsService } from '../analytics/analytics.service';
+import { AnalyticsService } from '../analytics/analytics.service';
 
 @Injectable()
 export class PollsService {
@@ -32,8 +34,7 @@ export class PollsService {
         private readonly natsRoomService: NatsRoomService,
         private readonly natsRoomEventsService: NatsRoomEventsService,
         private readonly natsSystemEventsService: NatsSystemEventsService,
-        // TODO: Inject AnalyticsService later
-        // private readonly analyticsService: AnalyticsService,
+        private readonly analyticsService: AnalyticsService,
     ) { }
 
     async manageActivation(req: ActivatePollsReq): Promise<void> {
@@ -71,23 +72,23 @@ export class PollsService {
             log.error(`error sending POLL_CREATED event: ${err.message}`);
         }
 
-        // TODO: Implement analytics tracking later
-        // const toRecord = {
-        //     poll_id: pollId,
-        //     question: r.question,
-        //     options: r.options,
-        // };
-        // const val = JSON.stringify(toRecord);
-        // try {
-        //     await this.analyticsService.handleEvent({
-        //         eventType: AnalyticsEventType.ANALYTICS_EVENT_TYPE_ROOM,
-        //         eventName: AnalyticsEvents.ANALYTICS_EVENT_ROOM_POLL_ADDED,
-        //         roomId: r.roomId,
-        //         hsetValue: val,
-        //     } as AnalyticsDataMsg);
-        // } catch (err) {
-        //     log.error(`failed to send analytics: ${err.message}`);
-        // }
+        // Analytics tracking
+        const toRecord = {
+            poll_id: pollId,
+            question: r.question,
+            options: r.options,
+        };
+        const val = JSON.stringify(toRecord);
+        try {
+            await this.analyticsService.handleEvent({
+                eventType: AnalyticsEventType.ROOM,
+                eventName: AnalyticsEvents.ANALYTICS_EVENT_ROOM_POLL_ADDED,
+                roomId: r.roomId,
+                hsetValue: val,
+            } as AnalyticsDataMsg);
+        } catch (err) {
+            log.error(`failed to send analytics: ${err.message}`);
+        }
 
         log.log('successfully created poll');
         return pollId;
@@ -118,23 +119,23 @@ export class PollsService {
 
         await this.redisPollService.addPollResponse(r);
 
-        // TODO: Implement analytics tracking later
-        // const toRecord = {
-        //     poll_id: r.pollId,
-        //     selected_option: r.selectedOption,
-        // };
-        // const val = JSON.stringify(toRecord);
-        // try {
-        //     await this.analyticsService.handleEvent({
-        //         eventType: AnalyticsEventType.ANALYTICS_EVENT_TYPE_USER,
-        //         eventName: AnalyticsEvents.ANALYTICS_EVENT_USER_VOTED_POLL,
-        //         roomId: r.roomId,
-        //         userId: r.userId,
-        //         hsetValue: val,
-        //     } as AnalyticsDataMsg);
-        // } catch (err) {
-        //     log.error(`failed to send analytics: ${err.message}`);
-        // }
+        // Analytics tracking
+        const toRecord = {
+            poll_id: r.pollId,
+            selected_option: r.selectedOption,
+        };
+        const val = JSON.stringify(toRecord);
+        try {
+            await this.analyticsService.handleEvent({
+                eventType: AnalyticsEventType.USER,
+                eventName: AnalyticsEvents.ANALYTICS_EVENT_USER_VOTED_POLL,
+                roomId: r.roomId,
+                userId: r.userId,
+                hsetValue: val,
+            } as AnalyticsDataMsg);
+        } catch (err) {
+            log.error(`failed to send analytics: ${err.message}`);
+        }
 
         log.log('successfully submitted poll response');
     }
@@ -156,17 +157,17 @@ export class PollsService {
             log.error(`error sending POLL_CLOSED event: ${err.message}`);
         }
 
-        // TODO: Implement analytics tracking later
-        // try {
-        //     await this.analyticsService.handleEvent({
-        //         eventType: AnalyticsEventType.ANALYTICS_EVENT_TYPE_ROOM,
-        //         eventName: AnalyticsEvents.ANALYTICS_EVENT_ROOM_POLL_ENDED,
-        //         roomId: r.roomId,
-        //         hsetValue: r.pollId,
-        //     } as AnalyticsDataMsg);
-        // } catch (err) {
-        //     log.error(`failed to send analytics: ${err.message}`);
-        // }
+        // Analytics tracking
+        try {
+            await this.analyticsService.handleEvent({
+                eventType: AnalyticsEventType.ROOM,
+                eventName: AnalyticsEvents.ANALYTICS_EVENT_ROOM_POLL_ENDED,
+                roomId: r.roomId,
+                hsetValue: r.pollId,
+            } as AnalyticsDataMsg);
+        } catch (err) {
+            log.error(`failed to send analytics: ${err.message}`);
+        }
 
         log.log('successfully closed poll');
     }

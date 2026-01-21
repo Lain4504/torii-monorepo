@@ -8,6 +8,8 @@ import { RoomController, RoomApiController } from './controllers/room.controller
 import { UserRoomSettingController } from './controllers/user-room-setting.controller';
 import { WaitingRoomController } from './controllers/waiting-room.controller';
 import { WebhookController } from './controllers/webhook.controller';
+import { FileController } from './controllers/file.controller';
+import { ArtifactController } from './controllers/artifact.controller';
 
 /**
  * Meet Module for Gateway
@@ -23,6 +25,8 @@ import { WebhookController } from './controllers/webhook.controller';
         UserRoomSettingController,
         WaitingRoomController,
         WebhookController,
+        FileController,
+        ArtifactController,
     ],
 })
 export class MeetModule { }

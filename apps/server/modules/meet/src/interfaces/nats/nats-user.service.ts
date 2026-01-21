@@ -6,12 +6,19 @@
 
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import type { UserMetadata } from '@workspace/protocol';
-import { UserMetadataSchema, NatsMsgServerToClientEvents } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 import { NatsService } from './nats.service';
 import { v4 as uuidv4 } from 'uuid';
+import {
+    UserMetadata,
+    UserMetadataSchema,
+    NatsMsgServerToClientEvents,
+    AnalyticsEventType,
+    AnalyticsEvents,
+    AnalyticsDataMsg,
+} from '@workspace/protocol';
 import { NatsUserInfoService } from './nats-user-info.service';
+import { AnalyticsService } from '../../modules/analytics/analytics.service';
 import { NatsSystemEventsService } from './nats-system-events.service';
 import { LiveKitService } from '../../infrastructure/livekit/livekit.service';
 
@@ -60,6 +67,7 @@ export class NatsUserService {
         private readonly natsUserInfo: NatsUserInfoService,
         @Inject(forwardRef(() => NatsSystemEventsService)) private readonly natsSystemEvents: NatsSystemEventsService,
         private readonly livekitService: LiveKitService,
+        private readonly analyticsService: AnalyticsService,
     ) { }
 
     /**
@@ -439,21 +447,18 @@ export class NatsUserService {
 
                 // Send analytics
                 const now = Date.now();
-                // TODO: Implement analytics service
-                // await this.analyticsService.handleEvent({
-                //     eventType: AnalyticsEventType.ROOM,
-                //     eventName: AnalyticsEvents.ANALYTICS_EVENT_USER_JOINED,
-                //     roomId,
-                //     userId,
-                //     userName: userInfo.name,
-                //     extraData: userInfo.metadata,
-                //     hsetValue: now.toString(),
-                // });
-
-                log.log('Successfully processed user joined event');
+                await this.analyticsService.handleEvent({
+                    eventType: AnalyticsEventType.ROOM,
+                    eventName: AnalyticsEvents.ANALYTICS_EVENT_USER_JOINED,
+                    roomId,
+                    userId,
+                    userName: userInfo.name,
+                    extraData: userInfo.metadata,
+                    hsetValue: now.toString(),
+                } as AnalyticsDataMsg);
             }
         } catch (error) {
-            log.error(`Failed to process user joined event: ${error.message}`);
+            log.error(`Failed to handle onAfterUserJoined: ${error.message}`);
         }
     }
 
@@ -582,16 +587,19 @@ export class NatsUserService {
     /**
      * updateUserLeftAnalytics sends analytics for user leaving
      */
-    private updateUserLeftAnalytics(roomId: string, userId: string): void {
+    private async updateUserLeftAnalytics(roomId: string, userId: string): Promise<void> {
         const now = Date.now();
 
-        // TODO: Implement analytics service
-        // this.analyticsService.handleEvent({
-        //     eventType: AnalyticsEventType.USER,
-        //     eventName: AnalyticsEvents.ANALYTICS_EVENT_USER_LEFT,
-        //     roomId,
-        //     userId,
-        //     hsetValue: now.toString(),
-        // });
+        try {
+            await this.analyticsService.handleEvent({
+                eventType: AnalyticsEventType.USER,
+                eventName: AnalyticsEvents.ANALYTICS_EVENT_USER_LEFT,
+                roomId,
+                userId,
+                hsetValue: now.toString(),
+            } as AnalyticsDataMsg);
+        } catch (error) {
+            this.logger.error(`Failed to send user left analytics: ${error.message}`);
+        }
     }
 }
