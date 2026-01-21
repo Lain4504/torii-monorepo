@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { EtherpadService } from './etherpad.service';
 import { EtherpadNatsController } from './etherpad.nats.controller';
 import { SharedModule } from '@server/shared';
@@ -11,7 +11,7 @@ import { NatsSystemEventsService } from '../../interfaces/nats/nats-system-event
 @Module({
     imports: [
         SharedModule,
-        RoomModule
+        forwardRef(() => RoomModule)
     ],
     controllers: [EtherpadNatsController],
     providers: [

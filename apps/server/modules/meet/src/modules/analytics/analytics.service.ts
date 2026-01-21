@@ -4,7 +4,7 @@
  * Processes real-time telemetry events and exports them as artifacts
  */
 
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import * as fs from 'fs';
@@ -48,6 +48,7 @@ export class AnalyticsService {
         private readonly natsService: NatsService,
         private readonly prisma: PrismaService,
         private readonly redisLock: RedisLockService,
+        @Inject(forwardRef(() => NatsRoomService))
         private readonly natsRoomService: NatsRoomService,
         private readonly artifactsService: ArtifactsService,
     ) { }

@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
 import { NatsSystemEventsService } from '../../interfaces/nats/nats-system-events.service';
 import {
@@ -54,12 +54,13 @@ export class BreakoutService {
     private readonly natsRoomService: NatsRoomService,
     private readonly natsSystemEvents: NatsSystemEventsService,
     private readonly roomCreateService: RoomCreateService,
+    @Inject(forwardRef(() => RoomEndService))
     private readonly roomEndService: RoomEndService,
     private readonly roomDurationService: RoomDurationService,
     private readonly natsService: NatsService,
     private readonly natsUserService: NatsUserService,
     private readonly liveKitService: LiveKitService,
-  ) {}
+  ) { }
 
   /**
    * CreateBreakoutRooms creates multiple breakout rooms under a parent room

@@ -4,7 +4,7 @@
  * Handles room termination and cleanup operations
  */
 
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { RoomEndReq } from '@workspace/protocol';
 import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
@@ -46,6 +46,7 @@ export class RoomEndService {
         private readonly pollsService: PollsService,
         private readonly analyticsService: AnalyticsService,
         private readonly etherpadService: EtherpadService,
+        @Inject(forwardRef(() => BreakoutService))
         private readonly breakoutService: BreakoutService,
         private readonly fileService: FileService,
     ) { }

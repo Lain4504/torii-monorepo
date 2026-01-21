@@ -1,25 +1,27 @@
 import { Module } from '@nestjs/common';
-import { PollsService } from './polls.service';
+import { AnalyticsService } from './analytics.service';
 import { SharedModule } from '@server/shared';
-import { RedisPollService } from '../../infrastructure/redis/redis-poll.service';
+import { RedisAnalyticsService } from '../../infrastructure/redis/redis-analytics.service';
 import { RedisLockService } from '../../infrastructure/redis/redis-lock.service';
+import { ArtifactsModule } from '../artifacts/artifacts.module';
 import { NatsService } from '../../interfaces/nats/nats.service';
 import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
-import { NatsSystemEventsService } from '../../interfaces/nats/nats-system-events.service';
 import { NatsCacheService } from '../../interfaces/nats/nats-cache.service';
 import { NatsStreamService } from '../../interfaces/nats/nats-stream.service';
 import { NatsUserService } from '../../interfaces/nats/nats-user.service';
 import { NatsUserInfoService } from '../../interfaces/nats/nats-user-info.service';
-import { NatsRoomEventsService } from '../../interfaces/nats/nats-room-events.service';
-import { AnalyticsModule } from '../analytics/analytics.module';
+import { NatsSystemEventsService } from '../../interfaces/nats/nats-system-events.service';
 import { LiveKitService } from '../../infrastructure/livekit/livekit.service';
 import { WajlcAuthService } from '../auth/wajlc-auth.service';
 
 @Module({
-    imports: [SharedModule, AnalyticsModule],
+    imports: [
+        SharedModule,
+        ArtifactsModule,
+    ],
     providers: [
-        PollsService,
-        RedisPollService,
+        AnalyticsService,
+        RedisAnalyticsService,
         RedisLockService,
         NatsService,
         NatsCacheService,
@@ -30,8 +32,7 @@ import { WajlcAuthService } from '../auth/wajlc-auth.service';
         NatsSystemEventsService,
         NatsUserService,
         NatsRoomService,
-        NatsRoomEventsService,
     ],
-    exports: [PollsService],
+    exports: [AnalyticsService],
 })
-export class PollsModule { }
+export class AnalyticsModule { }

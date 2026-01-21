@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { BreakoutService } from './breakout.service';
 import { BreakoutNatsController } from './breakout.nats.controller';
 import { SharedModule } from '@server/shared';
@@ -13,9 +13,9 @@ import { NatsCacheService } from '../../interfaces/nats/nats-cache.service';
 import { LiveKitService } from '../../infrastructure/livekit/livekit.service';
 
 @Module({
-  imports: [SharedModule, RoomModule],
+  imports: [SharedModule, forwardRef(() => RoomModule)],
   controllers: [BreakoutNatsController],
   providers: [BreakoutService],
   exports: [BreakoutService],
 })
-export class BreakoutModule {}
+export class BreakoutModule { }

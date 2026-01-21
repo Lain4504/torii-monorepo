@@ -18,6 +18,8 @@ import { BreakoutModule } from './modules/breakout/breakout.module';
 import { EtherpadModule } from './modules/etherpad/etherpad.module';
 import { ExternalMediaModule } from './modules/external-media/external-media.module';
 import { RecordingModule } from './modules/recording/recording.module';
+import { PollsModule } from './modules/polls/polls.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
 
 @Module({
   imports: [
@@ -28,8 +30,9 @@ import { RecordingModule } from './modules/recording/recording.module';
     SharedModule,
     RoomModule,
     FileModule,
+    PollsModule,
+    AnalyticsModule,
     BreakoutModule,
-    EtherpadModule,
     EtherpadModule,
     ExternalMediaModule,
     RecordingModule,

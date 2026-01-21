@@ -1,8 +1,12 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { SharedModule } from '@server/shared';
 import { FileModule } from '../file/file.module';
 import { WebhookModule } from '../../infrastructure/webhook/webhook.module';
 import { ArtifactsModule } from '../artifacts/artifacts.module';
+import { AnalyticsModule } from '../analytics/analytics.module';
+import { PollsModule } from '../polls/polls.module';
+import { EtherpadModule } from '../etherpad/etherpad.module';
+import { BreakoutModule } from '../breakout/breakout.module';
 
 // Controllers
 
@@ -36,17 +40,11 @@ import { RedisLockService } from '../../infrastructure/redis/redis-lock.service'
 import { RedisRoomService } from '../../infrastructure/redis/redis-room.service';
 import { LiveKitService } from '../../infrastructure/livekit/livekit.service';
 
-// Polls services
-import { PollsService } from '../polls/polls.service';
-import { RedisPollService } from '../../infrastructure/redis/redis-poll.service';
-import { AnalyticsService } from '../analytics/analytics.service';
-import { RedisAnalyticsService } from '../../infrastructure/redis/redis-analytics.service';
-
 // Auth services
 import { WajlcAuthService } from '../auth/wajlc-auth.service';
 
 @Module({
-  imports: [SharedModule, FileModule, WebhookModule, ArtifactsModule],
+  imports: [SharedModule, FileModule, forwardRef(() => WebhookModule), ArtifactsModule, AnalyticsModule, PollsModule, forwardRef(() => EtherpadModule), forwardRef(() => BreakoutModule)],
   controllers: [
     // NatsAuthCalloutController removed - handled in NatsController now
   ],
@@ -82,14 +80,6 @@ import { WajlcAuthService } from '../auth/wajlc-auth.service';
 
     // LiveKit services
     LiveKitService,
-
-    // Polls services
-    PollsService,
-    RedisPollService,
-
-    // Analytics services
-    AnalyticsService,
-    RedisAnalyticsService,
   ],
   exports: [
     RoomInfoService,
@@ -98,8 +88,6 @@ import { WajlcAuthService } from '../auth/wajlc-auth.service';
     RoomModifyService,
     RoomUserService,
     RoomDurationService,
-    PollsService, // Export PollsService so it can be used in MeetModule
-    AnalyticsService,
     WaitingRoomService,
     LiveKitService,
     NatsService,
