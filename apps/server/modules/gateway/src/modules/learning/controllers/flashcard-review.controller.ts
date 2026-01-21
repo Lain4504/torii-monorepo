@@ -9,6 +9,7 @@ import {
     UseGuards,
     Req,
     Inject,
+    HttpException,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -36,7 +37,7 @@ export class FlashcardReviewController {
             );
             return successResponse({ review: result });
         } catch (error: any) {
-            return errorResponse(error.message || 'Failed to submit review');
+            throw new HttpException(error.message || 'Failed to submit review', error.status || 400);
         }
     }
 
@@ -52,7 +53,7 @@ export class FlashcardReviewController {
             );
             return successResponse({ flashcards: result });
         } catch (error: any) {
-            return errorResponse(error.message || 'Failed to fetch cards due');
+            throw new HttpException(error.message || 'Failed to fetch cards due', error.status || 400);
         }
     }
 
@@ -68,7 +69,7 @@ export class FlashcardReviewController {
             );
             return successResponse({ progress: result });
         } catch (error: any) {
-            return errorResponse(error.message || 'Failed to fetch user progress');
+            throw new HttpException(error.message || 'Failed to fetch user progress', error.status || 400);
         }
     }
 
@@ -84,7 +85,7 @@ export class FlashcardReviewController {
             );
             return successResponse({ session: result });
         } catch (error: any) {
-            return errorResponse(error.message || 'Failed to start session');
+            throw new HttpException(error.message || 'Failed to start session', error.status || 400);
         }
     }
 
@@ -104,7 +105,7 @@ export class FlashcardReviewController {
             );
             return successResponse({ session: result });
         } catch (error: any) {
-            return errorResponse(error.message || 'Failed to complete session');
+            throw new HttpException(error.message || 'Failed to complete session', error.status || 400);
         }
     }
 
@@ -120,7 +121,7 @@ export class FlashcardReviewController {
             );
             return successResponse({ session: result });
         } catch (error: any) {
-            return errorResponse(error.message || 'Failed to fetch session');
+            throw new HttpException(error.message || 'Failed to fetch session', error.status || 400);
         }
     }
 
@@ -144,7 +145,7 @@ export class FlashcardReviewController {
             );
             return successResponse({ sessions: result });
         } catch (error: any) {
-            return errorResponse(error.message || 'Failed to fetch recent sessions');
+            throw new HttpException(error.message || 'Failed to fetch recent sessions', error.status || 400);
         }
     }
 }

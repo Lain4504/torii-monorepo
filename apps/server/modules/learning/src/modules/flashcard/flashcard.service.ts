@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable, Logger, Inject } from "@nestjs/common";
 import { RpcException } from '@nestjs/microservices';
 import { PrismaService } from "@server/shared";
 import { FlashcardDifficulty, FlashcardGenerationMethod } from "@workspace/schemas";
@@ -12,6 +12,9 @@ import type {
     BulkFlashcardOperationsDTO,
     BulkFlashcardOperationsResponseDTO,
 } from "@workspace/schemas";
+import { IFlashcardRepository, FLASHCARD_REPOSITORY_TOKEN } from "../../interfaces/repositories/i-flashcard.repository";
+import { IFlashcardDeckRepository, FLASHCARD_DECK_REPOSITORY_TOKEN } from "../../interfaces/repositories/i-flashcard-deck.repository";
+import { IFlashcardService } from "../../interfaces/services/i-flashcard.service";
 
 /**
  * Helper function to convert difficulty string to FlashcardDifficulty enum
@@ -46,11 +49,15 @@ function fromDifficultyLevel(level: FlashcardDifficulty): string {
 }
 
 @Injectable()
-export class FlashcardService {
+export class FlashcardService implements IFlashcardService {
     private readonly logger = new Logger(FlashcardService.name);
 
     constructor(
-        private readonly prisma: PrismaService,
+        @Inject(FLASHCARD_REPOSITORY_TOKEN)
+        private readonly flashcardRepository: IFlashcardRepository,
+        @Inject(FLASHCARD_DECK_REPOSITORY_TOKEN)
+        private readonly deckRepository: IFlashcardDeckRepository,
+        private readonly prisma: PrismaService, // Still used for complex multi-table ops like initial progress
         private readonly srsAlgorithm: SrsAlgorithmService,
     ) {
     }
@@ -60,10 +67,7 @@ export class FlashcardService {
      * Throws RpcException if not owned
      */
     private async verifyDeckOwnership(userId: string, deckId: string): Promise<void> {
-        const deck = await this.prisma.flashcardDeck.findUnique({
-            where: { id: deckId },
-            select: { userId: true },
-        });
+        const deck = await this.deckRepository.findById(deckId);
 
         if (!deck) {
             throw new RpcException({
@@ -81,9 +85,9 @@ export class FlashcardService {
     }
 
     async createFlashcard(
-        userId: string,
-        data: FlashcardCreateDTO,
+        params: FlashcardCreateDTO & { userId: string },
     ): Promise<FlashcardResponseDTO> {
+        const { userId, ...data } = params;
         try {
             const { deckId } = data;
 
@@ -91,47 +95,50 @@ export class FlashcardService {
             await this.verifyDeckOwnership(userId, deckId);
 
             // Create flashcard
-            const flashcard = await this.prisma.flashcard.create({
-                data: {
-                    deckId: deckId,
-                    frontText: data.frontText,
-                    backText: data.backText,
-                    exampleSentence: data.exampleSentence || null,
-                    pronunciation: data.pronunciation || null,
-                    imageUrl: data.imageUrl || null,
-                    audioUrl: data.audioUrl || null,
-                    tags: data.tags || [],
-                    difficulty: data.difficulty !== undefined ? fromDifficultyLevel(data.difficulty) : 'medium',
-                    // Japanese-specific fields
-                    furigana: (data as any).furigana || null,
-                    kanji: (data as any).kanji || null,
-                    partOfSpeech: (data as any).partOfSpeech || null,
-                    wordJlptLevel: (data as any).wordJlptLevel || null,
-                    meanings: (data as any).meanings || null,
-                    // AI Integration fields
-                    aiGenerated: (data as any).aiGenerated || false,
-                    sourceDocumentId: (data as any).sourceDocumentId || null,
-                    generationMethod: (data as any).generationMethod || FlashcardGenerationMethod.MANUAL,
-                    generationMetadata: (data as any).generationMetadata || {},
-                    // Metadata
-                    notes: (data as any).notes || null,
-                    isArchived: (data as any).isArchived || false,
-                    // Global stats (for analytics)
-                    intervalDays: 1,
-                    easeFactor: 2.5,
-                    reviewCount: 0,
-                    correctCount: 0,
-                    lastReviewDate: null,
-                    timesStudied: 0,
-                }
+            const flashcard = await this.flashcardRepository.create({
+                deck: { connect: { id: deckId } },
+                frontText: data.frontText,
+                backText: data.backText,
+                exampleSentence: data.exampleSentence || null,
+                pronunciation: data.pronunciation || null,
+                imageUrl: data.imageUrl || null,
+                audioUrl: data.audioUrl || null,
+                tags: data.tags || [],
+                difficulty: data.difficulty !== undefined ? fromDifficultyLevel(data.difficulty) : 'medium',
+                // Japanese-specific fields
+                furigana: (data as any).furigana || null,
+                kanji: (data as any).kanji || null,
+                partOfSpeech: (data as any).partOfSpeech || null,
+                wordJlptLevel: (data as any).wordJlptLevel || null,
+                meanings: (data as any).meanings || null,
+                // AI Integration fields
+                aiGenerated: (data as any).aiGenerated || false,
+                sourceDocument: (data as any).sourceDocumentId ? { connect: { id: (data as any).sourceDocumentId } } : undefined,
+                generationMethod: (data as any).generationMethod || FlashcardGenerationMethod.MANUAL,
+                generationMetadata: (data as any).generationMetadata || {},
+                // Metadata
+                notes: (data as any).notes || null,
+                isArchived: (data as any).isArchived || false,
+                // Global stats (for analytics)
+                intervalDays: 1,
+                easeFactor: 2.5,
+                reviewCount: 0,
+                correctCount: 0,
+                lastReviewDate: null,
+                timesStudied: 0,
             });
 
+            console.log('DEBUG: Flashcard created in DB:', JSON.stringify(flashcard, null, 2));
+            const verify = await this.flashcardRepository.findById(flashcard.id);
+            console.log('DEBUG: Verification flashcard findById result:', verify ? 'Found' : 'NOT FOUND');
+
             // Create initial user progress for card creator
+            // Note: This is still done directly via prisma as it's a cross-table operation
             const initialValues = this.srsAlgorithm.getInitialValues();
             await this.prisma.flashcardUserProgress.create({
                 data: {
-                    userId,
-                    flashcardId: flashcard.id,
+                    user: { connect: { id: userId } },
+                    flashcard: { connect: { id: flashcard.id } },
                     state: initialValues.state,
                     currentInterval: initialValues.currentInterval,
                     easeFactor: initialValues.easeFactor,
@@ -140,12 +147,9 @@ export class FlashcardService {
             });
 
             // Update deck card count
-            await this.prisma.flashcardDeck.update({
-                where: { id: deckId },
-                data: {
-                    cardCount: {
-                        increment: 1
-                    }
+            await this.deckRepository.update(deckId, {
+                cardCount: {
+                    increment: 1
                 }
             });
 
@@ -162,23 +166,22 @@ export class FlashcardService {
         }
     }
 
-    async getFlashcards(userId: string, params: FlashcardQueryDTO): Promise<PaginatedResponseDTO<FlashcardResponseDTO>> {
+    async getFlashcards(params: FlashcardQueryDTO & { userId: string }): Promise<PaginatedResponseDTO<FlashcardResponseDTO>> {
+        const { userId, ...query } = params;
         try {
-            const { page = 1, limit = 10, deckId, search, tags, difficulty, jlptLevel } = params;
+            const page = Number(query.page || 1);
+            const limit = Number(query.limit || 10);
+            const { deckId, search, tags, difficulty, jlptLevel } = query;
             const skip = (page - 1) * limit;
             const whereClause: any = {
                 deck: {
-                    userId: userId, // Only flashcards from user's decks (personal flashcards)
+                    userId: userId,
                 },
             };
 
             // Filter by deck if provided
             if (deckId) {
-                // Verify deck ownership
-                const deck = await this.prisma.flashcardDeck.findUnique({
-                    where: { id: deckId },
-                    select: { userId: true },
-                });
+                const deck = await this.deckRepository.findById(deckId);
 
                 if (!deck) {
                     throw new RpcException({
@@ -197,7 +200,7 @@ export class FlashcardService {
                 whereClause.deckId = deckId;
             }
 
-            // Search by text (front or back text)
+            // Search by text
             if (search) {
                 whereClause.OR = [
                     { frontText: { contains: search, mode: 'insensitive' } },
@@ -218,21 +221,21 @@ export class FlashcardService {
                 whereClause.difficulty = fromDifficultyLevel(difficulty);
             }
 
-            // Filter by JLPT level (word level)
+            // Filter by JLPT level
             if (jlptLevel) {
                 whereClause.wordJlptLevel = jlptLevel;
             }
 
-            // Filter out archived cards by default (unless explicitly requested)
-            if (params.isArchived === undefined || !params.isArchived) {
+            // Filter out archived cards by default
+            if (query.isArchived === undefined || !query.isArchived) {
                 whereClause.isArchived = false;
-            } else if (params.isArchived) {
+            } else if (query.isArchived) {
                 whereClause.isArchived = true;
             }
 
             const [total, flashcards] = await Promise.all([
-                this.prisma.flashcard.count({ where: whereClause }),
-                this.prisma.flashcard.findMany({
+                this.flashcardRepository.count(whereClause),
+                this.flashcardRepository.findAll({
                     take: limit,
                     skip: skip,
                     where: whereClause,
@@ -260,9 +263,9 @@ export class FlashcardService {
     }
 
     async updateFlashcard(
-        userId: string,
-        data: FlashcardUpdateDTO,
+        params: FlashcardUpdateDTO & { userId: string },
     ): Promise<FlashcardResponseDTO> {
+        const { userId, ...data } = params;
         try {
             const {
                 id,
@@ -278,10 +281,7 @@ export class FlashcardService {
             } = data;
 
             // Check if flashcard exists
-            const existing = await this.prisma.flashcard.findUnique({
-                where: { id },
-                include: { deck: { select: { userId: true } } }
-            });
+            const existing = await this.flashcardRepository.findById(id);
 
             if (!existing) {
                 throw new RpcException({
@@ -290,7 +290,7 @@ export class FlashcardService {
                 });
             }
 
-            // Verify deck ownership (use existing deck or new deckId if provided)
+            // Verify deck ownership
             const targetDeckId = deckId || existing.deckId;
             await this.verifyDeckOwnership(userId, targetDeckId);
 
@@ -306,7 +306,7 @@ export class FlashcardService {
                 difficulty: difficulty !== undefined ? fromDifficultyLevel(difficulty) : undefined,
             };
 
-            // Update Japanese-specific fields if provided
+            // Update Japanese-specific fields
             if ((data as any).furigana !== undefined) updateData.furigana = (data as any).furigana;
             if ((data as any).kanji !== undefined) updateData.kanji = (data as any).kanji;
             if ((data as any).partOfSpeech !== undefined) updateData.partOfSpeech = (data as any).partOfSpeech;
@@ -315,10 +315,7 @@ export class FlashcardService {
             if ((data as any).notes !== undefined) updateData.notes = (data as any).notes;
             if ((data as any).isArchived !== undefined) updateData.isArchived = (data as any).isArchived;
 
-            const updated = await this.prisma.flashcard.update({
-                where: { id },
-                data: updateData,
-            });
+            const updated = await this.flashcardRepository.update(id, updateData);
 
             return this.mapToProto(updated);
         } catch (error: any) {
@@ -333,13 +330,19 @@ export class FlashcardService {
         }
     }
 
-    async deleteFlashcard(data: { id: string }): Promise<{ success: boolean }> {
+    async deleteFlashcard(id: string): Promise<void> {
         try {
-            await this.prisma.flashcard.delete({
-                where: { id: data.id }
-            });
-
-            return { success: true };
+            // Get flashcard to update deck count
+            const fc = await this.flashcardRepository.findById(id);
+            if (fc) {
+                await this.flashcardRepository.delete(id);
+                // Update deck card count
+                await this.deckRepository.update(fc.deckId, {
+                    cardCount: {
+                        decrement: 1
+                    }
+                });
+            }
         } catch (error: any) {
             this.logger.error(`Error deleting flashcard: ${error.message}`, error.stack);
             throw new RpcException({
@@ -349,11 +352,9 @@ export class FlashcardService {
         }
     }
 
-    async getFlashcardById(req: { id: string }): Promise<FlashcardResponseDTO> {
+    async getFlashcardById(id: string): Promise<FlashcardResponseDTO> {
         try {
-            const flashcard = await this.prisma.flashcard.findUnique({
-                where: { id: req.id }
-            });
+            const flashcard = await this.flashcardRepository.findById(id);
 
             if (!flashcard) {
                 throw new RpcException({
@@ -373,12 +374,55 @@ export class FlashcardService {
         }
     }
 
-    async bulkOperations(data: BulkFlashcardOperationsDTO): Promise<BulkFlashcardOperationsResponseDTO> {
-        // TODO: Implement bulk operations
+    async bulkOperations(data: BulkFlashcardOperationsDTO & { userId: string }): Promise<BulkFlashcardOperationsResponseDTO> {
+        let successCount = 0;
+        let failedCount = 0;
+        const errorMessages: string[] = [];
+        const userId = data.userId;
+
+        // Handle Creates
+        if (data.create && data.create.length > 0) {
+            for (const item of data.create) {
+                try {
+                    await this.createFlashcard({ ...item, userId });
+                    successCount++;
+                } catch (error: any) {
+                    failedCount++;
+                    errorMessages.push(`Create failed: ${error.message}`);
+                }
+            }
+        }
+
+        // Handle Updates
+        if (data.update && data.update.length > 0) {
+            for (const item of data.update) {
+                try {
+                    await this.updateFlashcard({ ...item, userId });
+                    successCount++;
+                } catch (error: any) {
+                    failedCount++;
+                    errorMessages.push(`Update failed for ${item.id}: ${error.message}`);
+                }
+            }
+        }
+
+        // Handle Deletes
+        if (data.delete && data.delete.length > 0) {
+            for (const id of data.delete) {
+                try {
+                    await this.deleteFlashcard(id);
+                    successCount++;
+                } catch (error: any) {
+                    failedCount++;
+                    errorMessages.push(`Delete failed for ${id}: ${error.message}`);
+                }
+            }
+        }
+
         return {
-            successCount: 0,
-            failedCount: 0,
-            errorMessages: ['Not implemented']
+            successCount,
+            failedCount,
+            errorMessages
         };
     }
 

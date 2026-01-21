@@ -1,19 +1,21 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Inject } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { FlashcardReviewService } from '../../modules/flashcard/flashcard-review.service';
-import { FlashcardReviewSessionService } from '../../modules/flashcard/flashcard-review-session.service';
 import {
     SubmitReviewDTO,
     GetCardsDueDTO,
     StartReviewSessionDTO,
     CompleteReviewSessionDTO
 } from '@workspace/schemas';
+import { IFlashcardReviewService, FLASHCARD_REVIEW_SERVICE_TOKEN } from '../services/i-flashcard-review.service';
+import { IFlashcardReviewSessionService, FLASHCARD_REVIEW_SESSION_SERVICE_TOKEN } from '../services/i-flashcard-review-session.service';
 
 @Controller()
 export class FlashcardReviewHandler {
     constructor(
-        private readonly reviewService: FlashcardReviewService,
-        private readonly sessionService: FlashcardReviewSessionService,
+        @Inject(FLASHCARD_REVIEW_SERVICE_TOKEN)
+        private readonly reviewService: IFlashcardReviewService,
+        @Inject(FLASHCARD_REVIEW_SESSION_SERVICE_TOKEN)
+        private readonly sessionService: IFlashcardReviewSessionService,
     ) { }
 
     // Review Service Methods
@@ -41,16 +43,15 @@ export class FlashcardReviewHandler {
     }
 
     @MessagePattern({ cmd: 'learning.flashcard-session.complete' })
-    async completeSession(@Payload() data: { sessionId: string, body: Partial<CompleteReviewSessionDTO>, userId: string }) {
-        return this.sessionService.completeSession(data.userId, {
-            sessionId: data.sessionId,
-            ...data.body,
-        });
+    async completeSession(@Payload() data: { sessionId: string, body: any, userId: string }) {
+        // Map durationSeconds from body if it exists
+        const durationSeconds = data.body?.durationSeconds;
+        return this.sessionService.completeSession(data.sessionId, data.userId, { durationSeconds });
     }
 
     @MessagePattern({ cmd: 'learning.flashcard-session.getById' })
     async getSessionById(@Payload() data: { sessionId: string, userId: string }) {
-        return this.sessionService.getSessionById(data.userId, data.sessionId);
+        return this.sessionService.getSessionById(data.sessionId, data.userId);
     }
 
     @MessagePattern({ cmd: 'learning.flashcard-session.getRecent' })

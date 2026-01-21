@@ -10,6 +10,7 @@ import {
     UseGuards,
     Req,
     Inject,
+    HttpException,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -38,7 +39,7 @@ export class FlashcardDeckController {
             );
             return successResponse({ deck: result });
         } catch (error: any) {
-            return errorResponse(error.message || 'Failed to create flashcard deck');
+            throw new HttpException(error.message || 'Failed to create flashcard deck', error.status || 400);
         }
     }
 
@@ -54,7 +55,23 @@ export class FlashcardDeckController {
             );
             return successPaginatedResponse(result);
         } catch (error: any) {
-            return errorResponse(error.message || 'Failed to fetch flashcard decks');
+            throw new HttpException(error.message || 'Failed to fetch flashcard decks', error.status || 400);
+        }
+    }
+
+    @Get(':id')
+    async findOneDeck(@Param('id') id: string, @Req() req: Request) {
+        try {
+            const user = req.user as any;
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'learning.flashcard-deck.findById' },
+                    { id, userId: user.sub }
+                )
+            );
+            return successResponse({ deck: result });
+        } catch (error: any) {
+            throw new HttpException(error.message || 'Failed to fetch flashcard deck', error.status || 400);
         }
     }
 
@@ -70,7 +87,7 @@ export class FlashcardDeckController {
             );
             return successResponse({ deck: result });
         } catch (error: any) {
-            return errorResponse(error.message || 'Failed to update flashcard deck');
+            throw new HttpException(error.message || 'Failed to update flashcard deck', error.status || 400);
         }
     }
 
@@ -86,7 +103,7 @@ export class FlashcardDeckController {
             );
             return successResponse(null, 'Deck deleted successfully');
         } catch (error: any) {
-            return errorResponse(error.message || 'Failed to delete flashcard deck');
+            throw new HttpException(error.message || 'Failed to delete flashcard deck', error.status || 400);
         }
     }
 }

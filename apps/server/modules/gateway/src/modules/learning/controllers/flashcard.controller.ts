@@ -10,6 +10,7 @@ import {
     UseGuards,
     Req,
     Inject,
+    HttpException,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -38,7 +39,7 @@ export class FlashcardController {
             );
             return successResponse({ flashcard: result });
         } catch (error: any) {
-            return errorResponse(error.message || 'Failed to create flashcard');
+            throw new HttpException(error.message || 'Failed to create flashcard', error.status || 400);
         }
     }
 
@@ -54,7 +55,7 @@ export class FlashcardController {
             );
             return successPaginatedResponse(result);
         } catch (error: any) {
-            return errorResponse(error.message || 'Failed to fetch flashcards');
+            throw new HttpException(error.message || 'Failed to fetch flashcards', error.status || 400);
         }
     }
 
@@ -69,7 +70,7 @@ export class FlashcardController {
             );
             return successResponse({ flashcard: result });
         } catch (error: any) {
-            return errorResponse(error.message || 'Failed to fetch flashcard');
+            throw new HttpException(error.message || 'Failed to fetch flashcard', error.status || 400);
         }
     }
 
@@ -85,7 +86,7 @@ export class FlashcardController {
             );
             return successResponse({ flashcard: result });
         } catch (error: any) {
-            return errorResponse(error.message || 'Failed to update flashcard');
+            throw new HttpException(error.message || 'Failed to update flashcard', error.status || 400);
         }
     }
 
@@ -100,22 +101,23 @@ export class FlashcardController {
             );
             return successResponse(null, 'Flashcard deleted successfully');
         } catch (error: any) {
-            return errorResponse(error.message || 'Failed to delete flashcard');
+            throw new HttpException(error.message || 'Failed to delete flashcard', error.status || 400);
         }
     }
 
     @Post('bulk')
-    async bulkOperations(@Body() data: any) {
+    async bulkOperations(@Body() data: any, @Req() req: Request) {
         try {
+            const user = req.user as any;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.flashcard.bulk' },
-                    data
+                    { ...data, userId: user.sub }
                 )
             );
             return successResponse(result);
         } catch (error: any) {
-            return errorResponse(error.message || 'Failed to perform bulk operations');
+            throw new HttpException(error.message || 'Failed to perform bulk operations', error.status || 400);
         }
     }
 }
