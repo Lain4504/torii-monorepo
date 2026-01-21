@@ -19,8 +19,9 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { formatDistanceToNow } from 'date-fns'
+import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -44,6 +45,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 export default function FlashcardsPage() {
     const router = useRouter()
     const [searchQuery, setSearchQuery] = useState('')
+    const [debouncedSearchQuery] = useDebounceValue(searchQuery, 300)
     const [isDeckModalOpen, setIsDeckModalOpen] = useState(false)
     const [editingDeck, setEditingDeck] = useState<any>(null)
     const queryClient = useQueryClient()
@@ -54,8 +56,8 @@ export default function FlashcardsPage() {
     const [jlptLevel, setJlptLevel] = useState('N5')
 
     const { data: decksData, isLoading } = useQuery({
-        queryKey: ['flashcard-decks', searchQuery],
-        queryFn: () => flashcardApi.getDecks({ search: searchQuery }),
+        queryKey: ['flashcard-decks', debouncedSearchQuery],
+        queryFn: () => flashcardApi.getDecks({ search: debouncedSearchQuery }),
     })
 
     const createDeckMutation = useMutation({
@@ -117,10 +119,6 @@ export default function FlashcardsPage() {
         setIsDeckModalOpen(true)
     }
 
-    if (isLoading) {
-        return <PageLoading text="Đang tải các bộ thẻ nhớ..." className="h-[50vh]" />
-    }
-
     const decks = decksData?.data || []
 
     return (
@@ -161,7 +159,13 @@ export default function FlashcardsPage() {
             </div>
 
             {/* Decks Grid */}
-            {decks.length === 0 ? (
+            {isLoading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[1, 2, 3].map((i) => (
+                        <Card key={i} className="h-64 animate-pulse bg-muted/10 border-white/5 rounded-[2rem]" />
+                    ))}
+                </div>
+            ) : decks.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 border border-dashed border-white/10 rounded-[3rem] bg-white/5">
                     <div className="p-6 rounded-full bg-muted/10 mb-6">
                         <Layers className="size-10 text-muted-foreground/30" />
