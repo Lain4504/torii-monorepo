@@ -8,7 +8,7 @@ import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
 import { useAppDispatch, useAppSelector } from '../../../store';
 import { participantsSelector } from '../../../store/slices/participantSlice';
-import sendAPIRequest from '../../../helpers/api/walearnconnectAPI';
+import sendAPIRequest from '../../../helpers/api/api-client';
 import { X, Check } from 'lucide-react';
 import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
 

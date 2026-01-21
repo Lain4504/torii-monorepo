@@ -16,7 +16,7 @@ import {
   addAiTextChatUserMessage,
   clearIsAwaitingResponse,
 } from '../../../../store/slices/insightsAiTextChatSlice';
-import sendAPIRequest from '../../../../helpers/api/walearnconnectAPI';
+import sendAPIRequest from '../../../../helpers/api/api-client';
 
 const TextBoxArea = () => {
   const { t } = useTranslation();

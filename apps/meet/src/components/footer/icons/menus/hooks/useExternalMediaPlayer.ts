@@ -9,7 +9,7 @@ import {
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
 import { useAppDispatch, useAppSelector } from '../../../../../store';
-import sendAPIRequest from '../../../../../helpers/api/walearnconnectAPI';
+import sendAPIRequest from '../../../../../helpers/api/api-client';
 import { updateShowExternalMediaPlayerModal } from '../../../../../store/slices/bottomIconsActivitySlice';
 import { addUserNotification } from '../../../../../store/slices/roomSettingsSlice';
 

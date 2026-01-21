@@ -40,7 +40,10 @@ export class RedisAnalyticsService {
      */
     async addAnalyticsHSETType(key: string, values: Record<string, string>): Promise<void> {
         try {
-            await this.redis.hset(key, values);
+            const pipeline = this.redis.pipeline();
+            pipeline.hset(key, values);
+            pipeline.expire(key, 24 * 60 * 60); // 24 hours like Go server
+            await pipeline.exec();
         } catch (error) {
             this.logger.error(`AddAnalyticsHSETType failed for key ${key}: ${error.message}`);
             throw error;
@@ -52,7 +55,12 @@ export class RedisAnalyticsService {
      */
     async incrementAnalyticsVal(key: string, amount: number): Promise<number> {
         try {
-            return await this.redis.incrby(key, amount);
+            const pipeline = this.redis.pipeline();
+            pipeline.incrby(key, amount);
+            pipeline.expire(key, 24 * 60 * 60); // 24 hours like Go server
+            const results = await pipeline.exec();
+            // Return the incremented value from first command
+            return results?.[0]?.[1] as number ?? 0;
         } catch (error) {
             this.logger.error(`IncrementAnalyticsVal failed for key ${key}: ${error.message}`);
             throw error;
@@ -64,7 +72,7 @@ export class RedisAnalyticsService {
      */
     async addAnalyticsStringType(key: string, value: string): Promise<void> {
         try {
-            await this.redis.set(key, value);
+            await this.redis.set(key, value, 'EX', 24 * 60 * 60); // 24 hours like Go server
         } catch (error) {
             this.logger.error(`AddAnalyticsStringType failed for key ${key}: ${error.message}`);
             throw error;
@@ -77,7 +85,10 @@ export class RedisAnalyticsService {
     async addAnalyticsUser(roomId: string, userId: string, userInfoJson: string): Promise<void> {
         const key = `${this.getAnalyticsRoomKeyPrefix(roomId)}:users`;
         try {
-            await this.redis.hset(key, userId, userInfoJson);
+            const pipeline = this.redis.pipeline();
+            pipeline.hset(key, userId, userInfoJson);
+            pipeline.expire(key, 24 * 60 * 60); // 24 hours like Go server
+            await pipeline.exec();
         } catch (error) {
             this.logger.error(`AddAnalyticsUser failed for room ${roomId}: ${error.message}`);
             throw error;

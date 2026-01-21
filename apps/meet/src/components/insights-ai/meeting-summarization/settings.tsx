@@ -9,7 +9,7 @@ import {
 
 import { store, useAppSelector } from '../../../store';
 import SettingsSwitch from '../../../helpers/ui/settingsSwitch';
-import sendAPIRequest from '../../../helpers/api/walearnconnectAPI';
+import sendAPIRequest from '../../../helpers/api/api-client';
 
 interface MeetingSummarizationProps {
   setErrorMsg: React.Dispatch<React.SetStateAction<string | undefined>>;

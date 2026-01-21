@@ -18,7 +18,7 @@ import Upload from './upload';
 import Modal from '../../../helpers/ui/modal';
 import Tabs from '../../../helpers/ui/tabs';
 import ActionButton from '../../../helpers/ui/actionButton';
-import sendAPIRequest from '../../../helpers/api/walearnconnectAPI';
+import sendAPIRequest from '../../../helpers/api/api-client';
 
 const ExternalMediaPlayerModal = () => {
   const dispatch = useAppDispatch();

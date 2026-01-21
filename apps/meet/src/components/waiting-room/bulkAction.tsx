@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { IParticipant } from '../../store/slices/interfaces/participant';
-import sendAPIRequest from '../../helpers/api/walearnconnectAPI';
+import sendAPIRequest from '../../helpers/api/api-client';
 import {
   ApproveWaitingUsersReqSchema,
   CommonResponseSchema,

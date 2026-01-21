@@ -17,7 +17,7 @@ import { NatsUserService } from './nats-user.service';
 import { NatsAuthCalloutService } from './nats-auth-callout.service';
 import { RetentionPolicy, AckPolicy } from 'nats';
 import { NatsSystemEventsService } from './nats-system-events.service';
-import { fromBinary } from '@bufbuild/protobuf';
+import { fromBinary, fromJsonString } from '@bufbuild/protobuf';
 import { NatsMsgClientToServerSchema, NatsMsgClientToServerEvents, AnalyticsDataMsgSchema } from '@workspace/protocol';
 import { RoomUserService } from '../../modules/room/room-user.service';
 import { AnalyticsService } from '../../modules/analytics/analytics.service';
@@ -399,7 +399,9 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
                 case NatsMsgClientToServerEvents.PUSH_ANALYTICS_DATA:
                     {
                         try {
-                            const analyticsData = fromBinary(AnalyticsDataMsgSchema, req.msg);
+                            // Client sends JSON string via toJsonString(), not binary data
+                            // Go server uses protojson.Unmarshal for this - we must use fromJsonString
+                            const analyticsData = fromJsonString(AnalyticsDataMsgSchema, req.msg);
                             await this.analyticsService.handleEvent(analyticsData);
                         } catch (error) {
                             this.logger.error(`Failed to parse or handle analytics data: ${error.message}`);

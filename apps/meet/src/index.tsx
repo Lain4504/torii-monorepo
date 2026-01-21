@@ -13,7 +13,7 @@ import { store } from './store';
 import App from './components/app';
 import Loading from './components/extra-pages/Loading';
 
-const container = document.getElementById('walearnconnect-app');
+const container = document.getElementById('torii-meet-app');
 
 // Initialize i18n before rendering
 initializeI18n({
@@ -38,7 +38,7 @@ initializeI18n({
     );
   } else {
     throw new Error(
-      "Root element with ID 'walearnconnect-app' was not found in the document. Ensure there is a corresponding HTML element with the ID 'walearnconnect-app' in your HTML file.",
+      "Root element with ID 'torii-meet-app' was not found in the document. Ensure there is a corresponding HTML element with the ID 'torii-meet-app' in your HTML file.",
     );
   }
 });

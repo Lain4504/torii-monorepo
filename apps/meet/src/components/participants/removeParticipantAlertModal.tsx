@@ -8,7 +8,7 @@ import {
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
 import { store } from '../../store';
-import sendAPIRequest from '../../helpers/api/walearnconnectAPI';
+import sendAPIRequest from '../../helpers/api/api-client';
 import Modal from '../../helpers/ui/modal';
 import RadioOptions from '../../helpers/ui/radioOptions';
 

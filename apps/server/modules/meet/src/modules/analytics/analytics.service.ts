@@ -60,10 +60,9 @@ export class AnalyticsService {
         const enabled = this.configService.get<boolean>('ANALYTICS_ENABLED', true);
         if (!enabled) return;
 
-        // Set time to now in milliseconds if not provided
-        if (!d.time || d.time === '') {
-            d.time = Date.now().toString();
-        }
+        // Always set time to now in milliseconds (matches Go server behavior)
+        // Go: d.Time = time.Now().UnixMilli()
+        d.time = Date.now().toString();
 
         switch (d.eventType) {
             case AnalyticsEventType.ROOM:

@@ -7,7 +7,7 @@ import {
   VerifyTokenResSchema,
 } from '@workspace/protocol';
 
-import sendAPIRequest from '../../helpers/api/walearnconnectAPI';
+import sendAPIRequest from '../../helpers/api/api-client';
 import { IErrorPageProps } from '../extra-pages/Error';
 import i18n from '../../helpers/i18n';
 import { getAccessToken } from '../../helpers/utils';

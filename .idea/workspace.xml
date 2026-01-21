@@ -4,15 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix bug">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix meet config">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/infrastructure/webhook/webhook.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/infrastructure/webhook/webhook.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/meet.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/meet.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/infrastructure/redis/redis-analytics.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/infrastructure/redis/redis-analytics.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/analytics/analytics.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/analytics/analytics.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/breakout/breakout.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/breakout/breakout.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/file/file.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/file/file.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/polls/polls.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/polls/polls.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room.module.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -86,12 +81,12 @@
     }
   ]
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Lain4504/torii-monorepo.git",
-    "accountId": "5126b88c-ccf3-4397-984d-7c1b52a2aa60"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Lain4504/torii-monorepo.git&quot;,
+    &quot;accountId&quot;: &quot;5126b88c-ccf3-4397-984d-7c1b52a2aa60&quot;
   }
-}]]></component>
+}</component>
   <component name="KubernetesApiPersistence">{}</component>
   <component name="KubernetesApiProvider">{
   &quot;isMigrated&quot;: true
@@ -125,7 +120,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "#94 on whiteboard-integration",
+    "git-widget-placeholder": "whiteboard-integration",
     "ignore.virus.scanning.warn.message": "true",
     "javascript.preferred.runtime.type.id": "node",
     "junie.onboarding.icon.badge.shown": "true",
@@ -323,22 +318,6 @@
       <workItem from="1768829101896" duration="55000" />
       <workItem from="1768911439183" duration="1357000" />
       <workItem from="1768964656424" duration="7389000" />
-    </task>
-    <task id="LOCAL-00696" summary="rebuild UI">
-      <option name="closed" value="true" />
-      <created>1768268127447</created>
-      <option name="number" value="00696" />
-      <option name="presentableId" value="LOCAL-00696" />
-      <option name="project" value="LOCAL" />
-      <updated>1768268127447</updated>
-    </task>
-    <task id="LOCAL-00697" summary="build aadmin">
-      <option name="closed" value="true" />
-      <created>1768271152033</created>
-      <option name="number" value="00697" />
-      <option name="presentableId" value="LOCAL-00697" />
-      <option name="project" value="LOCAL" />
-      <updated>1768271152033</updated>
     </task>
     <task id="LOCAL-00698" summary="build aadmin">
       <option name="closed" value="true" />
@@ -716,7 +695,23 @@
       <option name="project" value="LOCAL" />
       <updated>1768968156316</updated>
     </task>
-    <option name="localTasksCounter" value="745" />
+    <task id="LOCAL-00745" summary="fix meet config">
+      <option name="closed" value="true" />
+      <created>1768986632275</created>
+      <option name="number" value="00745" />
+      <option name="presentableId" value="LOCAL-00745" />
+      <option name="project" value="LOCAL" />
+      <updated>1768986632275</updated>
+    </task>
+    <task id="LOCAL-00746" summary="fix meet config">
+      <option name="closed" value="true" />
+      <created>1768987585986</created>
+      <option name="number" value="00746" />
+      <option name="presentableId" value="LOCAL-00746" />
+      <option name="project" value="LOCAL" />
+      <updated>1768987585986</updated>
+    </task>
+    <option name="localTasksCounter" value="747" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -733,7 +728,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="whiteboard-integration" />
+                        <option value="main" />
                       </list>
                     </value>
                   </entry>
@@ -751,7 +746,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="minimal zen ui" />
     <MESSAGE value="payos" />
     <MESSAGE value="rebuild UI" />
     <MESSAGE value="build aadmin" />
@@ -776,7 +770,8 @@
     <MESSAGE value="feat: add artifacts module and analytics service for handling telemetry data" />
     <MESSAGE value="feat: integrate etherpad module" />
     <MESSAGE value="fix bug" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix bug" />
+    <MESSAGE value="fix meet config" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix meet config" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

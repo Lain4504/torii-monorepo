@@ -9,7 +9,7 @@ import { debounce } from 'es-toolkit';
 
 import { store, useAppDispatch, useAppSelector } from '../../../store';
 import { updateIsActiveWhiteboard } from '../../../store/slices/bottomIconsActivitySlice';
-import sendAPIRequest from '../../../helpers/api/walearnconnectAPI';
+import sendAPIRequest from '../../../helpers/api/api-client';
 import { Presentation } from 'lucide-react';
 import { participantsSelector } from '../../../store/slices/participantSlice';
 

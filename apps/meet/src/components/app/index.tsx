@@ -128,7 +128,7 @@ const App = () => {
         return <InsertE2EEKey setOpenConn={setOpenConn} />;
       case isAppReady:
         return (
-          <div className="walearnconnect-app overflow-hidden h-screen">
+          <div className="torii-meet-app overflow-hidden h-screen">
             <Header />
             <MainArea />
             <Footer />
