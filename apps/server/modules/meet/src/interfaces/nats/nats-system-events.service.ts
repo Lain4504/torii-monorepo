@@ -19,6 +19,9 @@ import {
     NatsInitialDataSchema,
     MediaServerConnInfo,
     MediaServerConnInfoSchema,
+    DataChannelMessage,
+    DataChannelMessageSchema,
+    DataMsgBodyType,
 } from '@workspace/protocol';
 import { ConfigService } from '@nestjs/config';
 import { NatsUserInfoService } from './nats-user-info.service';
@@ -38,6 +41,7 @@ export class NatsSystemEventsService {
     private js: JetStreamClient;
     private subjectSystemPublic: string;
     private subjectSystemPrivate: string;
+    private subjectDataChannel: string;
 
     constructor(
         private readonly natsService: NatsService,
@@ -51,6 +55,7 @@ export class NatsSystemEventsService {
         // Initialize subjects from config
         this.subjectSystemPublic = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PUBLIC', 'sysPublic');
         this.subjectSystemPrivate = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PRIVATE', 'sysPrivate');
+        this.subjectDataChannel = this.configService.get<string>('NATS_SUBJECT_DATA_CHANNEL', 'dataChannel');
     }
 
     onModuleInit() {
@@ -132,6 +137,58 @@ export class NatsSystemEventsService {
         } catch (error) {
             this.logger.error(`Failed to broadcast event: ${error.message}`);
             throw error;
+        }
+    }
+
+    /**
+     * BroadcastDataChannelMessage broadcasts a data channel message to valid users
+     */
+    async broadcastDataChannelMessage(
+        roomId: string,
+        type: DataMsgBodyType,
+        msg: string, // JSON string or simple string
+        fromUserId: string = 'system',
+        toUserId?: string,
+        isAdmin: boolean = false, // if true, can be just from 'system'
+    ): Promise<void> {
+        const payload = create(DataChannelMessageSchema, {
+            id: uuidv4(),
+            type: type,
+            message: msg,
+            fromUserId: fromUserId,
+            // toUserId is optional in proto but good to have if directed.
+            // The proto definition has `toUserId` as optional string.
+            toUserId: toUserId,
+        });
+
+        const binaryMsg = toBinary(DataChannelMessageSchema, payload);
+
+        // Subject format: roomId:dataChannelSubject
+        // Or if private: roomId:dataChannelSubject.userId?
+        // Usually data channel messages are broadcasted to the room subject and filtered by client,
+        // OR sent to specific sub-subject.
+        // In PlugNMeet Go:
+        // regular: `roomId:datachannel`
+        // private: `roomId:datachannel.userId`
+
+        let subject = `${roomId}:${this.subjectDataChannel}`;
+        if (toUserId) {
+            subject += `.${toUserId}`;
+        }
+
+        if (!this.js) {
+            this.js = this.natsService.getJetStream();
+            if (!this.js) {
+                this.logger.warn('JetStream client not ready');
+                return;
+            }
+        }
+
+        try {
+            await this.js.publish(subject, binaryMsg);
+            this.logger.debug(`Broadcast DataChannel msg type ${DataMsgBodyType[type]} to ${subject}`);
+        } catch (error) {
+            this.logger.error(`Failed to broadcast DataChannel msg: ${error.message}`);
         }
     }
 

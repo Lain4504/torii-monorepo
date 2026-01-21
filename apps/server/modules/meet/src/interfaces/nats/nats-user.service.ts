@@ -71,6 +71,31 @@ export class NatsUserService {
     ) { }
 
     /**
+     * GetRoomUserStatus gets user status from NatsUserInfoService
+     */
+    async getRoomUserStatus(roomId: string, userId: string): Promise<string> {
+        return this.natsUserInfo.getRoomUserStatus(roomId, userId);
+    }
+
+    /**
+     * GetUser gets user info from NatsUserInfoService
+     */
+    async getUser(roomId: string, userId: string): Promise<any> {
+        return this.natsUserInfo.getUserInfo(roomId, userId);
+    }
+
+    /**
+     * GetUserMetadataStruct gets user metadata struct
+     */
+    async getUserMetadataStruct(roomId: string, userId: string): Promise<UserMetadata | undefined> {
+        const userInfo = await this.natsUserInfo.getUserInfo(roomId, userId);
+        if (userInfo && userInfo.metadata) {
+            return this.natsService.unmarshalUserMetadata(userInfo.metadata);
+        }
+        return undefined;
+    }
+
+    /**
      * AddUser adds a new user to a room and stores their metadata
      */
     async addUser(

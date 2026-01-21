@@ -139,7 +139,60 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     }
 
     // ============================================================================
-    // Metadata Marshaling Methods
+    // Public Subscription Methods
+    // ============================================================================
+
+    /**
+     * Subscribe to a NATS subject
+     * Wrapper validation and error handling
+     */
+    subscribe(subject: string, callback: (userId: string, data: Uint8Array) => Promise<any>): void {
+        if (!this.nc) {
+            this.logger.warn(`Cannot subscribe to ${subject}: NATS not connected`);
+            return;
+        }
+
+        // We assume subject has format that might include user ID or we extract it?
+        // Actually, the controllers expect `(userId: string, data: Uint8Array)`.
+        // The standard NATS msg comes with headers.
+        // We need to extract user ID from headers or subject if possible.
+        // For general subscriptions, maybe userId is not always present?
+        // Let's look at `NatsController` which sets up subscriptions.
+        // It uses `nc.subscribe`. 
+
+        // This helper method is intended for simple request/response or event handling
+        // where we want to extract standard headers like 'userId'.
+
+        this.nc.subscribe(subject, {
+            callback: async (err, msg) => {
+                if (err) {
+                    this.logger.error(`Error in subscription ${subject}: ${err.message}`);
+                    return;
+                }
+
+                try {
+                    // Extract userId from header if available
+                    // The standard authentication flow usually populates `userId` generic header or similar?
+                    // Or maybe it is expected to be part of the message?
+                    // Given the signature `(userId: string, data: Uint8Array)`, let's try to extract it.
+                    // If not found, pass empty string.
+                    const userId = msg.headers?.get('userId') || '';
+
+                    const result = await callback(userId, msg.data);
+
+                    // If result is returned, respond to request (Request-Reply pattern)
+                    if (result && msg.reply) {
+                        msg.respond(result);
+                    }
+                } catch (error) {
+                    this.logger.error(`Error processing message for ${subject}: ${error.message}`);
+                    // Optionally respond with error?
+                }
+            }
+        });
+
+        this.logger.log(`Subscribed to ${subject}`);
+    }
     // ============================================================================
 
     /**
