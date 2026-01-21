@@ -4,7 +4,7 @@
  * Processes real-time telemetry events and exports them as artifacts
  */
 
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import * as fs from 'fs';
@@ -48,6 +48,7 @@ export class AnalyticsService {
         private readonly natsService: NatsService,
         private readonly prisma: PrismaService,
         private readonly redisLock: RedisLockService,
+        @Inject(forwardRef(() => NatsRoomService))
         private readonly natsRoomService: NatsRoomService,
         private readonly artifactsService: ArtifactsService,
     ) { }
@@ -59,10 +60,9 @@ export class AnalyticsService {
         const enabled = this.configService.get<boolean>('ANALYTICS_ENABLED', true);
         if (!enabled) return;
 
-        // Set time to now in milliseconds if not provided
-        if (!d.time || d.time === '') {
-            d.time = Date.now().toString();
-        }
+        // Always set time to now in milliseconds (matches Go server behavior)
+        // Go: d.Time = time.Now().UnixMilli()
+        d.time = Date.now().toString();
 
         switch (d.eventType) {
             case AnalyticsEventType.ROOM:

@@ -4,8 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add file management functionality to meet module">
-      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix meet config">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/infrastructure/redis/redis-analytics.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/infrastructure/redis/redis-analytics.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/analytics/analytics.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/analytics/analytics.service.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -13,7 +15,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1667" />
+    <option name="cachedIndexableFilesCount" value="1696" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -31,7 +33,7 @@
     </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="main" />
+        <entry key="$PROJECT_DIR$" value="analysics-meet" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -81,8 +83,8 @@
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;git@github.com:Lain4504/torii-monorepo.git&quot;,
-    &quot;accountId&quot;: &quot;36ac2fd8-9a60-42a4-b2bf-7fe947db4431&quot;
+    &quot;url&quot;: &quot;https://github.com/Lain4504/torii-monorepo.git&quot;,
+    &quot;accountId&quot;: &quot;5126b88c-ccf3-4397-984d-7c1b52a2aa60&quot;
   }
 }</component>
   <component name="KubernetesApiPersistence">{}</component>
@@ -118,7 +120,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "analysics-meet",
+    "git-widget-placeholder": "whiteboard-integration",
     "ignore.virus.scanning.warn.message": "true",
     "javascript.preferred.runtime.type.id": "node",
     "junie.onboarding.icon.badge.shown": "true",
@@ -315,70 +317,7 @@
       <workItem from="1768826857511" duration="19000" />
       <workItem from="1768829101896" duration="55000" />
       <workItem from="1768911439183" duration="1357000" />
-    </task>
-    <task id="LOCAL-00690" summary="rebuild UI">
-      <option name="closed" value="true" />
-      <created>1768246105625</created>
-      <option name="number" value="00690" />
-      <option name="presentableId" value="LOCAL-00690" />
-      <option name="project" value="LOCAL" />
-      <updated>1768246105625</updated>
-    </task>
-    <task id="LOCAL-00691" summary="rebuild UI">
-      <option name="closed" value="true" />
-      <created>1768246251397</created>
-      <option name="number" value="00691" />
-      <option name="presentableId" value="LOCAL-00691" />
-      <option name="project" value="LOCAL" />
-      <updated>1768246251397</updated>
-    </task>
-    <task id="LOCAL-00692" summary="rebuild UI">
-      <option name="closed" value="true" />
-      <created>1768267592717</created>
-      <option name="number" value="00692" />
-      <option name="presentableId" value="LOCAL-00692" />
-      <option name="project" value="LOCAL" />
-      <updated>1768267592719</updated>
-    </task>
-    <task id="LOCAL-00693" summary="rebuild UI">
-      <option name="closed" value="true" />
-      <created>1768267695255</created>
-      <option name="number" value="00693" />
-      <option name="presentableId" value="LOCAL-00693" />
-      <option name="project" value="LOCAL" />
-      <updated>1768267695255</updated>
-    </task>
-    <task id="LOCAL-00694" summary="rebuild UI">
-      <option name="closed" value="true" />
-      <created>1768267919238</created>
-      <option name="number" value="00694" />
-      <option name="presentableId" value="LOCAL-00694" />
-      <option name="project" value="LOCAL" />
-      <updated>1768267919238</updated>
-    </task>
-    <task id="LOCAL-00695" summary="rebuild UI">
-      <option name="closed" value="true" />
-      <created>1768268120367</created>
-      <option name="number" value="00695" />
-      <option name="presentableId" value="LOCAL-00695" />
-      <option name="project" value="LOCAL" />
-      <updated>1768268120368</updated>
-    </task>
-    <task id="LOCAL-00696" summary="rebuild UI">
-      <option name="closed" value="true" />
-      <created>1768268127447</created>
-      <option name="number" value="00696" />
-      <option name="presentableId" value="LOCAL-00696" />
-      <option name="project" value="LOCAL" />
-      <updated>1768268127447</updated>
-    </task>
-    <task id="LOCAL-00697" summary="build aadmin">
-      <option name="closed" value="true" />
-      <created>1768271152033</created>
-      <option name="number" value="00697" />
-      <option name="presentableId" value="LOCAL-00697" />
-      <option name="project" value="LOCAL" />
-      <updated>1768271152033</updated>
+      <workItem from="1768964656424" duration="7389000" />
     </task>
     <task id="LOCAL-00698" summary="build aadmin">
       <option name="closed" value="true" />
@@ -708,7 +647,71 @@
       <option name="project" value="LOCAL" />
       <updated>1768958790980</updated>
     </task>
-    <option name="localTasksCounter" value="739" />
+    <task id="LOCAL-00739" summary="feat: add file management functionality to meet module">
+      <option name="closed" value="true" />
+      <created>1768960019649</created>
+      <option name="number" value="00739" />
+      <option name="presentableId" value="LOCAL-00739" />
+      <option name="project" value="LOCAL" />
+      <updated>1768960019649</updated>
+    </task>
+    <task id="LOCAL-00740" summary="feat: add artifacts module and analytics service for handling telemetry data">
+      <option name="closed" value="true" />
+      <created>1768961593018</created>
+      <option name="number" value="00740" />
+      <option name="presentableId" value="LOCAL-00740" />
+      <option name="project" value="LOCAL" />
+      <updated>1768961593018</updated>
+    </task>
+    <task id="LOCAL-00741" summary="feat: add artifacts module and analytics service for handling telemetry data">
+      <option name="closed" value="true" />
+      <created>1768961925158</created>
+      <option name="number" value="00741" />
+      <option name="presentableId" value="LOCAL-00741" />
+      <option name="project" value="LOCAL" />
+      <updated>1768961925159</updated>
+    </task>
+    <task id="LOCAL-00742" summary="feat: integrate etherpad module">
+      <option name="closed" value="true" />
+      <created>1768964907611</created>
+      <option name="number" value="00742" />
+      <option name="presentableId" value="LOCAL-00742" />
+      <option name="project" value="LOCAL" />
+      <updated>1768964907611</updated>
+    </task>
+    <task id="LOCAL-00743" summary="fix bug">
+      <option name="closed" value="true" />
+      <created>1768967084192</created>
+      <option name="number" value="00743" />
+      <option name="presentableId" value="LOCAL-00743" />
+      <option name="project" value="LOCAL" />
+      <updated>1768967084192</updated>
+    </task>
+    <task id="LOCAL-00744" summary="fix bug">
+      <option name="closed" value="true" />
+      <created>1768968156316</created>
+      <option name="number" value="00744" />
+      <option name="presentableId" value="LOCAL-00744" />
+      <option name="project" value="LOCAL" />
+      <updated>1768968156316</updated>
+    </task>
+    <task id="LOCAL-00745" summary="fix meet config">
+      <option name="closed" value="true" />
+      <created>1768986632275</created>
+      <option name="number" value="00745" />
+      <option name="presentableId" value="LOCAL-00745" />
+      <option name="project" value="LOCAL" />
+      <updated>1768986632275</updated>
+    </task>
+    <task id="LOCAL-00746" summary="fix meet config">
+      <option name="closed" value="true" />
+      <created>1768987585986</created>
+      <option name="number" value="00746" />
+      <option name="presentableId" value="LOCAL-00746" />
+      <option name="project" value="LOCAL" />
+      <updated>1768987585986</updated>
+    </task>
+    <option name="localTasksCounter" value="747" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -725,7 +728,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="refactor-billing" />
+                        <option value="main" />
                       </list>
                     </value>
                   </entry>
@@ -743,10 +746,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="renmae" />
-    <MESSAGE value="fix order bug" />
-    <MESSAGE value="fix sepay" />
-    <MESSAGE value="minimal zen ui" />
     <MESSAGE value="payos" />
     <MESSAGE value="rebuild UI" />
     <MESSAGE value="build aadmin" />
@@ -768,7 +767,11 @@
     <MESSAGE value="remove unused files" />
     <MESSAGE value="merge" />
     <MESSAGE value="feat: add file management functionality to meet module" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: add file management functionality to meet module" />
+    <MESSAGE value="feat: add artifacts module and analytics service for handling telemetry data" />
+    <MESSAGE value="feat: integrate etherpad module" />
+    <MESSAGE value="fix bug" />
+    <MESSAGE value="fix meet config" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix meet config" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

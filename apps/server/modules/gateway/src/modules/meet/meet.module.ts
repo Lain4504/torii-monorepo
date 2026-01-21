@@ -10,6 +10,10 @@ import { WaitingRoomController } from './controllers/waiting-room.controller';
 import { WebhookController } from './controllers/webhook.controller';
 import { FileController } from './controllers/file.controller';
 import { ArtifactController } from './controllers/artifact.controller';
+import { BreakoutController } from './controllers/breakout.controller';
+import { EtherpadController } from './controllers/etherpad.controller';
+import { ExternalMediaController } from './controllers/external-media.controller';
+import { RecordingController } from './controllers/recording.controller';
 
 /**
  * Meet Module for Gateway
@@ -27,6 +31,10 @@ import { ArtifactController } from './controllers/artifact.controller';
         WebhookController,
         FileController,
         ArtifactController,
+        BreakoutController,
+        EtherpadController,
+        ExternalMediaController,
+        RecordingController,
     ],
 })
 export class MeetModule { }

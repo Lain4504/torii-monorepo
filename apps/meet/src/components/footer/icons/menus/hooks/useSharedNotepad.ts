@@ -9,7 +9,7 @@ import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 import { store, useAppDispatch, useAppSelector } from '../../../../../store';
 import { updateIsActiveSharedNotePad } from '../../../../../store/slices/bottomIconsActivitySlice';
 import { addUserNotification } from '../../../../../store/slices/roomSettingsSlice';
-import sendAPIRequest from '../../../../../helpers/api/walearnconnectAPI';
+import sendAPIRequest from '../../../../../helpers/api/api-client';
 
 const useSharedNotepad = () => {
   const dispatch = useAppDispatch();

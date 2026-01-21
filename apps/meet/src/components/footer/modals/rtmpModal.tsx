@@ -9,7 +9,7 @@ import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
 import { store, useAppDispatch, useAppSelector } from '../../../store';
 import { updateShowRtmpModal } from '../../../store/slices/bottomIconsActivitySlice';
-import sendAPIRequest from '../../../helpers/api/walearnconnectAPI';
+import sendAPIRequest from '../../../helpers/api/api-client';
 import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
 import Dropdown from '../../../helpers/ui/dropdown';
 import FormattedInputField from '../../../helpers/ui/formattedInputField';

@@ -33,6 +33,14 @@ const ROOM_CREATED_KEY = 'created_at';
 const ROOM_FILES_BUCKET_PREFIX = `${NATS_PREFIX}roomFiles-`;
 const ROOM_FILES_BUCKET = `${ROOM_FILES_BUCKET_PREFIX}%s`;
 
+// Breakout rooms bucket
+const BREAKOUT_ROOMS_BUCKET_PREFIX = `${NATS_PREFIX}breakoutRooms-`;
+const BREAKOUT_ROOMS_BUCKET = `${BREAKOUT_ROOMS_BUCKET_PREFIX}%s`;
+
+// Etherpad keys
+const ETHERPAD_TOKEN_KEY = `${NATS_PREFIX}etherpadToken-%s`;
+const ETHERPAD_ROOMS_KEY = `${NATS_PREFIX}etherpadRooms-%s`;
+
 // Room status constants
 export const ROOM_STATUS_CREATED = 'created';
 export const ROOM_STATUS_ACTIVE = 'active';
@@ -95,6 +103,37 @@ export class NatsRoomService {
             this.logger.error(`Error getting room info for ${roomId}: ${error.message}`);
             return null;
         }
+    }
+
+    /**
+     * GetActiveRooms retrieves all currently active rooms by scanning KV buckets
+     */
+    async getActiveRooms(): Promise<{ roomId: string }[]> {
+        const jsm = this.natsService.getJetStreamManager();
+        const activeRooms: { roomId: string }[] = [];
+
+        try {
+            // NATS KV buckets are mirrored as streams with "KV_" prefix
+            // We search for streams starting with KV_<ROOM_INFO_BUCKET_PREFIX>
+            const streamPrefix = `KV_${ROOM_INFO_BUCKET_PREFIX}`;
+
+            // Getting all streams might be heavy if thousands of rooms, 
+            // but necessary if no central index.
+            // Paging might be required for production scaling.
+            const streams = await jsm.streams.list();
+
+            for await (const stream of streams) {
+                if (stream.config.name.startsWith(streamPrefix)) {
+                    // Extract Room ID: KV_wajlc-roomInfo-<roomId>
+                    const roomId = stream.config.name.substring(streamPrefix.length);
+                    activeRooms.push({ roomId });
+                }
+            }
+        } catch (error) {
+            this.logger.error(`Error getting active rooms: ${error.message}`);
+        }
+
+        return activeRooms;
     }
 
     /**
@@ -397,6 +436,213 @@ export class NatsRoomService {
         } catch (error) {
             // Ignore if already deleted
         }
+    }
+
+    // ============================================================================
+    // Breakout Rooms Methods
+    // ============================================================================
+
+    /**
+     * InsertOrUpdateBreakoutRoom adds or updates a breakout room in the parent room's breakout rooms bucket.
+     */
+    async insertOrUpdateBreakoutRoom(parentRoomId: string, breakoutRoomId: string, data: Uint8Array): Promise<void> {
+        this.logger.log(`Inserting/Updating breakout room: parent=${parentRoomId}, breakout=${breakoutRoomId}`);
+        const bucket = BREAKOUT_ROOMS_BUCKET.replace('%s', parentRoomId);
+        const numReplicas = this.configService.get<number>('NATS_NUM_REPLICAS') || 1;
+
+        try {
+            const js = this.natsService.getJetStream();
+            const kv = await js.views.kv(bucket, {
+                history: 1,
+                ttl: DEFAULT_TTL,
+                replicas: numReplicas,
+            });
+            await kv.put(breakoutRoomId, data);
+        } catch (error) {
+            this.logger.error(`Error updating breakout room for ${parentRoomId}: ${error.message}`);
+            throw error;
+        }
+    }
+
+    /**
+     * GetBreakoutRoom retrieves a specific breakout room's info.
+     */
+    async getBreakoutRoom(parentRoomId: string, breakoutRoomId: string): Promise<Uint8Array | null> {
+        const bucket = BREAKOUT_ROOMS_BUCKET.replace('%s', parentRoomId);
+        try {
+            const js = this.natsService.getJetStream();
+            const kv = await js.views.kv(bucket);
+            const entry = await kv.get(breakoutRoomId);
+            return entry?.value ?? null;
+        } catch (error) {
+            return null;
+        }
+    }
+
+    /**
+     * GetAllBreakoutRoomsByParentRoomId retrieves all breakout rooms for a parent room.
+     */
+    async getAllBreakoutRoomsByParentRoomId(parentRoomId: string): Promise<Record<string, Uint8Array>> {
+        const bucket = BREAKOUT_ROOMS_BUCKET.replace('%s', parentRoomId);
+        const result: Record<string, Uint8Array> = {};
+        try {
+            const js = this.natsService.getJetStream();
+            const kv = await js.views.kv(bucket);
+            const keys = await kv.keys();
+            for await (const k of keys) {
+                const entry = await kv.get(k);
+                if (entry && entry.value) {
+                    result[k] = entry.value;
+                }
+            }
+        } catch (error) { }
+        return result;
+    }
+
+    /**
+     * GetBreakoutRoomIdsByParentRoomId retrieves only the IDs of breakout rooms.
+     */
+    async getBreakoutRoomIdsByParentRoomId(parentRoomId: string): Promise<string[]> {
+        const bucket = BREAKOUT_ROOMS_BUCKET.replace('%s', parentRoomId);
+        try {
+            const js = this.natsService.getJetStream();
+            const kv = await js.views.kv(bucket);
+            const keys = await kv.keys();
+            const ids: string[] = [];
+            for await (const k of keys) {
+                ids.push(k);
+            }
+            return ids;
+        } catch (error) {
+            return [];
+        }
+    }
+
+    /**
+     * DeleteBreakoutRoom removes a specific breakout room from parent's list.
+     */
+    async deleteBreakoutRoom(parentRoomId: string, breakoutRoomId: string): Promise<void> {
+        const bucket = BREAKOUT_ROOMS_BUCKET.replace('%s', parentRoomId);
+        try {
+            const js = this.natsService.getJetStream();
+            const kv = await js.views.kv(bucket);
+            await kv.purge(breakoutRoomId);
+        } catch (error) { }
+    }
+
+    /**
+     * DeleteAllBreakoutRoomsByParentRoomId deletes the entire breakout rooms bucket.
+     */
+    async deleteAllBreakoutRoomsByParentRoomId(parentRoomId: string): Promise<void> {
+        const bucket = BREAKOUT_ROOMS_BUCKET.replace('%s', parentRoomId);
+        try {
+            const jsm = this.natsService.getJetStreamManager();
+            const streamName = `KV_${bucket}`;
+            await jsm.streams.delete(streamName);
+        } catch (error) { }
+    }
+
+    /**
+     * CountBreakoutRooms counts how many breakout rooms a parent room has.
+     */
+    async countBreakoutRooms(parentRoomId: string): Promise<number> {
+        const bucket = BREAKOUT_ROOMS_BUCKET.replace('%s', parentRoomId);
+        try {
+            const js = this.natsService.getJetStream();
+            const kv = await js.views.kv(bucket);
+            const status = await kv.status();
+            return Number(status.values);
+        } catch (error) {
+            return 0;
+        }
+    }
+
+    // ============================================================================
+    // Etherpad Tokens and Rooms Management
+    // ============================================================================
+
+    /**
+     * AddEtherpadToken stores an access token for an etherpad node.
+     */
+    async addEtherpadToken(nodeId: string, token: string, ttlMs: number): Promise<void> {
+        const bucket = ETHERPAD_TOKEN_KEY.replace('%s', nodeId);
+        const numReplicas = this.configService.get<number>('NATS_NUM_REPLICAS') || 1;
+
+        try {
+            const js = this.natsService.getJetStream();
+            const kv = await js.views.kv(bucket, {
+                history: 1,
+                ttl: ttlMs,
+                replicas: numReplicas,
+            });
+            await kv.put(nodeId, new TextEncoder().encode(token));
+        } catch (error) {
+            this.logger.error(`Error adding etherpad token: ${error.message}`);
+            throw error;
+        }
+    }
+
+    /**
+     * GetEtherpadToken retrieves a cached access token for an etherpad node.
+     */
+    async getEtherpadToken(nodeId: string): Promise<string> {
+        const bucket = ETHERPAD_TOKEN_KEY.replace('%s', nodeId);
+        try {
+            const js = this.natsService.getJetStream();
+            const kv = await js.views.kv(bucket);
+            const entry = await kv.get(nodeId);
+            return entry?.value ? new TextDecoder().decode(entry.value) : '';
+        } catch (error) {
+            return '';
+        }
+    }
+
+    /**
+     * AddRoomInEtherpad marks a room as active on a specific etherpad node.
+     */
+    async addRoomInEtherpad(nodeId: string, roomId: string): Promise<void> {
+        const bucket = ETHERPAD_ROOMS_KEY.replace('%s', nodeId);
+        const numReplicas = this.configService.get<number>('NATS_NUM_REPLICAS') || 1;
+
+        try {
+            const js = this.natsService.getJetStream();
+            const kv = await js.views.kv(bucket, {
+                history: 1,
+                ttl: DEFAULT_TTL,
+                replicas: numReplicas,
+            });
+            await kv.put(roomId, new TextEncoder().encode(Date.now().toString()));
+        } catch (error) {
+            this.logger.error(`Error adding room to etherpad node ${nodeId}: ${error.message}`);
+            throw error;
+        }
+    }
+
+    /**
+     * GetEtherpadActiveRoomsNum returns the number of active rooms on an etherpad node.
+     */
+    async getEtherpadActiveRoomsNum(nodeId: string): Promise<number> {
+        const bucket = ETHERPAD_ROOMS_KEY.replace('%s', nodeId);
+        try {
+            const js = this.natsService.getJetStream();
+            const kv = await js.views.kv(bucket);
+            const status = await kv.status();
+            return Number(status.values);
+        } catch (error) {
+            return 0;
+        }
+    }
+
+    /**
+     * RemoveRoomFromEtherpad unmarks a room as active on an etherpad node.
+     */
+    async removeRoomFromEtherpad(nodeId: string, roomId: string): Promise<void> {
+        const bucket = ETHERPAD_ROOMS_KEY.replace('%s', nodeId);
+        try {
+            const js = this.natsService.getJetStream();
+            const kv = await js.views.kv(bucket);
+            await kv.purge(roomId);
+        } catch (error) { }
     }
 
     // ============================================================================

@@ -14,7 +14,7 @@ import { ChevronLeft, ChevronRight, Presentation, Eye } from 'lucide-react';
 import { store, useAppDispatch, useAppSelector } from '../../store';
 import { setWhiteboardCurrentPage } from '../../store/slices/whiteboard';
 import { broadcastCurrentPageNumber } from './helpers/handleRequests';
-import sendAPIRequest from '../../helpers/api/walearnconnectAPI';
+import sendAPIRequest from '../../helpers/api/api-client';
 import { savePageData } from './helpers/utils';
 import { sleep } from '../../helpers/utils';
 

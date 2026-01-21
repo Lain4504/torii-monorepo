@@ -13,7 +13,7 @@ import {
   updateDisplayExternalLinkRoomModal,
   updateIsActiveWhiteboard,
 } from '../../../store/slices/bottomIconsActivitySlice';
-import sendAPIRequest from '../../../helpers/api/walearnconnectAPI';
+import sendAPIRequest from '../../../helpers/api/api-client';
 import Modal from '../../../helpers/ui/modal';
 import ActionButton from '../../../helpers/ui/actionButton';
 import Checkbox from '../../../helpers/ui/checkbox';

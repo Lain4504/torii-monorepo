@@ -8,7 +8,7 @@ import {
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
 import { IParticipant } from '../../store/slices/interfaces/participant';
-import sendAPIRequest from '../../helpers/api/walearnconnectAPI';
+import sendAPIRequest from '../../helpers/api/api-client';
 import { store, useAppDispatch } from '../../store';
 import { addUserNotification } from '../../store/slices/roomSettingsSlice';
 import { generateAvatarInitial } from '../../helpers/utils';

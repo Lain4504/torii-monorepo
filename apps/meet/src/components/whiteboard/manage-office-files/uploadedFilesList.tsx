@@ -14,7 +14,7 @@ import {
   IWhiteboardOfficeFile,
   WhiteboardFileConversionRes,
 } from '../../../store/slices/interfaces/whiteboard';
-import sendAPIRequest from '../../../helpers/api/walearnconnectAPI';
+import sendAPIRequest from '../../../helpers/api/api-client';
 import { createAndRegisterOfficeFile } from '../helpers/handleFiles';
 
 interface UploadedFilesListProps {

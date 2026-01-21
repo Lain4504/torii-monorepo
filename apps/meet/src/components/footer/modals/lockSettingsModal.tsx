@@ -8,7 +8,7 @@ import {
 
 import { store, useAppDispatch, useAppSelector } from '../../../store';
 import { updateShowLockSettingsModal } from '../../../store/slices/bottomIconsActivitySlice';
-import sendAPIRequest from '../../../helpers/api/walearnconnectAPI';
+import sendAPIRequest from '../../../helpers/api/api-client';
 import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
 import Modal from '../../../helpers/ui/modal';
 import SettingsSwitch from '../../../helpers/ui/settingsSwitch';

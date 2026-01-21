@@ -9,7 +9,7 @@ import {
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
 import { store, useAppSelector } from '../../../store';
-import sendAPIRequest from '../../../helpers/api/walearnconnectAPI';
+import sendAPIRequest from '../../../helpers/api/api-client';
 import { Loader2 } from 'lucide-react';
 import Dropdown, { ISelectOption } from '../../../helpers/ui/dropdown';
 import FormattedInputField from '../../../helpers/ui/formattedInputField';

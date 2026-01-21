@@ -4,7 +4,8 @@
  * Handles room termination and cleanup operations
  */
 
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import type { RoomEndReq } from '@workspace/protocol';
 import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
 import { NatsSystemEventsService } from '../../interfaces/nats/nats-system-events.service';
@@ -13,12 +14,16 @@ import { NatsUserService } from '../../interfaces/nats/nats-user.service';
 import { RedisLockService } from '../../infrastructure/redis/redis-lock.service';
 import { RedisRoomService } from '../../infrastructure/redis/redis-room.service';
 import { LiveKitService } from '../../infrastructure/livekit/livekit.service';
-import { NatsMsgServerToClientEvents } from '@workspace/protocol';
+import { NatsMsgServerToClientEvents, CleanEtherpadReqSchema } from '@workspace/protocol';
+import { create } from '@bufbuild/protobuf';
 import { waitUntilRoomCreationCompletes } from './room-lock.helper';
 import { RoomInfoService } from './room-info.service';
 import { RoomDurationService } from './room-duration.service';
 import { PollsService } from "../polls/polls.service";
 import { AnalyticsService } from '../analytics/analytics.service';
+import { EtherpadService } from '../etherpad/etherpad.service';
+import { BreakoutService } from '../breakout/breakout.service';
+import { FileService } from '../file/file.service';
 
 /**
  * RoomEndService handles room termination and cleanup
@@ -28,6 +33,7 @@ export class RoomEndService {
     private readonly logger = new Logger(RoomEndService.name);
 
     constructor(
+        private readonly configService: ConfigService,
         private readonly natsRoomService: NatsRoomService,
         private readonly natsSystemEvents: NatsSystemEventsService,
         private readonly natsStreamService: NatsStreamService,
@@ -39,6 +45,10 @@ export class RoomEndService {
         private readonly roomDuration: RoomDurationService,
         private readonly pollsService: PollsService,
         private readonly analyticsService: AnalyticsService,
+        private readonly etherpadService: EtherpadService,
+        @Inject(forwardRef(() => BreakoutService))
+        private readonly breakoutService: BreakoutService,
+        private readonly fileService: FileService,
     ) { }
 
     /**
@@ -241,10 +251,14 @@ export class RoomEndService {
         // await this.recorderModel.sendMsgToRecorder({ task: 'STOP', sid: roomSID, roomId: roomId });
 
         // Step 7: Delete all uploaded files for this session (if not configured to keep)
-        // TODO: Implement file model
-        // if (!this.configService.get('UPLOAD_KEEP_FOREVER')) {
-        //     await this.fileModel.deleteRoomUploadedDir(roomSID);
-        // }
+        const keepFilesForever = this.configService.get<boolean>('UPLOAD_KEEP_FOREVER', false);
+        if (!keepFilesForever) {
+            try {
+                await this.fileService.deleteRoomUploadedDir(roomSID);
+            } catch (error) {
+                this.logger.error(`Error deleting uploaded files: ${error.message}`);
+            }
+        }
 
         // Step 8: Remove the room from the duration checker
         try {
@@ -254,8 +268,11 @@ export class RoomEndService {
         }
 
         // Step 9: Clean up any associated Etherpad (shared notepad) pads
-        // TODO: Implement Etherpad model
-        // await this.etherpadModel.cleanAfterRoomEnd(roomId, metadata);
+        try {
+            await this.etherpadService.cleanAfterRoomEnd(create(CleanEtherpadReqSchema, { roomId }));
+        } catch (error) {
+            this.logger.error(`Error cleaning up Etherpad: ${error.message}`);
+        }
 
         // Step 10: Clean up any polls created during the session
         try {
@@ -265,8 +282,11 @@ export class RoomEndService {
         }
 
         // Step 11: Perform post-end tasks for breakout rooms, if any
-        // TODO: Implement breakout room model
-        // await this.breakoutModel.postTaskAfterRoomEndWebhook(roomId, metadata);
+        try {
+            await this.breakoutService.postTaskAfterRoomEndWebhook(roomId, metadata);
+        } catch (error) {
+            this.logger.error(`Error in breakout room post-end tasks: ${error.message}`);
+        }
 
         // Step 12: Finalize and clean up any speech-to-text service usage stats
         // TODO: Implement speech service

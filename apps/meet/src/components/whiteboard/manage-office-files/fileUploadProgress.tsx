@@ -20,7 +20,7 @@ import { File, Trash2 } from 'lucide-react';
 import { sleep } from '../../../helpers/utils';
 import { store } from '../../../store';
 import { getNatsConn } from '../../../helpers/nats';
-import sendAPIRequest from '../../../helpers/api/walearnconnectAPI';
+import sendAPIRequest from '../../../helpers/api/api-client';
 import {
   WhiteboardFileConversionReq,
   WhiteboardFileConversionRes,

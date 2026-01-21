@@ -12,7 +12,7 @@ import Resumable from 'resumablejs';
 
 import i18n from './i18n';
 import { store } from '../store';
-import sendAPIRequest from './api/walearnconnectAPI';
+import sendAPIRequest from './api/api-client';
 import { addUserNotification } from '../store/slices/roomSettingsSlice';
 import { ISession } from '../store/slices/interfaces/session';
 import { sleep } from './utils';

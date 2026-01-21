@@ -10,7 +10,7 @@ import {
 import { useAppSelector } from '../../../store';
 import SettingsSwitch from '../../../helpers/ui/settingsSwitch';
 import UsersSelector from './usersSelector';
-import sendAPIRequest from '../../../helpers/api/walearnconnectAPI';
+import sendAPIRequest from '../../../helpers/api/api-client';
 
 interface AiTextChatSettingsProps {
   setErrorMsg: React.Dispatch<React.SetStateAction<string | undefined>>;

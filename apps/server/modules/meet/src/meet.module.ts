@@ -14,6 +14,12 @@ import { WaitingRoomHandler } from './interfaces/nats/waiting-room.handler';
 import { WebhookHandler } from './interfaces/nats/webhook.handler';
 import { UserHandler } from './interfaces/nats/user.handler';
 import { ArtifactsHandler } from './interfaces/nats/artifacts.handler';
+import { BreakoutModule } from './modules/breakout/breakout.module';
+import { EtherpadModule } from './modules/etherpad/etherpad.module';
+import { ExternalMediaModule } from './modules/external-media/external-media.module';
+import { RecordingModule } from './modules/recording/recording.module';
+import { PollsModule } from './modules/polls/polls.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
 
 @Module({
   imports: [
@@ -24,6 +30,12 @@ import { ArtifactsHandler } from './interfaces/nats/artifacts.handler';
     SharedModule,
     RoomModule,
     FileModule,
+    PollsModule,
+    AnalyticsModule,
+    BreakoutModule,
+    EtherpadModule,
+    ExternalMediaModule,
+    RecordingModule,
     ArtifactsModule,
     WebhookModule,
   ],

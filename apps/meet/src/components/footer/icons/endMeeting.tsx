@@ -6,7 +6,7 @@ import { CommonResponseSchema, RoomEndAPIReqSchema } from '@workspace/protocol';
 import { Button } from '@headlessui/react';
 
 import { store } from '../../../store';
-import sendAPIRequest from '../../../helpers/api/walearnconnectAPI';
+import sendAPIRequest from '../../../helpers/api/api-client';
 import { getNatsConn } from '../../../helpers/nats';
 import ConfirmationModal from '../../../helpers/ui/confirmationModal';
 import { PhoneOff } from 'lucide-react';
