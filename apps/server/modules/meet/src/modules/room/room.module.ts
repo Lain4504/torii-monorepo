@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { SharedModule } from '@server/shared';
+import { FileModule } from '../file/file.module';
 
 // Controllers
 
@@ -49,7 +50,7 @@ import { RedisPollService } from '../../infrastructure/redis/redis-poll.service'
 import { WajlcAuthService } from '../auth/wajlc-auth.service';
 
 @Module({
-  imports: [SharedModule],
+  imports: [SharedModule, FileModule],
   controllers: [
     WebhookController,
     // NatsAuthCalloutController removed - handled in NatsController now

@@ -229,7 +229,7 @@ model RoomInfo {
   modified       DateTime  @default(now()) @updatedAt @map("modified")
 
   // Relations
-  analytics RoomAnalytics[]
+
   artifacts RoomArtifact[]
 
   @@index([roomId, isRunning], map: "idx_room_id")
@@ -251,23 +251,6 @@ model RoomFile {
   @@map("room_files")
 }
 
-model RoomAnalytics {
-  id               Int    @id @default(autoincrement())
-  roomTableId      Int    @map("room_table_id")
-  roomId           String @map("room_id") @db.VarChar(64)
-  fileId           String @map("file_id") @db.VarChar(255)
-  fileName         String @map("file_name") @db.VarChar(255)
-  fileSize         Float  @map("file_size")
-  roomCreationTime Int    @map("room_creation_time")
-  creationTime     Int    @map("creation_time")
-
-  // Relation to RoomInfo
-  roomInfo RoomInfo @relation(fields: [roomTableId], references: [id], onUpdate: Cascade, onDelete: Restrict)
-
-  @@index([roomId], map: "idx_analytics_room_id")
-  @@index([fileId], map: "idx_analytics_file_id")
-  @@map("room_analytics")
-}
 
 model RoomArtifact {
   id          BigInt   @id @default(autoincrement())

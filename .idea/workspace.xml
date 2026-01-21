@@ -4,9 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="merge">
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/COURSE_WORKFLOW.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/DESIGN_SYSTEM.md" beforeDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add file management functionality to meet module">
+      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -14,7 +13,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1564" />
+    <option name="cachedIndexableFilesCount" value="1667" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -119,7 +118,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "#89 on refactor-billing",
+    "git-widget-placeholder": "analysics-meet",
     "ignore.virus.scanning.warn.message": "true",
     "javascript.preferred.runtime.type.id": "node",
     "junie.onboarding.icon.badge.shown": "true",
@@ -204,8 +203,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-28b599e66164-intellij.indexing.shared.core-IU-242.26775.15" />
-        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-IU-242.26775.15" />
+        <option value="bundled-jdk-30f59d01ecdd-26cb7f24e5b0-intellij.indexing.shared.core-IU-253.29346.138" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.29346.138" />
       </set>
     </attachedChunks>
   </component>
@@ -316,14 +315,6 @@
       <workItem from="1768826857511" duration="19000" />
       <workItem from="1768829101896" duration="55000" />
       <workItem from="1768911439183" duration="1357000" />
-    </task>
-    <task id="LOCAL-00689" summary="rebuild UI">
-      <option name="closed" value="true" />
-      <created>1768245961760</created>
-      <option name="number" value="00689" />
-      <option name="presentableId" value="LOCAL-00689" />
-      <option name="project" value="LOCAL" />
-      <updated>1768245961763</updated>
     </task>
     <task id="LOCAL-00690" summary="rebuild UI">
       <option name="closed" value="true" />
@@ -709,7 +700,15 @@
       <option name="project" value="LOCAL" />
       <updated>1768881857434</updated>
     </task>
-    <option name="localTasksCounter" value="738" />
+    <task id="LOCAL-00738" summary="feat: add file management functionality to meet module">
+      <option name="closed" value="true" />
+      <created>1768958790980</created>
+      <option name="number" value="00738" />
+      <option name="presentableId" value="LOCAL-00738" />
+      <option name="project" value="LOCAL" />
+      <updated>1768958790980</updated>
+    </task>
+    <option name="localTasksCounter" value="739" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -744,7 +743,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="update nats_server.conf" />
     <MESSAGE value="renmae" />
     <MESSAGE value="fix order bug" />
     <MESSAGE value="fix sepay" />
@@ -769,7 +767,8 @@
     <MESSAGE value="implement meet UI and logic" />
     <MESSAGE value="remove unused files" />
     <MESSAGE value="merge" />
-    <option name="LAST_COMMIT_MESSAGE" value="merge" />
+    <MESSAGE value="feat: add file management functionality to meet module" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: add file management functionality to meet module" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

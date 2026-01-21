@@ -34,6 +34,7 @@ import { NatsStreamService } from '../../interfaces/nats/nats-stream.service';
 import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
 import { WebhookNotifierService } from '../../infrastructure/webhook/webhook-notifier.service';
 import { RoomInfoService } from './room-info.service';
+import { FileService } from '../file/file.service';
 import { acquireRoomCreationLockWithRetry } from './room-lock.helper';
 
 /**
@@ -51,8 +52,7 @@ export class RoomCreateService {
         private readonly natsRoom: NatsRoomService,
         private readonly webhookNotifier: WebhookNotifierService,
         private readonly roomInfoService: RoomInfoService,
-        // TODO: Inject file service when implemented
-        // private readonly fileService: FileService,
+        private readonly fileService: FileService,
     ) { }
 
     /**
@@ -353,16 +353,7 @@ export class RoomCreateService {
         this.logger.log(`Preparing preloaded whiteboard file: ${preloadFile}`);
 
         try {
-            // TODO: Download and process whiteboard file
-            // const result = await this.fileService.downloadAndProcessPreUploadWBfile(roomId, roomSid, preloadFile);
-
-            // Mock result for now
-            const result = {
-                fileId: 'wb-file-id',
-                fileName: 'preloaded.pdf',
-                filePath: '/path/to/file',
-                totalPages: 10,
-            };
+            const result = await this.fileService.downloadAndProcessPreUploadWBfile(roomId, roomSid, preloadFile);
 
             // Update metadata
             metadata.roomFeatures!.whiteboardFeatures!.preloadFile = undefined;

@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { RoomModule } from './modules/room/room.module';
+import { FileModule } from './modules/file/file.module';
 import { SharedModule, GlobalRpcExceptionFilter } from '@server/shared';
 
 // NATS Handlers (replacing HTTP controllers)
@@ -19,6 +20,7 @@ import { UserHandler } from './interfaces/nats/user.handler';
     }),
     SharedModule,
     RoomModule,
+    FileModule,
   ],
   controllers: [
     // NATS Handlers (not HTTP controllers)
