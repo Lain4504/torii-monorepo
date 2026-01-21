@@ -3,8 +3,6 @@ import { APP_FILTER } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { RoomModule } from './modules/room/room.module';
 import { FileModule } from './modules/file/file.module';
-import { ArtifactsModule } from './modules/artifacts/artifacts.module';
-import { WebhookModule } from './infrastructure/webhook/webhook.module';
 import { SharedModule, GlobalRpcExceptionFilter } from '@server/shared';
 
 // NATS Handlers (replacing HTTP controllers)
@@ -13,7 +11,6 @@ import { RoomHandler } from './interfaces/nats/room.handler';
 import { WaitingRoomHandler } from './interfaces/nats/waiting-room.handler';
 import { WebhookHandler } from './interfaces/nats/webhook.handler';
 import { UserHandler } from './interfaces/nats/user.handler';
-import { ArtifactsHandler } from './interfaces/nats/artifacts.handler';
 
 @Module({
   imports: [
@@ -24,8 +21,6 @@ import { ArtifactsHandler } from './interfaces/nats/artifacts.handler';
     SharedModule,
     RoomModule,
     FileModule,
-    ArtifactsModule,
-    WebhookModule,
   ],
   controllers: [
     // NATS Handlers (not HTTP controllers)
@@ -34,7 +29,6 @@ import { ArtifactsHandler } from './interfaces/nats/artifacts.handler';
     WaitingRoomHandler,
     WebhookHandler,
     UserHandler,
-    ArtifactsHandler,
   ],
   providers: [
     {

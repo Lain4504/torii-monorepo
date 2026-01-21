@@ -5,7 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add file management functionality to meet module">
-      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/modules/meet/meet.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/modules/meet/meet.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/meet.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/meet.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room.module.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -118,7 +120,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "analysics-meet",
+    "git-widget-placeholder": "Rebasing whiteboard-integration",
     "ignore.virus.scanning.warn.message": "true",
     "javascript.preferred.runtime.type.id": "node",
     "junie.onboarding.icon.badge.shown": "true",
