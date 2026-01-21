@@ -28,7 +28,7 @@ export function FlashcardStudy({ deckId }: FlashcardStudyProps) {
     // 1. Start Session
     const { data: session, isLoading: isStartingSession } = useQuery({
         queryKey: ['flashcard-session', deckId],
-        queryFn: () => flashcardApi.startSession({ deckId, studyMode: 'standard' }),
+        queryFn: () => flashcardApi.startSession({ deckId, studyMode: 'normal' }),
         staleTime: Infinity, // Keep session active
     })
 
@@ -57,13 +57,18 @@ export function FlashcardStudy({ deckId }: FlashcardStudyProps) {
     const handleRate = async (quality: number) => {
         if (!cardsDue || !session) return
 
-        const currentCard = cardsDue[currentIndex]
+        const currentCardData = cardsDue[currentIndex]
+        const flashcard = currentCardData.flashcard
         const timeSpent = Date.now() - cardStartTime
 
+        // Map numeric quality to ReviewQuality enum strings
+        const qualityMap = ['ZERO', 'ONE', 'TWO', 'THREE', 'FOUR']
+        const qualityEnum = qualityMap[quality] || 'TWO'
+
         submitReview({
-            flashcardId: currentCard.id,
+            flashcardId: flashcard.id,
             deckId,
-            quality,
+            quality: qualityEnum as any,
             timeSpent,
             sessionId: session.id
         })
@@ -116,7 +121,9 @@ export function FlashcardStudy({ deckId }: FlashcardStudyProps) {
         )
     }
 
-    const currentCard = cardsDue[currentIndex]
+    const currentCardData = cardsDue[currentIndex]
+    const currentCard = currentCardData.flashcard
+
     // Safely check if we went out of bounds (should exist due to completion logic, but for safety)
     if (!currentCard) {
         return (
@@ -179,7 +186,7 @@ export function FlashcardStudy({ deckId }: FlashcardStudyProps) {
                                     <h2 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-white/50">
                                         {currentCard.backText}
                                     </h2>
-                                    {currentCard.reading && <p className="text-xl text-primary/60 font-mono">{currentCard.reading}</p>}
+                                    {currentCard.furigana && <p className="text-xl text-primary/60 font-mono">{currentCard.furigana}</p>}
                                     {currentCard.exampleSentence && (
                                         <p className="text-lg text-muted-foreground/80 italic font-serif leading-relaxed">
                                             "{currentCard.exampleSentence}"

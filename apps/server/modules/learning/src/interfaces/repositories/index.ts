@@ -11,6 +11,8 @@ export * from './i-enrollment.repository';
 export * from './i-comment.repository';
 export * from './i-post.repository';
 export * from './i-learning-progress.repository';
+export * from './i-flashcard.repository';
+export * from './i-flashcard-deck.repository';
 
 // Injection tokens for repositories
 export const COURSE_REPOSITORY_TOKEN = Symbol('COURSE_REPOSITORY');

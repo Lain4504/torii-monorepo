@@ -1,70 +1,55 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { PrismaService } from '@server/shared';
 import {
-  StartReviewSessionDTO,
-  CompleteReviewSessionDTO,
   ReviewSessionResponseDTO,
-  ReviewQuality,
-  FlashcardState,
+  StartReviewSessionDTO,
+  PaginatedResponseDTO,
 } from '@workspace/schemas';
+import { IFlashcardReviewRepository, FLASHCARD_REVIEW_REPOSITORY_TOKEN } from '../../interfaces/repositories/i-flashcard-review.repository';
+import type { IFlashcardReviewSessionService } from '../../interfaces/services/i-flashcard-review-session.service';
 
 @Injectable()
-export class FlashcardReviewSessionService {
+export class FlashcardReviewSessionService implements IFlashcardReviewSessionService {
   private readonly logger = new Logger(FlashcardReviewSessionService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    @Inject(FLASHCARD_REVIEW_REPOSITORY_TOKEN)
+    private readonly reviewRepository: IFlashcardReviewRepository,
+    private readonly prisma: PrismaService,
+  ) { }
 
   /**
-   * Start a new review session
+   * Start a review session
    */
   async startSession(userId: string, data: StartReviewSessionDTO): Promise<ReviewSessionResponseDTO> {
     try {
       const { deckId, studyMode = 'normal', deviceType } = data;
 
-      // Verify deck ownership
-      const deck = await this.prisma.flashcardDeck.findUnique({
-        where: { id: deckId },
-        select: {
-          id: true,
-          userId: true,
-        },
+      // Simple stats initialization
+      const session = await this.reviewRepository.createSession({
+        user: { connect: { id: userId } },
+        deck: { connect: { id: deckId } },
+        studyMode,
+        deviceType: deviceType || null,
+        startedAt: new Date(),
+        totalCards: 0,
+        newCards: 0,
+        learningCards: 0,
+        reviewCards: 0,
+        correctCount: 0,
+        incorrectCount: 0,
+        hardCount: 0,
+        easyCount: 0,
+        averageResponseTime: 0,
       });
 
-      if (!deck) {
-        throw new RpcException({
-          status: 404,
-          message: 'Flashcard deck not found',
-        });
-      }
-
-      if (deck.userId !== userId) {
-        throw new RpcException({
-          status: 403,
-          message: 'You do not have permission to access this deck',
-        });
-      }
-
-      // Create session
-      const session = await this.prisma.flashcardReviewSession.create({
-        data: {
-          userId,
-          deckId,
-          startedAt: new Date(),
-          studyMode,
-          deviceType: deviceType || null,
-        },
-      });
-
-      return this.mapToResponse(session);
+      return this.mapToDTO(session);
     } catch (error: any) {
-      if (error instanceof RpcException) {
-        throw error;
-      }
-      this.logger.error(`Error starting review session: ${error.message}`, error.stack);
+      this.logger.error(`Error starting session: ${error.message}`, error.stack);
       throw new RpcException({
         status: 500,
-        message: `Failed to start review session: ${error?.message || 'Unknown error'}`,
+        message: `Failed to start session: ${error?.message || 'Unknown error'}`,
       });
     }
   }
@@ -72,31 +57,14 @@ export class FlashcardReviewSessionService {
   /**
    * Complete a review session
    */
-  async completeSession(
-    userId: string,
-    data: CompleteReviewSessionDTO,
-  ): Promise<ReviewSessionResponseDTO> {
+  async completeSession(sessionId: string, userId: string, data: { durationSeconds?: number }): Promise<ReviewSessionResponseDTO> {
     try {
-      const { sessionId, completedAt } = data;
-
-      // Get session with reviews
-      const session = await this.prisma.flashcardReviewSession.findUnique({
-        where: { id: sessionId },
-        include: {
-          reviews: {
-            select: {
-              quality: true,
-              timeSpent: true,
-              newState: true,
-            },
-          },
-        },
-      });
+      const session = await this.reviewRepository.findSessionById(sessionId);
 
       if (!session) {
         throw new RpcException({
           status: 404,
-          message: 'Review session not found',
+          message: 'Session not found',
         });
       }
 
@@ -107,81 +75,54 @@ export class FlashcardReviewSessionService {
         });
       }
 
-      if (session.completedAt) {
-        throw new RpcException({
-          status: 400,
-          message: 'Session already completed',
-        });
-      }
+      // Calculate aggregate statistics from reviews in this session
+      const reviews = await this.reviewRepository.findReviews({ sessionId });
 
-      // Calculate statistics from reviews
-      const reviews = session.reviews;
       const totalCards = reviews.length;
-      
-      const stats = {
-        newCards: reviews.filter((r) => r.newState === FlashcardState.NEW).length,
-        learningCards: reviews.filter((r) => r.newState === FlashcardState.LEARNING).length,
-        reviewCards: reviews.filter((r) => r.newState === FlashcardState.REVIEW).length,
-        correctCount: reviews.filter((r) => r.quality !== ReviewQuality.ZERO).length,
-        incorrectCount: reviews.filter((r) => r.quality === ReviewQuality.ZERO).length,
-        hardCount: reviews.filter((r) => r.quality === ReviewQuality.ONE).length,
-        easyCount: reviews.filter((r) => 
-          r.quality === ReviewQuality.THREE || r.quality === ReviewQuality.FOUR
-        ).length,
-      };
+      const correctCount = reviews.filter(r => r.quality !== 'ZERO').length;
+      const incorrectCount = reviews.filter(r => r.quality === 'ZERO').length;
+      const hardCount = reviews.filter(r => r.quality === 'ONE').length;
+      const easyCount = reviews.filter(r => r.quality === 'FOUR').length;
 
-      // Calculate average response time
-      const totalTime = reviews.reduce((sum, r) => sum + r.timeSpent, 0);
-      const averageResponseTime = totalCards > 0 ? Math.round(totalTime / totalCards) : 0;
+      const totalResponseTime = reviews.reduce((sum, r) => sum + r.timeSpent, 0);
+      const averageResponseTime = totalCards > 0 ? Math.round(totalResponseTime / totalCards) : 0;
 
-      // Calculate mastery score (percentage correct)
-      const masteryScore = totalCards > 0 
-        ? Math.round((stats.correctCount / totalCards) * 100) 
-        : null;
+      // Updated count by state
+      const newCards = reviews.filter(r => r.previousState === 'new').length;
+      const learningCards = reviews.filter(r => r.previousState === 'learning').length;
+      const reviewCards = reviews.filter(r => r.previousState === 'review').length;
 
-      // Calculate duration
-      const endTime = completedAt || new Date();
-      const durationSeconds = Math.floor((endTime.getTime() - session.startedAt.getTime()) / 1000);
-
-      // Update session
-      const updatedSession = await this.prisma.flashcardReviewSession.update({
-        where: { id: sessionId },
-        data: {
-          completedAt: endTime,
-          durationSeconds,
-          totalCards,
-          newCards: stats.newCards,
-          learningCards: stats.learningCards,
-          reviewCards: stats.reviewCards,
-          correctCount: stats.correctCount,
-          incorrectCount: stats.incorrectCount,
-          hardCount: stats.hardCount,
-          easyCount: stats.easyCount,
-          averageResponseTime,
-          masteryScore: masteryScore !== null ? masteryScore : null,
-        },
+      const updatedSession = await this.reviewRepository.updateSession(sessionId, {
+        completedAt: new Date(),
+        durationSeconds: data.durationSeconds || 0,
+        totalCards,
+        correctCount,
+        incorrectCount,
+        hardCount,
+        easyCount,
+        averageResponseTime,
+        newCards,
+        learningCards,
+        reviewCards,
       });
 
-      // Update deck statistics
+      // Update deck last studied at
       await this.prisma.flashcardDeck.update({
         where: { id: session.deckId },
         data: {
           lastStudiedAt: new Date(),
-          totalStudyTime: {
-            increment: durationSeconds,
-          },
-        },
+          totalStudyTime: { increment: data.durationSeconds || 0 },
+          studiedCount: { increment: 1 },
+        }
       });
 
-      return this.mapToResponse(updatedSession);
+      return this.mapToDTO(updatedSession);
     } catch (error: any) {
-      if (error instanceof RpcException) {
-        throw error;
-      }
-      this.logger.error(`Error completing review session: ${error.message}`, error.stack);
+      if (error instanceof RpcException) throw error;
+      this.logger.error(`Error completing session: ${error.message}`, error.stack);
       throw new RpcException({
         status: 500,
-        message: `Failed to complete review session: ${error?.message || 'Unknown error'}`,
+        message: `Failed to complete session: ${error?.message || 'Unknown error'}`,
       });
     }
   }
@@ -189,16 +130,14 @@ export class FlashcardReviewSessionService {
   /**
    * Get session by ID
    */
-  async getSessionById(userId: string, sessionId: string): Promise<ReviewSessionResponseDTO> {
+  async getSessionById(sessionId: string, userId: string): Promise<ReviewSessionResponseDTO> {
     try {
-      const session = await this.prisma.flashcardReviewSession.findUnique({
-        where: { id: sessionId },
-      });
+      const session = await this.reviewRepository.findSessionById(sessionId);
 
       if (!session) {
         throw new RpcException({
           status: 404,
-          message: 'Review session not found',
+          message: 'Session not found',
         });
       }
 
@@ -209,11 +148,9 @@ export class FlashcardReviewSessionService {
         });
       }
 
-      return this.mapToResponse(session);
+      return this.mapToDTO(session);
     } catch (error: any) {
-      if (error instanceof RpcException) {
-        throw error;
-      }
+      if (error instanceof RpcException) throw error;
       this.logger.error(`Error getting session: ${error.message}`, error.stack);
       throw new RpcException({
         status: 500,
@@ -223,26 +160,22 @@ export class FlashcardReviewSessionService {
   }
 
   /**
-   * Get recent sessions for a user
+   * Get recent sessions for a user/deck
    */
-  async getRecentSessions(
-    userId: string,
-    deckId?: string,
-    limit: number = 10,
-  ): Promise<ReviewSessionResponseDTO[]> {
+  async getRecentSessions(userId: string, deckId?: string, limit?: number): Promise<ReviewSessionResponseDTO[]> {
     try {
+      const takeLimit = Number(limit || 10);
       const whereClause: any = { userId };
-      if (deckId) {
-        whereClause.deckId = deckId;
-      }
+      if (deckId) whereClause.deckId = deckId;
 
-      const sessions = await this.prisma.flashcardReviewSession.findMany({
+      const sessions = await this.reviewRepository.findManySessions({
         where: whereClause,
+        take: takeLimit,
+        skip: 0,
         orderBy: { startedAt: 'desc' },
-        take: limit,
       });
 
-      return sessions.map((s) => this.mapToResponse(s));
+      return sessions.map(s => this.mapToDTO(s));
     } catch (error: any) {
       this.logger.error(`Error getting recent sessions: ${error.message}`, error.stack);
       throw new RpcException({
@@ -252,16 +185,13 @@ export class FlashcardReviewSessionService {
     }
   }
 
-  /**
-   * Map Prisma model to response DTO
-   */
-  private mapToResponse(session: any): ReviewSessionResponseDTO {
+  private mapToDTO(session: any): ReviewSessionResponseDTO {
     return {
       id: session.id,
       userId: session.userId,
       deckId: session.deckId,
       startedAt: session.startedAt,
-      completedAt: session.completedAt,
+      completedAt: session.completedAt || null,
       durationSeconds: session.durationSeconds,
       totalCards: session.totalCards,
       newCards: session.newCards,
@@ -280,4 +210,3 @@ export class FlashcardReviewSessionService {
     };
   }
 }
-

@@ -1,6 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
-import { PrismaService } from '@server/shared';
 import { UserRole } from '@workspace/schemas';
 import type {
   FlashcardDeckCreateDTO,
@@ -9,13 +8,19 @@ import type {
   FlashcardDeckResponseDTO,
   PaginatedResponseDTO,
 } from '@workspace/schemas';
-
+import { IFlashcardDeckRepository, FLASHCARD_DECK_REPOSITORY_TOKEN } from '../../interfaces/repositories/i-flashcard-deck.repository';
+import type { IFlashcardDeckService } from '../../interfaces/services/i-flashcard-deck.service';
+import { PrismaService } from '@server/shared';
 
 @Injectable()
-export class FlashcardDeckService {
+export class FlashcardDeckService implements IFlashcardDeckService {
   private readonly logger = new Logger(FlashcardDeckService.name);
 
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(
+    @Inject(FLASHCARD_DECK_REPOSITORY_TOKEN)
+    private readonly deckRepository: IFlashcardDeckRepository,
+    private readonly prisma: PrismaService, // Keep for some direct operations if needed
+  ) { }
 
   /**
    * Map FlashcardDeck entity to FlashcardDeckResponseDTO
@@ -31,7 +36,6 @@ export class FlashcardDeckService {
       tags: deck.tags || [],
       cardCount: deck.cardCount,
       studiedCount: deck.studiedCount,
-      // New fields
       srsSettings: deck.srsSettings || undefined,
       aiSettings: deck.aiSettings || undefined,
       sourceType: deck.sourceType || 'manual',
@@ -47,11 +51,8 @@ export class FlashcardDeckService {
    * Verify that a deck belongs to a specific user
    * Throws RpcException if not owned
    */
-  async verifyDeckOwnership(userId: string, deckId: string): Promise<void> {
-    const deck = await this.prisma.flashcardDeck.findUnique({
-      where: { id: deckId },
-      select: { userId: true },
-    });
+  private async verifyDeckOwnership(userId: string, deckId: string): Promise<any> {
+    const deck = await this.deckRepository.findById(deckId);
 
     if (!deck) {
       throw new RpcException({
@@ -66,43 +67,44 @@ export class FlashcardDeckService {
         message: 'You do not have permission to access this flashcard deck',
       });
     }
+
+    return deck;
   }
 
   /**
    * Create a new flashcard deck
    */
   async createDeck(
-    userId: string,
-    data: FlashcardDeckCreateDTO,
+    params: FlashcardDeckCreateDTO & { userId: string },
   ): Promise<FlashcardDeckResponseDTO> {
+    const { userId, ...data } = params;
     try {
-
-      // Auto-create user if not exists (user management not fully implemented yet)
-      // This ensures foreign key constraint is satisfied
+      // Auto-create user if not exists
       await this.prisma.user.upsert({
         where: { id: userId },
         create: {
           id: userId,
-          email: `user-${userId}@temp.com`, // Temporary email
-          displayName: 'User', // Temporary name
+          email: `user-${userId}@temp.com`,
+          displayName: 'User',
           role: UserRole.LEARNER,
-          // emailVerifiedAt: null (default) = pending
         },
-        update: {}, // Don't update if user already exists
+        update: {},
       });
 
-      const deck = await this.prisma.flashcardDeck.create({
-        data: {
-          userId,
-          name: data.name,
-          description: data.description || null,
-          jlptLevel: data.jlptLevel || null,
-          isPublic: data.isPublic ?? false,
-          tags: data.tags || [],
-          cardCount: 0,
-          studiedCount: 0,
-        },
+      const deck = await this.deckRepository.create({
+        user: { connect: { id: userId } },
+        name: data.name,
+        description: data.description || null,
+        jlptLevel: data.jlptLevel || null,
+        isPublic: data.isPublic ?? false,
+        tags: data.tags || [],
+        cardCount: 0,
+        studiedCount: 0,
       });
+
+      console.log('DEBUG [DeckService]: Flashcard deck created in DB:', JSON.stringify(deck, null, 2));
+      const verify = await this.deckRepository.findById(deck.id);
+      console.log('DEBUG [DeckService]: Verification findById result:', verify ? 'Found' : 'NOT FOUND');
 
       this.logger.log(`Flashcard deck created: ${deck.id} by user ${userId}`);
 
@@ -120,15 +122,17 @@ export class FlashcardDeckService {
    * Get all flashcard decks for a user
    */
   async findAllDecks(
-    userId: string,
-    query: FlashcardDeckQueryDTO,
+    params: FlashcardDeckQueryDTO & { userId: string },
   ): Promise<PaginatedResponseDTO<FlashcardDeckResponseDTO>> {
+    const { userId, ...query } = params;
     try {
-      const { page = 1, limit = 10, search, jlptLevel } = query;
+      const page = Number(query.page || 1);
+      const limit = Number(query.limit || 10);
+      const { search, jlptLevel } = query;
       const skip = (page - 1) * limit;
 
       const whereClause: any = {
-        userId, // Only get decks owned by the user
+        userId,
       };
 
       if (search) {
@@ -143,8 +147,8 @@ export class FlashcardDeckService {
       }
 
       const [total, decks] = await Promise.all([
-        this.prisma.flashcardDeck.count({ where: whereClause }),
-        this.prisma.flashcardDeck.findMany({
+        this.deckRepository.count(whereClause),
+        this.deckRepository.findAll({
           take: limit,
           skip: skip,
           where: whereClause,
@@ -170,54 +174,39 @@ export class FlashcardDeckService {
     }
   }
 
+  async findOneDeck(id: string, userId: string): Promise<FlashcardDeckResponseDTO> {
+    const deck = await this.verifyDeckOwnership(userId, id);
+    return this.toFlashcardDeckResponseDTO(deck);
+  }
+
   /**
    * Update a flashcard deck
    */
   async updateDeck(
-    userId: string,
     deckId: string,
     data: FlashcardDeckUpdateDTO,
+    userId: string,
   ): Promise<FlashcardDeckResponseDTO> {
     try {
       // Verify ownership
       await this.verifyDeckOwnership(userId, deckId);
 
-      // Build update data - only include fields that are provided
-      const updateData: Record<string, any> = {};
+      // Build update data
+      const updateData: any = {};
 
-      if (data.name !== undefined) {
-        updateData.name = data.name;
-      }
+      if (data.name !== undefined) updateData.name = data.name;
+      if (data.description !== undefined) updateData.description = data.description || null;
+      if (data.jlptLevel !== undefined) updateData.jlptLevel = data.jlptLevel || null;
+      if (data.isPublic !== undefined) updateData.isPublic = data.isPublic;
+      if (data.tags !== undefined) updateData.tags = data.tags;
 
-      if (data.description !== undefined) {
-        updateData.description = data.description || null;
-      }
-
-      if (data.jlptLevel !== undefined) {
-        updateData.jlptLevel = data.jlptLevel || null;
-      }
-
-      if (data.isPublic !== undefined) {
-        updateData.isPublic = data.isPublic;
-      }
-
-      if (data.tags !== undefined) {
-        updateData.tags = data.tags;
-      }
-
-      // Update the deck
-      const deck = await this.prisma.flashcardDeck.update({
-        where: { id: deckId },
-        data: updateData,
-      });
+      const deck = await this.deckRepository.update(deckId, updateData);
 
       this.logger.log(`Flashcard deck updated: ${deckId} by user ${userId}`);
 
       return this.toFlashcardDeckResponseDTO(deck);
     } catch (error: any) {
-      if (error instanceof RpcException) {
-        throw error;
-      }
+      if (error instanceof RpcException) throw error;
       this.logger.error('Error updating flashcard deck', error);
       throw new RpcException({
         status: 500,
@@ -230,25 +219,19 @@ export class FlashcardDeckService {
    * Delete a flashcard deck
    */
   async deleteDeck(
+    id: string,
     userId: string,
-    data: { id: string },
-  ): Promise<{ success: boolean }> {
+  ): Promise<void> {
     try {
       // Verify ownership
-      await this.verifyDeckOwnership(userId, data.id);
+      await this.verifyDeckOwnership(userId, id);
 
       // Delete the deck (cascade will delete all flashcards)
-      await this.prisma.flashcardDeck.delete({
-        where: { id: data.id },
-      });
+      await this.deckRepository.delete(id);
 
-      this.logger.log(`Flashcard deck deleted: ${data.id} by user ${userId}`);
-
-      return { success: true };
+      this.logger.log(`Flashcard deck deleted: ${id} by user ${userId}`);
     } catch (error: any) {
-      if (error instanceof RpcException) {
-        throw error;
-      }
+      if (error instanceof RpcException) throw error;
       this.logger.error('Error deleting flashcard deck', error);
       throw new RpcException({
         status: 500,
@@ -257,4 +240,3 @@ export class FlashcardDeckService {
     }
   }
 }
-

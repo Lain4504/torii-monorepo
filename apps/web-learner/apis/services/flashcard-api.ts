@@ -10,6 +10,8 @@ import type {
     FlashcardQueryDTO,
     StandardApiResponse,
     PaginatedApiResponse,
+    BulkFlashcardOperationsDTO,
+    BulkFlashcardOperationsResponseDTO,
 } from '@workspace/schemas';
 
 export const flashcardApi = {
@@ -98,11 +100,34 @@ export const flashcardApi = {
 
     startSession: async (data: { deckId: string; studyMode?: string }): Promise<any> => {
         const response = await apiClient.post<StandardApiResponse<{ session: any }>>('/api/flashcards/reviews/sessions', data);
+        if (!response.data.success) throw new Error(response.data.message || 'Failed to start session');
         return response.data.data!.session;
     },
 
     completeSession: async (sessionId: string, data: { durationSeconds?: number } = {}): Promise<any> => {
         const response = await apiClient.patch<StandardApiResponse<{ session: any }>>(`/api/flashcards/reviews/sessions/${sessionId}/complete`, data);
+        if (!response.data.success) throw new Error(response.data.message || 'Failed to complete session');
         return response.data.data!.session;
+    },
+
+    getDeckById: async (id: string): Promise<FlashcardDeckResponseDTO> => {
+        const response = await apiClient.get<StandardApiResponse<{ deck: FlashcardDeckResponseDTO }>>(`/api/flashcard-decks/${id}`);
+        if (!response.data.success) throw new Error(response.data.message || 'Failed to get deck');
+        return response.data.data!.deck;
+    },
+
+    bulkOperations: async (data: BulkFlashcardOperationsDTO): Promise<BulkFlashcardOperationsResponseDTO> => {
+        const response = await apiClient.post<StandardApiResponse<BulkFlashcardOperationsResponseDTO>>('/api/flashcards/bulk', data);
+        return response.data.data!;
+    },
+
+    getUserProgress: async (flashcardId: string): Promise<any> => {
+        const response = await apiClient.get<StandardApiResponse<{ progress: any }>>(`/api/flashcards/reviews/progress/${flashcardId}`);
+        return response.data.data!.progress;
+    },
+
+    getRecentSessions: async (params: { deckId?: string; limit?: number }): Promise<any[]> => {
+        const response = await apiClient.get<StandardApiResponse<{ sessions: any[] }>>('/api/flashcards/reviews/sessions', { params });
+        return response.data.data!.sessions;
     }
 };
