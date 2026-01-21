@@ -141,12 +141,43 @@ export class EtherpadService {
 
     /**
      * CleanAfterRoomEnd handles cleanup when room ends
+     * Matches Go: CleanAfterRoomEnd(roomId, metadata string)
      */
     async cleanAfterRoomEnd(req: CleanEtherpadReq): Promise<void> {
-        this.logger.log(`Cleaning etherpad session for room ${req.roomId} on node ${this.nodeId}`);
+        const roomId = req.roomId;
+        this.logger.log(`Cleaning etherpad session for room ${roomId}`);
+
+        // Get room metadata to extract etherpad info
+        const roomInfo = await this.natsRoomService.getRoomInfo(roomId);
+        if (!roomInfo || !roomInfo.metadata) {
+            this.logger.warn(`No metadata found for room ${roomId}, skipping etherpad cleanup`);
+            return;
+        }
+
+        let metadata;
+        try {
+            metadata = this.natsService.unmarshalRoomMetadata(roomInfo.metadata);
+        } catch (e) {
+            this.logger.warn(`Could not unmarshal room metadata for ${roomId}: ${e.message}`);
+            return;
+        }
+
+        const sharedNotePadFeatures = metadata.roomFeatures?.sharedNotePadFeatures;
+        if (!sharedNotePadFeatures || !sharedNotePadFeatures.isAllow) {
+            this.logger.debug(`Etherpad not enabled for room ${roomId}`);
+            return;
+        }
+
+        const nodeId = sharedNotePadFeatures.nodeId || this.nodeId;
+        const padId = sharedNotePadFeatures.notePadId || roomId;
+
+        if (!nodeId || !padId) {
+            this.logger.warn(`Missing nodeId or padId for room ${roomId}`);
+            return;
+        }
 
         // Remove from NATS KV
-        await this.natsRoomService.removeRoomFromEtherpad(this.nodeId, req.roomId);
+        await this.natsRoomService.removeRoomFromEtherpad(nodeId, roomId);
 
         // Call Etherpad API to delete pad if configured
         if (this.etherpadApiKey && this.etherpadHost) {
@@ -154,10 +185,11 @@ export class EtherpadService {
                 const apiEndpoint = `${this.etherpadHost}/api/1.2.13/deletePad`;
                 await axios.post(apiEndpoint, {
                     apikey: this.etherpadApiKey,
-                    padID: req.roomId
+                    padID: padId
                 });
+                this.logger.log(`Successfully deleted pad ${padId} from Etherpad`);
             } catch (e) {
-                this.logger.warn(`Failed to delete pad ${req.roomId}: ${e.message}`);
+                this.logger.warn(`Failed to delete pad ${padId}: ${e.message}`);
             }
         }
     }

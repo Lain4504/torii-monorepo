@@ -16,10 +16,6 @@ import { NatsSystemEventsService } from '../../interfaces/nats/nats-system-event
     controllers: [EtherpadNatsController],
     providers: [
         EtherpadService,
-        NatsService,
-        NatsRoomService,
-        NatsUserService,
-        NatsSystemEventsService
     ],
     exports: [EtherpadService]
 })

@@ -16,10 +16,6 @@ import { NatsSystemEventsService } from '../../interfaces/nats/nats-system-event
     controllers: [ExternalMediaNatsController],
     providers: [
         ExternalMediaService,
-        NatsService,
-        NatsRoomService,
-        NatsUserService,
-        NatsSystemEventsService
     ],
     exports: [ExternalMediaService]
 })

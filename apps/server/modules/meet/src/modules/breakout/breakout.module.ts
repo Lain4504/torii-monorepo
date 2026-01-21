@@ -13,32 +13,9 @@ import { NatsCacheService } from '../../interfaces/nats/nats-cache.service';
 import { LiveKitService } from '../../infrastructure/livekit/livekit.service';
 
 @Module({
-    imports: [
-        SharedModule,
-        RoomModule
-    ],
-    controllers: [BreakoutNatsController],
-    providers: [
-        BreakoutService,
-        // Provide NATS services that are needed if not exported by RoomModule (or if RoomModule exports them, we can just use them)
-        // Check RoomModule exports: RoomInfoService, RoomCreateService, RoomEndService, RoomModifyService, RoomUserService, RoomDurationService
-        // But also exports PollsService, AnalyticsService, WaitingRoomService, LiveKitService
-        // It DOES NOT export NatsRoomService, NatsSystemEventsService etc. directly in 'exports' array shown in previous turn.
-        // Wait, I checked RoomModule in previous turn (Step 1180):
-        // It exports: RoomInfoService, RoomCreateService, RoomEndService, RoomModifyService, RoomUserService, RoomDurationService, PollsService, AnalyticsService, WaitingRoomService, LiveKitService
-        // It DOES NOT export Nats* services. 
-        // So we must provide them here or import a NatsModule if one exists.
-        // Currently there is no separate NatsModule, they are provided in RoomModule or MeetModule.
-        // To avoid duplication, we should probably import Nats services here too since they are in 'interfaces' folder.
-        NatsService,
-        NatsRoomService,
-        NatsSystemEventsService,
-        NatsUserService,
-        NatsUserInfoService,
-        NatsStreamService,
-        NatsCacheService,
-        LiveKitService
-    ],
-    exports: [BreakoutService]
+  imports: [SharedModule, RoomModule],
+  controllers: [BreakoutNatsController],
+  providers: [BreakoutService],
+  exports: [BreakoutService],
 })
-export class BreakoutModule { }
+export class BreakoutModule {}

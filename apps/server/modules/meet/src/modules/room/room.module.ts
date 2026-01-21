@@ -84,6 +84,9 @@ import { WajlcAuthService } from '../auth/wajlc-auth.service';
     LiveKitService,
 
     // Polls services
+    PollsService,
+    RedisPollService,
+
     // Analytics services
     AnalyticsService,
     RedisAnalyticsService,
@@ -99,6 +102,13 @@ import { WajlcAuthService } from '../auth/wajlc-auth.service';
     AnalyticsService,
     WaitingRoomService,
     LiveKitService,
+    NatsService,
+    NatsRoomService,
+    NatsUserService,
+    NatsSystemEventsService,
+    NatsUserInfoService,
+    NatsCacheService,
+    NatsStreamService,
   ],
 })
 export class RoomModule { }

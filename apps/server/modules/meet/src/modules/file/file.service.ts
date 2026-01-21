@@ -273,6 +273,17 @@ export class FileService {
         return this.convertAndBroadcastWhiteboardFile(roomId, roomSid, filePath);
     }
 
+    /**
+     * DeleteRoomUploadedDir deletes all uploaded files for a room session
+     */
+    async deleteRoomUploadedDir(roomSid: string): Promise<void> {
+        const roomDir = path.join(this.uploadPath, roomSid);
+        if (fs.existsSync(roomDir)) {
+            this.logger.log(`Deleting uploaded files directory for room session: ${roomSid}`);
+            this.deleteFolderRecursive(roomDir);
+        }
+    }
+
     private deleteFolderRecursive(folderPath: string) {
         if (fs.existsSync(folderPath)) {
             fs.readdirSync(folderPath).forEach((file) => {
