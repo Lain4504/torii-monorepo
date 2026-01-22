@@ -7,6 +7,7 @@ import {
     LogOut,
     Sparkles,
     ShieldCheck,
+    Heart,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useAppDispatch } from "@/hooks/hooks"
@@ -123,6 +124,10 @@ export function NavUser({
                             <DropdownMenuItem className="rounded-xl py-2.5 px-3 cursor-pointer" onClick={() => router.push('/dashboard/notifications')}>
                                 <Bell className="size-4 mr-2 text-muted-foreground/60" />
                                 Thông báo
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="rounded-xl py-2.5 px-3 cursor-pointer" onClick={() => router.push('/dashboard/wishlist')}>
+                                <Heart className="size-4 mr-2 text-muted-foreground/60" />
+                                Wishlist
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator className="bg-border/20" />
