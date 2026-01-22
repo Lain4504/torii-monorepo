@@ -4,7 +4,6 @@ import { Card, CardContent } from '@workspace/ui/components/card'
 import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
 import {
-    Search,
     PlayCircle,
     BookOpen,
     Clock,
@@ -28,7 +27,7 @@ interface WishlistCourse extends CourseResponseDTO {
 }
 
 export default function WishlistPage() {
-    const [searchQuery, setSearchQuery] = useState('')
+
     const [courses, setCourses] = useState<WishlistCourse[]>([])
     const [loading, setLoading] = useState(true)
 
@@ -84,9 +83,7 @@ export default function WishlistPage() {
         }
     }
 
-    const filteredCourses = courses.filter((course) =>
-        course.title.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+
 
     if (loading) {
         return (
@@ -113,27 +110,17 @@ export default function WishlistPage() {
             </div>
 
             {/* Actions Bar */}
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4 py-2">
-                <div className="relative w-full md:w-80">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
-                    <input
-                        type="text"
-                        placeholder="Tìm trong Wishlist..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-9 pr-4 h-10 bg-muted/20 border border-border/60 focus:bg-background focus:ring-1 focus:ring-primary outline-none transition-all shadow-sm rounded-xl text-sm"
-                    />
-                </div>
+            <div className="flex flex-col md:flex-row items-center justify-end gap-4 py-2 border-b border-border/40 pb-6">
                 <div className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 italic">
-                    {filteredCourses.length} Khóa học đã lưu
+                    {courses.length} Khóa học đã lưu
                 </div>
             </div>
 
-            {/* Courses Grid */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredCourses.map((course) => (
-                    <Card key={course.id} className="border-border/60 shadow-sm bg-card/40 backdrop-blur-xl hover:bg-card/60 transition-all group overflow-hidden cursor-pointer flex flex-col h-full relative">
-                        <div className="relative aspect-video bg-muted/40 overflow-hidden">
+            {/* Courses List */}
+            <div className="flex flex-col gap-4">
+                {courses.map((course) => (
+                    <Card key={course.id} className="border-border/60 shadow-sm bg-card/40 backdrop-blur-xl hover:bg-card/60 transition-all group overflow-hidden cursor-pointer flex flex-col md:flex-row h-full relative p-4">
+                        <div className="relative w-full md:w-64 aspect-video bg-muted/40 overflow-hidden rounded-xl flex-shrink-0">
                             {course.thumbnailUrl ? (
                                 <img src={course.thumbnailUrl} alt={course.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                             ) : (
@@ -143,69 +130,69 @@ export default function WishlistPage() {
                             )}
 
                             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-background/40 backdrop-blur-sm transition-all duration-300 z-10">
-                                <PlayCircle className="w-12 h-12 text-primary" />
+                                <PlayCircle className="w-10 h-10 text-primary" />
                             </div>
 
-                            <button
-                                onClick={(e) => handleRemoveFromWishlist(e, course.wishlistId)}
-                                className="absolute top-3 right-3 p-2 bg-white/90 dark:bg-black/80 text-destructive rounded-xl shadow-sm z-20 hover:scale-110 transition-transform cursor-pointer"
-                                title="Xóa khỏi Wishlist"
-                            >
-                                <Trash2 className="w-4 h-4" />
-                            </button>
-
                             {course.jlptLevel && (
-                                <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground border-none shadow-sm px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider z-20">
+                                <Badge className="absolute top-2 left-2 bg-primary text-primary-foreground border-none shadow-sm px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider z-20">
                                     {course.jlptLevel}
                                 </Badge>
                             )}
                         </div>
-                        <CardContent className="p-5 space-y-4 flex-1 flex flex-col justify-between">
-                            <div className="space-y-1.5">
-                                <h3 className="text-xl font-serif font-bold text-foreground leading-tight line-clamp-2 group-hover:text-primary transition-colors italic">
-                                    {course.title}
-                                </h3>
+
+                        <CardContent className="p-4 md:pl-6 md:py-0 flex-1 flex flex-col justify-between">
+                            <div className="space-y-1.5 pt-2 md:pt-0">
+                                <div className="flex justify-between items-start gap-4">
+                                    <h3 className="text-xl font-serif font-bold text-foreground leading-tight group-hover:text-primary transition-colors italic line-clamp-2">
+                                        {course.title}
+                                    </h3>
+                                    <button
+                                        onClick={(e) => handleRemoveFromWishlist(e, course.wishlistId)}
+                                        className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-all cursor-pointer flex-shrink-0"
+                                        title="Xóa khỏi Wishlist"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </button>
+                                </div>
                                 <p className="text-xs text-muted-foreground font-medium">
                                     {course.instructors?.[0]?.user?.displayName || 'Giảng viên Torii'}
                                 </p>
                             </div>
 
-                            <div className="space-y-3">
-                                <div className="flex items-center justify-between text-[10px] font-bold text-muted-foreground/80 uppercase">
-                                    <span className="flex items-center gap-1">
-                                        <BookOpen className="w-3 h-3" />
+                            <div className="mt-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div className="flex items-center gap-6 text-[10px] font-bold text-muted-foreground/80 uppercase">
+                                    <span className="flex items-center gap-1.5">
+                                        <BookOpen className="w-3.5 h-3.5" />
                                         {course.totalLessons || 0} bài học
                                     </span>
-                                    <span className="flex items-center gap-1">
-                                        <Clock className="w-3 h-3" />
+                                    <span className="flex items-center gap-1.5">
+                                        <Clock className="w-3.5 h-3.5" />
                                         {course.durationWeeks || 0} tuần
                                     </span>
-                                </div>
-                                <div className="pt-2 flex items-center justify-between">
                                     <span className="text-lg font-bold text-primary italic">
                                         {course.price === 0 ? 'Miễn phí' : `${course.price?.toLocaleString()}đ`}
                                     </span>
                                 </div>
-                            </div>
 
-                            <div className="grid grid-cols-2 gap-2 pt-2">
-                                <Link href={`/courses/${course.slug}`} className="w-full">
-                                    <Button variant="outline" className="w-full rounded-full h-9 text-[10px] font-bold uppercase tracking-[0.1em] border-border/50 hover:bg-muted transition-all cursor-pointer">
-                                        Chi tiết
-                                    </Button>
-                                </Link>
-                                <Link href={`/checkout?courseId=${course.id}`} className="w-full">
-                                    <Button className="w-full rounded-full h-9 text-[10px] font-bold uppercase tracking-[0.1em] bg-primary hover:bg-primary/90 transition-all cursor-pointer">
-                                        Mua ngay
-                                    </Button>
-                                </Link>
+                                <div className="flex items-center gap-2">
+                                    <Link href={`/courses/${course.slug}`} className="flex-1 md:flex-none">
+                                        <Button variant="outline" className="w-full md:w-32 rounded-full h-9 text-[10px] font-bold uppercase tracking-[0.1em] border-border/50 hover:bg-muted transition-all cursor-pointer">
+                                            Chi tiết
+                                        </Button>
+                                    </Link>
+                                    <Link href={`/checkout?courseId=${course.id}`} className="flex-1 md:flex-none">
+                                        <Button className="w-full md:w-32 rounded-full h-9 text-[10px] font-bold uppercase tracking-[0.1em] bg-primary hover:bg-primary/90 transition-all cursor-pointer">
+                                            Mua ngay
+                                        </Button>
+                                    </Link>
+                                </div>
                             </div>
                         </CardContent>
                     </Card>
                 ))}
             </div>
 
-            {filteredCourses.length === 0 && (
+            {courses.length === 0 && (
                 <div className="py-20 text-center space-y-6 rounded-[2.5rem] border border-dashed border-border/50 bg-muted/5 animate-in zoom-in-95 duration-700">
                     <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
                         <Heart className="w-10 h-10 text-primary/40" />
