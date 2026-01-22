@@ -1,6 +1,6 @@
 'use client'
 
-import { Search, Sparkles, LogOut, BadgeCheck, Bell } from 'lucide-react'
+import { Search, Sparkles, LogOut, BadgeCheck, Bell, Heart } from 'lucide-react'
 import { Input } from '@workspace/ui/components/input'
 import { SidebarTrigger } from '@workspace/ui/components/sidebar'
 import { NotificationsDropdown } from './notifications-dropdown'
@@ -122,6 +122,10 @@ export function DashboardHeader() {
                                 <DropdownMenuItem className="rounded-xl px-3 py-2.5 cursor-pointer focus:bg-primary/5 focus:text-primary transition-colors" onClick={() => router.push('/dashboard/notifications')}>
                                     <Bell className="size-4 mr-3 opacity-70" />
                                     Thông báo
+                                </DropdownMenuItem>
+                                <DropdownMenuItem className="rounded-xl px-3 py-2.5 cursor-pointer focus:bg-primary/5 focus:text-primary transition-colors" onClick={() => router.push('/dashboard/wishlist')}>
+                                    <Heart className="size-4 mr-3 opacity-70" />
+                                    Wishlist
                                 </DropdownMenuItem>
                             </DropdownMenuGroup>
                             <DropdownMenuSeparator className="bg-border/20 mx-2" />
