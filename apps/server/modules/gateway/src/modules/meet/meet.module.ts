@@ -14,6 +14,7 @@ import { BreakoutController } from './controllers/breakout.controller';
 import { EtherpadController } from './controllers/etherpad.controller';
 import { ExternalMediaController } from './controllers/external-media.controller';
 import { RecordingController } from './controllers/recording.controller';
+import { RtmpController } from './controllers/rtmp.controller';
 
 /**
  * Meet Module for Gateway
@@ -35,6 +36,7 @@ import { RecordingController } from './controllers/recording.controller';
         EtherpadController,
         ExternalMediaController,
         RecordingController,
+        RtmpController,
     ],
 })
 export class MeetModule { }

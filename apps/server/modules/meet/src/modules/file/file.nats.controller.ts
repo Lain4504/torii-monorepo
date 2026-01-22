@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { FileService } from './file.service';
-import { UploadedFileMergeReq, GetRoomUploadedFilesReq } from '@workspace/protocol';
+import { UploadedFileMergeReq, GetRoomUploadedFilesReq, UploadBase64EncodedDataReq } from '@workspace/protocol';
 
 @Controller()
 export class FileNatsController {
@@ -10,6 +10,11 @@ export class FileNatsController {
     @MessagePattern({ cmd: 'file.merge' })
     async handleFileMerge(@Payload() req: UploadedFileMergeReq): Promise<any> {
         return this.fileService.uploadedFileMerge(req);
+    }
+
+    @MessagePattern({ cmd: 'file.uploadBase64' })
+    async handleUploadBase64(@Payload() req: UploadBase64EncodedDataReq): Promise<any> {
+        return this.fileService.uploadBase64EncodedData(req);
     }
 
     @MessagePattern({ cmd: 'file.convertWhiteboard' })

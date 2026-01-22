@@ -12,10 +12,11 @@ async function bootstrap() {
   // Configure cookie parser
   app.use(cookieParser());
 
-  // Configure body parser to accept webhook content-type
   app.use(bodyParser.json({
     type: ['application/json', 'application/webhook+json']
   }));
+  // Configure body parser to accept urlencoded (for typical RTMP webhooks)
+  app.use(bodyParser.urlencoded({ extended: true }));
   // Accept binary protobuf
   app.use(bodyParser.raw({
     type: ['application/protobuf', 'application/octet-stream'],
