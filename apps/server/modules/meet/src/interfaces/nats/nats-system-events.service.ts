@@ -211,7 +211,6 @@ export class NatsSystemEventsService {
         // Or if private: roomId:dataChannelSubject.userId?
         // Usually data channel messages are broadcasted to the room subject and filtered by client,
         // OR sent to specific sub-subject.
-        // In PlugNMeet Go:
         // regular: `roomId:datachannel`
         // private: `roomId:datachannel.userId`
 

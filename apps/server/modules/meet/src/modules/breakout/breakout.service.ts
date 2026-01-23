@@ -27,6 +27,7 @@ import {
 } from '@workspace/protocol';
 import { RoomCreateService } from '../room/room-create.service';
 import { RoomEndService } from '../room/room-end.service';
+import { RoomUserService } from '../room/room-user.service';
 import {
   create,
   toJsonString,
@@ -36,6 +37,7 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { RoomDurationService } from '../room/room-duration.service';
 import { NatsService } from '../../interfaces/nats/nats.service';
+import { NatsRoomEventsService } from '../../interfaces/nats/nats-room-events.service';
 import {
   NatsUserService,
   USER_STATUS_ONLINE,
@@ -68,6 +70,9 @@ export class BreakoutService {
     private readonly natsUserService: NatsUserService,
     private readonly liveKitService: LiveKitService,
     private readonly analyticsService: AnalyticsService,
+    private readonly natsRoomEventsService: NatsRoomEventsService,
+    @Inject(forwardRef(() => RoomUserService))
+    private readonly roomUserService: RoomUserService,
   ) { }
 
   /**
@@ -126,6 +131,10 @@ export class BreakoutService {
     if (bMeta.roomFeatures.externalMediaPlayerFeatures)
       bMeta.roomFeatures.externalMediaPlayerFeatures.isActive = false;
 
+    if (req.rooms.length === 0) {
+      throw new Error('no breakout rooms provided');
+    }
+
     const e: Record<string, boolean> = {};
 
     for (const room of req.rooms) {
@@ -134,17 +143,19 @@ export class BreakoutService {
 
       const bRoomReq = create(CreateRoomReqSchema, {
         roomId: bRoomId,
-        metadata: bMeta,
+        metadata: create(RoomMetadataSchema, {
+          ...bMeta,
+          roomTitle: room.title,
+        }),
       });
-      bMeta.roomTitle = room.title;
 
       try {
         await this.roomCreateService.createRoom(bRoomReq);
 
-        room.duration = req.duration;
-        room.created = BigInt(Math.floor(Date.now() / 1000)).toString();
+        room.duration = req.duration.toString();
+        room.created = Math.floor(Date.now() / 1000).toString();
 
-        const roomJson = toJsonString(BreakoutRoomSchema, room);
+        const roomJson = this.natsService.marshalToProtoJson(room, BreakoutRoomSchema);
         await this.natsRoomService.insertOrUpdateBreakoutRoom(req.roomId, bRoomId, new TextEncoder().encode(roomJson));
 
         // send invitation notification
@@ -170,24 +181,23 @@ export class BreakoutService {
 
     // Update parent room metadata
     // Reload original meta or use 'meta' from start (it's object ref but we cloned 'bMeta' from it)
-    // Actually we should reload if concurrent updates happen, but Go code re-uses initial fetch or unmarshals again?
-    // Go code: `origMeta, err := m.natsService.UnmarshalRoomMetadata(mainRoom.Metadata)` (Line 118).
     // It re-parses from original query.
     // In TS, `meta` is the object from `getRoomInfoWithMetadata`.
     // We can use `meta` directly but ensure we enable breakout feature.
 
-    if (!meta.roomFeatures) meta.roomFeatures = create(RoomCreateFeaturesSchema, {});
-    if (!meta.roomFeatures.breakoutRoomFeatures) meta.roomFeatures.breakoutRoomFeatures = create(BreakoutRoomFeaturesSchema, {});
-
-    meta.roomFeatures.breakoutRoomFeatures.isActive = true;
-
+    // Update parent room metadata on success
     try {
-      await this.natsRoomService.updateRoomMetadata(req.roomId, meta);
-      await this.natsSystemEvents.broadcastSystemEventToRoom(
-        NatsMsgServerToClientEvents.ROOM_METADATA_UPDATE,
-        req.roomId,
-        this.natsService.marshalRoomMetadata(meta)
-      );
+      // Re-fetch parent metadata to ensure we have fresh data
+      const origMeta = await this.natsRoomService.getRoomMetadataStruct(req.roomId);
+      if (origMeta) {
+        if (!origMeta.roomFeatures) origMeta.roomFeatures = create(RoomCreateFeaturesSchema, {});
+        if (!origMeta.roomFeatures.breakoutRoomFeatures) {
+          origMeta.roomFeatures.breakoutRoomFeatures = create(BreakoutRoomFeaturesSchema, {});
+        }
+        origMeta.roomFeatures.breakoutRoomFeatures.isActive = true;
+
+        await this.natsRoomEventsService.updateAndBroadcastRoomMetadata(req.roomId, origMeta);
+      }
     } catch (error) {
       this.logger.error(`Failed to update parent room metadata: ${error.message}`);
     }
@@ -252,23 +262,20 @@ export class BreakoutService {
       throw new Error('Failed to get user info from parent room');
     }
 
-    // 5. Generate Token
-    // Using RoomService (via RoomModule) or similar to generate token?
-    // Need to use the same logic as direct join.
-    // Breakout rooms are just normal rooms in LiveKit perspective.
+    // Prepare GenerateTokenReq for RoomUserService
+    // IMPORTANT: Use metadata from parent room, NOT from request
+    const joinReq = {
+      roomId: req.breakoutRoomId,
+      userInfo: {
+        userId: req.userId,
+        name: pInfo.name,
+        isAdmin: pMeta.isAdmin,  // Use parent room admin status only
+        userMetadata: pMeta,
+      },
+    };
 
-    // We reuse RoomCreateService's join logic if possible, but here we just need a token.
-    // Go: m.um.GetPNMJoinToken(ctx, req)
-
-    const userInfo = await this.natsUserService.getUser(req.roomId, req.userId);
-    if (!userInfo) {
-      throw new Error('User not found in parent room');
-    }
-
-    return this.liveKitService.generateLivekitToken(
-      req.breakoutRoomId,
-      userInfo,
-    );
+    const { token } = await this.roomUserService.getWajlcJoinToken(joinReq);
+    return token;
   }
 
   /**
@@ -407,8 +414,8 @@ export class BreakoutService {
     );
 
     // Update KV
-    room.duration = BigInt(newDuration).toString();
-    const jsonStr = toJsonString(BreakoutRoomSchema, room);
+    room.duration = newDuration.toString();
+    const jsonStr = this.natsService.marshalToProtoJson(room, BreakoutRoomSchema);
 
     await this.natsRoomService.insertOrUpdateBreakoutRoom(
       req.roomId,
@@ -459,10 +466,10 @@ export class BreakoutService {
       BreakoutRoomSchema,
       new TextDecoder().decode(roomBytes),
     );
-    room.created = metadata.startedAt;
+    room.created = metadata.startedAt.toString();
     room.started = true;
 
-    const jsonStr = toJsonString(BreakoutRoomSchema, room);
+    const jsonStr = this.natsService.marshalToProtoJson(room, BreakoutRoomSchema);
     await this.natsRoomService.insertOrUpdateBreakoutRoom(
       metadata.parentRoomId,
       roomId,
@@ -519,12 +526,7 @@ export class BreakoutService {
     if (meta.roomFeatures?.breakoutRoomFeatures?.isActive) {
       meta.roomFeatures.breakoutRoomFeatures.isActive = false;
 
-      await this.natsRoomService.updateRoomMetadata(parentRoomId, meta);
-      await this.natsSystemEvents.broadcastSystemEventToRoom(
-        NatsMsgServerToClientEvents.ROOM_METADATA_UPDATE,
-        parentRoomId,
-        this.natsService.marshalRoomMetadata(meta),
-      );
+      await this.natsRoomEventsService.updateAndBroadcastRoomMetadata(parentRoomId, meta);
     }
   }
 }

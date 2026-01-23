@@ -400,7 +400,6 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
                     {
                         try {
                             // Client sends JSON string via toJsonString(), not binary data
-                            // Go server uses protojson.Unmarshal for this - we must use fromJsonString
                             const analyticsData = fromJsonString(AnalyticsDataMsgSchema, req.msg);
                             await this.analyticsService.handleEvent(analyticsData);
                         } catch (error) {

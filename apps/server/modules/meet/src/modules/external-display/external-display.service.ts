@@ -73,7 +73,6 @@ export class ExternalDisplayService {
         } else if (req.task === ExternalDisplayLinkTask.STOP_EXTERNAL_LINK) {
             isActive = false;
             feature.isActive = false;
-            // Go code doesn't clear link or sharedBy on stop, only sets isActive=false
         } else {
             throw new Error('Invalid request task');
         }

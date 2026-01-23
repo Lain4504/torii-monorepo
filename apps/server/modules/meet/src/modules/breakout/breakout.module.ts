@@ -3,6 +3,7 @@ import { BreakoutService } from './breakout.service';
 import { BreakoutNatsController } from './breakout.nats.controller';
 import { SharedModule } from '@server/shared';
 import { RoomModule } from '../room/room.module';
+import { AnalyticsModule } from '../analytics/analytics.module';
 import { NatsService } from '../../interfaces/nats/nats.service';
 import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
 import { NatsSystemEventsService } from '../../interfaces/nats/nats-system-events.service';
@@ -13,7 +14,7 @@ import { NatsCacheService } from '../../interfaces/nats/nats-cache.service';
 import { LiveKitService } from '../../infrastructure/livekit/livekit.service';
 
 @Module({
-  imports: [SharedModule, forwardRef(() => RoomModule)],
+  imports: [SharedModule, forwardRef(() => RoomModule), AnalyticsModule],
   controllers: [BreakoutNatsController],
   providers: [BreakoutService],
   exports: [BreakoutService],

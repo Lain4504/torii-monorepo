@@ -88,7 +88,6 @@ export class EtherpadService {
         }
 
         // Check if user is blocked or has permission? 
-        // Go logic checks: `m.checkUserPermission(ctx, req.RoomId, req.UserId)` matches mostly "is online"
 
         // 3. Mark room as active in NATS KV for this Etherpad node
         // This is important for cleanup/counting
@@ -113,9 +112,8 @@ export class EtherpadService {
             finalUrl = `${this.etherpadHost}/p/${padId}?userName=${encodeURIComponent(userName)}`;
 
             // If we need to create the pad via API first to ensure it exists or set group, do it here.
-            // Using logic from Go:
             // It calls `createPad` if not exists usually, but current requirement implies simple URL for embedding?
-            // The Go implementation `CreateSession` actually requests a session from Etherpad API if utilizing the "Group" feature,
+            // `CreateSession` actually requests a session from Etherpad API if utilizing the "Group" feature,
             // OR simply returns the pad URL.
 
             // Let's assume simple Pad URL for now unless 'ETHERPAD_API_KEY' implies strictly API usage.
@@ -141,7 +139,6 @@ export class EtherpadService {
 
     /**
      * CleanAfterRoomEnd handles cleanup when room ends
-     * Matches Go: CleanAfterRoomEnd(roomId, metadata string)
      */
     async cleanAfterRoomEnd(req: CleanEtherpadReq): Promise<void> {
         const roomId = req.roomId;

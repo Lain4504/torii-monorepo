@@ -45,7 +45,6 @@ export class ExternalMediaService {
         if (!feature) {
             throw new Error('External media player feature not found in metadata');
         }
-        // Go server does not check feature.isAllow here, so we skip it to match behavior.
 
         // Check user
         const status = await this.natsUserService.getRoomUserStatus(req.roomId, req.userId);
@@ -69,7 +68,6 @@ export class ExternalMediaService {
             }
             if (feature.isActive) {
                 // If already active, maybe just updating URL? 
-                // Or deny? Go code: just updates.
             }
             isActive = true;
             feature.isActive = true;
