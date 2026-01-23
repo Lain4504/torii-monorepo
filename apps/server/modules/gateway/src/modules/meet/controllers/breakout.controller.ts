@@ -7,11 +7,12 @@ import {
     HttpStatus,
     Inject,
     Logger,
+    Req,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { create } from '@bufbuild/protobuf';
+import { create, fromBinary } from '@bufbuild/protobuf';
 import {
     CreateBreakoutRoomsReqSchema,
     JoinBreakoutRoomReqSchema,
@@ -24,7 +25,7 @@ import {
     JwtAuthGuard,
 } from '@server/shared';
 
-@Controller('breakout-room')
+@Controller('api/breakoutRoom')
 export class BreakoutController {
     private readonly logger = new Logger(BreakoutController.name);
 
@@ -34,14 +35,36 @@ export class BreakoutController {
 
     @Post('create')
     @UseGuards(JwtAuthGuard)
-    async createBreakoutRooms(@Body() body: any, @Res() res: Response) {
+    async createBreakoutRooms(
+        @Req() req: Request,
+        @Body() body: any,
+        @Res() res: Response
+    ) {
+        const isAdmin = (req as any).isAdmin as boolean;
+        const roomId = (req as any).roomId as string;
+        const requestedUserId = (req as any).requestedUserId as string;
+
+        if (!isAdmin) {
+            sendCommonProtoJsonResponse(res, false, 'only admin can perform this task');
+            return;
+        }
+
         try {
-            const req = create(CreateBreakoutRoomsReqSchema, body);
+            let request: any;
+            if (Buffer.isBuffer(body)) {
+                request = fromBinary(CreateBreakoutRoomsReqSchema, body);
+            } else {
+                request = create(CreateBreakoutRoomsReqSchema, body);
+            }
+            request.roomId = roomId;
+            request.requestedUserId = requestedUserId;
+
             const result = await firstValueFrom(
-                this.natsClient.send({ cmd: 'breakout.create' }, req)
+                this.natsClient.send({ cmd: 'breakout.create' }, request)
             );
+            const response = create(CommonResponseSchema, result);
             res.status(HttpStatus.OK);
-            sendProtoJsonResponse(res, CommonResponseSchema, result);
+            sendProtoJsonResponse(res, CommonResponseSchema, response);
         } catch (error) {
             sendCommonProtoJsonResponse(res, false, error.message);
         }
@@ -49,34 +72,85 @@ export class BreakoutController {
 
     @Post('join')
     @UseGuards(JwtAuthGuard)
-    async joinBreakoutRoom(@Body() body: any, @Res() res: Response) {
+    async joinBreakoutRoom(
+        @Req() req: Request,
+        @Body() body: any,
+        @Res() res: Response
+    ) {
+        const isAdmin = (req as any).isAdmin as boolean;
+        const roomId = (req as any).roomId as string;
+
         try {
-            const req = create(JoinBreakoutRoomReqSchema, body);
-            // Result for join might be JoinBreakoutRoomRes or simple CommonResponse
-            // Assuming CommonResponse or custom response with token
-            // Usually returns a token. 
-            // In Go: `BreakoutRoomJoinRes`?
-            // Let's assume generic response for now and improve if specific schema needed.
+            let request: any;
+            if (Buffer.isBuffer(body)) {
+                request = fromBinary(JoinBreakoutRoomReqSchema, body);
+            } else {
+                request = create(JoinBreakoutRoomReqSchema, body);
+            }
+            request.roomId = roomId;
+            request.isAdmin = isAdmin;
+
             const result = await firstValueFrom(
-                this.natsClient.send({ cmd: 'breakout.join' }, req)
+                this.natsClient.send({ cmd: 'breakout.join' }, request)
             );
-            // If result is generic object, just return it as json
+            // Result is token or object
             return res.status(HttpStatus.OK).json(result);
         } catch (error) {
             return res.status(HttpStatus.BAD_REQUEST).json({ status: false, msg: error.message });
         }
     }
 
-    @Post('end')
+    @Post('endRoom')
     @UseGuards(JwtAuthGuard)
-    async endBreakoutRooms(@Body() body: any, @Res() res: Response) {
+    async endBreakoutRoom(
+        @Req() req: Request,
+        @Body() body: any,
+        @Res() res: Response
+    ) {
+        const roomId = (req as any).roomId as string;
+
         try {
-            const req = create(EndBreakoutRoomReqSchema, body);
+            let request: any;
+            if (Buffer.isBuffer(body)) {
+                request = fromBinary(EndBreakoutRoomReqSchema, body);
+            } else {
+                request = create(EndBreakoutRoomReqSchema, body);
+            }
+            request.roomId = roomId;
+
             const result = await firstValueFrom(
-                this.natsClient.send({ cmd: 'breakout.end' }, req)
+                this.natsClient.send({ cmd: 'breakout.end' }, request)
             );
+            const response = create(CommonResponseSchema, result);
             res.status(HttpStatus.OK);
-            sendProtoJsonResponse(res, CommonResponseSchema, result);
+            sendProtoJsonResponse(res, CommonResponseSchema, response);
+        } catch (error) {
+            sendCommonProtoJsonResponse(res, false, error.message);
+        }
+    }
+
+    @Post('endAllRooms')
+    @UseGuards(JwtAuthGuard)
+    async endAllBreakoutRooms(
+        @Req() req: Request,
+        @Res() res: Response
+    ) {
+        const isAdmin = (req as any).isAdmin as boolean;
+        const roomId = (req as any).roomId as string;
+
+        if (!isAdmin) {
+            sendCommonProtoJsonResponse(res, false, 'only admin can perform this task');
+            return;
+        }
+
+        try {
+            // Send roomId as object for robust handling in controller
+            const result = await firstValueFrom(
+                this.natsClient.send({ cmd: 'breakout.endAll' }, { roomId })
+            );
+            const response = create(CommonResponseSchema, result);
+            res.status(HttpStatus.OK);
+            sendProtoJsonResponse(res, CommonResponseSchema, response);
         } catch (error) {
             sendCommonProtoJsonResponse(res, false, error.message);
         }

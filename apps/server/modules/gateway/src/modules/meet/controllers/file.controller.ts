@@ -26,6 +26,7 @@ import {
     UploadedFileResSchema,
     GetRoomUploadedFilesReq,
     GetRoomUploadedFilesReqSchema,
+    GetRoomUploadedFilesResSchema,
     UploadBase64EncodedDataReqSchema,
     UploadBase64EncodedDataResSchema,
 } from '@workspace/protocol';
@@ -33,6 +34,7 @@ import {
     sendProtoJsonResponse,
     sendProtobufResponse,
     sendCommonProtoJsonResponse,
+    sendCommonProtobufResponse,
     JwtAuthGuard,
 } from '@server/shared';
 import { ConfigService } from '@nestjs/config';
@@ -238,9 +240,11 @@ export class FileController {
             const result = await firstValueFrom(
                 this.natsClient.send({ cmd: 'file.getByType' }, req)
             );
-            return res.status(HttpStatus.OK).json({ status: true, files: result });
+
+            res.status(HttpStatus.OK);
+            sendProtobufResponse(res, GetRoomUploadedFilesResSchema, result);
         } catch (error) {
-            return res.status(HttpStatus.BAD_REQUEST).json({ status: false, msg: error.message });
+            sendCommonProtobufResponse(res, false, error.message);
         }
     }
 
