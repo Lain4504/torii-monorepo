@@ -131,10 +131,6 @@ export class BreakoutService {
     if (bMeta.roomFeatures.externalMediaPlayerFeatures)
       bMeta.roomFeatures.externalMediaPlayerFeatures.isActive = false;
 
-    if (req.rooms.length === 0) {
-      throw new Error('no breakout rooms provided');
-    }
-
     const e: Record<string, boolean> = {};
 
     for (const room of req.rooms) {
@@ -364,6 +360,11 @@ export class BreakoutService {
         this.logger.warn(`Failed to parse breakout room ${key}: ${e.message}`);
       }
     }
+
+    if (result.length === 0) {
+      throw new Error('no breakout rooms found');
+    }
+
     return result;
   }
 
@@ -396,11 +397,19 @@ export class BreakoutService {
   async increaseBreakoutRoomDuration(
     req: IncreaseBreakoutRoomDurationReq,
   ): Promise<void> {
+    const log = this.logger;
+    log.log(
+      `request to increase breakout room duration for parentRoomId: ${req.roomId}, breakoutRoomId: ${req.breakoutRoomId}, duration: ${req.duration}`,
+    );
+
     const roomBytes = await this.natsRoomService.getBreakoutRoom(
       req.roomId,
       req.breakoutRoomId,
     );
-    if (!roomBytes) throw new Error('Breakout room not found');
+    if (!roomBytes) {
+      log.error('failed to fetch breakout room info');
+      throw new Error('Breakout room not found');
+    }
 
     const room = fromJsonString(
       BreakoutRoomSchema,
@@ -408,20 +417,35 @@ export class BreakoutService {
     );
 
     // Update active duration checker
-    const newDuration = await this.roomDurationService.increaseRoomDuration(
-      req.breakoutRoomId,
-      Number(req.duration),
-    );
+    log.log('increasing duration in room duration checker');
+    let newDuration = 0;
+    try {
+      newDuration = await this.roomDurationService.increaseRoomDuration(
+        req.breakoutRoomId,
+        Number(req.duration),
+      );
+    } catch (e) {
+      log.error(`failed to increase room duration: ${e.message}`);
+      throw e;
+    }
 
     // Update KV
+    log.log('updating breakout room info in nats');
     room.duration = newDuration.toString();
     const jsonStr = this.natsService.marshalToProtoJson(room, BreakoutRoomSchema);
 
-    await this.natsRoomService.insertOrUpdateBreakoutRoom(
-      req.roomId,
-      req.breakoutRoomId,
-      new TextEncoder().encode(jsonStr),
-    );
+    try {
+      await this.natsRoomService.insertOrUpdateBreakoutRoom(
+        req.roomId,
+        req.breakoutRoomId,
+        new TextEncoder().encode(jsonStr),
+      );
+    } catch (e) {
+      log.error(`failed to update breakout room in nats: ${e.message}`);
+      throw e;
+    }
+
+    log.log(`successfully increased breakout room duration to ${newDuration}`);
   }
 
   /**
@@ -430,16 +454,28 @@ export class BreakoutService {
   async broadcastBreakoutRoomMsg(
     req: BroadcastBreakoutRoomMsgReq,
   ): Promise<void> {
+    const log = this.logger;
+    log.log(`request to send message to all breakout rooms: ${req.roomId}`);
+
     const rooms = await this.getBreakoutRoomsInfo(req.roomId);
-    if (rooms.length === 0) return;
+    if (!rooms || rooms.length === 0) {
+      log.log('no active breakout rooms found to send message');
+      return;
+    }
 
     for (const r of rooms) {
-      await this.natsSystemEvents.broadcastSystemEventToRoom(
-        NatsMsgServerToClientEvents.SYSTEM_CHAT_MSG,
-        r.id,
-        req.msg,
-      );
+      try {
+        await this.natsSystemEvents.broadcastSystemEventToRoom(
+          NatsMsgServerToClientEvents.SYSTEM_CHAT_MSG,
+          r.id,
+          req.msg,
+        );
+      } catch (e) {
+        log.error(`failed to broadcast message to breakout room ${r.id}: ${e.message}`);
+      }
     }
+
+    log.log('successfully broadcasted message to all breakout rooms');
   }
 
   /**

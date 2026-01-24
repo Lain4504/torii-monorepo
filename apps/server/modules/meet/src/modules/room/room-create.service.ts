@@ -37,6 +37,8 @@ import { RoomInfoService } from './room-info.service';
 import { FileService } from '../file/file.service';
 import { acquireRoomCreationLockWithRetry } from './room-lock.helper';
 
+import { RoomDurationService } from './room-duration.service';
+
 /**
  * RoomCreateService handles the creation of new rooms
  */
@@ -53,6 +55,7 @@ export class RoomCreateService {
         private readonly webhookNotifier: WebhookNotifierService,
         private readonly roomInfoService: RoomInfoService,
         private readonly fileService: FileService,
+        private readonly roomDurationService: RoomDurationService,
     ) { }
 
     /**
@@ -113,6 +116,17 @@ export class RoomCreateService {
             // Step 8: Create NATS streams
             await this.natsStream.createRoomNatsStreams(req.roomId);
             log.log(`NATS streams created: ${req.roomId}`);
+
+            // Step 8.5: Add room duration info if set
+            if (req.metadata?.roomFeatures?.roomDuration) {
+                const duration = Number(req.metadata.roomFeatures.roomDuration);
+                if (duration > 0) {
+                    await this.roomDurationService.addRoomWithDurationInfo(req.roomId, {
+                        duration: duration,
+                        startedAt: roomInfo.creationTime, // Using the creation time set in DB/model
+                    });
+                }
+            }
 
 
             // Step 9: Get room info from NATS

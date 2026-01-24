@@ -5,6 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix meet config">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/utils/proto-parser.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/utils/proto-parser.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/breakout/breakout.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/breakout/breakout.service.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -135,7 +137,7 @@
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_interpreter_path": "node",
     "nodejs_package_manager_path": "pnpm",
-    "settings.editor.selected.configurable": "editor.preferences.fonts.default",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
     "to.speed.mode.migration.done": "true",
     "ts.external.directory.path": "/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib",
     "vue.rearranger.settings.migration": "true"
@@ -325,6 +327,7 @@
       <workItem from="1769085026212" duration="45000" />
       <workItem from="1769085321038" duration="12000" />
       <workItem from="1769181804062" duration="422000" />
+      <workItem from="1769215771483" duration="3323000" />
     </task>
     <task id="LOCAL-00698" summary="build aadmin">
       <option name="closed" value="true" />
@@ -791,6 +794,24 @@
           <url>file://$PROJECT_DIR$/apps/server/libs/shared/src/providers/jwt-token.provider.ts</url>
           <line>25</line>
           <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/apps/server/modules/gateway/src/modules/meet/controllers/breakout.controller.ts</url>
+          <line>46</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/apps/server/modules/gateway/src/modules/meet/controllers/breakout.controller.ts</url>
+          <line>75</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/apps/server/modules/meet/src/modules/breakout/breakout.service.ts</url>
+          <line>80</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

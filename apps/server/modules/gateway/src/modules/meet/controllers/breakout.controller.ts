@@ -15,16 +15,22 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { create, fromBinary } from '@bufbuild/protobuf';
 import {
+    CreateBreakoutRoomsReq,
     CreateBreakoutRoomsReqSchema,
+    JoinBreakoutRoomReq,
     JoinBreakoutRoomReqSchema,
+    EndBreakoutRoomReq,
     EndBreakoutRoomReqSchema,
+    IncreaseBreakoutRoomDurationReq,
     IncreaseBreakoutRoomDurationReqSchema,
+    BroadcastBreakoutRoomMsgReq,
     BroadcastBreakoutRoomMsgReqSchema,
     BreakoutRoomResSchema,
 } from '@workspace/protocol';
 import {
     sendProtobufResponse,
     sendCommonProtobufResponse,
+    parseAndValidateRequest,
     JwtAuthGuard,
 } from '@server/shared';
 
@@ -53,12 +59,19 @@ export class BreakoutController {
         }
 
         try {
-            let request: any;
-            if (Buffer.isBuffer(body)) {
-                request = fromBinary(CreateBreakoutRoomsReqSchema, body);
-            } else {
-                request = create(CreateBreakoutRoomsReqSchema, body);
+            if (!req.headers['content-type'] && body && Buffer.isBuffer(body)) {
+                // Manually try to parse simple JSON if it looks like it
+                try {
+                    const str = body.toString('utf8');
+                    if (str.startsWith('{')) {
+                        body = JSON.parse(str);
+                    }
+                } catch (e) { }
             }
+            const request = parseAndValidateRequest<CreateBreakoutRoomsReq>(body, CreateBreakoutRoomsReqSchema);
+            this.logger.log(`Content-Type: ${req.headers['content-type']}`);
+            this.logger.log(`Received body type: ${typeof body}, isBuffer: ${Buffer.isBuffer(body)}, length: ${body?.length}`);
+            this.logger.log(`Parsed request rooms count: ${request.rooms?.length}`);
             request.roomId = roomId;
             request.requestedUserId = requestedUserId;
 
@@ -66,7 +79,6 @@ export class BreakoutController {
                 this.natsClient.send({ cmd: 'breakout.create' }, request)
             );
 
-            // Explicitly create response
             const response = create(BreakoutRoomResSchema, {
                 status: result.status,
                 msg: result.msg,
@@ -79,7 +91,7 @@ export class BreakoutController {
                 status: false,
                 msg: error.message || 'Unknown Error',
             });
-            res.status(HttpStatus.OK); // Return OK status even on logic error, as handled by status=false
+            res.status(HttpStatus.OK);
             sendProtobufResponse(res, BreakoutRoomResSchema, response);
         }
     }
@@ -95,12 +107,7 @@ export class BreakoutController {
         const roomId = (req as any).roomId as string;
 
         try {
-            let request: any;
-            if (Buffer.isBuffer(body)) {
-                request = fromBinary(JoinBreakoutRoomReqSchema, body);
-            } else {
-                request = create(JoinBreakoutRoomReqSchema, body);
-            }
+            const request = parseAndValidateRequest<JoinBreakoutRoomReq>(body, JoinBreakoutRoomReqSchema);
             request.roomId = roomId;
             request.isAdmin = isAdmin;
 
@@ -193,12 +200,7 @@ export class BreakoutController {
         const roomId = (req as any).roomId as string;
 
         try {
-            let request: any;
-            if (Buffer.isBuffer(body)) {
-                request = fromBinary(IncreaseBreakoutRoomDurationReqSchema, body);
-            } else {
-                request = create(IncreaseBreakoutRoomDurationReqSchema, body);
-            }
+            const request = parseAndValidateRequest<IncreaseBreakoutRoomDurationReq>(body, IncreaseBreakoutRoomDurationReqSchema);
             request.roomId = roomId;
 
             const result = await firstValueFrom(
@@ -232,12 +234,7 @@ export class BreakoutController {
         const roomId = (req as any).roomId as string;
 
         try {
-            let request: any;
-            if (Buffer.isBuffer(body)) {
-                request = fromBinary(BroadcastBreakoutRoomMsgReqSchema, body);
-            } else {
-                request = create(BroadcastBreakoutRoomMsgReqSchema, body);
-            }
+            const request = parseAndValidateRequest<BroadcastBreakoutRoomMsgReq>(body, BroadcastBreakoutRoomMsgReqSchema);
             request.roomId = roomId;
 
             const result = await firstValueFrom(
@@ -271,12 +268,7 @@ export class BreakoutController {
         const roomId = (req as any).roomId as string;
 
         try {
-            let request: any;
-            if (Buffer.isBuffer(body)) {
-                request = fromBinary(EndBreakoutRoomReqSchema, body);
-            } else {
-                request = create(EndBreakoutRoomReqSchema, body);
-            }
+            const request = parseAndValidateRequest<EndBreakoutRoomReq>(body, EndBreakoutRoomReqSchema);
             request.roomId = roomId;
 
             const result = await firstValueFrom(

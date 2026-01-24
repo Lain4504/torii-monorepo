@@ -309,6 +309,9 @@ export class NatsRoomService {
             await this.deleteRoom(roomId);
             await this.natsUserService.deleteAllRoomUsersWithConsumer(roomId);
             await this.natsStreamService.deleteRoomNatsStream(roomId);
+            try {
+                await this.deleteAllBreakoutRoomsByParentRoomId(roomId);
+            } catch (e) { }
             // TODO: await this.deleteAllRoomFiles(roomId);
         } catch (error) {
             // Silently ignore errors 

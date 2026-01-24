@@ -23,13 +23,13 @@ export class BreakoutNatsController {
             await this.breakoutService.createBreakoutRooms(data);
             return {
                 status: true,
-                msg: 'Breakout rooms created successfully'
+                msg: 'success'
             };
-        } catch (error) {
-            this.logger.error(`Error creating breakout rooms: ${error.message}`);
+        } catch (e) {
+            this.logger.error(e);
             return {
                 status: false,
-                msg: error.message
+                msg: e.message
             };
         }
     }
@@ -40,14 +40,14 @@ export class BreakoutNatsController {
             const token = await this.breakoutService.joinBreakoutRoom(data);
             return {
                 status: true,
-                msg: 'Token generated',
+                msg: 'success',
                 token: token
             };
-        } catch (error) {
-            this.logger.error(`Error joining breakout room: ${error.message}`);
+        } catch (e) {
+            this.logger.error(e);
             return {
                 status: false,
-                msg: error.message
+                msg: e.message
             };
         }
     }
@@ -58,32 +58,32 @@ export class BreakoutNatsController {
             await this.breakoutService.endBreakoutRoom(data);
             return {
                 status: true,
-                msg: 'Breakout room ended'
+                msg: 'success'
             };
-        } catch (error) {
-            this.logger.error(`Error ending breakout room: ${error.message}`);
+        } catch (e) {
+            this.logger.error(e);
             return {
                 status: false,
-                msg: error.message
+                msg: e.message
             };
         }
     }
 
     @MessagePattern({ cmd: 'breakout.get' })
-    async getBreakoutRooms(@Payload() roomId: string) {
+    async getBreakoutRooms(@Payload() roomId: any) {
         try {
-            const rId = (typeof roomId === 'object' && (roomId as any).roomId) ? (roomId as any).roomId : roomId;
+            const rId = (typeof roomId === 'object' && roomId?.roomId) ? roomId.roomId : roomId;
             const rooms = await this.breakoutService.getBreakoutRoomsInfo(rId);
             return {
                 status: true,
                 msg: 'success',
                 rooms: rooms
             };
-        } catch (error) {
-            this.logger.error(`Error getting breakout rooms: ${error.message}`);
+        } catch (e) {
+            this.logger.error(e);
             return {
                 status: false,
-                msg: error.message
+                msg: e.message
             };
         }
     }
@@ -94,12 +94,13 @@ export class BreakoutNatsController {
             await this.breakoutService.increaseBreakoutRoomDuration(data);
             return {
                 status: true,
-                msg: 'Duration increased'
+                msg: 'success'
             };
-        } catch (error) {
+        } catch (e) {
+            this.logger.error(e);
             return {
                 status: false,
-                msg: error.message
+                msg: e.message
             };
         }
     }
@@ -110,12 +111,13 @@ export class BreakoutNatsController {
             await this.breakoutService.broadcastBreakoutRoomMsg(data);
             return {
                 status: true,
-                msg: 'Message broadcasted'
+                msg: 'success'
             };
-        } catch (error) {
+        } catch (e) {
+            this.logger.error(e);
             return {
                 status: false,
-                msg: error.message
+                msg: e.message
             };
         }
     }
@@ -129,29 +131,29 @@ export class BreakoutNatsController {
                 msg: 'success',
                 room: result
             };
-        } catch (error) {
-            this.logger.error(`Error getting my breakout room: ${error.message}`);
+        } catch (e) {
+            this.logger.error(e);
             return {
                 status: false,
-                msg: error.message
+                msg: e.message
             };
         }
     }
 
     @MessagePattern({ cmd: 'breakout.endAll' })
-    async endAllBreakoutRooms(@Payload() roomId: string) {
+    async endAllBreakoutRooms(@Payload() roomId: any) {
         try {
-            const rId = (typeof roomId === 'object' && (roomId as any).roomId) ? (roomId as any).roomId : roomId;
+            const rId = (typeof roomId === 'object' && roomId?.roomId) ? roomId.roomId : roomId;
             await this.breakoutService.endAllBreakoutRooms(rId);
             return {
                 status: true,
                 msg: 'success'
             };
-        } catch (error) {
-            this.logger.error(`Error ending all breakout rooms: ${error.message}`);
+        } catch (e) {
+            this.logger.error(e);
             return {
                 status: false,
-                msg: error.message
+                msg: e.message
             };
         }
     }
