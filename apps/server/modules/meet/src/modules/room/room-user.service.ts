@@ -11,7 +11,8 @@ import { NatsUserService } from '../../interfaces/nats/nats-user.service';
 import { NatsSystemEventsService } from '../../interfaces/nats/nats-system-events.service';
 import { RedisLockService } from '../../infrastructure/redis/redis-lock.service';
 import { waitUntilRoomCreationCompletes } from './room-lock.helper';
-import { SwitchPresenterTask, NatsMsgServerToClientEvents, TrackSource, ParticipantInfo_State } from '@workspace/protocol';
+import { SwitchPresenterTask, NatsMsgServerToClientEvents, TrackSource, ParticipantInfo_State, LockSettingsSchema } from '@workspace/protocol';
+import { create } from '@bufbuild/protobuf';
 import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
 import { NatsRoomEventsService } from '../../interfaces/nats/nats-room-events.service';
 import { WajlcAuthService } from '../auth/wajlc-auth.service';
@@ -151,7 +152,7 @@ export class RoomUserService {
                 await this.createNewPresenter(req);
 
                 // By default, no lock for admin user
-                req.userInfo.userMetadata.lockSettings = {};
+                req.userInfo.userMetadata.lockSettings = create(LockSettingsSchema, {});
 
                 // Except for whiteboard (follows room settings for non-presenter)
                 if (!req.userInfo.userMetadata.isPresenter) {
@@ -251,7 +252,7 @@ export class RoomUserService {
      */
     private assignLockSettingsToUser(meta: any, req: any): void {
         if (!req.userInfo.userMetadata.lockSettings) {
-            req.userInfo.userMetadata.lockSettings = {};
+            req.userInfo.userMetadata.lockSettings = create(LockSettingsSchema, {});
         }
         if (!meta.defaultLockSettings) {
             return;

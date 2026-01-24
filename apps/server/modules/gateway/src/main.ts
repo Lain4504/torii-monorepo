@@ -12,13 +12,29 @@ async function bootstrap() {
   // Configure cookie parser
   app.use(cookieParser());
 
-  // Configure body parser to accept webhook content-type
+  // Debug middleware for raw request inspection
+  app.use((req, res, next) => {
+    // console.log(`[Request] ${req.method} ${req.url} Content-Type: ${req.headers['content-type']}`);
+    if (req.url.includes('breakoutRoom')) {
+      // console.log('Breakout req headers:', req.headers);
+    }
+    next();
+  });
+
   app.use(bodyParser.json({
     type: ['application/json', 'application/webhook+json']
   }));
+  // Configure body parser to accept urlencoded (for typical RTMP webhooks)
+  app.use(bodyParser.urlencoded({ extended: true }));
   // Accept binary protobuf
   app.use(bodyParser.raw({
-    type: ['application/protobuf', 'application/octet-stream'],
+    type: (req) => {
+      // Always parse body for breakoutRoom requests to ensure we capture the data
+      if (req.url && req.url.includes('breakoutRoom')) return true;
+
+      const type = req.headers['content-type'];
+      return type === 'application/protobuf' || type === 'application/octet-stream';
+    },
     limit: '10mb'
   }));
 

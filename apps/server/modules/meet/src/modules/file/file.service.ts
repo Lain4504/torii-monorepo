@@ -2,13 +2,18 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
 import { NatsRoomEventsService } from '../../interfaces/nats/nats-room-events.service';
+import { NatsSystemEventsService } from '../../interfaces/nats/nats-system-events.service';
 import {
     RoomUploadedFileType,
     RoomUploadedFileMetadataSchema,
     UploadedFileMergeReq,
-    UploadedFileResSchema
+    UploadedFileResSchema,
+    UploadBase64EncodedDataReq,
+    UploadBase64EncodedDataResSchema,
+    ChatMessageSchema,
+    NatsMsgServerToClientEvents
 } from '@workspace/protocol';
-import { create } from '@bufbuild/protobuf';
+import { create, toJsonString } from '@bufbuild/protobuf';
 import * as fs from 'fs';
 import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
@@ -39,6 +44,7 @@ export class FileService {
         private readonly configService: ConfigService,
         private readonly natsRoom: NatsRoomService,
         private readonly natsRoomEvents: NatsRoomEventsService,
+        private readonly natsSystemEvents: NatsSystemEventsService,
     ) {
         this.uploadPath = this.configService.get<string>('UPLOAD_FILE_PATH') || './uploads';
         if (!fs.existsSync(this.uploadPath)) {
@@ -95,9 +101,68 @@ export class FileService {
     }
 
     /**
+     * UploadBase64EncodedData handles base64 encoded file uploads
+     */
+    async uploadBase64EncodedData(req: UploadBase64EncodedDataReq & { requestedUserId?: string, requestedUserName?: string }): Promise<any> {
+        this.logger.debug(`UploadBase64EncodedData for file ${req.fileName} in room ${req.roomId}`);
+
+        const roomInfo = await this.natsRoom.getRoomInfo(req.roomId);
+        if (!roomInfo) {
+            throw new Error('Room not found');
+        }
+
+        const roomSid = roomInfo.roomSid;
+        const roomId = roomInfo.roomId;
+
+        const uploadDir = path.join(this.uploadPath, roomSid);
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+
+        const safeFilename = path.basename(req.fileName);
+        const finalPath = path.join(uploadDir, safeFilename);
+        const buffer = Buffer.from(req.data, 'base64');
+
+        fs.writeFileSync(finalPath, buffer);
+
+        const fileId = uuidv4();
+        const relativePath = path.join(roomSid, safeFilename);
+        const mimeType = this.getMimeType(safeFilename);
+
+        const meta = create(RoomUploadedFileMetadataSchema, {
+            fileId,
+            fileName: safeFilename,
+            filePath: relativePath,
+            fileType: req.fileType,
+            mimeType,
+        });
+        await this.natsRoom.addRoomFile(roomId, meta);
+
+        if (req.fileType === RoomUploadedFileType.CHAT_FILE) {
+            this.publishChatMsgForFile(
+                roomId,
+                req.requestedUserId || '',
+                req.requestedUserName || '',
+                relativePath,
+                safeFilename,
+                mimeType
+            ).catch(err => this.logger.error(`Failed to publish chat msg for file: ${err.message}`));
+        }
+
+        return create(UploadBase64EncodedDataResSchema, {
+            status: true,
+            msg: 'file uploaded successfully',
+            filePath: relativePath,
+            fileName: safeFilename,
+            fileMimeType: mimeType,
+            fileExtension: path.extname(safeFilename).replace('.', ''),
+        });
+    }
+
+    /**
      * UploadedFileMerge combines all chunks into a final file
      */
-    async uploadedFileMerge(req: UploadedFileMergeReq): Promise<any> {
+    async uploadedFileMerge(req: UploadedFileMergeReq & { requestedUserId?: string, requestedUserName?: string }): Promise<any> {
         const safeFilename = path.basename(req.resumableFilename);
         const tempFolder = path.join(this.uploadPath, req.roomSid, 'tmp');
         const chunkDir = path.join(tempFolder, req.resumableIdentifier);
@@ -147,7 +212,7 @@ export class FileService {
             await this.natsRoom.addRoomFile(req.roomId, meta);
         }
 
-        return create(UploadedFileResSchema, {
+        const response = create(UploadedFileResSchema, {
             status: true,
             msg: 'file uploaded successfully',
             fileId,
@@ -157,6 +222,27 @@ export class FileService {
             fileName: safeFilename,
             fileExtension: path.extname(safeFilename).replace('.', ''),
         });
+
+        if (req.fileType === RoomUploadedFileType.CHAT_FILE) {
+            this.publishChatMsgForFile(
+                req.roomId,
+                req.requestedUserId || '',
+                req.requestedUserName || '',
+                relativePath,
+                safeFilename,
+                mimeType
+            ).catch(err => this.logger.error(`Failed to publish chat msg for file: ${err.message}`));
+        }
+
+        // If it's an office file, we might want to start conversion
+        if (req.fileType === RoomUploadedFileType.WHITEBOARD_CONVERTED_FILE) {
+            // Trigger conversion (don't await to avoid blocking response)
+            this.convertAndBroadcastWhiteboardFile(req.roomId, req.roomSid, relativePath).catch(err => {
+                this.logger.error(`Whiteboard conversion failed: ${err.message}`);
+            });
+        }
+
+        return response;
     }
 
     /**
@@ -315,5 +401,45 @@ export class FileService {
             '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
         };
         return mimes[ext] || 'application/octet-stream';
+    }
+
+    private async publishChatMsgForFile(
+        roomId: string,
+        userId: string,
+        userName: string,
+        filePath: string,
+        fileName: string,
+        mimeType: string
+    ) {
+        if (!userId || !userName) {
+            return;
+        }
+
+        const serverUrl = this.configService.get<string>('SERVER_URL') || 'http://localhost:8080';
+        const isImage = mimeType.startsWith('image/');
+
+        const downloadUrl = `${serverUrl}/download/uploadedFile/${filePath}`;
+        let html = `<a class="attachment-message flex items-center gap-3 break-all" href="${downloadUrl}" target="_blank" rel="noreferrer">
+    <span class="h-10 w-10 rounded-xl bg-muted flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+  <path d="M3 12.1817C2.09551 11.5762 1.5 10.5452 1.5 9.375C1.5 7.61732 2.84363 6.17347 4.55981 6.01453C4.91086 3.8791 6.76518 2.25 9 2.25C11.2348 2.25 13.0891 3.8791 13.4402 6.01453C15.1564 6.17347 16.5 7.61732 16.5 9.375C16.5 10.5452 15.9045 11.5762 15 12.1817M6 12.75L9 15.75M9 15.75L12 12.75M9 15.75V9" stroke="#0C131A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg></span><span class="flex-1">${fileName}</span></a>`;
+
+        if (isImage) {
+            html += `<img class="chat-image max-w-full rounded-lg cursor-pointer mt-2" src="${downloadUrl}" alt="${fileName}" />`;
+        }
+
+        const chatMsg = create(ChatMessageSchema, {
+            id: uuidv4(),
+            fromName: userName,
+            fromUserId: userId,
+            sentAt: Date.now().toString(),
+            message: html,
+            isPrivate: false,
+        });
+
+        await this.natsSystemEvents.broadcastChatEntry(
+            roomId,
+            chatMsg
+        );
     }
 }

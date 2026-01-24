@@ -4,7 +4,6 @@ import { ChatFeatures, RoomUploadedFileType } from '@workspace/protocol';
 
 import { useAppDispatch } from '../../../store';
 import useResumableFilesUpload from '../../../helpers/hooks/useResumableFilesUpload';
-import { publishFileAttachmentToChat } from '../utils';
 import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
 import { Loader2, Paperclip } from 'lucide-react';
 
@@ -37,7 +36,6 @@ const FileSend = ({ lockSendFile, chatFeatures }: IFileSendProps) => {
 
   useEffect(() => {
     if (result && result.filePath && result.fileName) {
-      publishFileAttachmentToChat(result.filePath, result.fileName).then();
       dispatch(
         addUserNotification({
           message: t('right-panel.file-upload-success'),

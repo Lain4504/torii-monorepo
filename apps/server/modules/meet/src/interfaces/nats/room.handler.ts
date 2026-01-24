@@ -102,4 +102,21 @@ export class RoomHandler {
         // Get room info by SID (LiveKit session ID)
         return this.roomInfoService.getRoomInfoBySid(data.sid, data.isRunning);
     }
+
+    @MessagePattern({ cmd: 'room.updateRTMP' })
+    async updateRTMP(@Payload() data: { roomId: string; isActive: boolean; nodeId?: string }) {
+        // Get room info first to get the table ID
+        const room = await this.roomInfoService.getRoomInfoByRoomId(data.roomId, true);
+        if (!room) {
+            return { success: false, message: 'Room not found' };
+        }
+
+        const count = await this.roomInfoService.updateRoomRTMPStatus(
+            BigInt(room.id),
+            data.isActive ? 1 : 0,
+            data.nodeId
+        );
+
+        return { success: count > 0 };
+    }
 }

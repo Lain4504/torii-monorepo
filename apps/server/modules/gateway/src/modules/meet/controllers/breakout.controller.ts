@@ -1,30 +1,40 @@
 import {
     Controller,
     Post,
+    Get,
     Body,
     Res,
     UseGuards,
     HttpStatus,
     Inject,
     Logger,
+    Req,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { create } from '@bufbuild/protobuf';
+import { create, fromBinary } from '@bufbuild/protobuf';
 import {
+    CreateBreakoutRoomsReq,
     CreateBreakoutRoomsReqSchema,
+    JoinBreakoutRoomReq,
     JoinBreakoutRoomReqSchema,
+    EndBreakoutRoomReq,
     EndBreakoutRoomReqSchema,
-    CommonResponseSchema,
+    IncreaseBreakoutRoomDurationReq,
+    IncreaseBreakoutRoomDurationReqSchema,
+    BroadcastBreakoutRoomMsgReq,
+    BroadcastBreakoutRoomMsgReqSchema,
+    BreakoutRoomResSchema,
 } from '@workspace/protocol';
 import {
-    sendProtoJsonResponse,
-    sendCommonProtoJsonResponse,
+    sendProtobufResponse,
+    sendCommonProtobufResponse,
+    parseAndValidateRequest,
     JwtAuthGuard,
 } from '@server/shared';
 
-@Controller('breakout-room')
+@Controller('api/breakoutRoom')
 export class BreakoutController {
     private readonly logger = new Logger(BreakoutController.name);
 
@@ -34,51 +44,290 @@ export class BreakoutController {
 
     @Post('create')
     @UseGuards(JwtAuthGuard)
-    async createBreakoutRooms(@Body() body: any, @Res() res: Response) {
+    async createBreakoutRooms(
+        @Req() req: Request,
+        @Body() body: any,
+        @Res() res: Response
+    ) {
+        const isAdmin = (req as any).isAdmin as boolean;
+        const roomId = (req as any).roomId as string;
+        const requestedUserId = (req as any).requestedUserId as string;
+
+        if (!isAdmin) {
+            sendCommonProtobufResponse(res, false, 'only admin can perform this task');
+            return;
+        }
+
         try {
-            const req = create(CreateBreakoutRoomsReqSchema, body);
+            if (!req.headers['content-type'] && body && Buffer.isBuffer(body)) {
+                // Manually try to parse simple JSON if it looks like it
+                try {
+                    const str = body.toString('utf8');
+                    if (str.startsWith('{')) {
+                        body = JSON.parse(str);
+                    }
+                } catch (e) { }
+            }
+            const request = parseAndValidateRequest<CreateBreakoutRoomsReq>(body, CreateBreakoutRoomsReqSchema);
+            this.logger.log(`Content-Type: ${req.headers['content-type']}`);
+            this.logger.log(`Received body type: ${typeof body}, isBuffer: ${Buffer.isBuffer(body)}, length: ${body?.length}`);
+            this.logger.log(`Parsed request rooms count: ${request.rooms?.length}`);
+            request.roomId = roomId;
+            request.requestedUserId = requestedUserId;
+
             const result = await firstValueFrom(
-                this.natsClient.send({ cmd: 'breakout.create' }, req)
+                this.natsClient.send({ cmd: 'breakout.create' }, request)
             );
+
+            const response = create(BreakoutRoomResSchema, {
+                status: result.status,
+                msg: result.msg,
+            });
+
             res.status(HttpStatus.OK);
-            sendProtoJsonResponse(res, CommonResponseSchema, result);
+            sendProtobufResponse(res, BreakoutRoomResSchema, response);
         } catch (error) {
-            sendCommonProtoJsonResponse(res, false, error.message);
+            const response = create(BreakoutRoomResSchema, {
+                status: false,
+                msg: error.message || 'Unknown Error',
+            });
+            res.status(HttpStatus.OK);
+            sendProtobufResponse(res, BreakoutRoomResSchema, response);
         }
     }
 
     @Post('join')
     @UseGuards(JwtAuthGuard)
-    async joinBreakoutRoom(@Body() body: any, @Res() res: Response) {
+    async joinBreakoutRoom(
+        @Req() req: Request,
+        @Body() body: any,
+        @Res() res: Response
+    ) {
+        const isAdmin = (req as any).isAdmin as boolean;
+        const roomId = (req as any).roomId as string;
+
         try {
-            const req = create(JoinBreakoutRoomReqSchema, body);
-            // Result for join might be JoinBreakoutRoomRes or simple CommonResponse
-            // Assuming CommonResponse or custom response with token
-            // Usually returns a token. 
-            // In Go: `BreakoutRoomJoinRes`?
-            // Let's assume generic response for now and improve if specific schema needed.
+            const request = parseAndValidateRequest<JoinBreakoutRoomReq>(body, JoinBreakoutRoomReqSchema);
+            request.roomId = roomId;
+            request.isAdmin = isAdmin;
+
             const result = await firstValueFrom(
-                this.natsClient.send({ cmd: 'breakout.join' }, req)
+                this.natsClient.send({ cmd: 'breakout.join' }, request)
             );
-            // If result is generic object, just return it as json
-            return res.status(HttpStatus.OK).json(result);
+
+            const response = create(BreakoutRoomResSchema, {
+                status: result.status,
+                msg: result.msg,
+                token: result.token,
+            });
+
+            res.status(HttpStatus.OK);
+            sendProtobufResponse(res, BreakoutRoomResSchema, response);
         } catch (error) {
-            return res.status(HttpStatus.BAD_REQUEST).json({ status: false, msg: error.message });
+            const response = create(BreakoutRoomResSchema, {
+                status: false,
+                msg: error.message || 'Unknown Error',
+            });
+            res.status(HttpStatus.OK);
+            sendProtobufResponse(res, BreakoutRoomResSchema, response);
         }
     }
 
-    @Post('end')
+    @Get('listRooms')
     @UseGuards(JwtAuthGuard)
-    async endBreakoutRooms(@Body() body: any, @Res() res: Response) {
+    async getBreakoutRooms(@Req() req: Request, @Res() res: Response) {
+        const roomId = (req as any).roomId as string;
+
         try {
-            const req = create(EndBreakoutRoomReqSchema, body);
             const result = await firstValueFrom(
-                this.natsClient.send({ cmd: 'breakout.end' }, req)
+                this.natsClient.send({ cmd: 'breakout.get' }, { roomId })
             );
+
+            const response = create(BreakoutRoomResSchema, {
+                status: result.status,
+                msg: result.msg,
+                rooms: result.rooms,
+            });
+
             res.status(HttpStatus.OK);
-            sendProtoJsonResponse(res, CommonResponseSchema, result);
+            sendProtobufResponse(res, BreakoutRoomResSchema, response);
         } catch (error) {
-            sendCommonProtoJsonResponse(res, false, error.message);
+            const response = create(BreakoutRoomResSchema, {
+                status: false,
+                msg: error.message || 'Unknown Error',
+            });
+            res.status(HttpStatus.OK);
+            sendProtobufResponse(res, BreakoutRoomResSchema, response);
+        }
+    }
+
+    @Get('myRooms')
+    @UseGuards(JwtAuthGuard)
+    async getMyBreakoutRoom(@Req() req: Request, @Res() res: Response) {
+        const roomId = (req as any).roomId as string;
+        const requestedUserId = (req as any).requestedUserId as string;
+
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send({ cmd: 'breakout.my' }, { roomId, userId: requestedUserId })
+            );
+
+            const response = create(BreakoutRoomResSchema, {
+                status: result.status,
+                msg: result.msg,
+                room: result.room,
+            });
+
+            res.status(HttpStatus.OK);
+            sendProtobufResponse(res, BreakoutRoomResSchema, response);
+        } catch (error) {
+            const response = create(BreakoutRoomResSchema, {
+                status: false,
+                msg: error.message || 'Unknown Error',
+            });
+            res.status(HttpStatus.OK);
+            sendProtobufResponse(res, BreakoutRoomResSchema, response);
+        }
+    }
+
+    @Post('increaseDuration')
+    @UseGuards(JwtAuthGuard)
+    async increaseDuration(
+        @Req() req: Request,
+        @Body() body: any,
+        @Res() res: Response
+    ) {
+        const roomId = (req as any).roomId as string;
+
+        try {
+            const request = parseAndValidateRequest<IncreaseBreakoutRoomDurationReq>(body, IncreaseBreakoutRoomDurationReqSchema);
+            request.roomId = roomId;
+
+            const result = await firstValueFrom(
+                this.natsClient.send({ cmd: 'breakout.increaseDuration' }, request)
+            );
+
+            const response = create(BreakoutRoomResSchema, {
+                status: result.status,
+                msg: result.msg,
+            });
+
+            res.status(HttpStatus.OK);
+            sendProtobufResponse(res, BreakoutRoomResSchema, response);
+        } catch (error) {
+            const response = create(BreakoutRoomResSchema, {
+                status: false,
+                msg: error.message || 'Unknown Error',
+            });
+            res.status(HttpStatus.OK);
+            sendProtobufResponse(res, BreakoutRoomResSchema, response);
+        }
+    }
+
+    @Post('sendMsg')
+    @UseGuards(JwtAuthGuard)
+    async sendMsg(
+        @Req() req: Request,
+        @Body() body: any,
+        @Res() res: Response
+    ) {
+        const roomId = (req as any).roomId as string;
+
+        try {
+            const request = parseAndValidateRequest<BroadcastBreakoutRoomMsgReq>(body, BroadcastBreakoutRoomMsgReqSchema);
+            request.roomId = roomId;
+
+            const result = await firstValueFrom(
+                this.natsClient.send({ cmd: 'breakout.broadcast' }, request)
+            );
+
+            const response = create(BreakoutRoomResSchema, {
+                status: result.status,
+                msg: result.msg,
+            });
+
+            res.status(HttpStatus.OK);
+            sendProtobufResponse(res, BreakoutRoomResSchema, response);
+        } catch (error) {
+            const response = create(BreakoutRoomResSchema, {
+                status: false,
+                msg: error.message || 'Unknown Error',
+            });
+            res.status(HttpStatus.OK);
+            sendProtobufResponse(res, BreakoutRoomResSchema, response);
+        }
+    }
+
+    @Post('endRoom')
+    @UseGuards(JwtAuthGuard)
+    async endBreakoutRoom(
+        @Req() req: Request,
+        @Body() body: any,
+        @Res() res: Response
+    ) {
+        const roomId = (req as any).roomId as string;
+
+        try {
+            const request = parseAndValidateRequest<EndBreakoutRoomReq>(body, EndBreakoutRoomReqSchema);
+            request.roomId = roomId;
+
+            const result = await firstValueFrom(
+                this.natsClient.send({ cmd: 'breakout.end' }, request)
+            );
+
+            const response = create(BreakoutRoomResSchema, {
+                status: result.status,
+                msg: result.msg,
+            });
+
+            res.status(HttpStatus.OK);
+            sendProtobufResponse(res, BreakoutRoomResSchema, response);
+        } catch (error) {
+            const response = create(BreakoutRoomResSchema, {
+                status: false,
+                msg: error.message || 'Unknown Error',
+            });
+            res.status(HttpStatus.OK);
+            sendProtobufResponse(res, BreakoutRoomResSchema, response);
+        }
+    }
+
+    @Post('endAllRooms')
+    @UseGuards(JwtAuthGuard)
+    async endAllBreakoutRooms(@Req() req: Request, @Res() res: Response) {
+        const isAdmin = (req as any).isAdmin as boolean;
+        const roomId = (req as any).roomId as string;
+
+        if (!isAdmin) {
+            const response = create(BreakoutRoomResSchema, {
+                status: false,
+                msg: 'only admin can perform this task'
+            });
+            res.status(HttpStatus.OK);
+            sendProtobufResponse(res, BreakoutRoomResSchema, response);
+            return;
+        }
+
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send({ cmd: 'breakout.endAll' }, { roomId })
+            );
+
+            const response = create(BreakoutRoomResSchema, {
+                status: result.status,
+                msg: result.msg,
+            });
+
+            res.status(HttpStatus.OK);
+            sendProtobufResponse(res, BreakoutRoomResSchema, response);
+        } catch (error) {
+            const response = create(BreakoutRoomResSchema, {
+                status: false,
+                msg: error.message || 'Unknown Error',
+            });
+            res.status(HttpStatus.OK);
+            sendProtobufResponse(res, BreakoutRoomResSchema, response);
         }
     }
 }
+

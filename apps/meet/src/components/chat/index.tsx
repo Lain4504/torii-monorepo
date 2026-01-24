@@ -6,7 +6,6 @@ import TextBoxArea from './text-box';
 import ChatTabs from './chatTabs';
 
 import { store, useAppDispatch, useAppSelector } from '../../store';
-import { publishFileAttachmentToChat } from './utils';
 import { addUserNotification } from '../../store/slices/roomSettingsSlice';
 import { uploadResumableFile } from '../../helpers/fileUpload';
 
@@ -89,14 +88,11 @@ const ChatComponent = () => {
           RoomUploadedFileType.CHAT_FILE,
           files,
           (result) => {
-            publishFileAttachmentToChat(result.filePath, result.fileName).then(
-              () =>
-                dispatch(
-                  addUserNotification({
-                    message: t('right-panel.file-upload-success'),
-                    typeOption: 'success',
-                  }),
-                ),
+            dispatch(
+              addUserNotification({
+                message: t('right-panel.file-upload-success'),
+                typeOption: 'success',
+              }),
             );
           },
         );

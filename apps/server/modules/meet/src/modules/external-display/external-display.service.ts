@@ -5,21 +5,22 @@ import { NatsSystemEventsService } from '../../interfaces/nats/nats-system-event
 import { NatsService } from '../../interfaces/nats/nats.service';
 import { AnalyticsService } from '../analytics/analytics.service';
 import {
-    ExternalMediaPlayerReq,
-    ExternalMediaPlayerTask,
+    ExternalDisplayLinkReq,
+    ExternalDisplayLinkTask,
     DataMsgBodyType,
     NatsMsgServerToClientEvents,
     AnalyticsDataMsg,
     AnalyticsEventType,
     AnalyticsEvents,
     AnalyticsStatus,
+    ExternalDisplayLinkReqSchema,
     AnalyticsDataMsgSchema,
 } from '@workspace/protocol';
-import { create } from '@bufbuild/protobuf';
+import { create, toJsonString } from '@bufbuild/protobuf';
 
 @Injectable()
-export class ExternalMediaService {
-    private readonly logger = new Logger(ExternalMediaService.name);
+export class ExternalDisplayService {
+    private readonly logger = new Logger(ExternalDisplayService.name);
 
     constructor(
         private readonly natsRoomService: NatsRoomService,
@@ -30,10 +31,10 @@ export class ExternalMediaService {
     ) { }
 
     /**
-     * HandleRequest processes start/end/update external media requests
+     * HandleRequest processes start/stop external display requests
      */
-    async handleRequest(req: ExternalMediaPlayerReq): Promise<void> {
-        this.logger.log(`External media request for room ${req.roomId}, task: ${req.task}`);
+    async handleRequest(req: ExternalDisplayLinkReq): Promise<void> {
+        this.logger.log(`External display request for room ${req.roomId}, task: ${req.task}`);
 
         // 1. Validation
         const { info, metadata } = await this.natsRoomService.getRoomInfoWithMetadata(req.roomId);
@@ -41,9 +42,9 @@ export class ExternalMediaService {
             throw new Error('Room not found');
         }
 
-        const feature = metadata.roomFeatures?.externalMediaPlayerFeatures;
-        if (!feature) {
-            throw new Error('External media player feature not found in metadata');
+        const feature = metadata.roomFeatures?.displayExternalLinkFeatures;
+        if (!feature || !feature.isAllow) {
+            throw new Error('External display feature disabled');
         }
 
         // Check user
@@ -53,7 +54,6 @@ export class ExternalMediaService {
         }
 
         // Check permission if not admin
-        // Ideally should check isAdmin or isPresenter status from user metadata
         const userMeta = await this.natsUserService.getUserMetadataStruct(req.roomId, req.userId);
         if (!userMeta?.isAdmin && !userMeta?.isPresenter) {
             throw new Error('Permission denied');
@@ -62,27 +62,22 @@ export class ExternalMediaService {
         // 2. Logic based on action
         let isActive = false;
 
-        if (req.task === ExternalMediaPlayerTask.START_PLAYBACK) {
-            if (!req.url || req.url.trim() === '') {
-                throw new Error('valid url required');
-            }
-            if (feature.isActive) {
-                // If already active, maybe just updating URL? 
+        if (req.task === ExternalDisplayLinkTask.START_EXTERNAL_LINK) {
+            if (!req.url) {
+                throw new Error('Valid url required');
             }
             isActive = true;
             feature.isActive = true;
-            feature.url = req.url;
+            feature.link = req.url;
             feature.sharedBy = req.userId;
-        } else if (req.task === ExternalMediaPlayerTask.END_PLAYBACK) {
+        } else if (req.task === ExternalDisplayLinkTask.STOP_EXTERNAL_LINK) {
             isActive = false;
             feature.isActive = false;
-            feature.url = '';
+        } else {
+            throw new Error('Invalid request task');
         }
 
         // 3. Update NATS Metadata
-        // We persist metadata changes if it's a state change (START/END)
-        // If it's just a seek (START with same URL?), maybe we update anyway.
-        // For simplicity, we update metadata on every request for now to ensure consistency.
         await this.natsRoomService.updateRoomMetadata(req.roomId, metadata);
 
         // Notify room about metadata update
@@ -93,21 +88,25 @@ export class ExternalMediaService {
         );
 
         // 4. Broadcast Event via Data Channel
-        // Send the specific external media event to all clients
-        const msg = JSON.stringify(req);
+        // Send the specific external display event to all clients
+        // Note: DataMsgBodyType.EXTERNAL_DISPLAY_LINK_EVENTS is missing in protocol definition
+        // We will skip sending this for now.
 
+        /*
+        const msg = toJsonString(ExternalDisplayLinkReqSchema, req);
         await this.natsSystemEvents.broadcastDataChannelMessage(
             req.roomId,
-            DataMsgBodyType.EXTERNAL_MEDIA_PLAYER_EVENTS,
+            DataMsgBodyType.EXTERNAL_DISPLAY_LINK_EVENTS,
             msg,
             req.userId
         );
+        */
 
         // 5. Send Analytics
         const val = isActive ? AnalyticsStatus.STARTED.toString() : AnalyticsStatus.ENDED.toString();
         const analyticsMsg = create(AnalyticsDataMsgSchema, {
             eventType: AnalyticsEventType.ROOM,
-            eventName: AnalyticsEvents.ANALYTICS_EVENT_ROOM_EXTERNAL_MEDIA_PLAYER_STATUS,
+            eventName: AnalyticsEvents.ANALYTICS_EVENT_ROOM_EXTERNAL_DISPLAY_LINK_STATUS,
             roomId: req.roomId,
             hsetValue: val,
         });

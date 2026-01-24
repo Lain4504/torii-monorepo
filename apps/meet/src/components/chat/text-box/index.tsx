@@ -15,7 +15,6 @@ import { store, useAppDispatch, useAppSelector } from '../../../store';
 import FileSend from './fileSend';
 import { getNatsConn } from '../../../helpers/nats';
 import { useAutosizeTextArea } from './useAutosizeTextArea';
-import { publishFileAttachmentToChat } from '../utils';
 import { uploadResumableFile } from '../../../helpers/fileUpload';
 import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
 import { Send } from 'lucide-react';
@@ -171,16 +170,11 @@ const TextBoxArea = () => {
             RoomUploadedFileType.CHAT_FILE,
             files,
             (result) => {
-              publishFileAttachmentToChat(
-                result.filePath,
-                result.fileName,
-              ).then(() =>
-                dispatch(
-                  addUserNotification({
-                    message: t('right-panel.file-upload-success'),
-                    typeOption: 'success',
-                  }),
-                ),
+              dispatch(
+                addUserNotification({
+                  message: t('right-panel.file-upload-success'),
+                  typeOption: 'success',
+                }),
               );
             },
           );

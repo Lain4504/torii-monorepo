@@ -92,6 +92,7 @@ import { WajlcAuthService } from '../auth/wajlc-auth.service';
     LiveKitService,
     NatsService,
     NatsRoomService,
+    NatsRoomEventsService,
     NatsUserService,
     NatsSystemEventsService,
     NatsUserInfoService,

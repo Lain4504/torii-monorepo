@@ -68,6 +68,7 @@ export class JwtAuthGuard implements CanActivate {
             (request as any).isAdmin = claims.isAdmin;
             (request as any).roomId = claims.roomId;
             (request as any).requestedUserId = claims.userId;
+            (request as any).requestedUserName = claims.name;
 
             return true;
         } catch (error) {

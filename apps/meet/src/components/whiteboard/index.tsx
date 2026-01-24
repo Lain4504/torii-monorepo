@@ -398,6 +398,63 @@ const Whiteboard = ({ onReadyExcalidrawAPI }: WhiteboardProps) => {
   );
 
   /**
+   * Throttled version of the scene broadcast.
+   * This reduces the number of NATS messages sent during continuous drawing.
+   */
+  const throttledBroadcastSceneOnChange = useMemo(
+    () =>
+      throttle(
+        (
+          elements: readonly ExcalidrawElement[],
+          excalidrawAPI: ExcalidrawImperativeAPI,
+          files: BinaryFiles,
+        ) => {
+          broadcastSceneOnChange(
+            elements,
+            false,
+            undefined,
+            excalidrawAPI,
+            files,
+          ).then(
+            () =>
+              isPresenter &&
+              debouncedSaveToStorage(
+                excalidrawAPI,
+                currentPage,
+                currentWhiteboardOfficeFileId,
+              ),
+          );
+        },
+        50, // 50ms throttle for strokes
+      ),
+    [isPresenter, debouncedSaveToStorage, currentPage, currentWhiteboardOfficeFileId],
+  );
+
+  /**
+   * Throttled version of app state changes broadcast (zoom, scroll).
+   */
+  const throttledBroadcastAppStateChanges = useMemo(
+    () =>
+      throttle(
+        (appState: AppState) => {
+          broadcastAppStateChanges(
+            appState.height,
+            appState.width,
+            appState.scrollX,
+            appState.scrollY,
+            appState.zoom.value,
+            appState.theme,
+            appState.viewBackgroundColor,
+            appState.zenModeEnabled,
+            appState.gridSize,
+          ).then();
+        },
+        100, // 100ms throttle for app state
+      ),
+    [],
+  );
+
+  /**
    * This is the primary callback for any change on the Excalidraw canvas.
    *
    * It's important to note that on every change (e.g., drawing, moving, resizing),
@@ -433,36 +490,12 @@ const Whiteboard = ({ onReadyExcalidrawAPI }: WhiteboardProps) => {
         // add new hash of the current scene
         lastBroadcastOrReceivedSceneVersion.current =
           hashElementsVersion(elements);
-        broadcastSceneOnChange(
-          elements,
-          false,
-          undefined,
-          excalidrawAPI,
-          files,
-        ).then(
-          () =>
-            isPresenter &&
-            debouncedSaveToStorage(
-              excalidrawAPI,
-              currentPage,
-              currentWhiteboardOfficeFileId,
-            ),
-        );
+        throttledBroadcastSceneOnChange(elements, excalidrawAPI, files);
       }
 
       // Only the presenter can broadcast app state changes (zoom, scroll, etc.).
       if (isPresenter) {
-        broadcastAppStateChanges(
-          appState.height,
-          appState.width,
-          appState.scrollX,
-          appState.scrollY,
-          appState.zoom.value,
-          appState.theme,
-          appState.viewBackgroundColor,
-          appState.zenModeEnabled,
-          appState.gridSize,
-        ).then();
+        throttledBroadcastAppStateChanges(appState);
       }
     },
     [
@@ -470,9 +503,8 @@ const Whiteboard = ({ onReadyExcalidrawAPI }: WhiteboardProps) => {
       currentUser,
       canEdit,
       isPresenter,
-      debouncedSaveToStorage,
-      currentPage,
-      currentWhiteboardOfficeFileId,
+      throttledBroadcastSceneOnChange,
+      throttledBroadcastAppStateChanges,
     ],
   );
 
