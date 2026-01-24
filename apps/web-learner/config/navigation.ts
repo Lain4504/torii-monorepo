@@ -24,6 +24,7 @@ export interface NavItem {
 export const learningNav: NavItem[] = [
     { name: 'Trang chủ', href: '/dashboard', icon: Home },
     { name: 'Khóa học của tôi', href: '/dashboard/my-courses', icon: BookOpen },
+    { name: 'Kiểm tra đầu vào', href: '/dashboard/placement-test', icon: Award },
 ]
 
 export const progressNav: NavItem[] = [
