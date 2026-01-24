@@ -394,7 +394,7 @@ export class NatsCacheService implements OnModuleDestroy {
     }
 
     /**
-     * Start user info watcher loop (goroutine equivalent)
+     * Start user info watcher loop
      */
     private async startUserInfoWatcherLoop(watcher: any, roomId: string, userId: string): Promise<void> {
         try {

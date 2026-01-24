@@ -309,6 +309,9 @@ export class NatsRoomService {
             await this.deleteRoom(roomId);
             await this.natsUserService.deleteAllRoomUsersWithConsumer(roomId);
             await this.natsStreamService.deleteRoomNatsStream(roomId);
+            try {
+                await this.deleteAllBreakoutRoomsByParentRoomId(roomId);
+            } catch (e) { }
             // TODO: await this.deleteAllRoomFiles(roomId);
         } catch (error) {
             // Silently ignore errors 
@@ -335,7 +338,6 @@ export class NatsRoomService {
                 replicas: numReplicas,
             });
 
-            // We use JSON.stringify to match protojson.Marshal in Go
             const metaBytes = new TextEncoder().encode(JSON.stringify(meta));
             await kv.put(meta.fileId, metaBytes);
 
@@ -550,8 +552,12 @@ export class NatsRoomService {
         try {
             const js = this.natsService.getJetStream();
             const kv = await js.views.kv(bucket);
-            const status = await kv.status();
-            return Number(status.values);
+            const keys = await kv.keys();
+            let count = 0;
+            for await (const _ of keys) {
+                count++;
+            }
+            return count;
         } catch (error) {
             return 0;
         }

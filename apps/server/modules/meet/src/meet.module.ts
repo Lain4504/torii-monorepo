@@ -17,6 +17,7 @@ import { ArtifactsHandler } from './interfaces/nats/artifacts.handler';
 import { BreakoutModule } from './modules/breakout/breakout.module';
 import { EtherpadModule } from './modules/etherpad/etherpad.module';
 import { ExternalMediaModule } from './modules/external-media/external-media.module';
+import { ExternalDisplayModule } from './modules/external-display/external-display.module';
 import { RecordingModule } from './modules/recording/recording.module';
 import { PollsModule } from './modules/polls/polls.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
@@ -35,6 +36,7 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
     BreakoutModule,
     EtherpadModule,
     ExternalMediaModule,
+    ExternalDisplayModule,
     RecordingModule,
     ArtifactsModule,
     WebhookModule,

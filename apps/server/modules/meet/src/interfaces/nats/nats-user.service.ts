@@ -263,10 +263,10 @@ export class NatsUserService {
 
         const js = this.natsService.getJetStream();
         const jsm = this.natsService.getJetStreamManager();
+        const roomBucket = ROOM_USERS_BUCKET.replace('%s', roomId);
 
         try {
             // Step 1: Retrieve the room users bucket
-            const roomBucket = ROOM_USERS_BUCKET.replace('%s', roomId);
             const roomKV = await js.views.kv(roomBucket);
 
             // Step 2: List all user keys in the room users bucket
@@ -274,31 +274,27 @@ export class NatsUserService {
 
             // Step 3: Delete each user's info bucket and associated consumer
             for await (const userId of keys) {
+                // Delete user info bucket
                 try {
-                    // Delete user info bucket
                     const userBucket = USER_INFO_BUCKET.replace('%s', roomId).replace('%s', userId);
                     await jsm.streams.delete(`KV_${userBucket}`);
-                } catch (error) {
-                    // Silently ignore
-                }
+                } catch { }
 
-                // Delete consumer for this user
-                try {
-                    await this.natsService.deleteConsumer(roomId, userId);
-                } catch (error) {
-                    // Silently ignore consumer deletion errors
-                }
+                // Delete consumer
+                await this.natsService.deleteConsumer(roomId, userId);
             }
 
             // Step 4: Delete the room users bucket
-            await jsm.streams.delete(`KV_${roomBucket}`);
+            try {
+                await jsm.streams.delete(`KV_${roomBucket}`);
+            } catch { }
 
             this.logger.log(`All users deleted from room ${roomId}`);
         } catch (error) {
             if (error.message && error.message.includes('stream not found')) {
-                // No users bucket found, return silently
                 return;
             }
+            // returns error if list keys fails
             throw error;
         }
     }

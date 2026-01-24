@@ -27,6 +27,7 @@ import {
 } from '@workspace/protocol';
 import { RoomCreateService } from '../room/room-create.service';
 import { RoomEndService } from '../room/room-end.service';
+import { RoomUserService } from '../room/room-user.service';
 import {
   create,
   toJsonString,
@@ -36,12 +37,20 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { RoomDurationService } from '../room/room-duration.service';
 import { NatsService } from '../../interfaces/nats/nats.service';
+import { NatsRoomEventsService } from '../../interfaces/nats/nats-room-events.service';
 import {
   NatsUserService,
   USER_STATUS_ONLINE,
 } from '../../interfaces/nats/nats-user.service';
 import { LiveKitService } from '../../infrastructure/livekit/livekit.service';
 import { ConfigService } from '@nestjs/config';
+import { AnalyticsService } from '../analytics/analytics.service';
+import {
+  AnalyticsDataMsg,
+  AnalyticsDataMsgSchema,
+  AnalyticsEventType,
+  AnalyticsEvents,
+} from '@workspace/protocol';
 
 const BREAKOUT_ROOM_FORMAT = '%s-%s';
 
@@ -60,6 +69,10 @@ export class BreakoutService {
     private readonly natsService: NatsService,
     private readonly natsUserService: NatsUserService,
     private readonly liveKitService: LiveKitService,
+    private readonly analyticsService: AnalyticsService,
+    private readonly natsRoomEventsService: NatsRoomEventsService,
+    @Inject(forwardRef(() => RoomUserService))
+    private readonly roomUserService: RoomUserService,
   ) { }
 
   /**
@@ -90,7 +103,6 @@ export class BreakoutService {
     }
 
     // 3. Prepare Sub-Room Metadata Template
-    // Clone metadata to modify for breakout rooms
     const bMeta = create(RoomMetadataSchema, meta);
     if (!bMeta.roomFeatures)
       bMeta.roomFeatures = create(RoomCreateFeaturesSchema, {});
@@ -100,106 +112,101 @@ export class BreakoutService {
     bMeta.welcomeMessage = req.welcomeMsg;
     bMeta.parentRoomId = req.roomId;
 
-    // Disable features for breakout rooms
-    if (bMeta.roomFeatures.breakoutRoomFeatures)
-      bMeta.roomFeatures.breakoutRoomFeatures.isAllow = false;
+    // disable few features
+    if (!bMeta.roomFeatures.breakoutRoomFeatures) {
+      bMeta.roomFeatures.breakoutRoomFeatures = create(BreakoutRoomFeaturesSchema, {});
+    }
+    bMeta.roomFeatures.breakoutRoomFeatures.isAllow = false;
+
     if (bMeta.roomFeatures.waitingRoomFeatures)
       bMeta.roomFeatures.waitingRoomFeatures.isActive = false;
+
     if (bMeta.roomFeatures.recordingFeatures)
       bMeta.roomFeatures.recordingFeatures.isAllow = false;
-    if (bMeta.roomFeatures.chatFeatures)
-      bMeta.roomFeatures.chatFeatures.allowFileUpload = false; // Usually disabled in BkRooms
-    bMeta.isActiveRtmp = false;
+
+    bMeta.roomFeatures.allowRtmp = false;
 
     if (bMeta.roomFeatures.displayExternalLinkFeatures)
       bMeta.roomFeatures.displayExternalLinkFeatures.isActive = false;
     if (bMeta.roomFeatures.externalMediaPlayerFeatures)
       bMeta.roomFeatures.externalMediaPlayerFeatures.isActive = false;
 
-    const errorMap: Record<string, boolean> = {};
+    const e: Record<string, boolean> = {};
 
-    // 4. Create Each Breakout Room
     for (const room of req.rooms) {
+      // BREAKOUT_ROOM_FORMAT %s-%s
       const bRoomId = `${req.roomId}-${room.id}`;
-      const roomLogKey = `[Breakout ${bRoomId}]`;
+
+      const bRoomReq = create(CreateRoomReqSchema, {
+        roomId: bRoomId,
+        metadata: create(RoomMetadataSchema, {
+          ...bMeta,
+          roomTitle: room.title,
+        }),
+      });
 
       try {
-        // Prepare CreateRoomReq
-        const createReq = create(CreateRoomReqSchema, {
-          roomId: bRoomId,
-          metadata: create(RoomMetadataSchema, {
-            ...bMeta,
-            roomTitle: room.title,
-          }),
-        });
+        await this.roomCreateService.createRoom(bRoomReq);
 
-        // Create Room via existing service
-        await this.roomCreateService.createRoom(createReq);
-
-        // Update room object with created info
         room.duration = req.duration.toString();
-        room.created = BigInt(Math.floor(Date.now() / 1000)).toString();
+        room.created = Math.floor(Date.now() / 1000).toString();
 
-        // Marshal to store in NATS KV
-        // We use toJsonString for storage to match Go's protojson behavior which NATS KV expects?
-        // Actually in nats-room.service we used Uint8Array for `put`.
-        // Let's use `toBinary` for efficient storage if consumers are also protobuf aware.
-        // However, the Go code uses `protojson.Marshal`.
-        // So we should store as JSON string bytes.
-        const roomJson = toJsonString(BreakoutRoomSchema, room);
-        await this.natsRoomService.insertOrUpdateBreakoutRoom(
-          req.roomId,
-          bRoomId,
-          new TextEncoder().encode(roomJson),
-        );
+        const roomJson = this.natsService.marshalToProtoJson(room, BreakoutRoomSchema);
+        await this.natsRoomService.insertOrUpdateBreakoutRoom(req.roomId, bRoomId, new TextEncoder().encode(roomJson));
 
-        // Send Invitations
+        // send invitation notification
         for (const u of room.users) {
           await this.natsSystemEvents.broadcastSystemEventToRoom(
             NatsMsgServerToClientEvents.JOIN_BREAKOUT_ROOM,
             req.roomId,
-            bRoomId, // sending breakout room ID as message
-            u.id,
+            bRoomId, // payload
+            u.id
           );
         }
+
       } catch (error) {
-        this.logger.error(`${roomLogKey} Failed to create: ${error.message}`);
-        errorMap[bRoomId] = true;
+        this.logger.error(`Failed to create breakout room ${bRoomId}: ${error.message}`);
+        e[bRoomId] = true;
+        continue;
       }
     }
 
-    if (
-      req.rooms.length > 0 &&
-      Object.keys(errorMap).length === req.rooms.length
-    ) {
-      throw new Error("Breakout room creation wasn't successful for any room");
+    if (Object.keys(e).length === req.rooms.length) {
+      throw new Error("breakout room creation wasn't successful for any room");
     }
 
-    // 5. Update Parent Room Metadata
-    const parentMeta = this.natsService.unmarshalRoomMetadata(
-      mainRoom.metadata,
-    );
-    if (!parentMeta.roomFeatures)
-      parentMeta.roomFeatures = create(RoomCreateFeaturesSchema, {});
-    if (!parentMeta.roomFeatures.breakoutRoomFeatures) {
-      parentMeta.roomFeatures.breakoutRoomFeatures = create(
-        BreakoutRoomFeaturesSchema,
-        {},
-      );
+    // Update parent room metadata
+    // Reload original meta or use 'meta' from start (it's object ref but we cloned 'bMeta' from it)
+    // It re-parses from original query.
+    // In TS, `meta` is the object from `getRoomInfoWithMetadata`.
+    // We can use `meta` directly but ensure we enable breakout feature.
+
+    // Update parent room metadata on success
+    try {
+      // Re-fetch parent metadata to ensure we have fresh data
+      const origMeta = await this.natsRoomService.getRoomMetadataStruct(req.roomId);
+      if (origMeta) {
+        if (!origMeta.roomFeatures) origMeta.roomFeatures = create(RoomCreateFeaturesSchema, {});
+        if (!origMeta.roomFeatures.breakoutRoomFeatures) {
+          origMeta.roomFeatures.breakoutRoomFeatures = create(BreakoutRoomFeaturesSchema, {});
+        }
+        origMeta.roomFeatures.breakoutRoomFeatures.isActive = true;
+
+        await this.natsRoomEventsService.updateAndBroadcastRoomMetadata(req.roomId, origMeta);
+      }
+    } catch (error) {
+      this.logger.error(`Failed to update parent room metadata: ${error.message}`);
     }
 
-    parentMeta.roomFeatures.breakoutRoomFeatures.isActive = true;
+    // Send analytics
+    const analyticsData = create(AnalyticsDataMsgSchema, {
+      eventType: AnalyticsEventType.ROOM,
+      eventName: AnalyticsEvents.ANALYTICS_EVENT_ROOM_BREAKOUT_ROOM,
+      roomId: req.roomId,
+    });
+    this.analyticsService.handleEvent(analyticsData);
 
-    await this.natsRoomService.updateRoomMetadata(req.roomId, parentMeta);
-
-    // Broadcast metadata update
-    await this.natsSystemEvents.broadcastSystemEventToRoom(
-      NatsMsgServerToClientEvents.ROOM_METADATA_UPDATE,
-      req.roomId,
-      this.natsService.marshalRoomMetadata(parentMeta),
-    );
-
-    this.logger.log(`Finished creating breakout rooms for ${req.roomId}`);
+    this.logger.log('Finished creating breakout rooms');
   }
 
   /**
@@ -251,23 +258,20 @@ export class BreakoutService {
       throw new Error('Failed to get user info from parent room');
     }
 
-    // 5. Generate Token
-    // Using RoomService (via RoomModule) or similar to generate token?
-    // Need to use the same logic as direct join.
-    // Breakout rooms are just normal rooms in LiveKit perspective.
+    // Prepare GenerateTokenReq for RoomUserService
+    // IMPORTANT: Use metadata from parent room, NOT from request
+    const joinReq = {
+      roomId: req.breakoutRoomId,
+      userInfo: {
+        userId: req.userId,
+        name: pInfo.name,
+        isAdmin: pMeta.isAdmin,  // Use parent room admin status only
+        userMetadata: pMeta,
+      },
+    };
 
-    // We reuse RoomCreateService's join logic if possible, but here we just need a token.
-    // Go: m.um.GetPNMJoinToken(ctx, req)
-
-    const userInfo = await this.natsUserService.getUser(req.roomId, req.userId);
-    if (!userInfo) {
-      throw new Error('User not found in parent room');
-    }
-
-    return this.liveKitService.generateLivekitToken(
-      req.breakoutRoomId,
-      userInfo,
-    );
+    const { token } = await this.roomUserService.getWajlcJoinToken(joinReq);
+    return token;
   }
 
   /**
@@ -356,7 +360,35 @@ export class BreakoutService {
         this.logger.warn(`Failed to parse breakout room ${key}: ${e.message}`);
       }
     }
+
+    if (result.length === 0) {
+      throw new Error('no breakout rooms found');
+    }
+
     return result;
+  }
+
+  /**
+   * GetMyBreakoutRoom gets the breakout room a user belongs to
+   */
+  async getMyBreakoutRoom(
+    roomId: string,
+    userId: string,
+  ): Promise<BreakoutRoom | undefined> {
+    const breakoutRooms = await this.getBreakoutRoomsInfo(roomId);
+    if (!breakoutRooms || breakoutRooms.length === 0) {
+      throw new Error('no breakout rooms found');
+    }
+
+    for (const rr of breakoutRooms) {
+      for (const u of rr.users) {
+        if (u.id === userId) {
+          return rr;
+        }
+      }
+    }
+
+    throw new Error('not found');
   }
 
   /**
@@ -365,11 +397,19 @@ export class BreakoutService {
   async increaseBreakoutRoomDuration(
     req: IncreaseBreakoutRoomDurationReq,
   ): Promise<void> {
+    const log = this.logger;
+    log.log(
+      `request to increase breakout room duration for parentRoomId: ${req.roomId}, breakoutRoomId: ${req.breakoutRoomId}, duration: ${req.duration}`,
+    );
+
     const roomBytes = await this.natsRoomService.getBreakoutRoom(
       req.roomId,
       req.breakoutRoomId,
     );
-    if (!roomBytes) throw new Error('Breakout room not found');
+    if (!roomBytes) {
+      log.error('failed to fetch breakout room info');
+      throw new Error('Breakout room not found');
+    }
 
     const room = fromJsonString(
       BreakoutRoomSchema,
@@ -377,20 +417,35 @@ export class BreakoutService {
     );
 
     // Update active duration checker
-    const newDuration = await this.roomDurationService.increaseRoomDuration(
-      req.breakoutRoomId,
-      Number(req.duration),
-    );
+    log.log('increasing duration in room duration checker');
+    let newDuration = 0;
+    try {
+      newDuration = await this.roomDurationService.increaseRoomDuration(
+        req.breakoutRoomId,
+        Number(req.duration),
+      );
+    } catch (e) {
+      log.error(`failed to increase room duration: ${e.message}`);
+      throw e;
+    }
 
     // Update KV
-    room.duration = BigInt(newDuration).toString();
-    const jsonStr = toJsonString(BreakoutRoomSchema, room);
+    log.log('updating breakout room info in nats');
+    room.duration = newDuration.toString();
+    const jsonStr = this.natsService.marshalToProtoJson(room, BreakoutRoomSchema);
 
-    await this.natsRoomService.insertOrUpdateBreakoutRoom(
-      req.roomId,
-      req.breakoutRoomId,
-      new TextEncoder().encode(jsonStr),
-    );
+    try {
+      await this.natsRoomService.insertOrUpdateBreakoutRoom(
+        req.roomId,
+        req.breakoutRoomId,
+        new TextEncoder().encode(jsonStr),
+      );
+    } catch (e) {
+      log.error(`failed to update breakout room in nats: ${e.message}`);
+      throw e;
+    }
+
+    log.log(`successfully increased breakout room duration to ${newDuration}`);
   }
 
   /**
@@ -399,16 +454,28 @@ export class BreakoutService {
   async broadcastBreakoutRoomMsg(
     req: BroadcastBreakoutRoomMsgReq,
   ): Promise<void> {
+    const log = this.logger;
+    log.log(`request to send message to all breakout rooms: ${req.roomId}`);
+
     const rooms = await this.getBreakoutRoomsInfo(req.roomId);
-    if (rooms.length === 0) return;
+    if (!rooms || rooms.length === 0) {
+      log.log('no active breakout rooms found to send message');
+      return;
+    }
 
     for (const r of rooms) {
-      await this.natsSystemEvents.broadcastSystemEventToRoom(
-        NatsMsgServerToClientEvents.SYSTEM_CHAT_MSG,
-        r.id,
-        req.msg,
-      );
+      try {
+        await this.natsSystemEvents.broadcastSystemEventToRoom(
+          NatsMsgServerToClientEvents.SYSTEM_CHAT_MSG,
+          r.id,
+          req.msg,
+        );
+      } catch (e) {
+        log.error(`failed to broadcast message to breakout room ${r.id}: ${e.message}`);
+      }
     }
+
+    log.log('successfully broadcasted message to all breakout rooms');
   }
 
   /**
@@ -435,10 +502,10 @@ export class BreakoutService {
       BreakoutRoomSchema,
       new TextDecoder().decode(roomBytes),
     );
-    room.created = metadata.startedAt;
+    room.created = metadata.startedAt.toString();
     room.started = true;
 
-    const jsonStr = toJsonString(BreakoutRoomSchema, room);
+    const jsonStr = this.natsService.marshalToProtoJson(room, BreakoutRoomSchema);
     await this.natsRoomService.insertOrUpdateBreakoutRoom(
       metadata.parentRoomId,
       roomId,
@@ -495,12 +562,7 @@ export class BreakoutService {
     if (meta.roomFeatures?.breakoutRoomFeatures?.isActive) {
       meta.roomFeatures.breakoutRoomFeatures.isActive = false;
 
-      await this.natsRoomService.updateRoomMetadata(parentRoomId, meta);
-      await this.natsSystemEvents.broadcastSystemEventToRoom(
-        NatsMsgServerToClientEvents.ROOM_METADATA_UPDATE,
-        parentRoomId,
-        this.natsService.marshalRoomMetadata(meta),
-      );
+      await this.natsRoomEventsService.updateAndBroadcastRoomMetadata(parentRoomId, meta);
     }
   }
 }

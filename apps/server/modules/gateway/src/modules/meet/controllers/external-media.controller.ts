@@ -7,23 +7,22 @@ import {
     HttpStatus,
     Inject,
     Logger,
+    Req,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { create } from '@bufbuild/protobuf';
+import { create, fromBinary } from '@bufbuild/protobuf';
 import {
     ExternalMediaPlayerReqSchema,
     ExternalDisplayLinkReqSchema,
-    CommonResponseSchema,
 } from '@workspace/protocol';
 import {
-    sendProtoJsonResponse,
-    sendCommonProtoJsonResponse,
+    sendCommonProtobufResponse,
     JwtAuthGuard,
 } from '@server/shared';
 
-@Controller('external-media')
+@Controller('api')
 export class ExternalMediaController {
     private readonly logger = new Logger(ExternalMediaController.name);
 
@@ -31,33 +30,87 @@ export class ExternalMediaController {
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     ) { }
 
-    @Post('player')
+    @Post('externalMediaPlayer')
     @UseGuards(JwtAuthGuard)
-    async updateMediaPlayer(@Body() body: any, @Res() res: Response) {
+    async updateMediaPlayer(
+        @Req() req: Request,
+        @Body() body: any,
+        @Res() res: Response
+    ) {
+        const isAdmin = (req as any).isAdmin as boolean;
+        const roomId = (req as any).roomId as string;
+        const requestedUserId = (req as any).requestedUserId as string;
+
+        if (!isAdmin) {
+            sendCommonProtobufResponse(res, false, 'only admin can perform this task');
+            return;
+        }
+
+        if (!roomId) {
+            sendCommonProtobufResponse(res, false, 'roomId required');
+            return;
+        }
+
         try {
-            const req = create(ExternalMediaPlayerReqSchema, body);
+            let request: any;
+            if (Buffer.isBuffer(body)) {
+                request = fromBinary(ExternalMediaPlayerReqSchema, body);
+            } else {
+                request = create(ExternalMediaPlayerReqSchema, body);
+            }
+
+            request.roomId = roomId;
+            request.userId = requestedUserId;
+
             const result = await firstValueFrom(
-                this.natsClient.send({ cmd: 'externalMedia.player' }, req)
+                this.natsClient.send({ cmd: 'externalMedia.player' }, request)
             );
             res.status(HttpStatus.OK);
-            sendProtoJsonResponse(res, CommonResponseSchema, result);
+            sendCommonProtobufResponse(res, result.status, result.msg);
         } catch (error) {
-            sendCommonProtoJsonResponse(res, false, error.message);
+            sendCommonProtobufResponse(res, false, error.message);
         }
     }
 
-    @Post('display')
+    @Post('externalDisplayLink')
     @UseGuards(JwtAuthGuard)
-    async updateDisplayLink(@Body() body: any, @Res() res: Response) {
+    async updateDisplayLink(
+        @Req() req: Request,
+        @Body() body: any,
+        @Res() res: Response
+    ) {
+        const isAdmin = (req as any).isAdmin as boolean;
+        const roomId = (req as any).roomId as string;
+        const requestedUserId = (req as any).requestedUserId as string;
+
+        if (!isAdmin) {
+            sendCommonProtobufResponse(res, false, 'only admin can perform this task');
+            return;
+        }
+
+        if (!roomId) {
+            sendCommonProtobufResponse(res, false, 'roomId required');
+            return;
+        }
+
         try {
-            const req = create(ExternalDisplayLinkReqSchema, body);
+            let request: any;
+            if (Buffer.isBuffer(body)) {
+                request = fromBinary(ExternalDisplayLinkReqSchema, body);
+            } else {
+                request = create(ExternalDisplayLinkReqSchema, body);
+            }
+
+            request.roomId = roomId;
+            request.userId = requestedUserId;
+
             const result = await firstValueFrom(
-                this.natsClient.send({ cmd: 'externalMedia.display' }, req)
+                this.natsClient.send({ cmd: 'externalMedia.display' }, request)
             );
             res.status(HttpStatus.OK);
-            sendProtoJsonResponse(res, CommonResponseSchema, result);
+            sendCommonProtobufResponse(res, result.status, result.msg);
         } catch (error) {
-            sendCommonProtoJsonResponse(res, false, error.message);
+            sendCommonProtobufResponse(res, false, error.message);
         }
     }
 }

@@ -101,6 +101,7 @@ export function parseProtoRequest<T>(body: any, schema: any): T {
 
     // Case 3: String - try parse as JSON
     if (typeof body === 'string') {
+        if (!body) return fromJson(schema, {} as JsonValue, unmarshalOpts) as T;
         try {
             const jsonObj = JSON.parse(body);
             return fromJson(schema, jsonObj, unmarshalOpts) as T;
@@ -109,6 +110,11 @@ export function parseProtoRequest<T>(body: any, schema: any): T {
                 `Invalid JSON string: ${error instanceof Error ? error.message : error}`
             );
         }
+    }
+
+    // Case 4: Handle undefined/null (some transports might send this for empty body)
+    if (!body) {
+        return fromJson(schema, {} as JsonValue, unmarshalOpts) as T;
     }
 
     // Case 4: Unknown format

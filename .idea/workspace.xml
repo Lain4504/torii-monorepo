@@ -6,8 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix meet config">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/infrastructure/redis/redis-analytics.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/infrastructure/redis/redis-analytics.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/analytics/analytics.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/analytics/analytics.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/utils/proto-parser.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/utils/proto-parser.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/breakout/breakout.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/breakout/breakout.service.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -87,6 +87,9 @@
     &quot;accountId&quot;: &quot;5126b88c-ccf3-4397-984d-7c1b52a2aa60&quot;
   }
 }</component>
+  <component name="GoLibraries">
+    <option name="indexEntireGoPath" value="true" />
+  </component>
   <component name="KubernetesApiPersistence">{}</component>
   <component name="KubernetesApiProvider">{
   &quot;isMigrated&quot;: true
@@ -117,24 +120,26 @@
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "whiteboard-integration",
+    "git-widget-placeholder": "fix-whiteboard-performance",
+    "go.import.settings.migrated": "true",
     "ignore.virus.scanning.warn.message": "true",
     "javascript.preferred.runtime.type.id": "node",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "E:/projectdev/bmap-capstone/torii-monorepo/apps/server",
+    "last_opened_file_path": "/home/lain4504/SEP490/torii-monorepo",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_interpreter_path": "node",
     "nodejs_package_manager_path": "pnpm",
-    "settings.editor.selected.configurable": "editor.preferences.fonts.default",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
     "to.speed.mode.migration.done": "true",
-    "ts.external.directory.path": "E:\\projectdev\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib",
+    "ts.external.directory.path": "/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib",
     "vue.rearranger.settings.migration": "true"
   },
   "keyToStringList": {
@@ -205,8 +210,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-30f59d01ecdd-26cb7f24e5b0-intellij.indexing.shared.core-IU-253.29346.138" />
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.29346.138" />
+        <option value="bundled-jdk-9823dce3aa75-28b599e66164-intellij.indexing.shared.core-IU-242.26775.15" />
+        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-IU-242.26775.15" />
       </set>
     </attachedChunks>
   </component>
@@ -318,6 +323,11 @@
       <workItem from="1768829101896" duration="55000" />
       <workItem from="1768911439183" duration="1357000" />
       <workItem from="1768964656424" duration="7389000" />
+      <workItem from="1769043868595" duration="3959000" />
+      <workItem from="1769085026212" duration="45000" />
+      <workItem from="1769085321038" duration="12000" />
+      <workItem from="1769181804062" duration="422000" />
+      <workItem from="1769215771483" duration="3323000" />
     </task>
     <task id="LOCAL-00698" summary="build aadmin">
       <option name="closed" value="true" />
@@ -773,6 +783,10 @@
     <MESSAGE value="fix meet config" />
     <option name="LAST_COMMIT_MESSAGE" value="fix meet config" />
   </component>
+  <component name="VgoProject">
+    <integration-enabled>false</integration-enabled>
+    <settings-migrated>true</settings-migrated>
+  </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
@@ -780,6 +794,24 @@
           <url>file://$PROJECT_DIR$/apps/server/libs/shared/src/providers/jwt-token.provider.ts</url>
           <line>25</line>
           <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/apps/server/modules/gateway/src/modules/meet/controllers/breakout.controller.ts</url>
+          <line>46</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/apps/server/modules/gateway/src/modules/meet/controllers/breakout.controller.ts</url>
+          <line>75</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/apps/server/modules/meet/src/modules/breakout/breakout.service.ts</url>
+          <line>80</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

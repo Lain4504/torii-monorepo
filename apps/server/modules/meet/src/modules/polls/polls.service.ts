@@ -106,7 +106,6 @@ export class PollsService {
             closedBy: '',
         });
 
-        // Use protobuf JSON marshaling like Go's protojson.Marshal
         const pollVal: Record<string, string> = {};
         pollVal[r.pollId] = toJsonString(PollInfoSchema, p);
 

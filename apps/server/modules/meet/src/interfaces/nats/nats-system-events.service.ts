@@ -22,6 +22,8 @@ import {
     DataChannelMessage,
     DataChannelMessageSchema,
     DataMsgBodyType,
+    ChatMessage,
+    ChatMessageSchema,
 } from '@workspace/protocol';
 import { ConfigService } from '@nestjs/config';
 import { NatsUserInfoService } from './nats-user-info.service';
@@ -42,6 +44,7 @@ export class NatsSystemEventsService {
     private subjectSystemPublic: string;
     private subjectSystemPrivate: string;
     private subjectDataChannel: string;
+    private subjectChat: string;
 
     constructor(
         private readonly natsService: NatsService,
@@ -56,6 +59,7 @@ export class NatsSystemEventsService {
         this.subjectSystemPublic = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PUBLIC', 'sysPublic');
         this.subjectSystemPrivate = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PRIVATE', 'sysPrivate');
         this.subjectDataChannel = this.configService.get<string>('NATS_SUBJECT_DATA_CHANNEL', 'dataChannel');
+        this.subjectChat = this.configService.get<string>('NATS_SUBJECT_CHAT', 'chat');
     }
 
     onModuleInit() {
@@ -93,7 +97,11 @@ export class NatsSystemEventsService {
             msg = new TextDecoder().decode(data);
         } else if (typeof data === 'object' && data.$typeName) {
             // Protobuf message - convert to JSON
-            msg = toJsonString(data.$type, data);
+            if (data.$type) {
+                msg = toJsonString(data.$type, data);
+            } else {
+                msg = JSON.stringify(data);
+            }
         } else if (typeof data === 'object') {
             // Plain object - stringify
             msg = JSON.stringify(data);
@@ -141,6 +149,42 @@ export class NatsSystemEventsService {
     }
 
     /**
+     * BroadcastChatEntry broadcasts a ChatMessage entry to the room
+     *
+     * @param roomId - Room ID
+     * @param chatMsg - ChatMessage object
+     */
+    async broadcastChatEntry(
+        roomId: string,
+        chatMsg: ChatMessage,
+    ): Promise<void> {
+        // Marshal to binary protobuf
+        const message = toBinary(ChatMessageSchema, chatMsg);
+
+        // Determine subject
+        const subject = `${roomId}:${this.subjectChat}.server`;
+
+        // Ensure JetStream client is ready
+        if (!this.js) {
+            this.js = this.natsService.getJetStream();
+        }
+
+        if (!this.js) {
+            this.logger.warn('JetStream client not ready, cannot broadcast chat');
+            return;
+        }
+
+        // Publish to NATS
+        try {
+            await this.js.publish(subject, message);
+            this.logger.debug(`Broadcast chat message ${chatMsg.id} to ${subject}`);
+        } catch (error) {
+            this.logger.error(`Failed to broadcast chat: ${error.message}`);
+            throw error;
+        }
+    }
+
+    /**
      * BroadcastDataChannelMessage broadcasts a data channel message to valid users
      */
     async broadcastDataChannelMessage(
@@ -167,7 +211,6 @@ export class NatsSystemEventsService {
         // Or if private: roomId:dataChannelSubject.userId?
         // Usually data channel messages are broadcasted to the room subject and filtered by client,
         // OR sent to specific sub-subject.
-        // In PlugNMeet Go:
         // regular: `roomId:datachannel`
         // private: `roomId:datachannel.userId`
 
