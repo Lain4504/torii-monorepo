@@ -9,10 +9,10 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 // Register Handlebars helpers
-Handlebars.registerHelper('eq', function(a: any, b: any) {
+Handlebars.registerHelper('eq', function (a: any, b: any) {
   return a === b;
 });
-Handlebars.registerHelper('json', function(obj: any) {
+Handlebars.registerHelper('json', function (obj: any) {
   return JSON.stringify(obj, null, 2);
 });
 
@@ -39,7 +39,7 @@ function loadPromptTemplate(templatePath: string): HandlebarsTemplateDelegate {
 
 async function callGemini(prompt: string): Promise<string> {
   try {
-    const model = genAI.getGenerativeModel({ 
+    const model = genAI.getGenerativeModel({
       model: 'gemini-2.0-flash',
       generationConfig: {
         temperature: 0.7,
@@ -206,6 +206,36 @@ app.post('/api/assessment/schedule-test', async (req, res) => {
     const { userId, targetLevel, studySchedule, userContext } = req.body;
     const template = loadPromptTemplate('assessment/test-scheduling.md');
     const prompt = template({ userId, targetLevel, studySchedule, userContext: userContext || {}, timestamp: new Date().toISOString() });
+    const response = await callGemini(prompt);
+    res.json(cleanJsonResponse(response));
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * 16. Placement Test Generation
+ */
+app.post('/api/assessment/placement-test', async (req, res) => {
+  try {
+    const { questionCount = 15, userContext } = req.body;
+    const template = loadPromptTemplate('assessment/placement-test.md');
+    const prompt = template({ questionCount, userContext: userContext || {}, timestamp: new Date().toISOString() });
+    const response = await callGemini(prompt);
+    res.json(cleanJsonResponse(response));
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * 17. Placement Test Evaluation
+ */
+app.post('/api/assessment/evaluate-placement', async (req, res) => {
+  try {
+    const { testId, userAnswers, userContext } = req.body;
+    const template = loadPromptTemplate('assessment/placement-evaluation.md');
+    const prompt = template({ testId, userAnswers, userContext: userContext || {}, timestamp: new Date().toISOString() });
     const response = await callGemini(prompt);
     res.json(cleanJsonResponse(response));
   } catch (error: any) {

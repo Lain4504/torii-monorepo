@@ -21,7 +21,8 @@ import {
     LayoutDashboard,
     Search,
     FileEdit,
-    Newspaper
+    Newspaper,
+    Award
 } from 'lucide-react'
 import { useState } from 'react'
 import { useTheme } from 'next-themes'
@@ -65,6 +66,7 @@ export function Header() {
         { nameKey: 'learner.header.courses', href: '/courses', icon: BookOpen },
         { nameKey: 'learner.header.liveClasses', href: '/live-classes', icon: Users },
         { nameKey: 'learner.header.post', href: '/post', icon: Newspaper },
+        { nameKey: 'learner.header.placementTest', href: '/placement-test', icon: Award },
     ]
 
     return (
