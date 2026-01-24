@@ -100,8 +100,47 @@ export class AssessmentHandler {
             );
             return successResponse(result);
         } catch (error: any) {
-            this.logger.error(`Test scheduling failed for user ${userId}`, error.stack);
             return errorResponse(error.message || 'Failed to schedule test');
+        }
+    }
+
+    @Post('placement/test')
+    @UseGuards(GatewayAuthGuard)
+    async generatePlacementTest(@Req() req: Request, @Body() body: any) {
+        const user = req.user as any;
+        const userId = user.sub;
+        try {
+            this.logger.log(`🎯 Placement test generation request from user ${userId}`);
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'agents.assessment.placementTest' },
+                    { userId: userId, ...body }
+                )
+            );
+            return successResponse(result);
+        } catch (error: any) {
+            this.logger.error(`Placement test generation failed for user ${userId}`, error.stack);
+            return errorResponse(error.message || 'Failed to generate placement test');
+        }
+    }
+
+    @Post('placement/evaluate')
+    @UseGuards(GatewayAuthGuard)
+    async evaluatePlacementTest(@Req() req: Request, @Body() body: any) {
+        const user = req.user as any;
+        const userId = user.sub;
+        try {
+            this.logger.log(`📈 Placement test evaluation request from user ${userId}`);
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'agents.assessment.evaluatePlacement' },
+                    { userId: userId, ...body }
+                )
+            );
+            return successResponse(result);
+        } catch (error: any) {
+            this.logger.error(`Placement test evaluation failed for user ${userId}`, error.stack);
+            return errorResponse(error.message || 'Failed to evaluate placement test');
         }
     }
 }

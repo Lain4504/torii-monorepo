@@ -69,4 +69,34 @@ export class AssessmentHandler {
     const level = (data.level || data.targetLevel || 'N5') as 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
     return this.fastMcpService.scheduleTest(data.userId, level);
   }
+
+  @MessagePattern({ cmd: 'agents.assessment.placementTest' })
+  async generatePlacementTest(
+    @Payload()
+    data: {
+      userId: string;
+      questionCount?: number;
+    },
+  ) {
+    return this.fastMcpService.generatePlacementTest(
+      data.userId,
+      data.questionCount || 15,
+    );
+  }
+
+  @MessagePattern({ cmd: 'agents.assessment.evaluatePlacement' })
+  async evaluatePlacementTest(
+    @Payload()
+    data: {
+      userId: string;
+      testId: string;
+      answers: any;
+    },
+  ) {
+    return this.fastMcpService.evaluatePlacementTest(
+      data.userId,
+      data.testId,
+      data.answers,
+    );
+  }
 }

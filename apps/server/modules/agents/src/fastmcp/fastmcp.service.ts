@@ -229,6 +229,32 @@ export class FastMcpService implements OnModuleInit {
     return response.data;
   }
 
+  async generatePlacementTest(
+    userId: string,
+    questionCount: number = 15,
+  ): Promise<any> {
+    const userContext = await this.getUserContext(userId);
+    const response = await this.httpClient.post('/api/assessment/placement-test', {
+      questionCount,
+      userContext,
+    });
+    return response.data;
+  }
+
+  async evaluatePlacementTest(
+    userId: string,
+    testId: string,
+    userAnswers: any,
+  ): Promise<any> {
+    const userContext = await this.getUserContext(userId);
+    const response = await this.httpClient.post('/api/assessment/evaluate-placement', {
+      testId,
+      userAnswers,
+      userContext,
+    });
+    return response.data;
+  }
+
   // ==================== ANALYTICS AGENT METHODS ====================
 
   async trackProgress(

@@ -18,21 +18,16 @@ You MUST respond with valid JSON only.
   "userId": "user-123",
   "currentLevel": "N5",
   "targetLevel": "N4",
-  "studyPath": [
-    {
-      "week": 1,
-      "topic": "Vocabulary",
-      "subtopics": ["Daily activities", "Food"],
-      "estimatedHours": 5
-    }
-  ],
-  "milestones": [
-    {
-      "date": "2024-02-01",
-      "goal": "Complete N5 vocabulary"
-    }
-  ],
-  "estimatedCompletion": "2024-03-15"
+  "studyPathRecommendation": {
+    "focusAreas": ["Vocabulary", "Grammar"],
+    "estimatedWeeks": 12,
+    "weeklySchedule": [
+      {
+        "week": 1,
+        "topics": ["Daily activities vocabulary", "Basic particles review"]
+      }
+    ]
+  }
 }
 ```
 
