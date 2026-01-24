@@ -14,6 +14,7 @@ import { reviewApi, type ReviewResponse, type RatingDistribution } from '@/apis/
 import { useAppSelector } from '@/hooks/hooks'
 import { toast } from '@workspace/ui/components/sonner'
 import { cn } from '@workspace/ui/lib/utils'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface CourseReviewsProps {
     course: CourseResponseDTO
@@ -68,6 +69,8 @@ export function CourseReviews({ course }: CourseReviewsProps) {
         }
     }
 
+    const queryClient = useQueryClient()
+
     const handleSubmitReview = async () => {
         if (!isAuthenticated) {
             toast.error('Vui lòng đăng nhập để đánh giá')
@@ -90,6 +93,10 @@ export function CourseReviews({ course }: CourseReviewsProps) {
             setNewRating(0)
             setNewComment('')
             toast.success('Đánh giá của bạn đã được gửi')
+
+            // Invalidate queries to refresh data across the app
+            queryClient.invalidateQueries({ queryKey: ['home-reviews'] })
+
             await loadRatingDistribution()
         } catch (error: any) {
             console.error('Failed to submit review:', error)

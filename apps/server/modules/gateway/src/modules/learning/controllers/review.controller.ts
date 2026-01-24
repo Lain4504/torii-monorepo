@@ -59,7 +59,7 @@ export class ReviewController {
     }
 
     @Get('reviews')
-    @UseGuards(GatewayAuthGuard)
+    @Public()
     async getAllReviews(@Query() query: any) {
         try {
             const result = await firstValueFrom(
