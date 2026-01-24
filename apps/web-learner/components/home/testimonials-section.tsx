@@ -2,15 +2,26 @@
 
 import { Star, Quote, Heart, Users } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
-import { cn } from '@workspace/ui/lib/utils'
+import { useQuery } from '@tanstack/react-query'
+import { reviewApi } from '@/apis/services/review-api'
 
-const testimonials = [
+interface Testimonial {
+    name: string;
+    role: string;
+    content: string;
+    rating: number;
+    avatar: string;
+    avatarUrl?: string;
+}
+
+const mockTestimonials: Testimonial[] = [
     {
         name: 'Trần Minh Quân',
         role: 'Học viên lớp N3 - Torii',
         content: 'AI Sensei là một cuộc cách mạng! Cảm giác như có một Sensei người Nhật bên cạnh 24/7 để giải đáp mọi thắc mắc về ngữ pháp một cách tức thì.',
         rating: 5,
         avatar: 'MQ',
+        avatarUrl: undefined,
     },
     {
         name: 'Lê Thị Mỹ Linh',
@@ -18,6 +29,7 @@ const testimonials = [
         content: 'Hệ thống Flashcard thông minh giúp mình nhớ Kanji nhanh hơn rất nhiều so với cách học truyền thống. Nhờ Torii mà mình đã đỗ N2 chỉ sau 6 tháng.',
         rating: 5,
         avatar: 'ML',
+        avatarUrl: undefined,
     },
     {
         name: 'Nguyễn Hoàng Nam',
@@ -25,10 +37,27 @@ const testimonials = [
         content: 'Lớp học WebRTC rất ổn định, âm thanh rõ nét. Khả năng tương tác trực tiếp với giáo viên qua bảng trắng giúp những giờ học online không còn nhàm chán.',
         rating: 5,
         avatar: 'HN',
+        avatarUrl: undefined,
     },
 ]
 
 export function TestimonialsSection() {
+    const { data: reviewsData } = useQuery({
+        queryKey: ['home-reviews'],
+        queryFn: () => reviewApi.getAllReviews(1, 3),
+    })
+
+    const reviews: Testimonial[] = reviewsData?.data && reviewsData.data.length > 0
+        ? reviewsData.data.map(r => ({
+            name: r.user.displayName,
+            role: r.courseTitle || 'Học viên Torii',
+            content: r.comment || '',
+            rating: r.rating,
+            avatar: r.user.displayName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase(),
+            avatarUrl: r.user.avatarUrl
+        }))
+        : mockTestimonials
+
     return (
         <section className="py-32 relative bg-muted/30 overflow-hidden">
             {/* Zen Ambient Lighting */}
@@ -51,7 +80,7 @@ export function TestimonialsSection() {
 
                 {/* Testimonials Grid */}
                 <div className="grid md:grid-cols-3 gap-8">
-                    {testimonials.map((testimonial, index) => (
+                    {reviews.map((testimonial, index) => (
                         <div
                             key={index}
                             className="relative group bg-background/60 backdrop-blur-xl rounded-[2.5rem] p-10 border border-border/40 hover:border-primary/20 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500 flex flex-col cursor-default"
@@ -76,6 +105,7 @@ export function TestimonialsSection() {
                             {/* Author Banner */}
                             <div className="flex items-center gap-5 pt-8 border-t border-border/20">
                                 <Avatar className="w-12 h-12 rounded-2xl border border-border/40">
+                                    <AvatarImage src={(testimonial as any).avatarUrl} alt={testimonial.name} />
                                     <AvatarFallback className="bg-primary/10 text-primary text-[11px] font-black">{testimonial.avatar}</AvatarFallback>
                                 </Avatar>
                                 <div className="space-y-1">

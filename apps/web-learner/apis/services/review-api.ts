@@ -78,6 +78,24 @@ export const reviewApi = {
   },
 
   /**
+   * Get all reviews (public)
+   */
+  getAllReviews: async (
+    page: number = 1,
+    limit: number = 10,
+    rating?: number,
+    search?: string
+  ): Promise<PaginatedApiResponse<ReviewResponse & { courseTitle?: string }>> => {
+    const response = await apiClient.get<PaginatedApiResponse<ReviewResponse & { courseTitle?: string }>>(
+      '/api/courses/reviews',
+      {
+        params: { page, limit, rating, search },
+      },
+    );
+    return response.data;
+  },
+
+  /**
    * Delete a review
    */
   deleteReview: async (reviewId: string): Promise<boolean> => {
