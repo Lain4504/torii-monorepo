@@ -43,6 +43,11 @@ roles:
     name: Sales Staff
     description: Sales, marketing, and business development
     
+  # Staff Variant 4: Finance Staff
+  - code: staff-finance
+    name: Finance Staff
+    description: Financial operations, payments, and coupons
+    
   # Main Actor 3: Lecturer
   - code: lecturer
     name: Instructor
@@ -112,7 +117,7 @@ permissions:
   - code: schedule.view
     description: View class schedules
     category: Class Management
-    
+
   # Assessment
   - code: exam.manage
     description: Create and manage exams
@@ -232,7 +237,17 @@ default_role_permissions:
     - payment.view
     - course.view_restricted
     
-  # Staff-Sales: Sales & Marketing
+  # Staff-Finance: Financial operations
+  staff-finance:
+    - user.view
+    - blog.write
+    - report.view
+    - audit.view
+    - payment.view
+    - payment.refund
+    - coupon.manage
+
+  # Staff-Sales: Sales & Marketing (inherits staff + adds more)
   staff-sales:
     - user.view
     - blog.write

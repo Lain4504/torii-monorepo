@@ -12,6 +12,7 @@ import DashboardLayout from "@/components/layout/dashboard-layout.tsx";
 import DashboardPage from '@/routes/dashboard/dashboard-page.tsx'
 import AnalyticsPage from '@/routes/dashboard/analytics-page.tsx'
 import { UsersPage } from '@/routes/users/users-page.tsx'
+import CouponsPage from '@/routes/coupons/coupons-page.tsx'
 import CoursesPage from '@/routes/courses/courses-page.tsx'
 import CourseReviewsPage from '@/routes/courses/course-reviews-page.tsx'
 import CourseDetailPage from '@/routes/courses/course-detail-page.tsx'
@@ -89,6 +90,10 @@ function App() {
 
                 {/* Pool detail page */}
                 <Route path="question-bank/pools/:id/questions" element={<PoolDetailPage />} />
+
+                <Route element={<RoutePermissionGuard permission="coupon.manage" />}>
+                  <Route path="coupons" element={<CouponsPage />} />
+                </Route>
 
                 <Route element={<RoutePermissionGuard permission="payment.manage" />}>
                   <Route path="orders" element={<OrdersPage />} />

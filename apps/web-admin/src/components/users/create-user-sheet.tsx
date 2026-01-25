@@ -73,6 +73,12 @@ const staffVariants = [
         icon: TrendingUp,
         description: 'Thúc đẩy kinh doanh và mở rộng thị trường.',
     },
+    {
+        id: 'staff-finance' as const,
+        label: 'Chuyên viên Tài chính',
+        icon: TrendingUp, // Or another icon like 'CreditCard' or 'Wallet' if available
+        description: 'Quản lý mã giảm giá và các vấn đề tài chính.',
+    },
 ];
 
 const formSchema = adminCreateInternalUserDTOSchema.extend({
@@ -154,7 +160,7 @@ export function CreateUserSheet({
         }
     };
 
-    const handleStaffVariantSelect = (variantId: 'staff-lms' | 'staff-support' | 'staff-sales') => {
+    const handleStaffVariantSelect = (variantId: 'staff-lms' | 'staff-support' | 'staff-sales' | 'staff-finance') => {
         form.setValue('role', variantId as any, { shouldValidate: false });
     };
 

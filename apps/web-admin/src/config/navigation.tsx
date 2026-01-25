@@ -10,6 +10,7 @@ import {
     Settings,
     BarChart3,
     ShieldCheck,
+    Ticket,
 } from "lucide-react";
 
 export interface NavItem {
@@ -87,6 +88,13 @@ export const managementNavItems: NavItem[] = [
         icon: CreditCard,
         permission: "payment.manage",
         descriptionKey: "common:navDescriptions.financials",
+    },
+    {
+        titleKey: "Mã giảm giá",
+        url: "/coupons",
+        icon: Ticket,
+        permission: "coupon.manage",
+        descriptionKey: "Quản lý mã giảm giá",
     },
     {
         titleKey: "Báo cáo nội dung",
