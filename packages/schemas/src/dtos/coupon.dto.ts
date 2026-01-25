@@ -107,3 +107,15 @@ export const couponStatisticsDTOSchema = z.object({
 });
 
 export type CouponStatisticsDTO = z.infer<typeof couponStatisticsDTOSchema>;
+
+/**
+ * Coupon Search Request DTO
+ */
+export const couponSearchRequestDTOSchema = z.object({
+  page: z.number().int().positive().optional().default(1),
+  limit: z.number().int().positive().optional().default(10),
+  search: z.string().optional(),
+  status: z.nativeEnum(CouponStatus).optional(),
+});
+
+export type CouponSearchRequestDTO = z.infer<typeof couponSearchRequestDTOSchema>;

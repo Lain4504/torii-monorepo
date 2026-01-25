@@ -6,6 +6,7 @@ import {
     CouponUpdateDTO,
     CouponValidateRequestDTO,
     CouponCalculateDiscountRequestDTO,
+    CouponSearchRequestDTO,
     Requester,
 } from '@workspace/schemas';
 
@@ -16,7 +17,7 @@ export class CouponHandler {
     ) { }
 
     @MessagePattern({ cmd: 'learning.coupon.findAll' })
-    async findAll(@Payload() query: any) {
+    async findAll(@Payload() query: CouponSearchRequestDTO) {
         return this.couponService.findAll(query);
     }
 

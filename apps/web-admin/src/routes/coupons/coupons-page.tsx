@@ -1,6 +1,6 @@
 import { useState, Suspense } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useDebounce } from '@/hooks/use-debounce';
+import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import { 
     Plus, 
     Search,
@@ -24,6 +24,7 @@ import { Can } from '@/lib/guard/can';
 import { useCoupons } from '@/api/services/coupons';
 import { CouponsTable } from '@/components/coupons/coupons-table';
 import type { CouponResponseDTO } from '@workspace/schemas';
+import { CouponStatus } from '@workspace/schemas';
 
 import { CreateCouponSheet } from '@/components/coupons/create-coupon-sheet';
 import { EditCouponSheet } from '@/components/coupons/edit-coupon-sheet';
@@ -34,7 +35,7 @@ export default function CouponsPage() {
     
     // State
     const [search, setSearch] = useState(searchParams.get('search') || '');
-    const [debouncedSearch] = useDebounce(search, 500);
+    const [debouncedSearch] = useDebounceValue(search, 500);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
     const status = searchParams.get('status') || undefined;
@@ -50,7 +51,7 @@ export default function CouponsPage() {
         page,
         limit,
         search: debouncedSearch,
-        status
+        status: status as CouponStatus
     });
 
     const coupons = data?.data || [];

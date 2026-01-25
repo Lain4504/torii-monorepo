@@ -3,6 +3,7 @@ import { NatsClientModule } from '@server/shared';
 import { CouponService } from './coupon.service';
 import { CouponRepository } from './coupon.repository';
 import { CouponScheduler } from './coupon.scheduler';
+import { CouponProfile } from '../../infrastructure/mappings/coupon.profile';
 import { COUPON_REPOSITORY_TOKEN } from '../../interfaces/repositories';
 import { COUPON_SERVICE_TOKEN } from '../../interfaces/services';
 
@@ -24,6 +25,7 @@ import { COUPON_SERVICE_TOKEN } from '../../interfaces/services';
       useClass: CouponService,
     },
     CouponScheduler,
+    CouponProfile,
   ],
   exports: [COUPON_SERVICE_TOKEN, COUPON_REPOSITORY_TOKEN],
 })

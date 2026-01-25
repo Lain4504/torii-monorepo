@@ -19,7 +19,6 @@ import { firstValueFrom } from 'rxjs';
 import {
 
     GatewayAuthGuard,
-    RolesGuard,
     PermissionsGuard,
     Permissions,
     successResponse,
@@ -27,26 +26,26 @@ import {
     Public,
 } from '@server/shared';
 import { Request } from 'express';
-import { Requester } from '@workspace/schemas';
+import { Requester, CouponSearchRequestDTO } from '@workspace/schemas';
 
 interface RequestWithUser extends Request {
     user: Requester;
 }
 
 @Controller('api/coupons')
-@UseGuards(GatewayAuthGuard, RolesGuard, PermissionsGuard)
+@UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class CouponController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     /**
-     * Get all coupons with pagination and filtering
-     * GET /api/coupons?page=1&limit=10&status=active&search=SUMMER
+     * Search coupons with pagination and filtering
+     * POST /api/coupons/search
      */
-    @Get()
+    @Post('search')
     @Permissions('coupon.manage')
-    async findAll(@Query() query: any) {
+    async findAll(@Body() dto: CouponSearchRequestDTO) {
         const result = await firstValueFrom(
-            this.natsClient.send({ cmd: 'learning.coupon.findAll' }, query)
+            this.natsClient.send({ cmd: 'learning.coupon.findAll' }, dto)
         );
         return successPaginatedResponse(result);
     }

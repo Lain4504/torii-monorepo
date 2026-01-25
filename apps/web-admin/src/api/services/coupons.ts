@@ -6,17 +6,15 @@ import type {
     CouponResponseDTO, 
     CouponCreateDTO, 
     CouponUpdateDTO, 
-    PaginationOptionsDTO
+    CouponSearchRequestDTO
 } from '@workspace/schemas';
 
-// ============================================================================
-// API Functions
-// ============================================================================
+// ...
 
 export const couponsApi = {
-    // GET /api/coupons
-    async findAll(params: PaginationOptionsDTO & { status?: string; search?: string }): Promise<PaginatedApiResponse<CouponResponseDTO>> {
-        const response = await apiClient.get<PaginatedApiResponse<CouponResponseDTO>>('/api/coupons', { params });
+    // POST /api/coupons/search
+    async findAll(data: CouponSearchRequestDTO): Promise<PaginatedApiResponse<CouponResponseDTO>> {
+        const response = await apiClient.post<PaginatedApiResponse<CouponResponseDTO>>('/api/coupons/search', data);
         return response.data;
     },
 
@@ -64,7 +62,7 @@ export const couponsApi = {
 /**
  * Hook: Get coupons list with pagination and filters
  */
-export function useCoupons(params: PaginationOptionsDTO & { status?: string; search?: string }) {
+export function useCoupons(params: CouponSearchRequestDTO) {
     return useQuery({
         queryKey: ['coupons', params],
         queryFn: () => couponsApi.findAll(params),

@@ -1,5 +1,7 @@
 import { Injectable, Logger, Inject, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { InjectMapper } from '@automapper/nestjs';
+import { Mapper } from '@automapper/core';
 import { firstValueFrom } from 'rxjs';
 import type { Coupon } from '@prisma/generated';
 import { UserRole, CouponStatus, CouponDiscountType } from '@workspace/schemas';
@@ -15,6 +17,7 @@ import type {
     PaginationOptionsDTO,
     PaginatedResponseDTO,
     Requester,
+    CouponSearchRequestDTO,
 } from '@workspace/schemas';
 
 import type { ICouponService } from '../../interfaces/services';
@@ -35,41 +38,21 @@ export class CouponService implements ICouponService {
         private readonly couponRepository: ICouponRepository,
         @Inject('NATS_SERVICE')
         private readonly natsClient: ClientProxy,
+        @InjectMapper()
+        private readonly mapper: Mapper,
     ) { }
 
     /**
      * Map Coupon entity to CouponResponseDTO
      */
-    private toCouponResponseDTO(coupon: Coupon): CouponResponseDTO {
-        return {
-            id: coupon.id,
-            code: coupon.code,
-            name: coupon.name,
-            description: coupon.description,
-            discountType: coupon.discountType as CouponDiscountType,
-            discountValue: Number(coupon.discountValue),
-            maxDiscountAmount: coupon.maxDiscountAmount ? Number(coupon.maxDiscountAmount) : null,
-            minOrderAmount: coupon.minOrderAmount ? Number(coupon.minOrderAmount) : null,
-            applicableCourseIds: coupon.applicableCourseIds || [],
-            excludedCourseIds: coupon.excludedCourseIds || [],
-            validFrom: coupon.validFrom,
-            validUntil: coupon.validUntil,
-            usageLimit: coupon.usageLimit,
-            usageCount: coupon.usageCount,
-            userUsageLimit: coupon.userUsageLimit,
-            status: coupon.status as CouponStatus,
-            createdBy: coupon.createdBy,
-            createdAt: coupon.createdAt,
-            updatedAt: coupon.updatedAt,
-        };
-    }
+
 
     /**
      * Find all coupons with pagination and filtering
      */
-    async findAll(options: PaginationOptionsDTO & { status?: string; search?: string }): Promise<PaginatedResponseDTO<CouponResponseDTO>> {
+    async findAll(dto: CouponSearchRequestDTO): Promise<PaginatedResponseDTO<CouponResponseDTO>> {
         try {
-            const { page = 1, limit = 10, search, status } = options;
+            const { page = 1, limit = 10, search, status } = dto;
             const pageNum = typeof page === 'string' ? parseInt(page, 10) : page;
             const limitNum = typeof limit === 'string' ? parseInt(limit, 10) : limit;
             const skip = (pageNum - 1) * limitNum;
@@ -101,7 +84,7 @@ export class CouponService implements ICouponService {
             const totalPages = Math.ceil(total / limitNum);
 
             return {
-                data: coupons.map(coupon => this.toCouponResponseDTO(coupon)),
+                data: this.mapper.mapArray(coupons, 'Coupon', 'CouponResponseDTO'),
                 total,
                 page: pageNum,
                 limit: limitNum,
@@ -123,7 +106,7 @@ export class CouponService implements ICouponService {
             throw new NotFoundException(`Coupon with id ${couponId} not found`);
         }
 
-        return this.toCouponResponseDTO(coupon);
+        return this.mapper.map(coupon, 'Coupon', 'CouponResponseDTO');
     }
 
     /**
@@ -136,7 +119,7 @@ export class CouponService implements ICouponService {
             throw new NotFoundException(`Coupon with code ${code} not found`);
         }
 
-        return this.toCouponResponseDTO(coupon);
+        return this.mapper.map(coupon, 'Coupon', 'CouponResponseDTO');
     }
 
     /**
@@ -217,7 +200,7 @@ export class CouponService implements ICouponService {
                 newValues: coupon,
             });
 
-            return this.toCouponResponseDTO(coupon);
+            return this.mapper.map(coupon, 'Coupon', 'CouponResponseDTO');
         } catch (error: any) {
             if (error instanceof BadRequestException || error instanceof ForbiddenException) {
                 throw error;
@@ -341,7 +324,7 @@ export class CouponService implements ICouponService {
                 newValues: updatedCoupon,
             });
 
-            return this.toCouponResponseDTO(updatedCoupon);
+            return this.mapper.map(updatedCoupon, 'Coupon', 'CouponResponseDTO');
         } catch (error: any) {
             if (error instanceof BadRequestException || error instanceof ForbiddenException || error instanceof NotFoundException) {
                 throw error;
@@ -405,7 +388,7 @@ export class CouponService implements ICouponService {
             if (coupon.status !== CouponStatus.ACTIVE) {
                 return {
                     isValid: false,
-                    coupon: this.toCouponResponseDTO(coupon),
+                    coupon: this.mapper.map(coupon, 'Coupon', 'CouponResponseDTO'),
                     discountAmount: null,
                     message: 'Coupon không còn hiệu lực',
                 };
@@ -416,7 +399,7 @@ export class CouponService implements ICouponService {
             if (now < coupon.validFrom || now > coupon.validUntil) {
                 return {
                     isValid: false,
-                    coupon: this.toCouponResponseDTO(coupon),
+                    coupon: this.mapper.map(coupon, 'Coupon', 'CouponResponseDTO'),
                     discountAmount: null,
                     message: 'Coupon chưa đến/đã hết hạn',
                 };
@@ -428,7 +411,7 @@ export class CouponService implements ICouponService {
             if (coupon.usageLimit !== null && coupon.usageCount >= coupon.usageLimit) {
                 return {
                     isValid: false,
-                    coupon: this.toCouponResponseDTO(coupon),
+                    coupon: this.mapper.map(coupon, 'Coupon', 'CouponResponseDTO'),
                     discountAmount: null,
                     message: 'Coupon đã hết số lượng',
                 };
@@ -440,7 +423,7 @@ export class CouponService implements ICouponService {
                 if (userUsageCount >= coupon.userUsageLimit) {
                     return {
                         isValid: false,
-                        coupon: this.toCouponResponseDTO(coupon),
+                        coupon: this.mapper.map(coupon, 'Coupon', 'CouponResponseDTO'),
                         discountAmount: null,
                         message: `Bạn đã sử dụng coupon này ${userUsageCount} lần (giới hạn: ${coupon.userUsageLimit} lần)`,
                     };
@@ -457,7 +440,7 @@ export class CouponService implements ICouponService {
                 this.logger.error(`Failed to fetch course ${request.courseId}`, error);
                 return {
                     isValid: false,
-                    coupon: this.toCouponResponseDTO(coupon),
+                    coupon: this.mapper.map(coupon, 'Coupon', 'CouponResponseDTO'),
                     discountAmount: null,
                     message: 'Không tìm thấy khóa học',
                 };
@@ -467,7 +450,7 @@ export class CouponService implements ICouponService {
             if (coupon.applicableCourseIds.length > 0 && !coupon.applicableCourseIds.includes(request.courseId)) {
                 return {
                     isValid: false,
-                    coupon: this.toCouponResponseDTO(coupon),
+                    coupon: this.mapper.map(coupon, 'Coupon', 'CouponResponseDTO'),
                     discountAmount: null,
                     message: 'Coupon không áp dụng cho khóa học này',
                 };
@@ -477,7 +460,7 @@ export class CouponService implements ICouponService {
             if (coupon.excludedCourseIds.length > 0 && coupon.excludedCourseIds.includes(request.courseId)) {
                 return {
                     isValid: false,
-                    coupon: this.toCouponResponseDTO(coupon),
+                    coupon: this.mapper.map(coupon, 'Coupon', 'CouponResponseDTO'),
                     discountAmount: null,
                     message: 'Coupon không áp dụng cho khóa học này',
                 };
@@ -488,7 +471,7 @@ export class CouponService implements ICouponService {
             if (coupon.minOrderAmount && basePrice < Number(coupon.minOrderAmount)) {
                 return {
                     isValid: false,
-                    coupon: this.toCouponResponseDTO(coupon),
+                    coupon: this.mapper.map(coupon, 'Coupon', 'CouponResponseDTO'),
                     discountAmount: null,
                     message: `Đơn hàng tối thiểu ${coupon.minOrderAmount} VND`,
                 };
@@ -498,7 +481,7 @@ export class CouponService implements ICouponService {
             if (course.isFree || basePrice === 0) {
                 return {
                     isValid: false,
-                    coupon: this.toCouponResponseDTO(coupon),
+                    coupon: this.mapper.map(coupon, 'Coupon', 'CouponResponseDTO'),
                     discountAmount: null,
                     message: 'Khóa học miễn phí không cần coupon',
                 };
@@ -513,7 +496,7 @@ export class CouponService implements ICouponService {
 
             return {
                 isValid: true,
-                coupon: this.toCouponResponseDTO(coupon),
+                coupon: this.mapper.map(coupon, 'Coupon', 'CouponResponseDTO'),
                 discountAmount: discountResult.discountAmount,
                 message: null,
             };
@@ -654,7 +637,7 @@ export class CouponService implements ICouponService {
                 return coupon.usageCount < coupon.usageLimit; // usageCount < usageLimit
             });
 
-            return availableCoupons.map(coupon => this.toCouponResponseDTO(coupon));
+            return this.mapper.mapArray(availableCoupons, 'Coupon', 'CouponResponseDTO');
         } catch (error: any) {
             this.logger.error('Failed to get available coupons', error);
             throw new BadRequestException('Failed to get available coupons');
