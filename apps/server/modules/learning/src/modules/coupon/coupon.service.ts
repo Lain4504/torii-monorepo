@@ -126,9 +126,12 @@ export class CouponService implements ICouponService {
      * Create a new coupon
      */
     async create(requester: Requester, dto: CouponCreateDTO): Promise<CouponResponseDTO> {
-        // Check permissions (only ADMIN and STAFF can create coupons)
-        if (![UserRole.ADMIN, UserRole.STAFF].includes(requester.role as UserRole)) {
-            throw new ForbiddenException('Only admins and staff can create coupons');
+        this.logger.log(`Creating coupon with requester role: ${requester.role} (sub: ${requester.sub})`);
+        
+        // Check permissions (only ADMIN and STAFF* can create coupons)
+        if (![UserRole.ADMIN, UserRole.STAFF, UserRole.STAFF_FINANCE, UserRole.STAFF_SALES].includes(requester.role as UserRole)) {
+            this.logger.warn(`Permission denied. UserRole: ${requester.role} is not authorized`);
+            throw new ForbiddenException('Only admins and authorized staff can create coupons');
         }
 
         try {
@@ -215,8 +218,8 @@ export class CouponService implements ICouponService {
      */
     async update(requester: Requester, couponId: string, dto: CouponUpdateDTO): Promise<CouponResponseDTO> {
         // Check permissions
-        if (![UserRole.ADMIN, UserRole.STAFF].includes(requester.role as UserRole)) {
-            throw new ForbiddenException('Only admins and staff can update coupons');
+        if (![UserRole.ADMIN, UserRole.STAFF, UserRole.STAFF_FINANCE, UserRole.STAFF_SALES].includes(requester.role as UserRole)) {
+            throw new ForbiddenException('Only admins and authorized staff can update coupons');
         }
 
         const coupon = await this.couponRepository.findById(couponId);
