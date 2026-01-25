@@ -1,4 +1,7 @@
 import { Injectable, Logger, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { lastValueFrom } from 'rxjs';
+
 import {
     type EnrollmentCreateDTO,
     type EnrollmentQueryDTO,
@@ -24,7 +27,10 @@ export class EnrollmentService implements IEnrollmentService {
         private readonly enrollmentRepository: EnrollmentRepository,
         @Inject(COURSE_REPOSITORY_TOKEN)
         private readonly courseRepository: ICourseRepository,
+        @Inject('NATS_SERVICE')
+        private readonly natsClient: ClientProxy,
     ) { }
+
 
     private toEnrollmentDto(e: any): EnrollmentResponseDTO {
         return {
@@ -160,12 +166,44 @@ export class EnrollmentService implements IEnrollmentService {
                 completionPercentage: 0,
                 finalPrice,
             });
+
+            // If it's a free enrollment (finalPrice is 0), emit success event for notification/email
+            if (finalPrice === 0) {
+                try {
+                    this.logger.log(`Fetching user ${userId} for enrollment notification`);
+                    const response = await lastValueFrom(
+                        this.natsClient.send({ cmd: 'identity.users.findOne' }, { id: userId })
+                    );
+
+                    const user = response?.user;
+
+                    if (user && user.email) {
+                        this.logger.log(`Emitting course_enrollment_success for ${user.email}`);
+                        this.natsClient.emit({ cmd: 'course_enrollment_success' }, {
+                            userId: userId,
+                            userEmail: user.email,
+                            userName: user.displayName || user.email || 'User',
+                            courseId: course.id,
+                            courseName: course.title,
+                            enrollmentId: created.id,
+                        });
+                        this.logger.log(`course_enrollment_success event emitted for free course ${course.id}`);
+                    } else {
+                        this.logger.warn(`Could not find user email for enrollment notification: userId=${userId}, foundUser=${!!user}`);
+                    }
+                } catch (error: any) {
+                    this.logger.error(`Failed to emit free enrollment success event: ${error.message}`);
+                }
+
+            }
+
             return this.toEnrollmentDto(created);
         } catch (error: any) {
             this.logger.error(`Error creating enrollment: ${error.message}`, error.stack);
             throw error;
         }
     }
+
 
     /**
      * Check if user is enrolled in a course
