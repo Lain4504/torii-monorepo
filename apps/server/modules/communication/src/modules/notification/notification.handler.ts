@@ -87,7 +87,7 @@ export class NotificationHandler {
                 data: {
                     displayName: event.userName,
                     courseName: event.courseName,
-                    courseUrl: `${process.env.WEB_URL || 'https://torii.edu.vn'}/courses/${event.courseId}`,
+                    courseUrl: `${process.env.WEB_URL || 'https://app.torii.sbs'}/courses/${event.courseId}`,
                     amount: event.amount,
                     currency: event.currency,
                     orderId: event.orderId,
@@ -159,7 +159,7 @@ export class NotificationHandler {
                     data: {
                         displayName: event.userName,
                         courseName: event.courseName,
-                        courseUrl: `${process.env.WEB_URL || 'https://torii.edu.vn'}/courses/${event.courseId}`,
+                        courseUrl: `${process.env.WEB_URL || 'https://app.torii.sbs'}/courses/${event.courseId}`,
                     },
                 });
 
