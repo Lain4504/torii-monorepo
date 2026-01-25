@@ -97,12 +97,6 @@ permissions:
   - code: lesson.delete
     description: Delete course lessons
     category: Course Management
-  - code: course.manage
-    description: General course management
-    category: Course Management
-  - code: course.approve
-    description: Approve or reject courses
-    category: Course Management
     
   # Class Management
   - code: live_class.schedule
@@ -123,10 +117,7 @@ permissions:
   - code: schedule.view
     description: View class schedules
     category: Class Management
-  - code: live_class.view
-    description: View live class sessions
-    category: Class Management
-    
+
   # Assessment
   - code: exam.manage
     description: Create and manage exams
@@ -139,12 +130,6 @@ permissions:
     category: Assessment
   - code: submission.grade
     description: Grade student submissions
-    category: Assessment
-  - code: question.manage
-    description: Manage questions
-    category: Assessment
-  - code: question_pool.manage
-    description: Manage question pools
     category: Assessment
     
   # Content Management
@@ -159,9 +144,6 @@ permissions:
     category: Content Management
   - code: blog.manage
     description: Manage all blog posts
-    category: Content Management
-  - code: post.manage
-    description: Manage posts and news
     category: Content Management
   - code: tag.manage
     description: Manage content tags

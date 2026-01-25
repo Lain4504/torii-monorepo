@@ -45,7 +45,7 @@ const WORKSPACES: Workspace[] = [
         name: "Operations",
         logo: LayoutGrid,
         plan: "Enterprise Ops",
-        roles: [UserRole.LECTURER, UserRole.STAFF_LMS, UserRole.STAFF_SUPPORT, UserRole.STAFF_SALES, 'staff-finance', UserRole.STAFF],
+        roles: [UserRole.LECTURER, UserRole.STAFF_LMS, UserRole.STAFF_SUPPORT, UserRole.STAFF_SALES, UserRole.STAFF_FINANCE, UserRole.STAFF],
         navItems: [
             { labelKey: "common:sidebar.management", items: managementNavItems }
         ]

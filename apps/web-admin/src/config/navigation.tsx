@@ -65,7 +65,7 @@ export const mainNavItems: NavItem[] = [
         titleKey: "Người dùng",
         url: "/users",
         icon: Users,
-        anyPermission: ["user.manage", "user.view"],
+        permission: "user.manage",
         descriptionKey: "common:navDescriptions.users",
         items: [
             { titleKey: "Danh sách người dùng", url: "/users", permission: "user.view" },
@@ -76,7 +76,7 @@ export const mainNavItems: NavItem[] = [
         titleKey: "Bài viết & Tin tức",
         url: "/posts",
         icon: Newspaper,
-        anyPermission: ["post.manage", "blog.write", "blog.manage"],
+        permission: "post.manage",
         descriptionKey: "common:navDescriptions.post",
     },
 ];
@@ -86,7 +86,7 @@ export const managementNavItems: NavItem[] = [
         titleKey: "Tài chính",
         url: "/orders",
         icon: CreditCard,
-        anyPermission: ["payment.manage", "payment.view"],
+        permission: "payment.manage",
         descriptionKey: "common:navDescriptions.financials",
     },
     {
