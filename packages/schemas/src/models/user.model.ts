@@ -9,6 +9,7 @@ export enum UserRole {
     STAFF_LMS = 'staff-lms',
     STAFF_SUPPORT = 'staff-support',
     STAFF_SALES = 'staff-sales',
+    STAFF_FINANCE = 'staff-finance',
 }
 
 // User status is now determined by timestamps:

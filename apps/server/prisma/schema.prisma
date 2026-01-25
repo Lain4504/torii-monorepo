@@ -377,6 +377,9 @@ model User {
   dailyActivities DailyActivity[]
   achievements    UserAchievement[]
 
+  // Coupon Relations
+  createdCoupons  Coupon[]         @relation("CouponCreator")
+
   @@index([email])
   @@index([role])
   @@map("users")
@@ -1128,14 +1131,16 @@ model Order {
   updatedAt            DateTime    @default(now()) @updatedAt @map("updated_at")
 
   // Relations
-  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  enrollment Enrollment? // Relation defined on Enrollment side (via orderId)
-  payments   Payment[]
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  enrollment   Enrollment?  // Relation defined on Enrollment side (via orderId)
+  payments     Payment[]
+  coupon       Coupon?      @relation(fields: [couponId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([status])
   @@index([orderType])
   @@index([enrollmentId])
+  @@index([couponId])
   @@index([createdAt])
   @@index([transactionId])
   @@map("orders")
@@ -1298,4 +1303,64 @@ model UserAchievement {
   @@index([achievementId])
   @@index([isUnlocked])
   @@map("user_achievements")
+}
+
+// ============================================
+// Coupon Models
+// ============================================
+
+enum CouponStatus {
+  active
+  inactive
+  expired
+}
+
+enum CouponDiscountType {
+  percentage
+  fixed_amount
+}
+
+model Coupon {
+  id                    String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code                  String              @unique @db.VarChar(50)
+  name                  String              @db.VarChar(100)
+  description           String?             @db.Text
+  
+  // Discount Configuration
+  discountType          CouponDiscountType  @map("discount_type")
+  discountValue         Decimal             @map("discount_value") @db.Decimal(10, 2)
+  maxDiscountAmount     Decimal?            @map("max_discount_amount") @db.Decimal(10, 2)
+  
+  // Conditions
+  minOrderAmount        Decimal?            @map("min_order_amount") @db.Decimal(10, 2)
+  applicableCourseIds   String[]            @default([]) @map("applicable_course_ids") @db.Uuid
+  excludedCourseIds     String[]            @default([]) @map("excluded_course_ids") @db.Uuid
+  
+  // Validity Period
+  validFrom             DateTime            @map("valid_from")
+  validUntil            DateTime            @map("valid_until")
+  
+  // Usage Limits
+  usageLimit            Int?                @map("usage_limit")
+  usageCount            Int                 @default(0) @map("usage_count")
+  userUsageLimit        Int                 @default(1) @map("user_usage_limit")
+  
+  // Status
+  status                CouponStatus        @default(active)
+  
+  // Ownership
+  createdBy             String?             @map("created_by") @db.Uuid
+  createdAt             DateTime            @default(now()) @map("created_at")
+  updatedAt             DateTime            @default(now()) @updatedAt @map("updated_at")
+  deletedAt             DateTime?           @map("deleted_at")
+  
+  // Relations
+  orders                Order[]
+  creator               User?               @relation("CouponCreator", fields: [createdBy], references: [id])
+  
+  @@index([code])
+  @@index([status])
+  @@index([validFrom, validUntil])
+  @@index([deletedAt])
+  @@map("coupons")
 }

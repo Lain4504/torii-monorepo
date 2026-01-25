@@ -1,0 +1,191 @@
+import {
+    Controller,
+    Get,
+    Post,
+    Put,
+    Delete,
+    Body,
+    Param,
+    Query,
+    UseGuards,
+    Inject,
+    HttpCode,
+    HttpStatus,
+    Req,
+    ParseUUIDPipe,
+} from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
+import {
+
+    GatewayAuthGuard,
+    RolesGuard,
+    PermissionsGuard,
+    Permissions,
+    successResponse,
+    successPaginatedResponse,
+    Public,
+} from '@server/shared';
+import { Request } from 'express';
+import { Requester } from '@workspace/schemas';
+
+interface RequestWithUser extends Request {
+    user: Requester;
+}
+
+@Controller('api/coupons')
+@UseGuards(GatewayAuthGuard, RolesGuard, PermissionsGuard)
+export class CouponController {
+    constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
+
+    /**
+     * Get all coupons with pagination and filtering
+     * GET /api/coupons?page=1&limit=10&status=active&search=SUMMER
+     */
+    @Get()
+    @Permissions('coupon.manage')
+    async findAll(@Query() query: any) {
+        const result = await firstValueFrom(
+            this.natsClient.send({ cmd: 'learning.coupon.findAll' }, query)
+        );
+        return successPaginatedResponse(result);
+    }
+
+    /**
+     * Get coupon by ID
+     * GET /api/coupons/:id
+     */
+    @Get(':id')
+    @Permissions('coupon.manage')
+    async findOne(@Param('id', ParseUUIDPipe) id: string) {
+        const result = await firstValueFrom(
+            this.natsClient.send({ cmd: 'learning.coupon.findOne' }, { id })
+        );
+        return successResponse({ coupon: result });
+    }
+
+    /**
+     * Get coupon by code
+     * GET /api/coupons/code/:code
+     */
+    @Get('code/:code')
+    @Public()
+    async findByCode(@Param('code') code: string) {
+        const result = await firstValueFrom(
+            this.natsClient.send({ cmd: 'learning.coupon.findByCode' }, { code })
+        );
+        return successResponse({ coupon: result });
+    }
+
+    /**
+     * Create a new coupon
+     * POST /api/coupons
+     */
+    @Post()
+    @Permissions('coupon.manage')
+    @HttpCode(HttpStatus.CREATED)
+    async create(@Body() dto: any, @Req() req: RequestWithUser) {
+        const user = req.user;
+        const result = await firstValueFrom(
+            this.natsClient.send(
+                { cmd: 'learning.coupon.create' },
+                { ...dto, userId: user.sub, userRole: user.role }
+            )
+        );
+        return successResponse({ coupon: result }, 'Coupon created successfully');
+    }
+
+    /**
+     * Update coupon
+     * PUT /api/coupons/:id
+     */
+    @Put(':id')
+    @Permissions('coupon.manage')
+    async update(
+        @Param('id', ParseUUIDPipe) id: string,
+        @Body() dto: any,
+        @Req() req: RequestWithUser
+    ) {
+        const user = req.user;
+        const result = await firstValueFrom(
+            this.natsClient.send(
+                { cmd: 'learning.coupon.update' },
+                { id, ...dto, userId: user.sub, userRole: user.role }
+            )
+        );
+        return successResponse({ coupon: result }, 'Coupon updated successfully');
+    }
+
+    /**
+     * Delete coupon (soft delete)
+     * DELETE /api/coupons/:id
+     */
+    @Delete(':id')
+    @Permissions('coupon.manage')
+    @HttpCode(HttpStatus.OK)
+    async delete(@Param('id', ParseUUIDPipe) id: string, @Req() req: RequestWithUser) {
+        const user = req.user;
+        const result = await firstValueFrom(
+            this.natsClient.send(
+                { cmd: 'learning.coupon.delete' },
+                { id, userId: user.sub, userRole: user.role }
+            )
+        );
+        return successResponse(result, 'Coupon deleted successfully');
+    }
+
+    /**
+     * Validate coupon for a course
+     * POST /api/coupons/validate
+     */
+    @Post('validate')
+    @Public()
+    async validate(@Body() dto: { code: string; courseId: string; userId?: string }) {
+        const result = await firstValueFrom(
+            this.natsClient.send({ cmd: 'learning.coupon.validate' }, dto)
+        );
+        return successResponse(result);
+    }
+
+    /**
+     * Calculate discount amount
+     * POST /api/coupons/calculate-discount
+     */
+    @Post('calculate-discount')
+    @Public()
+    async calculateDiscount(@Body() dto: { couponId: string; courseId: string; basePrice: number }) {
+        const result = await firstValueFrom(
+            this.natsClient.send({ cmd: 'learning.coupon.calculateDiscount' }, dto)
+        );
+        return successResponse(result);
+    }
+
+    /**
+     * Get coupon statistics
+     * GET /api/coupons/statistics
+     */
+    @Get('statistics')
+    @Permissions('coupon.manage')
+    async getStatistics() {
+        const result = await firstValueFrom(
+            this.natsClient.send({ cmd: 'learning.coupon.getStatistics' }, {})
+        );
+        return successResponse({ statistics: result });
+    }
+
+    /**
+     * Get available coupons for a course
+     * GET /api/coupons/available/:courseId
+     */
+    @Get('available/:courseId')
+    @Public()
+    async getAvailableCoupons(@Param('courseId', ParseUUIDPipe) courseId: string) {
+        const result = await firstValueFrom(
+            this.natsClient.send(
+                { cmd: 'learning.coupon.getAvailableCoupons' },
+                { courseId }
+            )
+        );
+        return successResponse({ coupons: result });
+    }
+}

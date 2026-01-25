@@ -10,6 +10,7 @@ import {
     Settings,
     BarChart3,
     ShieldCheck,
+    Ticket,
 } from "lucide-react";
 
 export interface NavItem {
@@ -64,7 +65,7 @@ export const mainNavItems: NavItem[] = [
         titleKey: "Người dùng",
         url: "/users",
         icon: Users,
-        permission: "user.manage",
+        anyPermission: ["user.manage", "user.view"],
         descriptionKey: "common:navDescriptions.users",
         items: [
             { titleKey: "Danh sách người dùng", url: "/users", permission: "user.view" },
@@ -75,7 +76,7 @@ export const mainNavItems: NavItem[] = [
         titleKey: "Bài viết & Tin tức",
         url: "/posts",
         icon: Newspaper,
-        permission: "post.manage",
+        anyPermission: ["post.manage", "blog.write", "blog.manage"],
         descriptionKey: "common:navDescriptions.post",
     },
 ];
@@ -85,8 +86,15 @@ export const managementNavItems: NavItem[] = [
         titleKey: "Tài chính",
         url: "/orders",
         icon: CreditCard,
-        permission: "payment.manage",
+        anyPermission: ["payment.manage", "payment.view"],
         descriptionKey: "common:navDescriptions.financials",
+    },
+    {
+        titleKey: "Mã giảm giá",
+        url: "/coupons",
+        icon: Ticket,
+        permission: "coupon.manage",
+        descriptionKey: "Quản lý mã giảm giá",
     },
     {
         titleKey: "Báo cáo nội dung",

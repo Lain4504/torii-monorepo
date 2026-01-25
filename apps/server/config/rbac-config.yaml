@@ -43,6 +43,11 @@ roles:
     name: Sales Staff
     description: Sales, marketing, and business development
     
+  # Staff Variant 4: Finance Staff
+  - code: staff-finance
+    name: Finance Staff
+    description: Financial operations, payments, and coupons
+    
   # Main Actor 3: Lecturer
   - code: lecturer
     name: Instructor
@@ -92,6 +97,12 @@ permissions:
   - code: lesson.delete
     description: Delete course lessons
     category: Course Management
+  - code: course.manage
+    description: General course management
+    category: Course Management
+  - code: course.approve
+    description: Approve or reject courses
+    category: Course Management
     
   # Class Management
   - code: live_class.schedule
@@ -112,6 +123,9 @@ permissions:
   - code: schedule.view
     description: View class schedules
     category: Class Management
+  - code: live_class.view
+    description: View live class sessions
+    category: Class Management
     
   # Assessment
   - code: exam.manage
@@ -126,6 +140,12 @@ permissions:
   - code: submission.grade
     description: Grade student submissions
     category: Assessment
+  - code: question.manage
+    description: Manage questions
+    category: Assessment
+  - code: question_pool.manage
+    description: Manage question pools
+    category: Assessment
     
   # Content Management
   - code: material.upload
@@ -139,6 +159,9 @@ permissions:
     category: Content Management
   - code: blog.manage
     description: Manage all blog posts
+    category: Content Management
+  - code: post.manage
+    description: Manage posts and news
     category: Content Management
   - code: tag.manage
     description: Manage content tags
@@ -232,7 +255,17 @@ default_role_permissions:
     - payment.view
     - course.view_restricted
     
-  # Staff-Sales: Sales & Marketing
+  # Staff-Finance: Financial operations
+  staff-finance:
+    - user.view
+    - blog.write
+    - report.view
+    - audit.view
+    - payment.view
+    - payment.refund
+    - coupon.manage
+
+  # Staff-Sales: Sales & Marketing (inherits staff + adds more)
   staff-sales:
     - user.view
     - blog.write

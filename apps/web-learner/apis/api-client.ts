@@ -2,7 +2,7 @@ import axios from 'axios';
 import type { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 export const apiClient = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080',
+    baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://api.torii.sbs/',
     headers: {
         'Content-Type': 'application/json',
     },
