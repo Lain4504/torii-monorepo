@@ -10,3 +10,17 @@ export interface CourseEnrollmentSuccessEvent {
     courseName: string;
     enrollmentId: string;
 }
+
+/**
+ * Course Gift Received Event
+ */
+export interface CourseGiftReceivedEvent {
+    recipientId: string;
+    recipientEmail: string;
+    senderId: string;
+    senderName: string;
+    courseId: string;
+    courseName: string;
+    giftMessage?: string;
+    enrollmentId: string;
+}

@@ -3,7 +3,7 @@ import { EventPattern, Payload, ClientProxy } from '@nestjs/microservices';
 import { NotificationType } from '@workspace/schemas';
 import type { SendNotificationEvent } from '../../infrastructure/events/notification.event';
 import type { OrderPaymentSuccessEvent, OrderStatusChangedEvent } from '../../infrastructure/events/order.event';
-import type { CourseEnrollmentSuccessEvent } from '../../infrastructure/events/enrollment.event';
+import type { CourseEnrollmentSuccessEvent, CourseGiftReceivedEvent } from '../../infrastructure/events/enrollment.event';
 
 import { NOTIFICATION_SERVICE_TOKEN } from '../../interfaces/services';
 import type { INotificationService } from '../../interfaces/services';
@@ -64,17 +64,24 @@ export class NotificationHandler {
         this.logger.log(`Received order_payment_success event for order ${event.orderId}, user: ${event.userId}`);
 
         try {
+            const isGift = !!event.isGift;
+            const message = isGift
+                ? `Bạn đã thanh toán khóa học và gửi tặng cho ${event.recipientName || 'người nhận'} thành công!`
+                : `Bạn đã thanh toán thành công khóa học "${event.courseName}". Bắt đầu học ngay!`;
+
             // Create in-app notification
             await this.notificationService.create({
                 userId: event.userId,
                 title: 'Thanh toán thành công! 🎉',
-                message: `Bạn đã thanh toán thành công khóa học "${event.courseName}". Bắt đầu học ngay!`,
+                message,
                 notificationType: NotificationType.ORDER_SUCCESS,
                 metadata: {
                     orderId: event.orderId,
                     courseId: event.courseId,
                     courseName: event.courseName,
                     amount: event.amount,
+                    isGift,
+                    recipientName: event.recipientName,
                 },
             });
 
@@ -97,6 +104,53 @@ export class NotificationHandler {
             this.logger.log(`Order success email event emitted for ${event.userEmail}`);
         } catch (error: any) {
             this.logger.error(`Failed to handle order payment success: ${error.message}`, error.stack);
+        }
+    }
+
+    /**
+     * Handle course_gift_received event
+     * Creates notification and sends email for recipient
+     */
+    @EventPattern({ cmd: 'course_gift_received' })
+    async handleCourseGiftReceived(@Payload() event: CourseGiftReceivedEvent): Promise<void> {
+        this.logger.log(`Received course_gift_received event for user ${event.recipientId}, from ${event.senderName}`);
+
+        try {
+            // 1. Create in-app notification for recipient
+            await this.notificationService.create({
+                userId: event.recipientId,
+                title: 'Bạn nhận được món quà kiến thức! 🎁',
+                message: `Bạn vừa nhận được khóa học "${event.courseName}" từ ${event.senderName}. Hãy bắt đầu học nào!`,
+                notificationType: NotificationType.COURSE,
+                metadata: {
+                    senderId: event.senderId,
+                    senderName: event.senderName,
+                    courseId: event.courseId,
+                    courseName: event.courseName,
+                    enrollmentId: event.enrollmentId,
+                    giftMessage: event.giftMessage,
+                },
+            });
+
+            this.logger.log(`Gift received notification created for recipient ${event.recipientId}`);
+
+            // 2. Send enrollment success email to recipient
+            this.natsClient.emit({ cmd: 'send_email' }, {
+                type: 'course_enrollment', // Using existing course_enrollment template
+                to: event.recipientEmail,
+                data: {
+                    displayName: 'Học viên', // Or get full name if available
+                    courseName: event.courseName,
+                    courseUrl: `${process.env.WEB_URL || 'https://app.torii.sbs'}/courses/${event.courseId}`,
+                    senderName: event.senderName,
+                    isGift: true,
+                    giftMessage: event.giftMessage,
+                },
+            });
+
+            this.logger.log(`Gift enrollment email event emitted for ${event.recipientEmail}`);
+        } catch (error: any) {
+            this.logger.error(`Failed to handle course gift received: ${error.message}`, error.stack);
         }
     }
 
