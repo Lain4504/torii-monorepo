@@ -53,6 +53,7 @@ const getTypeLabel = (type: QuestionType) => {
         fill_blank: 'Điền khuyết',
         matching: 'Nối thẻ',
         essay: 'Tự luận',
+        listening: 'Nghe hiểu',
     };
     return labels[type] || type.toUpperCase();
 };

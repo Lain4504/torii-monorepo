@@ -18,9 +18,9 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { Loader2, Plus, X, BrainCircuit, FileText, CheckCircle2, AlignLeft, Headphones } from 'lucide-react';
+import { Loader2, Save, X, BrainCircuit, FileText, CheckCircle2, AlignLeft, Headphones, Plus } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
-import { useCreateQuestion } from '@/api/services/questions.ts';
+import { useUpdateQuestion } from '@/api/services/questions.ts';
 import { useQuestionPools } from '@/api/services/question-pools.ts';
 import {
     QuestionType,
@@ -29,20 +29,20 @@ import {
     QuestionJlptLevel,
     questionCreateDTOSchema,
     type QuestionCreateDTO,
+    type QuestionResponseDTO,
 } from '@workspace/schemas';
 import type { z } from 'zod';
 
+type EditQuestionFormData = z.input<typeof questionCreateDTOSchema>;
 
-type CreateQuestionFormData = z.input<typeof questionCreateDTOSchema>;
-
-interface CreateQuestionDialogProps {
+interface EditQuestionDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    defaultPoolId?: string;
+    question: QuestionResponseDTO | null;
 }
 
-export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: CreateQuestionDialogProps) {
-    const createQuestion = useCreateQuestion();
+export function EditQuestionDialog({ open, onOpenChange, question }: EditQuestionDialogProps) {
+    const updateQuestion = useUpdateQuestion();
     const { data: poolsData } = useQuestionPools({ page: 1, limit: 100 });
     const [options, setOptions] = useState<Record<string, string>>({ A: '', B: '' });
     const [optionKeys, setOptionKeys] = useState<string[]>(['A', 'B']);
@@ -52,7 +52,8 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
         handleSubmit,
         reset,
         watch,
-    } = useForm<CreateQuestionFormData>({
+        setValue,
+    } = useForm<EditQuestionFormData>({
         resolver: zodResolver(questionCreateDTOSchema),
         defaultValues: {
             questionText: '',
@@ -63,7 +64,7 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
             correctAnswer: '',
             explanation: '',
             tags: [],
-            poolId: defaultPoolId || undefined,
+            poolId: undefined,
         },
     });
 
@@ -71,20 +72,35 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
     const category = watch('category');
 
     useEffect(() => {
-        if (open && defaultPoolId) {
+        if (open && question) {
+            // Populate form
             reset({
-                questionText: '',
-                questionType: QuestionType.MULTIPLE_CHOICE,
-                jlptLevel: QuestionJlptLevel.N5,
-                category: QuestionCategory.VOCAB,
-                difficulty: QuestionDifficultyLevel.MEDIUM,
-                correctAnswer: '',
-                explanation: '',
-                tags: [],
-                poolId: defaultPoolId,
+                questionText: question.questionText || '',
+                questionType: question.questionType as QuestionType,
+                jlptLevel: question.jlptLevel as QuestionJlptLevel,
+                category: question.category as QuestionCategory,
+                difficulty: question.difficulty as QuestionDifficultyLevel,
+                correctAnswer: question.correctAnswer || '',
+                explanation: question.explanation || '',
+                tags: question.tags || [],
+                poolId: question.poolId || undefined,
             });
+
+            // Set metadata/audio
+            if (question.metadata?.audioUrl) {
+                setValue('metadata.audioUrl', question.metadata.audioUrl);
+            }
+
+            // Populate options
+            if ((question.questionType === QuestionType.MULTIPLE_CHOICE || question.questionType === QuestionType.LISTENING) && question.options) {
+                setOptions(question.options as Record<string, string>);
+                setOptionKeys(Object.keys(question.options).sort());
+            } else {
+                setOptions({ A: '', B: '' });
+                setOptionKeys(['A', 'B']);
+            }
         }
-    }, [open, defaultPoolId, reset]);
+    }, [open, question, reset, setValue]);
 
     const addOption = () => {
         const nextKey = String.fromCharCode(65 + optionKeys.length);
@@ -94,7 +110,7 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
 
     const removeOption = (key: string) => {
         if (optionKeys.length <= 2) {
-            toast.error('Requirement Unmet', { description: 'Minimum of 2 options required for multiple choice.' });
+            toast.error('Requirement Unmet', { description: 'Minimum of 2 options required.' });
             return;
         }
         setOptionKeys(optionKeys.filter(k => k !== key));
@@ -103,24 +119,23 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
         setOptions(newOptions);
     };
 
-    const onSubmit = async (data: CreateQuestionFormData) => {
+    const onSubmit = async (data: EditQuestionFormData) => {
+        if (!question) return;
+
         try {
             const submitData: QuestionCreateDTO = {
                 ...data,
                 options: (questionType === QuestionType.MULTIPLE_CHOICE || questionType === QuestionType.LISTENING) ? options : undefined,
             };
 
-            await createQuestion.mutateAsync(submitData);
-            toast.success('Question Created', {
-                description: 'Question successfully added to the database.',
+            await updateQuestion.mutateAsync({ id: question.id, question: submitData });
+            toast.success('Question Updated', {
+                description: 'Question successfully updated.',
             });
-            reset();
-            setOptions({ A: '', B: '' });
-            setOptionKeys(['A', 'B']);
             onOpenChange(false);
         } catch (error: any) {
-            toast.error('Creation Failed', {
-                description: error.response?.data?.message || 'System unable to save question data.',
+            toast.error('Update Failed', {
+                description: error.response?.data?.message || 'System unable to update question.',
             });
         }
     };
@@ -132,10 +147,10 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
                     <div className="absolute inset-0 bg-primary/5 blur-3xl opacity-50 pointer-events-none" />
                     <div className="relative z-10">
                         <DialogTitle className="text-2xl font-bold tracking-tight">
-                            Create <span className="text-primary">Question</span>
+                            Edit <span className="text-primary">Question</span>
                         </DialogTitle>
                         <DialogDescription className="text-xs font-medium text-muted-foreground/60 mt-1">
-                            Define question parameters and evaluation criteria.
+                            Modify question parameters and details.
                         </DialogDescription>
                     </div>
                 </DialogHeader>
@@ -410,29 +425,26 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
                             type="button"
                             variant="ghost"
                             onClick={() => {
-                                reset();
-                                setOptions({ A: '', B: '' });
-                                setOptionKeys(['A', 'B']);
                                 onOpenChange(false);
                             }}
                             className="rounded-xl h-10 px-6 hover:bg-muted/20 text-[11px] font-black uppercase tracking-widest"
                         >
-                            Discard
+                            Cancel
                         </Button>
                         <Button
                             type="submit"
-                            disabled={createQuestion.isPending}
+                            disabled={updateQuestion.isPending}
                             className="rounded-xl h-10 px-8 bg-primary text-primary-foreground text-[11px] font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all"
                         >
-                            {createQuestion.isPending ? (
+                            {updateQuestion.isPending ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Creating...
+                                    Saving...
                                 </>
                             ) : (
                                 <>
-                                    <Plus className="mr-2 h-4 w-4" />
-                                    Create Question
+                                    <Save className="mr-2 h-4 w-4" />
+                                    Save Changes
                                 </>
                             )}
                         </Button>
