@@ -19,6 +19,7 @@ export * from './models/review.model';
 export * from './models/exam.model';
 export * from './models/enrollment.model';
 export * from './models/order.model';
+export * from './models/coupon.model';
 
 // DTOs (all types are now here with Zod schemas)
 export * from './dtos/user.dto';
@@ -48,6 +49,7 @@ export * from './dtos/course-instructor.dto';
 export * from './dtos/staff-dashboard.dto';
 export * from './dtos/enrollment.dto';
 export * from './dtos/order.dto';
+export * from './dtos/coupon.dto';
 export * from './dtos/gamification.dto';
 export * from './dtos/live-session.dto';
 

@@ -405,15 +405,15 @@ export default function DashboardPage() {
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border/40 to-transparent -translate-y-8" />
 
         {role === 'admin' && <AdminDashboard />}
-        {role === 'staff' && <StaffDashboard />}
+        {(role === 'staff' || role?.startsWith('staff-')) && <StaffDashboard />}
         {role === 'lecturer' && <LecturerDashboard />}
 
-        {!['admin', 'staff', 'lecturer'].includes(role || '') && (
+        {!['admin', 'staff', 'lecturer'].includes(role || '') && !role?.startsWith('staff-') && (
           <div className="p-20 text-center space-y-4 bg-muted/10 rounded-xl border border-dashed border-border/40">
             <ShieldAlert className="size-12 text-muted-foreground/20 mx-auto" strokeWidth={1} />
             <div className="space-y-1">
               <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/40">Truy cập bị Hạn chế</p>
-              <p className="text-base font-medium text-foreground">Giao diện quản trị không khả dụng cho vai trò của bạn.</p>
+              <p className="text-base font-medium text-foreground">Giao diện quản trị không khả dụng cho vai trò của bạn ({role}).</p>
             </div>
           </div>
         )}
