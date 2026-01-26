@@ -171,7 +171,7 @@ export class UsersService implements IUsersService {
 
         // Send invite email with password - link to login page
         // Internal users (staff/lecturer) use web-admin, so use WEB_ADMIN_URL or default to port 5173
-        const loginUrl = `${(process.env.WEB_ADMIN_URL || 'http://localhost:5173').replace(/\/+$/, '')}/login`;
+        const loginUrl = `${(process.env.WEB_ADMIN_URL || 'https://app.torii.sbs').replace(/\/+$/, '')}/login`;
         await this.emailService.sendInviteEmail(
             user.email,
             user.displayName,

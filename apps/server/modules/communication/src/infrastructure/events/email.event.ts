@@ -19,7 +19,7 @@ export type EmailType =
 export interface SendEmailEvent {
     type: EmailType;
     to: string | string[];
-    data: Record<string, any>;
+    data: any;
 }
 
 /**
@@ -33,3 +33,13 @@ export interface OrderSuccessEmailData {
     currency: string;
     orderId: string;
 }
+
+/**
+ * Enrollment Success Email Data (for free courses)
+ */
+export interface EnrollmentSuccessEmailData {
+    displayName: string;
+    courseName: string;
+    courseUrl: string;
+}
+
