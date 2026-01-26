@@ -45,7 +45,7 @@ const WORKSPACES: Workspace[] = [
         name: "Operations",
         logo: LayoutGrid,
         plan: "Enterprise Ops",
-        roles: [UserRole.LECTURER, UserRole.STAFF_LMS, UserRole.STAFF_SUPPORT, UserRole.STAFF_SALES, UserRole.STAFF],
+        roles: [UserRole.LECTURER, UserRole.STAFF_LMS, UserRole.STAFF_SUPPORT, UserRole.STAFF_SALES, UserRole.STAFF_FINANCE, UserRole.STAFF],
         navItems: [
             { labelKey: "common:sidebar.management", items: managementNavItems }
         ]
@@ -92,7 +92,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             }];
         }
 
-        // For other roles, filter available workspaces
+        // If staff variant, consolidate Overview and Operations
+        if (userRole.startsWith('staff-') || userRole === UserRole.STAFF) {
+            return [{
+                id: "staff-hub",
+                name: "Torii Operations",
+                logo: LayoutGrid,
+                plan: "Staff Access",
+                roles: [userRole],
+                navItems: [
+                    { labelKey: "common:sidebar.overview", items: mainNavItems },
+                    { labelKey: "common:sidebar.management", items: managementNavItems },
+                ]
+            }];
+        }
+
+        // For other roles (Lecturer, etc.), use default filtering
         return WORKSPACES.filter(ws => {
             if (ws.roles.includes("*")) return true;
             return ws.roles.includes(userRole);
