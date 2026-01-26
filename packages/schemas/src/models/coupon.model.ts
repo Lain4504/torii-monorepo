@@ -1,0 +1,72 @@
+import { z } from 'zod';
+
+/**
+ * Coupon Status Enum
+ */
+export enum CouponStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  EXPIRED = 'expired',
+}
+
+/**
+ * Coupon Discount Type Enum
+ */
+export enum CouponDiscountType {
+  PERCENTAGE = 'percentage',
+  FIXED_AMOUNT = 'fixed_amount',
+}
+
+/**
+ * Coupon Schema
+ */
+export const couponSchema = z.object({
+  id: z.string().uuid(),
+  code: z.string().min(1).max(50),
+  name: z.string().min(1).max(100),
+  description: z.string().optional().nullable(),
+  
+  // Discount Configuration
+  discountType: z.nativeEnum(CouponDiscountType),
+  discountValue: z.number().positive(),
+  maxDiscountAmount: z.number().positive().optional().nullable(),
+  
+  // Conditions
+  minOrderAmount: z.number().nonnegative().optional().nullable(),
+  applicableCourseIds: z.array(z.string().uuid()).default([]),
+  excludedCourseIds: z.array(z.string().uuid()).default([]),
+  
+  // Validity Period
+  validFrom: z.date(),
+  validUntil: z.date(),
+  
+  // Usage Limits
+  usageLimit: z.number().int().positive().optional().nullable(),
+  usageCount: z.number().int().nonnegative().default(0),
+  userUsageLimit: z.number().int().positive().default(1),
+  
+  // Status
+  status: z.nativeEnum(CouponStatus).default(CouponStatus.ACTIVE),
+  
+  // Metadata
+  createdBy: z.string().uuid().optional().nullable(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+export type Coupon = z.infer<typeof couponSchema>;
+
+/**
+ * Coupon Usage Schema
+ */
+export const couponUsageSchema = z.object({
+  id: z.string().uuid(),
+  couponId: z.string().uuid(),
+  userId: z.string().uuid(),
+  orderId: z.string().uuid().optional().nullable(),
+  discountAmount: z.number().nonnegative(),
+  usedAt: z.date(),
+});
+
+export type CouponUsage = z.infer<typeof couponUsageSchema>;
+

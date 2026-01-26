@@ -13,6 +13,7 @@ export * from './i-post.service';
 export * from './i-learning-progress.service';
 export * from './i-flashcard.service';
 export * from './i-flashcard-deck.service';
+export * from './i-coupon.service';
 
 // Injection tokens for services
 export const COURSE_SERVICE_TOKEN = Symbol('COURSE_SERVICE');
@@ -23,3 +24,4 @@ export const LESSON_MATERIAL_SERVICE_TOKEN = Symbol('LESSON_MATERIAL_SERVICE');
 export const REVIEW_SERVICE_TOKEN = Symbol('REVIEW_SERVICE');
 export const ENROLLMENT_SERVICE_TOKEN = Symbol('ENROLLMENT_SERVICE');
 export const LIVE_SESSION_SERVICE_TOKEN = Symbol('LIVE_SESSION_SERVICE');
+export const COUPON_SERVICE_TOKEN = Symbol('COUPON_SERVICE');
