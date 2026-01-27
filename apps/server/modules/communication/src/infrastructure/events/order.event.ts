@@ -11,6 +11,8 @@ export interface OrderPaymentSuccessEvent {
     courseName: string;
     amount: number;
     currency: string;
+    isGift?: boolean;
+    recipientName?: string;
 }
 
 /**

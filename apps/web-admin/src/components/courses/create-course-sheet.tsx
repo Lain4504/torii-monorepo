@@ -45,6 +45,8 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
         control,
         formState: { errors, isDirty },
         reset,
+        watch,
+        setValue,
     } = useForm<CourseCreateDTO>({
         resolver: zodResolver(courseCreateDTOSchema) as any,
         defaultValues: {
@@ -65,6 +67,8 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
         },
     });
 
+    const isFree = watch('isFree');
+
     const handleClose = () => {
         if (!uploading) {
             onOpenChange(false);
@@ -75,6 +79,14 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
     };
 
     const onSubmit = async (data: CourseCreateDTO) => {
+        // Validation: Paid courses must have price > 0
+        if (!data.isFree && (data.price === undefined || data.price <= 0)) {
+            toast.error('Giá tiền không hợp lệ', {
+                description: 'Khóa học trả phí bắt buộc phải có học phí lớn hơn 0.',
+            });
+            return;
+        }
+
         setUploading(true);
         try {
             // Upload thumbnail if provided
@@ -218,8 +230,9 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                             step="0.01"
                                             min="0"
                                             {...register('price', { valueAsNumber: true })}
+                                            disabled={isFree}
                                             placeholder="0.00"
-                                            className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/30 transition-all font-mono tracking-tight"
+                                            className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/30 transition-all font-mono tracking-tight disabled:opacity-50 disabled:bg-muted"
                                         />
                                         {errors.price && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.price.message}</FieldError>}
                                     </Field>
@@ -302,8 +315,9 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                             step="0.01"
                                             min="0"
                                             {...register('discountPrice', { valueAsNumber: true })}
+                                            disabled={isFree}
                                             placeholder="0.00"
-                                            className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/30 transition-all font-mono tracking-tight"
+                                            className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/30 transition-all font-mono tracking-tight disabled:opacity-50 disabled:bg-muted"
                                         />
                                         {errors.discountPrice && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.discountPrice.message}</FieldError>}
                                     </Field>
@@ -332,12 +346,26 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                             name="isFree"
                                             control={control}
                                             render={({ field }) => (
-                                                <div className="flex items-center gap-3 mt-1.5 p-3 rounded-xl bg-background border border-border cursor-pointer hover:bg-muted/5 transition-all" onClick={() => field.onChange(!field.value)}>
+                                                <div className="flex items-center gap-3 mt-1.5 p-3 rounded-xl bg-background border border-border cursor-pointer hover:bg-muted/5 transition-all"
+                                                    onClick={() => {
+                                                        const newValue = !field.value;
+                                                        field.onChange(newValue);
+                                                        if (newValue) {
+                                                            setValue('price', 0);
+                                                            setValue('discountPrice', 0);
+                                                        }
+                                                    }}>
                                                     <input
                                                         id="isFree"
                                                         type="checkbox"
                                                         checked={field.value} // Controlled checked attribute
-                                                        onChange={(e) => field.onChange(e.target.checked)}
+                                                        onChange={(e) => {
+                                                            field.onChange(e.target.checked);
+                                                            if (e.target.checked) {
+                                                                setValue('price', 0);
+                                                                setValue('discountPrice', 0);
+                                                            }
+                                                        }}
                                                         className="h-4 w-4 rounded border-border text-primary focus:ring-primary/20 cursor-pointer"
                                                     />
                                                     <span className="text-xs font-medium text-foreground/80">

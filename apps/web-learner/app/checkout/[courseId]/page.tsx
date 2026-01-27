@@ -6,7 +6,11 @@ import Link from 'next/link'
 import { useAppSelector } from '@/hooks/hooks'
 import { Button } from '@workspace/ui/components/button'
 import { Card, CardContent } from '@workspace/ui/components/card'
-import { Loader2, ShieldCheck, CreditCard, ArrowLeft, X, Lock, CheckCircle2 } from 'lucide-react'
+import { Switch } from '@workspace/ui/components/switch'
+import { Input } from '@workspace/ui/components/input'
+import { Label } from '@workspace/ui/components/label'
+import { Textarea } from '@workspace/ui/components/textarea'
+import { Loader2, ShieldCheck, CreditCard, ArrowLeft, X, Lock, CheckCircle2, Gift, Mail, MessageSquare } from 'lucide-react'
 import { toast } from '@workspace/ui/components/sonner'
 import { courseApi } from '@/apis/services/course-api'
 import { orderApi } from '@/apis/services/order-api'
@@ -25,6 +29,11 @@ export default function CheckoutPage() {
     const [isLoading, setIsLoading] = useState(true)
     const [isCreatingLink, setIsCreatingLink] = useState(false)
     const [isDialogOpen, setIsDialogOpen] = useState(false)
+
+    // Gift State
+    const [isGift, setIsGift] = useState(false)
+    const [recipientEmail, setRecipientEmail] = useState('')
+    const [giftMessage, setGiftMessage] = useState('')
 
     // PayOS Config State
     const [payOSConfig, setPayOSConfig] = useState<PayOSConfig>({
@@ -82,6 +91,22 @@ export default function CheckoutPage() {
     const handlePayment = async () => {
         if (!course || !user) return
 
+        // Validate Gift
+        if (isGift) {
+            if (!recipientEmail) {
+                toast.error('Vui lòng nhập email người nhận')
+                return
+            }
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipientEmail)) {
+                toast.error('Email người nhận không hợp lệ')
+                return
+            }
+            if (recipientEmail === user.email) {
+                toast.error('Bạn không thể tự mua tặng chính mình')
+                return
+            }
+        }
+
         try {
             setIsCreatingLink(true)
             exit()
@@ -91,11 +116,14 @@ export default function CheckoutPage() {
             const order = await orderApi.createOrder({
                 courseId: course.id,
                 paymentMethod: PaymentMethod.PAYOS,
-                orderType: OrderType.COURSE_PURCHASE,
+                orderType: isGift ? OrderType.GIFT : OrderType.COURSE_PURCHASE,
                 description: description,
                 metadata: {
                     returnUrl: window.location.href,
                     cancelUrl: window.location.href,
+                    isGift: isGift,
+                    recipientEmail: isGift ? recipientEmail : undefined,
+                    giftMessage: isGift ? giftMessage : undefined,
                 },
             })
 
@@ -108,9 +136,17 @@ export default function CheckoutPage() {
             } else {
                 toast.error('Không thể tạo link thanh toán')
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error(error)
-            toast.error('Có lỗi xảy ra khi tạo đơn hàng')
+            const message = error.response?.data?.message || ''
+
+            if (message.includes('Recipient with email') && message.includes('not found')) {
+                toast.error('Người nhận không tồn tại', {
+                    description: 'Vui lòng kiểm tra lại email đã chính xác chưa và đảm bảo email này đã được đăng ký tài khoản trên hệ thống.'
+                })
+            } else {
+                toast.error(message || 'Có lỗi xảy ra khi tạo đơn hàng')
+            }
         } finally {
             setIsCreatingLink(false)
         }
@@ -139,25 +175,32 @@ export default function CheckoutPage() {
                         <div className="p-10 md:p-14 pb-8 space-y-4">
                             <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[9px] font-black uppercase tracking-[0.3em]">
                                 <ShieldCheck className="w-3 h-3" />
-                                <span>Thanh toán Bảo mật</span>
+                                <span className="mr-2">Thanh toán Bảo mật</span>
+                                {isGift && (
+                                    <>
+                                        <div className="w-1 h-1 rounded-full bg-current" />
+                                        <Gift className="w-3 h-3 ml-2" />
+                                        <span>Gửi tặng khóa học</span>
+                                    </>
+                                )}
                             </div>
-                            <h1 className="text-4xl md:text-4xl font-serif font-bold text-foreground tracking-tight uppercase italic leading-[0.9]">
+                            <h1 className="text-4xl md:text-5xl font-serif font-bold text-foreground tracking-tight uppercase italic leading-[0.9]">
                                 Xác nhận <br /> <span className="text-primary not-italic">Đơn hàng</span>
                             </h1>
                             <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 italic border-l-2 border-primary/20 pl-6 py-1">
-                                Kiểm tra lại thông tin học tập của bạn trước khi tiến hành thanh toán.
+                                {isGift ? 'Gửi món quà tri thức đến người thân yêu của bạn.' : 'Kiểm tra lại thông tin học tập của bạn trước khi tiến hành thanh toán.'}
                             </p>
                         </div>
 
                         {/* Content */}
-                        <div className="p-8">
+                        <div className="p-8 space-y-8">
                             {course && (
-                                <div className="space-y-8">
+                                <>
                                     {/* Product/Course Info */}
                                     <div className="flex items-center gap-6 p-8 rounded-[2.5rem] bg-muted/20 border border-border/40 relative overflow-hidden group">
                                         <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                                         <div className="h-20 w-20 rounded-3xl bg-background flex items-center justify-center shrink-0 border border-border/40 shadow-xl relative z-10 transition-transform group-hover:scale-110">
-                                            <CreditCard className="w-8 h-8 text-primary" />
+                                            {isGift ? <Gift className="w-8 h-8 text-primary" /> : <CreditCard className="w-8 h-8 text-primary" />}
                                         </div>
                                         <div className="space-y-1 relative z-10">
                                             <p className="text-[9px] font-black text-primary uppercase tracking-[0.3em]">Hệ đào tạo</p>
@@ -167,8 +210,56 @@ export default function CheckoutPage() {
                                         </div>
                                     </div>
 
+                                    {/* Gift Option Details - Expandable */}
+                                    <div className="p-6 rounded-[2rem] border border-border/40 bg-white/5 space-y-6">
+                                        <div className="flex items-center justify-between">
+                                            <div className="space-y-1">
+                                                <Label htmlFor="gift-mode" className="text-base font-bold flex items-center gap-2 cursor-pointer">
+                                                    <Gift className="w-4 h-4 text-primary" />
+                                                    Mua làm quà tặng
+                                                </Label>
+                                                <p className="text-xs text-muted-foreground">Gửi khóa học này đến email bạn bè</p>
+                                            </div>
+                                            <Switch
+                                                id="gift-mode"
+                                                checked={isGift}
+                                                onCheckedChange={setIsGift}
+                                            />
+                                        </div>
+
+                                        {isGift && (
+                                            <div className="space-y-4 pt-4 border-t border-border/20 animate-in slide-in-from-top-2 duration-300">
+                                                <div className="space-y-2">
+                                                    <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Email người nhận</Label>
+                                                    <div className="relative">
+                                                        <Mail className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                                                        <Input
+                                                            type="email"
+                                                            placeholder="email@example.com"
+                                                            className="pl-9 bg-background/50 border-border/40 focus:border-primary/50 transition-colors"
+                                                            value={recipientEmail}
+                                                            onChange={(e) => setRecipientEmail(e.target.value)}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Lời nhắn (tùy chọn)</Label>
+                                                    <div className="relative">
+                                                        <MessageSquare className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                                                        <Textarea
+                                                            placeholder="Chúc bạn học tốt..."
+                                                            className="pl-9 min-h-[100px] bg-background/50 border-border/40 focus:border-primary/50 transition-colors resize-none"
+                                                            value={giftMessage}
+                                                            onChange={(e) => setGiftMessage(e.target.value)}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
                                     {/* Pricing */}
-                                    <div className="space-y-6 pt-10 border-t border-border/20">
+                                    <div className="space-y-6 pt-6 border-t border-border/20">
                                         <div className="flex items-end justify-between">
                                             <div className="space-y-1">
                                                 <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/30">Tổng chi phí đầu tư</span>
@@ -185,7 +276,7 @@ export default function CheckoutPage() {
                                     </div>
 
                                     {/* Action */}
-                                    <div className="space-y-6 pt-6">
+                                    <div className="space-y-6 pt-2">
                                         <Button
                                             className="w-full h-20 rounded-[2rem] text-[11px] font-black uppercase tracking-[0.3em] shadow-2xl shadow-primary/20 hover:shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-500 bg-primary text-white border-none"
                                             onClick={handlePayment}
@@ -198,7 +289,7 @@ export default function CheckoutPage() {
                                                 </>
                                             ) : (
                                                 <>
-                                                    Tiến hành Thanh toán <ArrowLeft className="ml-3 w-4 h-4 rotate-180" />
+                                                    {isGift ? 'Gửi Quà Tặng' : 'Tiến hành Thanh toán'} <ArrowLeft className="ml-3 w-4 h-4 rotate-180" />
                                                 </>
                                             )}
                                         </Button>
@@ -207,7 +298,7 @@ export default function CheckoutPage() {
                                             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Cổng thanh toán mã hóa bởi PayOS</span>
                                         </div>
                                     </div>
-                                </div>
+                                </>
                             )}
                         </div>
                     </CardContent>
