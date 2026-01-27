@@ -41,5 +41,8 @@ export interface EnrollmentSuccessEmailData {
     displayName: string;
     courseName: string;
     courseUrl: string;
+    isGift?: boolean;
+    senderName?: string;
+    giftMessage?: string;
 }
 

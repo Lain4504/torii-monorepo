@@ -48,6 +48,8 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
         control,
         handleSubmit,
         reset,
+        watch,
+        setValue,
         formState: { isDirty },
     } = useForm<CourseUpdateDTO>({
         resolver: zodResolver(courseUpdateDTOSchema),
@@ -66,6 +68,8 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
             requirements: [],
         },
     });
+
+    const isFree = watch('isFree', course?.isFree ?? false);
 
     // Reset form when course changes
     useEffect(() => {
@@ -116,6 +120,14 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
 
     const onSubmitForm = async (data: UpdateCourseFormData) => {
         if (!course) return;
+
+        // Validation: Paid courses must have price > 0
+        if (!data.isFree && (data.price === undefined || data.price <= 0)) {
+            toast.error('Giá tiền không hợp lệ', {
+                description: 'Khóa học trả phí bắt buộc phải có học phí lớn hơn 0.',
+            });
+            return;
+        }
 
         setUploading(true);
         try {
@@ -276,9 +288,10 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                     id={field.name}
                                                     type="number"
                                                     {...field}
+                                                    disabled={isFree}
                                                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
                                                     placeholder="0.00"
-                                                    className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/30 transition-all font-mono tracking-tight"
+                                                    className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/30 transition-all font-mono tracking-tight disabled:opacity-50 disabled:bg-muted"
                                                     aria-invalid={fieldState.invalid}
                                                 />
                                                 <FieldError errors={[fieldState.error]} className="text-xs font-medium text-rose-500 pl-2" />
@@ -361,12 +374,26 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                 <FieldLabel htmlFor="isFree" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
                                                     Giá Cả
                                                 </FieldLabel>
-                                                <div className="flex items-center gap-3 mt-1.5 p-3 rounded-xl bg-background border border-border cursor-pointer hover:bg-muted/5 transition-all" onClick={() => field.onChange(!field.value)}>
+                                                <div className="flex items-center gap-3 mt-1.5 p-3 rounded-xl bg-background border border-border cursor-pointer hover:bg-muted/5 transition-all"
+                                                    onClick={() => {
+                                                        const newValue = !field.value;
+                                                        field.onChange(newValue);
+                                                        if (newValue) {
+                                                            setValue('price', 0);
+                                                            setValue('discountPrice', 0);
+                                                        }
+                                                    }}>
                                                     <input
                                                         id="isFree"
                                                         type="checkbox"
                                                         checked={!!field.value}
-                                                        onChange={(e) => field.onChange(e.target.checked)}
+                                                        onChange={(e) => {
+                                                            field.onChange(e.target.checked);
+                                                            if (e.target.checked) {
+                                                                setValue('price', 0);
+                                                                setValue('discountPrice', 0);
+                                                            }
+                                                        }}
                                                         className="h-4 w-4 rounded border-border/60 text-primary focus:ring-primary/20 cursor-pointer accent-primary"
                                                     />
                                                     <span className="text-xs font-medium text-foreground/80">
@@ -391,9 +418,10 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                     id={field.name}
                                                     type="number"
                                                     {...field}
+                                                    disabled={isFree}
                                                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
                                                     placeholder="0.00"
-                                                    className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/30 transition-all font-mono tracking-tight"
+                                                    className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/30 transition-all font-mono tracking-tight disabled:opacity-50 disabled:bg-muted"
                                                     aria-invalid={fieldState.invalid}
                                                 />
                                                 <FieldError errors={[fieldState.error]} className="text-xs font-medium text-rose-500 pl-2" />
