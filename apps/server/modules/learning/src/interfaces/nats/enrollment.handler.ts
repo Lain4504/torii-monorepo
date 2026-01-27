@@ -44,4 +44,9 @@ export class EnrollmentHandler {
     async updateOrderId(@Payload() data: { id: string, orderId: string }) {
         return this.enrollmentService.updateOrderId(data.id, data.orderId);
     }
+
+    @MessagePattern({ cmd: 'learning.learner.getStats' })
+    async getLearnerStats(@Payload() data: { userId: string }) {
+        return this.enrollmentService.getLearnerStats(data.userId);
+    }
 }
