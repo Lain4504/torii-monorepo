@@ -43,7 +43,15 @@ export interface IEnrollmentService {
     /**
      * Update enrollment order ID (internal use)
      */
+    /**
+     * Update enrollment order ID (internal use)
+     */
     updateOrderId(enrollmentId: string, orderId: string): Promise<EnrollmentResponseDTO>;
+
+    /**
+     * Delete enrollment by user and course
+     */
+    deleteByUserAndCourse(userId: string, courseId: string): Promise<boolean>;
 }
 
 
