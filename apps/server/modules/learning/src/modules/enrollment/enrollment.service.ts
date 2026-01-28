@@ -10,7 +10,6 @@ import {
     EnrollmentStatus,
 } from '@workspace/schemas';
 import type { IEnrollmentService } from '../../interfaces/services';
-import { ENROLLMENT_SERVICE_TOKEN } from '../../interfaces/services';
 import { EnrollmentRepository } from './enrollment.repository';
 import { ICourseRepository, COURSE_REPOSITORY_TOKEN } from '../../interfaces/repositories';
 import type { Prisma } from '@prisma/generated';
@@ -299,6 +298,22 @@ export class EnrollmentService implements IEnrollmentService {
             throw error;
         }
     }
+
+    /**
+     * Delete enrollment by user and course
+     */
+    async deleteByUserAndCourse(userId: string, courseId: string): Promise<boolean> {
+        try {
+            const enrollment = await this.enrollmentRepository.findByUserAndCourse(userId, courseId);
+            if (!enrollment) {
+                throw new NotFoundException('Enrollment not found');
+            }
+            await this.enrollmentRepository.delete(enrollment.id);
+            this.logger.log(`Deleted enrollment ${enrollment.id} for user ${userId} and course ${courseId}`);
+            return true;
+        } catch (error: any) {
+            this.logger.error(`Error deleting enrollment: ${error.message}`, error.stack);
+            throw error;
+        }
+    }
 }
-
-

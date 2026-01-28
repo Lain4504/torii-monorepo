@@ -43,17 +43,15 @@ export interface IEnrollmentService {
     /**
      * Update enrollment order ID (internal use)
      */
+    /**
+     * Update enrollment order ID (internal use)
+     */
     updateOrderId(enrollmentId: string, orderId: string): Promise<EnrollmentResponseDTO>;
 
     /**
-     * Get learning stats for a user
+     * Delete enrollment by user and course
      */
-    getLearnerStats(userId: string): Promise<{
-        totalCourses: number;
-        completedCourses: number;
-        averageProgress: number;
-        totalLearningHours: number;
-    }>;
+    deleteByUserAndCourse(userId: string, courseId: string): Promise<boolean>;
 }
 
 
