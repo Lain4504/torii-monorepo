@@ -8,6 +8,8 @@ import { AuditLogController } from './controllers/audit-log.controller';
 import { TwoFactorAuthController } from './controllers/two-factor-auth.controller';
 import { AuthController } from './controllers/auth.controller';
 
+import { ProfilesController } from './controllers/profiles.controller';
+
 /**
  * Identity Module for Gateway
  * Handles all Identity service HTTP routes via NATS
@@ -20,6 +22,7 @@ import { AuthController } from './controllers/auth.controller';
         AuditLogController,
         TwoFactorAuthController,
         AuthController,
+        ProfilesController,
     ],
 })
 export class IdentityModule { }

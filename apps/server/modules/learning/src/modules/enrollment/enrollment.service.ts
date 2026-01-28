@@ -32,6 +32,35 @@ export class EnrollmentService implements IEnrollmentService {
     ) { }
 
 
+    /**
+     * Get learning stats for a user
+     */
+    async getLearnerStats(userId: string): Promise<{
+        totalCourses: number;
+        completedCourses: number;
+        averageProgress: number;
+        totalLearningHours: number;
+    }> {
+        // Fetch all enrollments for the user
+        const enrollments = await this.findAll({ userId, limit: 1000, page: 1 });
+
+        const totalCourses = enrollments.total;
+        const completedCourses = enrollments.data.filter(e => e.completionStatus === EnrollmentStatus.COMPLETED).length;
+        const averageProgress = totalCourses > 0
+            ? enrollments.data.reduce((acc, curr) => acc + curr.completionPercentage, 0) / totalCourses
+            : 0;
+
+        // Roughly estimate hours: 10h per course * progress
+        const totalLearningHours = Math.floor(totalCourses * 10 * (averageProgress / 100));
+
+        return {
+            totalCourses,
+            completedCourses,
+            averageProgress: Math.round(averageProgress),
+            totalLearningHours
+        };
+    }
+
     private toEnrollmentDto(e: any): EnrollmentResponseDTO {
         return {
             id: e.id,
