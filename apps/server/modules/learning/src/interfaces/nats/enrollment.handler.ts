@@ -44,4 +44,14 @@ export class EnrollmentHandler {
     async updateOrderId(@Payload() data: { id: string, orderId: string }) {
         return this.enrollmentService.updateOrderId(data.id, data.orderId);
     }
+
+    @MessagePattern({ cmd: 'learning.enrollment.isEnrolled' })
+    async isEnrolled(@Payload() data: { userId: string, courseId: string }) {
+        return this.enrollmentService.isEnrolled(data.userId, data.courseId);
+    }
+
+    @MessagePattern({ cmd: 'learning.enrollment.delete' })
+    async delete(@Payload() data: { userId: string, courseId: string }) {
+        return this.enrollmentService.deleteByUserAndCourse(data.userId, data.courseId);
+    }
 }
