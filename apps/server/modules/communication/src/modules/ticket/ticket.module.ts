@@ -5,9 +5,10 @@ import { TicketRepository } from './ticket.repository';
 import { TicketHandler } from '../../interfaces/nats/ticket.handler';
 import { TICKET_SERVICE_TOKEN } from '../../interfaces/services';
 import { TICKET_REPOSITORY_TOKEN } from '../../interfaces/repositories';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
-    imports: [PrismaModule, NatsClientModule],
+    imports: [PrismaModule, NatsClientModule, NotificationModule],
     controllers: [TicketHandler],
     providers: [
         {

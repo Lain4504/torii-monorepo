@@ -8,9 +8,10 @@ import {
     UpdateTicketStatusDTO,
     PaginatedResponseDTO,
     TicketType,
-    TicketStatus
+    TicketStatus,
+    NotificationType
 } from '@workspace/schemas';
-import { ITicketService } from '../../interfaces/services';
+import { ITicketService, INotificationService, NOTIFICATION_SERVICE_TOKEN } from '../../interfaces/services';
 import { ITicketRepository, TICKET_REPOSITORY_TOKEN } from '../../interfaces/repositories';
 
 @Injectable()
@@ -20,6 +21,8 @@ export class TicketService implements ITicketService {
     constructor(
         @Inject(TICKET_REPOSITORY_TOKEN)
         private readonly ticketRepository: ITicketRepository,
+        @Inject(NOTIFICATION_SERVICE_TOKEN)
+        private readonly notificationService: INotificationService,
         @Inject('NATS_SERVICE')
         private readonly natsClient: ClientProxy,
     ) { }
@@ -108,6 +111,43 @@ export class TicketService implements ITicketService {
             }
         }
 
-        return this.ticketRepository.updateStatus(id, dto.status, dto.response, handlerId);
+        const updatedTicket = await this.ticketRepository.updateStatus(id, dto.status, dto.response, handlerId);
+
+        // Send Notification to User
+        try {
+            let title = '';
+            let message = '';
+
+            if (dto.status === TicketStatus.APPROVED) {
+                title = ticket.type === TicketType.REFUND ? 'Yêu cầu hoàn tiền được chấp nhận' : 'Yêu cầu hỗ trợ được chấp nhận';
+                message = ticket.type === TicketType.REFUND
+                    ? `Yêu cầu hoàn tiền cho khóa học của bạn đã được phê duyệt. ${dto.response || ''}`
+                    : `Yêu cầu hỗ trợ của bạn đã được xử lý thành công. ${dto.response || ''}`;
+            } else if (dto.status === TicketStatus.REJECTED) {
+                title = ticket.type === TicketType.REFUND ? 'Yêu cầu hoàn tiền bị từ chối' : 'Yêu cầu hỗ trợ bị từ chối';
+                message = `Rất tiếc, yêu cầu của bạn đã bị từ chối. Lý do: ${dto.response || 'Không có lý do cụ thể.'}`;
+            } else if (dto.status === TicketStatus.PROCESSING) {
+                title = 'Yêu cầu đang được xử lý';
+                message = `Yêu cầu của bạn đã được tiếp nhận và đang trong quá trình xử lý.`;
+            }
+
+            if (title && message) {
+                await this.notificationService.create({
+                    userId: ticket.userId,
+                    title,
+                    message,
+                    notificationType: ticket.type === TicketType.REFUND ? NotificationType.PAYMENT : NotificationType.SYSTEM,
+                    metadata: {
+                        ticketId: ticket.id,
+                        status: dto.status,
+                        type: ticket.type
+                    }
+                });
+            }
+        } catch (error) {
+            this.logger.error(`Failed to send notification for ticket ${id}: ${error.message}`);
+        }
+
+        return updatedTicket;
     }
 }
