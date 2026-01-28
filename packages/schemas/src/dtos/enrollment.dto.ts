@@ -8,6 +8,9 @@ export type EnrollmentResponseDTO = z.infer<typeof enrollmentResponseDTOSchema>;
 
 export const enrollmentCreateDTOSchema = z.object({
     courseId: z.string().uuid(),
+    isGift: z.boolean().optional(),
+    giftMessage: z.string().optional(),
+    senderId: z.string().uuid().optional(),
 });
 
 export type EnrollmentCreateDTO = z.infer<typeof enrollmentCreateDTOSchema>;

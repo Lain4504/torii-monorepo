@@ -24,6 +24,20 @@ export function generateEnrollmentSuccessEmailHtml(data: EnrollmentSuccessEmailD
             Xin chào <strong>${data.displayName}</strong>,
         </p>
 
+        <!-- Gift Message (if applicable) -->
+        ${data.isGift ? `
+        <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <p style="font-size: 16px; color: #92400e; margin: 0; font-weight: bold;">
+                Bạn nhận được một món quà từ ${data.senderName}! 🎁
+            </p>
+            ${data.giftMessage ? `
+            <p style="font-size: 14px; color: #b45309; margin-top: 10px; font-style: italic;">
+                "${data.giftMessage}"
+            </p>
+            ` : ''}
+        </div>
+        ` : ''}
+
         <!-- Success Message -->
         <p style="font-size: 16px; color: #374151; line-height: 1.6;">
             Bạn đã ghi danh thành công vào khóa học: 

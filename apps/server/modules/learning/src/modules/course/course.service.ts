@@ -353,6 +353,11 @@ export class CourseService implements ICourseService {
         status: 'draft',
       };
 
+      // Validation: Paid courses must have price > 0
+      if (!data.isFree && data.price <= 0) {
+        throw new BadRequestException('Paid courses must have a price greater than 0');
+      }
+
       const course = await this.courseRepository.create(data);
 
       await this.createAuditLog({
@@ -420,6 +425,14 @@ export class CourseService implements ICourseService {
       if (dto.tags !== undefined) updateData.tags = dto.tags;
       if (dto.learningOutcomes !== undefined) updateData.learningOutcomes = dto.learningOutcomes;
       if (dto.requirements !== undefined) updateData.requirements = dto.requirements;
+
+      // Validation: Paid courses must have price > 0
+      const finalIsFree = dto.isFree !== undefined ? dto.isFree : existing.isFree;
+      const finalPrice = dto.price !== undefined ? Number(dto.price) : Number(existing.price);
+
+      if (!finalIsFree && finalPrice <= 0) {
+        throw new BadRequestException('Paid courses must have a price greater than 0');
+      }
 
       let isPublishing = false;
 

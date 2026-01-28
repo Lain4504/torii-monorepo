@@ -226,6 +226,40 @@ export class OrderService implements IOrderService {
             throw new BadRequestException('CourseId is required for course_purchase order type');
         }
 
+        // Handle Gift Order Validation
+        if (input.orderType === OrderType.GIFT || (input.metadata && input.metadata.isGift)) {
+            const recipientEmail = input.metadata?.recipientEmail;
+            if (!recipientEmail) {
+                throw new BadRequestException('Recipient email is required for gift orders');
+            }
+
+            if (recipientEmail === (await this.orderRepository.getUserById(userId))?.email) {
+                throw new BadRequestException('You cannot gift a course to yourself');
+            }
+
+            try {
+                // Verify recipient exists
+                const identityResponse = await lastValueFrom(
+                    this.natsClient.send({ cmd: 'identity.users.findOne' }, { email: recipientEmail })
+                );
+
+                if (!identityResponse || !identityResponse.user) {
+                    throw new BadRequestException(`Recipient with email ${recipientEmail} not found`);
+                }
+
+                // Store recipient ID in metadata for later use
+                input.metadata = {
+                    ...input.metadata,
+                    recipientId: identityResponse.user.id,
+                    recipientName: identityResponse.user.displayName,
+                };
+
+            } catch (error: any) {
+                this.logger.error(`Error validating gift recipient: ${error.message}`);
+                throw new BadRequestException(`Invalid recipient email: ${recipientEmail}`);
+            }
+        }
+
         try {
             const metadata = {
                 ...input.metadata,
@@ -329,15 +363,31 @@ export class OrderService implements IOrderService {
             });
 
             const metadata = order.metadata as Record<string, any>;
-            if (order.orderType === OrderType.COURSE_PURCHASE && metadata?.courseId) {
+            if ((order.orderType === OrderType.COURSE_PURCHASE || order.orderType === OrderType.GIFT) && metadata?.courseId) {
                 try {
+                    // Check if it's a gift
+                    const isGift = order.orderType === OrderType.GIFT || !!metadata.isGift;
+                    const targetUserId = isGift ? metadata.recipientId : order.userId;
+
+                    if (isGift && !targetUserId) {
+                        this.logger.error(`Gift order ${orderId} missing recipientId in metadata`);
+                        // Fallback to buyer or fail? Fail is safer for gifts to avoid wrong assignment
+                        // But let's try to recover via email if possible, or just fail. 
+                        // Since we validated in create, it should be there.
+                        throw new BadRequestException('Gift order missing recipient information');
+                    }
+
                     // Create enrollment via NATS
-                    // Create enrollment via NATS
+                    const enrollmentPayload = {
+                        userId: targetUserId,
+                        courseId: metadata.courseId,
+                        isGift: isGift,
+                        giftMessage: metadata.giftMessage,
+                        senderId: isGift ? order.userId : undefined,
+                    };
+
                     const enrollment = await lastValueFrom(
-                        this.natsClient.send({ cmd: 'learning.enrollment.create' }, {
-                            userId: order.userId,
-                            courseId: metadata.courseId,
-                        })
+                        this.natsClient.send({ cmd: 'learning.enrollment.create' }, enrollmentPayload)
                     );
 
                     if (!enrollment) {
@@ -376,8 +426,27 @@ export class OrderService implements IOrderService {
                                 courseName: course.title,
                                 amount: Number(order.amount),
                                 currency: order.currency,
+                                isGift: isGift,
+                                recipientName: metadata.recipientName,
                             });
                             this.logger.log(`order_payment_success event emitted for order ${orderId}`);
+
+                            if (isGift && targetUserId) {
+                                const recipientUser = await this.orderRepository.getUserById(targetUserId);
+                                if (recipientUser) {
+                                    this.natsClient.emit({ cmd: 'course_gift_received' }, {
+                                        recipientId: targetUserId,
+                                        recipientEmail: recipientUser.email,
+                                        senderId: order.userId,
+                                        senderName: user.displayName || user.email || 'A friend',
+                                        courseId: course.id,
+                                        courseName: course.title,
+                                        giftMessage: metadata.giftMessage,
+                                        enrollmentId: enrollment.id,
+                                    });
+                                    this.logger.log(`course_gift_received event emitted for recipient ${recipientUser.email}`);
+                                }
+                            }
                         }
                     } catch (eventError: any) {
                         this.logger.error(`Failed to emit payment success event: ${eventError.message}`);

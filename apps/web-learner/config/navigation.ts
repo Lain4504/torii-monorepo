@@ -9,6 +9,7 @@ import {
     User,
     CreditCard,
     Settings,
+    LifeBuoy,
 } from 'lucide-react'
 
 export interface NavItem {
@@ -39,5 +40,6 @@ export const progressNav: NavItem[] = [
 export const accountNav: NavItem[] = [
     { name: 'Hồ sơ', href: '/dashboard/profile', icon: User },
     { name: 'Lịch sử thanh toán', href: '/dashboard/payment', icon: CreditCard },
+    { name: 'Hỗ trợ', href: '/dashboard/support', icon: LifeBuoy },
     { name: 'Cài đặt', href: '/dashboard/settings', icon: Settings },
 ]

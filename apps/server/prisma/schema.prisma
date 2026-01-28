@@ -380,6 +380,10 @@ model User {
   // Coupon Relations
   createdCoupons  Coupon[]         @relation("CouponCreator")
 
+  // Ticket Relations
+  tickets         Ticket[]         @relation("UserTickets")
+  handledTickets  Ticket[]         @relation("HandlerTickets")
+
   @@index([email])
   @@index([role])
   @@map("users")
@@ -1363,4 +1367,41 @@ model Coupon {
   @@index([validFrom, validUntil])
   @@index([deletedAt])
   @@map("coupons")
+}
+
+enum TicketType {
+  REFUND
+  SUPPORT
+  ERROR_REPORT
+}
+
+enum TicketStatus {
+  PENDING
+  PROCESSING
+  APPROVED
+  REJECTED
+}
+
+model Ticket {
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String       @map("user_id") @db.Uuid
+  handlerId   String?      @map("handler_id") @db.Uuid
+  type        TicketType   @default(SUPPORT)
+  status      TicketStatus @default(PENDING)
+  subject     String       @db.VarChar(255)
+  description String       @db.Text
+  metadata    Json?        @default("{}") // Contains courseId, orderId if type is REFUND
+  response    String?      @db.Text
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  user    User  @relation("UserTickets", fields: [userId], references: [id], onDelete: Cascade)
+  handler User? @relation("HandlerTickets", fields: [handlerId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([handlerId])
+  @@index([status])
+  @@index([type])
+  @@map("tickets")
 }

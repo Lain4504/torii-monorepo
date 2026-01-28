@@ -10,7 +10,6 @@ import {
     EnrollmentStatus,
 } from '@workspace/schemas';
 import type { IEnrollmentService } from '../../interfaces/services';
-import { ENROLLMENT_SERVICE_TOKEN } from '../../interfaces/services';
 import { EnrollmentRepository } from './enrollment.repository';
 import { ICourseRepository, COURSE_REPOSITORY_TOKEN } from '../../interfaces/repositories';
 import type { Prisma } from '@prisma/generated';
@@ -31,6 +30,35 @@ export class EnrollmentService implements IEnrollmentService {
         private readonly natsClient: ClientProxy,
     ) { }
 
+
+    /**
+     * Get learning stats for a user
+     */
+    async getLearnerStats(userId: string): Promise<{
+        totalCourses: number;
+        completedCourses: number;
+        averageProgress: number;
+        totalLearningHours: number;
+    }> {
+        // Fetch all enrollments for the user
+        const enrollments = await this.findAll({ userId, limit: 1000, page: 1 });
+
+        const totalCourses = enrollments.total;
+        const completedCourses = enrollments.data.filter(e => e.completionStatus === EnrollmentStatus.COMPLETED).length;
+        const averageProgress = totalCourses > 0
+            ? enrollments.data.reduce((acc, curr) => acc + curr.completionPercentage, 0) / totalCourses
+            : 0;
+
+        // Roughly estimate hours: 10h per course * progress
+        const totalLearningHours = Math.floor(totalCourses * 10 * (averageProgress / 100));
+
+        return {
+            totalCourses,
+            completedCourses,
+            averageProgress: Math.round(averageProgress),
+            totalLearningHours
+        };
+    }
 
     private toEnrollmentDto(e: any): EnrollmentResponseDTO {
         return {
@@ -165,6 +193,9 @@ export class EnrollmentService implements IEnrollmentService {
                 completionStatus: EnrollmentStatus.IN_PROGRESS,
                 completionPercentage: 0,
                 finalPrice,
+                isGift: input.isGift || false,
+                giftMessage: input.giftMessage,
+                sender: input.senderId ? { connect: { id: input.senderId } } : undefined,
             });
 
             // If it's a free enrollment (finalPrice is 0), emit success event for notification/email
@@ -267,6 +298,22 @@ export class EnrollmentService implements IEnrollmentService {
             throw error;
         }
     }
+
+    /**
+     * Delete enrollment by user and course
+     */
+    async deleteByUserAndCourse(userId: string, courseId: string): Promise<boolean> {
+        try {
+            const enrollment = await this.enrollmentRepository.findByUserAndCourse(userId, courseId);
+            if (!enrollment) {
+                throw new NotFoundException('Enrollment not found');
+            }
+            await this.enrollmentRepository.delete(enrollment.id);
+            this.logger.log(`Deleted enrollment ${enrollment.id} for user ${userId} and course ${courseId}`);
+            return true;
+        } catch (error: any) {
+            this.logger.error(`Error deleting enrollment: ${error.message}`, error.stack);
+            throw error;
+        }
+    }
 }
-
-

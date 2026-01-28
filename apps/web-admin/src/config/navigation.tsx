@@ -97,6 +97,13 @@ export const managementNavItems: NavItem[] = [
         descriptionKey: "Quản lý mã giảm giá",
     },
     {
+        titleKey: "Yêu cầu hỗ trợ",
+        url: "/tickets",
+        icon: Newspaper,
+        permission: "support.handle",
+        descriptionKey: "Quản lý ticket & hoàn tiền",
+    },
+    {
         titleKey: "Báo cáo nội dung",
         url: "/analytics",
         icon: BarChart3,

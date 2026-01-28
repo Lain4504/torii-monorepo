@@ -36,6 +36,7 @@ import ForgotPasswordPage from '@/routes/auth/forgot-password-page.tsx'
 import TwoFactorVerifyPage from '@/routes/auth/two-factor-verify-page.tsx'
 import { AuditLogsPage } from "@/routes/audit/audit-logs-page.tsx";
 import { PermissionsPage } from "@/routes/permissions/permissions-page.tsx";
+import TicketsPage from '@/routes/tickets/tickets-page.tsx'
 import NotFoundPage from '@/routes/error/not-found-page.tsx'
 import AccessDeniedPage from '@/routes/error/access-denied-page.tsx'
 
@@ -109,6 +110,10 @@ function App() {
                   <Route path="authorization/audit-logs" element={<AuditLogsPage />} />
                   <Route path="permissions" element={<PermissionsPage />} />
                   <Route path="settings" element={<SettingsPage />} />
+                </Route>
+
+                <Route element={<RoutePermissionGuard permission="support.handle" />}>
+                  <Route path="tickets" element={<TicketsPage />} />
                 </Route>
 
                 <Route path="access-denied" element={<AccessDeniedPage />} />
