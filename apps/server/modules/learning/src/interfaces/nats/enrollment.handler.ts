@@ -53,5 +53,5 @@ export class EnrollmentHandler {
     @MessagePattern({ cmd: 'learning.enrollment.delete' })
     async delete(@Payload() data: { userId: string, courseId: string }) {
         return this.enrollmentService.deleteByUserAndCourse(data.userId, data.courseId);
-    }
+    }   
 }
