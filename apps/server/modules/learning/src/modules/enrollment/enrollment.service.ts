@@ -165,9 +165,9 @@ export class EnrollmentService implements IEnrollmentService {
                 completionStatus: EnrollmentStatus.IN_PROGRESS,
                 completionPercentage: 0,
                 finalPrice,
-                isGift: input.isGift || false,
-                giftMessage: input.giftMessage,
-                sender: input.senderId ? { connect: { id: input.senderId } } : undefined,
+                isGift: (input as any).isGift || false,
+                giftMessage: (input as any).giftMessage,
+                sender: (input as any).senderId ? { connect: { id: (input as any).senderId } } : undefined,
             });
 
             // If it's a free enrollment (finalPrice is 0), emit success event for notification/email
