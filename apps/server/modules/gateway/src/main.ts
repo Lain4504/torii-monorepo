@@ -49,7 +49,7 @@ async function bootstrap() {
   const httpAdapter = app.get(HttpAdapterHost);
   app.useGlobalFilters(new GlobalExceptionsFilter());
 
-  await app.listen(process.env.port ?? 8080);
+  await app.listen(process.env.PORT ?? 8050);
 }
 bootstrap();
 

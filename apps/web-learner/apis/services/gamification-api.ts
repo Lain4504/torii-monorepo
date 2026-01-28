@@ -1,6 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../api-client';
 import type { StandardApiResponse, UserAchievementDto, StreakStatusDto } from '@workspace/schemas';
+import { toast } from 'sonner';
+import { useEffect, useRef } from 'react';
 
 export const gamificationApi = {
     /**
@@ -37,11 +39,91 @@ export function useAchievements() {
 }
 
 /**
- * Hook: Get user streak
+ * Hook: Get user streak with optional auto-refetch and celebration toasts
+ * 
+ * Note: Daily check-in happens automatically when users complete learning activities
+ * (lessons, quizzes, etc.). This hook just displays the streak status and celebrates
+ * milestones when detected.
  */
-export function useStreak() {
-    return useQuery({
+export function useStreak(options?: { refetchInterval?: number; enableCelebrations?: boolean }) {
+    const celebratedRef = useRef<Set<number>>(new Set());
+    
+    const query = useQuery({
         queryKey: ['streak'],
         queryFn: gamificationApi.getStreak,
+        refetchInterval: options?.refetchInterval,
+        staleTime: 30000, // Consider data fresh for 30 seconds
+    });
+
+    // Celebrate milestones when streak updates
+    useEffect(() => {
+        if (!options?.enableCelebrations || !query.data) return;
+
+        const { currentStreak, isActiveToday } = query.data;
+        
+        // Only celebrate if active today and haven't celebrated this streak yet
+        if (isActiveToday && currentStreak > 0 && !celebratedRef.current.has(currentStreak)) {
+            const milestones = [3, 7, 14, 30, 50, 100, 365];
+            const isMilestone = milestones.includes(currentStreak);
+
+            if (isMilestone) {
+                // Big milestone celebration
+                toast.success(`🏆 ${currentStreak}-Day Streak Milestone!`, {
+                    description: 'Amazing achievement! Keep up the great work! 🎉',
+                    duration: 5000,
+                });
+                
+                // Trigger confetti animation (if available)
+                if (typeof window !== 'undefined' && (window as any).confetti) {
+                    (window as any).confetti({
+                        particleCount: 100,
+                        spread: 70,
+                        origin: { y: 0.6 }
+                    });
+                }
+            }
+
+            // Mark as celebrated
+            celebratedRef.current.add(currentStreak);
+        }
+    }, [query.data, options?.enableCelebrations]);
+
+    return query;
+}
+
+/**
+ * Hook: Manual "check-in" button (for UI purposes)
+ * 
+ * Since backend doesn't have a dedicated check-in endpoint, this creates
+ * a motivational call-to-action that encourages users to do learning activities.
+ * The actual streak update happens via backend NATS events when users complete
+ * lessons, quizzes, flashcards, etc.
+ */
+export function useCheckIn() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async () => {
+            // Simulate a check-in action by refetching streak
+            // In reality, users need to complete a learning activity to update streak
+            await queryClient.invalidateQueries({ queryKey: ['streak'] });
+            
+            // Return mock success
+            return {
+                streakUpdated: false,
+                currentStreak: 0,
+                achievementsUnlocked: [],
+            };
+        },
+        onMutate: async () => {
+            toast.info('📚 Complete a lesson to check in!', {
+                description: 'Start learning to build your streak',
+                duration: 3000,
+            });
+        },
+        onSuccess: () => {
+            // Refetch to get latest streak
+            queryClient.invalidateQueries({ queryKey: ['streak'] });
+        },
     });
 }

@@ -18,6 +18,7 @@ import {
 import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
 import { learningProgressApi, useMyCourses } from '@/apis/services/learning-progress-api'
+import { StreakWelcomeModal } from '@/components/dashboard/streak-welcome-modal'
 
 import { PageLoading } from '@workspace/ui/components/page-loading'
 
@@ -58,7 +59,9 @@ export default function DashboardPage() {
     ]
 
     return (
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 max-w-6xl animate-in fade-in duration-500">
+        <>
+            <StreakWelcomeModal />
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 max-w-6xl animate-in fade-in duration-500">
             {/* Minimal Welcome Header */}
             <div className="pb-2">
                 <h1 className="text-3xl md:text-5xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
@@ -280,6 +283,7 @@ export default function DashboardPage() {
                     </div>
                 </div>
             </div>
-        </div>
+            </div>
+        </>
     )
 }

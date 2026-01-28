@@ -19,6 +19,8 @@ import {
 import { cn } from '@workspace/ui/lib/utils'
 import { Progress } from '@workspace/ui/components/progress'
 import { useMyCourses } from '../../apis/services/learning-progress-api'
+import { DailyCheckInCard } from './daily-check-in-card'
+
 
 // Nhóm học tập - ưu tiên cao nhất
 const learningNav = [
@@ -188,6 +190,13 @@ export function DashboardSidebar({ isCollapsed = false }: DashboardSidebarProps)
             <div className={cn("space-y-10", isCollapsed ? "p-4" : "p-6")}>
                 {/* Learning - Navigation chính */}
                 <NavGroup items={learningNav} pathname={pathname} isCollapsed={isCollapsed} />
+
+                {/* Daily Check-in Card - Only show when expanded */}
+                {!isCollapsed && (
+                    <div className="px-2">
+                        <DailyCheckInCard />
+                    </div>
+                )}
 
                 {/* Continue Learning Section - Hide when collapsed */}
                 {!isCollapsed && <ContinueLearningSection />}

@@ -93,6 +93,31 @@ export class ActivityService {
             );
         }
 
+        // Check activity-specific achievements
+        switch (activityType) {
+            case 'LESSON_COMPLETE':
+                await this.achievementService.checkLessonAchievements(userId);
+                // Also check if course completed
+                if (meta?.courseCompleted) {
+                    await this.achievementService.checkCourseAchievements(userId);
+                }
+                break;
+
+            case 'QUIZ_ANSWER':
+                if (meta?.score && meta?.jlptLevel) {
+                    await this.achievementService.checkQuizAchievements(
+                        userId,
+                        meta.score,
+                        meta.jlptLevel,
+                    );
+                }
+                break;
+
+            case 'FLASHCARD_REVIEW':
+                await this.achievementService.checkFlashcardAchievements(userId);
+                break;
+        }
+
         return {
             streakUpdated: streakResult.streakUpdated,
             currentStreak: streakResult.newStreak,

@@ -34,6 +34,7 @@ import { gamificationApi, useAchievements } from '@/apis/services/gamification-a
 import { fetchProfile } from '@/store/slices/authSlice'
 import { toast } from 'sonner'
 import { PageLoading } from '@workspace/ui/components/page-loading'
+import Link from 'next/link'
 
 // Map achievement icons
 const achievementIconMap: Record<string, any> = {
@@ -444,7 +445,9 @@ export default function ProfilePage() {
                 <div className="space-y-12">
                     {/* Achievements */}
                     <div className="space-y-6">
-                        <h3 className="text-sm font-serif font-bold italic uppercase tracking-widest text-muted-foreground px-1">Thành tích công nhận</h3>
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-sm font-serif font-bold italic uppercase tracking-widest text-muted-foreground px-1">Thành tích công nhận</h3>
+                        </div>
                         {achievementsLoading ? (
                             <div className="grid gap-3">
                                 {[1, 2, 3, 4].map((i) => (
@@ -458,29 +461,42 @@ export default function ProfilePage() {
                                 ))}
                             </div>
                         ) : achievements.length > 0 ? (
-                            <div className="grid gap-3">
-                                {achievements.map((achievement) => (
-                                    <div key={achievement.id} className={cn(
-                                        "flex items-center gap-4 p-4 rounded-2xl border transition-all shadow-sm",
-                                        achievement.earned
-                                            ? "bg-card/40 backdrop-blur-md border-border/40"
-                                            : "opacity-20 grayscale bg-transparent border-transparent"
-                                    )}>
-                                        <div className={cn(
-                                            "w-10 h-10 rounded-xl flex items-center justify-center",
-                                            achievement.earned ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+                            <>
+                                <div className="grid gap-3">
+                                    {achievements.slice(0, 4).map((achievement) => (
+                                        <div key={achievement.id} className={cn(
+                                            "flex items-center gap-4 p-4 rounded-2xl border transition-all shadow-sm",
+                                            achievement.earned
+                                                ? "bg-card/40 backdrop-blur-md border-border/40"
+                                                : "opacity-20 grayscale bg-transparent border-transparent"
                                         )}>
-                                            <achievement.icon className="w-5 h-5" />
+                                            <div className={cn(
+                                                "w-10 h-10 rounded-xl flex items-center justify-center",
+                                                achievement.earned ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+                                            )}>
+                                                <achievement.icon className="w-5 h-5" />
+                                            </div>
+                                            <div className="space-y-0.5">
+                                                <p className="text-xs font-bold text-foreground">{achievement.title}</p>
+                                                {achievement.earned && achievement.date && (
+                                                    <p className="text-[9px] font-bold text-muted-foreground/60">{achievement.date}</p>
+                                                )}
+                                            </div>
                                         </div>
-                                        <div className="space-y-0.5">
-                                            <p className="text-xs font-bold text-foreground">{achievement.title}</p>
-                                            {achievement.earned && achievement.date && (
-                                                <p className="text-[9px] font-bold text-muted-foreground/60">{achievement.date}</p>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+                                    ))}
+                                </div>
+                                {achievements.length > 4 && (
+                                    <Link href="/dashboard/achievements">
+                                        <Button
+                                            variant="ghost"
+                                            className="w-full h-10 text-[10px] font-bold uppercase tracking-widest text-primary hover:bg-primary/5 rounded-xl transition-all"
+                                        >
+                                            Xem tất cả thành tích
+                                            <ChevronRight className="w-4 h-4 ml-2" />
+                                        </Button>
+                                    </Link>
+                                )}
+                            </>
                         ) : (
                             <div className="text-sm text-muted-foreground/60 italic text-center py-8">
                                 Chưa có thành tích nào
