@@ -56,11 +56,14 @@ export default function SupportPage() {
     const [newTicketDescription, setNewTicketDescription] = useState('');
     const [newTicketCourseId, setNewTicketCourseId] = useState<string | undefined>(undefined);
 
+    const [statusFilter, setStatusFilter] = useState<TicketStatus | 'ALL'>('ALL');
+
     const limit = 10;
     const { data: ticketsData, isLoading: isLoadingTickets } = useTickets({
         page: currentPage,
         limit,
         search: searchTerm || undefined,
+        status: statusFilter === 'ALL' ? undefined : statusFilter as TicketStatus,
     });
 
     const { data: enrollmentsData } = useEnrollments({ page: 1, limit: 100 });
@@ -162,18 +165,35 @@ export default function SupportPage() {
                 </div>
 
                 <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-                    <div className="relative flex-1 md:flex-initial w-full sm:w-auto mt-4 lg:mt-0">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/30" />
-                        <Input
-                            placeholder="Tìm kiếm yêu cầu..."
-                            className="pl-9 h-11 w-full md:w-64 bg-background/30 backdrop-blur-xl border-border/20 rounded-2xl text-xs placeholder:text-muted-foreground/30 focus:ring-1 ring-primary/20 transition-all"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
+                    <div className="flex items-center gap-2 w-full sm:w-auto">
+                        <div className="relative flex-1 md:flex-initial w-full sm:w-64 mt-4 lg:mt-0">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/30" />
+                            <Input
+                                placeholder="Tìm kiếm yêu cầu..."
+                                className="pl-9 h-11 w-full bg-background/30 backdrop-blur-xl border-border/20 rounded-2xl text-xs placeholder:text-muted-foreground/30 focus:ring-1 ring-primary/20 transition-all"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
+                        <Select
+                            value={statusFilter}
+                            onValueChange={(val) => setStatusFilter(val as TicketStatus | 'ALL')}
+                        >
+                            <SelectTrigger className="h-11 w-full sm:w-40 bg-background/30 backdrop-blur-xl border-border/20 rounded-2xl text-[10px] font-bold uppercase tracking-wider focus:ring-1 ring-primary/20 transition-all">
+                                <SelectValue placeholder="Trạng thái" />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-2xl border-border/10 shadow-xl overflow-hidden">
+                                <SelectItem value="ALL" className="text-[10px] font-bold uppercase tracking-wider py-3">Tất cả trạng thái</SelectItem>
+                                <SelectItem value={TicketStatus.PENDING} className="text-[10px] font-bold uppercase tracking-wider py-3">Đang chờ</SelectItem>
+                                <SelectItem value={TicketStatus.PROCESSING} className="text-[10px] font-bold uppercase tracking-wider py-3">Đang xử lý</SelectItem>
+                                <SelectItem value={TicketStatus.APPROVED} className="text-[10px] font-bold uppercase tracking-wider py-3">Đã chấp nhận</SelectItem>
+                                <SelectItem value={TicketStatus.REJECTED} className="text-[10px] font-bold uppercase tracking-wider py-3">Đã từ chối</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
                     <Button
                         onClick={() => setIsCreateOpen(true)}
-                        className="h-11 px-6 rounded-2xl bg-primary text-primary-foreground font-bold uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:scale-[1.02] active:scale-95 group flex items-center gap-2"
+                        className="h-11 w-full sm:w-auto px-6 rounded-2xl bg-primary text-primary-foreground font-bold uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:scale-[1.02] active:scale-95 group flex items-center gap-2"
                     >
                         <Plus className="w-4 h-4 transition-transform group-hover:rotate-90 duration-300" />
                         Gửi yêu cầu mới
@@ -214,7 +234,7 @@ export default function SupportPage() {
                                             </p>
                                         </div>
                                         <div className="flex items-center gap-2 ml-10">
-                                            <Badge variant="outline" className="text-[9px] font-black uppercase tracking-tighter px-2 py-0 h-4 border-primary/20 text-primary/60 bg-primary/5">
+                                            <Badge variant="outline" className="text-[8px] font-black uppercase tracking-tighter px-1.5 py-0 h-3.5 border-primary/20 text-primary/60 bg-primary/5">
                                                 {getTypeLabel(ticket.type as TicketType)}
                                             </Badge>
                                         </div>

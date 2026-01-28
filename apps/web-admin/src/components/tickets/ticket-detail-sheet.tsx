@@ -74,7 +74,7 @@ export function TicketDetailSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="sm:max-w-xl rounded-l-[3rem] p-0 border-l border-border/10 bg-background/95 backdrop-blur-xl overflow-hidden flex flex-col shadow-2xl">
+            <SheetContent className="sm:max-w-xl rounded-none p-0 border-l border-border/10 bg-background/95 backdrop-blur-xl overflow-hidden flex flex-col shadow-2xl">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
 
                 <SheetHeader className="p-8 pb-4 relative">
