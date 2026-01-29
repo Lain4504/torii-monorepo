@@ -25,9 +25,10 @@ echo -e "${GREEN}Starting Torii Meet Deployment...${NC}"
 command -v docker >/dev/null 2>&1 || { echo -e "${RED}Docker is required but not installed. Aborting.${NC}" >&2; exit 1; }
 command -v pnpm >/dev/null 2>&1 || { echo -e "${RED}pnpm is required but not installed. Aborting.${NC}" >&2; exit 1; }
 
-# 2. Gather Configuration
+# 2. Gather Configuration Safely (avoiding bash execution errors from .env)
 if [ -f "$MONOREPO_ROOT/.env" ]; then
-    source "$MONOREPO_ROOT/.env"
+    # Parse .env using grep/sed to avoid command execution
+    export $(grep -v '^#' "$MONOREPO_ROOT/.env" | grep -v '^\s*$' | xargs -d '\n')
 fi
 
 DEFAULT_DOMAIN=${DOMAIN:-"meet.torii.edu"}
@@ -51,8 +52,18 @@ LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET:-$DEFAULT_LK_SECRET}
 mkdir -p "$OUTPUT_DIR"
 mkdir -p "$SSL_DIR"
 
-# 4. Generate SSL (Self-signed for now, use Certbot in production)
-if [ ! -f "$SSL_DIR/server.pem" ]; then
+# 4. Handle SSL
+echo -e "${YELLOW}Configuring SSL...${NC}"
+READ_EXISTING_SSL="n"
+if [ -d "/etc/letsencrypt/live/$DOMAIN" ]; then
+    read -p "Let's Encrypt certs found for $DOMAIN. Use them? (y/n): " READ_EXISTING_SSL
+fi
+
+if [[ "$READ_EXISTING_SSL" =~ ^[Yy]$ ]]; then
+    echo -e "${GREEN}Combining Let's Encrypt certs for HAProxy...${NC}"
+    sudo cat "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" "/etc/letsencrypt/live/$DOMAIN/privkey.pem" > "$SSL_DIR/server.pem"
+    sudo chown $USER:$USER "$SSL_DIR/server.pem"
+elif [ ! -f "$SSL_DIR/server.pem" ]; then
     echo -e "${YELLOW}Generating self-signed SSL certificate for $DOMAIN...${NC}"
     openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
         -keyout "$SSL_DIR/server.key" \
