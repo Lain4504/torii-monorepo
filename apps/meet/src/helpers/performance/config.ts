@@ -137,7 +137,12 @@ export function getDefaultPerformanceConfig(): PerformanceConfig {
 }
 
 /**
- * Check if adaptive performance is enabled
+ * Check if adaptive performance is enabled.
+ * 
+ * Returns true by default (when VITE_ADAPTIVE_PERFORMANCE is undefined).
+ * Only returns false when explicitly set to 'false'.
+ * 
+ * This means adaptive performance is opt-out, not opt-in.
  */
 export function isAdaptivePerformanceEnabled(): boolean {
   return import.meta.env.VITE_ADAPTIVE_PERFORMANCE !== 'false';

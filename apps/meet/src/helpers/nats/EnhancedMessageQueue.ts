@@ -27,6 +27,9 @@ interface BatchedMessage {
   timestamp: number;
 }
 
+// Browser-compatible timer type
+type TimerHandle = ReturnType<typeof setTimeout>;
+
 export default class EnhancedMessageQueue {
   private _isConnected: boolean = false;
   private _js: JetStreamClient | undefined;
@@ -35,17 +38,28 @@ export default class EnhancedMessageQueue {
   private _state = WAITING;
   private _isHoldingNotificationShown = false;
   private _performanceConfig: PerformanceConfig;
-  private _batchTimer: NodeJS.Timeout | null = null;
+  private _batchTimer: TimerHandle | null = null;
+  private _isProcessingTimer = false;
 
   constructor(performanceConfig: PerformanceConfig) {
     this._performanceConfig = performanceConfig;
   }
 
   /**
-   * Update performance configuration
+   * Update performance configuration and handle in-flight batches
    */
   public updatePerformanceConfig = (config: PerformanceConfig) => {
+    const oldConfig = this._performanceConfig;
     this._performanceConfig = config;
+    
+    // If batching was disabled or batch size decreased, flush existing batches
+    if (
+      !config.enableMessageBatching ||
+      (oldConfig.enableMessageBatching && 
+       config.messageBatchSize < oldConfig.messageBatchSize)
+    ) {
+      this.forceFlushBatches();
+    }
   };
 
   /**
@@ -132,14 +146,25 @@ export default class EnhancedMessageQueue {
 
   /**
    * Flush all pending batches
+   * Protected against concurrent execution
    */
   private flushAllBatches = () => {
-    const subjects = Array.from(this._batchQueue.keys());
-    subjects.forEach(subject => this.flushBatch(subject));
+    if (this._isProcessingTimer) {
+      return; // Already processing
+    }
+    
+    this._isProcessingTimer = true;
+    try {
+      const subjects = Array.from(this._batchQueue.keys());
+      subjects.forEach(subject => this.flushBatch(subject));
+    } finally {
+      this._isProcessingTimer = false;
+    }
   };
 
   /**
    * Force flush all batched messages (for cleanup/disconnect)
+   * This method should be called when the queue is being destroyed
    */
   public forceFlushBatches = () => {
     if (this._batchTimer) {
@@ -147,6 +172,17 @@ export default class EnhancedMessageQueue {
       this._batchTimer = null;
     }
     this.flushAllBatches();
+  };
+
+  /**
+   * Cleanup and dispose of the queue instance
+   * Call this when the queue is no longer needed
+   */
+  public dispose = () => {
+    this.forceFlushBatches();
+    this._batchQueue.clear();
+    this._queue.length = 0;
+    this._js = undefined;
   };
 
   /**

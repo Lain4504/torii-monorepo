@@ -9,7 +9,7 @@ import {
   getPerformanceConfig,
   getDefaultPerformanceConfig,
   isAdaptivePerformanceEnabled,
-} from '../../performance/config';
+} from './config';
 
 export function useAdaptivePerformance(): PerformanceConfig {
   const participants = useAppSelector((state) => state.participants);

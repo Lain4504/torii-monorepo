@@ -2,12 +2,19 @@
  * Message Compression Utility
  * 
  * Provides compression/decompression for whiteboard messages
- * to reduce bandwidth usage in large rooms
+ * to reduce bandwidth usage in large rooms.
+ * 
+ * Messages are prefixed with a compression marker byte:
+ * - 0x00: Uncompressed data
+ * - 0x01: Compressed data (gzip)
  */
+
+const COMPRESSION_MARKER_UNCOMPRESSED = 0x00;
+const COMPRESSION_MARKER_COMPRESSED = 0x01;
 
 /**
  * Compress a string using the Compression Streams API
- * This is natively supported in modern browsers
+ * Returns data with compression marker prefix
  */
 export async function compressMessage(message: string): Promise<Uint8Array> {
   try {
@@ -17,8 +24,11 @@ export async function compressMessage(message: string): Promise<Uint8Array> {
     
     // Check if CompressionStream is available
     if (typeof CompressionStream === 'undefined') {
-      // Fallback: return uncompressed if not available
-      return data;
+      // Fallback: return uncompressed with marker
+      const result = new Uint8Array(data.length + 1);
+      result[0] = COMPRESSION_MARKER_UNCOMPRESSED;
+      result.set(data, 1);
+      return result;
     }
     
     // Create compression stream
@@ -30,42 +40,73 @@ export async function compressMessage(message: string): Promise<Uint8Array> {
     // Convert stream to Uint8Array
     const compressedBlob = await new Response(compressedStream).blob();
     const buffer = await compressedBlob.arrayBuffer();
+    const compressed = new Uint8Array(buffer);
     
-    return new Uint8Array(buffer);
+    // Add compression marker
+    const result = new Uint8Array(compressed.length + 1);
+    result[0] = COMPRESSION_MARKER_COMPRESSED;
+    result.set(compressed, 1);
+    
+    return result;
   } catch (error) {
     console.error('Compression failed:', error);
-    // Return original data on error
+    // Return uncompressed with marker on error
     const encoder = new TextEncoder();
-    return encoder.encode(message);
+    const data = encoder.encode(message);
+    const result = new Uint8Array(data.length + 1);
+    result[0] = COMPRESSION_MARKER_UNCOMPRESSED;
+    result.set(data, 1);
+    return result;
   }
 }
 
 /**
  * Decompress a Uint8Array back to string
+ * Automatically detects compression based on marker byte
  */
 export async function decompressMessage(data: Uint8Array): Promise<string> {
   try {
-    // Check if DecompressionStream is available
-    if (typeof DecompressionStream === 'undefined') {
-      // Fallback: treat as uncompressed
-      const decoder = new TextDecoder();
-      return decoder.decode(data);
+    // Check for compression marker
+    if (data.length === 0) {
+      return '';
     }
     
-    // Create decompression stream
-    const stream = new Blob([data]).stream();
-    const decompressedStream = stream.pipeThrough(
-      new DecompressionStream('gzip')
-    );
+    const marker = data[0];
+    const payload = data.slice(1);
     
-    // Convert stream to string
-    const decompressedBlob = await new Response(decompressedStream).blob();
-    const text = await decompressedBlob.text();
+    // Handle uncompressed data
+    if (marker === COMPRESSION_MARKER_UNCOMPRESSED) {
+      const decoder = new TextDecoder();
+      return decoder.decode(payload);
+    }
     
-    return text;
+    // Handle compressed data
+    if (marker === COMPRESSION_MARKER_COMPRESSED) {
+      // Check if DecompressionStream is available
+      if (typeof DecompressionStream === 'undefined') {
+        throw new Error('DecompressionStream not available but data is marked as compressed');
+      }
+      
+      // Create decompression stream
+      const stream = new Blob([payload]).stream();
+      const decompressedStream = stream.pipeThrough(
+        new DecompressionStream('gzip')
+      );
+      
+      // Convert stream to string
+      const decompressedBlob = await new Response(decompressedStream).blob();
+      const text = await decompressedBlob.text();
+      
+      return text;
+    }
+    
+    // Unknown marker - try to decode as uncompressed
+    console.warn(`Unknown compression marker: ${marker}, treating as uncompressed`);
+    const decoder = new TextDecoder();
+    return decoder.decode(payload);
   } catch (error) {
     console.error('Decompression failed:', error);
-    // Try to decode as uncompressed on error
+    // Last resort: try to decode entire buffer as uncompressed
     const decoder = new TextDecoder();
     return decoder.decode(data);
   }
