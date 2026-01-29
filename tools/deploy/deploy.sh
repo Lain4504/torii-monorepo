@@ -62,17 +62,6 @@ sed -e "s/{{DOMAIN}}/$DOMAIN/g" -e "s/{{LIVEKIT_API_KEY}}/${ENV_LK_KEY:-key}/g" 
 
 sed -e "s/{{DOMAIN}}/$DOMAIN/g" "$DEPLOY_DIR/haproxy.template.cfg" > "$MONOREPO_ROOT/haproxy.cfg"
 
-# 4. Manual Deploy Option
-read -p "Setup complete. Do you want to run 'docker compose up -d' now? (y/n): " RUN_DEPLOY
-if [[ "$RUN_DEPLOY" =~ ^[Yy]$ ]]; then
-    cd "$MONOREPO_ROOT"
-    # Ensure Docker Hub login if needed (for images built by GitHub Action)
-    echo -e "${YELLOW}Pulling latest images from Docker Hub...${NC}"
-    docker compose pull gateway identity learning meet agents gamification communication storage billing || true
-    echo -e "${GREEN}Launching stack...${NC}"
-    docker compose up -d
-fi
-
 echo -e "${GREEN}==================================================================${NC}"
 echo -e "Success! Configuration is ready in the root directory."
 echo -e "GitHub Actions will use these files on the next push."

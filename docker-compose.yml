@@ -59,6 +59,7 @@ services:
       - '7880:7880'  # HTTP
       - '7881:7881'  # WebRTC over TCP
       - '7882:7882/udp'  # WebRTC over UDP
+      - '443:443/udp' # TURN UDP
       - '5349:5349' # TURN TLS
       - '50000-60000:50000-60000/udp' # UDP Media
     volumes:
