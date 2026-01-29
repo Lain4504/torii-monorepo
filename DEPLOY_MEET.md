@@ -26,12 +26,26 @@ Bạn phải đảm bảo các cổng sau đã được ALLOW:
    sudo docker compose up -d
    ```
 
-## 4. Xử lý khi gia hạn SSL (Certbot Renew)
-Khi bạn chạy `certbot renew` thành công, LiveKit sẽ chưa nhận ngay được cert mới vì file đã được copy ra thư mục riêng. Bạn chỉ cần chạy lại script đồng bộ:
+## 4. Tự động hóa cập nhật SSL (Certbot Hook)
+Để hệ thống tự động nhận SSL mới mỗi khi Certbot gia hạn thành công (khoảng 3 tháng/lần), hãy cấu hình `renew_hook`:
+
+1. Cấp quyền cho script:
+   ```bash
+   chmod +x scripts/update-livekit-certs.sh
+   ```
+2. Cấu hình Certbot:
+   Mở file: `sudo nano /etc/letsencrypt/renewal/api.torii.sbs.conf`
+   Thêm dòng sau vào dưới mục `[renewalparams]`:
+   ```text
+   renew_hook = /home/lain4504/SEP490/torii-monorepo/scripts/update-livekit-certs.sh
+   ```
+
+## 5. Xử lý thủ công (Khi cần thiết)
+Nếu bạn muốn cập nhật chứng chỉ ngay lập tức mà không chờ Certbot gia hạn:
 ```bash
 ./scripts/update-livekit-certs.sh
 ```
 
-## 5. Kiểm tra trạng thái
+## 6. Kiểm tra trạng thái
 - Kiểm tra log: `sudo docker logs -f torii-livekit`
 - Kiểm tra kết nối: Truy cập [LiveKit Connection Tester](https://livekit.io/connection-test) và nhập `wss://api.torii.sbs/socket-b`.
