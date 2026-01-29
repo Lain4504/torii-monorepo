@@ -25,16 +25,24 @@ echo -e "${GREEN}Starting Torii Meet Deployment...${NC}"
 command -v docker >/dev/null 2>&1 || { echo -e "${RED}Docker is required but not installed. Aborting.${NC}" >&2; exit 1; }
 command -v pnpm >/dev/null 2>&1 || { echo -e "${RED}pnpm is required but not installed. Aborting.${NC}" >&2; exit 1; }
 
-# 2. Gather Configuration Safely (avoiding bash execution errors from .env)
+# 2. Extract specific needed configuration values safely
 if [ -f "$MONOREPO_ROOT/.env" ]; then
-    # Parse .env using grep/sed to avoid command execution
-    export $(grep -v '^#' "$MONOREPO_ROOT/.env" | grep -v '^\s*$' | xargs -d '\n')
+    # Helper to get value from .env without sourcing (safely)
+    get_env_val() {
+        grep "^$1=" "$MONOREPO_ROOT/.env" | cut -d'=' -f2- | sed -e 's/^"//' -e 's/"$//' -e 's/ #.*$//' -e 's/ *$//'
+    }
+    
+    ENV_DOMAIN=$(get_env_val "DOMAIN")
+    ENV_IP=$(get_env_val "EXTERNAL_IP")
+    ENV_LK_KEY=$(get_env_val "LIVEKIT_API_KEY")
+    ENV_LK_SECRET=$(get_env_val "LIVEKIT_API_SECRET")
+    ENV_DB_URL=$(get_env_val "DATABASE_URL")
 fi
 
-DEFAULT_DOMAIN=${DOMAIN:-"meet.torii.edu"}
-DEFAULT_IP=${EXTERNAL_IP:-"127.0.0.1"}
-DEFAULT_LK_KEY=${LIVEKIT_API_KEY:-"API$(openssl rand -hex 6)"}
-DEFAULT_LK_SECRET=${LIVEKIT_API_SECRET:-"$(openssl rand -hex 20)"}
+DEFAULT_DOMAIN=${ENV_DOMAIN:-"meet.torii.edu"}
+DEFAULT_IP=${ENV_IP:-"127.0.0.1"}
+DEFAULT_LK_KEY=${ENV_LK_KEY:-"API$(openssl rand -hex 6)"}
+DEFAULT_LK_SECRET=${ENV_LK_SECRET:-"$(openssl rand -hex 20)"}
 
 read -p "Enter public domain (default: $DEFAULT_DOMAIN): " DOMAIN
 DOMAIN=${DOMAIN:-$DEFAULT_DOMAIN}
@@ -87,7 +95,7 @@ sed -e "s/{{DOMAIN}}/$DOMAIN/g" \
 
 # For docker-compose, we use a fixed image name for this deployment
 DOCKER_IMAGE="torii-server-prod"
-DATABASE_URL_VAL=${DATABASE_URL:-"postgresql://postgres:postgres@db:5432/torii"}
+DATABASE_URL_VAL=${ENV_DB_URL:-"postgresql://postgres:postgres@db:5432/torii"}
 
 sed -e "s/{{DOMAIN}}/$DOMAIN/g" \
     -e "s/{{LIVEKIT_API_KEY}}/$LIVEKIT_API_KEY/g" \
