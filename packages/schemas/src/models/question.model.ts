@@ -6,6 +6,7 @@ export enum QuestionType {
     FILL_BLANK = 'fill_blank',
     MATCHING = 'matching',
     ESSAY = 'essay',
+    LISTENING = 'listening',
 }
 
 export enum QuestionDifficultyLevel {

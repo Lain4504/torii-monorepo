@@ -108,7 +108,7 @@ export class QuestionPoolController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.question-pool.create' },
-                    { ...dto, userId: user.sub, userRole: user.role }
+                    { ...dto, userId: user.sub, userRole: user.role, permissions: user.permissions }
                 )
             );
             return successResponse({ pool: result });
@@ -124,7 +124,7 @@ export class QuestionPoolController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.question-pool.update' },
-                    { id, ...dto, userId: user.sub, userRole: user.role }
+                    { id, ...dto, userId: user.sub, userRole: user.role, permissions: user.permissions }
                 )
             );
             return successResponse({ pool: result });
@@ -140,7 +140,7 @@ export class QuestionPoolController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.question-pool.delete' },
-                    { id, userId: user.sub, userRole: user.role }
+                    { id, userId: user.sub, userRole: user.role, permissions: user.permissions }
                 )
             );
             return successResponse(result);

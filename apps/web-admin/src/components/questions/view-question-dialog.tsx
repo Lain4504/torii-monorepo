@@ -8,10 +8,9 @@ import {
 import { Badge } from '@workspace/ui/components/badge';
 import { Label } from '@workspace/ui/components/label';
 import type { QuestionResponseDTO } from '@workspace/schemas';
-import { QuestionStatus, QuestionDifficultyLevel } from '@workspace/schemas';
+import { QuestionStatus, QuestionDifficultyLevel, QuestionType, QuestionCategory } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
-import { ScrollArea } from '@workspace/ui/components/scroll-area';
-import { FileText, Tag, CheckCircle2, BrainCircuit, Layers, Hash, Calendar, X, AlignLeft } from 'lucide-react';
+import { FileText, Tag, CheckCircle2, BrainCircuit, Layers, Hash, Calendar, X, AlignLeft, Headphones } from 'lucide-react';
 import { cn } from '@workspace/ui/lib/utils';
 
 interface ViewQuestionDialogProps {
@@ -29,7 +28,7 @@ export function ViewQuestionDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-3xl border-none shadow-2xl bg-background rounded-3xl p-0 max-h-[90vh] flex flex-col">
+            <DialogContent showCloseButton={false} className="max-w-3xl border-none shadow-2xl bg-background rounded-3xl p-0 max-h-[90vh] flex flex-col">
                 <DialogHeader className="p-8 pb-6 bg-muted/5 border-b border-border/10 relative flex-shrink-0">
                     <div className="absolute inset-0 bg-primary/5 blur-3xl opacity-50 pointer-events-none" />
                     <div className="relative z-10 flex items-start justify-between">
@@ -52,8 +51,8 @@ export function ViewQuestionDialog({
                     </div>
                 </DialogHeader>
 
-                <ScrollArea className="flex-1 p-8 pt-6">
-                    <div className="space-y-8 animate-in fade-in slide-in-from-right-8 duration-500">
+                <div className="flex-1 overflow-y-auto p-8 pt-6">
+                    <div className="space-y-8 animate-in fade-in slide-in-from-right-8 duration-500 pb-20">
 
                         {/* Status Bar */}
                         <div className="flex items-center gap-4 bg-muted/5 p-4 rounded-2xl border border-border/10">
@@ -96,6 +95,22 @@ export function ViewQuestionDialog({
                                 {question.questionText}
                             </div>
                         </div>
+
+                        {/* Audio Player */}
+                        {((question.category === QuestionCategory.LISTENING || question.questionType === QuestionType.LISTENING) && question.metadata?.audioUrl) && (
+                            <div className="space-y-3">
+                                <Label className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1 flex items-center gap-2">
+                                    <Headphones className="h-3 w-3" />
+                                    Audio Track
+                                </Label>
+                                <div className="p-4 rounded-3xl bg-muted/5 border border-border/10 flex items-center justify-center">
+                                    <audio controls className="w-full h-10 outline-none rounded-lg">
+                                        <source src={question.metadata.audioUrl} type="audio/mpeg" />
+                                        Your browser does not support the audio element.
+                                    </audio>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Metadata Grid */}
                         <div className="grid grid-cols-2 gap-4">
@@ -210,8 +225,7 @@ export function ViewQuestionDialog({
                             </div>
                         )}
                     </div>
-                </ScrollArea>
-                <div className="h-6 bg-gradient-to-t from-background/80 to-transparent pointer-events-none sticky bottom-0 left-0 right-0 z-20" />
+                </div>
             </DialogContent>
         </Dialog>
     );

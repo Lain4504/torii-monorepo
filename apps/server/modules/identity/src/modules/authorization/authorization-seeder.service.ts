@@ -70,9 +70,9 @@ export class AuthorizationSeederService implements OnModuleInit {
 
                 for (const permCode of uniquePerms) {
                     // Skip wildcard - handled separately in permission checking
+                    // Wildcard permission is now allowed to be seeded
                     if (permCode === '*') {
-                        this.logger.log(`  ✅ Skipping wildcard for ${roleCode}`);
-                        continue;
+                        this.logger.log(`  ⚡ Seeding wildcard for ${roleCode}`);
                     }
 
                     await this.prisma.rolePermission.create({
@@ -109,7 +109,7 @@ export class AuthorizationSeederService implements OnModuleInit {
                 // Add new permissions
                 const uniquePerms = Array.from(new Set(permissions));
                 for (const permCode of uniquePerms) {
-                    if (permCode === '*') continue;
+                    // if (permCode === '*') continue; // Allow wildcard
 
                     // Upsert to ensure it exists
                     // We use createMany with skipDuplicates usually, but here we 

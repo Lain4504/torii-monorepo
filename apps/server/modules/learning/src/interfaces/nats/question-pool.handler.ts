@@ -37,23 +37,23 @@ export class QuestionPoolHandler {
     }
 
     @MessagePattern({ cmd: 'learning.question-pool.create' })
-    async create(@Payload() data: QuestionPoolCreateDTO & { userId: string, userRole: string }) {
-        const { userId, userRole, ...dto } = data;
-        const requester = { sub: userId, role: userRole as any, permissions: [] };
+    async create(@Payload() data: QuestionPoolCreateDTO & { userId: string, userRole: string, permissions: string[] }) {
+        const { userId, userRole, permissions, ...dto } = data;
+        const requester = { sub: userId, role: userRole as any, permissions: permissions || [] };
         return this.questionPoolService.create(requester, dto);
     }
 
     @MessagePattern({ cmd: 'learning.question-pool.update' })
-    async update(@Payload() data: QuestionPoolUpdateDTO & { id: string, userId: string, userRole: string }) {
-        const { id, userId, userRole, ...dto } = data;
-        const requester = { sub: userId, role: userRole as any, permissions: [] };
+    async update(@Payload() data: QuestionPoolUpdateDTO & { id: string, userId: string, userRole: string, permissions: string[] }) {
+        const { id, userId, userRole, permissions, ...dto } = data;
+        const requester = { sub: userId, role: userRole as any, permissions: permissions || [] };
         return this.questionPoolService.update(requester, id, dto);
     }
 
     @MessagePattern({ cmd: 'learning.question-pool.delete' })
-    async delete(@Payload() data: { id: string, userId: string, userRole: string }) {
-        const { id, userId, userRole } = data;
-        const requester = { sub: userId, role: userRole as any, permissions: [] };
+    async delete(@Payload() data: { id: string, userId: string, userRole: string, permissions: string[] }) {
+        const { id, userId, userRole, permissions } = data;
+        const requester = { sub: userId, role: userRole as any, permissions: permissions || [] };
         return this.questionPoolService.delete(requester, id);
     }
 }
