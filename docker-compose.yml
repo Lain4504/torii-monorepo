@@ -56,20 +56,22 @@ services:
     restart: always
     command: --config /livekit.yaml
     ports:
-      - '7880:7880'  # HTTP
-      - '7881:7881'  # WebRTC over TCP
-      - '7882:7882/udp'  # WebRTC over UDP
+      - '7880:7880'
+      - '7881:7881'
+      - '7882:7882/udp'
+      - '5349:5349'       # TURN TLS
+      - '443:443/udp'     # TURN UDP (Fix for 4G)
+      - '50000-50100:50000-50100/udp' # Media range (100 ports)
     volumes:
       - ./livekit.yaml:/livekit.yaml
       - livekitdata:/data
+      - ./certs:/certs:ro
     depends_on:
       - redis
 
   # ========================================
   # Application Services
   # ========================================
-  # NOTE: Using pre-built image from Docker Hub to save VPS disk space
-  # Image name is configured via DOCKER_USERNAME in .env
 
   gateway:
     image: ${DOCKER_USERNAME}/torii-backend:latest
