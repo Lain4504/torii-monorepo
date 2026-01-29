@@ -33,7 +33,7 @@ services:
 
   gateway:
     image: {{DOCKER_IMAGE}}
-    command: node apps/server/dist/modules/meet/src/main.js
+    command: node apps/server/dist/modules/gateway/src/main.js
     env_file:
       - ../../../.env
     environment:
