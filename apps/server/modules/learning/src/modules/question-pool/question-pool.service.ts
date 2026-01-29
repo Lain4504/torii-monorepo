@@ -7,7 +7,7 @@ import {
     ForbiddenException,
 } from '@nestjs/common';
 import type { QuestionPool } from '@prisma/generated';
-import { UserRole } from '@workspace/schemas';
+
 import type {
     QuestionPoolCreateDTO,
     QuestionPoolUpdateDTO,

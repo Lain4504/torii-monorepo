@@ -8,7 +8,6 @@ import {
 } from '@nestjs/common';
 import type { Question } from '@prisma/generated';
 import {
-    UserRole,
     QuestionStatus,
     QuestionType,
 } from '@workspace/schemas';

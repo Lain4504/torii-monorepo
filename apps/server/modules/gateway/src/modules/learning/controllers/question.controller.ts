@@ -123,7 +123,7 @@ export class QuestionController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.question.create' },
-                    { ...dto, userId: user.sub, userRole: user.role }
+                    { ...dto, userId: user.sub, userRole: user.role, permissions: user.permissions }
                 )
             );
             return successResponse({ question: result });
@@ -139,7 +139,7 @@ export class QuestionController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.question.createMany' },
-                    { dtos, userId: user.sub, userRole: user.role }
+                    { dtos, userId: user.sub, userRole: user.role, permissions: user.permissions }
                 )
             );
             return successResponse(result);
@@ -155,7 +155,7 @@ export class QuestionController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.question.update' },
-                    { id, ...dto, userId: user.sub, userRole: user.role }
+                    { id, ...dto, userId: user.sub, userRole: user.role, permissions: user.permissions }
                 )
             );
             return successResponse({ question: result });
@@ -171,7 +171,7 @@ export class QuestionController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.question.updateMany' },
-                    { questionIds: body.questionIds, dto: body.data, userId: user.sub, userRole: user.role }
+                    { questionIds: body.questionIds, dto: body.data, userId: user.sub, userRole: user.role, permissions: user.permissions }
                 )
             );
             return successResponse(result);
@@ -187,7 +187,7 @@ export class QuestionController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.question.delete' },
-                    { id, userId: user.sub, userRole: user.role }
+                    { id, userId: user.sub, userRole: user.role, permissions: user.permissions }
                 )
             );
             return successResponse(result);
@@ -203,7 +203,7 @@ export class QuestionController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.question.deleteMany' },
-                    { questionIds: body.questionIds, userId: user.sub, userRole: user.role }
+                    { questionIds: body.questionIds, userId: user.sub, userRole: user.role, permissions: user.permissions }
                 )
             );
             return successResponse(result);
@@ -219,7 +219,7 @@ export class QuestionController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.question.approve' },
-                    { id, userId: user.sub, userRole: user.role }
+                    { id, userId: user.sub, userRole: user.role, permissions: user.permissions }
                 )
             );
             return successResponse({ question: result });
@@ -235,7 +235,7 @@ export class QuestionController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.question.deactivate' },
-                    { id, userId: user.sub, userRole: user.role }
+                    { id, userId: user.sub, userRole: user.role, permissions: user.permissions }
                 )
             );
             return successResponse({ question: result });
@@ -251,7 +251,7 @@ export class QuestionController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.question.reject' },
-                    { id, userId: user.sub, userRole: user.role }
+                    { id, userId: user.sub, userRole: user.role, permissions: user.permissions }
                 )
             );
             return successResponse({ question: result });
@@ -267,7 +267,7 @@ export class QuestionController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.question.sendForReview' },
-                    { id, userId: user.sub, userRole: user.role }
+                    { id, userId: user.sub, userRole: user.role, permissions: user.permissions }
                 )
             );
             return successResponse({ question: result });

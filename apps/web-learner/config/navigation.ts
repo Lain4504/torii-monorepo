@@ -5,6 +5,7 @@ import {
     Clock,
     FileText,
     TrendingUp,
+    Trophy,
     User,
     CreditCard,
     Settings,
@@ -29,6 +30,7 @@ export const learningNav: NavItem[] = [
 ]
 
 export const progressNav: NavItem[] = [
+    { name: 'Thành tích', href: '/dashboard/achievements', icon: Trophy },
     { name: 'Chứng chỉ', href: '/dashboard/certificates', icon: Award },
     { name: 'Lịch sử học tập', href: '/dashboard/history', icon: Clock },
     { name: 'Ghi chú', href: '/dashboard/notes', icon: FileText },

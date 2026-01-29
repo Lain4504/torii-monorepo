@@ -7,6 +7,7 @@ import { QuestionsPrimaryToolbar } from "@/components/questions/questions-primar
 import { QuestionsTable } from "@/components/questions/questions-table.tsx";
 import { CreateQuestionDialog } from "@/components/questions/create-question-dialog.tsx";
 import { ViewQuestionDialog } from "@/components/questions/view-question-dialog.tsx";
+import { EditQuestionDialog } from "@/components/questions/edit-question-dialog.tsx";
 import { DeleteQuestionDialog } from "@/components/questions/delete-question-dialog.tsx";
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import {
@@ -21,7 +22,7 @@ import {
 import { toast } from '@workspace/ui/components/sonner';
 import { QuestionType, QuestionStatus, QuestionCategory, QuestionDifficultyLevel, QuestionJlptLevel } from '@workspace/schemas';
 import { cn } from '@workspace/ui/lib/utils';
-import { Plus, ShieldAlert, Cpu, Sparkles } from 'lucide-react';
+import { Plus, ShieldAlert, Sparkles } from 'lucide-react';
 
 export default function QuestionsPage() {
     const [page, setPage] = useState(1);
@@ -37,6 +38,7 @@ export default function QuestionsPage() {
     // Dialog States
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [viewingQuestion, setViewingQuestion] = useState<QuestionResponseDTO | null>(null);
+    const [editingQuestion, setEditingQuestion] = useState<QuestionResponseDTO | null>(null);
     const [deletingQuestion, setDeletingQuestion] = useState<QuestionResponseDTO | null>(null);
 
     const queryParams: QuestionQueryDTO = {
@@ -192,20 +194,9 @@ export default function QuestionsPage() {
         <div className="space-y-10 animate-in fade-in duration-700 pb-20">
             {/* Header Section */}
             {/* Header Section */}
-            <div className="flex flex-col sm:flex-row items-start justify-between gap-8 relative px-2">
-                <div className="space-y-4 max-w-2xl">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-bold uppercase tracking-wider">
-                        <Cpu className="size-3.5" />
-                        Hệ thống Câu hỏi
-                    </div>
-                    <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
-                        Ngân hàng <span className="text-primary not-italic">Câu hỏi</span>
-                    </h1>
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
-                        Hệ thống ngân hàng câu hỏi và Logic Engine Torii
-                    </p>
-                </div>
-                <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto pt-6 sm:pt-0">
+            {/* Header Section - Actions Only (Title handled by layout) */}
+            <div className="flex flex-col sm:flex-row items-start justify-end gap-8 relative px-2">
+                <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto pt-6 sm:pt-0 ml-auto">
                     <div className="flex items-center gap-4 p-4 rounded-2xl bg-background/60 border border-border/20 backdrop-blur-xl hidden sm:flex shadow-sm">
                         <div className="space-y-0.5">
                             <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium text-center">Tổng số Câu hỏi</p>
@@ -251,7 +242,7 @@ export default function QuestionsPage() {
                     <QuestionsTable
                         data={questions}
                         onView={setViewingQuestion}
-                        onEdit={() => { }}
+                        onEdit={setEditingQuestion}
                         onDelete={setDeletingQuestion}
                         onApprove={handleApprove}
                         onDeactivate={handleDeactivate}
@@ -324,6 +315,12 @@ export default function QuestionsPage() {
                 open={!!viewingQuestion}
                 onOpenChange={(open) => !open && setViewingQuestion(null)}
                 question={viewingQuestion}
+            />
+
+            <EditQuestionDialog
+                open={!!editingQuestion}
+                onOpenChange={(open) => !open && setEditingQuestion(null)}
+                question={editingQuestion}
             />
 
             <DeleteQuestionDialog
