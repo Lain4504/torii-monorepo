@@ -60,13 +60,13 @@ import {
 } from './helpers/utils';
 import { sleep } from '../../helpers/utils';
 import { cleanProcessedImageElementsMap } from './helpers/handleFiles';
+import { useAdaptivePerformance } from '../../helpers/performance/useAdaptivePerformance';
 
 interface WhiteboardProps {
   onReadyExcalidrawAPI: (excalidrawAPI: ExcalidrawImperativeAPI) => void;
 }
 
-const CURSOR_SYNC_TIMEOUT = 33,
-  SAVE_TO_STORAGE_DEBOUNCE_TIMEOUT = 1000;
+const SAVE_TO_STORAGE_DEBOUNCE_TIMEOUT = 1000;
 
 const Whiteboard = ({ onReadyExcalidrawAPI }: WhiteboardProps) => {
   const dispatch = useAppDispatch();
@@ -126,6 +126,9 @@ const Whiteboard = ({ onReadyExcalidrawAPI }: WhiteboardProps) => {
   const isProgrammaticScroll = useRef(false);
   const isSwitching = useRef(false);
   const lastBroadcastOrReceivedSceneVersion = useRef<number>(-1);
+
+  // Get adaptive performance configuration based on participant count
+  const performanceConfig = useAdaptivePerformance();
 
   // Determines if the current user has editing privileges.
   const canEdit = useMemo(() => {
@@ -400,6 +403,7 @@ const Whiteboard = ({ onReadyExcalidrawAPI }: WhiteboardProps) => {
   /**
    * Throttled version of the scene broadcast.
    * This reduces the number of NATS messages sent during continuous drawing.
+   * Throttle value adapts based on room size.
    */
   const throttledBroadcastSceneOnChange = useMemo(
     () =>
@@ -425,13 +429,14 @@ const Whiteboard = ({ onReadyExcalidrawAPI }: WhiteboardProps) => {
               ),
           );
         },
-        50, // 50ms throttle for strokes
+        performanceConfig.whiteboardStrokeThrottle,
       ),
-    [isPresenter, debouncedSaveToStorage, currentPage, currentWhiteboardOfficeFileId],
+    [isPresenter, debouncedSaveToStorage, currentPage, currentWhiteboardOfficeFileId, performanceConfig.whiteboardStrokeThrottle],
   );
 
   /**
    * Throttled version of app state changes broadcast (zoom, scroll).
+   * Throttle value adapts based on room size.
    */
   const throttledBroadcastAppStateChanges = useMemo(
     () =>
@@ -449,9 +454,9 @@ const Whiteboard = ({ onReadyExcalidrawAPI }: WhiteboardProps) => {
             appState.gridSize,
           ).then();
         },
-        100, // 100ms throttle for app state
+        performanceConfig.whiteboardAppStateThrottle,
       ),
-    [],
+    [performanceConfig.whiteboardAppStateThrottle],
   );
 
   /**
@@ -529,9 +534,9 @@ const Whiteboard = ({ onReadyExcalidrawAPI }: WhiteboardProps) => {
         };
         broadcastMousePointerUpdate(msg).then();
       },
-      CURSOR_SYNC_TIMEOUT,
+      performanceConfig.whiteboardCursorSyncTimeout,
     ),
-    [canEdit, currentUser, excalidrawAPI],
+    [canEdit, currentUser, excalidrawAPI, performanceConfig.whiteboardCursorSyncTimeout],
   );
 
   const showSwitchingWarning = useCallback(() => {
