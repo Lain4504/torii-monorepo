@@ -54,17 +54,24 @@ services:
     image: livekit/livekit-server:latest
     container_name: torii-livekit
     restart: always
-    network_mode: "host"
     command: --config /livekit.yaml
+    ports:
+      - '7880:7880'
+      - '7881:7881'
+      - '7882:7882/udp'
+      - '5349:5349'       # TURN TLS
+      - '443:443/udp'     # TURN UDP (Fix for 4G)
+      - '50000-50100:50000-50100/udp' # Media range (100 ports)
     volumes:
       - ./livekit.yaml:/livekit.yaml
       - livekitdata:/data
+      - /etc/letsencrypt/live/api.torii.sbs:/certs:ro
+    depends_on:
+      - redis
 
   # ========================================
   # Application Services
   # ========================================
-  # NOTE: Using pre-built image from Docker Hub to save VPS disk space
-  # Image name is configured via DOCKER_USERNAME in .env
 
   gateway:
     image: ${DOCKER_USERNAME}/torii-backend:latest
@@ -84,7 +91,7 @@ services:
       - MEET_SERVICE_URL=http://meet:8091
       - BILLING_SERVICE_URL=http://billing:8084
     ports:
-      - "127.0.0.1:8080:8080" # Chỉ mở cho HAProxy ở localhost gọi vào
+      - "${GATEWAY_PORT:-8080}:8080"
     depends_on:
       - nats
       - postgres
@@ -248,19 +255,6 @@ services:
       - nats
       - postgres
       - redis
-
-  haproxy:
-    image: haproxy:2.8
-    container_name: torii-haproxy
-    restart: always
-    network_mode: "host"
-    user: root
-    cap_add:
-      - NET_ADMIN
-      - NET_BIND_SERVICE
-    volumes:
-      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
-      - ./ssl:/etc/haproxy/ssl:ro
 
 volumes:
   pgdata:
