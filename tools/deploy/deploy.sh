@@ -1,8 +1,9 @@
 #!/bin/bash
 
 # ==============================================================================
-# Torii Meet Deployment Script
-# Description: Automates the deployment of LiveKit + Meet TS Server with TURN
+# Torii Meet Deployment & Setup Script (V3 - Monorepo Root Integration)
+# Description: Prepares root config files and allows manual deploy.
+# Compatible with GitHub Action CI/CD.
 # ==============================================================================
 
 set -e
@@ -10,113 +11,69 @@ set -e
 # Configuration
 DEPLOY_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MONOREPO_ROOT="$(cd "$DEPLOY_DIR/../.." && pwd)"
-OUTPUT_DIR="$DEPLOY_DIR/output"
-SSL_DIR="$OUTPUT_DIR/ssl"
+SSL_DIR="$MONOREPO_ROOT/ssl"
 
 # Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; NC='\033[0m'
 
-echo -e "${GREEN}Starting Torii Meet Deployment...${NC}"
+echo -e "${GREEN}Starting Torii Monorepo Deployment Setup...${NC}"
 
-# 1. Check Prerequisites
-command -v docker >/dev/null 2>&1 || { echo -e "${RED}Docker is required but not installed. Aborting.${NC}" >&2; exit 1; }
-command -v pnpm >/dev/null 2>&1 || { echo -e "${RED}pnpm is required but not installed. Aborting.${NC}" >&2; exit 1; }
-
-# 2. Extract specific needed configuration values safely
+# 1. Extract settings safely from .env
 if [ -f "$MONOREPO_ROOT/.env" ]; then
-    # Helper to get value from .env without sourcing (safely)
     get_env_val() {
-        grep "^$1=" "$MONOREPO_ROOT/.env" | cut -d'=' -f2- | sed -e 's/^"//' -e 's/"$//' -e 's/ #.*$//' -e 's/ *$//'
+        grep "^$1=" "$MONOREPO_ROOT/.env" | head -n 1 | cut -d'=' -f2- | sed -e 's/^"//' -e 's/"$//' -e 's/ #.*$//' -e 's/ *$//'
     }
-    
     ENV_DOMAIN=$(get_env_val "DOMAIN")
     ENV_IP=$(get_env_val "EXTERNAL_IP")
     ENV_LK_KEY=$(get_env_val "LIVEKIT_API_KEY")
     ENV_LK_SECRET=$(get_env_val "LIVEKIT_API_SECRET")
-    ENV_DB_URL=$(get_env_val "DATABASE_URL")
 fi
 
-DEFAULT_DOMAIN=${ENV_DOMAIN:-"meet.torii.edu"}
-DEFAULT_IP=${ENV_IP:-"127.0.0.1"}
-DEFAULT_LK_KEY=${ENV_LK_KEY:-"API$(openssl rand -hex 6)"}
-DEFAULT_LK_SECRET=${ENV_LK_SECRET:-"$(openssl rand -hex 20)"}
+DOMAIN=${ENV_DOMAIN:-"api.torii.sbs"}
+EXTERNAL_IP=${ENV_IP:-"127.0.0.1"}
 
-read -p "Enter public domain (default: $DEFAULT_DOMAIN): " DOMAIN
-DOMAIN=${DOMAIN:-$DEFAULT_DOMAIN}
+echo -e "${YELLOW}Current Configuration:${NC}"
+echo -e "  Domain: $DOMAIN"
+echo -e "  IP:     $EXTERNAL_IP"
+read -p "Press Enter to use these or Ctrl+C to stop and edit .env"
 
-read -p "Enter server external IP (default: $DEFAULT_IP): " EXTERNAL_IP
-EXTERNAL_IP=${EXTERNAL_IP:-$DEFAULT_IP}
-
-read -p "Enter LiveKit API Key (default: $DEFAULT_LK_KEY): " LIVEKIT_API_KEY
-LIVEKIT_API_KEY=${LIVEKIT_API_KEY:-$DEFAULT_LK_KEY}
-
-read -p "Enter LiveKit API Secret (default: $DEFAULT_LK_SECRET): " LIVEKIT_API_SECRET
-LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET:-$DEFAULT_LK_SECRET}
-
-# 3. Preparation
-mkdir -p "$OUTPUT_DIR"
+# 2. Handle SSL (Let's Encrypt support)
 mkdir -p "$SSL_DIR"
-
-# 4. Handle SSL
-echo -e "${YELLOW}Configuring SSL...${NC}"
-READ_EXISTING_SSL="n"
 if [ -d "/etc/letsencrypt/live/$DOMAIN" ]; then
-    read -p "Let's Encrypt certs found for $DOMAIN. Use them? (y/n): " READ_EXISTING_SSL
+    read -p "SSL found for $DOMAIN. Use Let's Encrypt? (y/n): " USE_LE
+    if [[ "$USE_LE" =~ ^[Yy]$ ]]; then
+        echo -e "${GREEN}Combining Let's Encrypt certs into root SSL folder...${NC}"
+        sudo sh -c "cat /etc/letsencrypt/live/$DOMAIN/fullchain.pem /etc/letsencrypt/live/$DOMAIN/privkey.pem > $SSL_DIR/server.pem"
+        sudo chown $USER:$USER "$SSL_DIR/server.pem"
+    fi
 fi
 
-if [[ "$READ_EXISTING_SSL" =~ ^[Yy]$ ]]; then
-    echo -e "${GREEN}Combining Let's Encrypt certs for HAProxy...${NC}"
-    sudo cat "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" "/etc/letsencrypt/live/$DOMAIN/privkey.pem" > "$SSL_DIR/server.pem"
-    sudo chown $USER:$USER "$SSL_DIR/server.pem"
-elif [ ! -f "$SSL_DIR/server.pem" ]; then
-    echo -e "${YELLOW}Generating self-signed SSL certificate for $DOMAIN...${NC}"
-    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-        -keyout "$SSL_DIR/server.key" \
-        -out "$SSL_DIR/server.crt" \
-        -subj "/C=US/ST=State/L=City/O=Torii/OU=Meet/CN=$DOMAIN"
-    
-    # HAProxy expects combined PEM
+if [ ! -f "$SSL_DIR/server.pem" ]; then
+    echo -e "${YELLOW}Generating self-signed SSL...${NC}"
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout "$SSL_DIR/server.key" -out "$SSL_DIR/server.crt" -subj "/CN=$DOMAIN"
     cat "$SSL_DIR/server.crt" "$SSL_DIR/server.key" > "$SSL_DIR/server.pem"
 fi
 
-# 5. Generate Config Files from Templates
-echo -e "${YELLOW}Generating configuration files...${NC}"
+# 3. Generate Root Config Files
+echo -e "${YELLOW}Generating config files in monorepo root...${NC}"
 
-sed -e "s/{{DOMAIN}}/$DOMAIN/g" \
-    -e "s/{{LIVEKIT_API_KEY}}/$LIVEKIT_API_KEY/g" \
-    -e "s/{{LIVEKIT_API_SECRET}}/$LIVEKIT_API_SECRET/g" \
-    "$DEPLOY_DIR/livekit.template.yaml" > "$OUTPUT_DIR/livekit.yaml"
+sed -e "s/{{DOMAIN}}/$DOMAIN/g" -e "s/{{LIVEKIT_API_KEY}}/${ENV_LK_KEY:-key}/g" -e "s/{{LIVEKIT_API_SECRET}}/${ENV_LK_SECRET:-secret}/g" \
+    "$DEPLOY_DIR/livekit.template.yaml" > "$MONOREPO_ROOT/livekit.yaml"
 
-sed -e "s/{{DOMAIN}}/$DOMAIN/g" \
-    "$DEPLOY_DIR/haproxy.template.cfg" > "$OUTPUT_DIR/haproxy.cfg"
+sed -e "s/{{DOMAIN}}/$DOMAIN/g" "$DEPLOY_DIR/haproxy.template.cfg" > "$MONOREPO_ROOT/haproxy.cfg"
 
-# For docker-compose, we use a fixed image name for this deployment
-DOCKER_IMAGE="torii-server-prod"
-DATABASE_URL_VAL=${ENV_DB_URL:-"postgresql://postgres:postgres@db:5432/torii"}
-
-sed -e "s/{{DOMAIN}}/$DOMAIN/g" \
-    -e "s/{{LIVEKIT_API_KEY}}/$LIVEKIT_API_KEY/g" \
-    -e "s/{{LIVEKIT_API_SECRET}}/$LIVEKIT_API_SECRET/g" \
-    -e "s/{{DOCKER_IMAGE}}/$DOCKER_IMAGE/g" \
-    -e "s|{{DATABASE_URL}}|$DATABASE_URL_VAL|g" \
-    "$DEPLOY_DIR/docker-compose.deploy.template.yaml" > "$OUTPUT_DIR/docker-compose.yaml"
-
-# 6. Build Docker Image
-echo -e "${YELLOW}Building Torii Server Docker image...${NC}"
-docker build -t "$DOCKER_IMAGE" -f "$MONOREPO_ROOT/apps/server/Dockerfile" "$MONOREPO_ROOT"
-
-# 7. Deployment
-echo -e "${GREEN}Deploying stack via Docker Compose...${NC}"
-cd "$OUTPUT_DIR"
-docker compose up -d
+# 4. Manual Deploy Option
+read -p "Setup complete. Do you want to run 'docker compose up -d' now? (y/n): " RUN_DEPLOY
+if [[ "$RUN_DEPLOY" =~ ^[Yy]$ ]]; then
+    cd "$MONOREPO_ROOT"
+    # Ensure Docker Hub login if needed (for images built by GitHub Action)
+    echo -e "${YELLOW}Pulling latest images from Docker Hub...${NC}"
+    docker compose pull gateway identity learning meet agents gamification communication storage billing || true
+    echo -e "${GREEN}Launching stack...${NC}"
+    docker compose up -d
+fi
 
 echo -e "${GREEN}==================================================================${NC}"
-echo -e "${GREEN}Deployment Complete!${NC}"
-echo -e "LiveKit URL: wss://$DOMAIN/livekit"
-echo -e "Meet API:    https://$DOMAIN"
-echo -e "TURN Status: Enabled on 443 (TCP) and 5349 (TLS)"
-echo -e "${YELLOW}Note: If using self-signed certs, you must accept them in your browser.${NC}"
-echo -e "${GREEN}==================================================================${NC}"
+echo -e "Success! Configuration is ready in the root directory."
+echo -e "GitHub Actions will use these files on the next push."
+echo -e "==================================================================${NC}"

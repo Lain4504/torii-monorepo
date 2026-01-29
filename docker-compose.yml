@@ -59,6 +59,8 @@ services:
       - '7880:7880'  # HTTP
       - '7881:7881'  # WebRTC over TCP
       - '7882:7882/udp'  # WebRTC over UDP
+      - '5349:5349' # TURN TLS
+      - '50000-60000:50000-60000/udp' # UDP Media
     volumes:
       - ./livekit.yaml:/livekit.yaml
       - livekitdata:/data
@@ -88,8 +90,9 @@ services:
       - AGENTS_SERVICE_URL=http://agents:8090
       - MEET_SERVICE_URL=http://meet:8091
       - BILLING_SERVICE_URL=http://billing:8084
-    ports:
-      - "${GATEWAY_PORT:-8080}:8080"
+    # Expose internally for HAProxy, no need for host port if using SSL
+    # ports:
+    #   - "${GATEWAY_PORT:-8080}:8080"
     depends_on:
       - nats
       - postgres
@@ -253,6 +256,20 @@ services:
       - nats
       - postgres
       - redis
+
+  haproxy:
+    image: haproxy:2.8
+    container_name: torii-haproxy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+      - ./ssl:/etc/haproxy/ssl:ro
+    depends_on:
+      - gateway
+      - livekit
 
 volumes:
   pgdata:
