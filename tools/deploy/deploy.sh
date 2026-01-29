@@ -29,13 +29,11 @@ if [ -f "$MONOREPO_ROOT/.env" ]; then
     ENV_LK_SECRET=$(get_env_val "LIVEKIT_API_SECRET")
 fi
 
-DOMAIN=${ENV_DOMAIN:-"api.torii.sbs"}
-EXTERNAL_IP=${ENV_IP:-"127.0.0.1"}
+read -p "Enter public domain (default: $DOMAIN): " DOMAIN_IN
+DOMAIN=${DOMAIN_IN:-$DOMAIN}
 
-echo -e "${YELLOW}Current Configuration:${NC}"
-echo -e "  Domain: $DOMAIN"
-echo -e "  IP:     $EXTERNAL_IP"
-read -p "Press Enter to use these or Ctrl+C to stop and edit .env"
+read -p "Enter server external IP (default: $EXTERNAL_IP): " IP_IN
+EXTERNAL_IP=${IP_IN:-$EXTERNAL_IP}
 
 # 2. Handle SSL (Let's Encrypt support)
 mkdir -p "$SSL_DIR"
