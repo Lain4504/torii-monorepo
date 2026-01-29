@@ -65,7 +65,7 @@ services:
     volumes:
       - ./livekit.yaml:/livekit.yaml
       - livekitdata:/data
-      - /etc/letsencrypt/live/api.torii.sbs:/certs:ro
+      - ./certs:/certs:ro
     depends_on:
       - redis
 
