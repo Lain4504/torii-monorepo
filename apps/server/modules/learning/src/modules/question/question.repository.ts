@@ -150,5 +150,42 @@ export class QuestionRepository implements IQuestionRepository {
             },
         });
     }
+
+    /**
+     * Find random questions
+     */
+    async findRandom(count: number, where?: Prisma.QuestionWhereInput): Promise<Question[]> {
+        // Note: This is specific to PostgreSQL
+        // For a more database-agnostic approach, we would need to count records and generate random offsets,
+        // but that is less efficient.
+
+        // We need to construct the WHERE clause manually for raw query or just fetch IDs and shuffle in memory 
+        // if the dataset is small. For a proper placement test with potentially many questions, 
+        // SQL level randomization is better.
+
+        // However, Prisma's $queryRawUnsafe maps to raw DB results which might result in case issues 
+        // (Postgres returns lowercase columns) if not careful, or date parsing issues.
+        // A safer "Prisma" way for random sampling without raw SQL risk:
+        // 1. Fetch all IDs matching the criteria (lightweight)
+        // 2. Shuffle locally
+        // 3. Take N IDs
+        // 4. Fetch details
+
+        const questions = await this.prisma.question.findMany({
+            where: where,
+            select: { id: true },
+        });
+
+        const shuffled = questions.sort(() => 0.5 - Math.random());
+        const selected = shuffled.slice(0, count);
+        const ids = selected.map(q => q.id);
+
+        if (ids.length === 0) return [];
+
+        // We fetch again to get full objects with correct types
+        return this.prisma.question.findMany({
+            where: { id: { in: ids } },
+        });
+    }
 }
 

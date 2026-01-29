@@ -91,6 +91,11 @@ export interface IQuestionService {
      * Get questions by pool
      */
     getByPool(poolId: string): Promise<QuestionResponseDTO[]>;
+
+    /**
+     * Get placement test questions
+     */
+    getPlacementQuestions(count: number): Promise<QuestionResponseDTO[]>;
 }
 
 /**

@@ -110,4 +110,9 @@ export class QuestionHandler {
         const requester = { sub: userId, role: userRole as any, permissions: [] };
         return this.questionService.sendForReview(requester, id);
     }
+
+    @MessagePattern({ cmd: 'learning.question.getPlacement' })
+    async getPlacement(@Payload() data: { count?: number }) {
+        return this.questionService.getPlacementQuestions(data.count || 15);
+    }
 }

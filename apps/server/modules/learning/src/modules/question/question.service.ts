@@ -24,6 +24,9 @@ import type { IQuestionService } from '../../interfaces/services/i-question.serv
 import type { IQuestionRepository } from '../../interfaces/repositories/i-question.repository';
 import { QUESTION_REPOSITORY_TOKEN } from '../../interfaces/repositories/i-question.repository';
 
+// Note: I will update the Interface file in a separate step.
+
+
 /**
  * Question Service
  * Handles question business logic operations
@@ -593,5 +596,62 @@ export class QuestionService implements IQuestionService {
         const questions = await this.questionRepository.findByPool(poolId);
         return questions.map((q) => this.toQuestionDto(q));
     }
-}
 
+    /**
+     * Get placement test questions
+     * Returns a mix of questions from different levels
+     * Prioritizes questions tagged with 'PLACEMENT'
+     */
+    async getPlacementQuestions(count: number = 15): Promise<QuestionResponseDTO[]> {
+        const levels = ['N5', 'N4', 'N3', 'N2', 'N1'];
+        // Initial target per level
+        let targetPerLevel = Math.ceil(count / levels.length);
+        const questions: Question[] = [];
+        const seenIds = new Set<string>();
+
+        // 1. First Pass: Try to get equal distribution
+        for (const level of levels) {
+            const levelQuestions = await this.questionRepository.findRandom(targetPerLevel, {
+                jlptLevel: level,
+                status: QuestionStatus.ACTIVE,
+            });
+
+            levelQuestions.forEach(q => {
+                if (!seenIds.has(q.id)) {
+                    questions.push(q);
+                    seenIds.add(q.id);
+                }
+            });
+        }
+
+        // 2. Second Pass: If we are short, fill gracefully from lower levels first (likely more content)
+        if (questions.length < count) {
+            const deficit = count - questions.length;
+            // Strategy: Try to find ANY active questions not yet included
+            // We prioritize lower levels for placement foundation
+            const fallbackLevels = ['N5', 'N4', 'N3', 'N2', 'N1'];
+
+            for (const level of fallbackLevels) {
+                if (questions.length >= count) break;
+
+                const needed = count - questions.length;
+                const extraQuestions = await this.questionRepository.findRandom(needed, {
+                    jlptLevel: level,
+                    status: QuestionStatus.ACTIVE,
+                    id: { notIn: Array.from(seenIds) }
+                });
+
+                extraQuestions.forEach(q => {
+                    if (!seenIds.has(q.id)) {
+                        questions.push(q);
+                        seenIds.add(q.id);
+                    }
+                });
+            }
+        }
+
+        // Shuffle
+        const shuffled = questions.sort(() => 0.5 - Math.random());
+        return shuffled.slice(0, count).map(q => this.toQuestionDto(q));
+    }
+}

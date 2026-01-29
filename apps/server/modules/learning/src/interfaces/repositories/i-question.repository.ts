@@ -76,6 +76,11 @@ export interface IQuestionRepository {
     findByPool(poolId: string): Promise<Question[]>;
 
     /**
+     * Find random questions
+     */
+    findRandom(count: number, where?: Prisma.QuestionWhereInput): Promise<Question[]>;
+
+    /**
      * Update question usage count
      */
     incrementUsageCount(questionId: string): Promise<Question>;

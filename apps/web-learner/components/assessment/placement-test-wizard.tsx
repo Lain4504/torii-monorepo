@@ -14,6 +14,7 @@ import { Badge } from "@workspace/ui/components/badge"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { Separator } from "@workspace/ui/components/separator"
 import { toast } from "@workspace/ui/components/sonner"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@workspace/ui/components/accordion"
 import { cn } from "@workspace/ui/lib/utils"
 
 // Types
@@ -44,6 +45,15 @@ interface EvaluationResult {
             topics: string[]
         }>
     }
+    detailedResults?: Array<{
+        id: string
+        question: string
+        options: string[]
+        correctAnswer: string
+        userAnswer: string
+        isCorrect: boolean
+        explanation?: string
+    }>
 }
 
 export function PlacementTestWizard() {
@@ -51,20 +61,44 @@ export function PlacementTestWizard() {
 
 
     // State
-    const [status, setStatus] = React.useState<'intro' | 'loading' | 'testing' | 'evaluating' | 'result'>('intro')
+    const [status, setStatus] = React.useState<'intro' | 'loading' | 'testing' | 'evaluating' | 'result' | 'review'>('intro')
     const [testData, setTestData] = React.useState<TestData | null>(null)
     const [currentQuestionIndex, setCurrentQuestionIndex] = React.useState(0)
     const [answers, setAnswers] = React.useState<Record<string, string>>({})
     const [result, setResult] = React.useState<EvaluationResult | null>(null)
 
+    // Load persisted result on mount
+    React.useEffect(() => {
+        const savedResult = localStorage.getItem('torii-placement-result')
+        if (savedResult) {
+            try {
+                setResult(JSON.parse(savedResult))
+                setStatus('result')
+            } catch (e) {
+                console.error('Failed to parse saved result', e)
+                localStorage.removeItem('torii-placement-result')
+            }
+        }
+    }, [])
+
+    const handleTakeAgain = () => {
+        localStorage.removeItem('torii-placement-result')
+        setTestData(null)
+        setAnswers({})
+        setResult(null)
+        setCurrentQuestionIndex(0)
+        setStatus('intro')
+    }
+
     // Start Test
     const startTest = async () => {
         setStatus('loading')
         try {
-            const response = await fetch('/api/agents/placement/test', {
+            const response = await fetch('http://localhost:8080/api/agents/placement/test', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ questionCount: 10 }),
+                credentials: 'include', // Send cookies/auth headers
+                body: JSON.stringify({ questionCount: 30 }),
             })
 
             if (response.status === 401) {
@@ -76,10 +110,22 @@ export function PlacementTestWizard() {
             if (!response.ok) throw new Error('Failed to start test')
 
             const data = await response.json()
+            console.log('API Response:', data); // Debug log
             if (data.data) {
-                setTestData(data.data)
-                setStatus('testing')
+                // If data.data exists, we expect it to match TestData, but let's handle potential double wrapping
+                // If backend returns { data: { testId... } } and gateway wraps it, we might have data.data.data?
+                // Or if backend returns { data: { ... } }, gateway returns { data: { data: { ... } } }
+                // Let's check if the inner object is what we need.
+                const innerData = data.data.data || data.data;
+                if (innerData.testId && innerData.questions) {
+                    setTestData(innerData);
+                    setStatus('testing');
+                } else {
+                    console.error('Missing expected fields in data:', innerData);
+                    throw new Error('Invalid response structure (missing fields)');
+                }
             } else {
+                console.error('No data property in response:', data);
                 throw new Error('Invalid response format')
             }
         } catch (error) {
@@ -112,22 +158,26 @@ export function PlacementTestWizard() {
             // Submit
             setStatus('evaluating')
             try {
-                const response = await fetch('/api/agents/placement/evaluate', {
+                const response = await fetch('http://localhost:8080/api/agents/placement/evaluate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
                     body: JSON.stringify({
                         testId: testData.testId,
-                        userAnswers: answers
+                        answers: answers
                     }),
                 })
 
                 if (!response.ok) throw new Error('Failed to evaluate test')
 
                 const data = await response.json()
+                console.log('Evaluation Response:', data); // Debug log
                 if (data.data) {
                     setResult(data.data)
+                    localStorage.setItem('torii-placement-result', JSON.stringify(data.data))
                     setStatus('result')
                 } else {
+                    console.error('Missing data in evaluation response:', data);
                     throw new Error('Invalid evaluation response')
                 }
             } catch (error) {
@@ -219,6 +269,44 @@ export function PlacementTestWizard() {
                         </p>
                     </div>
 
+                    {/* Stats Grid */}
+                    <div className="grid grid-cols-3 gap-4 w-full max-w-sm">
+                        {(() => {
+                            const total = Object.keys(result.scoreBreakdown || {}).length
+                            const correct = Object.values(result.scoreBreakdown || {}).filter(s => s === 'correct').length
+                            const wrong = total - correct
+
+                            return (
+                                <>
+                                    <div className="flex flex-col items-center p-3 rounded-xl bg-green-500/10 border border-green-500/20">
+                                        <span className="text-2xl font-bold text-green-500">{correct}</span>
+                                        <span className="text-xs text-muted-foreground uppercase tracking-wider">Correct</span>
+                                    </div>
+                                    <div className="flex flex-col items-center p-3 rounded-xl bg-red-500/10 border border-red-500/20">
+                                        <span className="text-2xl font-bold text-red-500">{wrong}</span>
+                                        <span className="text-xs text-muted-foreground uppercase tracking-wider">Wrong</span>
+                                    </div>
+                                    <div className="flex flex-col items-center p-3 rounded-xl bg-white/5 border border-white/10">
+                                        <span className="text-2xl font-bold text-foreground">{total}</span>
+                                        <span className="text-xs text-muted-foreground uppercase tracking-wider">Total</span>
+                                    </div>
+                                </>
+                            )
+                        })()}
+                    </div>
+
+                    {/* Review Section Button */}
+                    <div className="w-full max-w-sm mt-4">
+                        <Button
+                            variant="outline"
+                            className="w-full border-white/10 hover:bg-white/5 text-muted-foreground hover:text-primary gap-2"
+                            onClick={() => setStatus('review')}
+                        >
+                            <BookOpen className="w-4 h-4" />
+                            Review Test
+                        </Button>
+                    </div>
+
                     <div className="w-full space-y-4 pt-4">
                         <Button
                             className="w-full h-14 text-lg font-bold rounded-2xl shadow-xl shadow-primary/20 bg-primary text-primary-foreground hover:scale-[1.02] transition-all"
@@ -234,6 +322,13 @@ export function PlacementTestWizard() {
                         >
                             Skip for now
                         </Button>
+                        <Button
+                            variant="ghost"
+                            className="w-full text-muted-foreground hover:text-destructive transition-colors"
+                            onClick={handleTakeAgain}
+                        >
+                            Retake Test
+                        </Button>
                     </div>
                 </div>
 
@@ -247,31 +342,150 @@ export function PlacementTestWizard() {
                     </div>
 
                     <ScrollArea className="flex-1 pr-4 -mr-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4">
-                            {result.studyPathRecommendation.weeklySchedule.map((week, i) => (
-                                <div key={i} className="group relative p-5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center text-sm font-bold text-primary">
-                                            W{week.week}
-                                        </div>
-                                        <span className="text-xs font-bold text-muted-foreground/50 group-hover:text-primary/50 transition-colors">
-                                            PHASE {Math.ceil(week.week / 4)}
-                                        </span>
+                        {(() => {
+                            if (!result.studyPathRecommendation.weeklySchedule || result.studyPathRecommendation.weeklySchedule.length === 0) {
+                                return (
+                                    <div className="text-center text-muted-foreground py-8">
+                                        <p>Study path details could not be generated. Please try again later.</p>
                                     </div>
-                                    <div className="space-y-2">
-                                        {week.topics.map((topic, j) => (
-                                            <div key={j} className="flex items-start gap-2 text-sm text-foreground/80 leading-relaxed">
-                                                <div className="mt-1.5 w-1 h-1 rounded-full bg-primary shrink-0" />
-                                                {topic}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                                )
+                            }
+
+                            // Group by Phase (4 weeks per phase)
+                            const phases = result.studyPathRecommendation.weeklySchedule.reduce((acc, week) => {
+                                const phase = Math.ceil(week.week / 4)
+                                if (!acc[phase]) acc[phase] = []
+                                acc[phase].push(week)
+                                return acc
+                            }, {} as Record<number, typeof result.studyPathRecommendation.weeklySchedule>)
+
+                            return (
+                                <Accordion type="single" collapsible defaultValue="phase-1" className="w-full">
+                                    {Object.entries(phases).map(([phaseNum, weeks]) => (
+                                        <AccordionItem key={phaseNum} value={`phase-${phaseNum}`} className="border-white/10 mb-2">
+                                            <AccordionTrigger className="hover:no-underline py-3 px-4 rounded-xl bg-white/5 data-[state=open]:bg-white/10 transition-colors">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center text-sm font-bold text-primary">
+                                                        P{phaseNum}
+                                                    </div>
+                                                    <div className="text-left">
+                                                        <h4 className="font-bold text-foreground">Phase {phaseNum}</h4>
+                                                        <span className="text-xs text-muted-foreground">Weeks {weeks[0].week}-{weeks[weeks.length - 1].week}</span>
+                                                    </div>
+                                                </div>
+                                            </AccordionTrigger>
+                                            <AccordionContent className="px-1">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3">
+                                                    {weeks.map((week, i) => (
+                                                        <div key={i} className="group relative p-3 rounded-xl bg-black/20 border border-white/5 hover:border-white/10 transition-all">
+                                                            <div className="flex justify-between items-start mb-2">
+                                                                <span className="text-xs font-bold text-primary/70">WEEK {week.week}</span>
+                                                            </div>
+                                                            <div className="space-y-1">
+                                                                {week.topics.map((topic, j) => (
+                                                                    <div key={j} className="flex items-start gap-2 text-xs text-foreground/80 leading-snug">
+                                                                        <div className="mt-1 w-1 h-1 rounded-full bg-primary shrink-0" />
+                                                                        {topic}
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </AccordionContent>
+                                        </AccordionItem>
+                                    ))}
+                                </Accordion>
+                            )
+                        })()}
                     </ScrollArea>
                 </div>
             </div>
+        )
+    }
+
+    // Review View
+    if (status === 'review' && result) {
+        return (
+            <div className="w-full max-w-4xl mx-auto animate-in fade-in duration-500 py-8 px-4">
+                <div className="flex flex-col items-center text-center space-y-6">
+                    <div className="shrink-0 space-y-2 mb-4 w-full">
+                        <div className="flex items-center justify-start mb-4">
+                            <Button variant="ghost" className="gap-2 text-muted-foreground hover:text-foreground" onClick={() => setStatus('result')}>
+                                <ChevronRight className="w-4 h-4 rotate-180" />
+                                Back to Results
+                            </Button>
+                        </div>
+                        <h2 className="text-3xl font-bold text-foreground">Test Review</h2>
+                        <p className="text-muted-foreground">
+                            Review your answers and explanations.
+                        </p>
+                    </div>
+
+                    <ScrollArea className="w-full h-[65vh] pr-4 rounded-xl border border-white/5 bg-black/20 p-6">
+                        <div className="space-y-6 text-left">
+                            {result.detailedResults?.map((r, idx) => (
+                                <div key={r.id} className={cn(
+                                    "p-6 rounded-xl border transition-colors",
+                                    r.isCorrect
+                                        ? "border-green-500/20 bg-green-500/5 hover:bg-green-500/10"
+                                        : "border-red-500/20 bg-red-500/5 hover:bg-red-500/10"
+                                )}>
+                                    <div className="flex items-start gap-4 mb-4">
+                                        <Badge variant={r.isCorrect ? "default" : "destructive"} className={cn("shrink-0 text-base py-1 px-3", r.isCorrect && "bg-green-600 hover:bg-green-700")}>
+                                            Q{idx + 1}
+                                        </Badge>
+                                        <p className="font-medium text-lg leading-relaxed">{r.question}</p>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-base bg-black/20 p-5 rounded-lg border border-white/5">
+                                        <div className="space-y-2">
+                                            <span className="text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                                                <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                                                Your Answer
+                                            </span>
+                                            <div className="font-bold text-red-400 text-lg flex items-center gap-2">
+                                                {r.options && r.options.indexOf(r.userAnswer) !== -1 ? (
+                                                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-red-500/20 text-red-400 text-xs shrink-0">
+                                                        {String.fromCharCode(65 + r.options.indexOf(r.userAnswer))}
+                                                    </span>
+                                                ) : null}
+                                                {r.userAnswer}
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <span className="text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                                                <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                                                Correct Answer
+                                            </span>
+                                            <div className="font-bold text-green-400 text-lg flex items-center gap-2">
+                                                {r.options && r.options.indexOf(r.correctAnswer) !== -1 ? (
+                                                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-green-500/20 text-green-400 text-xs shrink-0">
+                                                        {String.fromCharCode(65 + r.options.indexOf(r.correctAnswer))}
+                                                    </span>
+                                                ) : null}
+                                                {r.correctAnswer}
+                                                <CheckCircle2 className="w-5 h-5 ml-auto" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {r.explanation && (
+                                        <div className="mt-4 p-4 rounded-lg bg-blue-500/10 border border-blue-500/20 text-sm text-blue-200">
+                                            <span className="font-bold block mb-1">Explanation:</span>
+                                            {r.explanation}
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                            {result.detailedResults && result.detailedResults.filter(r => !r.isCorrect).length === 0 && (
+                                <div className="flex flex-col items-center justify-center h-64 text-center text-muted-foreground">
+                                    <Trophy className="w-16 h-16 mb-4 text-yellow-500/50" />
+                                    <p className="text-xl">No mistakes found!</p>
+                                </div>
+                            )}
+                        </div>
+                    </ScrollArea>
+                </div >
+            </div >
         )
     }
 
@@ -311,7 +525,7 @@ export function PlacementTestWizard() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
                     {currentQ.options.map((option, i) => (
                         <button
-                            key={option}
+                            key={i}
                             onClick={() => handleAnswer(option)}
                             className={cn(
                                 "group relative min-h-[4rem] px-6 py-4 rounded-xl border-2 text-left transition-all duration-300",

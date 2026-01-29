@@ -244,6 +244,21 @@ app.post('/api/assessment/evaluate-placement', async (req, res) => {
 });
 
 /**
+ * 18. Select Placement Questions (Curator)
+ */
+app.post('/api/assessment/select-placement-questions', async (req, res) => {
+  try {
+    const { candidates, userContext, count = 30 } = req.body;
+    const template = loadPromptTemplate('assessment/select-placement-questions.md');
+    const prompt = template({ candidates, userContext: userContext || {}, count, timestamp: new Date().toISOString() });
+    const response = await callGemini(prompt);
+    res.json(cleanJsonResponse(response));
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
  * 11. Progress Tracking
  */
 app.post('/api/analytics/track-progress', async (req, res) => {
@@ -311,6 +326,42 @@ app.post('/api/analytics/generate-report', async (req, res) => {
     const { userId, reportType, period, userContext } = req.body;
     const template = loadPromptTemplate('analytics/report-generation.md');
     const prompt = template({ userId, reportType, period, userContext: userContext || {}, timestamp: new Date().toISOString() });
+    const response = await callGemini(prompt);
+    res.json(cleanJsonResponse(response));
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * 18. Placement Question Selection
+ */
+app.post('/api/assessment/select-placement-questions', async (req, res) => {
+  try {
+    const { candidates, userContext, count = 15 } = req.body;
+    const template = loadPromptTemplate('assessment/placement-selection.md');
+
+    // We only send relevant fields to AI to save tokens
+    const simplifiedCandidates = candidates.map((q: any) => ({
+      id: q.id,
+      level: q.jlptLevel,
+      type: q.questionType,
+      text: q.questionText,
+    }));
+
+    // Detect available levels from the candidates
+    const availableLevels = [...new Set(simplifiedCandidates.map((c: any) => c.level))].sort();
+    const levelCount = availableLevels.length || 1;
+    const perLevel = Math.floor(count / levelCount);
+
+    const prompt = template({
+      candidates: simplifiedCandidates,
+      userContext: userContext || {},
+      timestamp: new Date().toISOString(),
+      count: count,
+      perLevel: perLevel,
+      availableLevelsString: availableLevels.join(', ')
+    });
     const response = await callGemini(prompt);
     res.json(cleanJsonResponse(response));
   } catch (error: any) {

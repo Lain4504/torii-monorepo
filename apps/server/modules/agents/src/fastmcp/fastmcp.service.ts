@@ -255,6 +255,20 @@ export class FastMcpService implements OnModuleInit {
     return response.data;
   }
 
+  async selectBestQuestions(
+    candidates: any[],
+    userId: string,
+    count: number = 30
+  ): Promise<any> {
+    const userContext = await this.getUserContext(userId);
+    const response = await this.httpClient.post('/api/assessment/select-placement-questions', {
+      candidates,
+      userContext,
+      count,
+    });
+    return response.data;
+  }
+
   // ==================== ANALYTICS AGENT METHODS ====================
 
   async trackProgress(
