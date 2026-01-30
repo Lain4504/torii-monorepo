@@ -4,13 +4,15 @@ import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AutomapperModule } from '@automapper/nestjs';
 import { pojos } from '@automapper/pojos';
-import { PrismaModule, SharedModule, GlobalRpcExceptionFilter } from '@server/shared';
+import { PrismaModule, SharedModule, GlobalRpcExceptionFilter, NatsClientModule } from '@server/shared';
 
 // Billing Modules
 import { OrderModule } from './modules/payment/order.module';
+import { CouponModule } from './modules/coupon/coupon.module';
 
 // Handlers
 import { OrderHandler } from './interfaces/nats/order.handler';
+import { CouponHandler } from './interfaces/nats/coupon.handler';
 
 @Module({
     imports: [
@@ -19,13 +21,16 @@ import { OrderHandler } from './interfaces/nats/order.handler';
         AutomapperModule.forRoot({ strategyInitializer: pojos() }),
         PrismaModule,
         SharedModule,
+        NatsClientModule,
 
         // Billing Modules
         OrderModule,
+        CouponModule,
     ],
     controllers: [
         // NATS Handlers
         OrderHandler,
+        CouponHandler,
     ],
     providers: [
         {

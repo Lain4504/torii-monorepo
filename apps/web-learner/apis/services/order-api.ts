@@ -42,9 +42,13 @@ export const orderApi = {
         };
         const response = await apiClient.post<StandardApiResponse<{ order: OrderResponseDTO }>>('/api/orders', payload);
 
+        if (response.data && response.data.success === false) {
+            throw new Error(response.data.message || 'Unknown error');
+        }
+
         if (!response.data || !response.data.data || !response.data.data.order) {
             console.error('Invalid response structure:', response.data);
-            throw new Error('Failed to create order: Invalid response from server');
+            throw new Error(`Failed to create order: Invalid response from server. Status: ${response.status}`);
         }
 
         return response.data.data.order;
@@ -55,6 +59,10 @@ export const orderApi = {
      */
     async confirmOrder(orderId: string, data: OrderConfirmDTO): Promise<OrderResponseDTO> {
         const response = await apiClient.post<StandardApiResponse<{ order: OrderResponseDTO }>>(`/api/orders/${orderId}/confirm`, data);
+
+        if (response.data && response.data.success === false) {
+            throw new Error(response.data.message || 'Unknown error');
+        }
 
         if (!response.data || !response.data.data || !response.data.data.order) {
             console.error('Invalid response structure:', response.data);

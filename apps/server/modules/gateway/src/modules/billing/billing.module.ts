@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { NatsClientModule } from '@server/shared';
 import { OrderController } from './controllers/order.controller';
 import { PayOSController } from './controllers/payos.controller';
+import { CouponController } from './controllers/coupon.controller';
 
 /**
  * Billing Module for Gateway
@@ -12,6 +13,7 @@ import { PayOSController } from './controllers/payos.controller';
     controllers: [
         OrderController,
         PayOSController,
+        CouponController,
     ],
 })
 export class BillingModule { }

@@ -10,6 +10,7 @@ export const orderCreateDTOSchema = z.object({
     paymentMethod: z.nativeEnum(PaymentMethod).default(PaymentMethod.MOCK),
     paymentGateway: z.nativeEnum(PaymentGateway).optional(),
     orderType: z.nativeEnum(OrderType).default(OrderType.COURSE_PURCHASE),
+    couponCode: z.string().optional(),
     description: z.string().optional(),
     returnUrl: z.string().url().optional(),
     cancelUrl: z.string().url().optional(),

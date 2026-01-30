@@ -16,13 +16,16 @@ export class GatewayAuthGuard implements CanActivate {
     ) { }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
+        const request = context.switchToHttp().getRequest<Request>();
+        this.logger.log(`[GatewayAuthGuard] Checking auth for ${request.url}`);
+
         const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
             context.getHandler(),
             context.getClass(),
         ]);
 
-        const request = context.switchToHttp().getRequest<Request>();
         const token = this.extractToken(request);
+        this.logger.log(`[GatewayAuthGuard] Token extracted: ${token ? 'Yes' : 'No'}`);
 
         if (isPublic) {
             // Even if public, try to extract user info if token exists
@@ -41,12 +44,13 @@ export class GatewayAuthGuard implements CanActivate {
         }
 
         if (!token) {
+            this.logger.warn('[GatewayAuthGuard] No token provided');
             throw new UnauthorizedException('No token provided');
         }
 
         const payload = await this.jwtTokenProvider.verifyToken(token);
         if (!payload) {
-            this.logger.warn(`Token verification failed`);
+            this.logger.warn(`[GatewayAuthGuard] Token verification failed`);
             throw new UnauthorizedException();
         }
 
@@ -54,7 +58,7 @@ export class GatewayAuthGuard implements CanActivate {
         if (payload.jti) {
             const isBlacklisted = await this.blacklistService.isBlacklisted(payload.jti);
             if (isBlacklisted) {
-                this.logger.warn(`Token is blacklisted: ${payload.jti}`);
+                this.logger.warn(`[GatewayAuthGuard] Token is blacklisted: ${payload.jti}`);
                 throw new UnauthorizedException('Token revoked');
             }
         }
@@ -67,6 +71,7 @@ export class GatewayAuthGuard implements CanActivate {
             permissions: payload.permissions || []
         };
 
+        this.logger.log(`[GatewayAuthGuard] Auth check passed for user ${payload.sub}`);
         return true;
     }
 
@@ -81,6 +86,9 @@ export class GatewayAuthGuard implements CanActivate {
         if (request.cookies && request.cookies['access_token']) {
             return request.cookies['access_token'];
         }
+
+        this.logger.debug('[GatewayAuthGuard] No token in Header or Cookies');
+        // console.log('Cookies:', request.cookies); 
 
         return undefined;
     }
