@@ -1,6 +1,8 @@
 import {
     Controller,
     Get,
+    Post,
+    Body,
     Inject,
     Req,
     UseGuards,
@@ -23,6 +25,20 @@ export class GamificationController {
     constructor(
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     ) { }
+
+    @Get('profile')
+    async getProfile(@Req() req: Request) {
+        const user = req.user as any;
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send('gamification.getProfile', { userId: user.sub })
+            );
+            return successResponse(result);
+        } catch (error: any) {
+            this.logger.error(`Failed to get profile for user ${user.sub}`, error.stack);
+            return errorResponse(error.message || 'Failed to fetch profile');
+        }
+    }
 
     @Get('streak')
     async getStreak(@Req() req: Request) {
@@ -49,6 +65,49 @@ export class GamificationController {
         } catch (error: any) {
             this.logger.error(`Failed to get achievements for user ${user.sub}`, error.stack);
             return errorResponse(error.message || 'Failed to fetch achievements');
+        }
+    }
+
+    @Get('shop')
+    async getShopItems() {
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send('gamification.getShopItems', {})
+            );
+            return successResponse(result);
+        } catch (error: any) {
+            this.logger.error(`Failed to get shop items`, error.stack);
+            return errorResponse('Failed to fetch shop items');
+        }
+    }
+
+    @Post('shop/buy')
+    async buyItem(@Req() req: Request, @Body() body: { itemCode: string }) {
+        const user = req.user as any;
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send('gamification.buyItem', {
+                    userId: user.sub,
+                    itemCode: body.itemCode
+                })
+            );
+            return successResponse(result);
+        } catch (error: any) {
+            this.logger.error(`Failed to buy item for user ${user.sub}`, error.stack);
+            return errorResponse(error.message || 'Failed to buy item');
+        }
+    }
+
+    @Get('leaderboard')
+    async getLeaderboard() {
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send('gamification.getLeaderboard', {})
+            );
+            return successResponse(result);
+        } catch (error: any) {
+            this.logger.error(`Failed to get leaderboard`, error.stack);
+            return errorResponse('Failed to fetch leaderboard');
         }
     }
 }

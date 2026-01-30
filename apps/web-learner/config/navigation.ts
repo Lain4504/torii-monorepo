@@ -10,6 +10,8 @@ import {
     CreditCard,
     Settings,
     LifeBuoy,
+    ShoppingBag,
+    Shield,
 } from 'lucide-react'
 
 export interface NavItem {
@@ -31,6 +33,8 @@ export const learningNav: NavItem[] = [
 
 export const progressNav: NavItem[] = [
     { name: 'Thành tích', href: '/dashboard/achievements', icon: Trophy },
+    { name: 'Bảng xếp hạng', href: '/dashboard/leaderboard', icon: Shield },
+    { name: 'Cửa hàng', href: '/dashboard/shop', icon: ShoppingBag },
     { name: 'Chứng chỉ', href: '/dashboard/certificates', icon: Award },
     { name: 'Lịch sử học tập', href: '/dashboard/history', icon: Clock },
     { name: 'Ghi chú', href: '/dashboard/notes', icon: FileText },

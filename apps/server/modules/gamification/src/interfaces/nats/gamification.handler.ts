@@ -9,6 +9,9 @@ import {
 import { StreakService } from '../../services/streak.service';
 import { AchievementService } from '../../services/achievement.service';
 import { ActivityService } from '../../services/activity.service';
+import { GamificationProfileService } from '../../services/gamification-profile.service';
+import { ShopService } from '../../services/shop.service';
+import { LeaderboardService } from '../../services/leaderboard.service';
 
 @Controller()
 export class GamificationHandler {
@@ -18,7 +21,19 @@ export class GamificationHandler {
         private readonly streakService: StreakService,
         private readonly achievementService: AchievementService,
         private readonly activityService: ActivityService,
+        private readonly profileService: GamificationProfileService,
+        private readonly shopService: ShopService,
+        private readonly leaderboardService: LeaderboardService,
     ) { }
+
+    /**
+     * Get user's gamification profile (XP, Level, Hearts, Streak)
+     */
+    @MessagePattern('gamification.getProfile')
+    async getProfile(@Payload() data: { userId: string }) {
+        this.logger.log(`Getting profile for user: ${data.userId}`);
+        return this.profileService.getProfile(data.userId);
+    }
 
     /**
      * Get user's streak status
@@ -49,6 +64,27 @@ export class GamificationHandler {
     async getAchievements(@Payload() data: { userId: string }): Promise<UserAchievementDto[]> {
         this.logger.log(`Getting achievements for user: ${data.userId}`);
         return this.achievementService.getUserAchievements(data.userId);
+    }
+
+    /**
+     * Shop Handlers
+     */
+    @MessagePattern('gamification.getShopItems')
+    async getShopItems() {
+        return this.shopService.getShopItems();
+    }
+
+    @MessagePattern('gamification.buyItem')
+    async buyItem(@Payload() data: { userId: string; itemCode: string }) {
+        return this.shopService.buyItem(data.userId, data.itemCode);
+    }
+
+    /**
+     * Leaderboard Handlers
+     */
+    @MessagePattern('gamification.getLeaderboard')
+    async getLeaderboard(@Payload() data: { leagueId?: string }) {
+        return this.leaderboardService.getWeeklyLeaderboard(data.leagueId);
     }
 
     /**

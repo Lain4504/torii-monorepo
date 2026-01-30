@@ -376,6 +376,16 @@ model User {
   streak          UserStreak?
   dailyActivities DailyActivity[]
   achievements    UserAchievement[]
+  inventory       UserInventory[]
+  league          League?          @relation(fields: [leagueId], references: [id])
+  leagueId        String?          @map("league_id") @db.Uuid
+
+  // Gamification Profile
+  totalXp         Int      @default(0) @map("total_xp")
+  currentWeekXp   Int      @default(0) @map("current_week_xp")
+  coins           Int      @default(0) @map("coins")
+  hearts          Int      @default(5) @map("hearts")
+  lastHeartRefill DateTime @default(now()) @map("last_heart_refill")
 
   // Coupon Relations
   createdCoupons  Coupon[]         @relation("CouponCreator")
@@ -1404,4 +1414,56 @@ model Ticket {
   @@index([status])
   @@index([type])
   @@map("tickets")
+}
+
+// ============================================
+// SHOP & INVENTORY
+// ============================================
+
+model ShopItem {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code        String   @unique @db.VarChar(50) // e.g., "STREAK_FREEZE", "HEART_REFILL"
+  name        String   @db.VarChar(100)
+  description String   @db.Text
+  price       Int      @default(0)
+  itemType    String   @map("item_type") @db.VarChar(50) // "consume", "collectible", "buff"
+  metadata    Json?    @default("{}") // Store item effects, e.g., { "xpMultiplier": 2, "durationHours": 1 }
+  imageUrl    String?  @map("image_url") @db.Text
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  inventories UserInventory[]
+
+  @@map("shop_items")
+}
+
+model UserInventory {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  itemId    String   @map("item_id") @db.Uuid
+  quantity  Int      @default(1)
+  expiresAt DateTime? @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  item ShopItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, itemId])
+  @@index([userId])
+  @@map("user_inventories")
+}
+
+model League {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String   @unique @db.VarChar(50) // Bronze, Silver, Gold, Platinum, Diamond
+  orderIndex  Int      @default(0) @map("order_index")
+  minXp       Int      @default(0) @map("min_xp")
+  icon        String?  @db.VarChar(100)
+  createdAt   DateTime @default(now()) @map("created_at")
+  
+  users       User[]
+
+  @@map("leagues")
 }

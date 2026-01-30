@@ -173,6 +173,7 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
                                         </SelectTrigger>
                                         <SelectContent className="border-border/10 shadow-2xl bg-background rounded-2xl overflow-hidden p-1">
                                             <SelectItem value={QuestionType.MULTIPLE_CHOICE} className="rounded-xl font-bold uppercase text-xs py-3 cursor-pointer focus:bg-primary/10">Multiple Choice</SelectItem>
+                                            <SelectItem value={QuestionType.LISTENING} className="rounded-xl font-bold uppercase text-xs py-3 cursor-pointer focus:bg-primary/10">Listening</SelectItem>
                                             <SelectItem value={QuestionType.TRUE_FALSE} className="rounded-xl font-bold uppercase text-xs py-3 cursor-pointer focus:bg-primary/10">True/False</SelectItem>
                                             <SelectItem value={QuestionType.FILL_BLANK} className="rounded-xl font-bold uppercase text-xs py-3 cursor-pointer focus:bg-primary/10">Fill Blank</SelectItem>
                                             <SelectItem value={QuestionType.MATCHING} className="rounded-xl font-bold uppercase text-xs py-3 cursor-pointer focus:bg-primary/10">Matching</SelectItem>
