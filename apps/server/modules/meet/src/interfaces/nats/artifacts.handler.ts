@@ -13,8 +13,12 @@ import {
     DeleteArtifactReq,
     GetArtifactDownloadTokenReq,
     ArtifactInfoRes,
-    FetchArtifactsResult,
+    FetchArtifactsResSchema,
+    ArtifactInfoResSchema,
+    DeleteArtifactResSchema,
+    GetArtifactDownloadTokenResSchema,
 } from '@workspace/protocol';
+import { create } from '@bufbuild/protobuf';
 
 @Controller()
 export class ArtifactsHandler {
@@ -28,48 +32,48 @@ export class ArtifactsHandler {
     async handleFetchArtifacts(@Payload() data: FetchArtifactsReq): Promise<any> {
         try {
             const result = await this.artifactsService.fetchArtifacts(data);
-            return {
+            return create(FetchArtifactsResSchema, {
                 status: true,
                 msg: 'success',
                 result,
-            };
+            });
         } catch (error) {
             this.logger.error(`Error handling artifact.fetch: ${error.message}`);
-            return {
+            return create(FetchArtifactsResSchema, {
                 status: false,
                 msg: error.message,
-            };
+            });
         }
     }
 
     @MessagePattern({ cmd: 'artifact.info' })
     async handleGetArtifactInfo(@Payload() data: ArtifactInfoReq): Promise<ArtifactInfoRes> {
         try {
-            return await this.artifactsService.getArtifactInfoByArtifactId(data.artifactId);
+            return await this.artifactsService.getArtifactInfo(data.artifactId);
         } catch (error) {
             this.logger.error(`Error handling artifact.info: ${error.message}`);
-            return {
+            return create(ArtifactInfoResSchema, {
                 status: false,
                 msg: error.message,
-            } as ArtifactInfoRes;
+            });
         }
     }
 
     @MessagePattern({ cmd: 'artifact.getDownloadToken' })
     async handleGetDownloadToken(@Payload() data: GetArtifactDownloadTokenReq): Promise<any> {
         try {
-            const token = await this.artifactsService.getArtifactDownloadToken(data.artifactId);
-            return {
+            const token = await this.artifactsService.getDownloadToken(data.artifactId);
+            return create(GetArtifactDownloadTokenResSchema, {
                 status: true,
                 msg: 'success',
                 token,
-            };
+            });
         } catch (error) {
             this.logger.error(`Error handling artifact.getDownloadToken: ${error.message}`);
-            return {
+            return create(GetArtifactDownloadTokenResSchema, {
                 status: false,
                 msg: error.message,
-            };
+            });
         }
     }
 
@@ -77,23 +81,23 @@ export class ArtifactsHandler {
     async handleDeleteArtifact(@Payload() data: DeleteArtifactReq): Promise<any> {
         try {
             await this.artifactsService.deleteArtifact(data.artifactId);
-            return {
+            return create(DeleteArtifactResSchema, {
                 status: true,
                 msg: 'success',
-            };
+            });
         } catch (error) {
             this.logger.error(`Error handling artifact.delete: ${error.message}`);
-            return {
+            return create(DeleteArtifactResSchema, {
                 status: false,
                 msg: error.message,
-            };
+            });
         }
     }
 
     @MessagePattern({ cmd: 'artifact.verifyDownloadToken' })
     async handleVerifyDownloadToken(@Payload() data: { token: string }): Promise<any> {
         try {
-            const result = await this.artifactsService.verifyArtifactDownloadJWT(data.token);
+            const result = await this.artifactsService.verifyAndGetFilePath(data.token);
             return {
                 status: true,
                 ...result,

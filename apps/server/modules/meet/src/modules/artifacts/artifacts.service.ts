@@ -18,7 +18,6 @@ import {
     ArtifactInfoSchema,
     FetchArtifactsResultSchema,
     ArtifactInfoResSchema,
-    PastRoomInfoSchema,
     CommonNotifyEventSchema,
 } from '@workspace/protocol';
 import { v4 as uuidv4 } from 'uuid';
@@ -51,7 +50,6 @@ export class ArtifactsService {
      * buildPath constructs absolute and relative storage paths for artifacts
      */
     async buildPath(fileName: string, roomId: string, artifactType: RoomArtifactType): Promise<{ relativePath: string; absolutePath: string }> {
-        // Convert enum to string for directory name (e.g. MEETING_ANALYTICS -> meeting_analytics)
         const typeStr = RoomArtifactType[artifactType].toLowerCase();
         const relativeDir = path.join(typeStr, roomId);
         const absoluteDir = path.join(this.storagePath, 'artifacts', relativeDir);
@@ -99,120 +97,136 @@ export class ArtifactsService {
         return artifact;
     }
 
+    async createSpeechTranscriptionArtifact(roomTableId: number, roomId: string, roomSid: string, filePath: string, fileSize: number): Promise<void> {
+        const metadata = create(RoomArtifactMetadataSchema, {
+            fileInfo: {
+                filePath,
+                fileSize: fileSize.toString(),
+            },
+        });
+
+        await this.createAndSaveArtifact(roomId, roomSid, roomTableId, RoomArtifactType.SPEECH_TRANSCRIPTION, metadata);
+    }
+
+    async createChatTranslationArtifact(roomTableId: number, roomId: string, roomSid: string, filePath: string, fileSize: number): Promise<void> {
+        const metadata = create(RoomArtifactMetadataSchema, {
+            fileInfo: {
+                filePath,
+                fileSize: fileSize.toString(),
+            },
+        });
+
+        await this.createAndSaveArtifact(roomId, roomSid, roomTableId, RoomArtifactType.CHAT_TRANSLATION_USAGE, metadata);
+    }
+
+    async createAITextChatArtifact(roomTableId: number, roomId: string, roomSid: string, filePath: string, fileSize: number): Promise<void> {
+        const metadata = create(RoomArtifactMetadataSchema, {
+            fileInfo: {
+                filePath,
+                fileSize: fileSize.toString(),
+            },
+        });
+
+        await this.createAndSaveArtifact(roomId, roomSid, roomTableId, RoomArtifactType.AI_TEXT_CHAT_INTERACTION_USAGE, metadata);
+    }
+
     /**
      * fetchArtifacts retrieves a paginated list of artifacts
      */
-    async fetchArtifacts(req: FetchArtifactsReq): Promise<FetchArtifactsResult> {
-        const limit = Math.min(Math.max(Number(req.limit) || 20, 1), 100);
-        const from = Number(req.from) || 0;
-        const orderBy = req.orderBy === 'ASC' ? 'asc' : 'desc';
+    async fetchArtifacts(r: FetchArtifactsReq): Promise<FetchArtifactsResult> {
+        const from = parseInt(r.from, 10) || 0;
+        const limit = parseInt(r.limit, 10) || 20;
 
         const where: any = {};
-        if (req.roomIds && req.roomIds.length > 0) {
-            where.roomId = { in: req.roomIds };
+        if (r.roomIds && r.roomIds.length > 0) {
+            where.roomId = { in: r.roomIds };
         }
-        if (req.roomSid) {
-            where.roomInfo = { sid: req.roomSid };
+        if (r.roomSid) {
+            where.roomInfo = { sid: r.roomSid };
         }
-        if (req.type !== undefined && req.type !== RoomArtifactType.UNKNOWN_ARTIFACT) {
-            where.type = RoomArtifactType[req.type];
+        if (r.type !== undefined && r.type !== RoomArtifactType.UNKNOWN_ARTIFACT) {
+            where.type = RoomArtifactType[r.type];
         }
 
-        const [artifacts, total] = await Promise.all([
-            this.prisma.roomArtifact.findMany({
-                where,
-                skip: from,
-                take: limit,
-                orderBy: { created: orderBy },
-                include: { roomInfo: true }
-            }),
-            this.prisma.roomArtifact.count({ where })
-        ]);
+        const artifacts = await this.prisma.roomArtifact.findMany({
+            where,
+            skip: from,
+            take: limit,
+            orderBy: { created: r.orderBy === 'ASC' ? 'asc' : 'desc' },
+        });
 
-        const artifactsList = artifacts.map(a => {
+        const totalItems = await this.prisma.roomArtifact.count({ where });
+
+        const resultArtifacts = artifacts.map(a => {
             const metadata = fromJson(RoomArtifactMetadataSchema, a.metadata as any);
             return create(ArtifactInfoSchema, {
                 artifactId: a.artifactId,
                 roomId: a.roomId,
                 type: RoomArtifactType[a.type as keyof typeof RoomArtifactType] || RoomArtifactType.UNKNOWN_ARTIFACT,
-                created: a.created.toISOString(),
                 metadata: metadata,
+                created: a.created.toISOString(),
             });
         });
 
         return create(FetchArtifactsResultSchema, {
-            totalArtifacts: total.toString(),
+            artifactsList: resultArtifacts,
+            totalArtifacts: totalItems.toString(),
             from: from.toString(),
             limit: limit.toString(),
-            orderBy: req.orderBy,
-            type: req.type,
-            artifactsList: artifactsList,
+            orderBy: r.orderBy,
         });
     }
 
     /**
-     * getArtifactInfoByArtifactId retrieves detailed artifact info
+     * getArtifactInfo retrieves details for a single artifact
      */
-    async getArtifactInfoByArtifactId(artifactId: string): Promise<ArtifactInfoRes> {
+    async getArtifactInfo(artifactId: string): Promise<ArtifactInfoRes> {
         const artifact = await this.prisma.roomArtifact.findUnique({
             where: { artifactId },
             include: { roomInfo: true }
         });
 
         if (!artifact) {
-            throw new Error(`artifact not found with ID: ${artifactId}`);
+            throw new Error(`artifact not found: ${artifactId}`);
         }
 
         const metadata = fromJson(RoomArtifactMetadataSchema, artifact.metadata as any);
-        const artifactInfo = create(ArtifactInfoSchema, {
+
+        const info = create(ArtifactInfoSchema, {
             artifactId: artifact.artifactId,
             roomId: artifact.roomId,
             type: RoomArtifactType[artifact.type as keyof typeof RoomArtifactType] || RoomArtifactType.UNKNOWN_ARTIFACT,
-            created: artifact.created.toISOString(),
             metadata: metadata,
+            created: artifact.created.toISOString(),
         });
 
-        const res = create(ArtifactInfoResSchema, {
+        return create(ArtifactInfoResSchema, {
             status: true,
             msg: 'success',
-            artifactInfo: artifactInfo,
+            artifactInfo: info,
         });
-
-        if (artifact.roomInfo) {
-            res.roomInfo = create(PastRoomInfoSchema, {
-                roomTitle: artifact.roomInfo.roomTitle,
-                roomId: artifact.roomInfo.roomId,
-                roomSid: artifact.roomInfo.sid,
-                joinedParticipants: artifact.roomInfo.joinedParticipants.toString(),
-                webhookUrl: artifact.roomInfo.webhookUrl,
-                created: artifact.roomInfo.created.toISOString(),
-                ended: artifact.roomInfo.ended?.toISOString() || '',
-            });
-        }
-
-        return res;
     }
 
     /**
-     * getArtifactDownloadToken generates a JWT for secure file downloads
+     * getDownloadToken generates a single-use token for downloading an artifact
      */
-    async getArtifactDownloadToken(artifactId: string): Promise<string> {
+    async getDownloadToken(artifactId: string): Promise<string> {
         const artifact = await this.prisma.roomArtifact.findUnique({
             where: { artifactId },
         });
 
         if (!artifact) {
-            throw new Error(`artifact not found with ID: ${artifactId}`);
+            throw new Error(`artifact not found: ${artifactId}`);
         }
 
-        const type = RoomArtifactType[artifact.type as keyof typeof RoomArtifactType] || RoomArtifactType.UNKNOWN_ARTIFACT;
-        if (!this.isDownloadable(type)) {
-            throw new Error(`'${artifact.type}' artifact type is not downloadable`);
+        const artifactType = RoomArtifactType[artifact.type as keyof typeof RoomArtifactType];
+        if (!this.isDownloadable(artifactType)) {
+            throw new Error('this artifact type is not downloadable');
         }
 
         const metadata = fromJson(RoomArtifactMetadataSchema, artifact.metadata as any);
         if (!metadata.fileInfo || !metadata.fileInfo.filePath) {
-            throw new Error('artifact has no downloadable file');
+            throw new Error('no file associated with this artifact');
         }
 
         return generateTokenForDownloadRecording(
@@ -224,29 +238,18 @@ export class ArtifactsService {
     }
 
     /**
-     * verifyArtifactDownloadJWT validates download tokens
+     * verifyAndGetFilePath verifies a download token and returns the absolute file path
      */
-    async verifyArtifactDownloadJWT(token: string): Promise<{ absolutePath: string; fileName: string }> {
+    async verifyAndGetFilePath(token: string): Promise<{ absolutePath: string; fileName: string }> {
         try {
-            const decoded = jwt.verify(token, this.apiSecret, {
-                algorithms: ['HS256'],
-                issuer: this.apiKey,
-            }) as any;
+            const decoded = jwt.verify(token, this.apiSecret) as any;
+            const absolutePath = path.join(this.storagePath, 'artifacts', decoded.filePath);
 
-            const relativePath = decoded.sub;
-            if (!relativePath) {
-                throw new Error('invalid token: file path not found');
-            }
-
-            const absolutePath = path.join(this.storagePath, 'artifacts', relativePath);
             try {
-                const stats = await fs.stat(absolutePath);
-                if (!stats.isFile()) {
-                    throw new Error('target is not a file');
-                }
+                await fs.access(absolutePath);
                 return {
                     absolutePath,
-                    fileName: path.basename(absolutePath),
+                    fileName: path.basename(decoded.filePath),
                 };
             } catch (error) {
                 throw new Error(`file not found: ${path.basename(absolutePath)}`);
@@ -268,7 +271,6 @@ export class ArtifactsService {
             throw new Error(`artifact not found with ID: ${artifactId}`);
         }
 
-        // Logic for moving to trash or permanent deletion
         const metadata = fromJson(RoomArtifactMetadataSchema, artifact.metadata as any);
         if (metadata.fileInfo && metadata.fileInfo.filePath) {
             const absolutePath = path.join(this.storagePath, 'artifacts', metadata.fileInfo.filePath);

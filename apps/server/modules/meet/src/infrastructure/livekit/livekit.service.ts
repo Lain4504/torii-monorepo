@@ -6,7 +6,7 @@
 
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { RoomServiceClient, AccessToken } from 'livekit-server-sdk';
+import { RoomServiceClient, AccessToken, IngressClient, IngressInput } from 'livekit-server-sdk';
 import { NatsKvUserInfo, WajlcTokenClaims, WajlcTokenClaimsSchema } from '@workspace/protocol';
 import { generateLivekitAccessToken } from '@server/shared';
 import { create } from '@bufbuild/protobuf';
@@ -18,6 +18,7 @@ import { create } from '@bufbuild/protobuf';
 export class LiveKitService {
     private readonly logger = new Logger(LiveKitService.name);
     private readonly client: RoomServiceClient;
+    private readonly ingressClient: IngressClient;
 
     constructor(private readonly configService: ConfigService) {
         // LIVEKIT_API_URL is the HTTP REST API URL (https://) for server-side RoomServiceClient
@@ -31,6 +32,7 @@ export class LiveKitService {
         }
 
         this.client = new RoomServiceClient(livekitHost, apiKey, apiSecret);
+        this.ingressClient = new IngressClient(livekitHost, apiKey, apiSecret);
         this.logger.log(`LiveKit client initialized: ${livekitHost}`);
     }
 
@@ -184,9 +186,23 @@ export class LiveKitService {
     }
 
     /**
+     * CreateIngress will send a request to livekit to create a new ingress
+     */
+    async createIngress(inputType: IngressInput, options: any): Promise<any> {
+        return await this.ingressClient.createIngress(inputType, options);
+    }
+
+    /**
      * Get the underlying RoomServiceClient for advanced operations
      */
     getClient(): RoomServiceClient {
         return this.client;
+    }
+
+    /**
+     * Get the underlying IngressClient for advanced operations
+     */
+    getIngressClient(): IngressClient {
+        return this.ingressClient;
     }
 }

@@ -21,6 +21,14 @@ import { ExternalDisplayModule } from './modules/external-display/external-displ
 import { RecordingModule } from './modules/recording/recording.module';
 import { PollsModule } from './modules/polls/polls.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { IngressModule } from './modules/ingress/ingress.module';
+import { InsightsModule } from './modules/insights/insights.module';
+import { SpeechToTextModule } from './modules/speech-to-text/speech-to-text.module';
+
+// NATS Handlers
+import { IngressHandler } from './interfaces/nats/ingress.handler';
+import { InsightsHandler } from './interfaces/nats/insights.handler';
+import { SpeechToTextHandler } from './interfaces/nats/speech-to-text.handler';
 
 @Module({
   imports: [
@@ -40,6 +48,9 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
     RecordingModule,
     ArtifactsModule,
     WebhookModule,
+    IngressModule,
+    InsightsModule,
+    SpeechToTextModule,
   ],
   controllers: [
     // NATS Handlers (not HTTP controllers)
@@ -49,6 +60,9 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
     WebhookHandler,
     UserHandler,
     ArtifactsHandler,
+    IngressHandler,
+    InsightsHandler,
+    SpeechToTextHandler,
   ],
   providers: [
     {
