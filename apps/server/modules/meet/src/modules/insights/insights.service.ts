@@ -31,6 +31,7 @@ import {
 } from '@workspace/protocol';
 import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
 import { RedisInsightsService } from '../../infrastructure/redis/redis-insights.service';
+import { ArtifactsService } from '../artifacts/artifacts.service';
 import { InsightsTaskPayload, InsightsServiceType, InsightsTaskType, AgentTaskResponse } from './insights.types';
 
 @Injectable()
@@ -42,6 +43,7 @@ export class InsightsService {
         @Inject('NATS_CLIENT') private readonly natsClient: ClientProxy,
         private readonly natsRoomService: NatsRoomService,
         private readonly redisInsightsService: RedisInsightsService,
+        private readonly artifactsService: ArtifactsService,
     ) { }
 
     /**
@@ -283,5 +285,40 @@ export class InsightsService {
      */
     async getSupportedLangs(serviceType: string): Promise<InsightsSupportedLangInfo[]> {
         return [];
+    }
+
+    /**
+     * EndRoomAllAgentTasks sends a NATS request to stop all agents for a room
+     */
+    async endRoomAllAgentTasks(roomId: string): Promise<void> {
+        const payload: InsightsTaskPayload = {
+            task: InsightsTaskType.EndRoomAllAgents,
+            service_type: InsightsServiceType.Unknown,
+            room_id: roomId,
+            room_table_id: 0,
+        };
+
+        try {
+            await this.configureAgent(payload);
+        } catch (error) {
+            this.logger.error(`End all agent tasks failed: ${error.message}`);
+        }
+    }
+
+    /**
+     * OnAfterRoomEnded performs cleanup tasks after a room has ended
+     */
+    async onAfterRoomEnded(dbTableId: bigint | number, roomId: string, roomSid: string): Promise<void> {
+        this.logger.log(`Cleanup insights for room: ${roomId}, sid: ${roomSid}`);
+
+        // 1. End all agent tasks
+        await this.endRoomAllAgentTasks(roomId);
+
+        // 2. Create usage artifacts
+        await this.artifactsService.createAllRoomUsageArtifacts(
+            roomId,
+            roomSid,
+            typeof dbTableId === 'bigint' ? Number(dbTableId) : dbTableId,
+        );
     }
 }

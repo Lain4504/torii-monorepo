@@ -3,6 +3,7 @@
  */
 
 export enum InsightsServiceType {
+    Unknown = "unknown",
     Transcription = "transcription",
     Translation = "translation",
     SpeechSynthesis = "speech-synthesis",

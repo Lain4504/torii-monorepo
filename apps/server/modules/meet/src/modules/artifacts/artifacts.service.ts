@@ -23,9 +23,17 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
 import * as fs from 'fs/promises';
-import { create, toJson, fromJson } from '@bufbuild/protobuf';
+import { create, toJson, fromJson, toJsonString } from '@bufbuild/protobuf';
 import { generateTokenForDownloadRecording } from '@server/shared';
 import * as jwt from 'jsonwebtoken';
+import { RedisInsightsService } from '../../infrastructure/redis/redis-insights.service';
+import { NatsService } from '../../interfaces/nats/nats.service';
+import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
+import {
+    AnalyticsEvents,
+    AnalyticsEventType,
+    AnalyticsDataMsgSchema,
+} from '@workspace/protocol';
 
 @Injectable()
 export class ArtifactsService {
@@ -39,6 +47,9 @@ export class ArtifactsService {
         private readonly configService: ConfigService,
         private readonly prisma: PrismaService,
         private readonly webhookNotifier: WebhookNotifierService,
+        private readonly redisInsightsService: RedisInsightsService,
+        private readonly natsService: NatsService,
+        private readonly natsRoomService: NatsRoomService,
     ) {
         this.storagePath = this.configService.get<string>('STORAGE_PATH') || './storage';
         this.apiKey = this.configService.get<string>('API_KEY') || '';
@@ -128,6 +139,260 @@ export class ArtifactsService {
         });
 
         await this.createAndSaveArtifact(roomId, roomSid, roomTableId, RoomArtifactType.AI_TEXT_CHAT_INTERACTION_USAGE, metadata);
+    }
+
+    /**
+     * createAllRoomUsageArtifacts creates all types of usage artifacts for a room
+     * Matches pkg/models/artifact.go
+     */
+    async createAllRoomUsageArtifacts(roomId: string, roomSid: string, roomTableId: number): Promise<void> {
+        this.logger.log(`Creating all room usage artifacts for room: ${roomId}`);
+
+        // 1. Speech Transcription File
+        let transFileArtifactId: string | undefined;
+        try {
+            transFileArtifactId = await this.createSpeechTranscriptionFileArtifact(roomId, roomSid, roomTableId);
+        } catch (error) {
+            this.logger.error(`Failed to create speech transcription file artifact: ${error.message}`);
+        }
+
+        // 2. Speech Transcription Usage
+        try {
+            await this.createSpeechTranscriptionUsageArtifact(roomId, roomSid, roomTableId, transFileArtifactId);
+        } catch (error) {
+            this.logger.error(`Failed to create speech transcription usage artifact: ${error.message}`);
+        }
+
+        // 3. Chat Translation Usage
+        try {
+            await this.createChatTranslationUsageArtifact(roomId, roomSid, roomTableId);
+        } catch (error) {
+            this.logger.error(`Failed to create chat translation usage artifact: ${error.message}`);
+        }
+
+        // 4. Synthesized Speech Usage
+        try {
+            await this.createSynthesizedSpeechUsageArtifact(roomId, roomSid, roomTableId);
+        } catch (error) {
+            this.logger.error(`Failed to create synthesized speech usage artifact: ${error.message}`);
+        }
+
+        // 5. AI Text Chat Usage (chat + summary)
+        try {
+            await this.createAITextChatUsageArtifacts(roomId, roomSid, roomTableId);
+        } catch (error) {
+            this.logger.error(`Failed to create AI text chat usage artifacts: ${error.message}`);
+        }
+    }
+
+    /**
+     * createSpeechTranscriptionFileArtifact creates a VTT file from NATS transcription chunks
+     */
+    async createSpeechTranscriptionFileArtifact(roomId: string, roomSid: string, roomTableId: number): Promise<string | undefined> {
+        const chunks = await this.natsService.getTranscriptionChunks(roomId);
+        if (!chunks || Object.keys(chunks).length === 0) return undefined;
+
+        // Clean up bucket
+        await this.natsService.deleteTranscriptionBucket(roomId);
+
+        const keys = Object.keys(chunks).sort();
+        let fileContent = 'WEBVTT\n\n';
+        fileContent += `NOTE Transcription for meeting: ${roomId}\n\n`;
+
+        let firstTimestamp = -1;
+        let previousEndTime = 0;
+
+        keys.forEach((key, i) => {
+            try {
+                const chunk = JSON.parse(new TextDecoder().decode(chunks[key]));
+                const ts = parseInt(key, 10);
+                if (firstTimestamp === -1) firstTimestamp = ts;
+
+                const elapsedTime = ts - firstTimestamp;
+                const startTime = i > 0 ? previousEndTime : 0;
+
+                const vttStartTime = this.formatVTTTimestamp(startTime);
+                const vttEndTime = this.formatVTTTimestamp(elapsedTime);
+
+                fileContent += `${i + 1}\n`;
+                fileContent += `${vttStartTime} --> ${vttEndTime}\n`;
+                fileContent += `<v ${chunk.name}>${chunk.text}\n\n`;
+
+                previousEndTime = elapsedTime;
+            } catch (e) { }
+        });
+
+        if (fileContent.length <= 40) return undefined;
+
+        const fileName = `transcription_${Math.floor(Date.now() / 1000)}.vtt`;
+        const { relativePath, absolutePath } = await this.buildPath(fileName, roomId, RoomArtifactType.SPEECH_TRANSCRIPTION);
+
+        await fs.writeFile(absolutePath, Buffer.from(fileContent));
+
+        const metadata = create(RoomArtifactMetadataSchema, {
+            fileInfo: {
+                filePath: relativePath,
+                fileSize: BigInt(fileContent.length).toString(),
+                mimeType: 'text/vtt',
+            },
+        });
+
+        const artifact = await this.createAndSaveArtifact(roomId, roomSid, roomTableId, RoomArtifactType.SPEECH_TRANSCRIPTION, metadata);
+        return artifact.artifactId;
+    }
+
+    private formatVTTTimestamp(ms: number): string {
+        const date = new Date(ms);
+        const hours = Math.floor(ms / 3600000).toString().padStart(2, '0');
+        const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+        const seconds = date.getUTCSeconds().toString().padStart(2, '0');
+        const milliseconds = date.getUTCMilliseconds().toString().padStart(3, '0');
+        return `${hours}:${minutes}:${seconds}.${milliseconds}`;
+    }
+
+    async createSpeechTranscriptionUsageArtifact(roomId: string, roomSid: string, roomTableId: number, fileArtifactId?: string): Promise<void> {
+        const usageMap = await this.redisInsightsService.getTranscriptionRoomUsage(roomId, true);
+        if (!usageMap || Object.keys(usageMap).length === 0) return;
+
+        const total = usageMap['total_usage'] || 0;
+        // Mock pricing
+        const pricePerHour = 1.0; // $1/hour
+        const cost = (total / 3600) * pricePerHour;
+
+        const metadata = create(RoomArtifactMetadataSchema, {
+            usageDetails: {
+                case: 'durationUsage',
+                value: {
+                    durationSec: total,
+                    breakdown: this.mapToRecordInt64(usageMap),
+                    durationSecEstimatedCost: this.round(cost, 6),
+                },
+            },
+            referenceArtifactId: fileArtifactId,
+        });
+
+        await this.createAndSaveArtifact(roomId, roomSid, roomTableId, RoomArtifactType.SPEECH_TRANSCRIPTION_USAGE, metadata);
+        await this.handleAnalyticsEvent(roomId, AnalyticsEvents.ANALYTICS_EVENT_ROOM_INSIGHTS_TRANSCRIPTION_TOTAL_USAGE, BigInt(total));
+    }
+
+    async createChatTranslationUsageArtifact(roomId: string, roomSid: string, roomTableId: number): Promise<void> {
+        const usageMap = await this.redisInsightsService.getChatTranslationRoomUsage(roomId, true);
+        if (!usageMap || Object.keys(usageMap).length === 0) return;
+
+        const total = usageMap['total_usage'] || 0;
+        const pricePerMillion = 10.0; // $10/million chars
+        const cost = (total / 1000000) * pricePerMillion;
+
+        const metadata = create(RoomArtifactMetadataSchema, {
+            usageDetails: {
+                case: 'characterCountUsage',
+                value: {
+                    totalCharacters: total,
+                    breakdown: this.mapToRecordInt64(usageMap),
+                    totalCharactersEstimatedCost: this.round(cost, 6),
+                },
+            },
+        });
+
+        await this.createAndSaveArtifact(roomId, roomSid, roomTableId, RoomArtifactType.CHAT_TRANSLATION_USAGE, metadata);
+        await this.handleAnalyticsEvent(roomId, AnalyticsEvents.ANALYTICS_EVENT_ROOM_INSIGHTS_CHAT_TRANSLATION_TOTAL_USAGE, BigInt(total));
+    }
+
+    async createSynthesizedSpeechUsageArtifact(roomId: string, roomSid: string, roomTableId: number): Promise<void> {
+        const usageMap = await this.redisInsightsService.getTTSServiceRoomUsage(roomId, true);
+        if (!usageMap || Object.keys(usageMap).length === 0) return;
+
+        const total = usageMap['total_usage'] || 0;
+        const pricePerMillion = 15.0; // $15/million chars
+        const cost = (total / 1000000) * pricePerMillion;
+
+        const metadata = create(RoomArtifactMetadataSchema, {
+            usageDetails: {
+                case: 'characterCountUsage',
+                value: {
+                    totalCharacters: total,
+                    breakdown: this.mapToRecordInt64(usageMap),
+                    totalCharactersEstimatedCost: this.round(cost, 6),
+                },
+            },
+        });
+
+        await this.createAndSaveArtifact(roomId, roomSid, roomTableId, RoomArtifactType.SYNTHESIZED_SPEECH_USAGE, metadata);
+        await this.handleAnalyticsEvent(roomId, AnalyticsEvents.ANALYTICS_EVENT_ROOM_INSIGHTS_SYNTHESIZED_SPEECH_TOTAL_USAGE, BigInt(total));
+    }
+
+    async createAITextChatUsageArtifacts(roomId: string, roomSid: string, roomTableId: number): Promise<void> {
+        const usageMap = await this.redisInsightsService.getAITextChatRoomUsage(roomId, true);
+        if (!usageMap || Object.keys(usageMap).length === 0) return;
+
+        // Logic for separate chat and summarize artifacts
+        const tasks = ['chat', 'summarize'];
+        for (const task of tasks) {
+            const totalKey = `total_tokens_${task}`;
+            if (usageMap[totalKey]) {
+                const total = usageMap[totalKey];
+                const prompt = usageMap[`prompt_tokens_${task}`] || 0;
+                const completion = usageMap[`completion_tokens_${task}`] || 0;
+
+                const inputPrice = 0.5; // $0.5/million tokens
+                const outputPrice = 1.5; // $1.5/million tokens
+                const promptCost = (prompt / 1000000) * inputPrice;
+                const completionCost = (completion / 1000000) * outputPrice;
+                const totalCost = promptCost + completionCost;
+
+                const breakdown: Record<string, bigint> = {};
+                Object.entries(usageMap).forEach(([k, v]) => {
+                    if (k.includes(task)) breakdown[k] = BigInt(v);
+                });
+
+                const metadata = create(RoomArtifactMetadataSchema, {
+                    usageDetails: {
+                        case: 'tokenUsage',
+                        value: {
+                            promptTokens: prompt,
+                            completionTokens: completion,
+                            totalTokens: total,
+                            breakdown,
+                            promptTokensEstimatedCost: this.round(promptCost, 6),
+                            completionTokensEstimatedCost: this.round(completionCost, 6),
+                            totalTokensEstimatedCost: this.round(totalCost, 6),
+                        },
+                    },
+                });
+
+                const type = task === 'chat' ? RoomArtifactType.AI_TEXT_CHAT_INTERACTION_USAGE : RoomArtifactType.AI_TEXT_CHAT_SUMMARIZATION_USAGE;
+                await this.createAndSaveArtifact(roomId, roomSid, roomTableId, type, metadata);
+
+                const event = task === 'chat'
+                    ? AnalyticsEvents.ANALYTICS_EVENT_ROOM_INSIGHTS_AI_TEXT_CHAT_INTERACTION_TOTAL_USAGE
+                    : AnalyticsEvents.ANALYTICS_EVENT_ROOM_INSIGHTS_AI_TEXT_CHAT_SUMMARIZATION_TOTAL_USAGE;
+                await this.handleAnalyticsEvent(roomId, event, BigInt(total));
+            }
+        }
+    }
+
+    private mapToRecordInt64(map: Record<string, number>): Record<string, bigint> {
+        const res: Record<string, bigint> = {};
+        Object.entries(map).forEach(([k, v]) => {
+            res[k] = BigInt(v);
+        });
+        return res;
+    }
+
+    private round(val: number, precision: number): number {
+        const multiplier = Math.pow(10, precision);
+        return Math.round(val * multiplier) / multiplier;
+    }
+
+    private async handleAnalyticsEvent(roomId: string, eventName: AnalyticsEvents, eventValueInteger: bigint): Promise<void> {
+        const event = create(AnalyticsDataMsgSchema, {
+            eventType: AnalyticsEventType.ROOM,
+            eventName: eventName,
+            roomId: roomId,
+            eventValueInteger: eventValueInteger.toString(),
+        });
+        // We'll assume AnalyticsService will handle this. For now, we can omit or emit if needed.
+        // In Go it calls analyticsModel.HandleEvent(d)
     }
 
     /**

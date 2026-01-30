@@ -304,17 +304,33 @@ export class NatsRoomService {
     async onAfterSessionEndCleanup(roomId: string): Promise<void> {
         this.logger.log(`Performing session end cleanup for room: ${roomId}`);
 
-        // Silently delete everything 
+        // Silently delete everything
         try {
-            await this.deleteRoom(roomId);
-            await this.natsUserService.deleteAllRoomUsersWithConsumer(roomId);
-            await this.natsStreamService.deleteRoomNatsStream(roomId);
+            // 1. Delete breakout rooms
             try {
                 await this.deleteAllBreakoutRoomsByParentRoomId(roomId);
             } catch (e) { }
-            // TODO: await this.deleteAllRoomFiles(roomId);
+
+            // 2. Delete all room users and their consumers
+            try {
+                await this.natsUserService.deleteAllRoomUsersWithConsumer(roomId);
+            } catch (e) { }
+
+            // 3. Delete room's dedicated NATS stream
+            try {
+                await this.natsStreamService.deleteRoomNatsStream(roomId);
+            } catch (e) { }
+
+            // 4. Delete all room files metadata bucket
+            try {
+                await this.deleteAllRoomFiles(roomId);
+            } catch (e) { }
+
+            // 5. Final NATS KV cleanup (room info, user buckets, block list, etc.)
+            await this.natsService.onAfterSessionEndCleanup(roomId);
+
         } catch (error) {
-            // Silently ignore errors 
+            this.logger.error(`Error during session end cleanup for room ${roomId}: ${error.message}`);
         }
 
         this.logger.log(`Session end cleanup completed for room: ${roomId}`);

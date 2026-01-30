@@ -13,6 +13,7 @@ const TRANSCRIPTION_SESSIONS_KEY = `${REDIS_PREFIX}insights:transcription_sessio
 const TRANSCRIPTION_USAGE_KEY = `${REDIS_PREFIX}insights:transcription_usage:%s`;
 const CHAT_TRANSLATION_USAGE_KEY = `${REDIS_PREFIX}insights:chat_translation_usage:%s`;
 const AI_TEXT_CHAT_USAGE_KEY = `${REDIS_PREFIX}insights:ai_text_chat_usage:%s`;
+const TTS_SERVICE_USAGE_KEY = `${REDIS_PREFIX}insights:ttsService:%s:usage`;
 const TOTAL_USAGE_FIELD = 'total_usage';
 
 @Injectable()
@@ -119,6 +120,27 @@ export class RedisInsightsService {
 
     async getAITextChatRoomUsage(roomId: string, cleanup = false): Promise<Record<string, number>> {
         const key = AI_TEXT_CHAT_USAGE_KEY.replace('%s', roomId);
+        const rawMap = await this.redis.hgetall(key);
+        if (cleanup) await this.redis.del(key);
+        const usageMap: Record<string, number> = {};
+        for (const [k, v] of Object.entries(rawMap)) {
+            usageMap[k] = parseInt(v, 10) || 0;
+        }
+        return usageMap;
+    }
+
+    async updateTTSServiceUsage(roomId: string, userId: string, language: string, incBy: number): Promise<void> {
+        const key = TTS_SERVICE_USAGE_KEY.replace('%s', roomId);
+        const pipeline = this.redis.pipeline();
+        pipeline.hincrby(key, userId, incBy);
+        pipeline.hincrby(key, language, incBy);
+        pipeline.hincrby(key, TOTAL_USAGE_FIELD, incBy);
+        pipeline.expire(key, 24 * 60 * 60);
+        await pipeline.exec();
+    }
+
+    async getTTSServiceRoomUsage(roomId: string, cleanup = false): Promise<Record<string, number>> {
+        const key = TTS_SERVICE_USAGE_KEY.replace('%s', roomId);
         const rawMap = await this.redis.hgetall(key);
         if (cleanup) await this.redis.del(key);
         const usageMap: Record<string, number> = {};

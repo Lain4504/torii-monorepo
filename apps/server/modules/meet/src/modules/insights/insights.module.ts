@@ -8,11 +8,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { InsightsService } from './insights.service';
 import { RedisInsightsService } from '../../infrastructure/redis/redis-insights.service';
 import { NatsModule } from '../../interfaces/nats/nats.module';
+import { ArtifactsModule } from '../artifacts/artifacts.module';
 
 @Module({
     imports: [
         ConfigModule,
         NatsModule,
+        ArtifactsModule,
         ClientsModule.registerAsync([
             {
                 name: 'NATS_CLIENT',

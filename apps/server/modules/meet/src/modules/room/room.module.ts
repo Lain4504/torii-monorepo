@@ -7,6 +7,7 @@ import { AnalyticsModule } from '../analytics/analytics.module';
 import { PollsModule } from '../polls/polls.module';
 import { EtherpadModule } from '../etherpad/etherpad.module';
 import { BreakoutModule } from '../breakout/breakout.module';
+import { InsightsModule } from '../insights/insights.module';
 
 // Controllers
 
@@ -44,7 +45,7 @@ import { LiveKitService } from '../../infrastructure/livekit/livekit.service';
 import { WajlcAuthService } from '../auth/wajlc-auth.service';
 
 @Module({
-  imports: [SharedModule, FileModule, forwardRef(() => WebhookModule), ArtifactsModule, AnalyticsModule, PollsModule, forwardRef(() => EtherpadModule), forwardRef(() => BreakoutModule)],
+  imports: [SharedModule, FileModule, forwardRef(() => WebhookModule), ArtifactsModule, AnalyticsModule, PollsModule, forwardRef(() => EtherpadModule), forwardRef(() => BreakoutModule), InsightsModule],
   controllers: [
     // NatsAuthCalloutController removed - handled in NatsController now
   ],

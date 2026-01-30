@@ -24,6 +24,7 @@ import { AnalyticsService } from '../analytics/analytics.service';
 import { EtherpadService } from '../etherpad/etherpad.service';
 import { BreakoutService } from '../breakout/breakout.service';
 import { FileService } from '../file/file.service';
+import { InsightsService } from '../insights/insights.service';
 
 /**
  * RoomEndService handles room termination and cleanup
@@ -49,6 +50,7 @@ export class RoomEndService {
         @Inject(forwardRef(() => BreakoutService))
         private readonly breakoutService: BreakoutService,
         private readonly fileService: FileService,
+        private readonly insightsService: InsightsService,
     ) { }
 
     /**
@@ -292,9 +294,12 @@ export class RoomEndService {
         // TODO: Implement speech service
         // await this.speechToText.onAfterRoomEnded(roomId, roomSID);
 
-        // Step 13: End all the agent tasks for this room
-        // TODO: Implement insights model
-        // await this.insightsModel.onAfterRoomEnded(dbTableId, roomId, roomSID);
+        // Step 13: End all the agent tasks for this room and create usage artifacts
+        try {
+            await this.insightsService.onAfterRoomEnded(dbTableId, roomId, roomSID);
+        } catch (error) {
+            this.logger.error(`Error in insights post-end tasks: ${error.message}`);
+        }
 
         // Step 14: Perform the final NATS cleanup
         try {

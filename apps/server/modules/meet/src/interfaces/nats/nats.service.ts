@@ -577,11 +577,10 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
         // 1. Delete room info from KV
         await this.cacheService.deleteRoomInfo(roomId);
 
-        // 2. Delete room user bucket
-        // In Go it's DeleteRoomUserBucket, in our TS it's likely handled by NatsUserService
-        // But for now let's just delete the KV directly if we know the name
+        // 2. Delete room user bucket (KV_wajlc-roomUsers-{roomId})
         try {
             await this.jsm.streams.delete(`KV_${NATS_PREFIX}roomUsers-${roomId}`);
+            this.logger.debug(`Deleted room user bucket for room: ${roomId}`);
         } catch (e) { }
 
         // 3. Delete webhook data
@@ -590,10 +589,17 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
         // 4. Delete room user block list
         try {
             await this.jsm.streams.delete(`KV_${NATS_PREFIX}usersBlockList-${roomId}`);
+            this.logger.debug(`Deleted user block list for room: ${roomId}`);
         } catch (e) { }
 
-        // 5. Delete transcription bucket (handled here or in speech service)
+        // 5. Delete transcription bucket
         await this.deleteTranscriptionBucket(roomId);
+
+        // 6. Delete room files bucket
+        try {
+            await this.jsm.streams.delete(`KV_${NATS_PREFIX}roomFiles-${roomId}`);
+            this.logger.debug(`Deleted room files bucket for room: ${roomId}`);
+        } catch (e) { }
     }
 
     /**
