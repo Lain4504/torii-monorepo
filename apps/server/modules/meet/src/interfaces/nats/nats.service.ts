@@ -470,59 +470,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
         }
     }
 
-    /**
-     * CreateWhiteboardConsumer creates or updates a whiteboard consumer for a user
-     */
-    async createWhiteboardConsumer(roomId: string, userId: string): Promise<string[]> {
-        const whiteboardSubject = this.configService.get<string>('NATS_SUBJECT_WHITEBOARD') || 'whiteboard';
 
-        try {
-            await this.jsm.consumers.add(roomId, {
-                durable_name: `${whiteboardSubject}:${userId}`,
-                deliver_policy: DeliverPolicy.New,
-                filter_subjects: [`${roomId}:${whiteboardSubject}.>`],
-            });
-
-            const permissions = [
-                `$JS.API.CONSUMER.INFO.${roomId}.${whiteboardSubject}:${userId}`,
-                `$JS.API.CONSUMER.MSG.NEXT.${roomId}.${whiteboardSubject}:${userId}`,
-                `${roomId}:${whiteboardSubject}.${userId}`,
-                `$JS.ACK.${roomId}.${whiteboardSubject}:${userId}.>`,
-            ];
-
-            return permissions;
-        } catch (error) {
-            this.logger.error(`Failed to create whiteboard consumer: ${error.message}`);
-            throw error;
-        }
-    }
-
-    /**
-     * CreateDataChannelConsumer creates or updates a data channel consumer for a user
-     */
-    async createDataChannelConsumer(roomId: string, userId: string): Promise<string[]> {
-        const dataChannelSubject = this.configService.get<string>('NATS_SUBJECT_DATA_CHANNEL') || 'dataChannel';
-
-        try {
-            await this.jsm.consumers.add(roomId, {
-                durable_name: `${dataChannelSubject}:${userId}`,
-                deliver_policy: DeliverPolicy.New,
-                filter_subjects: [`${roomId}:${dataChannelSubject}.>`],
-            });
-
-            const permissions = [
-                `$JS.API.CONSUMER.INFO.${roomId}.${dataChannelSubject}:${userId}`,
-                `$JS.API.CONSUMER.MSG.NEXT.${roomId}.${dataChannelSubject}:${userId}`,
-                `${roomId}:${dataChannelSubject}.${userId}`,
-                `$JS.ACK.${roomId}.${dataChannelSubject}:${userId}.>`,
-            ];
-
-            return permissions;
-        } catch (error) {
-            this.logger.error(`Failed to create data channel consumer: ${error.message}`);
-            throw error;
-        }
-    }
 
     /**
      * DeleteConsumer deletes all consumers for a user in a room
@@ -549,18 +497,6 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
         try {
             await this.jsm.consumers.delete(roomId, `${sysPrivateSubject}:${userId}`);
-        } catch (error) {
-            // Silent fail
-        }
-
-        try {
-            await this.jsm.consumers.delete(roomId, `${whiteboardSubject}:${userId}`);
-        } catch (error) {
-            // Silent fail
-        }
-
-        try {
-            await this.jsm.consumers.delete(roomId, `${dataChannelSubject}:${userId}`);
         } catch (error) {
             // Silent fail
         }

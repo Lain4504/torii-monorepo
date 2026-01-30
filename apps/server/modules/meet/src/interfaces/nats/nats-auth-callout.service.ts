@@ -276,16 +276,22 @@ export class NatsAuthCalloutService {
         const sysPrivatePermission = await this.consumerService.createSystemPrivateConsumer(roomId, userId);
         allowPub.push(...sysPrivatePermission);
 
-        const whiteboardPermission = await this.consumerService.createWhiteboardConsumer(roomId, userId);
-        allowPub.push(...whiteboardPermission);
+        const whiteboardSubject = this.configService.get<string>('NATS_SUBJECT_WHITEBOARD') || 'whiteboard';
+        const dataChannelSubject = this.configService.get<string>('NATS_SUBJECT_DATA_CHANNEL') || 'dataChannel';
 
-        const dataChannelPermission = await this.consumerService.createDataChannelConsumer(roomId, userId);
-        allowPub.push(...dataChannelPermission);
+        // to allow to publish in whiteboard channel in core pub/sub
+        allowPub.push(`${whiteboardSubject}.${roomId}`);
+        // to allow to publish in DataChannel channel in core pub/sub
+        allowPub.push(`${dataChannelSubject}.${roomId}`);
 
         // Assign Permissions (lines 187-197)
         natsClaims.pub = { allow: allowPub };
         natsClaims.sub = {
-            allow: ['_INBOX.>'], // otherwise break request-reply patterns
+            allow: [
+                '_INBOX.>', // otherwise break request-reply patterns
+                `${whiteboardSubject}.${roomId}`,
+                `${dataChannelSubject}.${roomId}`,
+            ],
         };
     }
 
