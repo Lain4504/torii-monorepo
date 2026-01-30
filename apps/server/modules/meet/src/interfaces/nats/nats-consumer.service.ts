@@ -107,67 +107,7 @@ export class NatsConsumerService {
         }
     }
 
-    /**
-     * Create whiteboard consumer
 
-     */
-    async createWhiteboardConsumer(roomId: string, userId: string): Promise<string[]> {
-        const whiteboard = this.configService.get<string>('NATS_SUBJECT_WHITEBOARD') || 'whiteboard';
-
-        try {
-            await this.streamService.createConsumer(roomId, {
-                durable_name: `${whiteboard}:${userId}`,
-                deliver_policy: 'new',
-                filter_subjects: [`${roomId}:${whiteboard}.>`],
-            });
-
-            return [
-                `$JS.API.CONSUMER.INFO.${roomId}.${whiteboard}:${userId}`,
-                `$JS.API.CONSUMER.MSG.NEXT.${roomId}.${whiteboard}:${userId}`,
-                `${roomId}:${whiteboard}.${userId}`,
-                `$JS.ACK.${roomId}.${whiteboard}:${userId}.>`,
-            ];
-        } catch (error) {
-            this.logger.error(`Error creating whiteboard consumer for ${userId} in ${roomId}:`, error);
-            return [
-                `$JS.API.CONSUMER.INFO.${roomId}.${whiteboard}:${userId}`,
-                `$JS.API.CONSUMER.MSG.NEXT.${roomId}.${whiteboard}:${userId}`,
-                `${roomId}:${whiteboard}.${userId}`,
-                `$JS.ACK.${roomId}.${whiteboard}:${userId}.>`,
-            ];
-        }
-    }
-
-    /**
-     * Create data channel consumer
-
-     */
-    async createDataChannelConsumer(roomId: string, userId: string): Promise<string[]> {
-        const dataChannel = this.configService.get<string>('NATS_SUBJECT_DATA_CHANNEL') || 'dataChannel';
-
-        try {
-            await this.streamService.createConsumer(roomId, {
-                durable_name: `${dataChannel}:${userId}`,
-                deliver_policy: 'new',
-                filter_subjects: [`${roomId}:${dataChannel}.>`],
-            });
-
-            return [
-                `$JS.API.CONSUMER.INFO.${roomId}.${dataChannel}:${userId}`,
-                `$JS.API.CONSUMER.MSG.NEXT.${roomId}.${dataChannel}:${userId}`,
-                `${roomId}:${dataChannel}.${userId}`,
-                `$JS.ACK.${roomId}.${dataChannel}:${userId}.>`,
-            ];
-        } catch (error) {
-            this.logger.error(`Error creating data channel consumer for ${userId} in ${roomId}:`, error);
-            return [
-                `$JS.API.CONSUMER.INFO.${roomId}.${dataChannel}:${userId}`,
-                `$JS.API.CONSUMER.MSG.NEXT.${roomId}.${dataChannel}:${userId}`,
-                `${roomId}:${dataChannel}.${userId}`,
-                `$JS.ACK.${roomId}.${dataChannel}:${userId}.>`,
-            ];
-        }
-    }
 
     /**
      * Delete all consumers for a user in a room
@@ -178,8 +118,6 @@ export class NatsConsumerService {
             this.configService.get<string>('NATS_SUBJECT_CHAT') || 'chat',
             this.configService.get<string>('NATS_SUBJECT_SYSTEM_PUBLIC') || 'sysPublic',
             this.configService.get<string>('NATS_SUBJECT_SYSTEM_PRIVATE') || 'sysPrivate',
-            this.configService.get<string>('NATS_SUBJECT_WHITEBOARD') || 'whiteboard',
-            this.configService.get<string>('NATS_SUBJECT_DATA_CHANNEL') || 'dataChannel',
         ];
 
         for (const subject of subjects) {

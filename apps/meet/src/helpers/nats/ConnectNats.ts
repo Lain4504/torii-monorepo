@@ -551,27 +551,30 @@ export default class ConnectNats {
   };
 
   /**
-   * All the events related with whiteboard will be handled here
+   * Subscribes to the room's whiteboard channel using NATS Core Pub/Sub for low latency.
    */
   private async subscribeToWhiteboard() {
-    await this._subscribe(
-      this._roomId,
-      this._subjects.whiteboard,
-      async (m) => {
-        let dataToParse = m.data;
-        if (this._enableE2EEWhiteboard) {
-          const data = await this.decryptData(dataToParse);
-          if (typeof data === 'undefined') {
-            return;
-          }
-          dataToParse = data;
+    if (!this._nc) {
+      return;
+    }
+
+    const subject = `${this._subjects.whiteboard}.${this._roomId}`;
+    const sub = this._nc.subscribe(subject);
+
+    for await (const m of sub) {
+      let dataToParse = m.data;
+      if (this._enableE2EEWhiteboard) {
+        const data = await this.decryptData(dataToParse);
+        if (typeof data === 'undefined') {
+          continue;
         }
-        const payload = fromBinary(DataChannelMessageSchema, dataToParse);
-        if (payload.fromUserId !== this._userId) {
-          await this.handleWhiteboard.handleWhiteboardMsg(payload);
-        }
-      },
-    );
+        dataToParse = data;
+      }
+      const payload = fromBinary(DataChannelMessageSchema, dataToParse);
+      if (payload.fromUserId !== this._userId) {
+        await this.handleWhiteboard.handleWhiteboardMsg(payload);
+      }
+    }
   }
 
   public sendWhiteboardData = async (
@@ -579,6 +582,10 @@ export default class ConnectNats {
     msg: string,
     to?: string,
   ) => {
+    if (!this._nc) {
+      return;
+    }
+
     const data = create(DataChannelMessageSchema, {
       type,
       fromUserId: this._userId,
@@ -595,35 +602,36 @@ export default class ConnectNats {
       payload = data;
     }
 
-    const subject =
-      this._roomId + ':' + this._subjects.whiteboard + '.' + this._userId;
-    this.messageQueue.addToQueue({
-      subject,
-      payload,
-    });
+    const subject = `${this._subjects.whiteboard}.${this._roomId}`;
+    this._nc.publish(subject, payload);
   };
 
   /**
-   * subscribeToDataChannel to communicate with each other
+   * Subscribes to the room's data channel using NATS Core Pub/Sub for low latency.
    * Mostly with client to client
    */
   private async subscribeToDataChannel() {
-    await this._subscribe(
-      this._roomId,
-      this._subjects.dataChannel,
-      async (m) => {
-        let dataToParse = m.data;
-        if (this._enableE2EE) {
-          const data = await this.decryptData(dataToParse);
-          if (typeof data === 'undefined') {
-            return;
-          }
-          dataToParse = data;
+    if (!this._nc) {
+      return;
+    }
+
+    const subject = `${this._subjects.dataChannel}.${this._roomId}`;
+    const sub = this._nc.subscribe(subject);
+
+    for await (const m of sub) {
+      let dataToParse = m.data;
+      if (this._enableE2EE) {
+        const data = await this.decryptData(dataToParse);
+        if (typeof data === 'undefined') {
+          continue;
         }
-        const payload = fromBinary(DataChannelMessageSchema, dataToParse);
+        dataToParse = data;
+      }
+      const payload = fromBinary(DataChannelMessageSchema, dataToParse);
+      if (payload.fromUserId !== this._userId) {
         await this.handleDataMsg.handleMessage(payload);
-      },
-    );
+      }
+    }
   }
 
   /**
@@ -634,6 +642,10 @@ export default class ConnectNats {
     msg: string,
     to?: string,
   ) => {
+    if (!this._nc) {
+      return;
+    }
+
     const data = create(DataChannelMessageSchema, {
       type,
       fromUserId: this._userId,
@@ -650,12 +662,8 @@ export default class ConnectNats {
       payload = data;
     }
 
-    const subject =
-      this._roomId + ':' + this._subjects.dataChannel + '.' + this._userId;
-    this.messageQueue.addToQueue({
-      subject,
-      payload,
-    });
+    const subject = `${this._subjects.dataChannel}.${this._roomId}`;
+    this._nc.publish(subject, payload);
   };
 
   /**
@@ -666,51 +674,51 @@ export default class ConnectNats {
       payload: NatsMsgServerToClient,
     ) => void | Promise<void>;
   } = {
-    [NatsMsgServerToClientEvents.RES_INITIAL_DATA]: async (p) => {
-      await this.handleInitialData(p.msg);
-      this._setRoomConnectionStatusState('ready');
-    },
-    [NatsMsgServerToClientEvents.RES_MEDIA_SERVER_DATA]: async (p) => {
-      await this.handleMediaServerData(p.msg);
-    },
-    [NatsMsgServerToClientEvents.RES_JOINED_USERS_LIST]: (p) =>
-      this.handleJoinedUsersList(p.msg),
-    [NatsMsgServerToClientEvents.ROOM_METADATA_UPDATE]: (p) =>
-      this.handleRoomData.updateRoomMetadata(p.msg),
-    [NatsMsgServerToClientEvents.RESP_RENEW_WAJLC_TOKEN]: (p) => {
-      this._token = p.msg.toString();
-      store.dispatch(addToken(this._token));
-      updateAccessToken(this._token);
-    },
-    [NatsMsgServerToClientEvents.SYSTEM_NOTIFICATION]: (p) => {
-      !this._isRecorder && this.handleSystemData.handleNotification(p.msg);
-    },
-    [NatsMsgServerToClientEvents.USER_JOINED]: (p) =>
-      this.handleParticipants.addRemoteParticipant(p.msg),
-    [NatsMsgServerToClientEvents.USER_DISCONNECTED]: (p) =>
-      this.handleParticipants.handleParticipantDisconnected(p.msg),
-    [NatsMsgServerToClientEvents.USER_OFFLINE]: (p) =>
-      this.handleParticipants.handleParticipantOffline(p.msg),
-    [NatsMsgServerToClientEvents.USER_METADATA_UPDATE]: (p) =>
-      this.handleParticipants.handleParticipantMetadataUpdate(p.msg),
-    [NatsMsgServerToClientEvents.AZURE_COGNITIVE_SERVICE_SPEECH_TOKEN]: (p) =>
-      this.handleSystemData.handleAzureToken(p.msg),
-    [NatsMsgServerToClientEvents.SESSION_ENDED]: (p) => this.endSession(p.msg),
-    [NatsMsgServerToClientEvents.POLL_CREATED]: (p) =>
-      this.handleSystemData.handlePoll(p),
-    [NatsMsgServerToClientEvents.POLL_CLOSED]: (p) =>
-      this.handleSystemData.handlePoll(p),
-    [NatsMsgServerToClientEvents.JOIN_BREAKOUT_ROOM]: (p) =>
-      this.handleSystemData.handleBreakoutRoom(p),
-    [NatsMsgServerToClientEvents.BREAKOUT_ROOM_ENDED]: (p) =>
-      this.handleSystemData.handleBreakoutRoom(p),
-    [NatsMsgServerToClientEvents.SYSTEM_CHAT_MSG]: (p) =>
-      this.handleSystemData.handleSysChatMsg(p.msg),
-    [NatsMsgServerToClientEvents.TRANSCRIPTION_OUTPUT_TEXT]: (p) =>
-      this.handleDataMsg.handleSpeechSubtitleText(p.msg),
-    [NatsMsgServerToClientEvents.RESP_INSIGHTS_AI_TEXT_CHAT]: (p) =>
-      this.handleSystemData.handleInsightsAITextData(p.msg),
-  };
+      [NatsMsgServerToClientEvents.RES_INITIAL_DATA]: async (p) => {
+        await this.handleInitialData(p.msg);
+        this._setRoomConnectionStatusState('ready');
+      },
+      [NatsMsgServerToClientEvents.RES_MEDIA_SERVER_DATA]: async (p) => {
+        await this.handleMediaServerData(p.msg);
+      },
+      [NatsMsgServerToClientEvents.RES_JOINED_USERS_LIST]: (p) =>
+        this.handleJoinedUsersList(p.msg),
+      [NatsMsgServerToClientEvents.ROOM_METADATA_UPDATE]: (p) =>
+        this.handleRoomData.updateRoomMetadata(p.msg),
+      [NatsMsgServerToClientEvents.RESP_RENEW_WAJLC_TOKEN]: (p) => {
+        this._token = p.msg.toString();
+        store.dispatch(addToken(this._token));
+        updateAccessToken(this._token);
+      },
+      [NatsMsgServerToClientEvents.SYSTEM_NOTIFICATION]: (p) => {
+        !this._isRecorder && this.handleSystemData.handleNotification(p.msg);
+      },
+      [NatsMsgServerToClientEvents.USER_JOINED]: (p) =>
+        this.handleParticipants.addRemoteParticipant(p.msg),
+      [NatsMsgServerToClientEvents.USER_DISCONNECTED]: (p) =>
+        this.handleParticipants.handleParticipantDisconnected(p.msg),
+      [NatsMsgServerToClientEvents.USER_OFFLINE]: (p) =>
+        this.handleParticipants.handleParticipantOffline(p.msg),
+      [NatsMsgServerToClientEvents.USER_METADATA_UPDATE]: (p) =>
+        this.handleParticipants.handleParticipantMetadataUpdate(p.msg),
+      [NatsMsgServerToClientEvents.AZURE_COGNITIVE_SERVICE_SPEECH_TOKEN]: (p) =>
+        this.handleSystemData.handleAzureToken(p.msg),
+      [NatsMsgServerToClientEvents.SESSION_ENDED]: (p) => this.endSession(p.msg),
+      [NatsMsgServerToClientEvents.POLL_CREATED]: (p) =>
+        this.handleSystemData.handlePoll(p),
+      [NatsMsgServerToClientEvents.POLL_CLOSED]: (p) =>
+        this.handleSystemData.handlePoll(p),
+      [NatsMsgServerToClientEvents.JOIN_BREAKOUT_ROOM]: (p) =>
+        this.handleSystemData.handleBreakoutRoom(p),
+      [NatsMsgServerToClientEvents.BREAKOUT_ROOM_ENDED]: (p) =>
+        this.handleSystemData.handleBreakoutRoom(p),
+      [NatsMsgServerToClientEvents.SYSTEM_CHAT_MSG]: (p) =>
+        this.handleSystemData.handleSysChatMsg(p.msg),
+      [NatsMsgServerToClientEvents.TRANSCRIPTION_OUTPUT_TEXT]: (p) =>
+        this.handleDataMsg.handleSpeechSubtitleText(p.msg),
+      [NatsMsgServerToClientEvents.RESP_INSIGHTS_AI_TEXT_CHAT]: (p) =>
+        this.handleSystemData.handleInsightsAITextData(p.msg),
+    };
 
   /**
    * Handle system events
