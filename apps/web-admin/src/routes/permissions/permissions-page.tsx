@@ -226,35 +226,56 @@ export function PermissionsPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {roles?.map((role) => (
-                                <TableRow key={role.code} className="hover:bg-muted/20 transition-colors group">
-                                    <TableCell className="sticky left-0 z-30 bg-background border-r border-border min-w-[200px] px-6 py-4 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] transition-colors group-hover:bg-muted/30">
-                                        <div className="flex flex-col gap-0.5">
-                                            <span className="font-medium text-sm text-foreground group-hover:text-primary transition-colors">{role.name}</span>
-                                            <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-wider">{role.code}</span>
-                                        </div>
-                                    </TableCell>
-                                    {permissions?.all.map((perm) => (
-                                        <TableCell
-                                            key={perm.code}
-                                            className={cn(
-                                                "text-center p-0 border-r border-border/10",
-                                                groupBoundaries.has(perm.code) && "border-r border-primary/20"
-                                            )}
-                                        >
-                                            <label
-                                                className="flex items-center justify-center w-full h-16 cursor-pointer hover:bg-primary/[0.03] transition-colors"
-                                            >
-                                                <Checkbox
-                                                    checked={matrix[role.code]?.has(perm.code)}
-                                                    onCheckedChange={() => handleToggle(role.code, perm.code)}
-                                                    className="size-4.5 rounded border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary shadow-sm"
-                                                />
-                                            </label>
+                            {roles?.map((role) => {
+                                const isLearner = role.code === 'learner';
+                                return (
+                                    <TableRow
+                                        key={role.code}
+                                        className={cn(
+                                            "transition-colors group",
+                                            isLearner ? "bg-muted/10" : "hover:bg-muted/20"
+                                        )}
+                                    >
+                                        <TableCell className={cn(
+                                            "sticky left-0 z-30 bg-background border-r border-border min-w-[200px] px-6 py-4 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] transition-colors",
+                                            !isLearner && "group-hover:bg-muted/30"
+                                        )}>
+                                            <div className="flex flex-col gap-0.5">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-medium text-sm text-foreground group-hover:text-primary transition-colors">{role.name}</span>
+                                                    {isLearner && <Lock className="size-3 text-muted-foreground/40" />}
+                                                </div>
+                                                <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-wider">{role.code}</span>
+                                            </div>
                                         </TableCell>
-                                    ))}
-                                </TableRow>
-                            ))}
+                                        {permissions?.all.map((perm) => (
+                                            <TableCell
+                                                key={perm.code}
+                                                className={cn(
+                                                    "text-center p-0 border-r border-border/10",
+                                                    groupBoundaries.has(perm.code) && "border-r border-primary/20"
+                                                )}
+                                            >
+                                                <label
+                                                    className={cn(
+                                                        "flex items-center justify-center w-full h-16 transition-colors",
+                                                        !isLearner ? "cursor-pointer hover:bg-primary/[0.03]" : "cursor-default opacity-80"
+                                                    )}
+                                                >
+                                                    <Checkbox
+                                                        checked={matrix[role.code]?.has(perm.code)}
+                                                        onCheckedChange={() => !isLearner && handleToggle(role.code, perm.code)}
+                                                        className={cn(
+                                                            "size-4.5 rounded border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary shadow-sm",
+                                                            isLearner && "pointer-events-none opacity-100"
+                                                        )}
+                                                    />
+                                                </label>
+                                            </TableCell>
+                                        ))}
+                                    </TableRow>
+                                );
+                            })}
                         </TableBody>
                     </Table>
                 </div>

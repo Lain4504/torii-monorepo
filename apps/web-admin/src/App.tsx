@@ -107,7 +107,7 @@ function App() {
 
                 <Route element={<RoutePermissionGuard permission="system.config" />}>
                   <Route path="notifications" element={<NotificationsPage />} />
-                  <Route path="authorization/audit-logs" element={<AuditLogsPage />} />
+                  <Route path="audit-logs" element={<AuditLogsPage />} />
                   <Route path="permissions" element={<PermissionsPage />} />
                   <Route path="settings" element={<SettingsPage />} />
                 </Route>

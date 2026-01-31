@@ -115,7 +115,7 @@ export const managementNavItems: NavItem[] = [
 export const systemNavItems: NavItem[] = [
     {
         titleKey: "Nhật ký hệ thống",
-        url: "/authorization/audit-logs",
+        url: "/audit-logs",
         icon: ShieldCheck,
         permission: "audit.view",
         descriptionKey: "common:navDescriptions.auditLogs",
