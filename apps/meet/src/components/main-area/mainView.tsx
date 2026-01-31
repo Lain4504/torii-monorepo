@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useSharedNotepad } from './hooks/useSharedNotepad';
+
 import { useWhiteboard } from './hooks/useWhiteboard';
 import { useExternalMediaPlayer } from './hooks/useExternalMediaPlayer';
 import { useDisplayExternalLink } from './hooks/useDisplayExternalLink';
@@ -45,7 +45,7 @@ const MainView = ({
     },
   );
 
-  const sharedNotepadElm = useSharedNotepad();
+
   const insightsAiTextChatElm = useInsightsAiTextChat();
   const whiteboardElm = useWhiteboard(
     isActiveWhiteboard,
@@ -87,7 +87,7 @@ const MainView = ({
       >
         {videosComponentElm}
         {screenShareElementsElm}
-        {sharedNotepadElm}
+
         {insightsAiTextChatElm}
         {whiteboardElm}
         {translationTranscriptionElm}

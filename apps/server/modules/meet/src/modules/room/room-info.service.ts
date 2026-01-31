@@ -279,17 +279,14 @@ export class RoomInfoService {
             });
 
             // Get analytics file ID if available
-            // TODO: Implement when RoomArtifact model is added to Prisma schema
-            /*
             try {
                 const analytics = await this.getAnalyticByRoomTableId(rr.id);
                 if (analytics) {
-                room.analyticsFileId = analytics.artifactId;
+                    room.analyticsFileId = analytics.artifactId;
                 }
             } catch (error) {
                 // Silently ignore analytics fetch errors
             }
-            */
 
             list.push(room);
         }
@@ -454,16 +451,15 @@ export class RoomInfoService {
 
     /**
      * Get analytics by room table ID
-
-     * 
-     * TODO: Uncomment and implement when RoomArtifact model is added to Prisma schema
      */
-    /*
     private async getAnalyticByRoomTableId(roomTableId: number): Promise<{ artifactId: string } | null> {
         try {
             // Use RoomArtifact model 
             const analytics = await this.prisma.roomArtifact.findFirst({
-                where: { roomTableId: BigInt(roomTableId) },
+                where: {
+                    roomTableId: roomTableId,
+                    type: 'MEETING_ANALYTICS'
+                },
                 select: { artifactId: true },
             });
             return analytics;
@@ -472,7 +468,7 @@ export class RoomInfoService {
             return null;
         }
     }
-    */
+
 
     // ============================================================================
     // Database Modification Methods

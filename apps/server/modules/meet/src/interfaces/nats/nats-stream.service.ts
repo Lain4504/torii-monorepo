@@ -50,8 +50,6 @@ export class NatsStreamService {
             `${roomId}:${this.subjects.chat}.*`,
             `${roomId}:${this.subjects.systemPublic}.*`,
             `${roomId}:${this.subjects.systemPrivate}.*.*`,
-            `${roomId}:${this.subjects.whiteboard}.*`,
-            `${roomId}:${this.subjects.dataChannel}.*`,
         ];
 
         try {

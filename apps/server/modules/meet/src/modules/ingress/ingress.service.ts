@@ -20,11 +20,14 @@ import {
     AnalyticsEventType,
     AnalyticsEvents,
     LockSettingsSchema,
+    NatsMsgServerToClientEvents,
 } from '@workspace/protocol';
 import { LiveKitService } from '../../infrastructure/livekit/livekit.service';
 import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
 import { NatsUserService } from '../../interfaces/nats/nats-user.service';
+import { NatsSystemEventsService } from '../../interfaces/nats/nats-system-events.service';
 import { AnalyticsService } from '../analytics/analytics.service';
+
 import { IngressInput } from 'livekit-server-sdk';
 
 @Injectable()
@@ -36,8 +39,10 @@ export class IngressService {
         private readonly livekitService: LiveKitService,
         private readonly natsRoomService: NatsRoomService,
         private readonly natsUserService: NatsUserService,
+        private readonly natsSystemEvents: NatsSystemEventsService,
         private readonly analyticsService: AnalyticsService,
     ) { }
+
 
     /**
      * CreateIngress creates a new LiveKit ingress session
@@ -111,7 +116,13 @@ export class IngressService {
         ingressFeatures.streamKey = lkIngressInfo.streamKey;
 
         this.logger.log('Updating and broadcasting room metadata with ingress info');
-        await this.natsRoomService.updateRoomMetadata(req.roomId, metadata);
+        const updateMt = await this.natsRoomService.updateRoomMetadata(req.roomId, metadata);
+        await this.natsSystemEvents.broadcastSystemEventToRoom(
+            NatsMsgServerToClientEvents.ROOM_METADATA_UPDATE,
+            req.roomId,
+            updateMt,
+        );
+
 
         // 7. Send analytics
         await this.analyticsService.handleEvent(

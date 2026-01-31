@@ -4,17 +4,25 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix meet config">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/utils/create_room.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/utils/create_room.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/nats-room.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/nats-room.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/meet.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/meet.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/etherpad/etherpad.module.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/etherpad/etherpad.nats.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/etherpad/etherpad.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room-create.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room-create.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room-end.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room-end.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room.module.ts" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update">
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus/adminMenus.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus/adminMenus.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus/hooks/useSharedNotepad.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus/iconsInMenu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus/iconsInMenu.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/sharedNotePad.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/modals/lockSettingsModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/modals/lockSettingsModal.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/main-area/hooks/useSharedNotepad.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/main-area/mainView.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/main-area/mainView.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/menu-items/lock.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/menu-items/lock.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/shared-notepad/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/shared-notepad/useNotepadUrl.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/nats/HandleParticipants.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/nats/HandleParticipants.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/roomConfig.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/roomConfig.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/store/slices/bottomIconsActivitySlice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/store/slices/bottomIconsActivitySlice.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/store/slices/interfaces/bottomIcons.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/store/slices/interfaces/bottomIcons.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/store/slices/sessionSlice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/store/slices/sessionSlice.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/i18n/src/locales/en/meet.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/i18n/src/locales/en/meet.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/i18n/src/locales/vi/meet.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/i18n/src/locales/vi/meet.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,43 +69,51 @@
     &quot;state&quot;: &quot;OPEN&quot;
   }
 }</component>
-  <component name="GitHubPullRequestState">{
-  &quot;prStates&quot;: [
+  <component name="GitHubPullRequestState"><![CDATA[{
+  "prStates": [
     {
-      &quot;id&quot;: {
-        &quot;id&quot;: &quot;PR_kwDOQmD9iM66sc24&quot;,
-        &quot;number&quot;: 35
+      "id": {
+        "id": "PR_kwDOQmD9iM66sc24",
+        "number": 35
       },
-      &quot;lastSeen&quot;: 1766837511440
+      "lastSeen": 1766837511440
     },
     {
-      &quot;id&quot;: {
-        &quot;id&quot;: &quot;PR_kwDOQmD9iM66twAD&quot;,
-        &quot;number&quot;: 38
+      "id": {
+        "id": "PR_kwDOQmD9iM66twAD",
+        "number": 38
       },
-      &quot;lastSeen&quot;: 1766885614934
+      "lastSeen": 1766885614934
     },
     {
-      &quot;id&quot;: {
-        &quot;id&quot;: &quot;PR_kwDOQmD9iM66oPXy&quot;,
-        &quot;number&quot;: 31
+      "id": {
+        "id": "PR_kwDOQmD9iM66oPXy",
+        "number": 31
       },
-      &quot;lastSeen&quot;: 1766974161892
+      "lastSeen": 1766974161892
     },
     {
-      &quot;id&quot;: {
-        &quot;id&quot;: &quot;PR_kwDOQmD9iM67ZerY&quot;,
-        &quot;number&quot;: 48
+      "id": {
+        "id": "PR_kwDOQmD9iM67ZerY",
+        "number": 48
       },
-      &quot;lastSeen&quot;: 1767495744090
+      "lastSeen": 1767495744090
+    },
+    {
+      "id": {
+        "id": "PR_kwDOQmD9iM7AaErH",
+        "number": 113
+      },
+      "lastSeen": 1769855142628
     }
   ]
-}</component>
+}]]></component>
   <component name="GithubPullRequestsUISettings"><![CDATA[{
   "selectedUrlAndAccountId": {
     "url": "git@github.com:Lain4504/torii-monorepo.git",
     "accountId": "36ac2fd8-9a60-42a4-b2bf-7fe947db4431"
-  }
+  },
+  "editorReviewEnabled": false
 }]]></component>
   <component name="GoLibraries">
     <option name="indexEntireGoPath" value="true" />
@@ -151,7 +167,7 @@
     "nodejs_package_manager_path": "pnpm",
     "settings.editor.selected.configurable": "preferences.pluginManager",
     "to.speed.mode.migration.done": "true",
-    "ts.external.directory.path": "/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib",
+    "ts.external.directory.path": "E:\\projectdev\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib",
     "vue.rearranger.settings.migration": "true"
   },
   "keyToStringList": {
@@ -348,46 +364,6 @@
       <workItem from="1769846484321" duration="1011000" />
       <workItem from="1769848661014" duration="95000" />
       <workItem from="1769849840092" duration="424000" />
-    </task>
-    <task id="LOCAL-00698" summary="build aadmin">
-      <option name="closed" value="true" />
-      <created>1768271978056</created>
-      <option name="number" value="00698" />
-      <option name="presentableId" value="LOCAL-00698" />
-      <option name="project" value="LOCAL" />
-      <updated>1768271978056</updated>
-    </task>
-    <task id="LOCAL-00699" summary="build aadmin">
-      <option name="closed" value="true" />
-      <created>1768272196113</created>
-      <option name="number" value="00699" />
-      <option name="presentableId" value="LOCAL-00699" />
-      <option name="project" value="LOCAL" />
-      <updated>1768272196114</updated>
-    </task>
-    <task id="LOCAL-00700" summary="build aadmin">
-      <option name="closed" value="true" />
-      <created>1768272689801</created>
-      <option name="number" value="00700" />
-      <option name="presentableId" value="LOCAL-00700" />
-      <option name="project" value="LOCAL" />
-      <updated>1768272689806</updated>
-    </task>
-    <task id="LOCAL-00701" summary="user-learning-progress">
-      <option name="closed" value="true" />
-      <created>1768274147657</created>
-      <option name="number" value="00701" />
-      <option name="presentableId" value="LOCAL-00701" />
-      <option name="project" value="LOCAL" />
-      <updated>1768274147658</updated>
-    </task>
-    <task id="LOCAL-00702" summary="user-learning-progress">
-      <option name="closed" value="true" />
-      <created>1768275437237</created>
-      <option name="number" value="00702" />
-      <option name="presentableId" value="LOCAL-00702" />
-      <option name="project" value="LOCAL" />
-      <updated>1768275437237</updated>
     </task>
     <task id="LOCAL-00703" summary="user-learning-progress">
       <option name="closed" value="true" />
@@ -741,7 +717,47 @@
       <option name="project" value="LOCAL" />
       <updated>1768987585986</updated>
     </task>
-    <option name="localTasksCounter" value="747" />
+    <task id="LOCAL-00747" summary="update">
+      <option name="closed" value="true" />
+      <created>1769862260218</created>
+      <option name="number" value="00747" />
+      <option name="presentableId" value="LOCAL-00747" />
+      <option name="project" value="LOCAL" />
+      <updated>1769862260218</updated>
+    </task>
+    <task id="LOCAL-00748" summary="update">
+      <option name="closed" value="true" />
+      <created>1769864248089</created>
+      <option name="number" value="00748" />
+      <option name="presentableId" value="LOCAL-00748" />
+      <option name="project" value="LOCAL" />
+      <updated>1769864248089</updated>
+    </task>
+    <task id="LOCAL-00749" summary="update">
+      <option name="closed" value="true" />
+      <created>1769867756116</created>
+      <option name="number" value="00749" />
+      <option name="presentableId" value="LOCAL-00749" />
+      <option name="project" value="LOCAL" />
+      <updated>1769867756116</updated>
+    </task>
+    <task id="LOCAL-00750" summary="update">
+      <option name="closed" value="true" />
+      <created>1769867951378</created>
+      <option name="number" value="00750" />
+      <option name="presentableId" value="LOCAL-00750" />
+      <option name="project" value="LOCAL" />
+      <updated>1769867951379</updated>
+    </task>
+    <task id="LOCAL-00751" summary="update">
+      <option name="closed" value="true" />
+      <created>1769868471608</created>
+      <option name="number" value="00751" />
+      <option name="presentableId" value="LOCAL-00751" />
+      <option name="project" value="LOCAL" />
+      <updated>1769868471608</updated>
+    </task>
+    <option name="localTasksCounter" value="752" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -758,7 +774,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="main" />
+                        <option value="agent-analysic" />
                       </list>
                     </value>
                   </entry>
@@ -782,7 +798,6 @@
     <MESSAGE value="user-learning-progress" />
     <MESSAGE value="update ui" />
     <MESSAGE value="feat(learning-progress): implement learning progress tracking and course retrieval" />
-    <MESSAGE value="update" />
     <MESSAGE value="refactor: refactor meet service" />
     <MESSAGE value="feat(identity): implement identity module with authentication and authorization handlers" />
     <MESSAGE value="refactor(identity): refactor identity service" />
@@ -801,11 +816,11 @@
     <MESSAGE value="feat: integrate etherpad module" />
     <MESSAGE value="fix bug" />
     <MESSAGE value="fix meet config" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix meet config" />
+    <MESSAGE value="update" />
+    <option name="LAST_COMMIT_MESSAGE" value="update" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
-    <settings-migrated>true</settings-migrated>
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

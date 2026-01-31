@@ -31,6 +31,11 @@ export class InsightsHandler {
         return await this.insightsService.endTranscription(data.roomId);
     }
 
+    @MessagePattern({ cmd: 'insights.transcription.getUserStatus' })
+    async handleGetTranscriptionUserTaskStatus(@Payload() data: any) {
+        return await this.insightsService.getUserTaskStatus(data.serviceType, data.roomId, data.userId);
+    }
+
     @MessagePattern({ cmd: 'insights.transcription.userSession' })
     async handleTranscriptionUserSession(@Payload() data: any) {
         return await this.insightsService.transcriptionUserSession(data.roomId, data.userId, data);
@@ -46,6 +51,11 @@ export class InsightsHandler {
         return await this.insightsService.executeChatTranslation(data.roomId, data.userId, data);
     }
 
+    @MessagePattern({ cmd: 'insights.translation.chat.end' })
+    async handleEndChatTranslation(@Payload() data: any) {
+        return await this.insightsService.chatEndTranslation(data.roomId);
+    }
+
     @MessagePattern({ cmd: 'insights.ai.textChat.configure' })
     async handleAITextChatConfigure(@Payload() data: any) {
         return await this.insightsService.aiTextChatConfigure(data.roomId, data);
@@ -54,6 +64,11 @@ export class InsightsHandler {
     @MessagePattern({ cmd: 'insights.ai.textChat.execute' })
     async handleExecuteAITextChat(@Payload() data: any) {
         return await this.insightsService.executeAITextChat(data.roomId, data.userId, data);
+    }
+
+    @MessagePattern({ cmd: 'insights.ai.textChat.end' })
+    async handleEndAITextChat(@Payload() data: any) {
+        return await this.insightsService.endAITextChat(data.roomId);
     }
 
     @MessagePattern({ cmd: 'insights.ai.meetingSummarization.configure' })
@@ -67,5 +82,10 @@ export class InsightsHandler {
                 msg: error.message,
             });
         }
+    }
+
+    @MessagePattern({ cmd: 'insights.ai.meetingSummarization.end' })
+    async handleEndAIMeetingSummarization(@Payload() data: any) {
+        return await this.insightsService.endAIMeetingSummarization(data.roomId);
     }
 }

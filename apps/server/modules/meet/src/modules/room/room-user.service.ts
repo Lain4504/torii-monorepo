@@ -796,7 +796,7 @@ export class RoomUserService {
                 }
             }
 
-            // Analytics - matches Go (pkg/models/user_modify.go:86)
+            // Analytics
             await this.analyticsService.handleEvent(create(AnalyticsDataMsgSchema, {
                 eventType: AnalyticsEventType.USER,
                 eventName: AnalyticsEvents.ANALYTICS_EVENT_USER_RAISE_HAND,

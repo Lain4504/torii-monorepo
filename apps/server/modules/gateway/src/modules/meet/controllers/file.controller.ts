@@ -188,7 +188,7 @@ export class FileController {
         const mimeType = this.getMimeType(fileName);
         const isImage = mimeType.startsWith('image/');
 
-        // Always set to attachment to match Go server behavior
+        // Always set to attachment
         const encodedFileName = encodeURIComponent(fileName);
         res.setHeader(
             'Content-Disposition',

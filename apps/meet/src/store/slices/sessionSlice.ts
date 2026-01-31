@@ -61,9 +61,6 @@ const initialState: ISession = {
           isAllowFileUpload: true,
           allowedFileTypes: ['jpg', 'png', 'zip'],
         },
-        sharedNotePadFeatures: {
-          isAllow: true,
-        },
         whiteboardFeatures: {
           isAllow: true,
           visible: false,

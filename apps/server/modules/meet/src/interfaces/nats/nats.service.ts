@@ -639,7 +639,6 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
     /**
      * getAllActiveRecorders finds all active recorders from NATS KV
-     * Logic matches pkg/services/nats/recorder.go:18
      */
     async getAllActiveRecorders(): Promise<RecorderInfo[]> {
         const recorders: RecorderInfo[] = [];
@@ -648,7 +647,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
         try {
             const streams = await this.jsm.streams.list();
-            const validThreshold = BigInt(Date.now() - 8000); // 8 seconds threshold like in Go
+            const validThreshold = BigInt(Date.now() - 8000); // 8 seconds threshold
 
             for await (const s of streams) {
                 if (s.config.name.startsWith(searchPrefix)) {

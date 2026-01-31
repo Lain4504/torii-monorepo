@@ -93,6 +93,23 @@ export class InsightsController {
         }
     }
 
+    @Post('transcription/userStatus')
+    async handleGetTranscriptionUserTaskStatus(@Req() req: Request, @Res() res: Response) {
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send({ cmd: 'insights.transcription.getUserStatus' }, {
+                    roomId: (req as any).roomId,
+                    userId: (req as any).requestedUserId,
+                    serviceType: "transcription"
+                })
+            );
+            res.set('Content-Type', 'application/protobuf');
+            res.send(Buffer.from(result));
+        } catch (error) {
+            sendCommonProtobufResponse(res, false, error.message);
+        }
+    }
+
     @Post('translation/chat/configure')
     async handleChatTranslationConfigure(@Req() req: Request, @Body() bodyBuffer: Buffer, @Res() res: Response) {
         if (!(req as any).isAdmin) return sendCommonProtobufResponse(res, false, 'only admin can perform this task');
@@ -120,6 +137,20 @@ export class InsightsController {
                 })
             );
             sendProtobufResponse(res, InsightsTranslateTextResSchema, result);
+        } catch (error) {
+            sendCommonProtobufResponse(res, false, error.message);
+        }
+    }
+
+    @Post('translation/chat/end')
+    async handleEndChatTranslation(@Req() req: Request, @Res() res: Response) {
+        if (!(req as any).isAdmin) return sendCommonProtobufResponse(res, false, 'only admin can perform this task');
+
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send({ cmd: 'insights.translation.chat.end' }, { roomId: (req as any).roomId })
+            );
+            sendCommonProtobufResponse(res, result.status, result.msg);
         } catch (error) {
             sendCommonProtobufResponse(res, false, error.message);
         }
@@ -157,6 +188,20 @@ export class InsightsController {
         }
     }
 
+    @Post('ai/textChat/end')
+    async handleEndAITextChat(@Req() req: Request, @Res() res: Response) {
+        if (!(req as any).isAdmin) return sendCommonProtobufResponse(res, false, 'only admin can perform this task');
+
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send({ cmd: 'insights.ai.textChat.end' }, { roomId: (req as any).roomId })
+            );
+            sendCommonProtobufResponse(res, result.status, result.msg);
+        } catch (error) {
+            sendCommonProtobufResponse(res, false, error.message);
+        }
+    }
+
     @Post('ai/meetingSummarization/configure')
     async handleAIMeetingSummarizationConfig(@Req() req: Request, @Body() bodyBuffer: Buffer, @Res() res: Response) {
         if (!(req as any).isAdmin) return sendCommonProtobufResponse(res, false, 'only admin can perform this task');
@@ -165,6 +210,20 @@ export class InsightsController {
             const request = fromBinary(InsightsAIMeetingSummarizationConfigReqSchema, bodyBuffer);
             const result = await firstValueFrom(
                 this.natsClient.send({ cmd: 'insights.ai.meetingSummarization.configure' }, { ...request, roomId: (req as any).roomId })
+            );
+            sendCommonProtobufResponse(res, result.status, result.msg);
+        } catch (error) {
+            sendCommonProtobufResponse(res, false, error.message);
+        }
+    }
+
+    @Post('ai/meetingSummarization/end')
+    async handleEndAIMeetingSummarization(@Req() req: Request, @Res() res: Response) {
+        if (!(req as any).isAdmin) return sendCommonProtobufResponse(res, false, 'only admin can perform this task');
+
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send({ cmd: 'insights.ai.meetingSummarization.end' }, { roomId: (req as any).roomId })
             );
             sendCommonProtobufResponse(res, result.status, result.msg);
         } catch (error) {

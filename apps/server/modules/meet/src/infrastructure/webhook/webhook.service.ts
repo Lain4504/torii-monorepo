@@ -39,6 +39,7 @@ import { NatsRoomEventsService } from '../../interfaces/nats/nats-room-events.se
 import { AnalyticsService } from '../../modules/analytics/analytics.service';
 import { SpeechToTextService } from '../../modules/speech-to-text/speech-to-text.service';
 import { RoomEndService } from '../../modules/room/room-end.service';
+import { BreakoutService } from '../../modules/breakout/breakout.service';
 import { Inject, forwardRef } from '@nestjs/common';
 
 // Constants
@@ -69,6 +70,7 @@ export class WebhookService {
         private readonly speechService: SpeechToTextService,
         @Inject(forwardRef(() => RoomEndService))
         private readonly roomEndService: RoomEndService,
+        private readonly breakoutService: BreakoutService,
     ) { }
 
     // ============================================================================
@@ -144,9 +146,13 @@ export class WebhookService {
         // Handle breakout room post-start tasks
         if (meta.isBreakoutRoom) {
             log.log('Room is breakout room, running post-start tasks');
-            // TODO: Call breakout room service
-            // await this.breakoutRoomService.postTaskAfterRoomStartWebhook(roomId, meta);
+            try {
+                await this.breakoutService.postTaskAfterRoomStartWebhook(roomId, meta);
+            } catch (error) {
+                log.error(`Failed to run breakout room post-start tasks: ${error.message}`);
+            }
         }
+
 
         // Update and broadcast room metadata
         try {
@@ -363,6 +369,7 @@ export class WebhookService {
                 rInfo.roomId,
                 participantId,
                 create(SpeechServiceUserStatusReqSchema, {
+                    roomSid: rInfo.roomSid,
                     task: SpeechServiceUserStatusTasks.SPEECH_TO_TEXT_SESSION_ENDED,
                 })
             );

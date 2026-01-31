@@ -8,7 +8,6 @@ import ParticipantIcon from './icons/participant';
 import RaiseHandIcon from './icons/raisehand';
 import ScreenshareIcon from './icons/screenshare';
 import MenusIcon from './icons/menus';
-import SharedNotePadIcon from './icons/sharedNotePad';
 import WhiteboardIcon from './icons/whiteboard';
 import BreakoutRoomInvitation from '../breakout-room/breakoutRoomInvitation';
 import EndMeetingButton from './icons/endMeeting';
@@ -43,7 +42,6 @@ const Footer = () => {
           <ScreenshareIcon />
           <WhiteboardIcon />
           <RaiseHandIcon />
-          <SharedNotePadIcon />
           <PollsIcon />
           <Translation />
           <InsightsAiTextChatIcon />

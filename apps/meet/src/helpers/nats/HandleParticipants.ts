@@ -296,7 +296,6 @@ export default class HandleParticipants {
         lockChatFileShare: true,
         lockPrivateChat: true,
         lockWhiteboard: true,
-        lockSharedNotepad: true,
       },
     });
   }

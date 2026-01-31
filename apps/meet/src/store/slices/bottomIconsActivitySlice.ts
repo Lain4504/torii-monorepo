@@ -16,7 +16,6 @@ const initialState: IBottomIconsSlice = {
   isActiveRaisehand: false,
   isActiveRecording: false,
   isActiveScreenshare: false,
-  isActiveSharedNotePad: false,
   isActiveWhiteboard: false,
   isActiveInsightsAiTextChat: false,
 
@@ -85,9 +84,7 @@ const bottomIconsSlice = createSlice({
         state.isActiveWhiteboard = false;
       }
     },
-    updateIsActiveSharedNotePad: (state, action: PayloadAction<boolean>) => {
-      state.isActiveSharedNotePad = action.payload;
-    },
+
     updateIsActiveWhiteboard: (state, action: PayloadAction<boolean>) => {
       state.isActiveWhiteboard = action.payload;
     },
@@ -193,7 +190,6 @@ export const {
   updateIsActiveRaisehand,
   updateIsActiveRecording,
   updateIsActiveScreenshare,
-  updateIsActiveSharedNotePad,
   updateIsActiveWhiteboard,
   updateIsActiveInsightsAiTextChat,
   updateShowMicrophoneModal,
