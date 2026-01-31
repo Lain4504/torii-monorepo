@@ -38,7 +38,9 @@ import { cn } from '@workspace/ui/lib/utils'
 import { useOrders, useOrder } from '@/apis/services/order-api'
 import { ComponentLoading } from '@workspace/ui/components/component-loading'
 import { Separator } from '@workspace/ui/components/separator'
-import { OrderStatus } from '@workspace/schemas' // Assuming this exists, or use string literals
+import { OrderStatus } from '@workspace/schemas'
+import { formatDateTime, isWithinGracePeriod } from '@/utils/time-utils'
+import { useRouter } from 'next/navigation'
 
 export default function PaymentHistoryPage() {
     const [searchTerm, setSearchTerm] = useState('')
@@ -86,6 +88,12 @@ export default function PaymentHistoryPage() {
                     label: 'Thất bại',
                     color: 'bg-red-500/5 text-red-600 border-red-500/10',
                     icon: <XCircle className="w-3 h-3" />
+                }
+            case 'timed_out':
+                return {
+                    label: 'Hết thời gian',
+                    color: 'bg-slate-500/5 text-slate-600 border-slate-500/10',
+                    icon: <Clock className="w-3 h-3" />
                 }
             default:
                 return {
@@ -162,6 +170,7 @@ export default function PaymentHistoryPage() {
                                 <SelectItem value="pending">Chờ xử lý</SelectItem>
                                 <SelectItem value="failed">Thất bại</SelectItem>
                                 <SelectItem value="cancelled">Đã hủy</SelectItem>
+                                <SelectItem value="timed_out">Hết thời gian</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -211,7 +220,7 @@ export default function PaymentHistoryPage() {
                                                 <p className="text-[10px] text-muted-foreground/40 font-medium uppercase">{order.paymentMethod || 'Cổng thanh toán'}</p>
                                             </div>
                                             <div className="col-span-1 text-xs text-muted-foreground font-medium md:table-cell hidden">
-                                                {new Date(order.createdAt).toLocaleDateString('vi-VN')}
+                                                {formatDateTime(order.createdAt)}
                                             </div>
                                             <div className="col-span-1 text-right flex md:block justify-between items-center mb-2 md:mb-0">
                                                 <span className="md:hidden text-muted-foreground/40 font-bold uppercase text-[10px]">Tổng tiền:</span>
@@ -319,7 +328,7 @@ export default function PaymentHistoryPage() {
                                     </div>
                                     <div className="flex justify-between text-sm items-baseline">
                                         <span className="text-muted-foreground/60 font-medium">Thời gian</span>
-                                        <span className="font-mono text-xs">{new Date(orderDetails.createdAt).toLocaleString('vi-VN')}</span>
+                                        <span className="font-mono text-xs">{formatDateTime(orderDetails.createdAt)}</span>
                                     </div>
                                     <div className="flex justify-between text-sm items-baseline">
                                         <span className="text-muted-foreground/60 font-medium">Phương thức</span>
@@ -333,8 +342,23 @@ export default function PaymentHistoryPage() {
                                 </div>
                             </div>
 
+                            {orderDetails.status === 'pending' && isWithinGracePeriod(orderDetails.createdAt, 30) && (
+                                <Button
+                                    className="w-full h-14 rounded-2xl bg-emerald-600 text-white font-bold uppercase tracking-widest text-[10px] shadow-xl shadow-emerald-600/20 hover:shadow-emerald-600/30 transition-all"
+                                    onClick={() => {
+                                        const checkoutUrl = orderDetails.metadata?.checkoutUrl;
+                                        if (checkoutUrl) {
+                                            window.location.href = checkoutUrl;
+                                        }
+                                    }}
+                                >
+                                    Tiếp tục đến trang thanh toán
+                                </Button>
+                            )}
+
                             <Button
-                                className="w-full h-14 rounded-2xl bg-primary text-white font-bold uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all"
+                                variant="outline"
+                                className="w-full h-14 rounded-2xl border-border/40 text-muted-foreground font-bold uppercase tracking-widest text-[10px] hover:bg-muted/5 transition-all"
                                 onClick={() => setIsDetailOpen(false)}
                             >
                                 Đóng

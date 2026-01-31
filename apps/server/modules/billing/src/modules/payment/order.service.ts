@@ -35,6 +35,35 @@ export class OrderService implements IOrderService {
         private readonly natsClient: ClientProxy,
     ) { }
 
+    /**
+     * Logic to auto-cancel pending orders that are older than 30 minutes
+     */
+    async autoCancelExpiredOrders() {
+        try {
+            const thirtyMinutesAgo = new Date();
+            thirtyMinutesAgo.setMinutes(thirtyMinutesAgo.getMinutes() - 30);
+
+            const count = await this.orderRepository.updateMany(
+                {
+                    status: OrderStatus.PENDING,
+                    createdAt: {
+                        lt: thirtyMinutesAgo,
+                    },
+                },
+                {
+                    status: OrderStatus.TIMED_OUT,
+                },
+            );
+
+            if (count > 0) {
+                this.logger.log(`Auto-cancelled ${count} pending orders`);
+            }
+        } catch (error: any) {
+            this.logger.error(`Error in auto-cancel orders logic: ${error.message}`, error.stack);
+            throw error;
+        }
+    }
+
     private toOrderDto(o: any): OrderResponseDTO {
         return {
             id: o.id,
