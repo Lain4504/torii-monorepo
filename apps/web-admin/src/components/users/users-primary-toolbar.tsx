@@ -24,6 +24,7 @@ interface UsersPrimaryToolbarProps {
     sortBy: string;
     sortOrder: 'asc' | 'desc';
     onSortChange: (field: string, order: 'asc' | 'desc') => void;
+    hideRoleFilter?: boolean;
 }
 
 export function UsersPrimaryToolbar({
@@ -32,6 +33,7 @@ export function UsersPrimaryToolbar({
     filters,
     onFilterChange,
     onSortChange,
+    hideRoleFilter,
 }: UsersPrimaryToolbarProps) {
     return (
         <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between w-full">
@@ -47,23 +49,25 @@ export function UsersPrimaryToolbar({
             </div>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                <Select
-                    value={filters.role || 'all'}
-                    onValueChange={(value) => onFilterChange({ ...filters, role: value === 'all' ? undefined : value })}
-                >
-                    <SelectTrigger className="h-10 w-full sm:w-[180px] rounded-lg border-border bg-background hover:bg-muted/50 transition-all text-sm">
-                        <div className="flex items-center gap-2">
-                            <Filter className="size-3.5 text-muted-foreground" />
-                            <SelectValue placeholder="Vai trò" />
-                        </div>
-                    </SelectTrigger>
-                    <SelectContent className="border-border rounded-lg shadow-lg bg-background">
-                        <SelectItem value="all" className="text-sm">Tất cả vai trò</SelectItem>
-                        <SelectItem value="admin" className="text-sm">Quản trị viên</SelectItem>
-                        <SelectItem value="learner" className="text-sm">Học viên</SelectItem>
-                        <SelectItem value="lecturer" className="text-sm">Giảng viên</SelectItem>
-                    </SelectContent>
-                </Select>
+                {!hideRoleFilter && (
+                    <Select
+                        value={filters.role || 'all'}
+                        onValueChange={(value) => onFilterChange({ ...filters, role: value === 'all' ? undefined : value })}
+                    >
+                        <SelectTrigger className="h-10 w-full sm:w-[180px] rounded-lg border-border bg-background hover:bg-muted/50 transition-all text-sm">
+                            <div className="flex items-center gap-2">
+                                <Filter className="size-3.5 text-muted-foreground" />
+                                <SelectValue placeholder="Vai trò" />
+                            </div>
+                        </SelectTrigger>
+                        <SelectContent className="border-border rounded-lg shadow-lg bg-background">
+                            <SelectItem value="all" className="text-sm">Tất cả vai trò</SelectItem>
+                            <SelectItem value="admin" className="text-sm">Quản trị viên</SelectItem>
+                            <SelectItem value="learner" className="text-sm">Học viên</SelectItem>
+                            <SelectItem value="lecturer" className="text-sm">Giảng viên</SelectItem>
+                        </SelectContent>
+                    </Select>
+                )}
 
                 {/* Sort Controls */}
                 <DropdownMenu>

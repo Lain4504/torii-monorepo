@@ -12,14 +12,13 @@ import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import { useBoolean } from "@workspace/ui/hooks/use-boolean";
 
 import { SmartPagination } from '@/components/common/smart-pagination';
-import { UserPlus, ShieldCheck, Users } from 'lucide-react';
+import { UserPlus, ShieldCheck, GraduationCap } from 'lucide-react';
 
 
-export function UsersPage() {
+export default function LearnersPage() {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
     const [debouncedSearch] = useDebounceValue(search, 500);
-    const [filters, setFilters] = useState<{ role?: string }>({});
     const [sortBy, setSortBy] = useState('updatedAt');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
@@ -31,30 +30,31 @@ export function UsersPage() {
 
     const limit = 10;
 
-    // API Hooks
+    // API Hooks - Filter by role 'user'
     const { data, isLoading, error } = useUsers({
         page,
         limit,
         search: debouncedSearch,
+        role: 'learner'
     });
 
     useEffect(() => {
         setPage(1);
-    }, [debouncedSearch, filters]);
+    }, [debouncedSearch]);
 
     if (error) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[400px] p-8 border-2 border-dashed border-destructive/20 bg-destructive/5 text-center animate-in fade-in duration-500">
-                <div className="w-12 h-12 flex items-center justify-center bg-destructive/10 mb-4">
-                    <ShieldCheck className="size-6 text-destructive" />
+                <div className="w-12 h-12 flex items-center justify-center bg-destructive/10 mb-4 text-destructive">
+                    <ShieldCheck className="size-6" />
                 </div>
                 <div className="max-w-md space-y-2">
-                    <h3 className="text-xl font-sans font-bold italic uppercase tracking-tight text-foreground">Truy cập bị hạn chế</h3>
+                    <h3 className="text-xl font-bold uppercase tracking-tight text-foreground">Truy cập bị hạn chế</h3>
                     <p className="text-sm text-muted-foreground">{error.message}</p>
                     <Button
                         variant="outline"
                         onClick={() => window.location.reload()}
-                        className="mt-4 rounded-none border-destructive/20 hover:bg-destructive/5"
+                        className="mt-4 rounded-xl border-destructive/20 hover:bg-destructive/5"
                     >
                         Thử kết nối lại
                     </Button>
@@ -67,53 +67,58 @@ export function UsersPage() {
     const total = data?.total || 0;
     const totalPages = data?.totalPages || 0;
 
-
-
     return (
-        <div className="flex flex-col gap-6 p-4 md:p-6 animate-in fade-in duration-500">
+        <div className="flex flex-col gap-6 p-4 md:p-6 animate-in fade-in duration-500 max-w-7xl mx-auto w-full">
             {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
                 <div className="flex flex-col gap-1">
-                    <h1 className="text-2xl font-bold tracking-tight">Danh sách Người dùng</h1>
-                    <p className="text-sm text-muted-foreground">
-                        Quản trị hệ thống tài khoản Torii Academy
+                    <div className="flex items-center gap-2 mb-1">
+                        <div className="p-1.5 rounded-lg bg-primary/10 text-primary">
+                            <GraduationCap className="size-4" />
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60">Quản lý Học viên</span>
+                    </div>
+                    <h1 className="text-3xl font-black tracking-tight uppercase">Hồ sơ <span className="text-primary italic">Học viên</span></h1>
+                    <p className="text-sm text-muted-foreground max-w-md">
+                        Danh sách học viên đăng ký trên hệ thống. Theo dõi lộ trình và kết quả học tập.
                     </p>
                 </div>
 
                 <div className="flex items-center gap-4">
-                    <div className="hidden lg:flex flex-col items-end px-4 border-r border-border/40">
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic">Tổng số tài khoản</span>
-                        <span className="text-2xl font-bold text-foreground tabular-nums">{total.toLocaleString()}</span>
+                    <div className="hidden lg:flex flex-col items-end px-6 border-r border-border/40">
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 font-mono">Tổng số học viên</span>
+                        <span className="text-3xl font-black text-foreground tabular-nums">{total.toLocaleString()}</span>
                     </div>
                     <Button
                         onClick={createDialog.setTrue}
-                        className="h-11 px-6 rounded-xl bg-primary text-primary-foreground font-sans font-bold italic text-xs uppercase tracking-wide hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-0.5 transition-all"
+                        className="h-12 px-8 rounded-xl bg-primary text-primary-foreground font-black uppercase text-[10px] tracking-widest hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-0.5 transition-all"
                     >
-                        Thêm người dùng mới
-                        <UserPlus className="ml-2 size-4" />
+                        Tạo tài khoản học viên
+                        <UserPlus className="ml-3 size-4" />
                     </Button>
                 </div>
             </div>
 
             <div className="space-y-4">
-                {/* Toolbar area */}
-                <div className="bg-background p-4 rounded-xl border border-border shadow-sm">
+                {/* Search & Filter */}
+                <div className="bg-background/50 backdrop-blur-sm p-4 rounded-2xl border border-border/40 shadow-sm">
                     <UsersPrimaryToolbar
                         search={search}
                         onSearchChange={setSearch}
-                        filters={filters}
-                        onFilterChange={setFilters}
+                        filters={{ role: 'learner' }}
+                        onFilterChange={() => { }} // Disabled role filter as it's fixed
                         sortBy={sortBy}
                         sortOrder={sortOrder}
                         onSortChange={(field, order) => {
                             setSortBy(field);
                             setSortOrder(order);
                         }}
+                        hideRoleFilter={true}
                     />
                 </div>
 
                 {/* Table container */}
-                <div className="bg-background rounded-xl border border-border overflow-hidden shadow-sm">
+                <div className="bg-background rounded-2xl border border-border/40 overflow-hidden shadow-sm">
                     <UsersTable
                         data={users}
                         onEdit={setEditingUser}
@@ -131,7 +136,7 @@ export function UsersPage() {
                     totalPages={totalPages}
                     totalItems={total}
                     onPageChange={setPage}
-                    itemName="người dùng"
+                    itemName="học viên"
                 />
             </div>
 
@@ -161,4 +166,3 @@ export function UsersPage() {
         </div>
     );
 }
-

@@ -62,13 +62,21 @@ export const mainNavItems: NavItem[] = [
         descriptionKey: "common:navDescriptions.questionBank",
     },
     {
-        titleKey: "Người dùng",
-        url: "/users",
+        titleKey: "Quản lý Học viên",
+        url: "/learners",
         icon: Users,
         permission: "user.manage",
-        descriptionKey: "common:navDescriptions.users",
+        descriptionKey: "Quản lý hồ sơ & lộ trình học viên",
+    },
+    {
+        titleKey: "Quản lý Nhân sự",
+        url: "/personnel",
+        icon: ShieldCheck,
+        permission: "user.manage",
+        descriptionKey: "Quản lý Giảng viên & Nhân viên trung tâm",
         items: [
-            { titleKey: "Danh sách người dùng", url: "/users", permission: "user.view" },
+            { titleKey: "Đội ngũ Giảng viên", url: "/personnel/lecturers", permission: "user.manage" },
+            { titleKey: "Nhân viên vận hành", url: "/personnel/staff", permission: "user.manage" },
             { titleKey: "Vai trò & Quyền", url: "/permissions", permission: "user.manage" },
         ]
     },

@@ -6,6 +6,7 @@ export interface FindAllUsersParams {
     page?: number;
     limit?: number;
     search?: string;
+    role?: string;
 }
 
 // ============================================================================
