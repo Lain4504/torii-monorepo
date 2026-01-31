@@ -4,7 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix meet config" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix meet config">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/utils/create_room.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/utils/create_room.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/nats-room.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/nats-room.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/meet.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/meet.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/etherpad/etherpad.module.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/etherpad/etherpad.nats.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/etherpad/etherpad.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room-create.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room-create.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room-end.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room-end.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room.module.ts" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -82,12 +93,12 @@
     }
   ]
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/Lain4504/torii-monorepo.git&quot;,
-    &quot;accountId&quot;: &quot;5126b88c-ccf3-4397-984d-7c1b52a2aa60&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "git@github.com:Lain4504/torii-monorepo.git",
+    "accountId": "36ac2fd8-9a60-42a4-b2bf-7fe947db4431"
   }
-}</component>
+}]]></component>
   <component name="GoLibraries">
     <option name="indexEntireGoPath" value="true" />
   </component>
@@ -125,13 +136,13 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "agent-analysic",
+    "git-widget-placeholder": "#113 on agent-analysic",
     "go.import.settings.migrated": "true",
     "ignore.virus.scanning.warn.message": "true",
     "javascript.preferred.runtime.type.id": "node",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/home/lain4504/outsource/ten-framework/ai_agents/agents/examples/voice-assistant-with-turn-detection",
+    "last_opened_file_path": "/home/lain4504/outsource/ten-framework",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -332,6 +343,11 @@
       <workItem from="1769677668828" duration="174000" />
       <workItem from="1769776646079" duration="635000" />
       <workItem from="1769784933135" duration="31000" />
+      <workItem from="1769833098000" duration="11000" />
+      <workItem from="1769833117426" duration="20000" />
+      <workItem from="1769846484321" duration="1011000" />
+      <workItem from="1769848661014" duration="95000" />
+      <workItem from="1769849840092" duration="424000" />
     </task>
     <task id="LOCAL-00698" summary="build aadmin">
       <option name="closed" value="true" />

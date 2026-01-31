@@ -233,15 +233,12 @@ export class RoomCreateService {
         const maxFileSize = this.configService.get<number>('UPLOAD_MAX_FILE_SIZE') || 50 * 1024 * 1024;
         const maxWhiteboardFile = this.configService.get<number>('UPLOAD_MAX_WHITEBOARD_FILE') || 10 * 1024 * 1024;
         const allowedTypes = this.configService.get<string>('UPLOAD_ALLOWED_TYPES')?.split(',') || [];
-        const sharedNotePadEnabled = this.configService.get<boolean>('SHARED_NOTEPAD_ENABLED') || true;
-
         // Convert numbers to strings for uint64 compatibility 
         setCreateRoomDefaultValues(
             req,
             maxFileSize.toString(),  // uint64 with JS_STRING = string
             maxWhiteboardFile.toString(),  // uint64 with JS_STRING = string
-            allowedTypes,
-            sharedNotePadEnabled
+            allowedTypes
         );
         setRoomDefaultLockSettings(req);
 

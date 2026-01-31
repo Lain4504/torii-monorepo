@@ -37,9 +37,7 @@ const ROOM_FILES_BUCKET = `${ROOM_FILES_BUCKET_PREFIX}%s`;
 const BREAKOUT_ROOMS_BUCKET_PREFIX = `${NATS_PREFIX}breakoutRooms-`;
 const BREAKOUT_ROOMS_BUCKET = `${BREAKOUT_ROOMS_BUCKET_PREFIX}%s`;
 
-// Etherpad keys
-const ETHERPAD_TOKEN_KEY = `${NATS_PREFIX}etherpadToken-%s`;
-const ETHERPAD_ROOMS_KEY = `${NATS_PREFIX}etherpadRooms-%s`;
+
 
 // Room status constants
 export const ROOM_STATUS_CREATED = 'created';
@@ -579,93 +577,7 @@ export class NatsRoomService {
         }
     }
 
-    // ============================================================================
-    // Etherpad Tokens and Rooms Management
-    // ============================================================================
 
-    /**
-     * AddEtherpadToken stores an access token for an etherpad node.
-     */
-    async addEtherpadToken(nodeId: string, token: string, ttlMs: number): Promise<void> {
-        const bucket = ETHERPAD_TOKEN_KEY.replace('%s', nodeId);
-        const numReplicas = this.configService.get<number>('NATS_NUM_REPLICAS') || 1;
-
-        try {
-            const js = this.natsService.getJetStream();
-            const kv = await js.views.kv(bucket, {
-                history: 1,
-                ttl: ttlMs,
-                replicas: numReplicas,
-            });
-            await kv.put(nodeId, new TextEncoder().encode(token));
-        } catch (error) {
-            this.logger.error(`Error adding etherpad token: ${error.message}`);
-            throw error;
-        }
-    }
-
-    /**
-     * GetEtherpadToken retrieves a cached access token for an etherpad node.
-     */
-    async getEtherpadToken(nodeId: string): Promise<string> {
-        const bucket = ETHERPAD_TOKEN_KEY.replace('%s', nodeId);
-        try {
-            const js = this.natsService.getJetStream();
-            const kv = await js.views.kv(bucket);
-            const entry = await kv.get(nodeId);
-            return entry?.value ? new TextDecoder().decode(entry.value) : '';
-        } catch (error) {
-            return '';
-        }
-    }
-
-    /**
-     * AddRoomInEtherpad marks a room as active on a specific etherpad node.
-     */
-    async addRoomInEtherpad(nodeId: string, roomId: string): Promise<void> {
-        const bucket = ETHERPAD_ROOMS_KEY.replace('%s', nodeId);
-        const numReplicas = this.configService.get<number>('NATS_NUM_REPLICAS') || 1;
-
-        try {
-            const js = this.natsService.getJetStream();
-            const kv = await js.views.kv(bucket, {
-                history: 1,
-                ttl: DEFAULT_TTL,
-                replicas: numReplicas,
-            });
-            await kv.put(roomId, new TextEncoder().encode(Date.now().toString()));
-        } catch (error) {
-            this.logger.error(`Error adding room to etherpad node ${nodeId}: ${error.message}`);
-            throw error;
-        }
-    }
-
-    /**
-     * GetEtherpadActiveRoomsNum returns the number of active rooms on an etherpad node.
-     */
-    async getEtherpadActiveRoomsNum(nodeId: string): Promise<number> {
-        const bucket = ETHERPAD_ROOMS_KEY.replace('%s', nodeId);
-        try {
-            const js = this.natsService.getJetStream();
-            const kv = await js.views.kv(bucket);
-            const status = await kv.status();
-            return Number(status.values);
-        } catch (error) {
-            return 0;
-        }
-    }
-
-    /**
-     * RemoveRoomFromEtherpad unmarks a room as active on an etherpad node.
-     */
-    async removeRoomFromEtherpad(nodeId: string, roomId: string): Promise<void> {
-        const bucket = ETHERPAD_ROOMS_KEY.replace('%s', nodeId);
-        try {
-            const js = this.natsService.getJetStream();
-            const kv = await js.views.kv(bucket);
-            await kv.purge(roomId);
-        } catch (error) { }
-    }
 
     // ============================================================================
     // Helper methods for KV access

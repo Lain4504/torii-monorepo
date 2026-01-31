@@ -14,14 +14,13 @@ import { NatsUserService } from '../../interfaces/nats/nats-user.service';
 import { RedisLockService } from '../../infrastructure/redis/redis-lock.service';
 import { RedisRoomService } from '../../infrastructure/redis/redis-room.service';
 import { LiveKitService } from '../../infrastructure/livekit/livekit.service';
-import { NatsMsgServerToClientEvents, CleanEtherpadReqSchema, RecordingReqSchema } from '@workspace/protocol';
+import { NatsMsgServerToClientEvents, RecordingReqSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 import { waitUntilRoomCreationCompletes } from './room-lock.helper';
 import { RoomInfoService } from './room-info.service';
 import { RoomDurationService } from './room-duration.service';
 import { PollsService } from "../polls/polls.service";
 import { AnalyticsService } from '../analytics/analytics.service';
-import { EtherpadService } from '../etherpad/etherpad.service';
 import { BreakoutService } from '../breakout/breakout.service';
 import { FileService } from '../file/file.service';
 import { InsightsService } from '../insights/insights.service';
@@ -49,7 +48,6 @@ export class RoomEndService {
         private readonly roomDuration: RoomDurationService,
         private readonly pollsService: PollsService,
         private readonly analyticsService: AnalyticsService,
-        private readonly etherpadService: EtherpadService,
         @Inject(forwardRef(() => BreakoutService))
         private readonly breakoutService: BreakoutService,
         private readonly fileService: FileService,
@@ -281,12 +279,7 @@ export class RoomEndService {
             this.logger.error(`Error deleting room duration: ${error.message}`);
         }
 
-        // Step 9: Clean up any associated Etherpad (shared notepad) pads
-        try {
-            await this.etherpadService.cleanAfterRoomEnd(create(CleanEtherpadReqSchema, { roomId }), metadata);
-        } catch (error) {
-            this.logger.error(`Error cleaning up Etherpad: ${error.message}`);
-        }
+
 
         // Step 10: Clean up any polls created during the session
         try {
