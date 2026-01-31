@@ -1,5 +1,6 @@
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
-import { PrismaService } from '@server/shared';
+import { PrismaService, REDIS_CLIENT } from '@server/shared';
+import Redis from 'ioredis';
 import { StreakStatusDto } from '@workspace/schemas';
 import { ActivityService } from './activity.service';
 
@@ -11,6 +12,8 @@ export class StreakService {
         private readonly prisma: PrismaService,
         @Inject(forwardRef(() => ActivityService))
         private readonly activityService: ActivityService,
+        @Inject(REDIS_CLIENT)
+        private readonly redis: Redis,
     ) { }
 
     /**
@@ -34,7 +37,10 @@ export class StreakService {
         const willBreakTomorrow = !isActiveToday && streak.lastActiveDate !== yesterday;
 
         // Logic: Show toast if active today BUT haven't shown toast today yet
-        const shouldShowToast = isActiveToday && streak.lastToastShownDate !== today;
+        // Check Redis for the toast flag
+        const redisKey = `streak_toast:${userId}:${today}`;
+        const toastShownToday = await this.redis.get(redisKey);
+        const shouldShowToast = isActiveToday && !toastShownToday;
 
         // Fetch recent active dates (last 7 days) using ActivityService
         const recentActiveDates = await this.activityService.getWeeklyActiveDates(userId, 7);
@@ -46,7 +52,6 @@ export class StreakService {
             isActiveToday,
             willBreakTomorrow,
             lastActiveDate: streak.lastActiveDate,
-            lastToastShownDate: streak.lastToastShownDate,
             totalActiveDays: streak.totalActiveDays,
             weeklyActiveCount: streak.weeklyActiveCount,
             monthlyActiveCount: streak.monthlyActiveCount,
@@ -60,13 +65,20 @@ export class StreakService {
      */
     async markStreakToastShown(userId: string): Promise<void> {
         const today = this.getToday();
-        await this.prisma.userStreak.update({
-            where: { userId },
-            data: {
-                lastToastShownDate: today
-            }
-        });
-        this.logger.log(`Marked streak toast as shown for user ${userId} on ${today}`);
+        const redisKey = `streak_toast:${userId}:${today}`;
+        
+        // Calculate seconds until end of day in Vietnam
+        const now = new Date();
+        const vnNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }));
+        const vnEndOfDay = new Date(vnNow);
+        vnEndOfDay.setHours(23, 59, 59, 999);
+        
+        const secondsUntilEndDay = Math.max(1, Math.floor((vnEndOfDay.getTime() - vnNow.getTime()) / 1000));
+        
+        // Set flag in Redis with TTL until end of day
+        await this.redis.set(redisKey, '1', 'EX', secondsUntilEndDay);
+        
+        this.logger.log(`Marked streak toast as shown for user ${userId} on ${today} (Redis TTL: ${secondsUntilEndDay}s)`);
     }
 
     /**
