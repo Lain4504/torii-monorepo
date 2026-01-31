@@ -7,6 +7,7 @@ export enum OrderStatus {
     FAILED = 'failed',
     REFUNDED = 'refunded',
     CANCELLED = 'cancelled',
+    TIMED_OUT = 'timed_out',
 }
 
 export enum PaymentMethod {

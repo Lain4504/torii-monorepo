@@ -1,5 +1,6 @@
 import { Injectable, Logger, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import {
     type OrderCreateDTO,
     type OrderQueryDTO,
@@ -34,6 +35,37 @@ export class OrderService implements IOrderService {
         @Inject('NATS_SERVICE')
         private readonly natsClient: ClientProxy,
     ) { }
+
+    /**
+     * Cronjob to auto-cancel pending orders that are older than 30 minutes
+     * Runs every 5 minutes
+     */
+    @Cron(CronExpression.EVERY_5_MINUTES)
+    async handleAutoCancelOrders() {
+        this.logger.log('Running cronjob: Auto-cancel pending orders older than 30 minutes');
+        try {
+            const thirtyMinutesAgo = new Date();
+            thirtyMinutesAgo.setMinutes(thirtyMinutesAgo.getMinutes() - 30);
+
+            const count = await this.orderRepository.updateMany(
+                {
+                    status: OrderStatus.PENDING,
+                    createdAt: {
+                        lt: thirtyMinutesAgo,
+                    },
+                },
+                {
+                    status: OrderStatus.TIMED_OUT,
+                },
+            );
+
+            if (count > 0) {
+                this.logger.log(`Auto-cancelled ${count} pending orders`);
+            }
+        } catch (error: any) {
+            this.logger.error(`Error in auto-cancel orders cronjob: ${error.message}`, error.stack);
+        }
+    }
 
     private toOrderDto(o: any): OrderResponseDTO {
         return {

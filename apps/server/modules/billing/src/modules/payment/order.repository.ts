@@ -135,6 +135,17 @@ export class OrderRepository implements IOrderRepository {
     }
 
     /**
+     * Update multiple orders
+     */
+    async updateMany(where: Prisma.OrderWhereInput, data: Prisma.OrderUpdateManyMutationInput): Promise<number> {
+        const result = await this.prisma.order.updateMany({
+            where,
+            data,
+        });
+        return result.count;
+    }
+
+    /**
      * Get user by ID (for notification purposes)
      */
     async getUserById(userId: string): Promise<{ id: string; email: string; displayName: string | null } | null> {
