@@ -140,23 +140,33 @@ export class EtherpadService {
     /**
      * CleanAfterRoomEnd handles cleanup when room ends
      */
-    async cleanAfterRoomEnd(req: CleanEtherpadReq): Promise<void> {
+    async cleanAfterRoomEnd(req: CleanEtherpadReq, metadataStr?: string): Promise<void> {
         const roomId = req.roomId;
         this.logger.log(`Cleaning etherpad session for room ${roomId}`);
 
-        // Get room metadata to extract etherpad info
-        const roomInfo = await this.natsRoomService.getRoomInfo(roomId);
-        if (!roomInfo || !roomInfo.metadata) {
-            this.logger.warn(`No metadata found for room ${roomId}, skipping etherpad cleanup`);
-            return;
+        let metadata;
+        if (metadataStr) {
+            try {
+                metadata = this.natsService.unmarshalRoomMetadata(metadataStr);
+            } catch (e) {
+                this.logger.warn(`Could not unmarshal provided room metadata for ${roomId}: ${e.message}`);
+            }
         }
 
-        let metadata;
-        try {
-            metadata = this.natsService.unmarshalRoomMetadata(roomInfo.metadata);
-        } catch (e) {
-            this.logger.warn(`Could not unmarshal room metadata for ${roomId}: ${e.message}`);
-            return;
+        if (!metadata) {
+            // Get room metadata to extract etherpad info
+            const roomInfo = await this.natsRoomService.getRoomInfo(roomId);
+            if (!roomInfo || !roomInfo.metadata) {
+                this.logger.warn(`No metadata found for room ${roomId}, skipping etherpad cleanup`);
+                return;
+            }
+
+            try {
+                metadata = this.natsService.unmarshalRoomMetadata(roomInfo.metadata);
+            } catch (e) {
+                this.logger.warn(`Could not unmarshal room metadata for ${roomId}: ${e.message}`);
+                return;
+            }
         }
 
         const sharedNotePadFeatures = metadata.roomFeatures?.sharedNotePadFeatures;

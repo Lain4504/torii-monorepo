@@ -19,7 +19,15 @@ import {
     AnalyticsEventType,
     AnalyticsEvents,
     AnalyticsStatus,
+    SpeechServiceUserStatusTasks,
+    AnalyticsDataMsgSchema,
+    SpeechServiceUserStatusReqSchema,
+    RoomEndReqSchema,
+    RecorderToWajlc,
+    CommonNotifyEventSchema,
+    NotifyEventRoomSchema,
 } from '@workspace/protocol';
+import { create } from '@bufbuild/protobuf';
 import type { WebhookEvent } from '@livekit/protocol';
 import { TrackSource } from '@livekit/protocol';
 
@@ -28,6 +36,10 @@ import { ROOM_STATUS_ACTIVE, ROOM_STATUS_ENDED } from '../../interfaces/nats/nat
 import { RoomDurationService } from '../../modules/room/room-duration.service';
 import { RoomInfoService } from '../../modules/room/room-info.service';
 import { NatsRoomEventsService } from '../../interfaces/nats/nats-room-events.service';
+import { AnalyticsService } from '../../modules/analytics/analytics.service';
+import { SpeechToTextService } from '../../modules/speech-to-text/speech-to-text.service';
+import { RoomEndService } from '../../modules/room/room-end.service';
+import { Inject, forwardRef } from '@nestjs/common';
 
 // Constants
 const INGRESS_USER_ID_PREFIX = 'ingress_';
@@ -53,6 +65,10 @@ export class WebhookService {
         private readonly roomInfoService: RoomInfoService,
         private readonly natsRoomEventsService: NatsRoomEventsService,
         private readonly webhookNotifierService: WebhookNotifierService,
+        private readonly analyticsService: AnalyticsService,
+        private readonly speechService: SpeechToTextService,
+        @Inject(forwardRef(() => RoomEndService))
+        private readonly roomEndService: RoomEndService,
     ) { }
 
     // ============================================================================
@@ -203,9 +219,14 @@ export class WebhookService {
                 log.error(`Failed to update room status to ended: ${error.message}`);
             }
 
-            // Note: Already inside room-service, no need to call via NATS
-            // Room end logic already triggered by LiveKit webhook
-            // TODO: If needed, call RoomEndService directly instead of via NATS
+            // Trigger wajlc EndRoom flow
+            try {
+                await this.roomEndService.endRoom(create(RoomEndReqSchema, {
+                    roomId: roomId,
+                }));
+            } catch (error) {
+                log.error(`Failed to trigger endRoom flow: ${error.message}`);
+            }
         }
 
         // Wait before triggering cleanup tasks
@@ -337,13 +358,17 @@ export class WebhookService {
         this.sendToWebhookNotifier(event);
 
         // Handle speech service usage stat for sudden disconnection
-        // TODO: Implement when SpeechToTextService is available
-        // await this.speechService.speechServiceUsersUsage(
-        //     rInfo.roomId, 
-        //     rInfo.roomSid, 
-        //     participantId, 
-        //     SpeechServiceUserStatusTasks.SPEECH_TO_TEXT_SESSION_ENDED
-        // );
+        try {
+            await this.speechService.speechServiceUserStatus(
+                rInfo.roomId,
+                participantId,
+                create(SpeechServiceUserStatusReqSchema, {
+                    task: SpeechServiceUserStatusTasks.SPEECH_TO_TEXT_SESSION_ENDED,
+                })
+            );
+        } catch (error) {
+            log.error(`Failed to send speech service usage status: ${error.message}`);
+        }
 
         log.log('Successfully processed participant_left webhook');
 
@@ -526,17 +551,17 @@ export class WebhookService {
 
         // Send analytics via NATS
         // After early returns above, we know event.room and event.participant are non-null
-        const data = {
+        const data = create(AnalyticsDataMsgSchema, {
             eventType: AnalyticsEventType.USER,
             eventName,
             roomId: event.room!.name,
             userId: event.participant!.identity,
             hsetValue: val,
-        };
+        });
 
-        // TODO: Implement analytics service
-        // Fire-and-forget analytics event
-        // this.analyticsService.handleEvent(data);
+        this.analyticsService.handleEvent(data).catch(err => {
+            this.logger.error(`Failed to send track analytics: ${err.message}`);
+        });
     }
 
     /**
@@ -583,6 +608,32 @@ export class WebhookService {
             this.webhookNotifierService.sendWebhookEvent(customEvent as any);
         } catch (error) {
             this.logger.error(`Failed to send custom webhook notification: ${error.message}`);
+        }
+    }
+
+    /**
+     * sendRoomRecordingNotification sends webhook for recording events
+     */
+    async sendRoomRecordingNotification(r: RecorderToWajlc, event: string): Promise<void> {
+        const msg = create(CommonNotifyEventSchema, {
+            event: event,
+            room: create(NotifyEventRoomSchema, {
+                roomId: r.roomId,
+                sid: r.roomSid,
+            }),
+            recordingInfo: {
+                recordId: r.recordingId,
+                recorderId: r.recorderId,
+                filePath: r.filePath,
+                fileSize: r.fileSize,
+            },
+        });
+
+        try {
+            await this.webhookNotifierService.sendWebhookEvent(msg);
+            this.logger.log(`Room recording webhook sent: ${r.roomId}, event: ${event}`);
+        } catch (error) {
+            this.logger.error(`Error sending recording webhook: ${error.message}`);
         }
     }
 }

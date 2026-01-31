@@ -34,7 +34,6 @@ export class RedisInsightsService {
 
     /**
      * HandleTranscriptionUsage manages transcription session lifecycle and usage
-     * Logic matches pkg/services/redis/insights_transcription.go
      */
     async handleTranscriptionUsage(roomId: string, userId: string, isStarted: boolean): Promise<number> {
         const sessionsKey = TRANSCRIPTION_SESSIONS_KEY.replace('%s', roomId);

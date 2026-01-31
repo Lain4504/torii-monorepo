@@ -8,6 +8,8 @@ import { PollsModule } from '../polls/polls.module';
 import { EtherpadModule } from '../etherpad/etherpad.module';
 import { BreakoutModule } from '../breakout/breakout.module';
 import { InsightsModule } from '../insights/insights.module';
+import { RecordingModule } from '../recording/recording.module';
+import { SpeechToTextModule } from '../speech-to-text/speech-to-text.module';
 
 // Controllers
 
@@ -45,7 +47,7 @@ import { LiveKitService } from '../../infrastructure/livekit/livekit.service';
 import { WajlcAuthService } from '../auth/wajlc-auth.service';
 
 @Module({
-  imports: [SharedModule, FileModule, forwardRef(() => WebhookModule), ArtifactsModule, AnalyticsModule, PollsModule, forwardRef(() => EtherpadModule), forwardRef(() => BreakoutModule), InsightsModule],
+  imports: [SharedModule, FileModule, forwardRef(() => WebhookModule), ArtifactsModule, AnalyticsModule, PollsModule, forwardRef(() => EtherpadModule), forwardRef(() => BreakoutModule), InsightsModule, forwardRef(() => RecordingModule), SpeechToTextModule],
   controllers: [
     // NatsAuthCalloutController removed - handled in NatsController now
   ],

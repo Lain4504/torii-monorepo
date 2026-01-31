@@ -141,9 +141,30 @@ export class ArtifactsService {
         await this.createAndSaveArtifact(roomId, roomSid, roomTableId, RoomArtifactType.AI_TEXT_CHAT_INTERACTION_USAGE, metadata);
     }
 
+    async createCloudRecordingArtifact(roomTableId: number, roomId: string, roomSid: string, filePath: string, fileSize: number): Promise<void> {
+        const metadata = create(RoomArtifactMetadataSchema, {
+            fileInfo: {
+                filePath,
+                fileSize: fileSize.toString(),
+            },
+        });
+
+        await this.createAndSaveArtifact(roomId, roomSid, roomTableId, RoomArtifactType.CLOUD_RECORDING, metadata, true);
+    }
+
+    async createRTMPRecordingArtifact(roomTableId: number, roomId: string, roomSid: string, filePath: string, fileSize: number): Promise<void> {
+        const metadata = create(RoomArtifactMetadataSchema, {
+            fileInfo: {
+                filePath,
+                fileSize: fileSize.toString(),
+            },
+        });
+
+        await this.createAndSaveArtifact(roomId, roomSid, roomTableId, RoomArtifactType.RTMP_RECORDING, metadata, true);
+    }
+
     /**
      * createAllRoomUsageArtifacts creates all types of usage artifacts for a room
-     * Matches pkg/models/artifact.go
      */
     async createAllRoomUsageArtifacts(roomId: string, roomSid: string, roomTableId: number): Promise<void> {
         this.logger.log(`Creating all room usage artifacts for room: ${roomId}`);
@@ -392,7 +413,6 @@ export class ArtifactsService {
             eventValueInteger: eventValueInteger.toString(),
         });
         // We'll assume AnalyticsService will handle this. For now, we can omit or emit if needed.
-        // In Go it calls analyticsModel.HandleEvent(d)
     }
 
     /**
@@ -577,6 +597,8 @@ export class ArtifactsService {
             RoomArtifactType.MEETING_ANALYTICS,
             RoomArtifactType.MEETING_SUMMARY,
             RoomArtifactType.SPEECH_TRANSCRIPTION,
+            RoomArtifactType.CLOUD_RECORDING,
+            RoomArtifactType.RTMP_RECORDING,
         ].includes(type);
     }
 

@@ -18,11 +18,17 @@ import {
     SpeechServiceUserStatusTasks,
     CommonResponseSchema,
     NatsMsgServerToClientEvents,
+    SpeechServiceUserStatusReqSchema,
+    AnalyticsEventType,
+    AnalyticsEvents,
+    AnalyticsDataMsgSchema,
 } from '@workspace/protocol';
 import { create, toJsonString } from '@bufbuild/protobuf';
 import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
 import { RedisSpeechToTextService } from '../../infrastructure/redis/redis-speech-to-text.service';
 import { NatsSystemEventsService } from '../../interfaces/nats/nats-system-events.service';
+import { WebhookNotifierService } from '../../infrastructure/webhook/webhook-notifier.service';
+import { AnalyticsService } from '../analytics/analytics.service';
 
 @Injectable()
 export class SpeechToTextService {
@@ -33,6 +39,8 @@ export class SpeechToTextService {
         private readonly natsRoomService: NatsRoomService,
         private readonly redisSpeechService: RedisSpeechToTextService,
         private readonly natsSystemEvents: NatsSystemEventsService,
+        private readonly webhookNotifier: WebhookNotifierService,
+        private readonly analyticsModel: AnalyticsService,
     ) { }
 
     /**
@@ -182,5 +190,73 @@ export class SpeechToTextService {
             jsonStr,
             userId,
         );
+    }
+
+    /**
+     * OnAfterRoomEnded performs cleanup when a room ends
+     * Logic matches pkg/models/speechtotext.go:61
+     */
+    async onAfterRoomEnded(roomId: string, sId: string): Promise<void> {
+        if (!sId) return;
+
+        // Give some time for final requests to arrive - matches Go
+        const waitTime = this.configService.get<number>('WAIT_BEFORE_SPEECH_SERVICES_CLEANUP', 5000);
+        await new Promise(resolve => setTimeout(resolve, waitTime));
+
+        try {
+            const hkeys = await this.redisSpeechService.getHashKeys(roomId);
+            for (const k of hkeys) {
+                if (k !== 'total_usage') {
+                    // Send ENDED status for each user still tracked
+                    await this.speechServiceUserStatus(roomId, k, create(SpeechServiceUserStatusReqSchema, {
+                        task: SpeechServiceUserStatusTasks.SPEECH_TO_TEXT_SESSION_ENDED,
+                        keyId: '', // keyId not used in usersUsage
+                    }));
+                }
+            }
+
+            // Get total usage
+            const usageStr = await this.redisSpeechService.getTotalUsageByRoomId(roomId);
+            if (usageStr && usageStr !== '0') {
+                const usage = parseInt(usageStr, 10);
+                // Send usage via webhook notifier
+                await this.sendToWebhookNotifier(roomId, sId, null, SpeechServiceUserStatusTasks.SPEECH_TO_TEXT_TOTAL_USAGE, usage);
+
+                // Send to analytics
+                await this.analyticsModel.handleEvent(create(AnalyticsDataMsgSchema, {
+                    eventType: AnalyticsEventType.ROOM,
+                    eventName: AnalyticsEvents.ANALYTICS_EVENT_ROOM_SPEECH_SERVICE_TOTAL_USAGE,
+                    roomId: roomId,
+                    eventValueString: usageStr,
+                }));
+            }
+
+            // Final cleanup
+            await this.redisSpeechService.deleteRoom(roomId);
+        } catch (error) {
+            this.logger.error(`Error in speech service cleanup for ${roomId}: ${error.message}`);
+        }
+    }
+
+    private async sendToWebhookNotifier(rId: string, rSid: string, userId: string | null, task: SpeechServiceUserStatusTasks, usage: number): Promise<void> {
+        const event = task.toString();
+        const msg = {
+            event: event,
+            room: {
+                sid: rSid,
+                roomId: rId,
+            },
+            speechService: {
+                userId: userId || undefined,
+                totalUsage: BigInt(usage).toString(),
+            },
+        };
+
+        try {
+            // Note: CommonNotifyEvent schema might be needed for full validation
+            await this.webhookNotifier.sendWebhookEvent(msg as any);
+        } catch (error) {
+            this.logger.error(`Failed to send speech service webhook: ${error.message}`);
+        }
     }
 }

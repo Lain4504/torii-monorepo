@@ -15,6 +15,9 @@ enum RoomArtifactType {
   CHAT_TRANSLATION_USAGE = 7;
   AI_TEXT_CHAT_INTERACTION_USAGE = 8;
   AI_TEXT_CHAT_SUMMARIZATION_USAGE = 9;
+
+  CLOUD_RECORDING = 10;
+  RTMP_RECORDING = 11;
 }
 
 // FileInfo contains details about a generated file artifact.

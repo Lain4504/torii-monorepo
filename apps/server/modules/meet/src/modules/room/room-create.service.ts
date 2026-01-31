@@ -38,6 +38,7 @@ import { FileService } from '../file/file.service';
 import { acquireRoomCreationLockWithRetry } from './room-lock.helper';
 
 import { RoomDurationService } from './room-duration.service';
+import { NatsRoomEventsService } from '../../interfaces/nats/nats-room-events.service';
 
 /**
  * RoomCreateService handles the creation of new rooms
@@ -56,6 +57,7 @@ export class RoomCreateService {
         private readonly roomInfoService: RoomInfoService,
         private readonly fileService: FileService,
         private readonly roomDurationService: RoomDurationService,
+        private readonly natsRoomEvents: NatsRoomEventsService,
     ) { }
 
     /**
@@ -92,7 +94,7 @@ export class RoomCreateService {
             const { roomInfo, sid } = this.prepareRoomDbInfo(req, roomDbInfo);
 
             // Step 6: Save to database using atomic upsert
-            // Returns full object with ID - matches GORM Save() behavior
+            // Returns full object with ID
             const savedRoomInfo = await this.roomInfoService.insertOrUpdateRoomInfo({
                 id: roomInfo.id,
                 roomTitle: roomInfo.roomTitle,
@@ -117,16 +119,8 @@ export class RoomCreateService {
             await this.natsStream.createRoomNatsStreams(req.roomId);
             log.log(`NATS streams created: ${req.roomId}`);
 
-            // Step 8.5: Add room duration info if set
-            if (req.metadata?.roomFeatures?.roomDuration) {
-                const duration = Number(req.metadata.roomFeatures.roomDuration);
-                if (duration > 0) {
-                    await this.roomDurationService.addRoomWithDurationInfo(req.roomId, {
-                        duration: duration,
-                        startedAt: roomInfo.creationTime, // Using the creation time set in DB/model
-                    });
-                }
-            }
+            // Step 8.5: Room duration info will be added in WebhookService.roomStarted
+            // This ensures duration starts precisely when the room "starts" for users.
 
 
             // Step 9: Get room info from NATS
@@ -261,7 +255,7 @@ export class RoomCreateService {
 
         // Copyright configuration
         const copyrightDisplay = this.configService.get<boolean>('COPYRIGHT_DISPLAY') !== false;
-        const copyrightText = this.configService.get<string>('COPYRIGHT_TEXT') || 'Developed by MiraiMagicLab';
+        const copyrightText = this.configService.get<string>('COPYRIGHT_TEXT') || 'Powered by <a href="https://www.plugnmeet.org" target="_blank">plugNmeet</a>';
         const copyrightAllowOverride = this.configService.get<boolean>('COPYRIGHT_ALLOW_OVERRIDE') || false;
 
         const defaultCopyright = create(CopyrightConfSchema, {
@@ -377,7 +371,7 @@ export class RoomCreateService {
             metadata.roomFeatures!.whiteboardFeatures!.totalPages = result.totalPages;
 
             // Update and broadcast room metadata
-            await this.natsRoom.updateRoomMetadata(roomId, metadata);
+            await this.natsRoomEvents.updateAndBroadcastRoomMetadata(roomId, metadata);
 
             this.logger.log(`Preloaded whiteboard file processed successfully`);
         } catch (error) {

@@ -131,7 +131,7 @@
     "javascript.preferred.runtime.type.id": "node",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/home/lain4504/SEP490/torii-monorepo",
+    "last_opened_file_path": "/home/lain4504/outsource/ten-framework/ai_agents/agents/examples/voice-assistant-with-turn-detection",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -331,6 +331,7 @@
       <workItem from="1769215771483" duration="3323000" />
       <workItem from="1769677668828" duration="174000" />
       <workItem from="1769776646079" duration="635000" />
+      <workItem from="1769784933135" duration="31000" />
     </task>
     <task id="LOCAL-00698" summary="build aadmin">
       <option name="closed" value="true" />

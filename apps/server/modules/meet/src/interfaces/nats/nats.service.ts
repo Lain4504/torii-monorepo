@@ -9,7 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import { create, toJson, fromJson, toJsonString, fromJsonString } from '@bufbuild/protobuf';
 import type { RoomMetadata, UserMetadata } from '@workspace/protocol';
-import { RoomMetadataSchema, UserMetadataSchema } from '@workspace/protocol';
+import { RoomMetadataSchema, UserMetadataSchema, RecorderInfoKeys } from '@workspace/protocol';
 import { NatsCacheService } from './nats-cache.service';
 import {
     connect,
@@ -19,7 +19,15 @@ import {
     nkeyAuthenticator,
     DeliverPolicy,
     KV,
+    KvEntry,
 } from 'nats';
+
+export interface RecorderInfo {
+    recorderId: string;
+    maxLimit: bigint;
+    currentProgress: bigint;
+    lastPing: bigint;
+}
 
 // Constants
 const NATS_PREFIX = 'wajlc-';
@@ -630,11 +638,81 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     }
 
     /**
+     * getAllActiveRecorders finds all active recorders from NATS KV
+     * Logic matches pkg/services/nats/recorder.go:18
+     */
+    async getAllActiveRecorders(): Promise<RecorderInfo[]> {
+        const recorders: RecorderInfo[] = [];
+        const prefix = this.configService.get<string>('NATS_RECORDER_INFO_KV') || 'recorderInfo';
+        const searchPrefix = `KV_${NATS_PREFIX}${prefix}-`;
+
+        try {
+            const streams = await this.jsm.streams.list();
+            const validThreshold = BigInt(Date.now() - 8000); // 8 seconds threshold like in Go
+
+            for await (const s of streams) {
+                if (s.config.name.startsWith(searchPrefix)) {
+                    const recorderId = s.config.name.replace(searchPrefix, '');
+                    const info = await this.getRecorderInfo(recorderId);
+                    if (info && info.lastPing >= validThreshold) {
+                        recorders.push(info);
+                    }
+                }
+            }
+        } catch (error) {
+            this.logger.error(`Failed to list recorders: ${error.message}`);
+        }
+
+        return recorders;
+    }
+
+    async getRecorderInfo(recorderId: string): Promise<RecorderInfo | null> {
+        const prefix = this.configService.get<string>('NATS_RECORDER_INFO_KV') || 'recorderInfo';
+        const bucketName = `${NATS_PREFIX}${prefix}-${recorderId}`;
+        const kv = await this.getKV(bucketName);
+        if (!kv) return null;
+
+        try {
+            // Keys from plugnmeet protocol (RecorderInfoKeys)
+            const maxLimit = await this.getInt64Value(kv, RecorderInfoKeys.RECORDER_INFO_MAX_LIMIT.toString());
+            const lastPing = await this.getInt64Value(kv, RecorderInfoKeys.RECORDER_INFO_LAST_PING.toString());
+            const currentProgress = await this.getInt64Value(kv, RecorderInfoKeys.RECORDER_INFO_CURRENT_PROGRESS.toString());
+
+            return {
+                recorderId,
+                maxLimit,
+                currentProgress,
+                lastPing,
+            };
+        } catch (error) {
+            this.logger.error(`Failed to get recorder info for ${recorderId}: ${error.message}`);
+            return null;
+        }
+    }
+
+    private async getKV(bucket: string): Promise<KV | null> {
+        try {
+            return await this.js.views.kv(bucket);
+        } catch (error) {
+            return null;
+        }
+    }
+
+    private async getInt64Value(kv: KV, key: string): Promise<bigint> {
+        try {
+            const entry = await kv.get(key);
+            if (entry && entry.value) {
+                return BigInt(new TextDecoder().decode(entry.value));
+            }
+        } catch (e) { }
+        return BigInt(0);
+    }
+
+    /**
      * BroadcastSystemNotificationToRoom broadcasts a system notification
      */
     async broadcastSystemNotificationToRoom(roomId: string, msg: string, type: any, hideAction: boolean, userId?: string): Promise<void> {
-        // Implement similar to Go BroadcastSystemNotificationToRoom
-        const event = 7; // RESP_SYSTEM_NOTIFICATION in Go
+        const event = 7; // RESP_SYSTEM_NOTIFICATION
         const notification = JSON.stringify({
             msg,
             type,

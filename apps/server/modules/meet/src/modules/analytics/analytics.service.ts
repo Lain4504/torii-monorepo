@@ -140,8 +140,8 @@ export class AnalyticsService {
 
         const uInfo = create(AnalyticsRedisUserInfoSchema, {
             name: d.userName,
-            isAdmin: umeta.is_admin ?? false,
-            exUserId: umeta.ex_user_id,
+            isAdmin: umeta.isAdmin ?? false,
+            exUserId: umeta.exUserId,
         });
 
         const userInfoJson = toJsonString(AnalyticsRedisUserInfoSchema, uInfo);

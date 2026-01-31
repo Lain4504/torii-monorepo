@@ -20,9 +20,10 @@ import { LiveKitService } from '../../infrastructure/livekit/livekit.service';
 import { WajlcAuthService } from '../../modules/auth/wajlc-auth.service';
 import { AnalyticsModule } from '../../modules/analytics/analytics.module';
 import { RoomModule } from '../../modules/room/room.module';
+import { SpeechToTextModule } from '../../modules/speech-to-text/speech-to-text.module';
 
 @Module({
-    imports: [SharedModule, forwardRef(() => AnalyticsModule), forwardRef(() => RoomModule)],
+    imports: [SharedModule, forwardRef(() => AnalyticsModule), forwardRef(() => RoomModule), SpeechToTextModule],
     controllers: [WebhookController],
     providers: [
         // NATS base

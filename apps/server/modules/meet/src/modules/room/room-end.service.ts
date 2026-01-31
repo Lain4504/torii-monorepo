@@ -14,7 +14,7 @@ import { NatsUserService } from '../../interfaces/nats/nats-user.service';
 import { RedisLockService } from '../../infrastructure/redis/redis-lock.service';
 import { RedisRoomService } from '../../infrastructure/redis/redis-room.service';
 import { LiveKitService } from '../../infrastructure/livekit/livekit.service';
-import { NatsMsgServerToClientEvents, CleanEtherpadReqSchema } from '@workspace/protocol';
+import { NatsMsgServerToClientEvents, CleanEtherpadReqSchema, RecordingReqSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 import { waitUntilRoomCreationCompletes } from './room-lock.helper';
 import { RoomInfoService } from './room-info.service';
@@ -25,6 +25,9 @@ import { EtherpadService } from '../etherpad/etherpad.service';
 import { BreakoutService } from '../breakout/breakout.service';
 import { FileService } from '../file/file.service';
 import { InsightsService } from '../insights/insights.service';
+import { RecordingService } from '../recording/recording.service';
+import { SpeechToTextService } from '../speech-to-text/speech-to-text.service';
+import { RecordingTasks } from '@workspace/protocol';
 
 /**
  * RoomEndService handles room termination and cleanup
@@ -51,6 +54,8 @@ export class RoomEndService {
         private readonly breakoutService: BreakoutService,
         private readonly fileService: FileService,
         private readonly insightsService: InsightsService,
+        private readonly recordingService: RecordingService,
+        private readonly speechToText: SpeechToTextService,
     ) { }
 
     /**
@@ -249,8 +254,15 @@ export class RoomEndService {
         }
 
         // Step 6: Send a stop signal to any active recorders for this room
-        // TODO: Implement recorder model
-        // await this.recorderModel.sendMsgToRecorder({ task: 'STOP', sid: roomSID, roomId: roomId });
+        try {
+            await this.recordingService.sendMsgToRecorder(create(RecordingReqSchema, {
+                task: RecordingTasks.STOP,
+                sid: roomSID,
+                roomId: roomId,
+            }));
+        } catch (error) {
+            this.logger.error(`Error sending stop to recorder: ${error.message}`);
+        }
 
         // Step 7: Delete all uploaded files for this session (if not configured to keep)
         const keepFilesForever = this.configService.get<boolean>('UPLOAD_KEEP_FOREVER', false);
@@ -271,7 +283,7 @@ export class RoomEndService {
 
         // Step 9: Clean up any associated Etherpad (shared notepad) pads
         try {
-            await this.etherpadService.cleanAfterRoomEnd(create(CleanEtherpadReqSchema, { roomId }));
+            await this.etherpadService.cleanAfterRoomEnd(create(CleanEtherpadReqSchema, { roomId }), metadata);
         } catch (error) {
             this.logger.error(`Error cleaning up Etherpad: ${error.message}`);
         }
@@ -291,8 +303,11 @@ export class RoomEndService {
         }
 
         // Step 12: Finalize and clean up any speech-to-text service usage stats
-        // TODO: Implement speech service
-        // await this.speechToText.onAfterRoomEnded(roomId, roomSID);
+        try {
+            await this.speechToText.onAfterRoomEnded(roomId, roomSID);
+        } catch (error) {
+            this.logger.error(`Error in speech service cleanup: ${error.message}`);
+        }
 
         // Step 13: End all the agent tasks for this room and create usage artifacts
         try {
@@ -311,8 +326,9 @@ export class RoomEndService {
         this.logger.log(`Room has been cleaned properly: ${roomId}`);
 
         // Step 15: Schedule the analytics export to run after a delay
+        const analyticsDelay = this.configService.get<number>('WAIT_BEFORE_ANALYTICS_START_PROCESSING', 10000);
         setTimeout(() => {
             this.analyticsService.prepareToExportAnalytics(roomId, roomSID, metadata);
-        }, 10000); // 10 seconds delay
+        }, analyticsDelay);
     }
 }
