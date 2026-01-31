@@ -1153,6 +1153,16 @@ export class AuthService implements IAuthService {
     }
 
     /**
+     * Generate refresh token for a user using a stable session ID
+     */
+    async generateRefreshToken(userId: string, sessionId: string): Promise<string> {
+        return this.jwtTokenProvider.generateRefreshToken({
+            sub: userId,
+            sid: sessionId,
+        });
+    }
+
+    /**
      * Helper to emit login activity for gamification
      */
     private emitLoginActivity(userId: string) {

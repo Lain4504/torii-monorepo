@@ -22,83 +22,70 @@ export class SessionService implements ISessionService {
         userId: string,
         metadata: { ipAddress?: string; userAgent?: string } = {}
     ): Promise<string> {
-        const sid = randomUUID();
+        // 1. Pre-generate the stable session ID (sid)
+        const sessionId = randomUUID();
 
-        // Generate JWT
+        // 2. Generate JWT using this sid
         const refreshToken = await this.jwtProvider.generateRefreshToken({
             sub: userId,
-            sid,
+            sid: sessionId,
         });
 
-        // Hash token for storage
+        // 3. Hash the token for storage
         const tokenHash = this.hashToken(refreshToken);
 
-        // Parse User Agent
-        let deviceInfo = 'Unknown Device';
-        if (metadata.userAgent) {
-            deviceInfo = metadata.userAgent.substring(0, 100); // Simple truncation for now
-        }
-
-        // Store in database
+        // 4. Create session record in one atomic operation
         await this.prisma.session.create({
             data: {
+                id: sessionId, // Use the pre-generated ID
                 userId,
                 tokenHash,
                 expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
                 ipAddress: metadata.ipAddress,
                 userAgent: metadata.userAgent,
-                deviceInfo,
+                deviceInfo: metadata.userAgent ? metadata.userAgent.substring(0, 100) : 'Unknown Device',
             },
         });
 
-        this.logger.log(`Session created for user ${userId} on ${deviceInfo}`);
+        this.logger.log(`Session ${sessionId} created for user ${userId}`);
         return refreshToken;
     }
 
     /**
      * Verify a refresh token and return session info
-     * @returns Payload if valid, null if invalid/expired/revoked
      */
     async verifySession(token: string): Promise<RefreshTokenPayload | null> {
         try {
-            // 1. Verify JWT signature and expiration
             const payload = await this.jwtProvider.verifyRefreshToken(token);
-            if (!payload) {
-                return null;
-            }
+            if (!payload) return null;
 
-            // 2. Check if session exists in database and is not revoked
             const tokenHash = this.hashToken(token);
             const storedSession = await this.prisma.session.findUnique({
-                where: { tokenHash },
+                where: { id: payload.sid },
                 select: {
                     id: true,
                     userId: true,
+                    tokenHash: true,
                     expiresAt: true,
                     revokedAt: true,
                 },
             });
 
-            if (!storedSession) {
-                this.logger.warn(`Session not found in database: ${payload.sid}`);
+            // Security: If sid not found OR hash doesn't match, it's a potential replay attack
+            if (!storedSession || storedSession.tokenHash !== tokenHash) {
+                if (storedSession) {
+                    this.logger.warn(`REPLAY ATTACK DETECTED for session ${storedSession.id}. Revoking...`);
+                    await this.revokeSession(tokenHash);
+                }
                 return null;
             }
 
-            // 3. Check if revoked
-            if (storedSession.revokedAt) {
-                this.logger.warn(`Attempted use of revoked session: ${payload.sid}`);
-                return null;
-            }
-
-            // 4. Check if expired (double-check in case JWT verification passed)
-            if (storedSession.expiresAt < new Date()) {
-                this.logger.warn(`Session expired: ${payload.sid}`);
+            if (storedSession.revokedAt || storedSession.expiresAt < new Date()) {
                 return null;
             }
 
             return payload;
         } catch (error) {
-            this.logger.error(`Error verifying session: ${error}`);
             return null;
         }
     }
@@ -184,5 +171,82 @@ export class SessionService implements ISessionService {
      */
     hashTokenPublic(token: string): string {
         return this.hashToken(token);
+    }
+
+    /**
+     * Get all active sessions for a user
+     */
+    async getUserSessions(userId: string): Promise<any[]> {
+        return this.prisma.session.findMany({
+            where: {
+                userId,
+                revokedAt: null,
+                expiresAt: { gt: new Date() },
+            },
+            select: {
+                id: true,
+                ipAddress: true,
+                userAgent: true,
+                deviceInfo: true,
+                createdAt: true,
+                tokenHash: true, // Needed to identify "current" session on frontend
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+    }
+
+    /**
+     * Revoke a specific session by its database ID
+     */
+    async revokeSessionById(sessionId: string, userId: string): Promise<void> {
+        try {
+            await this.prisma.session.update({
+                where: {
+                    id: sessionId,
+                    userId, // Security: ensure user owns the session
+                },
+                data: {
+                    revokedAt: new Date(),
+                },
+            });
+            this.logger.log(`Session ${sessionId} revoked by user ${userId}`);
+        } catch (error) {
+            this.logger.error(`Error revoking session ${sessionId}: ${error}`);
+        }
+    }
+
+    /**
+     * Revoke all sessions for a user EXCEPT the current one
+     */
+    async revokeAllOtherUserSessions(userId: string, currentTokenHash: string): Promise<void> {
+        try {
+            const result = await this.prisma.session.updateMany({
+                where: {
+                    userId,
+                    tokenHash: { not: currentTokenHash },
+                    revokedAt: null,
+                },
+                data: {
+                    revokedAt: new Date(),
+                },
+            });
+            this.logger.log(`Revoked ${result.count} other sessions for user ${userId}`);
+        } catch (error) {
+            this.logger.error(`Error revoking other user sessions: ${error}`);
+        }
+    }
+
+    /**
+     * Update the token hash for an existing session (Rotation)
+     */
+    async updateSessionTokenHash(sessionId: string, newTokenHash: string): Promise<void> {
+        await this.prisma.session.update({
+            where: { id: sessionId },
+            data: {
+                tokenHash: newTokenHash
+            },
+        });
     }
 }
