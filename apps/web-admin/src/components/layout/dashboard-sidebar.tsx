@@ -59,7 +59,7 @@ export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: Sid
   const NavGroup = ({ title, items }: { title: string; items: NavItem[] }) => (
     <div className="py-2">
       {!isCollapsed && (
-        <h4 className="px-6 py-2 text-[10px] font-sans font-bold italic uppercase tracking-widest text-muted-foreground/40">
+        <h4 className="px-6 py-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40">
           {title}
         </h4>
       )}
@@ -152,7 +152,7 @@ export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: Sid
             </div>
             {!isCollapsed && (
               <div className="flex flex-col">
-                <span className="text-lg font-sans font-bold italic tracking-tight text-foreground">Torii <span className="text-primary">Admin</span></span>
+                <span className="text-lg font-bold tracking-tight text-foreground">Torii <span className="text-primary">Admin</span></span>
                 <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-wider">{t('sidebar.workspace')}</span>
               </div>
             )}
@@ -185,7 +185,7 @@ export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: Sid
                   </Avatar>
                   <div className="flex flex-col min-w-0">
                     <span className="truncate text-[13px] font-semibold text-foreground/80">{user?.displayName || t('sidebar.defaultUser')}</span>
-                    <span className="truncate text-[10px] font-sans font-bold italic text-muted-foreground/40 uppercase tracking-wider">{user?.role || t('sidebar.defaultRole')}</span>
+                    <span className="truncate text-[10px] font-bold text-muted-foreground/40 uppercase tracking-wider">{user?.role || t('sidebar.defaultRole')}</span>
                   </div>
                 </div>
               </>

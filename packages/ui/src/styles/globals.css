@@ -8,42 +8,25 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Riki Education Palette */
-  /* Clean White Background */
   --background: oklch(0.99 0.002 200);
-  /* Dark Teal/Grey Text */
   --foreground: oklch(0.25 0.02 200);
-
-  /* Pure White Cards */
   --card: oklch(1.00 0 0);
   --card-foreground: oklch(0.25 0.02 200);
-
   --popover: oklch(1.00 0 0);
   --popover-foreground: oklch(0.25 0.02 200);
-
-  /* Riki Primary (Java Cyan) #1CBDC4 */
   --primary: oklch(0.727 0.120 199.719);
   --primary-foreground: oklch(1.00 0 0);
-
-  /* Soft Cyan Neutral */
   --secondary: oklch(0.96 0.01 200);
   --secondary-foreground: oklch(0.35 0.05 199.719);
-
   --muted: oklch(0.97 0.01 200);
   --muted-foreground: oklch(0.55 0.03 200);
-
-  /* Accent - Lightest Cyan */
   --accent: oklch(0.94 0.03 199.719);
   --accent-foreground: oklch(0.25 0.02 200);
-
-  /* Riki Red (Totem Pole) #A10707 */
   --destructive: oklch(0.448 0.180 28.760);
   --destructive-foreground: oklch(1.00 0 0);
-
   --border: oklch(0.92 0.01 200);
   --input: oklch(0.92 0.01 200);
   --ring: oklch(0.727 0.120 199.719);
-
   --chart-1: oklch(0.727 0.120 199.719);
   --chart-2: oklch(0.448 0.180 28.760);
   --chart-3: oklch(0.85 0.14 85);
@@ -59,7 +42,6 @@
   --sidebar-border: oklch(0.94 0.01 200);
   --sidebar-ring: oklch(0.727 0.120 199.719);
 
-  /* Specs */
   --radius: 0.5rem;
   --shadow-sm: 0px 1px 2px oklch(0 0 0 / 0.05);
   --shadow: 0px 4px 6px -1px oklch(0 0 0 / 0.05), 0px 2px 4px -1px oklch(0 0 0 / 0.03);
@@ -73,37 +55,25 @@
 }
 
 .dark {
-  /* Riki Modern Dark */
-  /* Dark Slate with Cyan hint */
   --background: oklch(0.15 0.02 200);
   --foreground: oklch(0.98 0.00 0);
-
   --card: oklch(0.18 0.02 200);
   --card-foreground: oklch(0.98 0.00 0);
-
   --popover: oklch(0.18 0.02 200);
   --popover-foreground: oklch(0.98 0.00 0);
-
-  /* Primary stays vibrant */
   --primary: oklch(0.727 0.120 199.719);
   --primary-foreground: oklch(1.00 0 0);
-
   --secondary: oklch(0.25 0.03 200);
   --secondary-foreground: oklch(0.98 0.00 0);
-
   --muted: oklch(0.25 0.02 200);
   --muted-foreground: oklch(0.70 0.03 200);
-
   --accent: oklch(0.28 0.04 199.719);
   --accent-foreground: oklch(0.98 0.00 0);
-
   --destructive: oklch(0.55 0.15 28.760);
   --destructive-foreground: oklch(0.98 0.00 0);
-
   --border: oklch(0.28 0.03 200);
   --input: oklch(0.28 0.03 200);
   --ring: oklch(0.727 0.120 199.719);
-
   --chart-1: oklch(0.727 0.120 199.719);
   --chart-2: oklch(0.55 0.15 28.760);
   --chart-3: oklch(0.75 0.15 85);

@@ -102,23 +102,21 @@ export default function CoursesPage() {
     <div className="space-y-6 animate-in fade-in duration-700 pb-10">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
-        <div className="space-y-4 max-w-2xl">
-          <h1 className="text-3xl md:text-4xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
-            Quản lý <span className="text-primary not-italic">Khóa học</span>
-          </h1>
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-bold tracking-tight">Quản lý Khóa học</h1>
+          <p className="text-sm text-muted-foreground">
             Hệ sinh thái chương trình giảng dạy Torii Academy
           </p>
         </div>
         <div className="flex items-center gap-4">
           <div className="hidden lg:flex flex-col items-end px-4 border-r border-border/40">
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic">Tổng số khóa học</span>
+            <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-wider">Tổng số khóa học</span>
             <span className="text-2xl font-bold text-foreground tabular-nums">{meta?.total.toLocaleString() || 0}</span>
           </div>
           <Can permission="course.create">
             <Button
               onClick={() => setShowCreateDialog(true)}
-              className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-sans font-bold italic text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 hover:shadow-md transition-all"
+              className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 hover:shadow-md transition-all"
             >
               Tạo Khóa học Mới
               <Plus className="ml-2 size-4" />

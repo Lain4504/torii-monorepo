@@ -19,6 +19,7 @@ export class UsersRepository implements IUsersRepository {
     async findById(userId: string): Promise<User | null> {
         return this.prisma.user.findUnique({
             where: { id: userId },
+            include: { identities: true },
         });
     }
 
@@ -45,6 +46,7 @@ export class UsersRepository implements IUsersRepository {
             skip: options.skip,
             take: options.take,
             orderBy: options.orderBy || { createdAt: 'desc' },
+            include: { identities: true },
         });
     }
 
