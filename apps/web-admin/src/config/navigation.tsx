@@ -104,11 +104,16 @@ export const managementNavItems: NavItem[] = [
         descriptionKey: "Quản lý ticket & hoàn tiền",
     },
     {
-        titleKey: "Báo cáo nội dung",
-        url: "/analytics",
+        titleKey: "Phân tích Hệ thống",
+        url: "/analytics/revenue",
         icon: BarChart3,
         permission: "report.view",
         descriptionKey: "common:navDescriptions.analytics",
+        items: [
+            { titleKey: "Doanh thu & Thu nhập", url: "/analytics/revenue", permission: "report.view" },
+            { titleKey: "Hiệu suất Học tập", url: "/analytics/learning", permission: "report.view" },
+            { titleKey: "Học viên & Tương tác", url: "/analytics/users", permission: "report.view" },
+        ]
     },
 ];
 

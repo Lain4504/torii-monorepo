@@ -10,7 +10,9 @@ import { ThemeProvider } from "@/lib/providers/theme-provider.tsx"
 import DashboardLayout from "@/components/layout/dashboard-layout.tsx";
 // Feature imports
 import DashboardPage from '@/routes/dashboard/dashboard-page.tsx'
-import AnalyticsPage from '@/routes/dashboard/analytics-page.tsx'
+import RevenueAnalytics from '@/routes/analytics/revenue-analytics.tsx'
+import LearningAnalytics from '@/routes/analytics/learning-analytics.tsx'
+import UserAnalytics from '@/routes/analytics/user-analytics.tsx'
 import { UsersPage } from '@/routes/users/users-page.tsx'
 import CouponsPage from '@/routes/coupons/coupons-page.tsx'
 import CoursesPage from '@/routes/courses/courses-page.tsx'
@@ -102,7 +104,9 @@ function App() {
                 </Route>
 
                 <Route element={<RoutePermissionGuard permission="report.view" />}>
-                  <Route path="analytics" element={<AnalyticsPage />} />
+                  <Route path="analytics/revenue" element={<RevenueAnalytics />} />
+                  <Route path="analytics/learning" element={<LearningAnalytics />} />
+                  <Route path="analytics/users" element={<UserAnalytics />} />
                 </Route>
 
                 <Route element={<RoutePermissionGuard permission="system.config" />}>

@@ -56,6 +56,7 @@ import { FlashcardReviewHandler } from './interfaces/nats/flashcard-review.handl
 import { LearningProgressHandler } from './interfaces/nats/learning-progress.handler';
 import { LiveSessionHandler } from './interfaces/nats/live-session.handler';
 import { CouponHandler } from './interfaces/nats/coupon.handler';
+import { AnalyticsHandler } from './interfaces/nats/analytics.handler';
 
 @Module({
   imports: [
@@ -116,6 +117,7 @@ import { CouponHandler } from './interfaces/nats/coupon.handler';
     LearningProgressHandler,
     LiveSessionHandler,
     CouponHandler,
+    AnalyticsHandler,
   ],
   providers: [
     {

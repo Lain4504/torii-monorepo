@@ -2,7 +2,7 @@ import { Controller, Inject } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { TICKET_SERVICE_TOKEN } from '../../interfaces/services';
 import { ITicketService } from '../../interfaces/services';
-import { CreateTicketDTO, TicketQueryDTO, UpdateTicketStatusDTO } from '@workspace/schemas';
+import { CreateTicketDTO, TicketQueryDTO, UpdateTicketStatusDTO, TicketStatus } from '@workspace/schemas';
 
 @Controller()
 export class TicketHandler {
@@ -29,5 +29,18 @@ export class TicketHandler {
     @MessagePattern({ cmd: 'communication.ticket.updateStatus' })
     async updateTicketStatus(@Payload() payload: { id: string; handlerId: string; dto: UpdateTicketStatusDTO }) {
         return this.ticketService.updateTicketStatus(payload.id, payload.handlerId, payload.dto);
+    }
+
+    @MessagePattern({ cmd: 'communication.analytics.tickets' })
+    async getTicketStats() {
+        const tickets = await this.ticketService.getTickets({ limit: 1000, page: 1 });
+        const pendingCount = tickets.data.filter(t => t.status === TicketStatus.PENDING).length;
+        const refundCount = tickets.data.filter(t => t.type === 'REFUND' && t.status === TicketStatus.PENDING).length;
+
+        return {
+            pendingCount,
+            refundCount,
+            totalCount: tickets.total
+        };
     }
 }
