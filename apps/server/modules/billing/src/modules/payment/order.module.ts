@@ -3,6 +3,7 @@ import { PrismaModule, NatsClientModule } from '@server/shared';
 import { OrderService } from './order.service';
 import { OrderRepository } from './order.repository';
 import { PayOSService } from './payos.service';
+import { PaymentCron } from './payment.cron';
 import { ORDER_SERVICE_TOKEN, ORDER_REPOSITORY_TOKEN } from '../../interfaces';
 import { CouponModule } from '../coupon/coupon.module';
 
@@ -14,6 +15,7 @@ import { CouponModule } from '../coupon/coupon.module';
     providers: [
         OrderService,
         PayOSService,
+        PaymentCron,
         {
             provide: ORDER_SERVICE_TOKEN,
             useClass: OrderService,

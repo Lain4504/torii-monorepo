@@ -1,6 +1,5 @@
 import { Injectable, Logger, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { Cron, CronExpression } from '@nestjs/schedule';
 import {
     type OrderCreateDTO,
     type OrderQueryDTO,
@@ -37,12 +36,9 @@ export class OrderService implements IOrderService {
     ) { }
 
     /**
-     * Cronjob to auto-cancel pending orders that are older than 30 minutes
-     * Runs every 5 minutes
+     * Logic to auto-cancel pending orders that are older than 30 minutes
      */
-    @Cron(CronExpression.EVERY_5_MINUTES)
-    async handleAutoCancelOrders() {
-        this.logger.log('Running cronjob: Auto-cancel pending orders older than 30 minutes');
+    async autoCancelExpiredOrders() {
         try {
             const thirtyMinutesAgo = new Date();
             thirtyMinutesAgo.setMinutes(thirtyMinutesAgo.getMinutes() - 30);
@@ -63,7 +59,8 @@ export class OrderService implements IOrderService {
                 this.logger.log(`Auto-cancelled ${count} pending orders`);
             }
         } catch (error: any) {
-            this.logger.error(`Error in auto-cancel orders cronjob: ${error.message}`, error.stack);
+            this.logger.error(`Error in auto-cancel orders logic: ${error.message}`, error.stack);
+            throw error;
         }
     }
 
