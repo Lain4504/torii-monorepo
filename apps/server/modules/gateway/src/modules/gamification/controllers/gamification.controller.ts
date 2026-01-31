@@ -1,6 +1,7 @@
 import {
     Controller,
     Get,
+    Post,
     Inject,
     Req,
     UseGuards,
@@ -49,6 +50,39 @@ export class GamificationController {
         } catch (error: any) {
             this.logger.error(`Failed to get achievements for user ${user.sub}`, error.stack);
             return errorResponse(error.message || 'Failed to fetch achievements');
+        }
+    }
+
+    @Post('record-activity')
+    async recordActivity(@Req() req: Request) {
+        const user = req.user as any;
+        const { activityType, meta } = req.body;
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send('gamification.recordActivity', { 
+                    userId: user.sub,
+                    activityType,
+                    meta
+                })
+            );
+            return successResponse(result);
+        } catch (error: any) {
+            this.logger.error(`Failed to record activity for user ${user.sub}`, error.stack);
+            return errorResponse(error.message || 'Failed to record activity');
+        }
+    }
+
+    @Post('mark-toast-shown')
+    async markToastShown(@Req() req: Request) {
+        const user = req.user as any;
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send('gamification.markStreakToastShown', { userId: user.sub })
+            );
+            return successResponse(result);
+        } catch (error: any) {
+            this.logger.error(`Failed to mark toast as shown for user ${user.sub}`, error.stack);
+            return errorResponse(error.message || 'Failed to mark toast as shown');
         }
     }
 }

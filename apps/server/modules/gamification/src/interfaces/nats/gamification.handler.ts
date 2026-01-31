@@ -60,4 +60,14 @@ export class GamificationHandler {
         await this.streakService.grantFreeze(data.userId, data.amount);
         return { success: true };
     }
+
+    /**
+     * Mark streak toast as shown for today
+     */
+    @MessagePattern('gamification.markStreakToastShown')
+    async markStreakToastShown(@Payload() data: { userId: string }) {
+        this.logger.log(`Marking streak toast as shown for user: ${data.userId}`);
+        await this.streakService.markStreakToastShown(data.userId);
+        return { success: true };
+    }
 }

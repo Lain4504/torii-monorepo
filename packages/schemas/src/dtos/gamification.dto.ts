@@ -57,9 +57,12 @@ export const StreakStatusDtoSchema = z.object({
     isActiveToday: z.boolean(),
     willBreakTomorrow: z.boolean(),
     lastActiveDate: z.string().nullable(),
+    lastToastShownDate: z.string().nullable(),
     totalActiveDays: z.number().int(),
     weeklyActiveCount: z.number().int(),
     monthlyActiveCount: z.number().int(),
+    recentActiveDates: z.array(z.string()).optional(),
+    shouldShowToast: z.boolean().optional(),
 });
 
 export type StreakStatusDto = z.infer<typeof StreakStatusDtoSchema>;

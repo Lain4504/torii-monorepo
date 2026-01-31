@@ -1,4 +1,4 @@
-import { Injectable, Logger, Inject } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import { ClientProxy } from '@nestjs/microservices';
 import {
@@ -14,6 +14,7 @@ export class ActivityService {
 
     constructor(
         private readonly prisma: PrismaService,
+        @Inject(forwardRef(() => StreakService))
         private readonly streakService: StreakService,
         private readonly achievementService: AchievementService,
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
@@ -125,11 +126,33 @@ export class ActivityService {
         };
     }
 
+    /**
+     * Get user's active dates for the last N days
+     */
+    async getWeeklyActiveDates(userId: string, days: number = 7): Promise<string[]> {
+        const startDate = this.getDaysAgo(days);
+        const activities = await this.prisma.dailyActivity.findMany({
+            where: {
+                userId,
+                date: { gte: startDate },
+            },
+            select: { date: true },
+            distinct: ['date'],
+        });
+        return activities.map((a) => a.date);
+    }
+
     // ========================================
     // Helper Methods
     // ========================================
 
     private getToday(): string {
-        return new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+        return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
+    }
+
+    private getDaysAgo(days: number): string {
+        const date = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }));
+        date.setDate(date.getDate() - days);
+        return date.toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
     }
 }

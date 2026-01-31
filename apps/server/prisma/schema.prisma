@@ -1209,6 +1209,7 @@ model UserStreak {
 
   // Date tracking (YYYY-MM-DD format for timezone safety)
   lastActiveDate String? @map("last_active_date") @db.VarChar(10)
+  lastToastShownDate String? @map("last_toast_shown_date") @db.VarChar(10) // Track when toast was last shown
 
   // Streak protection
   freezeCount Int @default(0) @map("freeze_count")

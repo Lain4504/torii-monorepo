@@ -1,12 +1,17 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import { StreakStatusDto } from '@workspace/schemas';
+import { ActivityService } from './activity.service';
 
 @Injectable()
 export class StreakService {
     private readonly logger = new Logger(StreakService.name);
 
-    constructor(private readonly prisma: PrismaService) { }
+    constructor(
+        private readonly prisma: PrismaService,
+        @Inject(forwardRef(() => ActivityService))
+        private readonly activityService: ActivityService,
+    ) { }
 
     /**
      * Get user's current streak status
@@ -28,6 +33,12 @@ export class StreakService {
         const yesterday = this.getYesterday();
         const willBreakTomorrow = !isActiveToday && streak.lastActiveDate !== yesterday;
 
+        // Logic: Show toast if active today BUT haven't shown toast today yet
+        const shouldShowToast = isActiveToday && streak.lastToastShownDate !== today;
+
+        // Fetch recent active dates (last 7 days) using ActivityService
+        const recentActiveDates = await this.activityService.getWeeklyActiveDates(userId, 7);
+
         return {
             currentStreak: streak.currentStreak,
             longestStreak: streak.longestStreak,
@@ -35,10 +46,27 @@ export class StreakService {
             isActiveToday,
             willBreakTomorrow,
             lastActiveDate: streak.lastActiveDate,
+            lastToastShownDate: streak.lastToastShownDate,
             totalActiveDays: streak.totalActiveDays,
             weeklyActiveCount: streak.weeklyActiveCount,
             monthlyActiveCount: streak.monthlyActiveCount,
+            recentActiveDates,
+            shouldShowToast,
         };
+    }
+
+    /**
+     * Mark streak toast as shown for today
+     */
+    async markStreakToastShown(userId: string): Promise<void> {
+        const today = this.getToday();
+        await this.prisma.userStreak.update({
+            where: { userId },
+            data: {
+                lastToastShownDate: today
+            }
+        });
+        this.logger.log(`Marked streak toast as shown for user ${userId} on ${today}`);
     }
 
     /**
@@ -202,19 +230,19 @@ export class StreakService {
     // ========================================
 
     private getToday(): string {
-        return new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+        return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
     }
 
     private getYesterday(): string {
-        const date = new Date();
+        const date = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }));
         date.setDate(date.getDate() - 1);
-        return date.toISOString().split('T')[0];
+        return date.toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
     }
 
     private getDaysAgo(days: number): string {
-        const date = new Date();
+        const date = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }));
         date.setDate(date.getDate() - days);
-        return date.toISOString().split('T')[0];
+        return date.toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
     }
 
     private parseDateToUtc(dateStr: string): Date {

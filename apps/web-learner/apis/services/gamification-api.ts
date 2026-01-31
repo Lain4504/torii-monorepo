@@ -26,6 +26,25 @@ export const gamificationApi = {
         }
         throw new Error(response.data.message || 'Failed to fetch streak');
     },
+
+    /**
+     * Record user activity
+     */
+    async recordActivity(activityType: string, meta?: any): Promise<any> {
+        const response = await apiClient.post<StandardApiResponse<any>>('/api/gamification/record-activity', {
+            activityType,
+            meta
+        });
+        return response.data;
+    },
+
+    /**
+     * Mark streak toast as shown for today
+     */
+    async markToastShown(): Promise<any> {
+        const response = await apiClient.post<StandardApiResponse<any>>('/api/gamification/mark-toast-shown');
+        return response.data;
+    },
 };
 
 /**
@@ -89,6 +108,33 @@ export function useStreak(options?: { refetchInterval?: number; enableCelebratio
     }, [query.data, options?.enableCelebrations]);
 
     return query;
+}
+
+/**
+ * Hook: Record user activity
+ */
+export function useRecordActivity() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ type, meta }: { type: string; meta?: any }) => 
+            gamificationApi.recordActivity(type, meta),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['streak'] });
+        },
+    });
+}
+
+/**
+ * Hook: Mark streak toast as shown
+ */
+export function useMarkToastShown() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: gamificationApi.markToastShown,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['streak'] });
+        },
+    });
 }
 
 /**
