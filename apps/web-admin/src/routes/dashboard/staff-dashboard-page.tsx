@@ -51,11 +51,11 @@ export default function StaffDashboardPage() {
         <div className="space-y-6 animate-in fade-in-50 duration-500">
             {/* Header */}
             <div className="space-y-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-serif font-bold italic uppercase tracking-wide">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-sans font-bold italic uppercase tracking-wide">
                     <LayoutDashboard className="size-3.5" />
                     Tổng quan
                 </div>
-                <h1 className="text-3xl md:text-5xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+                <h1 className="text-3xl md:text-5xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
                     Bảng điều khiển <span className="text-primary not-italic">Nhân viên</span>
                 </h1>
                 <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">

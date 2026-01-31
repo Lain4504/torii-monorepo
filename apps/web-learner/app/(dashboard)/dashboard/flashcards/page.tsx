@@ -126,11 +126,11 @@ export default function FlashcardsPage() {
             {/* Header Section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div className="space-y-4">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-serif font-bold italic uppercase tracking-wide">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-sans font-bold italic uppercase tracking-wide">
                         <BrainCircuit className="size-3.5" />
                         Trí nhớ
                     </div>
-                    <h1 className="text-3xl md:text-5xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+                    <h1 className="text-3xl md:text-5xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
                         Kho <span className="text-primary not-italic">Thẻ Nhớ</span>
                     </h1>
                     <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
@@ -260,7 +260,7 @@ export default function FlashcardsPage() {
             <Dialog open={isDeckModalOpen} onOpenChange={setIsDeckModalOpen}>
                 <DialogContent className="sm:max-w-[425px] bg-background/80 backdrop-blur-2xl border-white/10 rounded-[2.5rem]">
                     <DialogHeader>
-                        <DialogTitle className="text-2xl font-serif font-bold italic uppercase tracking-tight">
+                        <DialogTitle className="text-2xl font-sans font-bold italic uppercase tracking-tight">
                             {editingDeck ? 'Cập nhật bộ thẻ' : 'Tạo bộ thẻ mới'}
                         </DialogTitle>
                         <DialogDescription className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">

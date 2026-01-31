@@ -88,7 +88,7 @@ export default function AchievementsPage() {
             <div className="space-y-6">
                 <div className="flex items-center gap-3">
                     <div className="w-1 h-8 bg-primary/40 rounded-full" />
-                    <h1 className="text-3xl md:text-4xl font-serif font-bold italic text-foreground uppercase tracking-tight">
+                    <h1 className="text-3xl md:text-4xl font-sans font-bold italic text-foreground uppercase tracking-tight">
                         Thành tích của bạn
                     </h1>
                 </div>
@@ -103,27 +103,27 @@ export default function AchievementsPage() {
                     <p className="text-[10px] text-muted-foreground/60 font-black uppercase tracking-widest mb-1">Tổng cộng</p>
                     <div className="flex items-center gap-3">
                         <Trophy className="w-4 h-4 text-blue-500" />
-                        <span className="text-xl font-serif font-bold italic text-foreground">{stats.total}</span>
+                        <span className="text-xl font-sans font-bold italic text-foreground">{stats.total}</span>
                     </div>
                 </div>
                 <div className="px-6 py-5 rounded-2xl border border-border/40 bg-card/40 backdrop-blur-xl shadow-sm">
                     <p className="text-[10px] text-muted-foreground/60 font-black uppercase tracking-widest mb-1">Đã đạt</p>
                     <div className="flex items-center gap-3">
                         <Star className="w-4 h-4 text-amber-500" />
-                        <span className="text-xl font-serif font-bold italic text-foreground">{stats.earned}</span>
+                        <span className="text-xl font-sans font-bold italic text-foreground">{stats.earned}</span>
                     </div>
                 </div>
                 <div className="px-6 py-5 rounded-2xl border border-border/40 bg-card/40 backdrop-blur-xl shadow-sm">
                     <p className="text-[10px] text-muted-foreground/60 font-black uppercase tracking-widest mb-1">Còn lại</p>
                     <div className="flex items-center gap-3">
                         <Target className="w-4 h-4 text-purple-500" />
-                        <span className="text-xl font-serif font-bold italic text-foreground">{stats.remaining}</span>
+                        <span className="text-xl font-sans font-bold italic text-foreground">{stats.remaining}</span>
                     </div>
                 </div>
                 <div className="px-6 py-5 rounded-2xl border border-border/40 bg-card/40 backdrop-blur-xl shadow-sm">
                     <p className="text-[10px] text-muted-foreground/60 font-black uppercase tracking-widest mb-1">Hoàn thành</p>
                     <div className="space-y-2">
-                        <span className="text-xl font-serif font-bold italic text-primary">{stats.percentage}%</span>
+                        <span className="text-xl font-sans font-bold italic text-primary">{stats.percentage}%</span>
                         <Progress value={stats.percentage} className="h-1 bg-primary/5" />
                     </div>
                 </div>
@@ -178,7 +178,7 @@ export default function AchievementsPage() {
                                 </div>
                                 <div className="flex-1 space-y-2">
                                     <div className="space-y-1">
-                                        <h3 className="text-base font-serif font-bold italic text-foreground">
+                                        <h3 className="text-base font-sans font-bold italic text-foreground">
                                             {achievement.title}
                                         </h3>
                                         <p className="text-xs text-muted-foreground/70 leading-relaxed">
@@ -210,7 +210,7 @@ export default function AchievementsPage() {
                         <Trophy className="w-10 h-10 text-muted-foreground/40" />
                     </div>
                     <div className="space-y-2">
-                        <h3 className="text-lg font-serif font-bold italic text-foreground">
+                        <h3 className="text-lg font-sans font-bold italic text-foreground">
                             Không có thành tích nào
                         </h3>
                         <p className="text-sm text-muted-foreground/60">

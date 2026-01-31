@@ -82,7 +82,7 @@ export default function ExamDetailPage() {
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="p-8">
-                            <p className="text-lg text-muted-foreground font-serif leading-relaxed">
+                            <p className="text-lg text-muted-foreground font-sans leading-relaxed">
                                 {exam.description}
                             </p>
                         </CardContent>

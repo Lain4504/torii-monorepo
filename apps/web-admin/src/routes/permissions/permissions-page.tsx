@@ -159,11 +159,11 @@ export function PermissionsPage() {
             {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
                 <div className="space-y-4 max-w-2xl">
-                    <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-serif font-bold italic tracking-wide uppercase mb-1">
+                    <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-sans font-bold italic tracking-wide uppercase mb-1">
                         <Lock className="size-3.5" />
                         Phân quyền Hệ thống
                     </div>
-                    <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+                    <h1 className="text-3xl md:text-4xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
                         Quản lý <span className="text-primary not-italic">Quyền truy cập</span>
                     </h1>
                     <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
@@ -187,7 +187,7 @@ export function PermissionsPage() {
                             {/* Permission Category Row */}
                             <TableRow className="hover:bg-transparent border-b border-border/50">
                                 <TableHead className="sticky left-0 z-40 bg-muted/50 border-r border-border h-12 px-6">
-                                    <span className="text-[10px] font-serif font-bold italic uppercase tracking-widest text-muted-foreground/60">
+                                    <span className="text-[10px] font-sans font-bold italic uppercase tracking-widest text-muted-foreground/60">
                                         Vai trò / Chức năng
                                     </span>
                                 </TableHead>
@@ -199,7 +199,7 @@ export function PermissionsPage() {
                                     >
                                         <div className="flex items-center justify-center gap-2">
                                             <Cpu className="size-3 text-primary/40" />
-                                            <span className="text-[10px] font-serif font-bold italic uppercase tracking-tight text-primary/70">
+                                            <span className="text-[10px] font-sans font-bold italic uppercase tracking-tight text-primary/70">
                                                 {category}
                                             </span>
                                         </div>
@@ -236,8 +236,8 @@ export function PermissionsPage() {
                                 <TableRow key={role.code} className="hover:bg-muted/20 transition-colors group">
                                     <TableCell className="sticky left-0 z-30 bg-background border-r border-border min-w-[200px] px-6 py-4 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] transition-colors group-hover:bg-muted/30">
                                         <div className="flex flex-col gap-0.5">
-                                            <span className="font-serif font-bold italic text-sm text-foreground group-hover:text-primary transition-colors">{role.name}</span>
-                                            <span className="text-[9px] font-serif font-bold italic text-muted-foreground/40 uppercase tracking-wider">{role.code}</span>
+                                            <span className="font-sans font-bold italic text-sm text-foreground group-hover:text-primary transition-colors">{role.name}</span>
+                                            <span className="text-[9px] font-sans font-bold italic text-muted-foreground/40 uppercase tracking-wider">{role.code}</span>
                                         </div>
                                     </TableCell>
                                     {permissions?.all.map((perm) => (
@@ -278,7 +278,7 @@ export function PermissionsPage() {
                     <div className="bg-background border border-border shadow-2xl rounded-2xl p-2 flex items-center justify-between gap-4">
                         <div className="flex items-center gap-3 ml-3">
                             <div className="size-2 rounded-full bg-primary animate-pulse" />
-                            <span className="text-[11px] font-serif font-bold italic text-foreground uppercase tracking-wider">Có thay đổi chưa lưu</span>
+                            <span className="text-[11px] font-sans font-bold italic text-foreground uppercase tracking-wider">Có thay đổi chưa lưu</span>
                         </div>
 
                         <div className="flex items-center gap-2">
@@ -290,7 +290,7 @@ export function PermissionsPage() {
                                 className="h-9 rounded-xl px-4 text-[11px] font-semibold text-muted-foreground hover:bg-muted"
                             >
                                 <RotateCcw className="size-3.5 mr-2" />
-                                <span className="font-serif font-bold italic uppercase tracking-widest">Hoàn tác</span>
+                                <span className="font-sans font-bold italic uppercase tracking-widest">Hoàn tác</span>
                             </Button>
                             <Button
                                 onClick={handleSave}
@@ -302,7 +302,7 @@ export function PermissionsPage() {
                                 ) : (
                                     <>
                                         <Zap className="size-3.5 mr-2 fill-primary-foreground" />
-                                        <span className="font-serif font-bold italic uppercase tracking-widest">Lưu thay đổi</span>
+                                        <span className="font-sans font-bold italic uppercase tracking-widest">Lưu thay đổi</span>
                                     </>
                                 )}
                             </Button>

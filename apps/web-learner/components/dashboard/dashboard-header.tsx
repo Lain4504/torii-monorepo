@@ -53,7 +53,7 @@ export function DashboardHeader() {
                         <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary transition-colors">
                             <Sparkles className="w-4 h-4 text-primary group-hover:text-white transition-colors" />
                         </div>
-                        <span className="font-serif font-black italic text-lg tracking-tight">Torii</span>
+                        <span className="font-sans font-black italic text-lg tracking-tight">Torii</span>
                     </div>
                 </div>
 

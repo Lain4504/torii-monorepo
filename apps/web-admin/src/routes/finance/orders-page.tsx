@@ -109,11 +109,11 @@ export default function OrdersPage() {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
         <div className="space-y-4 max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-serif font-bold italic tracking-wide uppercase mb-1">
+          <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-sans font-bold italic tracking-wide uppercase mb-1">
             <CreditCard className="size-3.5" />
             Quản lý Doanh thu
           </div>
-          <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+          <h1 className="text-3xl md:text-4xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
             Tài chính & <span className="text-primary not-italic">Doanh thu</span>
           </h1>
           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
@@ -129,7 +129,7 @@ export default function OrdersPage() {
           <Button
             onClick={loadPayments}
             disabled={isLoading}
-            className="h-11 px-6 rounded-xl bg-primary text-primary-foreground font-serif font-bold italic text-xs uppercase tracking-wide shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all group"
+            className="h-11 px-6 rounded-xl bg-primary text-primary-foreground font-sans font-bold italic text-xs uppercase tracking-wide shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all group"
           >
             Làm mới
             <RotateCcw className={cn("ml-2 size-4 opacity-70 group-hover:opacity-100 transition-all", isLoading && "animate-spin")} />
@@ -152,7 +152,7 @@ export default function OrdersPage() {
               </div>
               <div className="size-2 rounded-full bg-emerald-500 animate-pulse" />
             </div>
-            <h3 className="text-[10px] uppercase tracking-wider text-muted-foreground/60 font-serif font-bold italic mb-1">{stat.label}</h3>
+            <h3 className="text-[10px] uppercase tracking-wider text-muted-foreground/60 font-sans font-bold italic mb-1">{stat.label}</h3>
             <div className="flex items-baseline gap-2">
               <p className="text-2xl font-bold text-foreground leading-none">{stat.value}</p>
               <span className="text-[10px] font-bold text-muted-foreground/40">{stat.sub}</span>
@@ -221,7 +221,7 @@ export default function OrdersPage() {
                   <TableCell colSpan={6} className="h-[400px] text-center">
                     <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
                       <RotateCcw className="h-8 w-8 animate-spin text-primary/60" />
-                      <p className="text-xs font-serif font-bold italic uppercase tracking-widest">Đang tải dữ liệu...</p>
+                      <p className="text-xs font-sans font-bold italic uppercase tracking-widest">Đang tải dữ liệu...</p>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -233,7 +233,7 @@ export default function OrdersPage() {
                         <CreditCard className="size-8 opacity-50" />
                       </div>
                       <div className="space-y-1">
-                        <p className="text-base font-serif font-bold italic uppercase tracking-tight text-foreground">Không tìm thấy giao dịch</p>
+                        <p className="text-base font-sans font-bold italic uppercase tracking-tight text-foreground">Không tìm thấy giao dịch</p>
                         <p className="text-sm text-muted-foreground/70">
                           Chưa có dữ liệu giao dịch nào được ghi nhận.
                         </p>
@@ -357,7 +357,7 @@ export default function OrdersPage() {
                     <Hash className="size-3" />
                     Mã đơn: {selectedOrder.id.slice(0, 12)}
                   </div>
-                  <h2 className="text-3xl font-serif font-bold italic text-foreground leading-none tracking-tight uppercase">Chi tiết Đơn hàng</h2>
+                  <h2 className="text-3xl font-sans font-bold italic text-foreground leading-none tracking-tight uppercase">Chi tiết Đơn hàng</h2>
                 </div>
               </div>
 
@@ -424,7 +424,7 @@ export default function OrdersPage() {
                       <span className="font-bold text-sm">{formatCurrency(0)}</span>
                     </div>
                     <div className="pt-4 border-t border-border/10 flex justify-between items-center">
-                      <span className="text-xs font-serif font-bold italic uppercase tracking-wider text-primary">Tổng cộng</span>
+                      <span className="text-xs font-sans font-bold italic uppercase tracking-wider text-primary">Tổng cộng</span>
                       <span
                         className="text-2xl font-bold text-foreground tracking-tight">{formatCurrency(selectedOrder.amount)}</span>
                     </div>

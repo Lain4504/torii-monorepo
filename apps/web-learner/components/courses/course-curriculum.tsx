@@ -80,7 +80,7 @@ export function CourseCurriculum({ curriculum, courseSlug }: CourseCurriculumPro
                         <Clock className="w-3 h-3" />
                         <span>Tiến độ chương trình</span>
                     </div>
-                    <h2 className="text-4xl md:text-4xl font-serif font-bold tracking-tight text-foreground uppercase italic leading-[0.9]">
+                    <h2 className="text-4xl md:text-4xl font-sans font-bold tracking-tight text-foreground uppercase italic leading-[0.9]">
                         Nội dung <span className="text-primary not-italic">Khóa học</span>
                     </h2>
                     <div className="flex flex-wrap items-center gap-4 pt-1">
@@ -136,7 +136,7 @@ export function CourseCurriculum({ curriculum, courseSlug }: CourseCurriculumPro
                                 </div>
                                 <div className="space-y-1">
                                     <p className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 group-hover:text-primary transition-colors">Chương 0{index + 1}</p>
-                                    <h3 className="text-xl md:text-2xl font-serif font-bold italic tracking-tight text-foreground uppercase line-clamp-2 md:line-clamp-none leading-[1.1]">{module.title}</h3>
+                                    <h3 className="text-xl md:text-2xl font-sans font-bold italic tracking-tight text-foreground uppercase line-clamp-2 md:line-clamp-none leading-[1.1]">{module.title}</h3>
                                 </div>
                             </div>
 

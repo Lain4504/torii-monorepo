@@ -116,7 +116,7 @@ export function CouponsTable({
                                     <Ticket className="size-8" />
                                 </div>
                                 <div className="space-y-1">
-                                    <p className="text-lg font-serif font-bold italic uppercase tracking-tight text-foreground/50">Không tìm thấy mã giảm giá</p>
+                                    <p className="text-lg font-sans font-bold italic uppercase tracking-tight text-foreground/50">Không tìm thấy mã giảm giá</p>
                                     <p className="text-sm text-muted-foreground/40">
                                         Chưa có mã giảm giá nào được tạo hoặc không khớp với bộ lọc.
                                     </p>

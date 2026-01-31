@@ -110,7 +110,7 @@ export default function CouponsPage() {
                         <div className="p-2.5 rounded-xl bg-primary/10 text-primary">
                             <Ticket className="size-6" />
                         </div>
-                        <h1 className="text-3xl font-serif font-bold italic tracking-tight text-foreground uppercase">
+                        <h1 className="text-3xl font-sans font-bold italic tracking-tight text-foreground uppercase">
                             Mã Giảm Giá
                         </h1>
                     </div>

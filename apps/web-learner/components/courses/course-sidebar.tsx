@@ -78,7 +78,7 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
 
                         <div className="flex flex-col">
                             <div className="flex items-end gap-3 filter-none min-w-0 flex-wrap">
-                                <span className="text-3xl md:text-4xl font-serif font-bold italic text-foreground tracking-tight leading-none break-all">
+                                <span className="text-3xl md:text-4xl font-sans font-bold italic text-foreground tracking-tight leading-none break-all">
                                     {course.isFree ? 'MIỄN PHÍ' : (course.discountPrice ? formatPrice(Number(course.discountPrice)) : formatPrice(Number(course.price)))}
                                 </span>
                                 {course.discountPrice && !course.isFree && (

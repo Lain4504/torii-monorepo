@@ -137,7 +137,7 @@ export default function TwoFactorVerifyPage() {
                     {/* Center Content */}
                     <div className="relative z-20 flex-1 flex flex-col justify-center max-w-md">
                         <div className="space-y-6 mb-16 animate-in fade-in slide-in-from-left-8 duration-700">
-                            <h2 className="text-4xl lg:text-4xl font-serif font-bold tracking-tight text-foreground leading-[0.9] uppercase italic">
+                            <h2 className="text-4xl lg:text-4xl font-sans font-bold tracking-tight text-foreground leading-[0.9] uppercase italic">
                                 Bảo mật <br />
                                 <span className="text-primary not-italic">Hai lớp</span>
                             </h2>
@@ -161,7 +161,7 @@ export default function TwoFactorVerifyPage() {
                         </button>
 
                         <div className="space-y-2 text-center lg:text-left">
-                            <h1 className="text-4xl font-serif font-bold italic uppercase tracking-tight text-foreground">
+                            <h1 className="text-4xl font-sans font-bold italic uppercase tracking-tight text-foreground">
                                 Xác thực 2FA
                             </h1>
                             <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">

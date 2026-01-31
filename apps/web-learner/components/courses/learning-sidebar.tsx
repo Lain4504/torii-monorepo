@@ -50,7 +50,7 @@ export function LearningSidebar({
             {/* Simple Sidebar Header */}
             <div className="p-6 border-b border-border/10 space-y-6">
                 <div className="flex items-center justify-between">
-                    <h2 className="text-xs font-serif font-bold italic uppercase tracking-widest text-foreground/60">
+                    <h2 className="text-xs font-sans font-bold italic uppercase tracking-widest text-foreground/60">
                         Nội dung học
                     </h2>
                     <Button

@@ -152,11 +152,11 @@ export default function SupportPage() {
             {/* Header Section */}
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-8 border-b border-border/10">
                 <div className="space-y-4">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-serif font-bold italic uppercase tracking-wider">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-sans font-bold italic uppercase tracking-wider">
                         <LifeBuoy className="size-3.5" />
                         Support Center
                     </div>
-                    <h1 className="text-3xl md:text-5xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.85]">
+                    <h1 className="text-3xl md:text-5xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-[0.85]">
                         Trung tâm <span className="text-primary not-italic">Hỗ trợ</span>
                     </h1>
                     <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
@@ -279,7 +279,7 @@ export default function SupportPage() {
                                     <HelpCircle className="w-8 h-8 text-muted-foreground/20" />
                                 </div>
                                 <div>
-                                    <p className="text-sm text-foreground/60 font-serif italic">Bạn chưa gửi yêu cầu hỗ trợ nào.</p>
+                                    <p className="text-sm text-foreground/60 font-sans italic">Bạn chưa gửi yêu cầu hỗ trợ nào.</p>
                                     <p className="text-[10px] text-muted-foreground/30 uppercase tracking-widest mt-1">Chúng tôi luôn sẵn sàng lắng nghe bạn</p>
                                 </div>
                             </div>
@@ -295,7 +295,7 @@ export default function SupportPage() {
                     <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
 
                     <DialogHeader className="relative space-y-4">
-                        <DialogTitle className="text-3xl font-serif font-bold italic uppercase leading-none">
+                        <DialogTitle className="text-3xl font-sans font-bold italic uppercase leading-none">
                             Yêu cầu <span className="text-primary not-italic">Mới</span>
                         </DialogTitle>
                         <DialogDescription className="text-[10px] font-black tracking-[0.2em] uppercase text-muted-foreground/40 italic">
@@ -388,7 +388,7 @@ export default function SupportPage() {
 
                     <DialogHeader className="space-y-6">
                         <div className="flex items-center justify-between gap-4 flex-wrap">
-                            <DialogTitle className="text-3xl font-serif font-bold italic leading-tight">
+                            <DialogTitle className="text-3xl font-sans font-bold italic leading-tight">
                                 {ticketDetail?.subject || 'Đang tải...'}
                             </DialogTitle>
                             {ticketDetail && (
@@ -447,7 +447,7 @@ export default function SupportPage() {
                                     </div>
                                 ) : (
                                     <div className="p-8 border border-dashed border-border/20 rounded-3xl text-center bg-muted/5 group">
-                                        <p className="text-xs text-muted-foreground/40 italic font-serif flex items-center justify-center gap-2">
+                                        <p className="text-xs text-muted-foreground/40 italic font-sans flex items-center justify-center gap-2">
                                             <Clock className="size-4 animate-pulse" />
                                             Yêu cầu của bạn đang được xem xét. Vui lòng chờ phản hồi...
                                         </p>

@@ -103,7 +103,7 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                             <Ticket className="h-6 w-6" />
                         </div>
                         <div className="flex-1 space-y-1">
-                            <SheetTitle className="text-2xl font-serif font-bold italic tracking-tight text-foreground uppercase">
+                            <SheetTitle className="text-2xl font-sans font-bold italic tracking-tight text-foreground uppercase">
                                 Tạo Coupon Mới
                             </SheetTitle>
                             <SheetDescription className="text-xs font-medium text-muted-foreground/60">
@@ -162,7 +162,7 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
 
                             {/* Discount Settings */}
                             <div className="space-y-6 pt-6 border-t border-border/40">
-                                <h3 className="text-[10px] font-serif font-bold italic uppercase tracking-wider text-muted-foreground/50">
+                                <h3 className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/50">
                                     Thiết Lập Giảm Giá
                                 </h3>
 
@@ -241,7 +241,7 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
 
                             {/* Usage Limits */}
                             <div className="space-y-6 pt-6 border-t border-border/40">
-                                <h3 className="text-[10px] font-serif font-bold italic uppercase tracking-wider text-muted-foreground/50">
+                                <h3 className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/50">
                                     Giới Hạn Sử Dụng
                                 </h3>
 
@@ -277,7 +277,7 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
 
                             {/* Validity Period */}
                             <div className="space-y-6 pt-6 border-t border-border/40">
-                                <h3 className="text-[10px] font-serif font-bold italic uppercase tracking-wider text-muted-foreground/50">
+                                <h3 className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/50">
                                     Thời Gian Hiệu Lực
                                 </h3>
                                 

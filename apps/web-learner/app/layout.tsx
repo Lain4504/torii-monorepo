@@ -1,4 +1,4 @@
-import { Poppins, Open_Sans, Source_Serif_4 } from "next/font/google"
+import { Poppins, Open_Sans } from "next/font/google"
 
 import "@workspace/ui/styles/globals.css"
 import { Providers } from "@/lib/providers/providers"
@@ -15,11 +15,6 @@ const fontSans = Open_Sans({
   variable: "--font-sans",
 })
 
-const fontSerif = Source_Serif_4({
-  subsets: ["latin"],
-  variable: "--font-serif",
-})
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -28,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="vi" suppressHydrationWarning>
       <body
-        className={`${fontHeading.variable} ${fontSans.variable} ${fontSerif.variable} font-sans antialiased `}
+        className={`${fontHeading.variable} ${fontSans.variable} font-sans antialiased `}
       >
         <Providers>
           {children}

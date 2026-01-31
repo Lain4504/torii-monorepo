@@ -139,11 +139,11 @@ export default function PaymentHistoryPage() {
             {/* Header */}
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-8 border-b border-border/30">
                 <div className="space-y-4">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-serif font-bold italic uppercase tracking-wide">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-sans font-bold italic uppercase tracking-wide">
                         <Clock className="size-3.5" />
                         Billing
                     </div>
-                    <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+                    <h1 className="text-3xl md:text-4xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
                         Lịch sử <span className="text-primary not-italic">Đơn hàng</span>
                     </h1>
                     <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
@@ -298,7 +298,7 @@ export default function PaymentHistoryPage() {
             <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
                 <DialogContent className="max-w-md rounded-[2rem] p-8 border-border/10">
                     <DialogHeader className="space-y-4">
-                        <DialogTitle className="text-2xl font-serif font-bold italic">Chi tiết đơn hàng</DialogTitle>
+                        <DialogTitle className="text-2xl font-sans font-bold italic">Chi tiết đơn hàng</DialogTitle>
                         <DialogDescription className="text-xs font-medium tracking-wide uppercase text-muted-foreground/60">
                             Mã đơn: #{orderDetails?.transactionId || orderDetails?.id.slice(-6).toUpperCase() || selectedOrderId?.slice(-6).toUpperCase()}
                         </DialogDescription>
@@ -337,7 +337,7 @@ export default function PaymentHistoryPage() {
                                     <Separator className="bg-border/10 my-4" />
                                     <div className="flex justify-between items-center pt-2">
                                         <span className="text-sm font-black uppercase tracking-[0.2em] text-primary">Tổng tiền</span>
-                                        <span className="text-2xl font-serif font-black italic">{orderDetails.amount.toLocaleString('vi-VN')}₫</span>
+                                        <span className="text-2xl font-sans font-black italic">{orderDetails.amount.toLocaleString('vi-VN')}₫</span>
                                     </div>
                                 </div>
                             </div>

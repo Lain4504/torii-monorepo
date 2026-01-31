@@ -24,7 +24,7 @@ export function SearchHeader({
                     <Search className="w-3 h-3" />
                     <span>Danh mục khóa học</span>
                 </div>
-                <h1 className="text-5xl md:text-7xl font-serif font-bold tracking-tighter text-foreground uppercase italic leading-[0.8]">
+                <h1 className="text-5xl md:text-7xl font-sans font-bold tracking-tighter text-foreground uppercase italic leading-[0.8]">
                     Khám phá <br /> <span className="text-primary not-italic">Khóa học</span>
                 </h1>
                 <p className="text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground/30 italic border-l-2 border-primary/20 pl-8 py-2">

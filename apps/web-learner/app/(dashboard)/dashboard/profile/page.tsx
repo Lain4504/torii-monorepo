@@ -233,7 +233,7 @@ export default function ProfilePage() {
                                 // Fallback: AvatarFallback sẽ hiển thị
                             }}
                         />
-                        <AvatarFallback className="text-3xl bg-primary/5 text-primary font-serif italic font-bold">
+                        <AvatarFallback className="text-3xl bg-primary/5 text-primary font-sans italic font-bold">
                             {user?.displayName?.[0]?.toUpperCase() || 'U'}
                         </AvatarFallback>
                     </Avatar>
@@ -262,7 +262,7 @@ export default function ProfilePage() {
                 <div className="flex-1 text-center md:text-left space-y-3">
                     <div className="space-y-1">
                         <div className="flex items-center justify-center md:justify-start gap-3">
-                            <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+                            <h1 className="text-3xl md:text-4xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
                                 {user?.displayName || 'Người dùng'}
                             </h1>
                             <Badge variant="outline" className="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest border-primary/20 text-primary">
@@ -302,7 +302,7 @@ export default function ProfilePage() {
                         <div className="flex items-center justify-between gap-4">
                             <div className="flex items-center gap-3">
                                 <div className="w-1 h-5 bg-primary/40 rounded-full" />
-                                <h2 className="text-xl font-serif font-bold italic text-foreground uppercase tracking-tight">
+                                <h2 className="text-xl font-sans font-bold italic text-foreground uppercase tracking-tight">
                                     Hồ sơ cá nhân
                                 </h2>
                             </div>
@@ -433,7 +433,7 @@ export default function ProfilePage() {
                                     <p className="text-[10px] text-muted-foreground/60 font-black uppercase tracking-widest mb-1">{stat.label}</p>
                                     <div className="flex items-center gap-3">
                                         <stat.icon className={`w-4 h-4 ${stat.color}`} />
-                                        <span className="text-xl font-serif font-bold italic text-foreground">{stat.value}</span>
+                                        <span className="text-xl font-sans font-bold italic text-foreground">{stat.value}</span>
                                     </div>
                                 </div>
                             ))}
@@ -446,7 +446,7 @@ export default function ProfilePage() {
                     {/* Achievements */}
                     <div className="space-y-6">
                         <div className="flex items-center justify-between">
-                            <h3 className="text-sm font-serif font-bold italic uppercase tracking-widest text-muted-foreground px-1">Thành tích công nhận</h3>
+                            <h3 className="text-sm font-sans font-bold italic uppercase tracking-widest text-muted-foreground px-1">Thành tích công nhận</h3>
                         </div>
                         {achievementsLoading ? (
                             <div className="grid gap-3">
@@ -506,7 +506,7 @@ export default function ProfilePage() {
 
                     {/* Certificates */}
                     <div className="space-y-6">
-                        <h3 className="text-sm font-serif font-bold italic uppercase tracking-widest text-muted-foreground px-1">Văn bằng & Chứng chỉ</h3>
+                        <h3 className="text-sm font-sans font-bold italic uppercase tracking-widest text-muted-foreground px-1">Văn bằng & Chứng chỉ</h3>
                         <div className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md overflow-hidden shadow-sm">
                             {[1, 2].map((c) => (
                                 <div key={c} className="p-4 flex items-center justify-between hover:bg-background transition-colors border-b last:border-none border-border/10 group cursor-pointer">

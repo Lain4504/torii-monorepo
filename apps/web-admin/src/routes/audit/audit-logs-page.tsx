@@ -261,7 +261,7 @@ export function AuditLogsPage() {
                         <Activity className="size-3.5" />
                         Cơ sở hạ tầng
                     </div>
-                    <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+`                    <h1 className="text-3xl md:text-4xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
                         Nhật ký <span className="text-primary not-italic">Hệ thống</span>
                     </h1>
                     <p className="text-sm font-medium border-l-2 border-primary/20 pl-4 mt-2 text-muted-foreground/70 leading-relaxed max-w-xl">

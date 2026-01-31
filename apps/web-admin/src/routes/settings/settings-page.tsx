@@ -19,7 +19,7 @@ export default function SettingsPage() {
               <Settings2 className="size-6" />
             </div>
             <div>
-              <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+              <h1 className="text-3xl md:text-4xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
                 Trung tâm <span className="text-primary not-italic">Cài đặt</span>
               </h1>
               <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
@@ -37,28 +37,28 @@ export default function SettingsPage() {
               className="gap-2 rounded-lg px-4 py-2.5 text-sm font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm"
             >
               <User className="size-4" />
-              <span className="font-serif font-bold italic uppercase tracking-wider">Hồ Sơ</span>
+              <span className="font-sans font-bold italic uppercase tracking-wider">Hồ Sơ</span>
             </TabsTrigger>
             <TabsTrigger
               value="security"
               className="gap-2 rounded-lg px-4 py-2.5 text-sm font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm"
             >
               <Shield className="size-4" />
-              <span className="font-serif font-bold italic uppercase tracking-wider">Bảo Mật</span>
+              <span className="font-sans font-bold italic uppercase tracking-wider">Bảo Mật</span>
             </TabsTrigger>
             <TabsTrigger
               value="sessions"
               className="gap-2 rounded-lg px-4 py-2.5 text-sm font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm"
             >
               <Clock className="size-4" />
-              <span className="font-serif font-bold italic uppercase tracking-wider">Phiên Đăng Nhập</span>
+              <span className="font-sans font-bold italic uppercase tracking-wider">Phiên Đăng Nhập</span>
             </TabsTrigger>
             <TabsTrigger
               value="password"
               className="gap-2 rounded-lg px-4 py-2.5 text-sm font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm"
             >
               <KeyRound className="size-4" />
-              <span className="font-serif font-bold italic uppercase tracking-wider">Mật Khẩu</span>
+              <span className="font-sans font-bold italic uppercase tracking-wider">Mật Khẩu</span>
             </TabsTrigger>
           </TabsList>
 

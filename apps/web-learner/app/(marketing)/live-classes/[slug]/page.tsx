@@ -124,7 +124,7 @@ export default function LiveClassDetailPage() {
                                             <span className="text-[9px] text-muted-foreground/40 font-black uppercase tracking-[0.1em] ml-1">{course.reviewsCount} ĐÁNH GIÁ</span>
                                         </div>
                                     </div>
-                                    <h1 className="text-4xl md:text-7xl font-serif font-bold text-foreground uppercase italic tracking-tight leading-[0.9]">
+                                    <h1 className="text-4xl md:text-7xl font-sans font-bold text-foreground uppercase italic tracking-tight leading-[0.9]">
                                         {course.title}
                                     </h1>
                                     <p className="text-sm md:text-base text-muted-foreground/70 font-medium leading-relaxed max-w-2xl italic">
@@ -141,7 +141,7 @@ export default function LiveClassDetailPage() {
                                         </AvatarFallback>
                                     </Avatar>
                                     <div className="space-y-1">
-                                        <p className="font-serif text-xl font-bold text-foreground tracking-tight underline adornment-primary decoration-primary/20">{course.instructor.name}</p>
+                                        <p className="font-sans text-xl font-bold text-foreground tracking-tight underline adornment-primary decoration-primary/20">{course.instructor.name}</p>
                                         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">{course.instructor.role}</p>
                                     </div>
                                 </div>
@@ -175,7 +175,7 @@ export default function LiveClassDetailPage() {
                                             <div className="w-14 h-14 rounded-2xl bg-muted/20 flex items-center justify-center shrink-0 text-foreground/40 font-black text-xs tracking-tighter group-hover/curr:bg-primary/5 group-hover/curr:text-primary transition-all border border-transparent group-hover/curr:border-primary/10">
                                                 TUẦN {item.week}
                                             </div>
-                                            <span className="font-serif text-lg font-bold text-foreground italic uppercase tracking-tight">{item.topic}</span>
+                                            <span className="font-sans text-lg font-bold text-foreground italic uppercase tracking-tight">{item.topic}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -194,7 +194,7 @@ export default function LiveClassDetailPage() {
                                             </Badge>
                                         </div>
                                         <div className="flex items-baseline gap-2">
-                                            <span className="text-4xl font-serif font-bold text-foreground italic tracking-tighter">{course.price}</span>
+                                            <span className="text-4xl font-sans font-bold text-foreground italic tracking-tighter">{course.price}</span>
                                             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/30">/ khóa học</span>
                                         </div>
                                     </div>
@@ -248,7 +248,7 @@ export default function LiveClassDetailPage() {
             <Dialog open={isRegisterOpen} onOpenChange={setIsRegisterOpen}>
                 <DialogContent className="sm:max-w-lg bg-background/95 backdrop-blur-3xl border-white/10 rounded-[2.5rem] p-0 overflow-hidden gap-0">
                     <DialogHeader className="p-10 pb-6 bg-muted/5 border-b border-border/40">
-                        <DialogTitle className="text-4xl font-serif font-bold uppercase italic tracking-tight flex items-center gap-4">
+                        <DialogTitle className="text-4xl font-sans font-bold uppercase italic tracking-tight flex items-center gap-4">
                             <Sparkles className="w-8 h-8 text-primary/40 animate-pulse" />
                             Enrollment
                         </DialogTitle>
@@ -264,7 +264,7 @@ export default function LiveClassDetailPage() {
                                 <Zap className="w-8 h-8 text-primary" />
                             </div>
                             <div className="space-y-1">
-                                <h4 className="font-serif text-xl font-bold text-foreground italic uppercase tracking-tight">{course.title}</h4>
+                                <h4 className="font-sans text-xl font-bold text-foreground italic uppercase tracking-tight">{course.title}</h4>
                                 <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground/40">Starts {course.startDate}</p>
                             </div>
                         </div>

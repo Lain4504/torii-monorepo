@@ -39,7 +39,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                 <GraduationCap className="size-6 group-data-[collapsible=icon]:size-5" />
                             </div>
                             <div className="grid flex-1 text-left text-sm leading-tight ml-2 group-data-[collapsible=icon]:hidden">
-                                <span className="truncate font-serif font-black italic text-lg tracking-tight">Torii Nihongo</span>
+                                <span className="truncate font-sans font-black italic text-lg tracking-tight">Torii Nihongo</span>
                                 <span className="truncate text-[9px] font-bold uppercase tracking-[0.2em] opacity-50">Cổng học viên</span>
                             </div>
                         </SidebarMenuButton>

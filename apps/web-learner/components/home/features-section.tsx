@@ -58,7 +58,7 @@ export function FeaturesSection() {
                         <Sparkles className="w-3 h-3" />
                         <span>Hệ sinh thái Torii</span>
                     </div>
-                    <h2 className="text-5xl md:text-7xl font-serif font-bold tracking-tight text-foreground uppercase italic leading-[0.9]">
+                    <h2 className="text-5xl md:text-7xl font-sans font-bold tracking-tight text-foreground uppercase italic leading-[0.9]">
                         Trải Nghiệm <span className="text-primary not-italic">Học Tập</span> <br /> Đỉnh Cao
                     </h2>
                     <p className="text-[11px] font-black uppercase tracking-[0.25em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-8 max-w-2xl mx-auto text-left py-2">
@@ -86,7 +86,7 @@ export function FeaturesSection() {
 
                                 {/* Content */}
                                 <div className="space-y-4">
-                                    <h3 className="text-xl font-serif font-bold italic text-foreground group-hover:text-primary transition-colors">
+                                    <h3 className="text-xl font-sans font-bold italic text-foreground group-hover:text-primary transition-colors">
                                         {feature.title}
                                     </h3>
                                     <p className="text-[11px] font-medium text-muted-foreground/60 leading-relaxed uppercase tracking-wider">

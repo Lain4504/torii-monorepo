@@ -219,7 +219,7 @@ export function CourseReviews({ course }: CourseReviewsProps) {
         <div className="space-y-12 animate-in fade-in duration-700" id="reviews">
             <div className="flex items-center gap-4">
                 <MessageSquare className="w-5 h-5 text-primary/40" />
-                <h2 className="text-2xl md:text-3xl font-serif font-bold italic text-foreground uppercase tracking-tight">Cảm tưởng học viên</h2>
+                <h2 className="text-2xl md:text-3xl font-sans font-bold italic text-foreground uppercase tracking-tight">Cảm tưởng học viên</h2>
             </div>
 
             <div>
@@ -227,7 +227,7 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                     {/* Review Summary */}
                     <div className="flex flex-col lg:flex-row lg:items-center gap-8 lg:gap-24">
                         <div className="flex flex-col items-center lg:items-start gap-4">
-                            <span className="text-7xl md:text-9xl font-serif font-bold text-foreground tracking-tighter italic leading-[0.8]">
+                            <span className="text-7xl md:text-9xl font-sans font-bold text-foreground tracking-tighter italic leading-[0.8]">
                                 {roundedRating}
                             </span>
                             <div className="space-y-2 text-center lg:text-left">
@@ -265,7 +265,7 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                                     <DialogContent className="sm:max-w-2xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
                                         <div className="p-10 space-y-10">
                                             <DialogHeader>
-                                                <DialogTitle className="text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase">Đánh giá <span className="text-primary not-italic">khóa học</span></DialogTitle>
+                                                <DialogTitle className="text-4xl font-sans font-bold italic tracking-tight text-foreground uppercase">Đánh giá <span className="text-primary not-italic">khóa học</span></DialogTitle>
                                                 <DialogDescription className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 mt-4 leading-relaxed">
                                                     Những chia sẻ chân thực của bạn sẽ giúp cộng đồng học viên Torii có thêm thông tin hữu ích.
                                                 </DialogDescription>
@@ -275,7 +275,7 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                                                     <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover/star:opacity-100 transition-opacity" />
                                                     <label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 relative z-10">Mức độ hài lòng</label>
                                                     <div className="relative z-10">{renderStars(newRating, true, 10)}</div>
-                                                    <span className="text-[11px] font-serif font-bold italic text-primary uppercase tracking-[0.2em] h-5 relative z-10">
+                                                    <span className="text-[11px] font-sans font-bold italic text-primary uppercase tracking-[0.2em] h-5 relative z-10">
                                                         {newRating > 0 ? ['Rất kém', 'Cần cải thiện', 'Tốt', 'Rất tốt', 'Tuyệt vời'][newRating - 1] : 'Hãy chọn mức độ hài lòng của bạn'}
                                                     </span>
                                                 </div>

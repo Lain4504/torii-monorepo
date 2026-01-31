@@ -168,7 +168,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                             <BookOpen className="h-6 w-6" />
                         </div>
                         <div className="flex-1 space-y-1">
-                            <SheetTitle className="text-2xl font-serif font-bold italic tracking-tight text-foreground uppercase">
+                            <SheetTitle className="text-2xl font-sans font-bold italic tracking-tight text-foreground uppercase">
                                 Tạo Khóa Học Mới
                             </SheetTitle>
                             <SheetDescription className="text-xs font-medium text-muted-foreground/60">
@@ -186,7 +186,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                             <div className="space-y-6">
                                 <div className="flex items-center gap-3 pb-2 border-b border-border/40">
                                     <div className="h-px flex-1 bg-border/20" />
-                                    <h3 className="text-[10px] font-serif font-bold italic uppercase tracking-wider text-muted-foreground/50 text-center">
+                                    <h3 className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/50 text-center">
                                         Thông Tin Cơ Bản
                                     </h3>
                                     <div className="h-px flex-1 bg-border/20" />
@@ -380,7 +380,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                 <div className="space-y-6 pt-6">
                                     <div className="flex items-center gap-3 pb-2 border-b border-border/40">
                                         <div className="h-px flex-1 bg-border/20" />
-                                        <h3 className="text-[10px] font-serif font-bold italic uppercase tracking-wider text-muted-foreground/50 text-center">
+                                        <h3 className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/50 text-center">
                                             Chương Trình Học
                                         </h3>
                                         <div className="h-px flex-1 bg-border/20" />
@@ -472,7 +472,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                             <div className="space-y-6 pt-6">
                                 <div className="flex items-center gap-3 pb-2 border-b border-border/40">
                                     <div className="h-px flex-1 bg-border/20" />
-                                    <h3 className="text-[10px] font-serif font-bold italic uppercase tracking-wider text-muted-foreground/50 text-center">
+                                    <h3 className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/50 text-center">
                                         Phương Tiện
                                     </h3>
                                     <div className="h-px flex-1 bg-border/20" />

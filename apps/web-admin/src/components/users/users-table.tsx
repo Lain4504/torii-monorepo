@@ -107,7 +107,7 @@ export function UsersTable({ data, onView, onEdit, onDelete, page, limit, isLoad
                                         <Fingerprint className="size-8" />
                                     </div>
                                     <div className="space-y-1">
-                                        <p className="text-lg font-serif font-bold italic uppercase tracking-tight text-foreground/50">Không tìm thấy dữ liệu</p>
+                                        <p className="text-lg font-sans font-bold italic uppercase tracking-tight text-foreground/50">Không tìm thấy dữ liệu</p>
                                         <p className="text-sm text-muted-foreground/40">
                                             Thử thay đổi điều kiện lọc hoặc từ khóa tìm kiếm.
                                         </p>

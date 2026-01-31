@@ -43,7 +43,7 @@ export function DeleteCouponDialog({ open, onOpenChange, coupon }: DeleteCouponD
                     <div className="size-12 rounded-full bg-rose-500/10 flex items-center justify-center shrink-0 text-rose-600 mb-2">
                         <Trash className="size-6" />
                     </div>
-                    <AlertDialogTitle className="text-xl font-serif font-bold italic tracking-tight uppercase">
+                    <AlertDialogTitle className="text-xl font-sans font-bold italic tracking-tight uppercase">
                         Xóa Coupon?
                     </AlertDialogTitle>
                     <AlertDialogDescription className="text-muted-foreground/80 leading-relaxed font-medium">

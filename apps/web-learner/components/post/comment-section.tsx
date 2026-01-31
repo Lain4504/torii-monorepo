@@ -83,7 +83,7 @@ export function CommentSection({ postId }: CommentSectionProps) {
     return (
         <section className="space-y-12">
             <div className="flex items-center justify-between border-b border-border/40 pb-6">
-                <h3 className="text-3xl font-serif font-bold italic text-foreground uppercase tracking-tight">
+                <h3 className="text-3xl font-sans font-bold italic text-foreground uppercase tracking-tight">
                     Bình luận <span className="text-primary/40 not-italic ml-2">({comments.length})</span>
                 </h3>
             </div>
@@ -181,7 +181,7 @@ export function CommentSection({ postId }: CommentSectionProps) {
                             <MessageCircle className="w-10 h-10" />
                         </div>
                         <div className="space-y-2">
-                            <p className="font-serif text-2xl font-bold italic text-foreground uppercase tracking-tight">Chưa có bình luận nào</p>
+                            <p className="font-sans text-2xl font-bold italic text-foreground uppercase tracking-tight">Chưa có bình luận nào</p>
                             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Hãy là người đầu tiên chia sẻ cảm nghĩ nhé!</p>
                         </div>
                     </div>
@@ -240,7 +240,7 @@ function CommentItem({
                     <div className="bg-card/50 backdrop-blur-sm p-6 rounded-[2rem] rounded-tl-none border border-border/40 shadow-sm hover:shadow-md transition-all duration-300">
                         <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-3">
-                                <span className="font-serif text-lg font-bold italic text-foreground tracking-tight">
+                                <span className="font-sans text-lg font-bold italic text-foreground tracking-tight">
                                     {comment.author?.displayName || 'Ẩn danh'}
                                 </span>
                                 <span className="text-[9px] text-muted-foreground/40 font-black uppercase tracking-[0.2em]">

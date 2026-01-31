@@ -125,11 +125,11 @@ export default function TransactionsPage() {
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 pb-4">
                 <div className="space-y-4 max-w-2xl text-center sm:text-left">
                     <div
-                        className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-serif font-bold italic uppercase tracking-wide">
+                        className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-sans font-bold italic uppercase tracking-wide">
                         <Database className="size-3.5" />
                         Hạ tầng
                     </div>
-                    <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+                    <h1 className="text-3xl md:text-4xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
                         Nhật ký <span className="text-primary not-italic">Giao dịch</span>
                     </h1>
                     <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
@@ -142,7 +142,7 @@ export default function TransactionsPage() {
                         onClick={loadTransactions}
                         disabled={isLoading}
                         variant="outline"
-                        className="w-full sm:w-auto h-11 px-6 rounded-xl font-serif font-bold italic text-xs uppercase tracking-wide border-primary/20 text-primary hover:bg-primary/5 transition-all group"
+                        className="w-full sm:w-auto h-11 px-6 rounded-xl font-sans font-bold italic text-xs uppercase tracking-wide border-primary/20 text-primary hover:bg-primary/5 transition-all group"
                     >
                         Cập nhật Nhật ký
                         <RotateCcw className={cn("ml-2 size-4 opacity-70 group-hover:opacity-100 transition-all", isLoading && "animate-spin")} />
@@ -190,7 +190,7 @@ export default function TransactionsPage() {
                                         <TableCell colSpan={5} className="h-64 text-center">
                                             <div className="flex flex-col items-center justify-center p-12 space-y-4 text-muted-foreground/40">
                                                 <Info className="size-8 opacity-50" />
-                                                <p className="text-sm font-serif font-bold italic uppercase tracking-tight">Không tìm thấy nhật ký giao dịch nào.</p>
+                                                <p className="text-sm font-sans font-bold italic uppercase tracking-tight">Không tìm thấy nhật ký giao dịch nào.</p>
                                             </div>
                                         </TableCell>
                                     </TableRow>
@@ -293,7 +293,7 @@ export default function TransactionsPage() {
                                 <div className="flex items-center gap-2 px-2.5 py-1 bg-primary/10 text-primary border border-primary/10 rounded-full text-[10px] font-bold w-fit mb-4 uppercase tracking-wider">
                                     Bản ghi hệ thống
                                 </div>
-                                <SheetTitle className="text-2xl font-serif font-bold italic uppercase tracking-tight">Chi tiết Giao dịch</SheetTitle>
+                                <SheetTitle className="text-2xl font-sans font-bold italic uppercase tracking-tight">Chi tiết Giao dịch</SheetTitle>
                                 <SheetDescription className="text-xs font-mono font-medium text-muted-foreground/60">
                                     ID: {selectedTx.id}
                                 </SheetDescription>

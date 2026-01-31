@@ -46,7 +46,7 @@ export function SecurityTab() {
                                 <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
                                     <Smartphone className="size-5" />
                                 </div>
-                                <h3 className="text-lg font-serif font-bold italic text-foreground">
+                                <h3 className="text-lg font-sans font-bold italic text-foreground">
                                     Xác thực hai yếu tố
                                 </h3>
                             </div>

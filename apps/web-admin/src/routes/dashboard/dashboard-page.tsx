@@ -102,12 +102,12 @@ function AdminDashboard() {
         <Card className="col-span-4 rounded-xl bg-background border border-border/50 shadow-sm overflow-hidden group">
           <CardHeader className="p-6 pb-4">
             <div className="flex items-center justify-between mb-2">
-              <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-serif font-bold italic tracking-wide uppercase">
+              <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-sans font-bold italic tracking-wide uppercase">
                 <TrendingUp className="size-3" />
                 Thống kê Tăng trưởng
               </div>
             </div>
-            <CardTitle className="text-xl font-serif font-bold italic tracking-tight text-foreground uppercase">Tổng quan <span className="text-primary">Hiệu suất</span></CardTitle>
+            <CardTitle className="text-xl font-sans font-bold italic tracking-tight text-foreground uppercase">Tổng quan <span className="text-primary">Hiệu suất</span></CardTitle>
             <CardDescription className="text-xs font-medium text-muted-foreground/60 mt-1">Chỉ số doanh thu & đăng ký Quý 1 2026</CardDescription>
           </CardHeader>
           <CardContent className="p-6 pt-0">
@@ -123,11 +123,11 @@ function AdminDashboard() {
         {/* Recent Transactions */}
         <Card className="col-span-3 rounded-xl bg-background border border-border/50 shadow-sm">
           <CardHeader className="p-6 pb-4">
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-amber-500/10 text-amber-600 rounded-full text-[10px] font-serif font-bold italic tracking-wide uppercase mb-3">
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-amber-500/10 text-amber-600 rounded-full text-[10px] font-sans font-bold italic tracking-wide uppercase mb-3">
               <DollarSign className="size-3" />
               Hoạt động Gần đây
             </div>
-            <CardTitle className="text-xl font-serif font-bold italic tracking-tight text-foreground uppercase">Giao dịch <span className="text-amber-500">Mới nhất</span></CardTitle>
+            <CardTitle className="text-xl font-sans font-bold italic tracking-tight text-foreground uppercase">Giao dịch <span className="text-amber-500">Mới nhất</span></CardTitle>
             <p className="text-xs font-medium text-muted-foreground/60 mt-1">Các giao dịch đã được xác nhận</p>
           </CardHeader>
           <CardContent className="px-6 pb-6">
@@ -137,7 +137,7 @@ function AdminDashboard() {
               <SaleItem name="Lê Văn C" email="Gia hạn VIP Membership" amount="+299.000₫" />
               <SaleItem name="Phạm Thị D" email="Buổi học kèm riêng 1:1" amount="+150.000₫" />
             </div>
-            <Button variant="ghost" className="w-full mt-6 h-10 rounded-lg border border-border/30 text-[10px] font-serif font-bold italic uppercase tracking-wide hover:bg-primary/5 hover:text-primary transition-all group">
+            <Button variant="ghost" className="w-full mt-6 h-10 rounded-lg border border-border/30 text-[10px] font-sans font-bold italic uppercase tracking-wide hover:bg-primary/5 hover:text-primary transition-all group">
               Xem tất cả giao dịch
               <ChevronRight className="ml-2 size-3.5 group-hover:translate-x-1 transition-transform" />
             </Button>
@@ -165,7 +165,7 @@ function StaffDashboard() {
               <Target className="size-3" />
               Công việc
             </div>
-            <CardTitle className="text-xl font-serif font-bold italic tracking-tight text-foreground uppercase">Yêu cầu <span className="text-primary">Hành động</span></CardTitle>
+            <CardTitle className="text-xl font-sans font-bold italic tracking-tight text-foreground uppercase">Yêu cầu <span className="text-primary">Hành động</span></CardTitle>
             <p className="text-xs font-medium text-muted-foreground/60 mt-1">Các tác vụ vận hành hàng ngày</p>
           </CardHeader>
           <CardContent className="px-6 pb-6 space-y-3">
@@ -177,11 +177,11 @@ function StaffDashboard() {
 
         <Card className="rounded-xl bg-background border border-border/50 shadow-sm">
           <CardHeader className="p-6 pb-4">
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-amber-500/10 text-amber-600 rounded-full text-[10px] font-serif font-bold italic tracking-wide uppercase mb-3">
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-amber-500/10 text-amber-600 rounded-full text-[10px] font-sans font-bold italic tracking-wide uppercase mb-3">
               <BookOpen className="size-3" />
               Cập nhật
             </div>
-            <CardTitle className="text-xl font-serif font-bold italic tracking-tight text-foreground uppercase">Hoạt động <span className="text-amber-500">Khóa học</span></CardTitle>
+            <CardTitle className="text-xl font-sans font-bold italic tracking-tight text-foreground uppercase">Hoạt động <span className="text-amber-500">Khóa học</span></CardTitle>
             <p className="text-xs font-medium text-muted-foreground/60 mt-1">Cảnh báo và cập nhật gần đây</p>
           </CardHeader>
           <CardContent className="px-6 pb-6">
@@ -202,7 +202,7 @@ function StaffDashboard() {
                 </div>
               ))}
             </div>
-            <Button className="w-full mt-6 h-10 rounded-lg bg-foreground text-background font-serif font-bold italic uppercase tracking-wide text-[10px] shadow-sm hover:translate-y-[-1px] transition-all group">
+            <Button className="w-full mt-6 h-10 rounded-lg bg-foreground text-background font-sans font-bold italic uppercase tracking-wide text-[10px] shadow-sm hover:translate-y-[-1px] transition-all group">
               Duyệt Khóa học
               <ChevronRight className="ml-2 size-3.5 group-hover:translate-x-1 transition-transform" />
             </Button>
@@ -223,29 +223,29 @@ function LecturerDashboard() {
         <div className="flex flex-col lg:flex-row items-center justify-between gap-10 text-center lg:text-left">
           <div className="space-y-5 flex-1 max-w-2xl">
             <div className="flex items-center justify-center lg:justify-start gap-3">
-              <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-serif font-bold italic tracking-wide animate-pulse uppercase">
+              <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-sans font-bold italic tracking-wide animate-pulse uppercase">
                 <Video className="h-3 w-3" />
                 Phiên Trực tiếp
               </div>
             </div>
-            <h2 className="text-4xl font-serif font-bold italic tracking-tight text-foreground leading-tight uppercase">Masterclass <br /><span className="text-primary/60">Hội thoại N4</span></h2>
+            <h2 className="text-4xl font-sans font-bold italic tracking-tight text-foreground leading-tight uppercase">Masterclass <br /><span className="text-primary/60">Hội thoại N4</span></h2>
             <p className="text-sm font-medium text-muted-foreground/70 leading-relaxed border-l-2 border-primary/20 pl-4 max-w-lg hidden lg:block">
               "Chuẩn bị kỹ cho buổi Kaiwa hôm nay. Tập trung vào các cấu trúc câu phức và phản xạ ngữ pháp N4."
             </p>
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 pt-2">
               <div className="space-y-0.5">
-                <p className="text-[9px] font-serif font-bold italic uppercase tracking-widest text-muted-foreground/40">Lịch trình</p>
+                <p className="text-[9px] font-sans font-bold italic uppercase tracking-widest text-muted-foreground/40">Lịch trình</p>
                 <span className="flex items-center gap-2 text-xs font-semibold"><Calendar className="h-3.5 w-3.5 text-primary" /> Hôm nay, 14:00</span>
               </div>
               <div className="space-y-0.5">
-                <p className="text-[9px] font-serif font-bold italic uppercase tracking-widest text-muted-foreground/40">Tham dự</p>
+                <p className="text-[9px] font-sans font-bold italic uppercase tracking-widest text-muted-foreground/40">Tham dự</p>
                 <span className="flex items-center gap-2 text-xs font-semibold"><Users className="h-3.5 w-3.5 text-primary" /> 24 Đã đăng ký</span>
               </div>
             </div>
           </div>
           <div className="relative">
             <div className="absolute inset-0 bg-primary blur-3xl opacity-10 animate-pulse rounded-full" />
-            <Button size="lg" className="relative h-12 px-8 rounded-xl bg-primary text-primary-foreground font-serif font-bold italic uppercase tracking-wide text-[10px] shadow-lg hover:scale-[1.02] active:scale-95 transition-all duration-300 group">
+            <Button size="lg" className="relative h-12 px-8 rounded-xl bg-primary text-primary-foreground font-sans font-bold italic uppercase tracking-wide text-[10px] shadow-lg hover:scale-[1.02] active:scale-95 transition-all duration-300 group">
               Tham gia Ngay
               <ArrowUpRight className="ml-2 size-3.5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
             </Button>
@@ -257,7 +257,7 @@ function LecturerDashboard() {
         <Card className="rounded-xl bg-background border border-border/50 shadow-sm p-1">
           <CardHeader className="p-6 pb-4">
             <div className="flex items-center justify-between mb-2">
-              <CardTitle className="text-xl font-serif font-bold italic tracking-tight text-foreground uppercase">Lịch trình <span className="text-primary">Giảng dạy</span></CardTitle>
+              <CardTitle className="text-xl font-sans font-bold italic tracking-tight text-foreground uppercase">Lịch trình <span className="text-primary">Giảng dạy</span></CardTitle>
               <div className="p-2 rounded-lg bg-muted/20"><Calendar className="size-4 text-muted-foreground/40" /></div>
             </div>
             <p className="text-xs font-medium text-muted-foreground/60">Các lớp học và sự kiện sắp tới của bạn</p>
@@ -284,7 +284,7 @@ function LecturerDashboard() {
         <Card className="rounded-xl bg-background border border-border/50 shadow-sm p-1">
           <CardHeader className="p-6 pb-4">
             <div className="flex items-center justify-between mb-2">
-              <CardTitle className="text-xl font-serif font-bold italic tracking-tight text-foreground uppercase">Hàng đợi <span className="text-amber-500">Bài tập</span></CardTitle>
+              <CardTitle className="text-xl font-sans font-bold italic tracking-tight text-foreground uppercase">Hàng đợi <span className="text-amber-500">Bài tập</span></CardTitle>
               <div className="p-2 rounded-lg bg-muted/20"><Zap className="size-4 text-muted-foreground/40" /></div>
             </div>
             <p className="text-xs font-medium text-muted-foreground/60">Đánh giá đang chờ xử lý</p>
@@ -376,11 +376,11 @@ export default function DashboardPage() {
       {/* Header Greeting Section */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 relative px-1">
         <div className="space-y-4 max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-serif font-bold italic tracking-wide uppercase mb-1 animate-in fade-in slide-in-from-left-4 duration-500">
+          <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-sans font-bold italic tracking-wide uppercase mb-1 animate-in fade-in slide-in-from-left-4 duration-500">
             <Sparkles className="size-3" />
             Bảng điều khiển Tổng quan
           </div>
-          <h2 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground leading-[0.9] uppercase animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <h2 className="text-3xl md:text-4xl font-sans font-bold italic tracking-tight text-foreground leading-[0.9] uppercase animate-in fade-in slide-in-from-bottom-4 duration-700">
             {getGreeting()}, <br />
             <span className="text-primary not-italic">{user?.displayName?.split(' ')[0] || 'Quản trị viên'}</span>.
           </h2>
@@ -389,11 +389,11 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-3 pt-6 md:pt-0 animate-in fade-in zoom-in-95 duration-1000 delay-200">
-          <Button variant="outline" className="h-11 px-6 rounded-xl bg-background border-border/40 text-muted-foreground hover:text-foreground font-serif font-bold italic uppercase tracking-wide text-[10px] hover:bg-muted/30 transition-all group">
+          <Button variant="outline" className="h-11 px-6 rounded-xl bg-background border-border/40 text-muted-foreground hover:text-foreground font-sans font-bold italic uppercase tracking-wide text-[10px] hover:bg-muted/30 transition-all group">
             Thống kê
             <TrendingUp className="ml-2 size-3.5 opacity-40 group-hover:opacity-100 transition-all" />
           </Button>
-          <Button className="h-11 px-6 rounded-xl bg-primary text-white font-serif font-bold italic uppercase tracking-wide text-[10px] shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all group">
+          <Button className="h-11 px-6 rounded-xl bg-primary text-white font-sans font-bold italic uppercase tracking-wide text-[10px] shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all group">
             Xuất Dữ liệu
             <ArrowUpRight className="ml-2 size-3.5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
           </Button>

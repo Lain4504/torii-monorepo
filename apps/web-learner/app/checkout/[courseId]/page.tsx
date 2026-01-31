@@ -225,7 +225,7 @@ export default function CheckoutPage() {
                     {/* LEFT COLUMN: Order Summary */}
                     <div className="lg:col-span-5 space-y-8">
                         <div className="space-y-4">
-                            <h1 className="text-4xl md:text-5xl font-serif font-bold italic tracking-tight leading-[0.9]">
+                            <h1 className="text-4xl md:text-5xl font-sans font-bold italic tracking-tight leading-[0.9]">
                                 Xác nhận <br />
                                 <span className="text-primary not-italic">Đơn hàng</span>
                             </h1>
@@ -254,7 +254,7 @@ export default function CheckoutPage() {
                                                     {course.jlptLevel || 'N/A'}
                                                 </span>
                                             </div>
-                                            <h3 className="font-bold font-serif italic text-2xl leading-tight text-white/90">
+                                            <h3 className="font-bold font-sans italic text-2xl leading-tight text-white/90">
                                                 {course.title}
                                             </h3>
                                         </div>
@@ -315,7 +315,7 @@ export default function CheckoutPage() {
                                             <Gift className="w-6 h-6" />
                                         </div>
                                         <div>
-                                            <Label htmlFor="gift-mode" className="text-lg font-serif font-bold italic cursor-pointer">Mua làm quà tặng</Label>
+                                            <Label htmlFor="gift-mode" className="text-lg font-sans font-bold italic cursor-pointer">Mua làm quà tặng</Label>
                                             <p className="text-xs text-muted-foreground/60 max-w-[200px] leading-relaxed">Gửi tặng khóa học này cho bạn bè hoặc người thân.</p>
                                         </div>
                                     </div>
@@ -420,7 +420,7 @@ export default function CheckoutPage() {
                                     )}
                                     <div className="flex justify-between items-end pt-2">
                                         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Tổng thanh toán</span>
-                                        <span className="text-4xl md:text-5xl font-serif font-bold italic tracking-tighter text-primary">
+                                        <span className="text-4xl md:text-5xl font-sans font-bold italic tracking-tighter text-primary">
                                             {finalPrice.toLocaleString()} <span className="text-sm font-sans font-normal text-muted-foreground not-italic tracking-normal">VNĐ</span>
                                         </span>
                                     </div>
@@ -433,7 +433,7 @@ export default function CheckoutPage() {
                                 >
                                     <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
                                     <div className="flex flex-col items-center gap-1">
-                                        <span className="text-xl font-serif font-bold italic">
+                                        <span className="text-xl font-sans font-bold italic">
                                             {isCreatingLink ? 'Đang xử lý...' : (isGift ? 'Gửi Quà Tặng Ngay' : 'Thanh Toán Ngay')}
                                         </span>
                                         {!isCreatingLink && (
@@ -465,7 +465,7 @@ export default function CheckoutPage() {
                                 <div className="p-2 bg-primary/10 rounded-xl text-primary">
                                     <CreditCard className="w-5 h-5" />
                                 </div>
-                                <h3 className="text-lg font-serif font-bold italic">Cổng thanh toán</h3>
+                                <h3 className="text-lg font-sans font-bold italic">Cổng thanh toán</h3>
                             </div>
                             <button onClick={() => setIsDialogOpen(false)} className="w-10 h-10 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center transition-colors">
                                 <X className="w-5 h-5 opacity-60" />

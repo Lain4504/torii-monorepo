@@ -173,7 +173,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                 <BookOpen className="h-6 w-6" />
                             </div>
                             <div className="space-y-1">
-                                <SheetTitle className="text-2xl font-serif font-bold italic tracking-tight text-foreground uppercase">
+                                <SheetTitle className="text-2xl font-sans font-bold italic tracking-tight text-foreground uppercase">
                                     Chỉnh Sửa Khóa Học
                                 </SheetTitle>
                                 <SheetDescription className="text-xs font-medium text-muted-foreground/60 leading-relaxed">
@@ -202,7 +202,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                 <div className="p-5 rounded-2xl bg-background border border-border transition-all shadow-sm">
                                     <div className="flex items-center gap-2.5 text-muted-foreground/60 mb-2">
                                         <Users className="h-3.5 w-3.5" />
-                                        <span className="text-[10px] font-serif font-bold italic uppercase tracking-wider">Học Viên Hoạt Động</span>
+                                        <span className="text-[10px] font-sans font-bold italic uppercase tracking-wider">Học Viên Hoạt Động</span>
                                     </div>
                                     <div className="text-2xl font-bold text-foreground tracking-tight pl-1">
                                         {course.totalStudents || 0}
@@ -211,7 +211,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                 <div className="p-5 rounded-2xl bg-background border border-border transition-all shadow-sm">
                                     <div className="flex items-center gap-2.5 text-muted-foreground/60 mb-2">
                                         <Calendar className="h-3.5 w-3.5" />
-                                        <span className="text-[10px] font-serif font-bold italic uppercase tracking-wider">Cập Nhật Lần Cuối</span>
+                                        <span className="text-[10px] font-sans font-bold italic uppercase tracking-wider">Cập Nhật Lần Cuối</span>
                                     </div>
                                     <div className="text-lg font-bold text-foreground tracking-tight pl-1">
                                         {new Date(course.updatedAt).toLocaleDateString('vi-VN', {
@@ -229,7 +229,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                             <div className="space-y-6">
                                 <div className="flex items-center gap-3 pb-2 border-b border-border/40">
                                     <div className="h-px flex-1 bg-border/20" />
-                                    <h3 className="text-[10px] font-serif font-bold italic uppercase tracking-wider text-muted-foreground/50 text-center">
+                                    <h3 className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/50 text-center">
                                         Thông Tin Cơ Bản
                                     </h3>
                                     <div className="h-px flex-1 bg-border/20" />
@@ -455,7 +455,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                 <div className="space-y-6 pt-6">
                                     <div className="flex items-center gap-3 pb-2 border-b border-border/40">
                                         <div className="h-px flex-1 bg-border/20" />
-                                        <h3 className="text-[10px] font-serif font-bold italic uppercase tracking-wider text-muted-foreground/50 text-center">
+                                        <h3 className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/50 text-center">
                                             Chương Trình Học
                                         </h3>
                                         <div className="h-px flex-1 bg-border/20" />
@@ -546,7 +546,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                 <div className="space-y-6 pt-6">
                                     <div className="flex items-center gap-3 pb-2 border-b border-border/40">
                                         <div className="h-px flex-1 bg-border/20" />
-                                        <h3 className="text-[10px] font-serif font-bold italic uppercase tracking-wider text-muted-foreground/50 text-center">
+                                        <h3 className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/50 text-center">
                                             Phương Tiện
                                         </h3>
                                         <div className="h-px flex-1 bg-border/20" />

@@ -177,7 +177,7 @@ export default function PublicLearnerProfilePage() {
                             src={profile.avatarUrl || ''}
                             alt={profile.displayName}
                         />
-                        <AvatarFallback className="text-3xl bg-primary/5 text-primary font-serif italic font-bold">
+                        <AvatarFallback className="text-3xl bg-primary/5 text-primary font-sans italic font-bold">
                             {profile.displayName[0]?.toUpperCase()}
                         </AvatarFallback>
                     </Avatar>
@@ -186,7 +186,7 @@ export default function PublicLearnerProfilePage() {
                 <div className="flex-1 text-center md:text-left space-y-3">
                     <div className="space-y-1">
                         <div className="flex items-center justify-center md:justify-start gap-3">
-                            <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+                            <h1 className="text-3xl md:text-4xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
                                 {profile.displayName}
                             </h1>
                             <Badge variant="outline" className="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest border-primary/20 text-primary">
@@ -223,7 +223,7 @@ export default function PublicLearnerProfilePage() {
                     <div className="space-y-8">
                         <div className="flex items-center gap-3">
                             <div className="w-1 h-5 bg-primary/40 rounded-full" />
-                            <h2 className="text-xl font-serif font-bold italic text-foreground uppercase tracking-tight">
+                            <h2 className="text-xl font-sans font-bold italic text-foreground uppercase tracking-tight">
                                 Thông tin cá nhân
                             </h2>
                         </div>
@@ -260,7 +260,7 @@ export default function PublicLearnerProfilePage() {
                                 <p className="text-[10px] text-muted-foreground/60 font-black uppercase tracking-widest mb-1">{stat.label}</p>
                                 <div className="flex items-center gap-3">
                                     <stat.icon className={`w-4 h-4 ${stat.color}`} />
-                                    <span className="text-xl font-serif font-bold italic text-foreground">{stat.value}</span>
+                                    <span className="text-xl font-sans font-bold italic text-foreground">{stat.value}</span>
                                 </div>
                             </div>
                         ))}
@@ -271,7 +271,7 @@ export default function PublicLearnerProfilePage() {
                 <div className="space-y-12">
                     {/* Achievements */}
                     <div className="space-y-6">
-                        <h3 className="text-sm font-serif font-bold italic uppercase tracking-widest text-muted-foreground px-1">Thành tích công nhận</h3>
+                        <h3 className="text-sm font-sans font-bold italic uppercase tracking-widest text-muted-foreground px-1">Thành tích công nhận</h3>
                         {profile.achievements.length > 0 ? (
                             <div className="grid gap-3">
                                 {profile.achievements.map((achievement) => (
@@ -305,7 +305,7 @@ export default function PublicLearnerProfilePage() {
 
                     {/* Certificates */}
                     <div className="space-y-6">
-                        <h3 className="text-sm font-serif font-bold italic uppercase tracking-widest text-muted-foreground px-1">Văn bằng & Chứng chỉ</h3>
+                        <h3 className="text-sm font-sans font-bold italic uppercase tracking-widest text-muted-foreground px-1">Văn bằng & Chứng chỉ</h3>
                         {profile.certificates.length > 0 ? (
                             <div className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md overflow-hidden shadow-sm">
                                 {profile.certificates.map((cert) => (

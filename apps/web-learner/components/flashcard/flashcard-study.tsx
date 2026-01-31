@@ -188,7 +188,7 @@ export function FlashcardStudy({ deckId }: FlashcardStudyProps) {
                                     </h2>
                                     {currentCard.furigana && <p className="text-xl text-primary/60 font-mono">{currentCard.furigana}</p>}
                                     {currentCard.exampleSentence && (
-                                        <p className="text-lg text-muted-foreground/80 italic font-serif leading-relaxed">
+                                        <p className="text-lg text-muted-foreground/80 italic font-sans leading-relaxed">
                                             "{currentCard.exampleSentence}"
                                         </p>
                                     )}

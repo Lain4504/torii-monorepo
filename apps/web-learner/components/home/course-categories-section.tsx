@@ -60,7 +60,7 @@ export function CourseCategoriesSection() {
                             <Layers className="w-3 h-3" />
                             <span>Lộ trình học tập</span>
                         </div>
-                        <h2 className="text-5xl md:text-7xl font-serif font-bold tracking-tight text-foreground uppercase italic leading-[0.9]">
+                        <h2 className="text-5xl md:text-7xl font-sans font-bold tracking-tight text-foreground uppercase italic leading-[0.9]">
                             Lộ Trình <span className="text-primary not-italic">JLPT</span> <br /> Chuẩn Quốc Tế
                         </h2>
                         <p className="text-[11px] font-black uppercase tracking-[0.25em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-8 py-1">
@@ -95,7 +95,7 @@ export function CourseCategoriesSection() {
 
                             {/* Content */}
                             <div className="space-y-4 flex-1 text-center">
-                                <h3 className="text-3xl font-serif font-bold italic text-foreground leading-tight">{level.title}</h3>
+                                <h3 className="text-3xl font-sans font-bold italic text-foreground leading-tight">{level.title}</h3>
                                 <p className="text-[11px] text-muted-foreground/60 font-medium uppercase tracking-wider">{level.description}</p>
                             </div>
 

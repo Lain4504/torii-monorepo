@@ -181,7 +181,7 @@ export default function InstructorProfilePage() {
                                 <div className="absolute -inset-1 bg-gradient-to-r from-primary to-purple-600 rounded-full blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
                                 <Avatar className="w-24 h-24 md:w-32 md:h-32 ring-4 md:ring-8 ring-background shadow-2xl relative">
                                     <AvatarImage src={profile.avatarUrl} alt={profile.name} className="object-cover" />
-                                    <AvatarFallback className="text-xl md:text-3xl bg-primary/10 text-primary font-serif font-black">{profile.name[0]}</AvatarFallback>
+                                    <AvatarFallback className="text-xl md:text-3xl bg-primary/10 text-primary font-sans font-black">{profile.name[0]}</AvatarFallback>
                                 </Avatar>
                             </div>
 
@@ -221,7 +221,7 @@ export default function InstructorProfilePage() {
                         <div className="flex-1 text-center md:text-left space-y-6">
                             <div>
                                 <h4 className="text-sm font-black uppercase tracking-widest text-primary mb-2">Giảng viên / Chuyên gia</h4>
-                                <h1 className="text-3xl md:text-5xl font-serif font-bold italic text-foreground tracking-tight mb-3">
+                                <h1 className="text-3xl md:text-5xl font-sans font-bold italic text-foreground tracking-tight mb-3">
                                     {profile.name}
                                 </h1>
                                 <p className="text-lg md:text-xl text-muted-foreground font-medium">{profile.headline}</p>
@@ -275,7 +275,7 @@ export default function InstructorProfilePage() {
                         <section className="space-y-6 animate-in slide-in-from-bottom-5 duration-700">
                             <div className="flex items-center gap-3">
                                 <span className="w-1.5 h-6 bg-primary rounded-full"></span>
-                                <h2 className="text-xl font-bold font-serif italic text-foreground uppercase tracking-wider">
+                                <h2 className="text-xl font-bold font-sans italic text-foreground uppercase tracking-wider">
                                     Giới thiệu
                                 </h2>
                             </div>
@@ -292,7 +292,7 @@ export default function InstructorProfilePage() {
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
                                     <span className="w-1.5 h-6 bg-primary rounded-full"></span>
-                                    <h2 className="text-xl font-bold font-serif italic text-foreground uppercase tracking-wider">
+                                    <h2 className="text-xl font-bold font-sans italic text-foreground uppercase tracking-wider">
                                         Khóa học của tôi ({profile.courses.length})
                                     </h2>
                                 </div>

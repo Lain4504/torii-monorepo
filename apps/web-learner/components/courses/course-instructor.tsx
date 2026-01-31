@@ -18,7 +18,7 @@ export function CourseInstructor({ course }: CourseInstructorProps) {
             <div className="space-y-10 animate-in fade-in duration-700">
                 <div className="flex items-center gap-4">
                     <Users className="w-5 h-5 text-primary/40" />
-                    <h2 className="text-2xl md:text-3xl font-serif font-bold italic text-foreground uppercase tracking-tight">Đội ngũ Cố vấn</h2>
+                    <h2 className="text-2xl md:text-3xl font-sans font-bold italic text-foreground uppercase tracking-tight">Đội ngũ Cố vấn</h2>
                 </div>
 
                 <div className="rounded-3xl p-6 bg-muted/20 border border-border/40 relative overflow-hidden group">
@@ -47,7 +47,7 @@ export function CourseInstructor({ course }: CourseInstructorProps) {
                                 <div className="inline-flex items-center gap-2 px-2.5 py-0.5 bg-primary/5 text-primary rounded-full text-[8px] font-black uppercase tracking-[0.3em]">
                                     <span>Đội ngũ Chuyên gia</span>
                                 </div>
-                                <h3 className="text-xl md:text-2xl font-serif font-bold italic tracking-tight text-foreground uppercase">Học viện Torii Nihongo</h3>
+                                <h3 className="text-xl md:text-2xl font-sans font-bold italic tracking-tight text-foreground uppercase">Học viện Torii Nihongo</h3>
                                 <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic">Giảng viên ngôn ngữ & Chuyên gia đào tạo JLPT</p>
                             </div>
 
@@ -110,7 +110,7 @@ export function CourseInstructor({ course }: CourseInstructorProps) {
                                     <div className="inline-flex items-center gap-2 px-2.5 py-0.5 bg-primary/5 text-primary rounded-full text-[8px] font-black uppercase tracking-[0.2em]">
                                         <span>Giảng viên chuyên môn</span>
                                     </div>
-                                    <h3 className="text-xl md:text-2xl font-serif font-bold italic tracking-tight text-foreground uppercase group-hover:text-primary transition-colors leading-tight">
+                                    <h3 className="text-xl md:text-2xl font-sans font-bold italic tracking-tight text-foreground uppercase group-hover:text-primary transition-colors leading-tight">
                                         {instructor.user.displayName}
                                     </h3>
                                     <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic">Trưởng nhóm Học thuật tại Torii Nihongo</p>

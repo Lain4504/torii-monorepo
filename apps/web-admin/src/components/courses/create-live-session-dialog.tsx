@@ -118,7 +118,7 @@ export function CreateLiveSessionDialog({ open, onOpenChange, courseId, initialD
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[425px] rounded-[2rem] bg-background/95 backdrop-blur-xl border-border/40 overflow-hidden shadow-2xl">
                 <DialogHeader className="p-6 pb-2">
-                    <DialogTitle className="text-xl font-serif font-bold italic tracking-tight uppercase">
+                    <DialogTitle className="text-xl font-sans font-bold italic tracking-tight uppercase">
                         {initialData ? 'Cập nhật' : 'Lên lịch'} <span className="text-primary not-italic">Buổi Live</span>
                     </DialogTitle>
                     <DialogDescription className="text-xs font-medium text-muted-foreground/60 uppercase tracking-widest pt-1">
@@ -248,7 +248,7 @@ export function CreateLiveSessionDialog({ open, onOpenChange, courseId, initialD
                             <Button
                                 type="submit"
                                 disabled={createMutation.isPending || updateMutation.isPending}
-                                className="rounded-xl bg-primary text-primary-foreground font-serif font-bold italic text-xs uppercase tracking-wide px-6 shadow-sm hover:shadow-md transition-all"
+                                className="rounded-xl bg-primary text-primary-foreground font-sans font-bold italic text-xs uppercase tracking-wide px-6 shadow-sm hover:shadow-md transition-all"
                             >
                                 {initialData ? 'Cập nhật lịch' : 'Lên lịch ngay'}
                             </Button>

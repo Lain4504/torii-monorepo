@@ -75,7 +75,7 @@ export default function PostListingPage() {
                         <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                         <span>Torii Nihongo Journal</span>
                     </div>
-                    <h1 className="text-4xl md:text-7xl font-serif font-bold tracking-tight text-foreground uppercase italic leading-[1.1]">
+                    <h1 className="text-4xl md:text-7xl font-sans font-bold tracking-tight text-foreground uppercase italic leading-[1.1]">
                         Kiến Thức & <span className="text-primary">Cảm Hứng</span>
                     </h1>
                     <p className="text-[11px] md:text-xs font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-8 max-w-2xl mx-auto py-1 leading-relaxed">
@@ -145,7 +145,7 @@ export default function PostListingPage() {
                                     <Newspaper className="w-10 h-10 text-primary/20" />
                                 </div>
                                 <div className="space-y-3">
-                                    <h3 className="text-4xl font-serif font-bold italic text-foreground uppercase tracking-tight leading-tight">
+                                    <h3 className="text-4xl font-sans font-bold italic text-foreground uppercase tracking-tight leading-tight">
                                         Chưa có <br /> <span className="text-primary/40">bài viết nào</span>
                                     </h3>
                                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 max-w-xs mx-auto">

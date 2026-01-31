@@ -94,7 +94,7 @@ export function CourseCard(props: CourseCardProps) {
 
                             {/* Title & Instructor */}
                             <div className="space-y-1.5">
-                                <h3 className="text-xl font-serif font-bold italic tracking-tight leading-[1.1] text-foreground group-hover:text-primary transition-colors uppercase">
+                                <h3 className="text-xl font-sans font-bold italic tracking-tight leading-[1.1] text-foreground group-hover:text-primary transition-colors uppercase">
                                     {title}
                                 </h3>
                                 <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic leading-none">
@@ -126,7 +126,7 @@ export function CourseCard(props: CourseCardProps) {
                             )}
                             <div className="flex items-baseline gap-1">
                                 <span className={cn(
-                                    "text-xl md:text-2xl font-serif font-bold italic tracking-tighter leading-none",
+                                    "text-xl md:text-2xl font-sans font-bold italic tracking-tighter leading-none",
                                     isFree ? "text-emerald-500" : "text-primary"
                                 )}>
                                     {isFree ? 'MIỄN PHÍ' : `${safePrice.toLocaleString()} VNĐ`}

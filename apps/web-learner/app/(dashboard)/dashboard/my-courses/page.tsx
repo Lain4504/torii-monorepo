@@ -79,7 +79,7 @@ export default function MyCoursesPage() {
                     <Sparkles className="w-3 h-3" />
                     <span>Hành trình học tập</span>
                 </div>
-                <h1 className="text-4xl md:text-5xl font-serif font-bold tracking-tight text-foreground uppercase italic leading-[0.9] animate-in fade-in slide-in-from-bottom-3 duration-700">
+                <h1 className="text-4xl md:text-5xl font-sans font-bold tracking-tight text-foreground uppercase italic leading-[0.9] animate-in fade-in slide-in-from-bottom-3 duration-700">
                     Khóa học <span className="text-primary not-italic">Của Tôi</span>
                 </h1>
                 <p className="text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-6 py-1 animate-in fade-in slide-in-from-bottom-4 duration-1000">
@@ -98,7 +98,7 @@ export default function MyCoursesPage() {
                                     <Icon className="w-4 h-4" />
                                 </div>
                             </div>
-                            <p className="text-3xl font-serif font-bold italic tracking-tighter">{stat.value}</p>
+                            <p className="text-3xl font-sans font-bold italic tracking-tighter">{stat.value}</p>
                             <p className="text-[10px] text-muted-foreground/40 font-black uppercase tracking-[0.2em] mt-2 italic">{stat.label}</p>
                         </div>
                     )
@@ -173,7 +173,7 @@ export default function MyCoursesPage() {
                         </div>
                         <CardContent className="p-5 space-y-4 flex-1 flex flex-col justify-between">
                             <div className="space-y-1.5">
-                                <h3 className="text-xl font-serif font-bold text-foreground leading-tight line-clamp-2 group-hover:text-primary transition-colors italic">
+                                <h3 className="text-xl font-sans font-bold text-foreground leading-tight line-clamp-2 group-hover:text-primary transition-colors italic">
                                     {course.title}
                                 </h3>
                                 <p className="text-xs text-muted-foreground font-medium">{course.instructor || 'Giảng viên Torii'}</p>

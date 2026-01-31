@@ -24,7 +24,7 @@ export function HeroSection() {
                                 <span>Học trực tuyến & Trợ lý AI</span>
                             </div>
 
-                            <h1 className="text-5xl sm:text-7xl lg:text-8xl font-serif font-bold tracking-tight leading-[0.8] text-foreground animate-in fade-in slide-in-from-left-4 duration-700 uppercase italic">
+                            <h1 className="text-5xl sm:text-7xl lg:text-8xl font-sans font-bold tracking-tight leading-[0.8] text-foreground animate-in fade-in slide-in-from-left-4 duration-700 uppercase italic">
                                 <span className="text-primary/20 block mb-4 not-italic font-sans font-black tracking-tighter text-4xl lg:text-4xl">Chinh Phục</span>
                                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary to-blue-600">Tiếng Nhật</span>
                                 <br />

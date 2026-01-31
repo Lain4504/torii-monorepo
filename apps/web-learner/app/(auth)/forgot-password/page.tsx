@@ -42,7 +42,7 @@ export default function ForgotPasswordPage() {
                                 <Sparkles className="w-3.5 h-3.5" />
                                 <span>Sensei Approved</span>
                             </div>
-                            <h2 className="text-4xl lg:text-4xl font-serif font-bold tracking-tight text-foreground leading-[0.9] uppercase italic">
+                            <h2 className="text-4xl lg:text-4xl font-sans font-bold tracking-tight text-foreground leading-[0.9] uppercase italic">
                                 Học tiếng Nhật <br />
                                 <span className="text-primary not-italic">Thông minh hơn.</span>
                             </h2>
@@ -99,7 +99,7 @@ export default function ForgotPasswordPage() {
                             </div>
 
                             <div className="space-y-2 text-center lg:text-left">
-                                <h1 className="text-3xl font-serif font-bold italic uppercase tracking-tight text-foreground">Quên Mật Khẩu</h1>
+                                <h1 className="text-3xl font-sans font-bold italic uppercase tracking-tight text-foreground">Quên Mật Khẩu</h1>
                                 <p className="text-xs font-medium text-muted-foreground/60">Nhập email để nhận link khôi phục mật khẩu</p>
                             </div>
                         </div>

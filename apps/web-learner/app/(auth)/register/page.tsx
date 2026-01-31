@@ -41,7 +41,7 @@ export default function RegisterPage() {
                                 <Globe className="w-3.5 h-3.5" />
                                 <span>Lớp học toàn cầu</span>
                             </div>
-                            <h2 className="text-4xl lg:text-4xl font-serif font-bold tracking-tight text-foreground leading-[0.9] uppercase italic">
+                            <h2 className="text-4xl lg:text-4xl font-sans font-bold tracking-tight text-foreground leading-[0.9] uppercase italic">
                                 Gia nhập <br />
                                 <span className="text-primary not-italic">Cộng đồng Tri thức.</span>
                             </h2>
@@ -73,17 +73,17 @@ export default function RegisterPage() {
                     {/* Stats */}
                     <div className="relative z-20 mt-auto flex gap-12 items-center border-t border-border/20 pt-8 animate-in fade-in slide-in-from-bottom-4 duration-1200">
                         <div className="flex flex-col">
-                            <span className="text-3xl font-serif font-bold text-foreground tracking-tight italic">5K+</span>
+                            <span className="text-3xl font-sans font-bold text-foreground tracking-tight italic">5K+</span>
                             <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 mt-1">Học viên</span>
                         </div>
                         <div className="w-px h-8 bg-border/40" />
                         <div className="flex flex-col">
-                            <span className="text-3xl font-serif font-bold text-foreground tracking-tight italic">200+</span>
+                            <span className="text-3xl font-sans font-bold text-foreground tracking-tight italic">200+</span>
                             <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 mt-1">Khóa học</span>
                         </div>
                         <div className="w-px h-8 bg-border/40" />
                         <div className="flex flex-col">
-                            <span className="text-3xl font-serif font-bold text-primary tracking-tight italic">4.9</span>
+                            <span className="text-3xl font-sans font-bold text-primary tracking-tight italic">4.9</span>
                             <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 mt-1">Đánh giá</span>
                         </div>
                     </div>

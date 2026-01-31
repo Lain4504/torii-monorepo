@@ -114,7 +114,7 @@ export function NotificationsDropdown() {
                         <div>
                             <div className="flex items-center gap-2 mb-1">
                                 <Sparkles className="w-3.5 h-3.5 text-primary" />
-                                <h3 className="font-serif font-bold italic tracking-tight text-foreground/90 uppercase text-[11px]">Thông báo mới</h3>
+                                <h3 className="font-sans font-bold italic tracking-tight text-foreground/90 uppercase text-[11px]">Thông báo mới</h3>
                             </div>
                             <p className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest">
                                 {unreadCount > 0 ? `Bạn có ${unreadCount} thông báo chưa đọc` : 'Tất cả đã được đồng bộ'}
@@ -206,7 +206,7 @@ export function NotificationsDropdown() {
                                 <Bell className="w-8 h-8 text-muted-foreground/20 relative z-10" />
                             </div>
                             <div className="space-y-1">
-                                <h3 className="font-serif font-bold italic text-foreground/40">Không có thông báo</h3>
+                                <h3 className="font-sans font-bold italic text-foreground/40">Không có thông báo</h3>
                                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/20 italic">Chúng tôi sẽ báo cho bạn khi có tin mới.</p>
                             </div>
                         </div>

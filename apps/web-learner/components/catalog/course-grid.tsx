@@ -56,7 +56,7 @@ export function CourseGrid({
                         <Inbox className="w-10 h-10 text-destructive/40" />
                     </div>
                     <div className="space-y-2">
-                        <h3 className="text-2xl font-serif font-bold italic text-destructive uppercase tracking-tight">Data Sync Error</h3>
+                        <h3 className="text-2xl font-sans font-bold italic text-destructive uppercase tracking-tight">Data Sync Error</h3>
                         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 max-w-xs">{error?.message || 'Connection to academy servers lost'}</p>
                     </div>
                 </div>
@@ -67,7 +67,7 @@ export function CourseGrid({
                             <EmptyMedia variant="icon" className="bg-background shadow-2xl border border-primary/10">
                                 <Search className="text-primary/40 w-8 h-8" />
                             </EmptyMedia>
-                            <EmptyTitle className="text-3xl font-serif font-bold italic uppercase tracking-tight">No courses found</EmptyTitle>
+                            <EmptyTitle className="text-3xl font-sans font-bold italic uppercase tracking-tight">No courses found</EmptyTitle>
                             <EmptyDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 mt-4 leading-relaxed">
                                 We couldn't find any courses matching your current filters. Try adjusting your selection.
                             </EmptyDescription>

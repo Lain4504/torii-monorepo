@@ -71,7 +71,7 @@ export function ErrorState({
                 <div className="absolute bottom-[15%] right-[10%] w-[30%] h-[30%] bg-accent/[0.04] rounded-full blur-[80px] animate-pulse duration-[12s]" />
 
                 {/* Large Background Japanese Character */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[18rem] md:text-[22rem] font-serif font-black text-foreground/[0.015] select-none pointer-events-none">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[18rem] md:text-[22rem] font-sans font-black text-foreground/[0.015] select-none pointer-events-none">
                     {activeVariant.japanese}
                 </div>
             </div>
@@ -80,7 +80,7 @@ export function ErrorState({
                 {/* Error Code & Indicator */}
                 <div className="relative group">
                     <div className="absolute -inset-6 bg-primary/5 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-                    <span className="text-[9rem] md:text-[12rem] font-serif font-black text-primary/[0.03] leading-none select-none tracking-tighter italic">
+                    <span className="text-[9rem] md:text-[12rem] font-sans font-black text-primary/[0.03] leading-none select-none tracking-tighter italic">
                         {code}
                     </span>
                     <div className="absolute inset-0 flex items-center justify-center">
@@ -96,7 +96,7 @@ export function ErrorState({
                         <span className="text-[9px] font-black uppercase tracking-[0.4em] text-primary/60 mb-3 bg-primary/5 px-3 py-1 rounded-full border border-primary/10">
                             {activeVariant.subtitle}
                         </span>
-                        <h1 className="text-4xl md:text-5xl font-serif font-bold italic text-foreground tracking-tight leading-none mb-4">
+                        <h1 className="text-4xl md:text-5xl font-sans font-bold italic text-foreground tracking-tight leading-none mb-4">
                             {title}
                         </h1>
                         <p className="text-sm md:text-base text-muted-foreground/60 font-medium max-w-md mx-auto leading-relaxed">

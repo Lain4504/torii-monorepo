@@ -132,7 +132,7 @@ export function FilterSidebar({ selectedLevels = [], onLevelChange, priceFilter,
             <div className="pt-8">
                 <div className="p-6 rounded-3xl bg-primary/5 border border-primary/10 space-y-3 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-16 h-16 bg-primary/10 rounded-full -mr-8 -mt-8 blur-2xl group-hover:bg-primary/20 transition-all" />
-                    <h4 className="text-[11px] font-serif font-bold italic uppercase tracking-widest text-primary">Academic Guidance</h4>
+                    <h4 className="text-[11px] font-sans font-bold italic uppercase tracking-widest text-primary">Academic Guidance</h4>
                     <p className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground/40 leading-[1.6]">
                         Connect with Torii Academic Advisors for a personalized roadmap.
                     </p>

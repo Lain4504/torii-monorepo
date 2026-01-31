@@ -57,7 +57,7 @@ export function UsersPage() {
                     <ShieldCheck className="size-6 text-destructive" />
                 </div>
                 <div className="max-w-md space-y-2">
-                    <h3 className="text-xl font-serif font-bold italic uppercase tracking-tight text-foreground">Truy cập bị hạn chế</h3>
+                    <h3 className="text-xl font-sans font-bold italic uppercase tracking-tight text-foreground">Truy cập bị hạn chế</h3>
                     <p className="text-sm text-muted-foreground">{error.message}</p>
                     <Button
                         variant="outline"
@@ -150,11 +150,11 @@ export function UsersPage() {
             {/* Header Section - Minimal Zen Style */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
                 <div className="space-y-4 max-w-2xl">
-                    <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-serif font-bold italic tracking-wide uppercase mb-1">
+                    <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-sans font-bold italic tracking-wide uppercase mb-1">
                         <Users className="size-3.5" />
                         Quản lý Tài khoản
                     </div>
-                    <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+                    <h1 className="text-3xl md:text-4xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
                         Danh sách <span className="text-primary not-italic">Người dùng</span>
                     </h1>
                     <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
@@ -169,7 +169,7 @@ export function UsersPage() {
                     </div>
                     <Button
                         onClick={createDialog.setTrue}
-                        className="h-11 px-6 rounded-xl bg-primary text-primary-foreground font-serif font-bold italic text-xs uppercase tracking-wide hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-0.5 transition-all"
+                        className="h-11 px-6 rounded-xl bg-primary text-primary-foreground font-sans font-bold italic text-xs uppercase tracking-wide hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-0.5 transition-all"
                     >
                         Thêm người dùng mới
                         <UserPlus className="ml-2 size-4" />

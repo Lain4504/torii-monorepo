@@ -75,11 +75,11 @@ export default function CourseReviewsPage() {
             {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
                 <div className="space-y-4 max-w-2xl text-left">
-                    <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-serif font-bold italic tracking-wide uppercase mb-1">
+                    <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-sans font-bold italic tracking-wide uppercase mb-1">
                         <Star className="size-3.5" />
                         Trung tâm Phản hồi
                     </div>
-                    <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+                    <h1 className="text-3xl md:text-4xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
                         Đánh giá <span className="text-primary not-italic">Khóa học</span>
                     </h1>
                     <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
@@ -204,7 +204,7 @@ export default function CourseReviewsPage() {
                                             </TableCell>
                                             <TableCell className="py-4 px-6 border-r border-border/50 last:border-r-0">
                                                 <div className="flex items-center gap-2">
-                                                    <span className="text-sm font-medium text-foreground/80 truncate max-w-[220px] font-serif italic" title={review.courseTitle || review.courseId}>
+                                                    <span className="text-sm font-medium text-foreground/80 truncate max-w-[220px] font-sans italic" title={review.courseTitle || review.courseId}>
                                                         {review.courseTitle || review.courseId}
                                                     </span>
                                                 </div>

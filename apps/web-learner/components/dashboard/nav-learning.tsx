@@ -26,7 +26,7 @@ export function NavLearning() {
                     className="group block p-4 rounded-3xl bg-primary/[0.03] hover:bg-primary/[0.08] border border-primary/10 transition-all duration-300 shadow-sm hover:shadow-md"
                 >
                     <div className="flex items-start justify-between gap-3 mb-4">
-                        <h4 className="text-xs font-serif font-bold text-foreground leading-snug group-hover:text-primary transition-colors italic line-clamp-2">
+                        <h4 className="text-xs font-sans font-bold text-foreground leading-snug group-hover:text-primary transition-colors italic line-clamp-2">
                             {activeCourse.title}
                         </h4>
                         <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all shadow-sm">

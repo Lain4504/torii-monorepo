@@ -37,7 +37,7 @@ export default function VerifyRequestPage() {
                     </div>
 
                     <div className="space-y-2 mb-8">
-                        <h1 className="text-2xl font-serif font-bold tracking-tight text-foreground uppercase italic pb-1">
+                        <h1 className="text-2xl font-sans font-bold tracking-tight text-foreground uppercase italic pb-1">
                             Kiểm tra hộp thư
                         </h1>
                         <p className="text-sm text-muted-foreground/80 font-medium">

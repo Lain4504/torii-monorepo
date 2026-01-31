@@ -43,7 +43,7 @@ export function HowItWorksSection() {
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 {/* Section Header */}
                 <div className="text-center max-w-3xl mx-auto mb-20 space-y-6">
-                    <h2 className="text-4xl md:text-5xl font-serif font-bold tracking-tight text-foreground uppercase italic">
+                    <h2 className="text-4xl md:text-5xl font-sans font-bold tracking-tight text-foreground uppercase italic">
                         Hành trình <span className="text-primary not-italic">Học Tập</span>
                     </h2>
                     <p className="text-[11px] font-black uppercase tracking-[0.25em] text-muted-foreground/40 italic">
@@ -74,7 +74,7 @@ export function HowItWorksSection() {
 
                                 {/* Step Content */}
                                 <div className="text-center space-y-4 px-4">
-                                    <h3 className="text-xl font-serif font-bold italic text-foreground group-hover:text-primary transition-all">
+                                    <h3 className="text-xl font-sans font-bold italic text-foreground group-hover:text-primary transition-all">
                                         {step.title}
                                     </h3>
                                     <p className="text-[11px] text-muted-foreground/60 font-medium uppercase tracking-wider leading-relaxed">

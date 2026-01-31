@@ -22,7 +22,7 @@ export function CTASection() {
                             Đặc quyền học viên
                         </div>
 
-                        <h2 className="text-5xl md:text-7xl font-serif font-bold text-background tracking-tight leading-[0.9] uppercase italic">
+                        <h2 className="text-5xl md:text-7xl font-sans font-bold text-background tracking-tight leading-[0.9] uppercase italic">
                             Sẵn Sàng <br /> <span className="text-primary not-italic">Chinh Phục</span> <br className="hidden md:block" /> Tiếng Nhật?
                         </h2>
 

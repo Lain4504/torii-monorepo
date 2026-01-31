@@ -84,7 +84,7 @@ export function Header() {
                                 <Sparkles className="w-6 h-6 text-white relative z-10" />
                             </div>
                             <div className="flex flex-col">
-                                <span className="font-serif font-bold text-2xl tracking-tighter text-foreground leading-none italic">TORII</span>
+                                <span className="font-sans font-bold text-2xl tracking-tighter text-foreground leading-none italic">TORII</span>
                                 <span className="text-[9px] font-black text-primary uppercase tracking-[0.3em] opacity-80 mt-1 pl-0.5">Nihongo Center</span>
                             </div>
                         </Link>

@@ -40,7 +40,7 @@ export default function QuestionBankPage() {
                             <Database className="size-3.5" />
                             <span>Cơ sở tri thức</span>
                         </div>
-                        <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+                        <h1 className="text-3xl md:text-4xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
                             Ngân hàng <span className="text-primary not-italic">Câu hỏi</span>
                         </h1>
                     </div>

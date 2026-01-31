@@ -140,7 +140,7 @@ export default function LiveClassesPage() {
                             <span>Lịch khai giảng 2024/25</span>
                         </div>
 
-                        <h1 className="max-w-4xl text-4xl md:text-7xl font-serif font-bold tracking-tight text-foreground uppercase italic leading-[0.9]">
+                        <h1 className="max-w-4xl text-4xl md:text-7xl font-sans font-bold tracking-tight text-foreground uppercase italic leading-[0.9]">
                             Làm chủ tiếng Nhật <br />
                             <span className="text-primary not-italic">Trực tuyến.</span>
                         </h1>
@@ -186,7 +186,7 @@ export default function LiveClassesPage() {
                                                 <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/30">{course.code}</span>
                                             </div>
                                             <div>
-                                                <h3 className="text-2xl md:text-3xl font-serif font-bold text-foreground group-hover:text-primary transition-colors pr-4 uppercase italic leading-tight">
+                                                <h3 className="text-2xl md:text-3xl font-sans font-bold text-foreground group-hover:text-primary transition-colors pr-4 uppercase italic leading-tight">
                                                     {course.title}
                                                 </h3>
                                                 <p className="text-[13px] font-medium text-muted-foreground/70 mt-2 line-clamp-2 max-w-xl leading-relaxed italic">
@@ -236,7 +236,7 @@ export default function LiveClassesPage() {
                                         <div className="flex items-center justify-between lg:justify-end gap-10 pt-6 lg:pt-0 border-t lg:border-t-0 border-border/40 lg:w-[280px] lg:shrink-0">
                                             <div className="text-right space-y-1">
                                                 <p className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/30">Học phí</p>
-                                                <p className="text-3xl font-serif font-bold text-foreground tracking-tighter italic">{course.price}</p>
+                                                <p className="text-3xl font-sans font-bold text-foreground tracking-tighter italic">{course.price}</p>
                                             </div>
 
                                             <div className={cn(
@@ -258,7 +258,7 @@ export default function LiveClassesPage() {
             <Dialog open={isRegisterOpen} onOpenChange={setIsRegisterOpen}>
                 <DialogContent className="sm:max-w-lg bg-background/95 backdrop-blur-3xl border-white/10 rounded-[2.5rem] p-0 overflow-hidden gap-0">
                     <DialogHeader className="p-10 pb-6 bg-muted/5 border-b border-border/40">
-                        <DialogTitle className="text-4xl font-serif font-bold uppercase italic tracking-tight flex items-center gap-4">
+                        <DialogTitle className="text-4xl font-sans font-bold uppercase italic tracking-tight flex items-center gap-4">
                             <Sparkles className="w-8 h-8 text-primary/40 animate-pulse" />
                             Đăng ký nhập học
                         </DialogTitle>
@@ -274,7 +274,7 @@ export default function LiveClassesPage() {
                                 <Zap className="w-8 h-8 text-primary" />
                             </div>
                             <div className="space-y-1">
-                                <h4 className="font-serif text-xl font-bold text-foreground italic uppercase tracking-tight">{selectedCourse?.title}</h4>
+                                <h4 className="font-sans text-xl font-bold text-foreground italic uppercase tracking-tight">{selectedCourse?.title}</h4>
                                 <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground/40">Khai giảng {selectedCourse?.startDate} • {selectedCourse?.schedule}</p>
                             </div>
                         </div>

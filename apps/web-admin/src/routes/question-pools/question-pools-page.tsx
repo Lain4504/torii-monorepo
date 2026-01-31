@@ -163,7 +163,7 @@ export default function QuestionPoolsPage() {
                         <Layers className="size-3" />
                         Quản lý Tài nguyên Logic
                     </div>
-                    <h1 className="text-3xl md:text-5xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+                    <h1 className="text-3xl md:text-5xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
                         Quản lý <span className="text-primary not-italic">Kho đề</span>
                     </h1>
                     <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">

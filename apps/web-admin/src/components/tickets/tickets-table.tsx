@@ -92,7 +92,7 @@ export function TicketsTable({
                                     <MessageSquareOff className="size-10" />
                                 </div>
                                 <div className="space-y-2">
-                                    <p className="text-xl font-serif font-bold italic uppercase tracking-tight text-foreground/50">Yên bình quá...</p>
+                                    <p className="text-xl font-sans font-bold italic uppercase tracking-tight text-foreground/50">Yên bình quá...</p>
                                     <p className="text-xs text-muted-foreground/40 font-black uppercase tracking-widest">
                                         Không có yêu cầu hỗ trợ nào cần xử lý lúc này.
                                     </p>

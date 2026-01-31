@@ -132,7 +132,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                         ))}
                     </div>
 
-                    <h1 className="text-4xl md:text-4xl lg:text-7xl font-serif font-bold tracking-tight leading-[1.1] text-foreground uppercase italic mb-8">
+                    <h1 className="text-4xl md:text-4xl lg:text-7xl font-sans font-bold tracking-tight leading-[1.1] text-foreground uppercase italic mb-8">
                         {post.title}
                     </h1>
 

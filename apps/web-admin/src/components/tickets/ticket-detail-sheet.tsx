@@ -86,7 +86,7 @@ export function TicketDetailSheet({
                             Ticket #{ticket.id.slice(0, 8)}
                         </Badge>
                     </div>
-                    <SheetTitle className="text-3xl font-serif font-bold italic leading-tight pr-8">
+                    <SheetTitle className="text-3xl font-sans font-bold italic leading-tight pr-8">
                         {ticket.subject}
                     </SheetTitle>
                     <SheetDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic flex items-center gap-2 mt-2">

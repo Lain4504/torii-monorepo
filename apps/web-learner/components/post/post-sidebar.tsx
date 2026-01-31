@@ -114,7 +114,7 @@ export function PostSidebar({ recentPosts, mostViewedPosts = [], popularTags }: 
                     <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
                         <MessageSquare className="w-6 h-6" />
                     </div>
-                    <h3 className="text-2xl font-serif font-bold italic uppercase tracking-tight leading-tight">Cần tư vấn <br /> lộ trình học?</h3>
+                    <h3 className="text-2xl font-sans font-bold italic uppercase tracking-tight leading-tight">Cần tư vấn <br /> lộ trình học?</h3>
                     <p className="text-xs text-primary-foreground/70 leading-relaxed font-medium">Liên hệ với chúng tôi để được tư vấn lộ trình học từ N5 tới N1 miễn phí.</p>
                     <Link href="/contact" className="inline-flex items-center gap-3 py-2 px-1 group-hover:gap-5 transition-all">
                         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Liên hệ ngay</span>

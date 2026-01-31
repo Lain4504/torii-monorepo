@@ -90,7 +90,7 @@ export default function TicketsPage() {
                         <div className="p-3 rounded-2xl bg-primary/10 text-primary shadow-lg shadow-primary/5">
                             <MessageSquare className="size-6" />
                         </div>
-                        <h1 className="text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-none">
+                        <h1 className="text-4xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-none">
                             Yêu cầu <span className="text-primary not-italic">& Hỗ trợ</span>
                         </h1>
                     </div>

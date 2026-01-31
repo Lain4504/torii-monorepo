@@ -96,7 +96,7 @@ export default function CourseDetailPage() {
                     <AlertCircle className="size-12 text-destructive/60 relative z-10 mx-auto" />
                 </div>
                 <div className="space-y-2 text-center relative z-10">
-                    <h2 className="text-2xl font-serif font-bold italic tracking-tight uppercase">Không tìm thấy khóa học</h2>
+                    <h2 className="text-2xl font-sans font-bold italic tracking-tight uppercase">Không tìm thấy khóa học</h2>
                     <p className="text-xs font-medium text-muted-foreground leading-relaxed max-w-sm mx-auto">
                         Khóa học bạn yêu cầu không tồn tại hoặc đã bị xóa. <br />
                         Vui lòng kiểm tra lại đường dẫn hoặc quyền truy cập.
@@ -125,13 +125,13 @@ export default function CourseDetailPage() {
                     onClick={() => navigate('/courses')}
                 >
                     <ChevronLeft className="size-4" />
-                    <span className="text-xs font-serif font-bold italic uppercase tracking-wider">Quay lại danh sách</span>
+                    <span className="text-xs font-sans font-bold italic uppercase tracking-wider">Quay lại danh sách</span>
                 </Button>
 
                 <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
                     <div className="space-y-2 max-w-2xl">
                         <div className="flex items-center gap-3">
-                            <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+                            <h1 className="text-3xl md:text-4xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
                                 {course.title}
                             </h1>
                             <div className={cn(
@@ -151,12 +151,12 @@ export default function CourseDetailPage() {
                     <div className="flex items-center gap-4 flex-shrink-0">
                         <div className="hidden lg:flex items-center gap-6 px-6 py-3 rounded-xl bg-background border border-border">
                             <div className="text-center">
-                                <p className="text-[10px] font-serif font-bold italic uppercase tracking-wider text-muted-foreground/70 mb-0.5">Học phần</p>
+                                <p className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/70 mb-0.5">Học phần</p>
                                 <p className="text-lg font-bold text-foreground">{modules.length}</p>
                             </div>
                             <div className="w-px h-8 bg-border/50 mx-2" />
                             <div className="text-center">
-                                <p className="text-[10px] font-serif font-bold italic uppercase tracking-wider text-muted-foreground/70 mb-0.5">Cấp độ</p>
+                                <p className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/70 mb-0.5">Cấp độ</p>
                                 <p className="text-lg font-bold text-foreground">{course.jlptLevel || 'N/A'}</p>
                             </div>
                         </div>
@@ -188,7 +188,7 @@ export default function CourseDetailPage() {
                                 <Layers className="size-8 text-muted-foreground/40" />
                             </div>
                             <div className="space-y-1">
-                                <h3 className="text-base font-serif font-bold italic uppercase tracking-tight text-foreground">Chưa có nội dung</h3>
+                                <h3 className="text-base font-sans font-bold italic uppercase tracking-tight text-foreground">Chưa có nội dung</h3>
                                 <p className="text-sm text-muted-foreground max-w-xs mx-auto">
                                     Khóa học này chưa có học phần nào. Hãy bắt đầu xây dựng chương trình học ngay.
                                 </p>
@@ -237,18 +237,18 @@ export default function CourseDetailPage() {
                                 <div className="p-2 rounded-lg bg-primary/10 text-primary">
                                     <Fingerprint className="size-4" />
                                 </div>
-                                <h3 className="text-sm font-serif font-bold italic uppercase tracking-wide text-foreground">Thông Tin Chi Tiết</h3>
+                                <h3 className="text-sm font-sans font-bold italic uppercase tracking-wide text-foreground">Thông Tin Chi Tiết</h3>
                             </div>
 
                             <div className="grid grid-cols-1 gap-4">
                                 <div className="space-y-1">
-                                    <p className="text-[10px] font-serif font-bold italic uppercase tracking-wider text-muted-foreground/70">Mã khóa học</p>
+                                    <p className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/70">Mã khóa học</p>
                                     <p className="text-xs font-mono font-medium text-foreground bg-muted/30 px-2 py-1.5 rounded-md truncate select-all border border-border/50">
                                         {course.id}
                                     </p>
                                 </div>
                                 <div className="space-y-1">
-                                    <p className="text-[10px] font-serif font-bold italic uppercase tracking-wider text-muted-foreground/70">Học phí</p>
+                                    <p className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/70">Học phí</p>
                                     <p className="text-xl font-bold text-emerald-600 tracking-tight">{formatCurrency(course.price)}</p>
                                     {course.discountPrice && (
                                         <p className="text-sm font-medium text-muted-foreground line-through decoration-muted-foreground/50">
@@ -275,7 +275,7 @@ export default function CourseDetailPage() {
                     <div className="p-5 rounded-xl bg-primary/5 border border-primary/10 space-y-3">
                         <div className="flex items-center gap-2 text-primary">
                             <Zap className="size-4 fill-current" />
-                            <h4 className="text-xs font-serif font-bold italic uppercase tracking-wide">Mẹo quản trị</h4>
+                            <h4 className="text-xs font-sans font-bold italic uppercase tracking-wide">Mẹo quản trị</h4>
                         </div>
                         <p className="text-xs text-muted-foreground leading-relaxed">
                             Cấu trúc chương trình học rõ ràng giúp học viên dễ dàng theo dõi. Hãy chia nhỏ nội dung thành các bài học vừa phải.

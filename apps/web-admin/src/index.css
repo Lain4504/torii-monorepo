@@ -3,8 +3,8 @@
 
 :root {
   --font-sans: "Inter", "Noto Sans JP", sans-serif;
-  --font-serif: "Source Serif 4", "Noto Serif JP", serif;
-  --font-heading: "Source Serif 4", "Noto Serif JP", serif;
+  --font-serif: "Inter", "Noto Sans JP", sans-serif;
+  --font-heading: "Inter", "Noto Sans JP", sans-serif;
 }
 
 body {

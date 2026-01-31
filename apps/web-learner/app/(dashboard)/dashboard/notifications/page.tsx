@@ -149,7 +149,7 @@ export default function NotificationsPage() {
                         <Bell className="w-3 h-3" />
                         Trung tâm thông báo
                     </div>
-                    <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+                    <h1 className="text-3xl md:text-4xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
                         Notification <span className="text-primary not-italic">Center</span>
                     </h1>
                     <p className="text-[11px] font-bold text-muted-foreground/40 uppercase tracking-[0.15em] italic border-l-2 border-primary/20 pl-6">
@@ -188,7 +188,7 @@ export default function NotificationsPage() {
                     <div className="flex-1 flex justify-center gap-2">
                         <div className="text-center">
                             <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 mb-1">Chưa đọc</p>
-                            <h3 className="text-2xl font-serif font-bold italic text-primary">{unreadCount}</h3>
+                            <h3 className="text-2xl font-sans font-bold italic text-primary">{unreadCount}</h3>
                         </div>
                     </div>
                 </div>
@@ -229,7 +229,7 @@ export default function NotificationsPage() {
                                     <Bell className="w-10 h-10 text-muted-foreground/20 relative z-10 animate-pulse" />
                                 </div>
                                 <div className="space-y-1">
-                                    <h3 className="text-xl font-serif font-bold italic text-foreground/40 text-center">Đang tải thông báo...</h3>
+                                    <h3 className="text-xl font-sans font-bold italic text-foreground/40 text-center">Đang tải thông báo...</h3>
                                 </div>
                             </div>
                         ) : filteredNotifications.length > 0 ? (
@@ -315,7 +315,7 @@ export default function NotificationsPage() {
                                     <Sparkles className="w-10 h-10 text-muted-foreground/20 relative z-10" />
                                 </div>
                                 <div className="space-y-1">
-                                    <h3 className="text-xl font-serif font-bold italic text-foreground/40 text-center">Matrix Clear</h3>
+                                    <h3 className="text-xl font-sans font-bold italic text-foreground/40 text-center">Matrix Clear</h3>
                                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/20 italic">No notification streams matched your current filter.</p>
                                 </div>
                             </div>

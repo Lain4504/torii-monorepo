@@ -155,7 +155,7 @@ function ContinueLearningSection() {
                     className="group block p-5 rounded-[2rem] bg-background/40 hover:bg-background/60 backdrop-blur-3xl transition-all duration-300 cursor-pointer border border-border/10 hover:border-primary/20 shadow-sm hover:shadow-xl hover:shadow-primary/5"
                 >
                     <div className="flex items-start justify-between gap-3 mb-4">
-                        <h4 className="text-sm font-serif font-bold text-foreground leading-snug group-hover:text-primary transition-colors italic">
+                        <h4 className="text-sm font-sans font-bold text-foreground leading-snug group-hover:text-primary transition-colors italic">
                             {activeCourse.title}
                         </h4>
                         <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all">

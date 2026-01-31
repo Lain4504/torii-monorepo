@@ -64,7 +64,7 @@ export default function DashboardPage() {
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 max-w-6xl animate-in fade-in duration-500">
             {/* Minimal Welcome Header */}
             <div className="pb-2">
-                <h1 className="text-3xl md:text-5xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+                <h1 className="text-3xl md:text-5xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
                     Chào mừng trở lại, <br />
                     <span className="text-primary not-italic">{user?.displayName?.split(' ')[0] || 'Học viên'}</span>.
                 </h1>
@@ -89,7 +89,7 @@ export default function DashboardPage() {
                                 </div>
                             </div>
                             <div>
-                                <p className="text-4xl font-serif font-bold tracking-tighter italic">{stat.value}</p>
+                                <p className="text-4xl font-sans font-bold tracking-tighter italic">{stat.value}</p>
                                 <p className="text-[10px] text-muted-foreground/40 font-black uppercase tracking-[0.2em] mt-2 italic">{stat.label}</p>
                             </div>
                         </div>
@@ -109,7 +109,7 @@ export default function DashboardPage() {
                                 <Target className="size-3" />
                                 Luyện trí nhớ
                             </div>
-                            <h3 className="text-4xl font-serif font-bold italic tracking-tight text-foreground mb-2">Thẻ nhớ <br /><span className="text-primary not-italic">Flashcards</span></h3>
+                            <h3 className="text-4xl font-sans font-bold italic tracking-tight text-foreground mb-2">Thẻ nhớ <br /><span className="text-primary not-italic">Flashcards</span></h3>
                             <p className="text-[11px] font-medium text-muted-foreground/60 max-w-[80%] italic leading-relaxed">Hệ thống lặp lại ngắt quãng (SRS) giúp tối ưu hóa khả năng ghi nhớ dài hạn.</p>
                         </div>
                         <div className="relative z-10 flex items-center justify-between mt-8 pt-6 border-t border-border/20">
@@ -134,7 +134,7 @@ export default function DashboardPage() {
                                 <Award className="size-3" />
                                 Kiểm tra năng lực
                             </div>
-                            <h3 className="text-4xl font-serif font-bold italic tracking-tight text-foreground mb-2">Thi thử <br /><span className="text-blue-500 not-italic">JLPT</span></h3>
+                            <h3 className="text-4xl font-sans font-bold italic tracking-tight text-foreground mb-2">Thi thử <br /><span className="text-blue-500 not-italic">JLPT</span></h3>
                             <p className="text-[11px] font-medium text-muted-foreground/60 max-w-[80%] italic leading-relaxed">Các bài thi chuẩn hóa giúp đánh giá trình độ ngôn ngữ chính xác.</p>
                         </div>
                         <div className="relative z-10 flex items-center justify-between mt-8 pt-6 border-t border-border/20">
@@ -160,7 +160,7 @@ export default function DashboardPage() {
                                 <div className="p-2 rounded-xl bg-primary/5">
                                     <PlayCircle className="w-5 h-5 text-primary" />
                                 </div>
-                                <h2 className="text-2xl font-serif font-bold tracking-tight italic">Đang <span className="text-primary not-italic">Học</span></h2>
+                                <h2 className="text-2xl font-sans font-bold tracking-tight italic">Đang <span className="text-primary not-italic">Học</span></h2>
                             </div>
                             <Link href="/dashboard/my-courses">
                                 <Button variant="ghost" size="sm" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 hover:text-primary transition-all">
@@ -194,7 +194,7 @@ export default function DashboardPage() {
                                                 </div>
                                                 <div className="flex-1 min-w-0 space-y-4">
                                                     <div>
-                                                        <h3 className="text-xl font-serif font-bold text-foreground truncate group-hover:text-primary transition-all duration-500 italic">
+                                                        <h3 className="text-xl font-sans font-bold text-foreground truncate group-hover:text-primary transition-all duration-500 italic">
                                                             {course.title}
                                                         </h3>
                                                         <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 mt-1 italic">Giảng viên: <span className="text-foreground/60">{course.instructor}</span></p>
@@ -246,7 +246,7 @@ export default function DashboardPage() {
                                         <Clock className="w-5 h-5 text-orange-500 group-hover:text-white" />
                                     </div>
                                     <div className="space-y-1.5 min-w-0">
-                                        <h4 className="text-sm font-serif font-bold text-foreground group-hover:text-orange-500 transition-colors italic truncate">{classItem.title}</h4>
+                                        <h4 className="text-sm font-sans font-bold text-foreground group-hover:text-orange-500 transition-colors italic truncate">{classItem.title}</h4>
                                         <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40">{classItem.date} • {classItem.time}</p>
                                     </div>
                                 </div>
@@ -265,7 +265,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="space-y-6">
                             <div className="px-2">
-                                <p className="text-lg font-serif font-bold italic text-foreground leading-tight">Lộ trình học tập</p>
+                                <p className="text-lg font-sans font-bold italic text-foreground leading-tight">Lộ trình học tập</p>
                                 <p className="text-[10px] font-medium text-muted-foreground/60 mt-2 italic leading-relaxed">"Hành trình vạn dặm bắt đầu từ một bước chân."</p>
                             </div>
                             <div className="space-y-4 pt-4 border-t border-emerald-500/20">

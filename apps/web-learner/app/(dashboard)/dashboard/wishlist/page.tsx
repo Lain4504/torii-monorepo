@@ -101,7 +101,7 @@ export default function WishlistPage() {
                     <Heart className="w-3 h-3 fill-current" />
                     <span>Bộ sưu tập cá nhân</span>
                 </div>
-                <h1 className="text-4xl md:text-5xl font-serif font-bold tracking-tight text-foreground uppercase italic leading-[0.9] animate-in fade-in slide-in-from-bottom-3 duration-700">
+                <h1 className="text-4xl md:text-5xl font-sans font-bold tracking-tight text-foreground uppercase italic leading-[0.9] animate-in fade-in slide-in-from-bottom-3 duration-700">
                     Danh Sách <span className="text-primary not-italic">Yêu Thích</span>
                 </h1>
                 <p className="text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-6 py-1 animate-in fade-in slide-in-from-bottom-4 duration-1000">
@@ -143,7 +143,7 @@ export default function WishlistPage() {
                         <CardContent className="p-4 md:pl-6 md:py-0 flex-1 flex flex-col justify-between">
                             <div className="space-y-1.5 pt-2 md:pt-0">
                                 <div className="flex justify-between items-start gap-4">
-                                    <h3 className="text-xl font-serif font-bold text-foreground leading-tight group-hover:text-primary transition-colors italic line-clamp-2">
+                                    <h3 className="text-xl font-sans font-bold text-foreground leading-tight group-hover:text-primary transition-colors italic line-clamp-2">
                                         {course.title}
                                     </h3>
                                     <button
@@ -198,7 +198,7 @@ export default function WishlistPage() {
                         <Heart className="w-10 h-10 text-primary/40" />
                     </div>
                     <div className="space-y-2">
-                        <h3 className="text-2xl font-serif font-bold text-foreground italic">Wishlist còn trống</h3>
+                        <h3 className="text-2xl font-sans font-bold text-foreground italic">Wishlist còn trống</h3>
                         <p className="text-sm text-muted-foreground max-w-xs mx-auto">Hãy bắt đầu khám phá và lưu lại những khóa học mà bạn yêu thích nhất.</p>
                         <Link href="/courses">
                             <Button className="mt-6 rounded-full px-8 h-11 bg-primary text-white font-bold uppercase tracking-widest hover:shadow-lg hover:shadow-primary/20 transition-all">

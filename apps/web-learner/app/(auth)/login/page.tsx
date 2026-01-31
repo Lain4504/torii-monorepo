@@ -41,7 +41,7 @@ export default function LoginPage() {
                                 <Sparkles className="w-3.5 h-3.5" />
                                 <span>Giáo viên tin dùng</span>
                             </div>
-                            <h2 className="text-4xl lg:text-4xl font-serif font-bold tracking-tight text-foreground leading-[0.9] uppercase italic">
+                            <h2 className="text-4xl lg:text-4xl font-sans font-bold tracking-tight text-foreground leading-[0.9] uppercase italic">
                                 Học tiếng Nhật <br />
                                 <span className="text-primary not-italic">Thông minh hơn.</span>
                             </h2>
@@ -98,7 +98,7 @@ export default function LoginPage() {
                             </div>
 
                             <div className="space-y-2 text-center lg:text-left">
-                                <h1 className="text-4xl font-serif font-bold italic uppercase tracking-tight text-foreground">Đăng nhập</h1>
+                                <h1 className="text-4xl font-sans font-bold italic uppercase tracking-tight text-foreground">Đăng nhập</h1>
                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Chào mừng quay trở lại Torii Nihongo</p>
                             </div>
                         </div>

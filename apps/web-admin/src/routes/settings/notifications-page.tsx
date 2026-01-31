@@ -172,7 +172,7 @@ export default function NotificationsPage() {
           <div className="p-2 rounded-xl bg-primary/10 text-primary">
             <Bell className="size-5" />
           </div>
-          <h1 className="text-2xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+          <h1 className="text-2xl md:text-4xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
             Thông báo <span className="text-primary not-italic">Hệ thống</span>
           </h1>
         </div>
@@ -224,7 +224,7 @@ export default function NotificationsPage() {
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
             )}
           >
-            <span className="font-serif font-bold italic uppercase tracking-wider">{btn.label}</span>
+            <span className="font-sans font-bold italic uppercase tracking-wider">{btn.label}</span>
           </Button>
         ))}
       </div>
@@ -239,7 +239,7 @@ export default function NotificationsPage() {
                   <Bell className="size-5 text-muted-foreground/30 animate-pulse" />
                 </div>
                 <div className="space-y-1">
-                  <p className="text-sm font-serif font-bold italic uppercase tracking-widest text-muted-foreground/60">Đang tải thông báo...</p>
+                  <p className="text-sm font-sans font-bold italic uppercase tracking-widest text-muted-foreground/60">Đang tải thông báo...</p>
                 </div>
               </div>
             ) : filteredNotifications.length > 0 ? (
@@ -272,7 +272,7 @@ export default function NotificationsPage() {
                             {notification.title}
                           </h3>
                           <div className="flex flex-wrap items-center gap-2.5">
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-muted/50 text-[10px] font-serif font-bold italic uppercase tracking-wider text-muted-foreground border border-border/50">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-muted/50 text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground border border-border/50">
                               {notification.node}
                             </span>
                             <span className="text-border text-[10px]">|</span>
@@ -324,7 +324,7 @@ export default function NotificationsPage() {
                   <BellOff className="size-8 text-muted-foreground/20" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-base font-serif font-bold italic uppercase tracking-tight text-foreground">Không có thông báo</h3>
+                  <h3 className="text-base font-sans font-bold italic uppercase tracking-tight text-foreground">Không có thông báo</h3>
                   <p className="text-sm text-muted-foreground/60">Bạn đã xem hết tất cả thông tin quan trọng.</p>
                 </div>
               </div>
